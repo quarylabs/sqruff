@@ -8,14 +8,13 @@ pub struct RemovedConfig<'a> {
     translation_func: Option<fn(&'a str) -> &'a str>,
 }
 
-pub const REMOVED_CONFIGS: [RemovedConfig; 1] = [
-    RemovedConfig {
-        old_path: vec!["rules", "max_line_length"],
-        warning: "The max_line_length config has moved from sqlfluff:rules to the root sqlfluff level.",
-        new_path: Some(vec!["max_line_length"]),
-        translation_func: Some(|x| x),
-    },
-]
+// pub const REMOVED_CONFIGS: [RemovedConfig; 1] = [
+//     RemovedConfig {
+//         old_path: vec!["rules", "max_line_length"],
+//         warning: "The max_line_length config has moved from sqlfluff:rules to the root sqlfluff level.",
+//         new_path: Some(vec!["max_line_length"]),
+//         translation_func: Some(|x| x),
+//     },
 //     RemovedConfig {
 //         old_path: vec!["rules", "L003", "hanging_indents"],
 //         warning: "Hanging indents are no longer supported in SQLFluff from version 2.0.0 onwards. See https://docs.sqlfluff.com/en/stable/layout.html#hanging-indents",

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
     old_path: Vec<&'static str>,

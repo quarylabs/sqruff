@@ -1,5 +1,6 @@
 use crate::core::config::FluffConfig;
 use std::collections::HashMap;
+use crate::core::config::FluffConfig;
 
 /// Find the indices of all newlines in a string.
 pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
@@ -90,3 +91,72 @@ pub struct RawSliceBlockInfo {
     /// - Containing only literals (no templating)
     literal_only_loops: Vec<isize>,
 }
+
+/// A templated SQL file.
+/// This is the response of a templaters .process() method
+/// and contains both references to the original file and also
+/// the capability to split up that file when lexing.
+pub struct TemplatedFile {
+
+}
+
+/// A templater which does nothing.
+/// This also acts as the base templating class.
+pub struct RawTemplater {
+}
+
+impl Default for RawTemplater {
+    /// Placeholder init function.
+    /// Here we should load any initial config found in the root directory. The init
+    /// function shouldn't take any arguments at this stage as we assume that it will
+    /// load its own config. Maybe at this stage we might allow override parameters to
+    /// be passed to the linter at runtime from the cli - that would be the only time we
+    /// would pass arguments in here.
+    fn default() -> Self {
+        RawTemplater {}
+    }
+}
+
+impl RawTemplater {
+    fn get_name() -> &'static str {
+        "raw"
+    }
+    fn get_templater_selector() -> &'static str {
+        "templater"
+    }
+    /// Given files to be processed, return a valid processing sequence.
+    fn sequence_files(&self, file_names: Vec<&str>, config: Option<FluffConfig>, formatter: None) -> impl Iterator<Item = &str> + '_ {
+        file_names.into_iter()
+    }
+    /// Process a string and return a TemplatedFile.
+    ///
+    /// Note that the arguments are enforced as keywords
+    /// because Templaters can have differences in their
+    /// `process` method signature.
+    /// A Templater that only supports reading from a file
+    /// would need the following signature:
+    /// process(*, fname, in_str=None, config=None)
+    /// (arguments are swapped)
+    ///
+    /// * 'in_str' is the input string.
+    /// * 'fname' is The filename of this string. This is mostly for loading config files at runtime.
+    /// * 'config' is the specific config to use for this templating operation. Only necessary for some templaters.
+    /// * 'formatter' is the Optional object for output.
+    fn process(&self, _: &str, in_str: &str, file_name: &str, config: Option<FluffConfig>, formatter: Option<None> ) -> (Option<TemplatedFile>, Vec<RawFileSlice>) {
+
+    }
+}
+
+#[cfg(test)]
+mod tests_raw_templater {
+    use super::*;
+
+    #[test]
+    fn test_RawTemplater() {
+        t = RawTemplater{};
+        instr = "SELECT * FROM {{blah}}";
+        outstr = t.process(instr, "test");
+        assert_eq!(outstr, instr);
+    }
+}
+

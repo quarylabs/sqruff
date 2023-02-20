@@ -1,30 +1,30 @@
 // use super::pos::PosMarker;
 
-// type CheckTuple = (String, usize, usize);
-//
-// struct SQLBaseError {
-//     fatal: bool,
-//     ignore: bool,
-//     warning: bool,
-//     line_no: usize,
-//     line_pos: usize,
-// }
-//
+type CheckTuple = (String, usize, usize);
+
+struct SQLBaseError {
+    fatal: bool,
+    ignore: bool,
+    warning: bool,
+    line_no: usize,
+    line_pos: usize,
+}
+
 // impl SQLBaseError {
-//     /// Should this error be considered fixable?
-//     fn fixable(&self) -> bool {
-//         false
-//     }
-//
-//     /// Fetch the code of the rule which cause this error.
-//     /// NB: This only returns a real code for some subclasses of
-//     /// error, (the ones with a `rule` attribute), but otherwise
-//     /// returns a placeholder value which can be used instead.
-//     fn rule_code(&self) -> String {
-//         // TODO
-//         "".to_string()
-//     }
-//
+// /// Should this error be considered fixable?
+// fn fixable(&self) -> bool {
+//     false
+// }
+
+// /// Fetch the code of the rule which cause this error.
+// /// NB: This only returns a real code for some subclasses of
+// /// error, (the ones with a `rule` attribute), but otherwise
+// /// returns a placeholder value which can be used instead.
+// fn rule_code(&self) -> String {
+//     // TODO
+//     "".to_string()
+// }
+// }
 //     /// Fetch a description of this violation.
 //     /// NB: For violations which don't directly implement a rule
 //     /// this attempts to return the error message linked to whatever
@@ -144,3 +144,20 @@
 //         write!(f, "An error which should be fed back to the user.")
 //     }
 // }
+
+/// An error which should be fed back to the user.
+struct SQLFluffUserError {
+    value: String,
+}
+
+// Not from SQLFluff but translates Pythn value error
+#[derive(Debug)]
+pub struct ValueError {
+    value: String,
+}
+
+impl ValueError {
+    pub fn new(value: String) -> ValueError {
+        ValueError { value }
+    }
+}

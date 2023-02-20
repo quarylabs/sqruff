@@ -1,4 +1,5 @@
 use crate::core::errors::ValueError;
+use regex::Regex;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -100,6 +101,30 @@ impl StringLexer {
 
     /// Given a string, subdivide if we area allowed to.
     pub fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
+        panic!("Not implemented")
+    }
+}
+
+pub trait Searchable {
+    fn search(self: &Self, forward_string: String) -> Option<(usize, usize)>;
+}
+
+#[derive(Debug, Clone)]
+pub struct RegexLexer {
+    name: &'static str,
+    regex: regex::Regex,
+}
+
+impl RegexLexer {
+    pub fn new(name: &'static str, template: String) -> Result<Self, regex::Error> {
+        let regex = Regex::new(&template).unwrap();
+        Ok(RegexLexer { name, regex })
+    }
+}
+
+impl Searchable for RegexLexer {
+    /// Use regex to find a substring.
+    fn search(self: &Self, forward_string: String) -> Option<(usize, usize)> {
         panic!("Not implemented")
     }
 }

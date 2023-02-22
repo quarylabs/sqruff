@@ -1,21 +1,21 @@
 use std::fmt;
 
 pub enum FormatType {
-    human,
-    json,
-    yaml,
-    github_annotation,
-    github_annotation_native,
+    Human,
+    Json,
+    Yaml,
+    GithubAnnotation,
+    GithubAnnotationNative,
 }
 
 impl fmt::Display for FormatType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            FormatType::human => write!(f, "human"),
-            FormatType::json => write!(f, "json"),
-            FormatType::yaml => write!(f, "yaml"),
-            FormatType::github_annotation => write!(f, "github-annotation"),
-            FormatType::github_annotation_native => write!(f, "github-annotation-native"),
+            FormatType::Human => write!(f, "human"),
+            FormatType::Json => write!(f, "json"),
+            FormatType::Yaml => write!(f, "yaml"),
+            FormatType::GithubAnnotation => write!(f, "github-annotation"),
+            FormatType::GithubAnnotationNative => write!(f, "github-annotation-native"),
         }
     }
 }

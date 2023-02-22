@@ -3,7 +3,7 @@ use crate::core::errors::ValueError;
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
 pub struct LexedElement {
-    raw: &'static str,
+    raw: String,
 }
 
 impl LexedElement {
@@ -14,7 +14,7 @@ impl LexedElement {
 
 /// A LexedElement, bundled with it's position in the templated file.
 pub struct TemplateElement {
-    raw: &'static str,
+    raw: String,
     // TODO Figure out how to do this
     // template_slice: slice
 }
@@ -28,7 +28,7 @@ impl TemplateElement {
 /// A class to hold matches from the lexer.
 #[derive(Debug, Clone)]
 pub struct LexMatch {
-    forward_string: &'static str,
+    forward_string: String,
     elements: Vec<LexedElement>,
 }
 
@@ -46,23 +46,25 @@ impl LexMatch {
 /// the base class for matchers.
 #[derive(Debug, Clone)]
 pub struct StringLexer {
-    name: &'static str,
-    template: &'static str,
+    name: String,
+    template: String,
 }
 
 impl StringLexer {
     /// The private match function. Just look for a literal string.
-    pub fn _match(self: &Self, forward_string: &'static str) -> Option<LexedElement> {
-        if forward_string.starts_with(self.template) {
-            Some(LexedElement { raw: self.template })
+    pub fn _match(self: &Self, forward_string: &String) -> Option<LexedElement> {
+        if forward_string.starts_with(&self.template) {
+            Some(LexedElement {
+                raw: self.template.clone(),
+            })
         } else {
             None
         }
     }
 
     /// Use string methods to find a substring.
-    pub fn search(self: &Self, forward_string: &'static str) -> Option<(usize, usize)> {
-        let start = forward_string.find(self.template);
+    pub fn search(self: &Self, forward_string: String) -> Option<(usize, usize)> {
+        let start = forward_string.find(&self.template);
         if start.is_some() {
             Some((start.unwrap(), start.unwrap() + self.template.len()))
         } else {
@@ -71,26 +73,26 @@ impl StringLexer {
     }
 
     /// Given a string, trim if we are allowed to.
-    pub fn _trim_match(self: &Self, matched_string: &'static str) -> Vec<LexedElement> {
+    pub fn _trim_match(self: &Self, matched_string: String) -> Vec<LexedElement> {
         panic!("Not implemented")
     }
 
     /// Given a string, match what we can and return the rest.
-    pub fn match_(self: &Self, forward_string: &'static str) -> Result<LexMatch, ValueError> {
+    pub fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError> {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
-        let matched = self._match(forward_string);
+        let matched = self._match(&forward_string);
         match matched {
             Some(matched) => {
-                let new_elements = self._subdivide(matched);
+                let new_elements = self._subdivide(matched.clone());
                 Ok(LexMatch {
-                    forward_string: &forward_string[matched.raw.len()..].to_string(),
+                    forward_string: forward_string[matched.raw.len()..].to_string(),
                     elements: new_elements,
                 })
             }
             None => Ok(LexMatch {
-                forward_string: &forward_string.to_string(),
+                forward_string: forward_string.to_string(),
                 elements: vec![],
             }),
         }

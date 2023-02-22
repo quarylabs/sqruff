@@ -76,10 +76,7 @@ impl StringLexer {
     }
 
     /// Given a string, match what we can and return the rest.
-    pub fn match_(
-        self: &Self,
-        forward_string: &'static str,
-    ) -> std::result::ResultResult<LexMatch, ValueError> {
+    pub fn match_(self: &Self, forward_string: &'static str) -> Result<LexMatch, ValueError> {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };

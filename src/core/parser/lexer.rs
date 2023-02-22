@@ -54,7 +54,9 @@ impl StringLexer {
     /// The private match function. Just look for a literal string.
     pub fn _match(self: &Self, forward_string: &String) -> Option<LexedElement> {
         if forward_string.starts_with(&self.template) {
-            Some(LexedElement { raw: self.template.clone() })
+            Some(LexedElement {
+                raw: self.template.clone(),
+            })
         } else {
             None
         }

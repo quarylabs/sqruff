@@ -87,9 +87,3 @@ impl Default for ReflowConfig {
         }
     }
 }
-
-impl ReflowConfig {
-    pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
-        panic!("Not implemented yet");
-    }
-}

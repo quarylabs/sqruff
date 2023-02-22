@@ -1,5 +1,5 @@
 pub mod config;
-mod depth_map;
-mod elements;
-mod helpers;
-mod sequence;
+pub mod depth_map;
+pub mod helpers;
+pub mod sequence;
+pub mod elements;

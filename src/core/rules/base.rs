@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub struct LintResult {
     pub fix: Vec<LintFix>,
 }
@@ -8,4 +9,5 @@ impl Default for LintResult {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct LintFix {}

@@ -1,7 +1,7 @@
-use std::collections::HashSet;
 use crate::core::parser::segments::raw::RawSegment;
 use crate::utils::reflow::config::ReflowConfig;
 use crate::utils::reflow::depth_map::DepthInfo;
+use std::collections::HashSet;
 
 /// A helper function to extract possible consumed whitespace.
 ///     Args:
@@ -30,7 +30,7 @@ pub fn get_consumed_whitespace(segment: Option<RawSegment>) -> Option<String> {
 
 /// Base reflow element class.
 pub struct ReflowElement {
-    segments: Vec<RawSegment>
+    segments: Vec<RawSegment>,
 }
 
 impl ReflowElement {
@@ -39,12 +39,15 @@ impl ReflowElement {
     }
 
     fn _class_types(segments: Vec<RawSegment>) -> HashSet<String> {
-        return segments.iter().map(|segment| segment.class_type.clone()).collect();
+        return segments
+            .iter()
+            .map(|segment| segment.class_type.clone())
+            .collect();
     }
 
     /// Get the set of contained class types.
     /// Parallel to `BaseSegment.class_types`
-    pub fn class_types(self:&Self) -> HashSet<String> {
+    pub fn class_types(self: &Self) -> HashSet<String> {
         return ReflowElement::_class_types(self.segments.clone());
     }
 
@@ -58,21 +61,30 @@ impl ReflowElement {
     /// within consumed sections of whitespace. This counts
     /// both.
     pub fn num_newlines(self: &Self) -> usize {
-        self.segments.clone().iter().filter(|segment| segment.is_type("newline")).count()
-        + self.segments.clone().iter().filter(|segment| segment.is_type("whitespace")).count("\n")
+        self.segments
+            .clone()
+            .iter()
+            .filter(|segment| segment.is_type("newline"))
+            .count()
+            + self
+                .segments
+                .clone()
+                .iter()
+                .filter(|segment| segment.is_type("whitespace"))
+                .count("\n")
     }
 }
 
 pub struct ReflowBlock {
-    element: ReflowElement
-
-
+    element: ReflowElement,
 }
 
 impl ReflowBlock {
-    pub fn from_config(segments: Vec<RawSegment>, config: ReflowConfig, depth_info: DepthInfo) -> ReflowBlock {
-        let block_conifg = config.get_block_conifg()
-
+    pub fn from_config(
+        segments: Vec<RawSegment>,
+        config: ReflowConfig,
+        depth_info: DepthInfo,
+    ) -> ReflowBlock {
+        panic!("Not implemented yet");
     }
 }
-

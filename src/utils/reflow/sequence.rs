@@ -49,9 +49,14 @@ impl ReflowSequence {
         depth_map: Option<DepthMap>,
     ) -> ReflowSequence {
         let reflow_config = ReflowConfig::from_fluff_config(config);
-        let replaced_depth_map = depth_map.unwrap_or(DepthMap::from_raws_roots(segments, root_segment));
+        let replaced_depth_map =
+            depth_map.unwrap_or(DepthMap::from_raws_roots(segments, root_segment));
         ReflowSequence::new(
-            ReflowSequence::_elements_from_raw_segments(segments.clone(), reflow_config, replaced_depth_map.clone()),
+            ReflowSequence::_elements_from_raw_segments(
+                segments.clone(),
+                reflow_config,
+                replaced_depth_map.clone(),
+            ),
             root_segment.clone(),
             reflow_config.clone(),
             Some(replaced_depth_map),
@@ -59,4 +64,3 @@ impl ReflowSequence {
         )
     }
 }
-

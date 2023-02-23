@@ -4,5 +4,7 @@ pub mod enums;
 pub mod errors;
 pub mod parser;
 pub mod rules;
+pub mod slice_helpers;
 pub mod string_helpers;
+pub mod templaters;
 pub mod timing;

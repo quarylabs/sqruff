@@ -143,7 +143,7 @@ impl RawTemplater {
     /// * 'config' is the specific config to use for this templating operation. Only necessary for some templaters.
     /// * 'formatter' is the Optional object for output.
     fn process(&self, _: &str, in_str: &str, file_name: &str, config: Option<FluffConfig>, formatter: Option<None> ) -> (Option<TemplatedFile>, Vec<RawFileSlice>) {
-
+        panic!("Not implemented yet.")
     }
 }
 

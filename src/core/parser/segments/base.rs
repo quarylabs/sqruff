@@ -1,7 +1,5 @@
 #[derive(Debug, Clone)]
-pub struct BaseSegment {
-}
-
+pub struct BaseSegment {}
 
 /// An element of the response to BaseSegment.path_to().
 ///     Attributes:
@@ -9,7 +7,7 @@ pub struct BaseSegment {
 ///         idx (int): The index of the target within its `segment`.
 ///         len (int): The number of children `segment` has.
 pub struct PathStep {
-   segment: BaseSegment,
+    segment: BaseSegment,
     idx: usize,
     len: usize,
 }

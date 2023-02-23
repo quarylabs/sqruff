@@ -1,3 +1,2 @@
 #[derive(Debug, Clone)]
-pub struct RawSegment {
-}
+pub struct RawSegment {}

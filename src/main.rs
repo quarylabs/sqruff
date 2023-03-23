@@ -1,7 +1,6 @@
-mod core;
-mod rules;
-mod utils;
+use lib_sqlfluff::lexer::Lexer;
 
 fn main() {
-    println!("Hello, world!");
+    let mut lexer = Lexer::new("SELECT * FROM table;");
+    lexer.lex();
 }

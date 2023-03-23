@@ -7,3 +7,11 @@ edition = "2021"
 
 [dependencies]
 regex = "1.7.1"
+
+[lib]
+name = "lib_sqlfluff"
+path = "src/lib/mod.rs"
+
+[[bin]]
+name = "sqplfluff"
+path = "src/main.rs"

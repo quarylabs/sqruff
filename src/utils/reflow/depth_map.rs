@@ -1,4 +1,7 @@
 use crate::core::parser::segments::base::PathStep;
+use crate::core::parser::segments::raw::RawSegment;
+use std::collections::{HashMap, HashSet};
+use std::hash::Hasher;
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -30,4 +33,15 @@ impl StackPosition {
             type_: StackPosition::stack_pos_interpreter(path_step),
         }
     }
+}
+
+/// An object to hold the depth information for a specific raw segment.
+#[derive(Debug, PartialEq, Eq, Clone)]
+struct DepthInfo {
+    stack_depth: usize,
+    stack_hashes: Vec<u64>,
+    /// This is a convenience cache to speed up operations.
+    stack_hash_set: HashSet<u64>,
+    stack_class_types: Vec<HashSet<String>>,
+    stack_positions: HashMap<u64, StackPosition>,
 }

@@ -1,7 +1,5 @@
-use lib_sqlfluff::lexer::Lexer;
+use lib_sqlfluff::tokenizer::tokenizer::Tokenizer;
 
 
 fn main() {
-    let mut lexer = Lexer::new("SELECT username,email FROM table;");
-    lexer.lex();
 }

@@ -22,9 +22,9 @@ pub struct SourceFix {
 ///         len (int): The number of children `segment` has.
 #[derive(Debug, Clone)]
 pub struct PathStep {
-    segment: BaseSegment,
-    idx: usize,
-    len: usize,
+    pub segment: BaseSegment,
+    pub idx: usize,
+    pub len: usize,
 }
 
 /// An edit patch for a source file.

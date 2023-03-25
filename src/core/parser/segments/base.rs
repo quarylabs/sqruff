@@ -1,5 +1,8 @@
 use crate::core::rules::base::LintFix;
+use std::hash::Hash;
 
+/// A stored reference to a fix in the non-templated file.
+#[derive(Debug, Clone, Hash)]
 pub struct SourceFix {
     // TODO source_slice and templated_slice are slice types in Python
     edit: String,
@@ -10,14 +13,6 @@ pub struct SourceFix {
     //     a position in the templated file to interpret it.
     //     More work required to achieve that if desired.
     templated_slice: String,
-}
-
-impl SourceFix {
-    /// Only hash based on the source slice, not the templated slice (which might change).
-    pub fn __hash__(self: &Self) -> String {
-        // original: return hash((self.edit, self.source_slice.start, self.source_slice.stop))
-        panic!("Not implemented yet");
-    }
 }
 
 /// An element of the response to BaseSegment.path_to().

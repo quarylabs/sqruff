@@ -9,7 +9,7 @@ edition = "2021"
 regex = "1.7.1"
 
 [lib]
-name = "lib_sqlfluff"
+name = "lib"
 path = "src/lib/mod.rs"
 
 [[bin]]

@@ -1,5 +1,5 @@
 use crate::core::config::FluffConfig;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 type ConfigElementType = HashMap<String, String>;
 type ConfigDictType = HashMap<String, ConfigElementType>;
@@ -51,7 +51,42 @@ impl BlockConfig {
     }
 }
 
-pub struct ReflowConfig {}
+/// An interface onto the configuration of how segments should reflow.
+///
+/// This acts as the primary translation engine between configuration
+/// held either in dicts for testing, or in the FluffConfig in live
+/// usage, and the configuration used during reflow operations.
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ReflowConfig {
+    _config_dict: ConfigDictType,
+    config_types: HashSet<String>,
+    /// In production, these values are almost _always_ set because we
+    /// use `.from_fluff_config`, but the defaults are here to aid in
+    /// testing.
+    tab_space_size: usize,
+    indent_unit: String,
+    max_line_length: usize,
+    hanging_indents: bool,
+    skip_indentation_in: HashSet<String>,
+    allow_implicit_indents: bool,
+    trailing_comments: String,
+}
+
+impl Default for ReflowConfig {
+    fn default() -> Self {
+        ReflowConfig {
+            _config_dict: HashMap::new(),
+            config_types: HashSet::new(),
+            tab_space_size: 4,
+            indent_unit: "    ".to_string(),
+            max_line_length: 80,
+            hanging_indents: false,
+            skip_indentation_in: HashSet::new(),
+            allow_implicit_indents: false,
+            trailing_comments: "before".to_string(),
+        }
+    }
+}
 
 impl ReflowConfig {
     pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {

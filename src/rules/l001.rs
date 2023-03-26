@@ -31,3 +31,12 @@ impl RuleL001 {
         panic!("Not implemented yet.")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn rule_l001() {
+        let result = 2 + 2;
+        assert_eq!(result, 4);
+    }
+}

@@ -1,3 +1,7 @@
+use crate::core::errors::SQLFluffUserError;
+use std::collections::HashMap;
+use std::error::Error;
+
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
     old_path: Vec<&'static str>,
@@ -95,3 +99,13 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 }
 
 pub struct FluffConfig {}
+
+impl FluffConfig {
+    pub fn from_root(
+        extra_config_path: Option<String>,
+        ignore_local_config: bool,
+        overrides: Option<HashMap<String, String>>,
+    ) -> Result<FluffConfig, SQLFluffUserError> {
+        panic!("Not implemented")
+    }
+}

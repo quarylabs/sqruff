@@ -146,8 +146,15 @@ struct SQLBaseError {
 // }
 
 /// An error which should be fed back to the user.
-struct SQLFluffUserError {
+#[derive(Debug)]
+pub struct SQLFluffUserError {
     value: String,
+}
+
+impl SQLFluffUserError {
+    pub fn new(value: String) -> SQLFluffUserError {
+        SQLFluffUserError { value }
+    }
 }
 
 // Not from SQLFluff but translates Pythn value error

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 /// Struct for holding the context passed to rule eval function
 pub struct RuleContext {
     // // These don't change within a file.

@@ -1,6 +1,5 @@
 use crate::core::errors::SQLFluffUserError;
 use std::collections::HashMap;
-use std::error::Error;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {

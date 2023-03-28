@@ -34,9 +34,21 @@ impl RuleL001 {
 
 #[cfg(test)]
 mod tests {
+    use crate::api::simple::lint;
+    use crate::core::errors::SQLFluffUserError;
+
     #[test]
-    fn rule_l001() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn test_rule_l001() -> Result<(), SQLFluffUserError> {
+        let sql = "SELECT
+    a
+FROM foo  ";
+        assert_eq!(
+            lint(sql.to_string(), "ansi".to_string(), None, None, None)?,
+            "SELECT
+    a
+FROM foo"
+                .to_string()
+        );
+        Ok(())
     }
 }

@@ -1,6 +1,3 @@
-use crate::core::config::FluffConfig;
-use std::collections::HashMap;
-
 /// Find the indices of all newlines in a string.
 pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
     // TODO: This may be optimize-able by not doing it all up front.

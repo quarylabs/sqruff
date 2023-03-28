@@ -3,7 +3,6 @@ use crate::core::dialects::init::dialect_selector;
 use crate::core::errors::SQLFluffUserError;
 use crate::core::linter::linter::Linter;
 use std::collections::HashMap;
-use std::error::Error;
 
 pub fn get_simple_config(
     dialect: Option<String>,
@@ -34,7 +33,7 @@ pub fn get_simple_config(
 }
 
 /// Lint a SQL string.
-fn lint(
+pub fn lint(
     sql: String,
     dialect: String,
     rules: Option<Vec<String>>,

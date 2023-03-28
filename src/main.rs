@@ -1,6 +1,6 @@
 pub mod api;
-pub mod dialects;
 mod core;
+pub mod dialects;
 mod rules;
 mod utils;
 

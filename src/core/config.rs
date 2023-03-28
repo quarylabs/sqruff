@@ -1,5 +1,5 @@
 use crate::core::errors::SQLFluffUserError;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
@@ -97,14 +97,29 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
     return res;
 }
 
-pub struct FluffConfig {}
+/// The class that actually gets passed around as a config object.
+// TODO This is not a translation that is particularly accurate.
+pub struct FluffConfig {
+    configs: Option<HashSet<String>>,
+    extra_config_path: Option<String>,
+}
 
 impl FluffConfig {
+    // TODO This is not a translation that is particularly accurate.
+    pub fn new(configs: Option<HashSet<String>>, extra_config_path: Option<String>) -> Self {
+        Self {
+            configs,
+            extra_config_path,
+        }
+    }
+
+    /// Loads a config object just based on the root directory.
+    // TODO This is not a translation that is particularly accurate.
     pub fn from_root(
         extra_config_path: Option<String>,
         ignore_local_config: bool,
         overrides: Option<HashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
-        panic!("Not implemented")
+        Ok(FluffConfig::new(Some(HashSet::new()), extra_config_path))
     }
 }

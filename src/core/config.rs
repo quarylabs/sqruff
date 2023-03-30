@@ -123,4 +123,20 @@ impl FluffConfig {
     ) -> Result<FluffConfig, SQLFluffUserError> {
         Ok(FluffConfig::new(Some(HashSet::new()), extra_config_path))
     }
+
+    /// Process a full raw file for inline config and update self.
+    pub fn process_raw_file_for_config(&mut self, raw_str: &String) {
+        // Scan the raw file for config commands
+        for raw_line in raw_str.clone().lines() {
+            if raw_line.to_string().starts_with("-- sqlfluff") {
+                // Found a in-file config command
+                self.process_inline_config(raw_line)
+            }
+        }
+    }
+
+    /// Process an inline config command and update self.
+    pub fn process_inline_config(&mut self, config_line: &str) {
+        panic!("Not implemented")
+    }
 }

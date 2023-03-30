@@ -41,7 +41,7 @@ pub fn lint(
     config_path: Option<String>,
 ) -> Result<String, SQLFluffUserError> {
     let cfg = get_simple_config(Some(dialect), rules, exclude_rules, config_path)?;
-    let linter = Linter::new(cfg);
+    let linter = Linter::new(cfg, None);
     let result = linter.lint_string_wrapped(sql, None, None);
     panic!("Not implemented");
     // let result_records = result.as_records();

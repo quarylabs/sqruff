@@ -2,7 +2,7 @@
 
 type CheckTuple = (String, usize, usize);
 
-struct SQLBaseError {
+pub struct SQLBaseError {
     fatal: bool,
     ignore: bool,
     warning: bool,

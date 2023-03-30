@@ -1,3 +1,4 @@
+use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLBaseError;
 use crate::core::linter::common::ParsedString;
@@ -8,11 +9,15 @@ use super::linted_dir::LintedDir;
 
 pub struct Linter {
     config: FluffConfig,
+    formatter: Option<Box<dyn Formatter>>
 }
 
 impl Linter {
-    pub fn new(config: FluffConfig) -> Linter {
-        Linter { config }
+    pub fn new(config: FluffConfig, formatter: Option<Box<dyn Formatter>>) -> Linter {
+        Linter {
+            config,
+            formatter,
+        }
     }
 
     /// Lint strings directly.
@@ -45,18 +50,31 @@ impl Linter {
         config: Option<&FluffConfig>,
         encoding: Option<String>,
     ) -> ParsedString {
-        let defaulted_fname = fname.unwrap_or("<string>".to_string());
+        let defaulted_f_name = fname.unwrap_or("<string>".to_string());
         let defaulted_recurse = recurse.unwrap_or(true);
         let defaulted_encoding = encoding.unwrap_or("utf-8".to_string());
 
         let violations: Vec<SQLBaseError> = vec![];
         // Dispatch the output for the template header (including the config diff)
+        match &self.formatter {
+            Some(formatter) => {
+                if let unwrapped_config = config.unwrap() {
+                    formatter.dispatch_template_header(defaulted_f_name, self.config.clone(), unwrapped_config.clone())
+                } else {
+                    panic!("config cannot be Option in this case")
+                }
+            }
+            _ => {}
+        }
+
+        // Just use the local config from here
+        let mut binding = self.config.clone();
+        let mut config = config.clone().unwrap_or(&binding);
+        // Scan the raw file for config commands.
+        config.process_raw_file_for_config(&in_str);
         panic!("not implemented");
-        // if self.formatter {
-        //     self.formatter.dispatch_template_header(fname, self.config, config)
-        // }
-        // let config = config.unwrap_or(self.config);
-        //
+        // rendered = self.render_string(in_str, fname, config, encoding)
+        // violations += rendered.templater_violations
         // config.process_raw_file_for_config(in_str)
     }
     // ) -> ParsedString:

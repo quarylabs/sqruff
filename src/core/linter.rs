@@ -1,3 +1,4 @@
+pub mod common;
 pub mod linted_dir;
 pub mod linted_file;
 pub mod linter;

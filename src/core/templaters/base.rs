@@ -1,3 +1,10 @@
+/// A templated SQL file.
+///
+/// This is the response of a `templater`'s `.process()` method
+/// and contains both references to the original file and also
+/// the capability to split up that file when lexing.
+pub struct TemplatedFile;
+
 /// Find the indices of all newlines in a string.
 pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
     // TODO: This may be optimize-able by not doing it all up front.

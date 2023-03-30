@@ -1,1 +1,1 @@
-pub struct LinterFile;
+pub struct LintedFile;

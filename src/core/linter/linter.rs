@@ -1,9 +1,11 @@
+use std::time::Instant;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLBaseError;
-use crate::core::linter::common::ParsedString;
+use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
+use crate::core::parser::segments::base::BaseSegment;
 
 use super::linted_dir::LintedDir;
 
@@ -51,54 +53,40 @@ impl Linter {
         let defaulted_recurse = recurse.unwrap_or(true);
         let defaulted_encoding = encoding.unwrap_or("utf-8".to_string());
 
-        let violations: Vec<SQLBaseError> = vec![];
+        let mut violations: Vec<SQLBaseError> = vec![];
         // Dispatch the output for the template header (including the config diff)
-        match &self.formatter {
-            Some(formatter) => {
-                if let unwrapped_config = config.unwrap() {
-                    formatter.dispatch_template_header(
-                        defaulted_f_name,
-                        self.config.clone(),
-                        unwrapped_config.clone(),
-                    )
-                } else {
-                    panic!("config cannot be Option in this case")
-                }
+        if let Some(formatter) = &self.formatter {
+            if let unwrapped_config = config.unwrap() {
+                formatter.dispatch_template_header(
+                    defaulted_f_name.clone(),
+                    self.config.clone(),
+                    unwrapped_config.clone(),
+                )
+            } else {
+                panic!("config cannot be Option in this case")
             }
-            _ => {}
         }
 
         // Just use the local config from here
-        let mut binding = self.config.clone();
-        panic!("not implemented");
-        // let mut config = *config.clone().unwrap_or(binding);
+        let binding = self.config.clone();
+        let mut config = config.unwrap_or(&binding).clone();
         // Scan the raw file for config commands.
-        // config.process_raw_file_for_config(&in_str);
-        // rendered = self.render_string(in_str, fname, config, encoding)
-        // violations += rendered.templater_violations
-        // config.process_raw_file_for_config(in_str)
+        config.process_raw_file_for_config(&in_str);
+        let rendered = self.render_string(
+            in_str,
+            Some(defaulted_f_name),
+            config,
+            Some(defaulted_encoding),
+        );
+
+        violations.append(rendered.templater_violations.clone().as_mut());
+
+        // Dispatch the output for the parse header
+        if let Some(formatter) = &self.formatter {
+            formatter.dispatch_parse_header(defaulted_f_name.clone());
+        }
+        return self.parse_rendered(rendered, recurse);
     }
-    // ) -> ParsedString:
-    // """Parse a string."""
-    // violations: List[SQLBaseError] = []
-    //
-    // # Dispatch the output for the template header (including the config diff)
-    // if self.formatter:
-    // self.formatter.dispatch_template_header(fname, self.config, config)
-    //
-    // # Just use the local config from here:
-    // config = config or self.config
-    //
-    // # Scan the raw file for config commands.
-    // config.process_raw_file_for_config(in_str)
-    // rendered = self.render_string(in_str, fname, config, encoding)
-    // violations += rendered.templater_violations
-    //
-    // # Dispatch the output for the parse header
-    // if self.formatter:
-    // self.formatter.dispatch_parse_header(fname)
-    //
-    // return self.parse_rendered(rendered, recurse=recurse)
 
     /// Lint a string.
     pub fn lint_string(
@@ -131,23 +119,65 @@ impl Linter {
         //     encoding=encoding,
         // )
     }
-    // ) -> LintedFile:
-    //     # Sort out config, defaulting to the built in config if no override
-    //     config = config or self.config
-    //     # Parse the string.
-    //     parsed = self.parse_string(
-    //         in_str=in_str,
-    //         fname=fname,
-    //         config=config,
-    //     )
-    //     # Get rules as appropriate
-    //     rule_set = self.get_ruleset(config=config)
-    //     # Lint the file and return the LintedFile
-    //     return self.lint_parsed(
-    //         parsed,
-    //         rule_set,
-    //         fix=fix,
-    //         formatter=self.formatter,
-    //         encoding=encoding,
-    //     )
+
+    /// Template the file.
+    pub fn render_string(
+        &self,
+        in_str: String,
+        f_name: Option<String>,
+        config: FluffConfig,
+        encoding: Option<String>,
+    ) -> RenderedFile {
+        panic!("Not implemented");
+    }
+
+    /// Parse a rendered file.
+    pub fn parse_rendered(
+        rendered: RenderedFile,
+        recurse: bool,
+    ) -> ParsedString {
+        let t0 = Instant::now();
+        let mut violations = rendered.templater_violations.clone();
+        let tokens: Option<Vec<BaseSegment>>;
+        if let Some(templated_file) = rendered.templated_file {
+            let (t, lvs, config) = Self::_lex_templated_file(templated_file, &rendered.config);
+            tokens = Some(t);
+            violations.extend(lvs);
+        } else {
+            tokens = None;
+        }
+
+        // TODO Add the timing and linting
+        // let t1 = Instant::now();
+        // let linter_logger = log::logger();
+        // linter_logger.info("PARSING ({})", rendered.fname);
+
+        let parsed: Option<Box<BaseSegment>>;
+        if let Some(token_list) = tokens {
+            let (p, pvs) = Self::_parse_tokens(
+                token_list,
+                &rendered.config,
+                recurse,
+                &rendered.fname,
+            );
+            parsed = p;
+            violations.extend(pvs);
+        } else {
+            parsed = None;
+        }
+        panic!("Not implemented");
+        //
+        // let mut time_dict = rendered.time_dict.clone();
+        // time_dict.insert("lexing".to_string(), (t1 - t0).as_secs_f64());
+        // time_dict.insert("parsing".to_string(), (Instant::now() - t1).as_secs_ff64());
+        // ParsedString {
+        // tree: parsed,
+        // violations,
+        // time_dict,
+        // templated_file: rendered.templated_file,
+        // config: rendered.config,
+        // fname: rendered.fname,
+        // source_str: rendered.source_str,
+        // }
+    }
 }

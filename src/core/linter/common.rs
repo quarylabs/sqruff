@@ -31,11 +31,11 @@ pub struct NoQaDirective {
 /// in the main process and the child processes when running in parallel mode.
 #[derive(Debug, PartialEq, Clone)]
 pub struct RenderedFile {
-    pub(crate) templated_file: TemplatedFile,
-    pub(crate) templater_violations: Vec<SQLTemplaterError>,
-    pub(crate) config: FluffConfig,
+    pub templated_file: TemplatedFile,
+    pub templater_violations: Vec<SQLTemplaterError>,
+    pub config: FluffConfig,
     time_dict: HashMap<String, f64>,
-    f_name: String,
+    pub(crate) f_name: String,
     encoding: String,
     source_str: String,
 }

@@ -7,4 +7,6 @@ pub trait Formatter {
         linter_config: FluffConfig,
         file_config: FluffConfig,
     );
+
+    fn dispatch_parse_header(&self, f_name: String);
 }

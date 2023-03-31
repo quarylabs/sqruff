@@ -2,6 +2,7 @@
 
 type CheckTuple = (String, usize, usize);
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct SQLBaseError {
     fatal: bool,
     ignore: bool,
@@ -144,6 +145,9 @@ pub struct SQLBaseError {
 //         write!(f, "An error which should be fed back to the user.")
 //     }
 // }
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SQLTemplaterError {}
 
 /// An error which should be fed back to the user.
 #[derive(Debug)]

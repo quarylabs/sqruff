@@ -3,6 +3,7 @@
 /// This is the response of a `templater`'s `.process()` method
 /// and contains both references to the original file and also
 /// the capability to split up that file when lexing.
+#[derive(Debug, PartialEq, Clone)]
 pub struct TemplatedFile;
 
 /// Find the indices of all newlines in a string.

@@ -9,15 +9,12 @@ use super::linted_dir::LintedDir;
 
 pub struct Linter {
     config: FluffConfig,
-    formatter: Option<Box<dyn Formatter>>
+    formatter: Option<Box<dyn Formatter>>,
 }
 
 impl Linter {
     pub fn new(config: FluffConfig, formatter: Option<Box<dyn Formatter>>) -> Linter {
-        Linter {
-            config,
-            formatter,
-        }
+        Linter { config, formatter }
     }
 
     /// Lint strings directly.
@@ -59,7 +56,11 @@ impl Linter {
         match &self.formatter {
             Some(formatter) => {
                 if let unwrapped_config = config.unwrap() {
-                    formatter.dispatch_template_header(defaulted_f_name, self.config.clone(), unwrapped_config.clone())
+                    formatter.dispatch_template_header(
+                        defaulted_f_name,
+                        self.config.clone(),
+                        unwrapped_config.clone(),
+                    )
                 } else {
                     panic!("config cannot be Option in this case")
                 }
@@ -69,10 +70,10 @@ impl Linter {
 
         // Just use the local config from here
         let mut binding = self.config.clone();
-        let mut config = config.clone().unwrap_or(&binding);
-        // Scan the raw file for config commands.
-        config.process_raw_file_for_config(&in_str);
         panic!("not implemented");
+        // let mut config = *config.clone().unwrap_or(binding);
+        // Scan the raw file for config commands.
+        // config.process_raw_file_for_config(&in_str);
         // rendered = self.render_string(in_str, fname, config, encoding)
         // violations += rendered.templater_violations
         // config.process_raw_file_for_config(in_str)

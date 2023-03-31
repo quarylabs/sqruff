@@ -99,7 +99,7 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 
 /// The class that actually gets passed around as a config object.
 // TODO This is not a translation that is particularly accurate.
-#[derive(Clone, Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
     configs: Option<HashSet<String>>,
     extra_config_path: Option<String>,

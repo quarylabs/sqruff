@@ -110,5 +110,5 @@ impl AnchorEditInfo {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct BaseSegment {}

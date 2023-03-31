@@ -1,3 +1,4 @@
+use crate::core::dialects::init::dialect_readout;
 use crate::core::errors::SQLFluffUserError;
 use std::collections::{HashMap, HashSet};
 
@@ -103,6 +104,7 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 pub struct FluffConfig {
     configs: Option<HashSet<String>>,
     extra_config_path: Option<String>,
+    _configs: HashMap<String, HashMap<String, String>>,
 }
 
 impl FluffConfig {
@@ -111,6 +113,7 @@ impl FluffConfig {
         Self {
             configs,
             extra_config_path,
+            _configs: HashMap::new(),
         }
     }
 
@@ -138,5 +141,21 @@ impl FluffConfig {
     /// Process an inline config command and update self.
     pub fn process_inline_config(&mut self, config_line: &str) {
         panic!("Not implemented")
+    }
+
+    /// Check if the config specifies a dialect, raising an error if not.
+    pub fn verify_dialect_specified(&self) -> Option<SQLFluffUserError> {
+        if let Some(_) = self._configs.get("core")?.get("dialect") {
+            return None;
+        }
+        // Get list of available dialects for the error message. We must
+        // import here rather than at file scope in order to avoid a circular
+        // import.
+        Some(SQLFluffUserError::new(format!(
+            "No dialect was specified. You must configure a dialect or
+specify one on the command line using --dialect after the
+command. Available dialects: {}",
+            dialect_readout().join(", ").as_str()
+        )))
     }
 }

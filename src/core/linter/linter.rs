@@ -1,11 +1,12 @@
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::errors::{SQLBaseError, SQLLexError, SQLParseError, SqlError};
+use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlError};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::segments::base::BaseSegment;
 use crate::core::templaters::base::TemplatedFile;
+use regex::Regex;
 use std::time::Instant;
 
 use super::linted_dir::LintedDir;
@@ -49,7 +50,7 @@ impl Linter {
         recurse: Option<bool>,
         config: Option<&FluffConfig>,
         encoding: Option<String>,
-    ) -> ParsedString {
+    ) -> Result<ParsedString, SQLFluffUserError> {
         let defaulted_f_name = fname.unwrap_or("<string>".to_string());
         let defaulted_recurse = recurse.unwrap_or(true);
         let defaulted_encoding = encoding.unwrap_or("utf-8".to_string());
@@ -78,7 +79,7 @@ impl Linter {
             Some(defaulted_f_name.clone()),
             config,
             Some(defaulted_encoding),
-        );
+        )?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));
@@ -88,7 +89,7 @@ impl Linter {
         if let Some(formatter) = &self.formatter {
             formatter.dispatch_parse_header(defaulted_f_name.clone());
         }
-        return Self::parse_rendered(rendered, defaulted_recurse);
+        return Ok(Self::parse_rendered(rendered, defaulted_recurse));
     }
 
     /// Lint a string.
@@ -130,8 +131,70 @@ impl Linter {
         f_name: Option<String>,
         config: FluffConfig,
         encoding: Option<String>,
-    ) -> RenderedFile {
-        panic!("Not implemented");
+    ) -> Result<RenderedFile, SQLFluffUserError> {
+        // TODO Implement loggers eventually
+        // let linter_logger = log::logger();
+        // linter_logger.info!("TEMPLATING RAW [{}] ({})", self.templater.name, f_name);
+
+        // Start the templating timer
+        let t0 = Instant::now();
+
+        // Newlines are normalised to unix-style line endings (\n).
+        // The motivation is that Jinja normalises newlines during templating and
+        // we want consistent mapping between the raw and templated slices.
+        let in_str = Self::normalise_newlines(in_str.as_str());
+
+        // Since Linter.__init__() does not require a dialect to be specified,
+        // check for one now. (We're processing a string, not a file, so we're
+        // not going to pick up a .sqlfluff or other config file to provide a
+        // missing dialect at this point.)
+        if let Some(error) = config.verify_dialect_specified() {
+            return Err(error);
+        }
+
+        panic!("not implemented");
+        // if config.get("templater_obj") != self.templater {
+        //     linter_logger::warning(format!(
+        //         "Attempt to set templater to {} failed. Using {} templater. Templater cannot be set in a .sqlfluff file in a subdirectory of the current working directory. It can be set in a .sqlfluff in the current working directory. See Nesting section of the docs for more details.",
+        //         config.get("templater_obj").name,
+        //         self.templater.name,
+        //     ));
+        // }
+        //
+        // let mut templated_file = None;
+        // let mut templater_violations = vec![];
+        // match self.templater.process(in_str, fname, config, self.formatter) {
+        //     Ok((file, violations)) => {
+        //         templated_file = Some(file);
+        //         templater_violations = violations;
+        //     }
+        //     Err(s) => {
+        //         linter_logger::warning(s.to_string());
+        //     }
+        // }
+        //
+        // if templated_file.is_none() {
+        //     linter_logger::info(
+        //         "TEMPLATING FAILED: {:?}",
+        //         templater_violations,
+        //     );
+        // }
+        //
+        // // Record time
+        // let time_dict = [("templating", t0.elapsed().as_secs_f64())]
+        //     .iter()
+        //     .cloned()
+        //     .collect();
+        //
+        // RenderedFile {
+        //     templated_file,
+        //     templater_violations,
+        //     config: config.clone(),
+        //     time_dict,
+        //     fname: fname.to_owned(),
+        //     encoding: encoding.to_owned(),
+        //     in_str: in_str.to_owned(),
+        // }
     }
 
     /// Parse a rendered file.
@@ -192,5 +255,11 @@ impl Linter {
         config: &FluffConfig,
     ) -> (Option<Vec<BaseSegment>>, Vec<SQLLexError>, FluffConfig) {
         panic!("Not implemented");
+    }
+
+    /// Normalise newlines to unix-style line endings.
+    fn normalise_newlines(string: &str) -> String {
+        let re = Regex::new(r"\r\n|\r").unwrap();
+        re.replace_all(string, "\n").to_string()
     }
 }

@@ -2,6 +2,14 @@
 
 type CheckTuple = (String, usize, usize);
 
+pub trait SqlError {
+    fn fixable(&self) -> bool;
+    fn rule_code(&self) -> Option<String>;
+    fn identifier(&self) -> String;
+    /// Get a tuple representing this error. Mostly for testing.
+    fn check_tuple(&self) -> CheckTuple;
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct SQLBaseError {
     fatal: bool,
@@ -9,6 +17,36 @@ pub struct SQLBaseError {
     warning: bool,
     line_no: usize,
     line_pos: usize,
+}
+
+impl SQLBaseError {
+    pub fn new(fatal: bool, ignore: bool, warning: bool, line_no: usize, line_pos: usize) -> Self {
+        Self {
+            fatal,
+            ignore,
+            warning,
+            line_no,
+            line_pos,
+        }
+    }
+}
+
+impl SqlError for SQLBaseError {
+    fn fixable(&self) -> bool {
+        false
+    }
+
+    fn rule_code(&self) -> Option<String> {
+        None
+    }
+
+    fn identifier(&self) -> String {
+        "base".to_string()
+    }
+
+    fn check_tuple(&self) -> CheckTuple {
+        ("".to_string(), self.line_no, self.line_pos)
+    }
 }
 
 // impl SQLBaseError {
@@ -149,6 +187,24 @@ pub struct SQLBaseError {
 #[derive(Debug, PartialEq, Clone)]
 pub struct SQLTemplaterError {}
 
+impl SqlError for SQLTemplaterError {
+    fn fixable(&self) -> bool {
+        false
+    }
+
+    fn rule_code(&self) -> Option<String> {
+        None
+    }
+
+    fn identifier(&self) -> String {
+        "templater".to_string()
+    }
+
+    fn check_tuple(&self) -> CheckTuple {
+        ("".to_string(), 0, 0)
+    }
+}
+
 /// An error which should be fed back to the user.
 #[derive(Debug)]
 pub struct SQLFluffUserError {
@@ -172,3 +228,7 @@ impl ValueError {
         ValueError { value }
     }
 }
+
+pub struct SQLParseError {}
+
+pub struct SQLLexError {}

@@ -1,11 +1,12 @@
-use std::time::Instant;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::errors::SQLBaseError;
+use crate::core::errors::{SQLBaseError, SQLLexError, SQLParseError, SqlError};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::segments::base::BaseSegment;
+use crate::core::templaters::base::TemplatedFile;
+use std::time::Instant;
 
 use super::linted_dir::LintedDir;
 
@@ -53,7 +54,7 @@ impl Linter {
         let defaulted_recurse = recurse.unwrap_or(true);
         let defaulted_encoding = encoding.unwrap_or("utf-8".to_string());
 
-        let mut violations: Vec<SQLBaseError> = vec![];
+        let mut violations: Vec<Box<dyn SqlError>> = vec![];
         // Dispatch the output for the template header (including the config diff)
         if let Some(formatter) = &self.formatter {
             if let unwrapped_config = config.unwrap() {
@@ -74,18 +75,20 @@ impl Linter {
         config.process_raw_file_for_config(&in_str);
         let rendered = self.render_string(
             in_str,
-            Some(defaulted_f_name),
+            Some(defaulted_f_name.clone()),
             config,
             Some(defaulted_encoding),
         );
 
-        violations.append(rendered.templater_violations.clone().as_mut());
+        for violation in &rendered.templater_violations {
+            violations.push(Box::new(violation.clone()));
+        }
 
         // Dispatch the output for the parse header
         if let Some(formatter) = &self.formatter {
             formatter.dispatch_parse_header(defaulted_f_name.clone());
         }
-        return self.parse_rendered(rendered, recurse);
+        return Self::parse_rendered(rendered, defaulted_recurse);
     }
 
     /// Lint a string.
@@ -132,40 +135,34 @@ impl Linter {
     }
 
     /// Parse a rendered file.
-    pub fn parse_rendered(
-        rendered: RenderedFile,
-        recurse: bool,
-    ) -> ParsedString {
-        let t0 = Instant::now();
-        let mut violations = rendered.templater_violations.clone();
-        let tokens: Option<Vec<BaseSegment>>;
-        if let Some(templated_file) = rendered.templated_file {
-            let (t, lvs, config) = Self::_lex_templated_file(templated_file, &rendered.config);
-            tokens = Some(t);
-            violations.extend(lvs);
-        } else {
-            tokens = None;
-        }
+    pub fn parse_rendered(rendered: RenderedFile, recurse: bool) -> ParsedString {
+        panic!("Not implemented");
+        // let t0 = Instant::now();
+        // let mut violations = rendered.templater_violations.clone();
+        // let tokens: Option<Vec<BaseSegment>>;
+        // if let Some(templated_file) = rendered.templated_file {
+        //     let (t, lvs, config) = Self::_lex_templated_file(templated_file, &rendered.config);
+        //     tokens = t;
+        //     violations.extend(lvs);
+        // } else {
+        //     tokens = None;
+        // }
 
         // TODO Add the timing and linting
         // let t1 = Instant::now();
         // let linter_logger = log::logger();
         // linter_logger.info("PARSING ({})", rendered.fname);
-
+        /*
         let parsed: Option<Box<BaseSegment>>;
         if let Some(token_list) = tokens {
-            let (p, pvs) = Self::_parse_tokens(
-                token_list,
-                &rendered.config,
-                recurse,
-                &rendered.fname,
-            );
+            let (p, pvs) =
+                Self::_parse_tokens(&token_list, &rendered.config, recurse, Some(rendered.f_name.to_string()));
             parsed = p;
             violations.extend(pvs);
         } else {
             parsed = None;
         }
-        panic!("Not implemented");
+        panic!("Not implemented");*/
         //
         // let mut time_dict = rendered.time_dict.clone();
         // time_dict.insert("lexing".to_string(), (t1 - t0).as_secs_f64());
@@ -179,5 +176,21 @@ impl Linter {
         // fname: rendered.fname,
         // source_str: rendered.source_str,
         // }
+    }
+
+    pub fn _parse_tokens(
+        tokens: &Vec<BaseSegment>,
+        config: &FluffConfig,
+        recurse: bool,
+        f_name: Option<String>,
+    ) -> (Option<Box<BaseSegment>>, Vec<SQLParseError>) {
+        panic!("Not implemented");
+    }
+
+    pub fn _lex_templated_file(
+        templated_file: TemplatedFile,
+        config: &FluffConfig,
+    ) -> (Option<Vec<BaseSegment>>, Vec<SQLLexError>, FluffConfig) {
+        panic!("Not implemented");
     }
 }

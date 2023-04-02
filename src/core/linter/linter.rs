@@ -152,7 +152,7 @@ impl Linter {
             return Err(error);
         }
 
-        panic!("not implemented");
+        // TODO Implement linter warning
         // if config.get("templater_obj") != self.templater {
         //     linter_logger::warning(format!(
         //         "Attempt to set templater to {} failed. Using {} templater. Templater cannot be set in a .sqlfluff file in a subdirectory of the current working directory. It can be set in a .sqlfluff in the current working directory. See Nesting section of the docs for more details.",
@@ -160,18 +160,19 @@ impl Linter {
         //         self.templater.name,
         //     ));
         // }
-        //
-        // let mut templated_file = None;
-        // let mut templater_violations = vec![];
-        // match self.templater.process(in_str, fname, config, self.formatter) {
-        //     Ok((file, violations)) => {
-        //         templated_file = Some(file);
-        //         templater_violations = violations;
-        //     }
-        //     Err(s) => {
-        //         linter_logger::warning(s.to_string());
-        //     }
-        // }
+
+        let mut templated_file = None;
+        let mut templater_violations = vec![];
+        match self.templater.process(in_str, f_name, config, self.formatter) {
+            Ok((file, violations)) => {
+                templated_file = Some(file);
+                templater_violations = violations;
+            }
+            Err(s) => {
+                linter_logger::warning(s.to_string());
+            }
+        }
+        panic!("not implemented");
         //
         // if templated_file.is_none() {
         //     linter_logger::info(

@@ -5,7 +5,9 @@
 		"ms-vsliveshare.vsliveshare",
 		"matklad.rust-analyzer",
 		"serayuzgur.crates",
-		"vadimcn.vscode-lldb"
+		"vadimcn.vscode-lldb",
+		"GitHub.copilot",
+		"rust-lang.rust-analyzer"
 	],
 	"dockerFile": "Dockerfile",
 	"settings": {

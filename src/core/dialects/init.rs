@@ -16,5 +16,5 @@ pub struct DialectTuple {
 
 /// Generate a readout of available dialects.
 pub fn dialect_readout<'a>() -> Vec<String> {
-    panic!("Not implemented")
+    panic!("dialect_readout not implemented yet");
 }

@@ -232,3 +232,5 @@ impl ValueError {
 pub struct SQLParseError {}
 
 pub struct SQLLexError {}
+
+pub struct SQLFluffSkipFile {}

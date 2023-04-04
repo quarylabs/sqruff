@@ -34,10 +34,10 @@ pub struct RenderedFile {
     pub templated_file: TemplatedFile,
     pub templater_violations: Vec<SQLTemplaterError>,
     pub config: FluffConfig,
-    time_dict: HashMap<String, f64>,
+    pub time_dict: HashMap<String, f64>,
     pub(crate) f_name: String,
-    encoding: String,
-    source_str: String,
+    pub encoding: String,
+    pub source_str: String,
 }
 
 /// An object to store the result of parsing a string.

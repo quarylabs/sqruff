@@ -5,8 +5,9 @@ use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::segments::base::BaseSegment;
-use crate::core::templaters::base::TemplatedFile;
+use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
+use std::collections::HashMap;
 use std::time::Instant;
 
 use super::linted_dir::LintedDir;
@@ -14,11 +15,28 @@ use super::linted_dir::LintedDir;
 pub struct Linter {
     config: FluffConfig,
     formatter: Option<Box<dyn Formatter>>,
+    templater: Box<dyn Templater>,
 }
 
 impl Linter {
-    pub fn new(config: FluffConfig, formatter: Option<Box<dyn Formatter>>) -> Linter {
-        Linter { config, formatter }
+    pub fn new(
+        config: FluffConfig,
+        formatter: Option<Box<dyn Formatter>>,
+        templater: Option<Box<dyn Templater>>,
+    ) -> Linter {
+        if let Some(t) = templater {
+            return Linter {
+                config,
+                formatter,
+                templater: t,
+            };
+        } else {
+            return Linter {
+                config,
+                formatter,
+                templater: Box::new(RawTemplater::default()),
+            };
+        }
     }
 
     /// Lint strings directly.
@@ -76,7 +94,7 @@ impl Linter {
         config.process_raw_file_for_config(&in_str);
         let rendered = self.render_string(
             in_str,
-            Some(defaulted_f_name.clone()),
+            defaulted_f_name.clone(),
             config,
             Some(defaulted_encoding),
         )?;
@@ -128,7 +146,7 @@ impl Linter {
     pub fn render_string(
         &self,
         in_str: String,
-        f_name: Option<String>,
+        f_name: String,
         config: FluffConfig,
         encoding: Option<String>,
     ) -> Result<RenderedFile, SQLFluffUserError> {
@@ -163,39 +181,46 @@ impl Linter {
 
         let mut templated_file = None;
         let mut templater_violations = vec![];
-        match self.templater.process(in_str, f_name, config, self.formatter) {
-            Ok((file, violations)) => {
+        match self.templater.process(
+            in_str.as_str(),
+            f_name.as_str(),
+            Some(&config),
+            self.formatter.as_deref(),
+        ) {
+            Ok(file) => {
                 templated_file = Some(file);
-                templater_violations = violations;
             }
             Err(s) => {
-                linter_logger::warning(s.to_string());
+                // TODO Implement linter warning
+                panic!("not implemented")
+                // linter_logger::warning(s.to_string());
             }
         }
-        panic!("not implemented");
-        //
-        // if templated_file.is_none() {
-        //     linter_logger::info(
-        //         "TEMPLATING FAILED: {:?}",
-        //         templater_violations,
-        //     );
-        // }
-        //
+
+        if templated_file.is_none() {
+            panic!("not implemented");
+            // linter_logger::info(
+            //     "TEMPLATING FAILED: {:?}",
+            //     templater_violations,
+            // );
+        };
+
         // // Record time
+        // TODO Implement time
         // let time_dict = [("templating", t0.elapsed().as_secs_f64())]
         //     .iter()
         //     .cloned()
         //     .collect();
-        //
-        // RenderedFile {
-        //     templated_file,
-        //     templater_violations,
-        //     config: config.clone(),
-        //     time_dict,
-        //     fname: fname.to_owned(),
-        //     encoding: encoding.to_owned(),
-        //     in_str: in_str.to_owned(),
-        // }
+
+        Ok(RenderedFile {
+            templated_file: templated_file.unwrap(),
+            templater_violations,
+            config: config,
+            time_dict: HashMap::new(),
+            f_name: f_name.to_owned(),
+            encoding: encoding.to_owned().unwrap(),
+            source_str: f_name.to_owned(),
+        })
     }
 
     /// Parse a rendered file.

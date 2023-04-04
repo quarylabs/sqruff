@@ -225,46 +225,56 @@ impl Linter {
 
     /// Parse a rendered file.
     pub fn parse_rendered(rendered: RenderedFile, recurse: bool) -> ParsedString {
-        panic!("Not implemented");
-        // let t0 = Instant::now();
-        // let mut violations = rendered.templater_violations.clone();
-        // let tokens: Option<Vec<BaseSegment>>;
-        // if let Some(templated_file) = rendered.templated_file {
-        //     let (t, lvs, config) = Self::_lex_templated_file(templated_file, &rendered.config);
-        //     tokens = t;
-        //     violations.extend(lvs);
-        // } else {
-        //     tokens = None;
-        // }
+        // panic!("Not implemented");
 
-        // TODO Add the timing and linting
-        // let t1 = Instant::now();
+        let t0 = Instant::now();
+        let mut violations = rendered.templater_violations.clone();
+        let mut tokens: Option<Vec<BaseSegment>> = None;
+
+        if rendered.templated_file.is_templated() {
+            let (t, lvs, config) =
+                Self::_lex_templated_file(rendered.templated_file, &rendered.config);
+            panic!("Not implemented");
+            // tokens = t.clone();
+            // violations.extend(lvs);
+        } else {
+            tokens = None;
+        };
+
+        let t1 = Instant::now();
+        // TODO Add the logging
         // let linter_logger = log::logger();
         // linter_logger.info("PARSING ({})", rendered.fname);
-        /*
-        let parsed: Option<Box<BaseSegment>>;
+
+        let parsed: Option<BaseSegment>;
         if let Some(token_list) = tokens {
-            let (p, pvs) =
-                Self::_parse_tokens(&token_list, &rendered.config, recurse, Some(rendered.f_name.to_string()));
-            parsed = p;
-            violations.extend(pvs);
+            panic!("Not implemented")
+            // let (p, pvs) =
+            //     Self::_parse_tokens(&token_list, &rendered.config, recurse, Some(rendered.f_name.to_string()));
+            // parsed = p;
+            // violations.extend(pvs);
         } else {
             parsed = None;
+        };
+
+        // TODO Time_Dict should be a structure, it should also probably replace f64 with Duration type
+        let mut time_dict = rendered.time_dict.clone();
+        time_dict.insert("lexing".to_string(), (t1 - t0).as_secs_f64());
+        time_dict.insert("parsing".to_string(), (Instant::now() - t1).as_secs_f64());
+
+        if !violations.is_empty() {
+            panic!("Not implemented, need to pass the violations to the ParsedString")
         }
-        panic!("Not implemented");*/
-        //
-        // let mut time_dict = rendered.time_dict.clone();
-        // time_dict.insert("lexing".to_string(), (t1 - t0).as_secs_f64());
-        // time_dict.insert("parsing".to_string(), (Instant::now() - t1).as_secs_ff64());
-        // ParsedString {
-        // tree: parsed,
-        // violations,
-        // time_dict,
-        // templated_file: rendered.templated_file,
-        // config: rendered.config,
-        // fname: rendered.fname,
-        // source_str: rendered.source_str,
-        // }
+
+        ParsedString {
+            tree: parsed,
+            violations: vec![],
+            time_dict,
+            templated_file: rendered.templated_file,
+            config: rendered.config,
+            f_name: rendered.f_name,
+            source_str: rendered.source_str,
+        }
     }
 
     pub fn _parse_tokens(
@@ -272,7 +282,7 @@ impl Linter {
         config: &FluffConfig,
         recurse: bool,
         f_name: Option<String>,
-    ) -> (Option<Box<BaseSegment>>, Vec<SQLParseError>) {
+    ) -> (Option<BaseSegment>, Vec<SQLParseError>) {
         panic!("Not implemented");
     }
 

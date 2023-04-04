@@ -1,14 +1,14 @@
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError};
-use std::ops::Range;
+use std::ops::{Deref, Range};
 
 /// A slice referring to a templated file.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct TemplatedFileSlice {
     slice_type: String,
     source_slice: Range<usize>,
-    templated_slice: Range<usize>,
+    pub templated_slice: Range<usize>,
 }
 
 /// A templated SQL file.
@@ -24,20 +24,103 @@ pub struct TemplatedFile {
 }
 
 impl TemplatedFile {
+    /// Initialise the TemplatedFile.
+    /// If no templated_str is provided then we assume that
+    /// the file is NOT templated and that the templated view
+    /// is the same as the source view.
     fn new(
         source_str: String,
         f_name: String,
         templated_str: Option<String>,
         sliced_file: Option<Vec<TemplatedFileSlice>>,
         raw_sliced: Option<Vec<RawFileSlice>>,
-        check_consistency: bool,
+        check_consistency: Option<bool>,
     ) -> Result<TemplatedFile, SQLFluffSkipFile> {
-        panic!("Not implemented")
+        let temp_str = templated_str.unwrap_or(source_str.clone());
+        if sliced_file.is_none() && temp_str != source_str {
+            // TODO: This is a bit of a hack. We should probably have a clean error be returned here.
+            panic!("Cannot instantiate a templated file unsliced!")
+        };
         // self.source_str = source_str
         // # An empty string is still allowed as the templated string.
         // self.templated_str = source_str if templated_str is None else templated_str
         // # If no fname, we assume this is from a string or stdin.
         // self.fname = fname
+
+        //  NOTE: The "check_consistency" flag should always be True when using
+        // SQLFluff in real life. This flag was only added because some legacy
+        // templater tests in test/core/templaters/jinja_test.py use hardcoded
+        // test data with issues that will trigger errors here. It would be cool
+        // to fix that data someday. I (Barry H.) started looking into it, but
+        // it was much trickier than I expected, because bits of the same data
+        // are shared across multiple tests.
+        if check_consistency.unwrap_or(true) {
+            // Sanity check raw string and slices.
+            let mut pos = 0;
+            let rfs: Option<RawFileSlice> = None;
+            raw_sliced.map(|raw_sliced| {
+                for (idx, rs) in raw_sliced.iter().enumerate() {
+                    if rs.source_idx != pos {
+                        panic!("Raw slices found to be non-contiguous.")
+                    }
+                    pos += rs.raw.len();
+                }
+                if pos != source_str.len() {
+                    panic!("Raw slices found to be non-contiguous.")
+                }
+            });
+
+            // Sanity check templated string and slices.
+            // # Sanity check templated string and slices.
+            let mut previous_slice: Option<TemplatedFileSlice> = None;
+            let mut tfs: Option<&TemplatedFileSlice> = None;
+            sliced_file.map(|sliced_file| {
+                for (idx, tfs) in sliced_file.iter().enumerate() {
+                    if let Some(ps) = previous_slice {
+                        if tfs.templated_slice.start != ps.templated_slice.end {
+                            //     raise SQLFluffSkipFile(  # pragma: no cover
+                            //                              "Templated slices found to be non-contiguous. "
+                            //                              f"{tfs.templated_slice} (starting"
+                            //                              f" {self.templated_str[tfs.templated_slice]!r})"
+                            //                              f" does not follow {previous_slice.templated_slice} "
+                            //                              "(starting "
+                            //                              f"{self.templated_str[previous_slice.templated_slice]!r}"
+                            //                              ")"
+
+                            panic!("Templated slices found to be non-contiguous.")
+                        } else {
+                            if tfs.templated_slice.start != 0 {
+                                //     raise SQLFluffSkipFile(  # pragma: no cover
+                                //                              "First Templated slice not started at index 0 "
+                                //                              f"(found slice {tfs.templated_slice})"
+                                // )
+                                panic!("First Templated slice not started at index 0")
+                            }
+                        }
+                        if sliced_file.len() > 0 && temp_str.len() > 0 {
+                            if tfs.templated_slice.end != temp_str.len() {
+                                // raise SQLFluffSkipFile(  # pragma: no cover
+                                //                          "Length of templated file mismatch with final slice: "
+                                //                          f"{len(templated_str)} != {tfs.templated_slice.stop}."
+                                panic!("Length of templated file mismatch with final slice.")
+                            }
+                        }
+                        previous_slice = Some(tfs.clone());
+                    }
+                }
+            });
+        };
+
+        Ok(TemplatedFile {
+            source_str,
+            f_name,
+            templated_str: Some(temp_str),
+        })
+    }
+
+    /// Return true if there's a templated file.
+    pub fn is_templated(&self) -> bool {
+        self.templated_str.is_some()
     }
 }
 
@@ -82,7 +165,7 @@ pub struct RawFileSlice {
     raw: String,
     slice_type: String,
     /// Offset from beginning of source string
-    source_idx: usize,
+    pub source_idx: usize,
     slice_subtype: Option<RawFileSliceType>,
     /// Block index, incremented on start or end block tags, e.g. "if", "for"
     block_idx: usize,
@@ -144,7 +227,6 @@ impl Templater for RawTemplater {
         &self,
         f_names: Vec<String>,
         _: Option<&FluffConfig>,
-
         _: Option<&dyn Formatter>,
     ) -> Vec<String> {
         // Default is to process in the original order.
@@ -158,11 +240,17 @@ impl Templater for RawTemplater {
         config: Option<&FluffConfig>,
         formatter: Option<&dyn Formatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        panic!("not implemented")
-        // TemplatedFile{
-
-        // }
-        // return Some(TemplatedFile::newin_str, fname=fname))
+        if let Ok(tf) = TemplatedFile::new(
+            in_str.to_string(),
+            f_name.to_string(),
+            None,
+            None,
+            None,
+            None,
+        ) {
+            return Ok(tf);
+        }
+        panic!("Not implemented")
     }
 }
 
@@ -181,7 +269,6 @@ pub trait Templater {
         &self,
         f_names: Vec<String>,
         config: Option<&FluffConfig>,
-
         formatter: Option<&dyn Formatter>,
     ) -> Vec<String>;
 
@@ -191,7 +278,6 @@ pub trait Templater {
         in_str: &str,
         f_name: &str,
         config: Option<&FluffConfig>,
-
         formatter: Option<&dyn Formatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError>;
 }

@@ -1,3 +1,4 @@
+use crate::core::config::FluffConfig;
 use crate::core::errors::ValueError;
 
 /// An element matched during lexing.
@@ -101,5 +102,31 @@ impl StringLexer {
     /// Given a string, subdivide if we area allowed to.
     pub fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
         panic!("Not implemented")
+    }
+}
+
+/// The Lexer class actually does the lexing step.
+pub struct Lexer {
+    config: FluffConfig,
+    lexer_matchers: Vec<StringLexer>,
+    last_resort_lexer: StringLexer,
+}
+
+impl Lexer {
+    fn new(
+        config: Option<FluffConfig>,
+        last_resort_lexer: Option<StringLexer>,
+        dialect: Option<String>,
+    ) -> Self {
+        let config = FluffConfig::from_kwargs(config, dialect);
+        let lexer_matchers = config.get("dialect_obj").get_lexer_matchers();
+        let last_resort_lexer = last_resort_lexer
+            .unwrap_or_else(|| RegexLexer::new("<unlexable>", r"[^\t\n\ ]*", UnlexableSegment));
+
+        Lexer {
+            config,
+            lexer_matchers,
+            last_resort_lexer,
+        }
     }
 }

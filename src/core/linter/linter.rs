@@ -9,7 +9,7 @@ use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
 use std::collections::HashMap;
 use std::time::Instant;
-
+use crate::core::parser::lexer::Lexer;
 use super::linted_dir::LintedDir;
 
 pub struct Linter {
@@ -285,11 +285,77 @@ impl Linter {
         panic!("Not implemented");
     }
 
+    /// Lex a templated file.
+    /// NOTE: This potentially mutates the config, so make sure to
+    /// use the returned one.
     fn lex_templated_file(
         templated_file: TemplatedFile,
-        config: &FluffConfig,
+        config: FluffConfig,
     ) -> (Option<Vec<BaseSegment>>, Vec<SQLLexError>, FluffConfig) {
-        panic!("Not implemented");
+        let mut violations: Vec<SQLLexError> = Vec::new();
+
+        // TODO Add the logging
+        // let linter_logger = env_logger::builder().build();
+        // linter_logger.info!("LEXING RAW ({})", templated_file);
+
+        let lexer = Lexer::new(config.clone(), None, None);
+
+        let lex_result: Result<(Vec<BaseSegment>, Vec<SQLLexError>), SQLLexError> =
+            lexer.lex(templated_file.clone());
+
+        let (mut tokens, mut lex_vs) = match lex_result {
+            Ok((t, v)) => (t, v),
+            Err(err) => {
+                // TODO Re-add the logging
+                // linter_logger.info!("LEXING FAILED! ({}): {}", templated_file, err);
+                violations.push(err);
+                return (None, violations, config);
+            }
+        };
+
+        violations.append(&mut lex_vs);
+        // TODO Introduce logging
+        // linter_logger.info!(
+        //     "Lexed tokens: {:?}",
+        //     if tokens.is_empty() { None } else { Some(tokens.clone()) }
+        // );
+
+        if tokens.is_empty() {
+            return (None, violations, config);
+        }
+
+        let templating_blocks_indent = config
+            .get("template_blocks_indent")
+            .unwrap_or(&"indentation".to_string())
+            .clone();
+        let force_block_indent = templating_blocks_indent.to_lowercase().trim() == "force";
+        let templating_blocks_indent_enabled = !templating_blocks_indent.is_empty();
+
+        if templating_blocks_indent_enabled && !force_block_indent {
+            let indent_balance: i32 = tokens.iter().map(|elem| elem.indent_val.unwrap_or(0)).sum();
+
+            if indent_balance != 0 {
+                // TODO Re-add the logging
+                // linter_logger.debug!(
+                //     "Indent balance test failed for {}. Template indents will not be linted for this file.",
+                //     templated_file
+                // );
+                templating_blocks_indent_enabled = false;
+            }
+        }
+
+        let mut new_tokens = Vec::new();
+        for token in tokens {
+            if token.is_meta {
+                if token.indent_val.unwrap_or(0) != 0 {
+                    if !templating_blocks_indent_enabled {
+                        continue;
+                    }
+                }
+            }
+            new_tokens.push(token);
+        }
+        (Some(new_tokens), violations, config)
     }
 
     /// Normalise newlines to unix-style line endings.

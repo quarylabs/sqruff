@@ -1,7 +1,7 @@
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError};
-use std::ops::{Range};
+use std::ops::Range;
 
 /// A slice referring to a templated file.
 #[derive(Debug, Clone)]

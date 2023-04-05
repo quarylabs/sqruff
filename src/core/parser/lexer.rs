@@ -1,3 +1,5 @@
+// TODO Can the string lexers be pointers and is that better?
+
 use crate::core::config::FluffConfig;
 use crate::core::errors::ValueError;
 
@@ -5,25 +7,21 @@ use crate::core::errors::ValueError;
 #[derive(Debug, Clone)]
 pub struct LexedElement {
     raw: String,
-}
-
-impl LexedElement {
-    pub fn matcher() -> &'static str {
-        "StringLexer"
-    }
+    matcher: StringLexer
 }
 
 /// A LexedElement, bundled with it's position in the templated file.
 pub struct TemplateElement {
     raw: String,
-    // TODO Figure out how to do this
+    // TODO Figure out how to do this, it's a range
     // template_slice: slice
+    matcher: StringLexer
 }
 
 impl TemplateElement {
-    pub fn matcher() -> &'static str {
-        "StringLexer"
-    }
+    /// Make a TemplateElement from a LexedElement.
+    pub fn from_element(element: LexedElement, templated_slice: ) {}
+
 }
 
 /// A class to hold matches from the lexer.

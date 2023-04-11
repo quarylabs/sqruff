@@ -2,6 +2,7 @@
 
 use crate::core::config::FluffConfig;
 use crate::core::errors::ValueError;
+use std::ops::Range;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -13,15 +14,28 @@ pub struct LexedElement {
 /// A LexedElement, bundled with it's position in the templated file.
 pub struct TemplateElement {
     raw: String,
-    // TODO Figure out how to do this, it's a range
-    // template_slice: slice
+    template_slice: Range<usize>,
     matcher: StringLexer
 }
 
 impl TemplateElement {
     /// Make a TemplateElement from a LexedElement.
-    pub fn from_element(element: LexedElement, templated_slice: ) {}
+    pub fn from_element(element: LexedElement, template_slice: Range<usize>) -> Self {
+        TemplateElement {
+            raw: element.raw,
+            template_slice,
+            matcher: element.matcher,
+        }
+    }
 
+    /// Create a segment from this lexed element.
+    pub fn to_segment(&self, pos_marker: PositionMarker, subslice: Option<Slice>) -> Segment {
+        let raw = match subslice {
+            Some(slice) => &self.raw[slice],
+            None => &self.raw,
+        };
+        self.matcher.construct_segment(raw, pos_marker)
+    }
 }
 
 /// A class to hold matches from the lexer.
@@ -32,9 +46,17 @@ pub struct LexMatch {
 }
 
 impl LexMatch {
+    /// new creates a LexMatch.
+    pub fn new(forward_string: String, elements: Vec<LexedElement>) -> Self {
+        LexMatch {
+            forward_string,
+            elements,
+        }
+    }
+
     /// A LexMatch is truthy if it contains a non-zero number of matched elements.
-    pub fn __bool__(self: &Self) -> bool {
-        self.elements.len() > 0
+    pub fn is_empty(&self) -> bool {
+        self.elements.is_empty()
     }
 }
 

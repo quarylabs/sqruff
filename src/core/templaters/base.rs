@@ -1,7 +1,7 @@
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError};
-use std::ops::{Deref, Range};
+use std::ops::Range;
 
 /// A slice referring to a templated file.
 #[derive(Debug, Clone)]
@@ -178,7 +178,7 @@ impl RawFileSlice {
     }
 
     /// Return the a slice object for this slice.
-    fn source_slice(&self) -> std::ops::Range<usize> {
+    fn source_slice(&self) -> Range<usize> {
         self.source_idx..self.end_source_idx()
     }
 

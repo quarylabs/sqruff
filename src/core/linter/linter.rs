@@ -214,7 +214,7 @@ impl Linter {
         Ok(RenderedFile {
             templated_file: templated_file.unwrap(),
             templater_violations,
-            config: config,
+            config,
             time_dict: HashMap::new(),
             f_name: f_name.to_owned(),
             encoding: encoding.to_owned().unwrap(),
@@ -232,7 +232,7 @@ impl Linter {
 
         if rendered.templated_file.is_templated() {
             let (t, lvs, config) =
-                Self::_lex_templated_file(rendered.templated_file, &rendered.config);
+                Self::lex_templated_file(rendered.templated_file, &rendered.config);
             panic!("Not implemented");
             // tokens = t.clone();
             // violations.extend(lvs);
@@ -276,7 +276,7 @@ impl Linter {
         }
     }
 
-    pub fn _parse_tokens(
+    fn parse_tokens(
         tokens: &Vec<BaseSegment>,
         config: &FluffConfig,
         recurse: bool,
@@ -285,7 +285,7 @@ impl Linter {
         panic!("Not implemented");
     }
 
-    pub fn _lex_templated_file(
+    fn lex_templated_file(
         templated_file: TemplatedFile,
         config: &FluffConfig,
     ) -> (Option<Vec<BaseSegment>>, Vec<SQLLexError>, FluffConfig) {

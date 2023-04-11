@@ -77,13 +77,20 @@ impl PositionMarker {
             },
         )
     }
+
+    /// Location tuple for the working position.
+    pub fn working_loc(&self) -> (usize, usize) {
+        (self.working_line_no, self.working_line_pos)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::core::parser::markers::PositionMarker;
+    use crate::core::templaters::base::TemplatedFile;
     use std::ops::Range;
 
+    /// Test that we can correctly infer positions from strings.
     #[test]
     fn test_markers__infer_next_position() {
         struct test {
@@ -131,5 +138,27 @@ mod tests {
                 PositionMarker::infer_next_position(&t.raw, t.start.start, t.start.end)
             );
         }
+    }
+
+    /// Test that we can correctly infer positions from strings & locations.
+    #[test]
+    fn test_markers__setting_position_raw() {
+        let template = TemplatedFile::from_string("foobar".to_string());
+        // Check inference in the template
+        assert_eq!(template.get_line_pos_of_char_pos(2, true), (1, 3));
+        assert_eq!(template.get_line_pos_of_char_pos(2, false), (1, 3));
+        // Now check it passes through
+        let pos = PositionMarker::new((2..5), (2..5), template, None, None);
+        // Can we infer positions correctly
+        assert_eq!(pos.working_loc(), (1, 3));
+    }
+
+    /// Test that we can correctly set positions manually.
+    #[test]
+    fn test_markers__setting_position_working() {
+        let templ = TemplatedFile::from_string("foobar".to_string());
+        let pos = PositionMarker::new((2..5), (2..5), templ, Some(4), Some(4));
+        // Can we NOT infer when we're told.
+        assert_eq!(pos.working_loc(), (4, 4))
     }
 }

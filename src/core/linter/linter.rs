@@ -24,18 +24,17 @@ impl Linter {
         formatter: Option<Box<dyn Formatter>>,
         templater: Option<Box<dyn Templater>>,
     ) -> Linter {
-        if let Some(t) = templater {
-            return Linter {
+        match templater {
+            Some(templater) => Linter {
                 config,
                 formatter,
-                templater: t,
-            };
-        } else {
-            return Linter {
+                templater,
+            },
+            None => Linter {
                 config,
                 formatter,
                 templater: Box::new(RawTemplater::default()),
-            };
+            },
         }
     }
 

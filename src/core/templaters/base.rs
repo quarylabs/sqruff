@@ -154,6 +154,17 @@ impl TemplatedFile {
             }
         }
     }
+
+    /// Create TemplatedFile from a string.
+    pub fn from_string(source_str: String) -> TemplatedFile {
+        TemplatedFile {
+            source_newlines: vec![],
+            templated_newlines: vec![],
+            f_name: "<string>".to_string(),
+            templated_str: None,
+            source_str,
+        }
+    }
 }
 
 /// Find the indices of all newlines in a string.

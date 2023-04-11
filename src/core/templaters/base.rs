@@ -21,6 +21,8 @@ pub struct TemplatedFile {
     source_str: String,
     f_name: String,
     templated_str: Option<String>,
+    source_newlines: Vec<usize>,
+    templated_newlines: Vec<usize>,
 }
 
 impl TemplatedFile {
@@ -46,6 +48,9 @@ impl TemplatedFile {
         // self.templated_str = source_str if templated_str is None else templated_str
         // # If no fname, we assume this is from a string or stdin.
         // self.fname = fname
+
+        let source_newlines: Vec<usize> = iter_indices_of_newlines(source_str.as_str()).collect();
+        let templated_newlines: Vec<usize> = iter_indices_of_newlines(temp_str.as_str()).collect();
 
         //  NOTE: The "check_consistency" flag should always be True when using
         // SQLFluff in real life. This flag was only added because some legacy
@@ -112,6 +117,8 @@ impl TemplatedFile {
         };
 
         Ok(TemplatedFile {
+            source_newlines,
+            templated_newlines,
             source_str,
             f_name,
             templated_str: Some(temp_str),
@@ -121,6 +128,31 @@ impl TemplatedFile {
     /// Return true if there's a templated file.
     pub fn is_templated(&self) -> bool {
         self.templated_str.is_some()
+    }
+
+    /// Get the line number and position of a point in the source file.
+    /// Args:
+    ///  - char_pos: The character position in the relevant file.
+    ///  - source: Are we checking the source file (as opposed to the templated file)
+    ///
+    /// Returns: line_number, line_position
+    pub fn get_line_pos_of_char_pos(&self, char_pos: usize, source: bool) -> (usize, usize) {
+        let ref_str = if source {
+            &self.source_newlines
+        } else {
+            &self.templated_newlines
+        };
+        match ref_str.binary_search(&char_pos) {
+            Ok(nl_idx) | Err(nl_idx) => {
+                if nl_idx > 0 {
+                    ((nl_idx + 1), (char_pos - ref_str[nl_idx - 1]))
+                } else {
+                    // NB: line_pos is char_pos + 1 because character position is 0-indexed,
+                    // but the line position is 1-indexed.
+                    (1, (char_pos + 1))
+                }
+            }
+        }
     }
 }
 

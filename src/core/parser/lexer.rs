@@ -1,28 +1,19 @@
 use crate::core::errors::ValueError;
+use crate::core::parser::markers::PositionMarker;
+use std::ops::Range;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
 pub struct LexedElement {
     raw: String,
-}
-
-impl LexedElement {
-    pub fn matcher() -> &'static str {
-        "StringLexer"
-    }
+    matcher: StringLexer,
 }
 
 /// A LexedElement, bundled with it's position in the templated file.
 pub struct TemplateElement {
     raw: String,
-    // TODO Figure out how to do this
-    // template_slice: slice
-}
-
-impl TemplateElement {
-    pub fn matcher() -> &'static str {
-        "StringLexer"
-    }
+    template_slice: Range<usize>,
+    matcher: StringLexer,
 }
 
 /// A class to hold matches from the lexer.
@@ -30,6 +21,17 @@ impl TemplateElement {
 pub struct LexMatch {
     forward_string: String,
     elements: Vec<LexedElement>,
+}
+
+impl TemplateElement {
+    /// Make a TemplateElement from a LexedElement.
+    pub fn from_element(element: LexedElement, template_slice: Range<usize>) -> Self {
+        TemplateElement {
+            raw: element.raw,
+            template_slice,
+            matcher: element.matcher,
+        }
+    }
 }
 
 impl LexMatch {
@@ -56,6 +58,7 @@ impl StringLexer {
         if forward_string.starts_with(&self.template) {
             Some(LexedElement {
                 raw: self.template.clone(),
+                matcher: self.clone(),
             })
         } else {
             None

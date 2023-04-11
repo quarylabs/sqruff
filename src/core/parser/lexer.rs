@@ -1,23 +1,25 @@
 use crate::core::errors::ValueError;
 use crate::core::parser::markers::PositionMarker;
+use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
+use std::sync::Arc;
 
 /// An element matched during lexing.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct LexedElement {
     raw: String,
-    matcher: StringLexer,
+    matcher: Arc<dyn Matcher>,
 }
 
 /// A LexedElement, bundled with it's position in the templated file.
 pub struct TemplateElement {
     raw: String,
     template_slice: Range<usize>,
-    matcher: StringLexer,
+    matcher: Arc<dyn Matcher>,
 }
 
 /// A class to hold matches from the lexer.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct LexMatch {
     forward_string: String,
     elements: Vec<LexedElement>,
@@ -48,28 +50,17 @@ impl LexMatch {
 /// the base class for matchers.
 #[derive(Debug, Clone)]
 pub struct StringLexer {
-    name: String,
     template: String,
 }
 
 impl StringLexer {
     /// The private match function. Just look for a literal string.
-    pub fn _match(self: &Self, forward_string: &String) -> Option<LexedElement> {
+    pub fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
         if forward_string.starts_with(&self.template) {
             Some(LexedElement {
                 raw: self.template.clone(),
-                matcher: self.clone(),
+                matcher: Arc::new(self.clone()),
             })
-        } else {
-            None
-        }
-    }
-
-    /// Use string methods to find a substring.
-    pub fn search(self: &Self, forward_string: String) -> Option<(usize, usize)> {
-        let start = forward_string.find(&self.template);
-        if start.is_some() {
-            Some((start.unwrap(), start.unwrap() + self.template.len()))
         } else {
             None
         }
@@ -80,17 +71,35 @@ impl StringLexer {
         panic!("Not implemented")
     }
 
+    /// Given a string, subdivide if we area allowed to.
+    pub fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
+        panic!("Not implemented")
+    }
+}
+
+impl Display for StringLexer {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "StringLexer({})", self.template)
+    }
+}
+
+impl Matcher for StringLexer {
+    fn get_name(self: &Self) -> String {
+        self.template.clone()
+    }
+
     /// Given a string, match what we can and return the rest.
-    pub fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError> {
+    fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError> {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
         let matched = self._match(&forward_string);
         match matched {
             Some(matched) => {
-                let new_elements = self._subdivide(matched.clone());
+                let length = matched.raw.len();
+                let new_elements = self._subdivide(matched);
                 Ok(LexMatch {
-                    forward_string: forward_string[matched.raw.len()..].to_string(),
+                    forward_string: forward_string[length..].to_string(),
                     elements: new_elements,
                 })
             }
@@ -101,8 +110,27 @@ impl StringLexer {
         }
     }
 
-    /// Given a string, subdivide if we area allowed to.
-    pub fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
-        panic!("Not implemented")
+    fn search(self: &Self, forward_string: String) -> Option<(usize, usize)> {
+        let start = forward_string.find(&self.template);
+        if start.is_some() {
+            Some((start.unwrap(), start.unwrap() + self.template.len()))
+        } else {
+            None
+        }
+    }
+}
+
+pub trait Matcher: Debug {
+    /// The name of the matcher.
+    fn get_name(self: &Self) -> String;
+    /// Given a string, match what we can and return the rest.
+    fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError>;
+    /// Use regex to find a substring.
+    fn search(self: &Self, forward_string: String) -> Option<(usize, usize)>;
+}
+
+impl Display for dyn Matcher {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Matcher({})", self.get_name())
     }
 }

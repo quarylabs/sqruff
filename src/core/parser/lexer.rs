@@ -3,6 +3,7 @@
 use crate::core::config::FluffConfig;
 use crate::core::errors::ValueError;
 use std::ops::Range;
+use crate::core::parser::markers::PositionMarker;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]

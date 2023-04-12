@@ -1,13 +1,16 @@
-use crate::core::errors::ValueError;
+use crate::core::config::FluffConfig;
+use crate::core::dialects::base::Dialect;
+use crate::core::errors::{SQLLexError, ValueError};
+use crate::core::parser::segments::base::Segment;
+use crate::core::templaters::base::TemplatedFile;
 use regex::Error;
+use std::collections::hash_set::Union;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
 use std::sync::Arc;
-use crate::core::config::FluffConfig;
-use crate::core::dialects::base::Dialect;
 
 /// An element matched during lexing.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LexedElement {
     raw: String,
     matcher: Arc<dyn Matcher>,
@@ -130,7 +133,7 @@ impl Matcher for StringLexer {
     fn search(self: &Self, forward_string: &str) -> Option<Range<usize>> {
         let start = forward_string.find(&self.template);
         if start.is_some() {
-            Some((start.unwrap()..start.unwrap() + self.template.len()))
+            Some(start.unwrap()..start.unwrap() + self.template.len())
         } else {
             None
         }
@@ -222,22 +225,64 @@ impl Matcher for RegexLexer {
 }
 
 /// The Lexer class actually does the lexing step.
-// pub struct Lexer {
-//     config: FluffConfig,
-//     last_resort_lexer: Arc<dyn Matcher>,
-//     dialect: Arc<dyn Dialect>,
-// }
-//
-// impl Lexer {
-//     /// Create a new lexer.
-//     pub fn new(config: FluffConfig, dialect: Arc<&dyn Dialect>) -> Self {
-//         let last_resort_lexer = StringLexer {
-//             template: String::from(" "),
-//         };
-//         Lexer {
-//             config,
-//             dialect,
-//             last_resort_lexer: Arc::new(last_resort_lexer),
-//         }
-//     }
-// }
+pub struct Lexer {
+    config: FluffConfig,
+    last_resort_lexer: Arc<dyn Matcher>,
+    dialect: Arc<dyn Dialect>,
+}
+
+impl Lexer {
+    /// Create a new lexer.
+    pub fn new(config: FluffConfig, dialect: Arc<&dyn Dialect>) -> Self {
+        panic!("Not implemented")
+        // let last_resort_lexer = StringLexer {
+        //     template: String::from(" "),
+        // };
+        // Lexer {
+        //     config,
+        //     dialect,
+        //     last_resort_lexer: Arc::new(last_resort_lexer),
+        // }
+    }
+
+    pub fn lex(
+        &self,
+        raw: Union<&str, TemplatedFile>,
+    ) -> (Vec<Arc<dyn Segment>>, Vec<SQLLexError>) {
+        panic!("Not implemented")
+        // let (template: , str: &str) = match raw {
+        //     Union::A(s) => s,
+        //     Union::B(f) => f.read_to_string().unwrap(),
+        // };
+    }
+
+    /// Create a tuple of TemplateElement from a tuple of LexedElement.
+    ///
+    /// This adds slices in the templated file to the original lexed
+    /// elements. We'll need this to work out the position in the source
+    /// file.
+    /// TODO Can this vec be turned into an iterator and return iterator to make lazy?
+    fn map_template_slices(
+        elements: Vec<LexedElement>,
+        template: TemplatedFile,
+    ) -> Vec<TemplateElement> {
+        let mut idx = 0;
+        let mut templated_buff: Vec<TemplateElement> = vec![];
+        for element in elements {
+            let template_slice = idx..idx + element.raw.len();
+            idx += element.raw.len();
+            templated_buff.push(TemplateElement::from_element(
+                element.clone(),
+                template_slice,
+            ));
+            let templated_string = template.get_templated_string().unwrap();
+            if templated_string != element.raw {
+                panic!(
+                    "Template and lexed elements do not match. This should never happen {} != {}",
+                    element.raw, templated_string
+                );
+            }
+        }
+        return templated_buff;
+    }
+}

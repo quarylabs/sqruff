@@ -112,3 +112,132 @@ impl AnchorEditInfo {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct BaseSegment {}
+
+pub trait Segment {
+    fn get_type(&self) -> &'static str;
+    fn is_code(&self) -> bool;
+    fn is_comment(&self) -> bool;
+    fn is_whitespace(&self) -> bool;
+    fn get_default_raw(&self) -> Option<&'static str> {
+        None
+    }
+}
+
+pub struct CodeSegment {}
+
+impl Segment for CodeSegment {
+    fn get_type(&self) -> &'static str {
+        "code"
+    }
+    fn is_code(&self) -> bool {
+        true
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}
+
+/// Segment containing a comment.
+pub struct CommentSegment {}
+
+impl Segment for CommentSegment {
+    fn get_type(&self) -> &'static str {
+        "comment"
+    }
+    fn is_code(&self) -> bool {
+        false
+    }
+    fn is_comment(&self) -> bool {
+        true
+    }
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}
+
+/// Segment containing a newline.
+pub struct NewlineSegment {}
+
+impl Segment for NewlineSegment {
+    fn get_type(&self) -> &'static str {
+        "newline"
+    }
+    fn is_code(&self) -> bool {
+        false
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        true
+    }
+    fn get_default_raw(&self) -> Option<&'static str> {
+        Some("\n")
+    }
+}
+
+/// Segment containing whitespace.
+pub struct WhitespaceSegment {}
+
+impl Segment for WhitespaceSegment {
+    fn get_type(&self) -> &'static str {
+        "whitespace"
+    }
+    fn is_code(&self) -> bool {
+        false
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        true
+    }
+    fn get_default_raw(&self) -> Option<&'static str> {
+        Some(" ")
+    }
+}
+
+/// A placeholder to un-lexable sections.
+///
+/// This otherwise behaves exactly like a code section.
+pub struct RawSegment {}
+
+impl Segment for RawSegment {
+    fn get_type(&self) -> &'static str {
+        "raw"
+    }
+    fn is_code(&self) -> bool {
+        true
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}
+
+/// A segment used for matching single entities which aren't keywords.
+///
+/// We rename the segment class here so that descendants of
+/// _ProtoKeywordSegment can use the same functionality
+/// but don't end up being labelled as a `keyword` later.
+pub struct SymbolSegment {}
+
+impl Segment for SymbolSegment {
+    fn get_type(&self) -> &'static str {
+        "symbol"
+    }
+    fn is_code(&self) -> bool {
+        true
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}

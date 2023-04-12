@@ -1,5 +1,4 @@
 use crate::core::errors::ValueError;
-use crate::core::parser::markers::PositionMarker;
 use regex::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;

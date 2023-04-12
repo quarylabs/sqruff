@@ -3,6 +3,8 @@ use regex::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
 use std::sync::Arc;
+use crate::core::config::FluffConfig;
+use crate::core::dialects::base::Dialect;
 
 /// An element matched during lexing.
 #[derive(Debug)]
@@ -218,3 +220,24 @@ impl Matcher for RegexLexer {
         None
     }
 }
+
+/// The Lexer class actually does the lexing step.
+// pub struct Lexer {
+//     config: FluffConfig,
+//     last_resort_lexer: Arc<dyn Matcher>,
+//     dialect: Arc<dyn Dialect>,
+// }
+//
+// impl Lexer {
+//     /// Create a new lexer.
+//     pub fn new(config: FluffConfig, dialect: Arc<&dyn Dialect>) -> Self {
+//         let last_resort_lexer = StringLexer {
+//             template: String::from(" "),
+//         };
+//         Lexer {
+//             config,
+//             dialect,
+//             last_resort_lexer: Arc::new(last_resort_lexer),
+//         }
+//     }
+// }

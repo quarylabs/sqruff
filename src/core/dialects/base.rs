@@ -1,5 +1,5 @@
-use std::fmt::Debug;
 use crate::core::parser::lexer::Matcher;
+use std::fmt::Debug;
 
 pub struct Base {}
 

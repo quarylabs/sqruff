@@ -165,6 +165,11 @@ impl TemplatedFile {
             source_str,
         }
     }
+
+    /// Get templated string
+    pub fn get_templated_string(&self) -> Option<&str> {
+        self.templated_str.as_ref().map(|s| s.as_str())
+    }
 }
 
 /// Find the indices of all newlines in a string.

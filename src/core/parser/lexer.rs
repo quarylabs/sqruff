@@ -231,9 +231,14 @@ pub struct Lexer {
     dialect: Arc<dyn Dialect>,
 }
 
+pub enum StringOrTemplate {
+    String(String),
+    Template(TemplatedFile),
+}
+
 impl Lexer {
     /// Create a new lexer.
-    pub fn new(config: FluffConfig, dialect: Arc<&dyn Dialect>) -> Self {
+    pub fn new(config: FluffConfig, dialect: Option<Arc<&dyn Dialect>>) -> Self {
         panic!("Not implemented")
         // let last_resort_lexer = StringLexer {
         //     template: String::from(" "),
@@ -245,10 +250,7 @@ impl Lexer {
         // }
     }
 
-    pub fn lex(
-        &self,
-        raw: Union<&str, TemplatedFile>,
-    ) -> (Vec<Arc<dyn Segment>>, Vec<SQLLexError>) {
+    pub fn lex(&self, raw: StringOrTemplate) -> (Vec<Arc<dyn Segment>>, Vec<SQLLexError>) {
         panic!("Not implemented")
         // let (template: , str: &str) = match raw {
         //     Union::A(s) => s,

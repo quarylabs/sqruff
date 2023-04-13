@@ -4,10 +4,13 @@ use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlErro
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
-use crate::core::parser::segments::base::BaseSegment;
+use crate::core::parser::lexer::{Lexer, StringOrTemplate};
+use crate::core::parser::segments::base::{BaseSegment, Segment};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
+use std::collections::hash_set::Union;
 use std::collections::HashMap;
+use std::sync::Arc;
 use std::time::Instant;
 
 use super::linted_dir::LintedDir;
@@ -232,7 +235,7 @@ impl Linter {
 
         if rendered.templated_file.is_templated() {
             let (t, lvs, config) =
-                Self::lex_templated_file(rendered.templated_file, &rendered.config);
+                Self::lex_templated_file(rendered.templated_file, rendered.config);
             panic!("Not implemented");
             // tokens = t.clone();
             // violations.extend(lvs);
@@ -285,11 +288,67 @@ impl Linter {
         panic!("Not implemented");
     }
 
+    /// Lex a templated file.
+    //
+    // NOTE: This potentially mutates the config, so make sure to
+    // use the returned one.
     fn lex_templated_file(
         templated_file: TemplatedFile,
-        config: &FluffConfig,
-    ) -> (Option<Vec<BaseSegment>>, Vec<SQLLexError>, FluffConfig) {
-        panic!("Not implemented");
+        config: FluffConfig,
+    ) -> (Option<Vec<Arc<dyn Segment>>>, Vec<SQLLexError>, FluffConfig) {
+        let mut violations = vec![];
+        // linter_logger.info("LEXING RAW ({})", templated_file.fname);
+        // Get the lexer
+        let lexer = Lexer::new(config.clone(), None);
+        // Lex the file and log any problems
+        let (tokens, lex_vs) = lexer.lex(StringOrTemplate::Template(templated_file));
+        violations.extend(lex_vs);
+
+        if tokens.is_empty() {
+            return (None, violations, config.clone());
+        };
+
+        // Check that we've got sensible indentation from the lexer.
+        // We might need to suppress if it's a complicated file.
+        let templating_blocks_indent = config.indentation.template_blocks_indent;
+        let force_block_indent = templating_blocks_indent;
+        let templating_blocks_indent = templating_blocks_indent;
+        // If we're forcing it through we don't check.
+        if templating_blocks_indent && !force_block_indent {
+            let indent_balance = tokens.iter().fold(0, |acc, elem| acc + elem.indent_val());
+            if indent_balance != 0 {
+                panic!("Not implemented")
+                // linter_logger.debug(
+                //     "Indent balance test failed for {}. Template indents will not be \
+                //      linted for this file.",
+                //     templated_file.f_name,
+                // );
+                // // Don't enable the templating blocks.
+                // config.set("template_blocks_indent", "indentation", false);
+            }
+        };
+
+        // The file will have been lexed without config, so check all indents
+        // are enabled.
+        let new_tokens = tokens
+            .into_iter()
+            .filter(|token| {
+                if token.is_meta() {
+                    panic!("Not implemented")
+                    // let token = token.as_meta().unwrap();
+                    // if token.indent_val != 0 {
+                    //     Don't allow it if we're not linting templating block indents.
+                    // if !templating_blocks_indent {
+                    //     return false;
+                    // }
+                    // }
+                }
+                true
+            })
+            .collect();
+
+        // Return new buffer
+        (Some(new_tokens), violations, config)
     }
 
     /// Normalise newlines to unix-style line endings.

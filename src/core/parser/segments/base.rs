@@ -125,11 +125,17 @@ pub trait Segment {
     fn is_code(&self) -> bool;
     fn is_comment(&self) -> bool;
     fn is_whitespace(&self) -> bool;
+    fn is_meta(&self) -> bool {
+        false
+    }
     fn get_default_raw(&self) -> Option<&'static str> {
         None
     }
     fn get_pos_maker(&self) -> Option<PositionMarker> {
         None
+    }
+    fn indent_val(&self) -> usize {
+        panic!("Not implemented yet");
     }
 }
 

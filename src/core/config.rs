@@ -88,14 +88,13 @@ pub fn REMOVED_CONFIGS() -> [RemovedConfig<'static>; 12] {
     ]
 }
 
+/// split_comma_separated_string takes a string and splits it on commas and trims and filters out empty strings.
 pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
-    let mut res: Vec<String> = Vec::new();
-    for s in raw_str.split(",") {
-        if s.trim() != "" {
-            res.push(s.trim().to_string());
-        }
-    }
-    return res;
+    raw_str
+        .split(",")
+        .map(|x| x.trim().to_string())
+        .filter(|x| x != "")
+        .collect()
 }
 
 /// The class that actually gets passed around as a config object.

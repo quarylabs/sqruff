@@ -1,5 +1,4 @@
 use crate::core::templaters::base::TemplatedFile;
-use std::cmp::{Ord, PartialEq, PartialOrd};
 use std::ops::Range;
 
 /// A reference to a position in a file.

@@ -38,7 +38,7 @@ impl TemplateElement {
 #[derive(Debug)]
 pub struct LexMatch {
     forward_string: String,
-    elements: Vec<LexedElement>,
+    pub elements: Vec<LexedElement>,
 }
 
 impl LexMatch {
@@ -254,6 +254,59 @@ impl Lexer {
         //     Union::A(s) => s,
         //     Union::B(f) => f.read_to_string().unwrap(),
         // };
+    }
+
+    /// Generate any lexing errors for any un-lex-ables.
+    ///
+    /// TODO: Taking in an iterator, also can make the typing better than use unwrap.
+    fn violations_from_segments(segments: Vec<Arc<dyn Segment>>) -> Vec<SQLLexError> {
+        segments
+            .into_iter()
+            .filter(|s| s.is_type("unlexable"))
+            .map(|s| {
+                SQLLexError::new(
+                    format!(
+                        "Unable to lex characters: {}",
+                        s.get_raw().unwrap().chars().take(10).collect::<String>()
+                    ),
+                    s.get_pos_maker().unwrap(),
+                )
+            })
+            .collect()
+    }
+
+    /// Iteratively match strings using the selection of sub-matchers.
+    fn lex_match(
+        forward_string: &str,
+        lexer_matchers: &[Arc<dyn Matcher>],
+    ) -> Result<LexMatch, ValueError> {
+        let mut forward_str = forward_string.to_string();
+        let mut elem_buff: Vec<LexedElement> = vec![];
+        loop {
+            if forward_string.len() == 0 {
+                return Ok(LexMatch {
+                    forward_string: forward_string.to_string(),
+                    elements: elem_buff,
+                });
+            };
+            for matcher in lexer_matchers {
+                let res = matcher.match_(forward_string.to_string())?;
+                if res.elements.len() > 0 {
+                    // If we have new segments then whoop!
+                    elem_buff.append(res.elements.clone().as_mut());
+                    forward_str = res.forward_string;
+                    // Cycle back around again and start with the top
+                    // matcher again.
+                    break;
+                } else {
+                    // We've got so far, but now can't match. Return
+                    return Ok(LexMatch {
+                        forward_string: forward_string.to_string(),
+                        elements: elem_buff,
+                    });
+                }
+            }
+        }
     }
 
     /// Create a tuple of TemplateElement from a tuple of LexedElement.

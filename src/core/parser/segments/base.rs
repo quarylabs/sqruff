@@ -1,3 +1,4 @@
+use crate::core::parser::markers::PositionMarker;
 use crate::core::rules::base::LintFix;
 use std::hash::Hash;
 
@@ -114,11 +115,20 @@ impl AnchorEditInfo {
 pub struct BaseSegment {}
 
 pub trait Segment {
+    fn get_raw(&self) -> Option<&str> {
+        None
+    }
     fn get_type(&self) -> &'static str;
+    fn is_type(&self, type_: &str) -> bool {
+        self.get_type() == type_
+    }
     fn is_code(&self) -> bool;
     fn is_comment(&self) -> bool;
     fn is_whitespace(&self) -> bool;
     fn get_default_raw(&self) -> Option<&'static str> {
+        None
+    }
+    fn get_pos_maker(&self) -> Option<PositionMarker> {
         None
     }
 }

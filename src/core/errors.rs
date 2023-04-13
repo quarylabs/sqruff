@@ -1,5 +1,7 @@
 // use super::pos::PosMarker;
 
+use crate::core::parser::markers::PositionMarker;
+
 type CheckTuple = (String, usize, usize);
 
 pub trait SqlError {
@@ -231,6 +233,18 @@ impl ValueError {
 
 pub struct SQLParseError {}
 
-pub struct SQLLexError {}
+pub struct SQLLexError {
+    message: String,
+    position_marker: PositionMarker,
+}
+
+impl SQLLexError {
+    pub fn new(message: String, position_marker: PositionMarker) -> SQLLexError {
+        SQLLexError {
+            message,
+            position_marker,
+        }
+    }
+}
 
 pub struct SQLFluffSkipFile {}

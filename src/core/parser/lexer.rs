@@ -1,9 +1,9 @@
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{Segment, SegmentConstructor, UnlexableSegment};
 use crate::core::templaters::base::TemplatedFile;
-use regex::Error;
+use regex::{Error, Regex};
 use std::collections::hash_set::Union;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
@@ -49,7 +49,6 @@ impl LexMatch {
 }
 
 pub trait Matcher: Debug {
-    /// The name of the matcher.
     fn get_name(self: &Self) -> String;
     /// Given a string, match what we can and return the rest.
     fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError>;
@@ -142,14 +141,18 @@ impl Matcher for StringLexer {
 
 /// This RegexLexer matches based on regular expressions.
 #[derive(Debug, Clone)]
-pub struct RegexLexer {
-    template: regex::Regex,
+pub struct RegexLexer<SegmentConstructor, SegmentConstructorArgs> where SegmentConstructor: Fn(SegmentConstructorArgs) -> Arc<dyn Segment<SegmentConstructorArgs>> + Clone + Debug + Send + Sync + 'static {
+    name: String,
+    template: Regex,
+    segment_constructor: SegmentConstructor,
 }
 
-impl RegexLexer {
-    pub fn new(regex: &str) -> Result<Self, Error> {
+impl RegexLexer<_,_> {
+    pub fn new(name: &str, regex: &str, segment_constructor: SegmentConstructor) -> Result<Self, Error> {
         Ok(RegexLexer {
-            template: regex::Regex::new(regex)?,
+            name: name.to_string(),
+            template: Regex::new(regex)?,
+            segment_constructor,
         })
     }
 
@@ -174,18 +177,18 @@ impl RegexLexer {
     }
 }
 
-impl Display for RegexLexer {
+impl<T,V> Display for RegexLexer<T,V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "RegexLexer({})", self.get_name())
     }
 }
 
-impl Matcher for RegexLexer {
+impl<T,V> Matcher for RegexLexer<T,V> {
     fn get_name(self: &Self) -> String {
         self.template.as_str().to_string()
     }
 
-    /// Given a string, match what we can and return the rest.
+    // Given a string, match what we can and return the rest.
     fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError> {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
@@ -239,18 +242,16 @@ pub enum StringOrTemplate {
 impl Lexer {
     /// Create a new lexer.
     pub fn new(config: FluffConfig, dialect: Option<Arc<&dyn Dialect>>) -> Self {
-        panic!("Not implemented")
-        // let last_resort_lexer = StringLexer {
-        //     template: String::from(" "),
-        // };
-        // Lexer {
-        //     config,
-        //     dialect,
-        //     last_resort_lexer: Arc::new(last_resort_lexer),
-        // }
+        let last_resort_lexer = RegexLexer::new("last_resort", "[^\t\n.]*", UnlexableSegment::new)
+            .expect("Unable to create last resort lexer");
+        Lexer {
+            config,
+            dialect: dialect.unwrap(),
+            last_resort_lexer: Arc::new(last_resort_lexer)
+        }
     }
 
-    pub fn lex(&self, raw: StringOrTemplate) -> (Vec<Arc<dyn Segment>>, Vec<SQLLexError>) {
+    pub fn lex(&self, raw: StringOrTemplate) -> (Vec<Arc<dyn Segment<_>>>, Vec<SQLLexError>) {
         panic!("Not implemented")
         // let (template: , str: &str) = match raw {
         //     Union::A(s) => s,
@@ -261,7 +262,7 @@ impl Lexer {
     /// Generate any lexing errors for any un-lex-ables.
     ///
     /// TODO: Taking in an iterator, also can make the typing better than use unwrap.
-    fn violations_from_segments(segments: Vec<Arc<dyn Segment>>) -> Vec<SQLLexError> {
+    fn violations_from_segments(segments: Vec<Arc<dyn Segment<_>>>) -> Vec<SQLLexError> {
         segments
             .into_iter()
             .filter(|s| s.is_type("unlexable"))

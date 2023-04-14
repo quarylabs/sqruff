@@ -8,7 +8,6 @@ use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::segments::base::{BaseSegment, Segment};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
-use std::collections::hash_set::Union;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;

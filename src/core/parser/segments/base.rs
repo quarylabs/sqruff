@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::rules::base::LintFix;
 use std::hash::Hash;
@@ -114,7 +115,8 @@ impl AnchorEditInfo {
 #[derive(Debug, PartialEq, Clone)]
 pub struct BaseSegment {}
 
-pub trait Segment {
+pub trait Segment<SegmentArgs: Debug + Clone>: Debug + Clone {
+    fn new(raw: &str, position_maker: PositionMarker, args: SegmetArgs) -> Self;
     fn get_raw(&self) -> Option<&str> {
         None
     }
@@ -139,9 +141,16 @@ pub trait Segment {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct CodeSegment {}
 
-impl Segment for CodeSegment {
+#[derive(Debug, Clone)]
+pub struct CodeSegmentNewArgs;
+
+impl Segment<SegmentArgs> for CodeSegment {
+    fn new(raw: &str, position_maker: PositionMarker, args: CodeSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
     fn get_type(&self) -> &'static str {
         "code"
     }
@@ -157,9 +166,16 @@ impl Segment for CodeSegment {
 }
 
 /// Segment containing a comment.
+#[derive(Debug, Clone)]
 pub struct CommentSegment {}
 
-impl Segment for CommentSegment {
+#[derive(Debug, Clone)]
+pub struct CommentSegmentNewArgs;
+
+impl Segment<SegmentArgs> for CommentSegment {
+    fn new(raw: &str, position_maker: PositionMarker, args: CommentSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
     fn get_type(&self) -> &'static str {
         "comment"
     }
@@ -175,9 +191,16 @@ impl Segment for CommentSegment {
 }
 
 /// Segment containing a newline.
+#[derive(Debug, Clone)]
 pub struct NewlineSegment {}
 
-impl Segment for NewlineSegment {
+#[derive(Debug, Clone)]
+pub struct NewLineSegmentNewArgs;
+
+impl Segment<SegmentArgs> for NewlineSegment {
+    fn new(raw: &str, position_maker: PositionMarker, args: NewLineSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
     fn get_type(&self) -> &'static str {
         "newline"
     }
@@ -196,9 +219,16 @@ impl Segment for NewlineSegment {
 }
 
 /// Segment containing whitespace.
+#[derive(Debug, Clone)]
 pub struct WhitespaceSegment {}
 
-impl Segment for WhitespaceSegment {
+#[derive(Debug, Clone)]
+pub struct WhitespaceSegmentNewArgs;
+
+impl Segment<SegmentArgs> for WhitespaceSegment {
+    fn new(raw: &str, position_maker: PositionMarker, args: WhitespaceSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
     fn get_type(&self) -> &'static str {
         "whitespace"
     }
@@ -219,9 +249,16 @@ impl Segment for WhitespaceSegment {
 /// A placeholder to un-lexable sections.
 ///
 /// This otherwise behaves exactly like a code section.
+#[derive(Debug, Clone)]
 pub struct RawSegment {}
 
-impl Segment for RawSegment {
+#[derive(Debug, Clone)]
+pub struct RawSegmentNewArgs;
+
+impl Segment<SegmentArgs> for RawSegment {
+    fn new(raw: &str, position_maker: PositionMarker, args: RawSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
     fn get_type(&self) -> &'static str {
         "raw"
     }
@@ -241,11 +278,42 @@ impl Segment for RawSegment {
 /// We rename the segment class here so that descendants of
 /// _ProtoKeywordSegment can use the same functionality
 /// but don't end up being labelled as a `keyword` later.
+#[derive(Debug, Clone)]
 pub struct SymbolSegment {}
 
-impl Segment for SymbolSegment {
+#[derive(Debug, Clone)]
+pub struct SymbolSegmentNewArgs;
+
+impl Segment<SegmentArgs> for SymbolSegment {
+    fn new(raw: &str, position_maker: PositionMarker, args: SymbolSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
     fn get_type(&self) -> &'static str {
         "symbol"
+    }
+    fn is_code(&self) -> bool {
+        true
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct UnlexableSegment {}
+
+#[derive(Debug, Clone)]
+pub struct UnlexableSegmentNewArgs;
+
+impl Segment<_> for UnlexableSgment {
+    fn new(raw: &str, position_maker: PositionMarker, args: UnlexableSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
+    fn get_type(&self) -> &'static str {
+        "unlexable"
     }
     fn is_code(&self) -> bool {
         true

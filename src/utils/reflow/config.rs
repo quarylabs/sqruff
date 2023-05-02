@@ -1,6 +1,6 @@
 use crate::core::config::FluffConfig;
+use crate::utils::reflow::depth_map::DepthInfo;
 use std::collections::{HashMap, HashSet};
-
 type ConfigElementType = HashMap<String, String>;
 type ConfigDictType = HashMap<String, ConfigElementType>;
 
@@ -89,6 +89,14 @@ impl Default for ReflowConfig {
 }
 
 impl ReflowConfig {
+    pub fn get_block_config(
+        &self,
+        block_class_types: Vec<String>,
+        depth_info: Option<DepthInfo>,
+    ) -> BlockConfig {
+        panic!("Not implemented yet");
+    }
+
     pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
         panic!("Not implemented yet");
     }

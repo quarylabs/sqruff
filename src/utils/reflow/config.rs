@@ -96,4 +96,8 @@ impl ReflowConfig {
     ) -> ReflowBlockConfig {
         panic!("Not implemented yet");
     }
+
+    pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
+        panic!("Not implemented yet");
+    }
 }

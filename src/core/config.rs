@@ -101,6 +101,7 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 // TODO This is not a translation that is particularly accurate.
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
+    pub indentation: FluffConfigIndentation,
     configs: Option<HashSet<String>>,
     extra_config_path: Option<String>,
     _configs: HashMap<String, HashMap<String, String>>,
@@ -108,11 +109,16 @@ pub struct FluffConfig {
 
 impl FluffConfig {
     // TODO This is not a translation that is particularly accurate.
-    pub fn new(configs: Option<HashSet<String>>, extra_config_path: Option<String>) -> Self {
+    pub fn new(
+        configs: Option<HashSet<String>>,
+        extra_config_path: Option<String>,
+        indentation: Option<FluffConfigIndentation>,
+    ) -> Self {
         Self {
             configs,
             extra_config_path,
             _configs: HashMap::new(),
+            indentation: indentation.unwrap_or(FluffConfigIndentation::default()),
         }
     }
 
@@ -123,7 +129,11 @@ impl FluffConfig {
         ignore_local_config: bool,
         overrides: Option<HashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
-        Ok(FluffConfig::new(Some(HashSet::new()), extra_config_path))
+        Ok(FluffConfig::new(
+            Some(HashSet::new()),
+            extra_config_path,
+            None,
+        ))
     }
 
     /// Process a full raw file for inline config and update self.
@@ -156,5 +166,18 @@ specify one on the command line using --dialect after the
 command. Available dialects: {}",
             dialect_readout().join(", ").as_str()
         )))
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct FluffConfigIndentation {
+    pub template_blocks_indent: bool,
+}
+
+impl Default for FluffConfigIndentation {
+    fn default() -> Self {
+        Self {
+            template_blocks_indent: true,
+        }
     }
 }

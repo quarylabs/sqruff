@@ -35,7 +35,7 @@ impl StackPosition {
 
 /// An object to hold the depth information for a specific raw segment.
 #[derive(Debug, PartialEq, Eq, Clone)]
-struct DepthInfo {
+pub struct DepthInfo {
     stack_depth: usize,
     stack_hashes: Vec<u64>,
     /// This is a convenience cache to speed up operations.

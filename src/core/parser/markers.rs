@@ -92,39 +92,39 @@ mod tests {
     /// Test that we can correctly infer positions from strings.
     #[test]
     fn test_markers__infer_next_position() {
-        struct test {
+        struct Test {
             raw: String,
             start: Range<usize>,
             end: Range<usize>,
         }
 
-        let tests: Vec<test> = vec![
-            test {
+        let tests: Vec<Test> = vec![
+            Test {
                 raw: "fsaljk".to_string(),
                 start: (0..0),
                 end: (0..6),
             },
-            test {
+            Test {
                 raw: "".to_string(),
                 start: (2..2),
                 end: (2..2),
             },
-            test {
+            Test {
                 raw: "\n".to_string(),
                 start: (2..2),
                 end: (3..1),
             },
-            test {
+            Test {
                 raw: "boo\n".to_string(),
                 start: (2..2),
                 end: (3..1),
             },
-            test {
+            Test {
                 raw: "boo\nfoo".to_string(),
                 start: (2..2),
                 end: (3..4),
             },
-            test {
+            Test {
                 raw: "\nfoo".to_string(),
                 start: (2..2),
                 end: (3..4),
@@ -147,7 +147,7 @@ mod tests {
         assert_eq!(template.get_line_pos_of_char_pos(2, true), (1, 3));
         assert_eq!(template.get_line_pos_of_char_pos(2, false), (1, 3));
         // Now check it passes through
-        let pos = PositionMarker::new((2..5), (2..5), template, None, None);
+        let pos = PositionMarker::new(2..5, 2..5, template, None, None);
         // Can we infer positions correctly
         assert_eq!(pos.working_loc(), (1, 3));
     }
@@ -156,7 +156,7 @@ mod tests {
     #[test]
     fn test_markers__setting_position_working() {
         let templ = TemplatedFile::from_string("foobar".to_string());
-        let pos = PositionMarker::new((2..5), (2..5), templ, Some(4), Some(4));
+        let pos = PositionMarker::new(2..5, 2..5, templ, Some(4), Some(4));
         // Can we NOT infer when we're told.
         assert_eq!(pos.working_loc(), (4, 4))
     }

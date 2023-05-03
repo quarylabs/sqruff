@@ -308,7 +308,7 @@ pub struct UnlexableSegment {}
 #[derive(Debug, Clone)]
 pub struct UnlexableSegmentNewArgs;
 
-impl Segment<_> for UnlexableSgment {
+impl Segment<SegementArgs> for UnlexableSgment {
     fn new(raw: &str, position_maker: PositionMarker, args: UnlexableSegmentNewArgs) -> Self {
         panic!("Not implemented yet")
     }

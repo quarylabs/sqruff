@@ -143,12 +143,14 @@ impl Matcher for StringLexer {
 /// This RegexLexer matches based on regular expressions.
 #[derive(Debug, Clone)]
 pub struct RegexLexer {
+    name: String,
     template: regex::Regex,
 }
 
 impl RegexLexer {
-    pub fn new(regex: &str) -> Result<Self, Error> {
+    pub fn new(name: &str, regex: &str) -> Result<Self, Error> {
         Ok(RegexLexer {
+            name: name.to_string(),
             template: regex::Regex::new(regex)?,
         })
     }
@@ -233,16 +235,14 @@ pub struct Lexer {
 
 impl Lexer {
     /// Create a new lexer.
-    pub fn new(config: FluffConfig, dialect: Arc<&dyn Dialect>) -> Self {
-        panic!("Not implemented")
-        // let last_resort_lexer = StringLexer {
-        //     template: String::from(" "),
-        // };
-        // Lexer {
-        //     config,
-        //     dialect,
-        //     last_resort_lexer: Arc::new(last_resort_lexer),
-        // }
+    pub fn new(config: FluffConfig, dialect: Option<impl Dialect + 'static>) -> Self {
+        let last_resort_lexer = RegexLexer::new("last_resort", "[^\t\n.]*")
+            .expect("Unable to create last resort lexer");
+        Lexer {
+            config,
+            last_resort_lexer: Arc::new(last_resort_lexer),
+            dialect: Arc::new(dialect.unwrap()),
+        }
     }
 
     pub fn lex<T: Debug + Clone>(

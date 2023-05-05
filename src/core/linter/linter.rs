@@ -1,3 +1,4 @@
+
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlError};
@@ -9,6 +10,7 @@ use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
 use std::collections::HashMap;
 use std::time::Instant;
+use crate::core::parser::lexer::Lexer;
 
 use super::linted_dir::LintedDir;
 
@@ -285,10 +287,18 @@ impl Linter {
         panic!("Not implemented");
     }
 
+    /// Lex a templated file.
+    ///
+    /// NOTE: This potentially mutates the config, so make sure to
+    /// use the returned one.
     fn lex_templated_file(
         templated_file: TemplatedFile,
         config: &FluffConfig,
     ) -> (Option<Vec<Box<dyn Segment>>>, Vec<SQLLexError>, FluffConfig) {
+        let mut violations: Vec<SQLLexError> = vec![];
+        // linter_logger.info("LEXING RAW ({})", templated_file.fname);
+        // Get the lexer
+        let lexer = Lexer::new(config.clone(), None);
         panic!("Not implemented");
     }
 
@@ -298,3 +308,4 @@ impl Linter {
         re.replace_all(string, "\n").to_string()
     }
 }
+

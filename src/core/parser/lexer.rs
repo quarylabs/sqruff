@@ -230,18 +230,18 @@ impl Matcher for RegexLexer {
 pub struct Lexer {
     config: FluffConfig,
     last_resort_lexer: Arc<dyn Matcher>,
-    dialect: Arc<dyn Dialect>,
+    dialect: Box<dyn Dialect>,
 }
 
 impl Lexer {
     /// Create a new lexer.
-    pub fn new(config: FluffConfig, dialect: Option<impl Dialect + 'static>) -> Self {
+    pub fn new(config: FluffConfig, dialect: Option<Box<dyn Dialect>>) -> Self {
         let last_resort_lexer = RegexLexer::new("last_resort", "[^\t\n.]*")
             .expect("Unable to create last resort lexer");
         Lexer {
             config,
             last_resort_lexer: Arc::new(last_resort_lexer),
-            dialect: Arc::new(dialect.unwrap()),
+            dialect: dialect.unwrap(),
         }
     }
 

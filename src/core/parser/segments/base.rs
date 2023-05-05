@@ -223,11 +223,11 @@ impl Segment for CommentSegment {
 //         Some("\n")
 //     }
 // }
-//
-// /// Segment containing whitespace.
-// #[derive(Debug, Clone)]
-// pub struct WhitespaceSegment {}
-//
+
+/// Segment containing whitespace.
+#[derive(Debug, Clone)]
+pub struct WhitespaceSegment {}
+
 // #[derive(Debug, Clone)]
 // pub struct WhitespaceSegmentNewArgs;
 //

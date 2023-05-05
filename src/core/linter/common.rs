@@ -42,7 +42,7 @@ pub struct RenderedFile {
 
 /// An object to store the result of parsing a string.
 pub struct ParsedString {
-    pub tree: Option<Box<dyn Segment + 'static>>,
+    pub tree: Option<Box<dyn Segment>>,
     pub violations: Vec<SQLBaseError>,
     // TODO Implement time dict
     /// `time_dict` is a :obj:`dict` containing timings for how long each step took in the process.

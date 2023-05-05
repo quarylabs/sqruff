@@ -23,8 +23,8 @@ pub struct SourceFix {
 ///         idx (int): The index of the target within its `segment`.
 ///         len (int): The number of children `segment` has.
 #[derive(Debug, Clone)]
-pub struct PathStep<S: Segment> {
-    pub segment: S,
+pub struct PathStep {
+    pub segment: Box<dyn Segment>,
     pub idx: usize,
     pub len: usize,
 }
@@ -112,11 +112,14 @@ impl AnchorEditInfo {
     }
 }
 
-pub trait SegmentConstructor<SegmentArgs: Debug + Clone> {
-    fn new(raw: &str, pos: &PositionMarker, args: SegmentArgs) -> Self;
+pub trait SegmentConstructor<SegmentArgs: Clone + Debug> {
+    fn new(raw: &str, pos: &PositionMarker, args: SegmentArgs) -> Self
+    where
+        Self: Sized;
 }
 
-pub trait Segment {
+pub trait Segment: Debug {
+    fn clone_box(&self) -> Box<dyn Segment>;
     fn get_raw(&self) -> Option<&str> {
         None
     }
@@ -141,6 +144,15 @@ pub trait Segment {
     }
 }
 
+impl Clone for Box<dyn Segment> {
+    fn clone(&self) -> Box<dyn Segment> {
+        self.clone_box()
+    }
+}
+
+pub type SegmentConstructorFunc<S: Segment, SegmentConstructorArgs: Debug + Clone> =
+    dyn Fn(&str, &PositionMarker, SegmentConstructorArgs) -> S;
+
 #[derive(Debug, Clone)]
 pub struct CodeSegment {}
 
@@ -154,6 +166,9 @@ impl SegmentConstructor<CodeSegmentNewArgs> for CodeSegment {
 }
 
 impl Segment for CodeSegment {
+    fn clone_box(&self) -> Box<dyn Segment> {
+        Box::new(self.clone())
+    }
     fn get_type(&self) -> &'static str {
         "code"
     }
@@ -182,6 +197,9 @@ impl SegmentConstructor<CommentSegmentNewArgs> for CommentSegment {
 }
 
 impl Segment for CommentSegment {
+    fn clone_box(&self) -> Box<dyn Segment> {
+        Box::new((*self).clone())
+    }
     fn get_type(&self) -> &'static str {
         "comment"
     }
@@ -308,26 +326,40 @@ pub struct WhitespaceSegment {}
 //     }
 // }
 //
-// #[derive(Debug, Clone)]
-// pub struct UnlexableSegment {}
-//
-// #[derive(Debug, Clone)]
-// pub struct UnlexableSegmentNewArgs;
-//
-// impl Segment<UnlexableSegmentNewArgs> for UnlexableSegment {
-//     fn new(raw: &str, position_maker: PositionMarker, args: UnlexableSegmentNewArgs) -> Self {
-//         panic!("Not implemented yet")
-//     }
-//     fn get_type(&self) -> &'static str {
-//         "unlexable"
-//     }
-//     fn is_code(&self) -> bool {
-//         true
-//     }
-//     fn is_comment(&self) -> bool {
-//         false
-//     }
-//     fn is_whitespace(&self) -> bool {
-//         false
-//     }
-// }
+#[derive(Debug, Clone)]
+pub struct UnlexableSegment {}
+
+#[derive(Debug, Clone)]
+pub struct UnlexableSegmentNewArgs;
+
+pub fn unlexable_segment_constructor(
+    s: &str,
+    pm: &PositionMarker,
+    sca: UnlexableSegmentNewArgs,
+) -> UnlexableSegment {
+    panic!("Not implemented")
+}
+
+impl SegmentConstructor<UnlexableSegmentNewArgs> for UnlexableSegment {
+    fn new(raw: &str, position_maker: &PositionMarker, args: UnlexableSegmentNewArgs) -> Self {
+        panic!("Not implemented yet")
+    }
+}
+
+impl Segment for UnlexableSegment {
+    fn clone_box(&self) -> Box<dyn Segment> {
+        Box::new((*self).clone())
+    }
+    fn get_type(&self) -> &'static str {
+        "unlexable"
+    }
+    fn is_code(&self) -> bool {
+        true
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}

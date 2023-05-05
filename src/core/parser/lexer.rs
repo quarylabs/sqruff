@@ -1,16 +1,17 @@
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{unlexable_segment_constructor, Segment, SegmentConstructor, SegmentConstructorFunc, UnlexableSegmentNewArgs, UnlexableSegment};
 use crate::core::templaters::base::TemplatedFile;
 use regex::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
+use std::rc::Rc;
 use std::sync::Arc;
 
 /// An element matched during lexing.
-#[derive(Debug, Clone)]
-pub struct LexedElement {
+#[derive(Debug)]
+pub struct LexedElement<'a, S, Args> {
     raw: String,
     matcher: Arc<dyn Matcher>,
 }
@@ -19,14 +20,14 @@ pub struct LexedElement {
 pub struct TemplateElement {
     raw: String,
     template_slice: Range<usize>,
-    matcher: Arc<dyn Matcher>,
+    matcher: Box<dyn Matcher>,
 }
 
 impl TemplateElement {
     /// Make a TemplateElement from a LexedElement.
-    pub fn from_element(element: LexedElement, template_slice: Range<usize>) -> Self {
+    pub fn from_element(element: &LexedElement, template_slice: Range<usize>) -> Self {
         TemplateElement {
-            raw: element.raw,
+            raw: element.raw.clone(),
             template_slice,
             matcher: element.matcher,
         }
@@ -78,7 +79,7 @@ impl StringLexer {
         if forward_string.starts_with(&self.template) {
             Some(LexedElement {
                 raw: self.template.clone(),
-                matcher: Arc::new(self.clone()),
+                matcher: Box::new(self.clone()),
             })
         } else {
             None
@@ -140,48 +141,58 @@ impl Matcher for StringLexer {
 }
 
 /// This RegexLexer matches based on regular expressions.
-#[derive(Debug, Clone)]
-pub struct RegexLexer {
+pub struct RegexLexer<S: Segment + Debug, Args: Debug + Clone> {
     name: String,
     template: regex::Regex,
+    segment_constructor: Box<SegmentConstructorFunc<S, Args>>,
+    segment_constructor_args: Args,
 }
 
-impl RegexLexer {
-    pub fn new(name: &str, regex: &str) -> Result<Self, Error> {
-        Ok(RegexLexer {
-            name: name.to_string(),
-            template: regex::Regex::new(regex)?,
-        })
-    }
+pub fn new_regex_lexer<S: Segment, Args: Debug + Clone>(
+    name: &str,
+    regex: &str,
+    segment_constructor: Box<SegmentConstructorFunc<S, Args>>,
+    segment_constructor_args: Args,
+) -> Result<RegexLexer<S, Args>, Error> {
+    Ok(RegexLexer {
+        name: name.to_string(),
+        template: regex::Regex::new(regex)?,
+        segment_constructor,
+        segment_constructor_args,
+    })
+}
 
-    /// Use regexes to match chunks.
-    pub fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
-        if let Some(matched) = self.template.find(forward_string) {
-            if matched.as_str().len() != 0 {
-                panic!("RegexLexer matched a non-zero start: {}", matched.start());
-            }
-            Some(LexedElement {
-                raw: matched.as_str().to_string(),
-                matcher: Arc::new(self.clone()),
-            })
-        } else {
-            None
+fn regex_lexer_subdivide<S: Segment, Args: Debug + Clone>(
+    regex: &RegexLexer<S, Args>,
+    matched: LexedElement,
+) -> Vec<LexedElement> {
+    panic!("Not implemented")
+}
+
+fn regex_lexer_match<'a, S: Segment, Args: Debug + Clone>(
+    regex: &'a RegexLexer<S, Args>,
+    forward_string: &str,
+) -> Option<LexedElement> {
+    if let Some(matched) = regex.template.find(forward_string) {
+        if matched.as_str().len() != 0 {
+            panic!("RegexLexer matched a non-zero start: {}", matched.start());
         }
-    }
-
-    // TODO: Could be inherited from StringLexer.
-    pub fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
-        panic!("Not implemented")
+        Some(LexedElement {
+            raw: matched.as_str().to_string(),
+            matcher: regex,
+        })
+    } else {
+        None
     }
 }
 
-impl Display for RegexLexer {
+impl<S: Segment, Args: Debug + Clone> Display for RegexLexer<S, Args> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "RegexLexer({})", self.get_name())
     }
 }
 
-impl Matcher for RegexLexer {
+impl<S: Segment, Args: Debug + Clone> Matcher for &RegexLexer<S, Args> {
     fn get_name(self: &Self) -> String {
         self.template.as_str().to_string()
     }
@@ -191,11 +202,11 @@ impl Matcher for RegexLexer {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
-        let matched = self._match(&forward_string);
+        let matched = regex_lexer_match(self, &forward_string);
         match matched {
             Some(matched) => {
                 let length = matched.raw.len();
-                let new_elements = self._subdivide(matched);
+                let new_elements = regex_lexer_subdivide(self, matched);
                 Ok(LexMatch {
                     forward_string: forward_string[length..].to_string(),
                     elements: new_elements,
@@ -225,10 +236,16 @@ impl Matcher for RegexLexer {
     }
 }
 
+impl<S: Segment, Args: Debug + Clone> Debug for RegexLexer<S, Args> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        panic!("implement")
+    }
+}
+
 /// The Lexer class actually does the lexing step.
 pub struct Lexer {
     config: FluffConfig,
-    last_resort_lexer: Arc<dyn Matcher>,
+    last_resort_lexer: Box<dyn Matcher>,
 }
 
 pub enum StringOrTemplate {
@@ -240,18 +257,23 @@ impl Lexer {
     /// Create a new lexer.
     pub fn new(config: FluffConfig, dialect: Option<Box<dyn Dialect>>) -> Self {
         let fluff_config = FluffConfig::from_kwargs(Some(config), dialect, None);
-        let last_resort_lexer = RegexLexer::new("last_resort", "[^\t\n.]*")
+        let last_resort_lexer = new_regex_lexer::<UnlexableSegment, UnlexableSegmentNewArgs>(
+            "last_resort",
+            "[^\t\n.]*",
+            Box::new(unlexable_segment_constructor),
+            UnlexableSegmentNewArgs {},
+        )
             .expect("Unable to create last resort lexer");
         Lexer {
             config: fluff_config,
-            last_resort_lexer: Arc::new(last_resort_lexer),
+            last_resort_lexer: Box::new(&last_resort_lexer),
         }
     }
 
     pub fn lex(
         &self,
         raw: StringOrTemplate,
-    ) -> Result<(Box<dyn Segment>, Vec<SQLLexError>), ValueError> {
+    ) -> Result<(Rc<dyn Segment>, Vec<SQLLexError>), ValueError> {
         // Make sure we've got a string buffer and a template regardless of what was passed in.
         let (mut str_buff, template) = match raw {
             StringOrTemplate::String(s) => (s.clone(), TemplatedFile::from_string(s.to_string())),
@@ -334,10 +356,16 @@ impl Lexer {
                 });
             };
             for matcher in &lexer_matchers {
-                let res = matcher.match_(forward_string.to_string())?;
+                let mut res = matcher.match_(forward_string.to_string())?;
                 if res.elements.len() > 0 {
                     // If we have new segments then whoop!
-                    elem_buff.append(res.elements.clone().as_mut());
+                    for element in res.elements {
+                        elem_buff.push(LexedElement {
+                            raw: element.raw.clone(),
+                            matcher: element.matcher,
+                        });
+                    }
+
                     forward_str = res.forward_string;
                     // Cycle back around again and start with the top
                     // matcher again.
@@ -368,8 +396,12 @@ impl Lexer {
         for element in elements {
             let template_slice = idx..idx + element.raw.len();
             idx += element.raw.len();
+            let lexed_element = LexedElement {
+                raw: element.raw.clone(),
+                matcher: element.matcher,
+            };
             templated_buff.push(TemplateElement::from_element(
-                element.clone(),
+                &lexed_element,
                 template_slice,
             ));
             let templated_string = template.get_templated_string().unwrap();

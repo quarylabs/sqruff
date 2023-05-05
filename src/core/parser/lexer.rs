@@ -230,31 +230,31 @@ impl Matcher for RegexLexer {
 pub struct Lexer {
     config: FluffConfig,
     last_resort_lexer: Arc<dyn Matcher>,
-    dialect: Box<dyn Dialect>,
+}
+
+pub enum StringOrTemplate {
+    String(String),
+    Template(TemplatedFile),
 }
 
 impl Lexer {
     /// Create a new lexer.
     pub fn new(config: FluffConfig, dialect: Option<Box<dyn Dialect>>) -> Self {
-        config;
+        let fluff_config = FluffConfig::from_kwargs(Some(config), dialect, None);
         let last_resort_lexer = RegexLexer::new("last_resort", "[^\t\n.]*")
             .expect("Unable to create last resort lexer");
         Lexer {
-            config,
+            config: fluff_config,
             last_resort_lexer: Arc::new(last_resort_lexer),
-            dialect: dialect.unwrap(),
         }
     }
 
-    pub fn lex<T: Debug + Clone>(
-        &self,
-        raw: Union<&str, TemplatedFile>,
-    ) -> (Box<dyn Segment>, Vec<SQLLexError>) {
-        panic!("Not implemented")
-        // let (template: , str: &str) = match raw {
-        //     Union::A(s) => s,
-        //     Union::B(f) => f.read_to_string().unwrap(),
+    pub fn lex(&self, raw: StringOrTemplate) -> (Box<dyn Segment>, Vec<SQLLexError>) {
+        // let s = match raw {
+        //     StringOrTemplate::String(s) => s,
+        //     StringOrTemplate::Template(f) => f.read_to_string().unwrap(),
         // };
+        panic!("Not implemented");
     }
 
     /// Generate any lexing errors for any un-lex-ables.

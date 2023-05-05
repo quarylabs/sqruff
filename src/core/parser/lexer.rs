@@ -236,6 +236,7 @@ pub struct Lexer {
 impl Lexer {
     /// Create a new lexer.
     pub fn new(config: FluffConfig, dialect: Option<Box<dyn Dialect>>) -> Self {
+        config;
         let last_resort_lexer = RegexLexer::new("last_resort", "[^\t\n.]*")
             .expect("Unable to create last resort lexer");
         Lexer {

@@ -4,7 +4,7 @@ use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlErro
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
-use crate::core::parser::segments::base::BaseSegment;
+use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
 use std::collections::HashMap;
@@ -228,7 +228,7 @@ impl Linter {
 
         let t0 = Instant::now();
         let mut violations = rendered.templater_violations.clone();
-        let mut tokens: Option<Vec<BaseSegment>> = None;
+        let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
 
         if rendered.templated_file.is_templated() {
             let (t, lvs, config) =
@@ -245,7 +245,7 @@ impl Linter {
         // let linter_logger = log::logger();
         // linter_logger.info("PARSING ({})", rendered.fname);
 
-        let parsed: Option<BaseSegment>;
+        let parsed: Option<Box<dyn Segment>>;
         if let Some(token_list) = tokens {
             panic!("Not implemented")
             // let (p, pvs) =
@@ -277,18 +277,18 @@ impl Linter {
     }
 
     fn parse_tokens(
-        tokens: &Vec<BaseSegment>,
+        tokens: &Vec<impl Segment>,
         config: &FluffConfig,
         recurse: bool,
         f_name: Option<String>,
-    ) -> (Option<BaseSegment>, Vec<SQLParseError>) {
+    ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
         panic!("Not implemented");
     }
 
     fn lex_templated_file(
         templated_file: TemplatedFile,
         config: &FluffConfig,
-    ) -> (Option<Vec<BaseSegment>>, Vec<SQLLexError>, FluffConfig) {
+    ) -> (Option<Vec<Box<dyn Segment>>>, Vec<SQLLexError>, FluffConfig) {
         panic!("Not implemented");
     }
 

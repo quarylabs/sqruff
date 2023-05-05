@@ -1,6 +1,6 @@
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLBaseError, SQLTemplaterError};
-use crate::core::parser::segments::base::BaseSegment;
+use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::TemplatedFile;
 use std::collections::HashMap;
 
@@ -41,9 +41,8 @@ pub struct RenderedFile {
 }
 
 /// An object to store the result of parsing a string.
-#[derive(Debug, PartialEq, Clone)]
 pub struct ParsedString {
-    pub tree: Option<BaseSegment>,
+    pub tree: Option<Box<dyn Segment + 'static>>,
     pub violations: Vec<SQLBaseError>,
     // TODO Implement time dict
     /// `time_dict` is a :obj:`dict` containing timings for how long each step took in the process.

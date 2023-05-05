@@ -245,10 +245,10 @@ impl Lexer {
         // }
     }
 
-    pub fn lex(
+    pub fn lex<T: Debug + Clone>(
         &self,
         raw: Union<&str, TemplatedFile>,
-    ) -> (Vec<Arc<dyn Segment>>, Vec<SQLLexError>) {
+    ) -> (Box<dyn Segment>, Vec<SQLLexError>) {
         panic!("Not implemented")
         // let (template: , str: &str) = match raw {
         //     Union::A(s) => s,
@@ -259,7 +259,7 @@ impl Lexer {
     /// Generate any lexing errors for any un-lex-ables.
     ///
     /// TODO: Taking in an iterator, also can make the typing better than use unwrap.
-    fn violations_from_segments(segments: Vec<Arc<dyn Segment>>) -> Vec<SQLLexError> {
+    fn violations_from_segments<T: Debug + Clone>(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
         segments
             .into_iter()
             .filter(|s| s.is_type("unlexable"))

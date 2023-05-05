@@ -29,7 +29,7 @@ pub struct NoQaDirective {
 ///
 /// This is notable as it's the intermediate state between what happens
 /// in the main process and the child processes when running in parallel mode.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub struct RenderedFile {
     pub templated_file: TemplatedFile,
     pub templater_violations: Vec<SQLTemplaterError>,

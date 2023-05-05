@@ -1,3 +1,4 @@
+use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_readout;
 use crate::core::errors::SQLFluffUserError;
 use std::collections::{HashMap, HashSet};
@@ -134,6 +135,19 @@ impl FluffConfig {
             extra_config_path,
             None,
         ))
+    }
+
+    pub fn from_kwargs(
+        config: Option<FluffConfig>,
+        dialect: Option<Box<dyn Dialect>>,
+        rules: Option<Vec<String>>,
+    ) -> Self {
+        if (dialect.is_some() || rules.is_some()) && config.is_some() {
+            panic!("Cannot specify `config` with `dialect` or `rules`. Any config object specifies its own dialect and rules.")
+        } else {
+            return config.unwrap();
+        }
+        panic!("Not implemented!")
     }
 
     /// Process a full raw file for inline config and update self.

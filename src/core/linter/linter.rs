@@ -4,7 +4,7 @@ use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlErro
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
-use crate::core::parser::lexer::Lexer;
+use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
@@ -298,7 +298,10 @@ impl Linter {
         // linter_logger.info("LEXING RAW ({})", templated_file.fname);
         // Get the lexer
         let lexer = Lexer::new(config.clone(), None);
-        panic!("Not implemented");
+        // Lex the file and log any problems
+        let (tokens, lex_vs) = lexer.lex(StringOrTemplate::Template(templated_file));
+        violations.extend(lex_vs);
+        panic!("not implemented")
     }
 
     /// Normalise newlines to unix-style line endings.

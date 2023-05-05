@@ -1,5 +1,5 @@
 use crate::core::dialects::base::Dialect;
-use crate::core::dialects::init::{dialect_readout, dialect_selector};
+use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
 use crate::core::errors::SQLFluffUserError;
 use std::collections::{HashMap, HashSet};
 
@@ -106,6 +106,7 @@ pub struct FluffConfig {
     configs: Option<HashSet<String>>,
     extra_config_path: Option<String>,
     _configs: HashMap<String, HashMap<String, String>>,
+    dialect: String,
 }
 
 impl FluffConfig {
@@ -114,9 +115,19 @@ impl FluffConfig {
         configs: Option<HashSet<String>>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
+        dialect: Option<&str>,
     ) -> Self {
+        let binding = get_default_dialect();
+        let dialect = match dialect {
+            None => binding.as_str(),
+            Some(std) => {
+                dialect_selector(std).unwrap();
+                std
+            }
+        };
         Self {
             configs,
+            dialect: dialect.to_string(),
             extra_config_path,
             _configs: HashMap::new(),
             indentation: indentation.unwrap_or(FluffConfigIndentation::default()),
@@ -133,6 +144,7 @@ impl FluffConfig {
         Ok(FluffConfig::new(
             Some(HashSet::new()),
             extra_config_path,
+            None,
             None,
         ))
     }
@@ -183,7 +195,10 @@ command. Available dialects: {}",
     }
 
     pub fn get_dialect(&self) -> Box<dyn Dialect> {
-        panic!("Not implemented")
+        match dialect_selector(self.dialect.as_str()) {
+            None => panic!("dialect not found"),
+            Some(d) => d
+        }
     }
 }
 

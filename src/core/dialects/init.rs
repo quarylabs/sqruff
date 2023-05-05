@@ -1,10 +1,14 @@
 use crate::core::dialects::base::Dialect;
 
-pub fn dialect_selector(s: &String) -> Option<Box<dyn Dialect>> {
-    match s.as_str() {
+pub fn dialect_selector(s: &str) -> Option<Box<dyn Dialect>> {
+    match s {
         "ansi" => Some(Box::new(crate::dialects::ansi::AnsiDialect {})),
         _ => None,
     }
+}
+
+pub fn get_default_dialect() -> String {
+    return "ansi".to_string()
 }
 
 /// Dialect Tuple object for describing dialects.

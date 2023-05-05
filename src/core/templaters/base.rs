@@ -20,7 +20,7 @@ struct TemplatedFileSlice {
 pub struct TemplatedFile {
     source_str: String,
     f_name: String,
-    templated_str: Option<String>,
+    pub templated_str: Option<String>,
     source_newlines: Vec<usize>,
     templated_newlines: Vec<usize>,
 }
@@ -169,6 +169,11 @@ impl TemplatedFile {
     /// Get templated string
     pub fn get_templated_string(&self) -> Option<&str> {
         self.templated_str.as_ref().map(|s| s.as_str())
+    }
+
+    /// Return the templated file if coerced to string.
+    pub fn to_string(&self) -> String {
+        self.templated_str.clone().unwrap().to_string()
     }
 }
 

@@ -4,7 +4,6 @@ use crate::core::errors::{SQLLexError, ValueError};
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::TemplatedFile;
 use regex::Error;
-use std::collections::hash_set::Union;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
 use std::sync::Arc;
@@ -249,11 +248,55 @@ impl Lexer {
         }
     }
 
-    pub fn lex(&self, raw: StringOrTemplate) -> (Box<dyn Segment>, Vec<SQLLexError>) {
-        // let s = match raw {
-        //     StringOrTemplate::String(s) => s,
-        //     StringOrTemplate::Template(f) => f.read_to_string().unwrap(),
-        // };
+    pub fn lex(
+        &self,
+        raw: StringOrTemplate,
+    ) -> Result<(Box<dyn Segment>, Vec<SQLLexError>), ValueError> {
+        // Make sure we've got a string buffer and a template regardless of what was passed in.
+        let (mut str_buff, template) = match raw {
+            StringOrTemplate::String(s) => (s.clone(), TemplatedFile::from_string(s.to_string())),
+            StringOrTemplate::Template(f) => (f.to_string(), f),
+        };
+
+        // Lex the string to get a tuple of LexedElement
+        let mut element_buffer: Vec<LexedElement> = Vec::new();
+        loop {
+            let res = Lexer::lex_match(&str_buff, self.config.get_dialect().get_lexer_matchers())
+                .unwrap();
+            element_buffer.extend(res.elements);
+            if !res.forward_string.is_empty() {
+                // If we STILL can't match, then just panic out.
+                let resort_res = self.last_resort_lexer.match_(str_buff.to_string())?;
+                str_buff = resort_res.forward_string;
+                element_buffer.extend(resort_res.elements);
+            } else {
+                break;
+            }
+        }
+
+        // Map tuple LexedElement to list of TemplateElement.
+        // This adds the template_slice to the object.
+        let templated_buffer = Lexer::map_template_slices(element_buffer, template);
+
+        // while True:
+        //     res = self.lex_match(str_buff, self.lexer_matchers)
+        // element_buffer += res.elements
+        // if res.forward_string:
+        //     resort_res = self.last_resort_lexer.match(res.forward_string)
+        // if not resort_res:  # pragma: no cover
+        // # If we STILL can't match, then just panic out.
+        //     raise SQLLexError(
+        //     "Fatal. Unable to lex characters: {0!r}".format(
+        //         res.forward_string[:10] + "..."
+        //         if len(res.forward_string) > 9
+        //         else res.forward_string
+        //     )
+        // )
+        // str_buff = resort_res.forward_string
+        // element_buffer += resort_res.elements
+        // else:  # pragma: no cover TODO?
+        // break
+
         panic!("Not implemented");
     }
 
@@ -279,7 +322,7 @@ impl Lexer {
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match(
         forward_string: &str,
-        lexer_matchers: &[Arc<dyn Matcher>],
+        lexer_matchers: Vec<Box<dyn Matcher>>,
     ) -> Result<LexMatch, ValueError> {
         let mut forward_str = forward_string.to_string();
         let mut elem_buff: Vec<LexedElement> = vec![];
@@ -290,7 +333,7 @@ impl Lexer {
                     elements: elem_buff,
                 });
             };
-            for matcher in lexer_matchers {
+            for matcher in &lexer_matchers {
                 let res = matcher.match_(forward_string.to_string())?;
                 if res.elements.len() > 0 {
                     // If we have new segments then whoop!

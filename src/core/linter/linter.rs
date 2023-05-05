@@ -299,9 +299,16 @@ impl Linter {
         // Get the lexer
         let lexer = Lexer::new(config.clone(), None);
         // Lex the file and log any problems
-        let (tokens, lex_vs) = lexer.lex(StringOrTemplate::Template(templated_file));
-        violations.extend(lex_vs);
-        panic!("not implemented")
+        let result = lexer.lex(StringOrTemplate::Template(templated_file));
+        match result {
+            Err(err) => {
+                panic!("result not right");
+            }
+            Ok((tokens, lex_vs)) => {
+                violations.extend(lex_vs);
+                panic!("not implemented")
+            }
+        }
     }
 
     /// Normalise newlines to unix-style line endings.

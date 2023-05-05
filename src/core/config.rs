@@ -1,5 +1,5 @@
 use crate::core::dialects::base::Dialect;
-use crate::core::dialects::init::dialect_readout;
+use crate::core::dialects::init::{dialect_readout, dialect_selector};
 use crate::core::errors::SQLFluffUserError;
 use std::collections::{HashMap, HashSet};
 
@@ -11,7 +11,7 @@ pub struct RemovedConfig<'a> {
     translation_func: Option<fn(&'a str) -> &'a str>,
 }
 
-pub fn REMOVED_CONFIGS() -> [RemovedConfig<'static>; 12] {
+pub fn removed_configs() -> [RemovedConfig<'static>; 12] {
     [
         RemovedConfig {
             old_path: vec!["rules", "max_line_length"],
@@ -180,6 +180,10 @@ specify one on the command line using --dialect after the
 command. Available dialects: {}",
             dialect_readout().join(", ").as_str()
         )))
+    }
+
+    pub fn get_dialect(&self) -> Box<dyn Dialect> {
+        panic!("Not implemented")
     }
 }
 

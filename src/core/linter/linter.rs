@@ -1,16 +1,15 @@
-
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlError};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
+use crate::core::parser::lexer::Lexer;
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
 use std::collections::HashMap;
 use std::time::Instant;
-use crate::core::parser::lexer::Lexer;
 
 use super::linted_dir::LintedDir;
 
@@ -308,4 +307,3 @@ impl Linter {
         re.replace_all(string, "\n").to_string()
     }
 }
-

@@ -322,7 +322,7 @@ impl Lexer {
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match(
         forward_string: &str,
-        lexer_matchers: Vec<Box<dyn Matcher>>,
+        lexer_matchers: Vec<Arc<dyn Matcher>>,
     ) -> Result<LexMatch, ValueError> {
         let mut forward_str = forward_string.to_string();
         let mut elem_buff: Vec<LexedElement> = vec![];

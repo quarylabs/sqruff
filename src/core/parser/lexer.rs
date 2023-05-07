@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 /// An element matched during lexing.
 #[derive(Debug)]
-pub struct LexedElement<'a, S, Args> {
+pub struct LexedElement {
     raw: String,
     matcher: Arc<dyn Matcher>,
 }
@@ -20,7 +20,7 @@ pub struct LexedElement<'a, S, Args> {
 pub struct TemplateElement {
     raw: String,
     template_slice: Range<usize>,
-    matcher: Box<dyn Matcher>,
+    matcher: Arc<dyn Matcher>,
 }
 
 impl TemplateElement {
@@ -29,7 +29,7 @@ impl TemplateElement {
         TemplateElement {
             raw: element.raw.clone(),
             template_slice,
-            matcher: element.matcher,
+            matcher: element.matcher.clone(),
         }
     }
 }
@@ -79,7 +79,7 @@ impl StringLexer {
         if forward_string.starts_with(&self.template) {
             Some(LexedElement {
                 raw: self.template.clone(),
-                matcher: Box::new(self.clone()),
+                matcher: Arc::new(self.clone()),
             })
         } else {
             None
@@ -141,49 +141,55 @@ impl Matcher for StringLexer {
 }
 
 /// This RegexLexer matches based on regular expressions.
+#[derive(Clone)]
 pub struct RegexLexer<S: Segment + Debug, Args: Debug + Clone> {
     name: String,
     template: regex::Regex,
-    segment_constructor: Box<SegmentConstructorFunc<S, Args>>,
+    segment_constructor: Arc<SegmentConstructorFunc<S, Args>>,
     segment_constructor_args: Args,
 }
 
 pub fn new_regex_lexer<S: Segment, Args: Debug + Clone>(
-    name: &str,
-    regex: &str,
-    segment_constructor: Box<SegmentConstructorFunc<S, Args>>,
+    name: String,
+    regex: String,
+    segment_constructor: Arc<SegmentConstructorFunc<S, Args>>,
     segment_constructor_args: Args,
 ) -> Result<RegexLexer<S, Args>, Error> {
     Ok(RegexLexer {
         name: name.to_string(),
-        template: regex::Regex::new(regex)?,
+        template: regex::Regex::new(regex.as_str())?,
         segment_constructor,
         segment_constructor_args,
     })
 }
 
-fn regex_lexer_subdivide<S: Segment, Args: Debug + Clone>(
-    regex: &RegexLexer<S, Args>,
-    matched: LexedElement,
-) -> Vec<LexedElement> {
-    panic!("Not implemented")
-}
-
-fn regex_lexer_match<'a, S: Segment, Args: Debug + Clone>(
-    regex: &'a RegexLexer<S, Args>,
-    forward_string: &str,
-) -> Option<LexedElement> {
-    if let Some(matched) = regex.template.find(forward_string) {
-        if matched.as_str().len() != 0 {
-            panic!("RegexLexer matched a non-zero start: {}", matched.start());
+impl<S: Segment, Args: Debug + Clone> RegexLexer<S, Args> {
+    fn regex_lexer_match(self: &Self, forward_string: &str) -> Option<LexedElement> {
+        if let Some(matched) = self.template.find(forward_string) {
+            if matched.as_str().len() != 0 {
+                panic!("RegexLexer matched a non-zero start: {}", matched.start());
+            }
+            Some({
+                let new_lexer = new_regex_lexer(
+                    self.name.to_string(),
+                    self.template.as_str().to_string(),
+                    self.segment_constructor.clone(),
+                    self.segment_constructor_args.clone(),
+                ).unwrap();
+                LexedElement {
+                    raw: matched.as_str().to_string(),
+                    matcher: Arc::new(new_lexer),
+                }
+            })
+        } else {
+            None
         }
-        Some(LexedElement {
-            raw: matched.as_str().to_string(),
-            matcher: regex,
-        })
-    } else {
-        None
     }
+
+    fn regex_lexer_subdivide(self: &Self, matched: LexedElement, ) -> Vec<LexedElement> {
+        panic!("Not implemented")
+    }
+
 }
 
 impl<S: Segment, Args: Debug + Clone> Display for RegexLexer<S, Args> {
@@ -192,7 +198,7 @@ impl<S: Segment, Args: Debug + Clone> Display for RegexLexer<S, Args> {
     }
 }
 
-impl<S: Segment, Args: Debug + Clone> Matcher for &RegexLexer<S, Args> {
+impl<S: Segment, Args: Debug + Clone> Matcher for RegexLexer<S, Args> {
     fn get_name(self: &Self) -> String {
         self.template.as_str().to_string()
     }
@@ -202,11 +208,11 @@ impl<S: Segment, Args: Debug + Clone> Matcher for &RegexLexer<S, Args> {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
-        let matched = regex_lexer_match(self, &forward_string);
+        let matched = self.regex_lexer_match( &forward_string);
         match matched {
             Some(matched) => {
                 let length = matched.raw.len();
-                let new_elements = regex_lexer_subdivide(self, matched);
+                let new_elements = self.regex_lexer_subdivide( matched);
                 Ok(LexMatch {
                     forward_string: forward_string[length..].to_string(),
                     elements: new_elements,
@@ -245,7 +251,7 @@ impl<S: Segment, Args: Debug + Clone> Debug for RegexLexer<S, Args> {
 /// The Lexer class actually does the lexing step.
 pub struct Lexer {
     config: FluffConfig,
-    last_resort_lexer: Box<dyn Matcher>,
+    last_resort_lexer: Arc<dyn Matcher>,
 }
 
 pub enum StringOrTemplate {
@@ -258,15 +264,15 @@ impl Lexer {
     pub fn new(config: FluffConfig, dialect: Option<Box<dyn Dialect>>) -> Self {
         let fluff_config = FluffConfig::from_kwargs(Some(config), dialect, None);
         let last_resort_lexer = new_regex_lexer::<UnlexableSegment, UnlexableSegmentNewArgs>(
-            "last_resort",
-            "[^\t\n.]*",
-            Box::new(unlexable_segment_constructor),
+            "last_resort".to_string(),
+            "[^\t\n.]*".to_string(),
+            Arc::new(unlexable_segment_constructor),
             UnlexableSegmentNewArgs {},
         )
             .expect("Unable to create last resort lexer");
         Lexer {
             config: fluff_config,
-            last_resort_lexer: Box::new(&last_resort_lexer),
+            last_resort_lexer: Arc::new(last_resort_lexer),
         }
     }
 
@@ -344,7 +350,7 @@ impl Lexer {
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match(
         forward_string: &str,
-        lexer_matchers: Vec<Box<dyn Matcher>>,
+        lexer_matchers: Vec<Arc<dyn Matcher>>,
     ) -> Result<LexMatch, ValueError> {
         let mut forward_str = forward_string.to_string();
         let mut elem_buff: Vec<LexedElement> = vec![];
@@ -356,7 +362,7 @@ impl Lexer {
                 });
             };
             for matcher in &lexer_matchers {
-                let mut res = matcher.match_(forward_string.to_string())?;
+                let res = matcher.match_(forward_string.to_string())?;
                 if res.elements.len() > 0 {
                     // If we have new segments then whoop!
                     for element in res.elements {

@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::lexer::Matcher;
 
@@ -5,12 +6,12 @@ use crate::core::parser::lexer::Matcher;
 pub struct AnsiDialect;
 
 impl Dialect for AnsiDialect {
-    fn get_lexer_matchers(&self) -> Vec<Box<dyn Matcher>> {
+    fn get_lexer_matchers(&self) -> Vec<Arc<dyn Matcher>> {
         lexer_matchers()
     }
 }
 
-fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
+fn lexer_matchers() -> Vec<Arc<dyn Matcher>> {
     panic!("Not implemented");
     // vec![
     //     // Match all forms of whitespace except newlines and carriage returns:

@@ -8,20 +8,19 @@ use crate::core::templaters::base::TemplatedFile;
 use regex::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
-use std::sync::Arc;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
 pub struct LexedElement {
     raw: String,
-    matcher: Arc<dyn Matcher>,
+    matcher: Box<dyn Matcher>,
 }
 
 /// A LexedElement, bundled with it's position in the templated file.
 pub struct TemplateElement {
     raw: String,
     template_slice: Range<usize>,
-    matcher: Arc<dyn Matcher>,
+    matcher: Box<dyn Matcher>,
 }
 
 impl TemplateElement {
@@ -80,7 +79,7 @@ impl StringLexer {
         if forward_string.starts_with(&self.template) {
             Some(LexedElement {
                 raw: self.template.clone(),
-                matcher: Arc::new(self.clone()),
+                matcher: Box::new(self.clone()),
             })
         } else {
             None
@@ -179,7 +178,7 @@ impl<S: Clone + Debug> RegexLexer<S> {
             }
             Some(LexedElement {
                 raw: matched.as_str().to_string(),
-                matcher: Arc::new(self.clone()),
+                matcher: Box::new(self.clone()),
             })
         } else {
             None
@@ -245,7 +244,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
 /// The Lexer class actually does the lexing step.
 pub struct Lexer {
     config: FluffConfig,
-    last_resort_lexer: Arc<dyn Matcher>,
+    last_resort_lexer: Box<dyn Matcher>,
 }
 
 pub enum StringOrTemplate {
@@ -263,10 +262,10 @@ impl Lexer {
             &UnlexableSegment::new,
             UnlexableSegmentNewArgs {},
         )
-        .expect("Unable to create last resort lexer");
+            .expect("Unable to create last resort lexer");
         Lexer {
             config: fluff_config,
-            last_resort_lexer: Arc::new(last_resort_lexer),
+            last_resort_lexer: Box::new(last_resort_lexer),
         }
     }
 
@@ -344,7 +343,7 @@ impl Lexer {
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match(
         forward_string: &str,
-        lexer_matchers: Vec<Arc<dyn Matcher>>,
+        lexer_matchers: Vec<Box<dyn Matcher>>,
     ) -> Result<LexMatch, ValueError> {
         let mut forward_str = forward_string.to_string();
         let mut elem_buff: Vec<LexedElement> = vec![];
@@ -403,5 +402,37 @@ impl Lexer {
             }
         }
         return templated_buff;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
+    use super::*;
+
+    /// Test a RegexLexer with a trim_post_subdivide function.
+    #[test]
+    fn test__parser__lexer_trim_post_subdivide() {
+        let matcher: Vec<Box<dyn Matcher>> = vec![
+            Box::new(RegexLexer::new(
+                "function_script_terminator",
+                r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+                &CodeSegment::new,
+                CodeSegmentNewArgs { code_str: "function_script_terminator" },
+                // subdivider=StringLexer(
+                //     "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
+                // ),
+                // trim_post_subdivide=RegexLexer(
+                //     "newline",
+                //     r"(\n|\r\n)+",
+                //     NewlineSegment,
+                // ),
+            ).unwrap()),
+        ];
+        let res = Lexer::lex_match(";\n/\n", matcher).unwrap();
+        assert_eq!(res.elements[0].raw, ";");
+        assert_eq!(res.elements[1].raw, "\n");
+        assert_eq!(res.elements[2].raw, "/");
+        assert_eq!(res.elements.len(), 3);
     }
 }

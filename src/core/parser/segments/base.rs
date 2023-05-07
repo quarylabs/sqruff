@@ -112,7 +112,7 @@ impl AnchorEditInfo {
     }
 }
 
-pub type SegmentConstructorFn<SegmentArgs: Debug + Clone + 'static> =
+pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment {
@@ -144,7 +144,19 @@ pub trait Segment {
 pub struct CodeSegment {}
 
 #[derive(Debug, Clone)]
-pub struct CodeSegmentNewArgs;
+pub struct CodeSegmentNewArgs{
+    pub code_str: &'static str,
+}
+
+impl CodeSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: CodeSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        panic!("Not implemented yet")
+    }
+}
 
 impl Segment for CodeSegment {
     fn get_type(&self) -> &'static str {
@@ -166,7 +178,20 @@ impl Segment for CodeSegment {
 pub struct CommentSegment {}
 
 #[derive(Debug, Clone)]
-pub struct CommentSegmentNewArgs;
+pub struct CommentSegmentNewArgs {
+    pub comment_type: &'static str,
+    pub trim_start: Vec<&'static str>
+}
+
+impl CommentSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: CommentSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        panic!("Not implemented yet")
+    }
+}
 
 impl Segment for CommentSegment {
     fn get_type(&self) -> &'static str {

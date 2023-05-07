@@ -197,7 +197,7 @@ command. Available dialects: {}",
     pub fn get_dialect(&self) -> Box<dyn Dialect> {
         match dialect_selector(self.dialect.as_str()) {
             None => panic!("dialect not found"),
-            Some(d) => d
+            Some(d) => d,
         }
     }
 }

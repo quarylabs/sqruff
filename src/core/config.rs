@@ -119,7 +119,7 @@ impl FluffConfig {
     ) -> Self {
         let binding = get_default_dialect();
         let dialect = match dialect {
-            None => binding.as_str(),
+            None => binding,
             Some(std) => {
                 dialect_selector(std).unwrap();
                 std

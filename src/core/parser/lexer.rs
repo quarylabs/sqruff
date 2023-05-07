@@ -1,7 +1,9 @@
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{
+    Segment, SegmentConstructorFn, UnlexableSegment, UnlexableSegmentNewArgs,
+};
 use crate::core::templaters::base::TemplatedFile;
 use regex::Error;
 use std::fmt::{Debug, Display, Formatter};
@@ -140,17 +142,32 @@ impl Matcher for StringLexer {
 }
 
 /// This RegexLexer matches based on regular expressions.
-#[derive(Debug, Clone)]
-pub struct RegexLexer {
-    name: String,
+#[derive(Clone)]
+pub struct RegexLexer<SegmentArgs: 'static + Clone> {
+    name: &'static str,
     template: regex::Regex,
+    segment_constructor: SegmentConstructorFn<SegmentArgs>,
+    args: SegmentArgs,
 }
 
-impl RegexLexer {
-    pub fn new(name: &str, regex: &str) -> Result<Self, Error> {
+impl<Args: Debug + Clone> Debug for RegexLexer<Args> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RegexLexer({})", self.name)
+    }
+}
+
+impl<S: Clone + Debug> RegexLexer<S> {
+    pub fn new(
+        name: &'static str,
+        regex: &str,
+        segment_constructor: SegmentConstructorFn<S>,
+        args: S,
+    ) -> Result<Self, Error> {
         Ok(RegexLexer {
-            name: name.to_string(),
+            name,
             template: regex::Regex::new(regex)?,
+            segment_constructor,
+            args,
         })
     }
 
@@ -175,13 +192,13 @@ impl RegexLexer {
     }
 }
 
-impl Display for RegexLexer {
+impl<SegmentArgs: Clone + Debug> Display for RegexLexer<SegmentArgs> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "RegexLexer({})", self.get_name())
     }
 }
 
-impl Matcher for RegexLexer {
+impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
     fn get_name(self: &Self) -> String {
         self.template.as_str().to_string()
     }
@@ -240,8 +257,13 @@ impl Lexer {
     /// Create a new lexer.
     pub fn new(config: FluffConfig, dialect: Option<Box<dyn Dialect>>) -> Self {
         let fluff_config = FluffConfig::from_kwargs(Some(config), dialect, None);
-        let last_resort_lexer = RegexLexer::new("last_resort", "[^\t\n.]*")
-            .expect("Unable to create last resort lexer");
+        let last_resort_lexer = RegexLexer::new(
+            "last_resort",
+            "[^\t\n.]*",
+            &UnlexableSegment::new,
+            UnlexableSegmentNewArgs {},
+        )
+        .expect("Unable to create last resort lexer");
         Lexer {
             config: fluff_config,
             last_resort_lexer: Arc::new(last_resort_lexer),

@@ -112,9 +112,8 @@ impl AnchorEditInfo {
     }
 }
 
-pub trait SegmentConstructor<SegmentArgs: Debug + Clone> {
-    fn new(raw: &str, pos: &PositionMarker, args: SegmentArgs) -> Self;
-}
+pub type SegmentConstructorFn<SegmentArgs: Debug + Clone + 'static> =
+    &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment {
     fn get_raw(&self) -> Option<&str> {
@@ -147,12 +146,6 @@ pub struct CodeSegment {}
 #[derive(Debug, Clone)]
 pub struct CodeSegmentNewArgs;
 
-impl SegmentConstructor<CodeSegmentNewArgs> for CodeSegment {
-    fn new(raw: &str, pos: &PositionMarker, args: CodeSegmentNewArgs) -> Self {
-        panic!("Not implemented yet")
-    }
-}
-
 impl Segment for CodeSegment {
     fn get_type(&self) -> &'static str {
         "code"
@@ -174,12 +167,6 @@ pub struct CommentSegment {}
 
 #[derive(Debug, Clone)]
 pub struct CommentSegmentNewArgs;
-
-impl SegmentConstructor<CommentSegmentNewArgs> for CommentSegment {
-    fn new(raw: &str, pos: &PositionMarker, args: CommentSegmentNewArgs) -> Self {
-        panic!("Not implemented yet")
-    }
-}
 
 impl Segment for CommentSegment {
     fn get_type(&self) -> &'static str {
@@ -228,30 +215,37 @@ impl Segment for CommentSegment {
 #[derive(Debug, Clone)]
 pub struct WhitespaceSegment {}
 
-// #[derive(Debug, Clone)]
-// pub struct WhitespaceSegmentNewArgs;
-//
-// impl Segment<WhitespaceSegmentNewArgs> for WhitespaceSegment {
-//     fn new(raw: &str, position_maker: PositionMarker, args: WhitespaceSegmentNewArgs) -> Self {
-//         panic!("Not implemented yet")
-//     }
-//     fn get_type(&self) -> &'static str {
-//         "whitespace"
-//     }
-//     fn is_code(&self) -> bool {
-//         false
-//     }
-//     fn is_comment(&self) -> bool {
-//         false
-//     }
-//     fn is_whitespace(&self) -> bool {
-//         true
-//     }
-//     fn get_default_raw(&self) -> Option<&'static str> {
-//         Some(" ")
-//     }
-// }
-//
+#[derive(Debug, Clone)]
+pub struct WhitespaceSegmentNewArgs;
+
+impl WhitespaceSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: WhitespaceSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        panic!("Not implemented yet")
+    }
+}
+
+impl Segment for WhitespaceSegment {
+    fn get_type(&self) -> &'static str {
+        "whitespace"
+    }
+    fn is_code(&self) -> bool {
+        false
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        true
+    }
+    fn get_default_raw(&self) -> Option<&'static str> {
+        Some(" ")
+    }
+}
+
 // /// A placeholder to un-lexable sections.
 // ///
 // /// This otherwise behaves exactly like a code section.
@@ -308,26 +302,33 @@ pub struct WhitespaceSegment {}
 //     }
 // }
 //
-// #[derive(Debug, Clone)]
-// pub struct UnlexableSegment {}
-//
-// #[derive(Debug, Clone)]
-// pub struct UnlexableSegmentNewArgs;
-//
-// impl Segment<UnlexableSegmentNewArgs> for UnlexableSegment {
-//     fn new(raw: &str, position_maker: PositionMarker, args: UnlexableSegmentNewArgs) -> Self {
-//         panic!("Not implemented yet")
-//     }
-//     fn get_type(&self) -> &'static str {
-//         "unlexable"
-//     }
-//     fn is_code(&self) -> bool {
-//         true
-//     }
-//     fn is_comment(&self) -> bool {
-//         false
-//     }
-//     fn is_whitespace(&self) -> bool {
-//         false
-//     }
-// }
+#[derive(Debug, Clone)]
+pub struct UnlexableSegment {}
+
+#[derive(Debug, Clone)]
+pub struct UnlexableSegmentNewArgs;
+
+impl UnlexableSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: UnlexableSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        panic!("Not implemented yet")
+    }
+}
+
+impl Segment for UnlexableSegment {
+    fn get_type(&self) -> &'static str {
+        "unlexable"
+    }
+    fn is_code(&self) -> bool {
+        true
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}

@@ -196,32 +196,39 @@ impl Segment for CommentSegment {
 }
 
 // Segment containing a newline.
-// #[derive(Debug, Clone)]
-// pub struct NewlineSegment {}
-//
-// #[derive(Debug, Clone)]
-// pub struct NewLineSegmentNewArgs;
-//
-// impl Segment<NewLineSegmentNewArgs> for NewlineSegment {
-//     fn new(raw: &str, position_maker: PositionMarker, args: NewLineSegmentNewArgs) -> Self {
-//         panic!("Not implemented yet")
-//     }
-//     fn get_type(&self) -> &'static str {
-//         "newline"
-//     }
-//     fn is_code(&self) -> bool {
-//         false
-//     }
-//     fn is_comment(&self) -> bool {
-//         false
-//     }
-//     fn is_whitespace(&self) -> bool {
-//         true
-//     }
-//     fn get_default_raw(&self) -> Option<&'static str> {
-//         Some("\n")
-//     }
-// }
+#[derive(Debug, Clone)]
+pub struct NewlineSegment {}
+
+#[derive(Debug, Clone)]
+pub struct NewLineSegmentNewArgs;
+
+impl NewlineSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: NewLineSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        panic!("Not implemented yet")
+    }
+}
+
+impl Segment for NewlineSegment {
+    fn get_type(&self) -> &'static str {
+        "newline"
+    }
+    fn is_code(&self) -> bool {
+        false
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+    fn is_whitespace(&self) -> bool {
+        true
+    }
+    fn get_default_raw(&self) -> Option<&'static str> {
+        Some("\n")
+    }
+}
 
 /// Segment containing whitespace.
 #[derive(Debug, Clone)]

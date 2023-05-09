@@ -405,3 +405,38 @@ impl Lexer {
         return templated_buff;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
+
+    /// Test a RegexLexer with a trim_post_subdivide function.
+    #[test]
+    fn test__parser__lexer_trim_post_subdivide() {
+        let matcher: Vec<Arc<dyn Matcher>> = vec![Arc::new(
+            RegexLexer::new(
+                "function_script_terminator",
+                r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+                &CodeSegment::new,
+                CodeSegmentNewArgs {
+                    code_str: "function_script_terminator",
+                },
+                // subdivider=StringLexer(
+                //     "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
+                // ),
+                // trim_post_subdivide=RegexLexer(
+                //     "newline",
+                //     r"(\n|\r\n)+",
+                //     NewlineSegment,
+                // ),
+            )
+            .unwrap(),
+        )];
+        let res = Lexer::lex_match(";\n/\n", matcher).unwrap();
+        assert_eq!(res.elements[0].raw, ";");
+        assert_eq!(res.elements[1].raw, "\n");
+        assert_eq!(res.elements[2].raw, "/");
+        assert_eq!(res.elements.len(), 3);
+    }
+}

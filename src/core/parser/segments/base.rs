@@ -144,7 +144,19 @@ pub trait Segment {
 pub struct CodeSegment {}
 
 #[derive(Debug, Clone)]
-pub struct CodeSegmentNewArgs;
+pub struct CodeSegmentNewArgs {
+    pub code_str: &'static str,
+}
+
+impl CodeSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: CodeSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        panic!("Not implemented yet")
+    }
+}
 
 impl Segment for CodeSegment {
     fn get_type(&self) -> &'static str {

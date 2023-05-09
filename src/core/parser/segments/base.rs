@@ -145,7 +145,7 @@ pub struct CodeSegment {}
 
 #[derive(Debug, Clone)]
 pub struct CodeSegmentNewArgs {
-    pub code_str: &'static str,
+    pub code_type: &'static str,
 }
 
 impl CodeSegment {

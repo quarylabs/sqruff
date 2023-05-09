@@ -24,6 +24,8 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 r"[^\S\r\n]+",
                 &WhitespaceSegment::new as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
                 WhitespaceSegmentNewArgs {},
+                None,
+                None,
             )
             .unwrap(),
         ),

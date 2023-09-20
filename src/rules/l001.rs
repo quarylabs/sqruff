@@ -42,12 +42,12 @@ mod tests {
         let sql = "SELECT
     a
 FROM foo  ";
+
         assert_eq!(
-            lint(sql.to_string(), "ansi".to_string(), None, None, None)?,
+            lint(sql.to_string(), "ansi".to_string(), None, None, None)?.as_str(),
             "SELECT
     a
 FROM foo"
-                .to_string()
         );
         Ok(())
     }

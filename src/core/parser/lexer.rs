@@ -5,7 +5,6 @@ use crate::core::parser::segments::base::{
     Segment, SegmentConstructorFn, UnlexableSegment, UnlexableSegmentNewArgs,
 };
 use crate::core::templaters::base::TemplatedFile;
-use regex::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
 use std::sync::Arc;
@@ -145,7 +144,7 @@ impl Matcher for StringLexer {
 #[derive(Clone)]
 pub struct RegexLexer<SegmentArgs: 'static + Clone> {
     name: &'static str,
-    template: regex::Regex,
+    template: fancy_regex::Regex,
     segment_constructor: SegmentConstructorFn<SegmentArgs>,
     args: SegmentArgs,
 }
@@ -162,10 +161,10 @@ impl<S: Clone + Debug> RegexLexer<S> {
         regex: &str,
         segment_constructor: SegmentConstructorFn<S>,
         args: S,
-    ) -> Result<Self, Error> {
+    ) -> anyhow::Result<Self> {
         Ok(RegexLexer {
             name,
-            template: regex::Regex::new(regex)?,
+            template: fancy_regex::Regex::new(regex)?,
             segment_constructor,
             args,
         })
@@ -173,7 +172,7 @@ impl<S: Clone + Debug> RegexLexer<S> {
 
     /// Use regexes to match chunks.
     pub fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
-        if let Some(matched) = self.template.find(forward_string) {
+        if let Ok(Some(matched)) = self.template.find(forward_string) {
             if matched.as_str().len() != 0 {
                 panic!("RegexLexer matched a non-zero start: {}", matched.start());
             }
@@ -227,7 +226,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
 
     /// Use regex to find a substring.
     fn search(self: &Self, forward_string: &str) -> Option<Range<usize>> {
-        if let Some(matched) = self.template.find(forward_string) {
+        if let Ok(Some(matched)) = self.template.find(forward_string) {
             let match_str = matched.as_str();
             if !match_str.is_empty() {
                 return Some(matched.range());
@@ -433,6 +432,7 @@ mod tests {
             )
             .unwrap(),
         )];
+
         let res = Lexer::lex_match(";\n/\n", matcher).unwrap();
         assert_eq!(res.elements[0].raw, ";");
         assert_eq!(res.elements[1].raw, "\n");

@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::{
     Segment, SegmentConstructorFn, UnlexableSegment, UnlexableSegmentNewArgs,
 };
 use crate::core::templaters::base::TemplatedFile;
+use dyn_clone::DynClone;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
 use std::sync::Arc;
@@ -13,14 +14,14 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub struct LexedElement {
     raw: String,
-    matcher: Arc<dyn Matcher>,
+    matcher: Box<dyn Matcher>,
 }
 
 /// A LexedElement, bundled with it's position in the templated file.
 pub struct TemplateElement {
     raw: String,
     template_slice: Range<usize>,
-    matcher: Arc<dyn Matcher>,
+    matcher: Box<dyn Matcher>,
 }
 
 impl TemplateElement {
@@ -48,7 +49,7 @@ impl LexMatch {
     }
 }
 
-pub trait Matcher: Debug {
+pub trait Matcher: Debug + DynClone {
     /// The name of the matcher.
     fn get_name(self: &Self) -> String;
     /// Given a string, match what we can and return the rest.
@@ -56,6 +57,8 @@ pub trait Matcher: Debug {
     /// Use regex to find a substring.
     fn search(self: &Self, forward_string: &str) -> Option<Range<usize>>;
 }
+
+dyn_clone::clone_trait_object!(Matcher);
 
 impl Display for dyn Matcher {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -79,7 +82,7 @@ impl StringLexer {
         if forward_string.starts_with(&self.template) {
             Some(LexedElement {
                 raw: self.template.clone(),
-                matcher: Arc::new(self.clone()),
+                matcher: Box::new(self.clone()),
             })
         } else {
             None
@@ -178,7 +181,7 @@ impl<S: Clone + Debug> RegexLexer<S> {
             }
             Some(LexedElement {
                 raw: matched.as_str().to_string(),
-                matcher: Arc::new(self.clone()),
+                matcher: Box::new(self.clone()),
             })
         } else {
             None
@@ -343,7 +346,7 @@ impl Lexer {
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match(
         forward_string: &str,
-        lexer_matchers: Vec<Arc<dyn Matcher>>,
+        lexer_matchers: Vec<Box<dyn Matcher>>,
     ) -> Result<LexMatch, ValueError> {
         let mut forward_str = forward_string.to_string();
         let mut elem_buff: Vec<LexedElement> = vec![];
@@ -413,7 +416,7 @@ mod tests {
     /// Test a RegexLexer with a trim_post_subdivide function.
     #[test]
     fn test__parser__lexer_trim_post_subdivide() {
-        let matcher: Vec<Arc<dyn Matcher>> = vec![Arc::new(
+        let matcher: Vec<Box<dyn Matcher>> = vec![Box::new(
             RegexLexer::new(
                 "function_script_terminator",
                 r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",

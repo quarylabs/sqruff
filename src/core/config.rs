@@ -159,7 +159,7 @@ impl FluffConfig {
         } else {
             return config.unwrap();
         }
-        panic!("Not implemented!")
+        panic!("Not implemenrted!")
     }
 
     /// Process a full raw file for inline config and update self.

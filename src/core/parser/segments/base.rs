@@ -112,7 +112,7 @@ impl AnchorEditInfo {
     }
 }
 
-pub type SegmentConstructorFn<SegmentArgs: Debug + Clone + 'static> =
+pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment {

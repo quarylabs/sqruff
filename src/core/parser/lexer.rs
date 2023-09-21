@@ -8,8 +8,7 @@ use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
 use fancy_regex::{Error, Regex};
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::{Deref, Range};
-use std::sync::Arc;
+use std::ops::{Range};
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -63,6 +62,44 @@ pub trait Matcher: Debug + DynClone {
     fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError>;
     /// Use regex to find a substring.
     fn search(self: &Self, forward_string: &str) -> Option<Range<usize>>;
+
+    fn get_sub_divider(self: &Self) -> Option<Box<dyn Matcher>>;
+
+    fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
+        if let Some(sub_divider) = &self.get_sub_divider() {
+            let mut elem_buff: Vec<LexedElement> = vec![];
+
+            let mut str_buff = matched.raw;
+            while !str_buff.is_empty() {
+                // Iterate through subdividing as appropriate
+                let div_pos = sub_divider.clone().search(&str_buff);
+                if let Some(div_pos) = div_pos {
+                    // Found a division
+                    let trimmed_elems = self._trim_match(str_buff[..div_pos.start].to_string());
+                    let div_elem = LexedElement::new(
+                        str_buff[div_pos.start..div_pos.end].to_string(),
+                        sub_divider.clone(),
+                    );
+                    elem_buff.extend_from_slice(&trimmed_elems);
+                    elem_buff.push(div_elem);
+                    str_buff = str_buff[div_pos.end..].to_string();
+                } else {
+                    // No more division matches. Trim?
+                    let trimmed_elems = self._trim_match(str_buff);
+                    elem_buff.extend_from_slice(&trimmed_elems);
+                    break;
+                }
+            }
+            elem_buff
+        } else {
+            vec![matched]
+        }
+    }
+
+    /// Given a string, trim if we are allowed to.
+    fn _trim_match(self: &Self, matched_string: String) -> Vec<LexedElement> {
+        panic!("Not implemented")
+    }
 }
 
 dyn_clone::clone_trait_object!(Matcher);
@@ -204,6 +241,10 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
             None
         }
     }
+
+    fn get_sub_divider(self: &Self) -> Option<Box<dyn Matcher>> {
+        self.sub_divider.clone()
+    }
 }
 
 /// This RegexLexer matches based on regular expressions.
@@ -213,8 +254,8 @@ pub struct RegexLexer<SegmentArgs: 'static + Clone> {
     template: Regex,
     segment_constructor: SegmentConstructorFn<SegmentArgs>,
     segment_args: SegmentArgs,
-    sub_divider: Option<Arc<dyn Matcher>>,
-    trim_post_subdivide: Option<Arc<dyn Matcher>>,
+    sub_divider: Option<Box<dyn Matcher>>,
+    trim_post_subdivide: Option<Box<dyn Matcher>>,
 }
 
 impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
@@ -223,8 +264,8 @@ impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
         regex: &str,
         segment_constructor: SegmentConstructorFn<SegmentArgs>,
         segment_args: SegmentArgs,
-        sub_divider: Option<Arc<dyn Matcher>>,
-        trim_post_subdivide: Option<Arc<dyn Matcher>>,
+        sub_divider: Option<Box<dyn Matcher>>,
+        trim_post_subdivide: Option<Box<dyn Matcher>>,
     ) -> Result<Self, Error> {
         Ok(RegexLexer {
             name,
@@ -239,9 +280,6 @@ impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
     /// Use regexes to match chunks.
     pub fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
         if let Ok(Some(matched)) = self.template.find(forward_string) {
-            if matched.as_str().len() != 0 {
-                panic!("RegexLexer matched a non-zero start: {}", matched.start());
-            }
             Some(LexedElement {
                 raw: matched.as_str().to_string(),
                 matcher: Box::new(self.clone()),
@@ -251,10 +289,6 @@ impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
         }
     }
 
-    // TODO: Could be inherited from StringLexer.
-    pub fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
-        panic!("Not implemented")
-    }
 }
 
 impl<SegmentArgs: Debug + Clone> Debug for RegexLexer<SegmentArgs> {
@@ -311,6 +345,10 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
         }
         None
     }
+
+    fn get_sub_divider(self: &Self) -> Option<Box<dyn Matcher>> {
+        self.sub_divider.clone()
+    }
 }
 
 /// The Lexer class actually does the lexing step.
@@ -336,7 +374,7 @@ impl Lexer {
             None,
             None,
         )
-        .expect("Unable to create last resort lexer");
+            .expect("Unable to create last resort lexer");
         Lexer {
             config: fluff_config,
             last_resort_lexer: Box::new(last_resort_lexer),
@@ -515,7 +553,7 @@ mod tests {
                 CodeSegmentNewArgs {
                     code_type: "function_script_terminator",
                 },
-                Some(Arc::new(StringLexer::new(
+                Some(Box::new(StringLexer::new(
                     "semicolon",
                     ";",
                     &CodeSegment::new,
@@ -525,7 +563,7 @@ mod tests {
                     None,
                     None,
                 ))),
-                Some(Arc::new(
+                Some(Box::new(
                     RegexLexer::new(
                         "newline",
                         r"(\n|\r\n)+",
@@ -534,10 +572,10 @@ mod tests {
                         None,
                         None,
                     )
-                    .unwrap(),
+                        .unwrap(),
                 )),
             )
-            .unwrap(),
+                .unwrap(),
         )];
 
         let res = Lexer::lex_match(";\n/\n", matcher).unwrap();
@@ -545,6 +583,32 @@ mod tests {
         assert_eq!(res.elements[1].raw, "\n");
         assert_eq!(res.elements[2].raw, "/");
         assert_eq!(res.elements.len(), 3);
+    }
+
+    #[test]
+    fn test__parser__lexer_regex() {
+        let tests =     &[
+            ("fsaljk", "f", "f"),
+            ("fsaljk", r"f", "f"),
+            ("fsaljk", r"[fas]*", "fsa"),
+        // Matching whitespace segments
+            ("   \t   fsaljk", r"[^\S\r\n]*", "   \t   "),
+        // Matching whitespace segments (with a newline)
+            ("   \t \n  fsaljk", r"[^\S\r\n]*", "   \t "),
+        // Matching quotes containing stuff
+            ("'something boring'   \t \n  fsaljk", r"'[^']*'", "'something boring'"),
+        (
+            "' something exciting \t\n '   \t \n  fsaljk",
+            r"'[^']*'",
+            "' something exciting \t\n '",
+        ),
+        ];
+
+        for (raw,reg,res) in tests {
+            let matcher = RegexLexer::new("test", reg, &CodeSegment::new, CodeSegmentNewArgs{ code_type: "" }, None, None).unwrap();
+
+            assert_matches(raw, &matcher, Some(res));
+        }
     }
 
     /// Test the lexer string

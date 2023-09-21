@@ -44,7 +44,13 @@ mod tests {
 FROM foo  ";
 
         assert_eq!(
-            lint(sql.to_string(), "ansi".to_string(), None, None, None)?.as_str(),
+            lint(
+                sql.to_string(),
+                "ansi".to_string(),
+                None,
+                None,
+                None
+            )?.as_str(),
             "SELECT
     a
 FROM foo"

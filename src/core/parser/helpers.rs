@@ -1,5 +1,4 @@
 use crate::core::parser::segments::base::Segment;
-use std::ops::Deref;
 
 pub fn join_segments_raw(segments: Vec<Box<dyn Segment>>) -> String {
     segments
@@ -13,7 +12,7 @@ pub fn join_segments_raw(segments: Vec<Box<dyn Segment>>) -> String {
 ///
 /// We use slices to avoid creating too many unnecessary Vecs.
 pub fn trim_non_code_segments(
-    segments: Vec<Box<dyn Segment>>,
+    segments: &Vec<Box<dyn Segment>>,
 ) -> (
     Vec<Box<dyn Segment>>,
     Vec<Box<dyn Segment>>,

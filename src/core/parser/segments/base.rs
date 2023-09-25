@@ -136,6 +136,14 @@ pub trait Segment: DynClone {
     fn get_pos_maker(&self) -> Option<PositionMarker> {
         None
     }
+
+    /// Return the length of the segment in characters.
+    fn get_matched_length(&self) -> usize {
+        match self.get_raw() {
+            None => 0,
+            Some(raw) => raw.len(),
+        }
+    }
     fn indent_val(&self) -> usize {
         panic!("Not implemented yet");
     }

@@ -576,9 +576,7 @@ impl Lexer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::parser::segments::base::{
-        CodeSegment, CodeSegmentNewArgs, NewLineSegmentNewArgs, NewlineSegment,
-    };
+    use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
 
     /// Assert that a matcher does or doesn't work on a string.
     ///
@@ -599,7 +597,7 @@ mod tests {
     }
 
     /// Test a RegexLexer with a trim_post_subdivide function.
-    #[test]
+    // #[test]
     // TODO Implement Test
     // fn test__parser__lexer_trim_post_subdivide() {
     //     let matcher: Vec<Box<dyn Matcher>> = vec![Box::new(

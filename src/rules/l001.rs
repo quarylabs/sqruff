@@ -34,8 +34,6 @@ impl RuleL001 {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::simple::lint;
-    use crate::core::errors::SQLFluffUserError;
 
     // TODO Implement Test
     // #[test]

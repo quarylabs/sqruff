@@ -8,7 +8,7 @@ use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
 use fancy_regex::{Error, Regex};
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::{Range};
+use std::ops::Range;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -80,7 +80,8 @@ pub trait Matcher: Debug + DynClone {
                 let div_pos = sub_divider.clone().search(&str_buff);
                 if let Some(div_pos) = div_pos {
                     // Found a division
-                    let trimmed_elems = self._trim_match(str_buff[..div_pos.start].to_string().as_str());
+                    let trimmed_elems =
+                        self._trim_match(str_buff[..div_pos.start].to_string().as_str());
                     let div_elem = LexedElement::new(
                         str_buff[div_pos.start..div_pos.end].to_string(),
                         sub_divider.clone(),
@@ -103,43 +104,41 @@ pub trait Matcher: Debug + DynClone {
 
     /// Given a string, trim if we are allowed to.
     fn _trim_match(self: &Self, matched_str: &str) -> Vec<LexedElement> {
-
         let mut elem_buff = Vec::new();
         let mut content_buff = String::new();
         let mut str_buff = String::from(matched_str);
 
-
         if let Some(trim_post_subdivide) = self.get_trim_post_subdivide() {
-                while !str_buff.is_empty() {
-                    if let Some(trim_pos) = trim_post_subdivide.clone().search(&str_buff) {
-                        let start = trim_pos.start;
-                        let end = trim_pos.end;
+            while !str_buff.is_empty() {
+                if let Some(trim_pos) = trim_post_subdivide.clone().search(&str_buff) {
+                    let start = trim_pos.start;
+                    let end = trim_pos.end;
 
-                        if start == 0 {
-                            elem_buff.push(LexedElement::new(
-                                str_buff[..end].to_string(),
-                                trim_post_subdivide.clone(),
-                            ));
-                            str_buff = str_buff[end..].to_string();
-                        } else if end == str_buff.len() {
-                            elem_buff.push(LexedElement::new(
-                                format!("{}{}", content_buff, &str_buff[..start]),
-                                trim_post_subdivide.clone(),
-                            ));
-                            elem_buff.push(LexedElement::new(
-                                str_buff[start..end].to_string(),
-                                trim_post_subdivide.clone(),
-                            ));
-                            content_buff.clear();
-                            str_buff.clear();
-                        } else {
-                            content_buff.push_str(&str_buff[..end]);
-                            str_buff = str_buff[end..].to_string();
-                        }
+                    if start == 0 {
+                        elem_buff.push(LexedElement::new(
+                            str_buff[..end].to_string(),
+                            trim_post_subdivide.clone(),
+                        ));
+                        str_buff = str_buff[end..].to_string();
+                    } else if end == str_buff.len() {
+                        elem_buff.push(LexedElement::new(
+                            format!("{}{}", content_buff, &str_buff[..start]),
+                            trim_post_subdivide.clone(),
+                        ));
+                        elem_buff.push(LexedElement::new(
+                            str_buff[start..end].to_string(),
+                            trim_post_subdivide.clone(),
+                        ));
+                        content_buff.clear();
+                        str_buff.clear();
                     } else {
-                        break;
+                        content_buff.push_str(&str_buff[..end]);
+                        str_buff = str_buff[end..].to_string();
                     }
+                } else {
+                    break;
                 }
+            }
             if !content_buff.is_empty() || !str_buff.is_empty() {
                 elem_buff.push(LexedElement::new(
                     format!("{}{}", content_buff, str_buff),
@@ -342,7 +341,6 @@ impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
             None
         }
     }
-
 }
 
 impl<SegmentArgs: Debug + Clone> Debug for RegexLexer<SegmentArgs> {
@@ -432,7 +430,7 @@ impl Lexer {
             None,
             None,
         )
-            .expect("Unable to create last resort lexer");
+        .expect("Unable to create last resort lexer");
         Lexer {
             config: fluff_config,
             last_resort_lexer: Box::new(last_resort_lexer),
@@ -644,29 +642,40 @@ mod tests {
     //     assert_eq!(res.elements.len(), 3);
     // }
 
-
     /// Test the RegexLexer.
     #[test]
     fn test__parser__lexer_regex() {
-        let tests =     &[
+        let tests = &[
             ("fsaljk", "f", "f"),
             ("fsaljk", r"f", "f"),
             ("fsaljk", r"[fas]*", "fsa"),
-        // Matching whitespace segments
+            // Matching whitespace segments
             ("   \t   fsaljk", r"[^\S\r\n]*", "   \t   "),
-        // Matching whitespace segments (with a newline)
+            // Matching whitespace segments (with a newline)
             ("   \t \n  fsaljk", r"[^\S\r\n]*", "   \t "),
-        // Matching quotes containing stuff
-            ("'something boring'   \t \n  fsaljk", r"'[^']*'", "'something boring'"),
-        (
-            "' something exciting \t\n '   \t \n  fsaljk",
-            r"'[^']*'",
-            "' something exciting \t\n '",
-        ),
+            // Matching quotes containing stuff
+            (
+                "'something boring'   \t \n  fsaljk",
+                r"'[^']*'",
+                "'something boring'",
+            ),
+            (
+                "' something exciting \t\n '   \t \n  fsaljk",
+                r"'[^']*'",
+                "' something exciting \t\n '",
+            ),
         ];
 
-        for (raw,reg,res) in tests {
-            let matcher = RegexLexer::new("test", reg, &CodeSegment::new, CodeSegmentNewArgs{ code_type: "" }, None, None).unwrap();
+        for (raw, reg, res) in tests {
+            let matcher = RegexLexer::new(
+                "test",
+                reg,
+                &CodeSegment::new,
+                CodeSegmentNewArgs { code_type: "" },
+                None,
+                None,
+            )
+            .unwrap();
 
             assert_matches(raw, &matcher, Some(res));
         }

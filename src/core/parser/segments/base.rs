@@ -1,5 +1,6 @@
 use crate::core::parser::markers::PositionMarker;
 use crate::core::rules::base::LintFix;
+use dyn_clone::DynClone;
 use std::fmt::Debug;
 use std::hash::Hash;
 
@@ -115,7 +116,7 @@ impl AnchorEditInfo {
 pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
-pub trait Segment {
+pub trait Segment: DynClone {
     fn get_raw(&self) -> Option<&str> {
         None
     }
@@ -139,6 +140,8 @@ pub trait Segment {
         panic!("Not implemented yet");
     }
 }
+
+dyn_clone::clone_trait_object!(Segment);
 
 #[derive(Debug, Clone)]
 pub struct CodeSegment {}

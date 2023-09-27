@@ -22,6 +22,18 @@ pub struct PositionMarker {
     pub working_line_pos: usize,
 }
 
+impl Default for PositionMarker {
+    fn default() -> Self {
+        PositionMarker {
+            source_slice: (0..0),
+            templated_slice: (0..0),
+            templated_file: TemplatedFile::from_string("".to_string()),
+            working_line_no: 0,
+            working_line_pos: 0,
+        }
+    }
+}
+
 impl PositionMarker {
     /// creates a PositionMarker
     ///

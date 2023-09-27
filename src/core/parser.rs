@@ -1,4 +1,5 @@
 pub mod context;
+mod grammar;
 mod helpers;
 pub mod lexer;
 pub mod markers;

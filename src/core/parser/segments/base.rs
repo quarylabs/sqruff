@@ -152,7 +152,9 @@ pub trait Segment: DynClone {
 dyn_clone::clone_trait_object!(Segment);
 
 #[derive(Debug, Clone)]
-pub struct CodeSegment {}
+pub struct CodeSegment {
+    pub code_type: &'static str,
+}
 
 #[derive(Debug, Clone)]
 pub struct CodeSegmentNewArgs {
@@ -186,10 +188,26 @@ impl Segment for CodeSegment {
 
 /// Segment containing a comment.
 #[derive(Debug, Clone)]
-pub struct CommentSegment {}
+pub struct CommentSegment {
+    r#type: &'static str,
+    trim_start: Vec<&'static str>,
+}
 
 #[derive(Debug, Clone)]
-pub struct CommentSegmentNewArgs;
+pub struct CommentSegmentNewArgs {
+    pub r#type: &'static str,
+    pub trim_start: Option<Vec<&'static str>>,
+}
+
+impl CommentSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: CommentSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        panic!("Not implemented yet")
+    }
+}
 
 impl Segment for CommentSegment {
     fn get_type(&self) -> &'static str {

@@ -440,7 +440,7 @@ impl Lexer {
     pub fn lex(
         &self,
         raw: StringOrTemplate,
-    ) -> Result<(Box<dyn Segment>, Vec<SQLLexError>), ValueError> {
+    ) -> Result<(Vec<Box<dyn Segment>>, Vec<SQLLexError>), ValueError> {
         // Make sure we've got a string buffer and a template regardless of what was passed in.
         let (mut str_buff, template) = match raw {
             StringOrTemplate::String(s) => (s.clone(), TemplatedFile::from_string(s.to_string())),

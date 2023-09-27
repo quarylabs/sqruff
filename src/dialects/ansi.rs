@@ -29,7 +29,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
@@ -43,7 +43,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
@@ -63,7 +63,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                         None,
                         None,
                     )
-                    .unwrap(),
+                        .unwrap(),
                 )),
                 Some(Box::new(
                     RegexLexer::new(
@@ -74,10 +74,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                         None,
                         None,
                     )
-                    .unwrap(),
+                        .unwrap(),
                 )),
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
@@ -94,7 +94,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
@@ -111,13 +111,12 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
                 "back_quote",
-                r"`[^`]*`",
-                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                r"`[^`]*`", &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "back_quote",
                     instance_types: vec![],
@@ -128,12 +127,13 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
                 "dollar_quote",
-                r"\$(\w*)\$[^\1]*?\$\1\$",
+                // r"\$(\w*)\$[^\1]*?\$\1\$" is the original regex, but it doesn't work in Rust.
+                r"\$(\w*)\$[^\$]*?\$\1\$",
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "dollar_quote",
@@ -145,7 +145,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         //         Numeric literal matches integers, decimals, and exponential formats,
         // Pattern breakdown:
@@ -173,15 +173,16 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(
             RegexLexer::new(
                 "numeric_literal",
-                r"\$(\w*)\$[^\1]*?\$\1\$",
+                r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "numeric_literal",
+                    ..CodeSegmentNewArgs::default()
                 },
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
@@ -190,28 +191,32 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "like_operator",
+                    ..CodeSegmentNewArgs::default()
                 },
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(
             RegexLexer::new(
                 "newline",
                 r"\r\n|\n",
-                &NewlineSegment::new as SegmentConstructorFn<NewLineSegmentNewArgs>,
-                NewLineSegmentNewArgs {},
+                &NewlineSegment::new as SegmentConstructorFn<NewlineSegmentNewArgs>,
+                NewlineSegmentNewArgs {},
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
         Box::new(StringLexer::new(
             "casting_operator",
             "::",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs {
+                code_type: "",
+                ..CodeSegmentNewArgs::default()
+            },
             None,
             None,
         )),
@@ -219,7 +224,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "equals",
             "=",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs {
+                code_type: "",
+                ..CodeSegmentNewArgs::default()
+            },
             None,
             None,
         )),
@@ -227,7 +235,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "greater_than",
             ">",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs {
+                code_type: "",
+                ..CodeSegmentNewArgs::default()
+            },
             None,
             None,
         )),
@@ -235,7 +246,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "less_than",
             "<",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs {
+                code_type: "",
+                ..CodeSegmentNewArgs::default()
+            },
             None,
             None,
         )),
@@ -243,7 +257,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "not",
             "!",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs {
+                code_type: "",
+                ..CodeSegmentNewArgs::default()
+            },
             None,
             None,
         )),
@@ -251,7 +268,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "dot",
             ".",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs {
+                code_type: "",
+                ..CodeSegmentNewArgs::default()
+            },
             None,
             None,
         )),
@@ -259,7 +279,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "comma",
             ",",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "comma" },
+            CodeSegmentNewArgs { code_type: "comma", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -267,7 +287,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "plus",
             "+",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -275,7 +295,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "minus",
             "-",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -283,7 +303,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "divide",
             "/",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -291,7 +311,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "percent",
             "%",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -299,7 +319,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "question",
             "?",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -307,7 +327,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "ampersand",
             "&",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -315,7 +335,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "vertical_bar",
             "|",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -323,7 +343,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "caret",
             "^",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -331,7 +351,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "star",
             "*",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -339,7 +359,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "bracket_open",
             "(",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -347,7 +367,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "bracket_close",
             ")",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            CodeSegmentNewArgs { code_type: "", ..CodeSegmentNewArgs::default() },
             None,
             None,
         )),
@@ -355,7 +375,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "sq_bracket_open",
             "[",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            Default::default(),
             None,
             None,
         )),
@@ -363,7 +383,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "sq_bracket_close",
             "]",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            Default::default(),
             None,
             None,
         )),
@@ -371,7 +391,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "crly_bracket_open",
             "{",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            Default::default(),
             None,
             None,
         )),
@@ -379,15 +399,14 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "crly_bracket_close",
             "}",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
-            None,
+            Default::default(), None,
             None,
         )),
         Box::new(StringLexer::new(
             "colon",
             ":",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            Default::default(),
             None,
             None,
         )),
@@ -395,7 +414,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             "semicolon",
             ";",
             &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-            CodeSegmentNewArgs { code_type: "" },
+            Default::default(),
             None,
             None,
         )),
@@ -405,11 +424,11 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 "code",
                 r"[0-9a-zA-Z_]+",
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs { code_type: "code" },
+                Default::default(),
                 None,
                 None,
             )
-            .unwrap(),
+                .unwrap(),
         ),
     ]
 }
@@ -448,7 +467,7 @@ mod tests {
             assert_eq!(errors.len(), 0, "Lexing failed for input: {}", raw);
 
             // Check if the raw components of the tokens match the expected result
-            let raw_list: Vec<&str> = tokens
+            let raw_list: Vec<String> = tokens
                 .iter()
                 .map(|token| token.get_raw().unwrap())
                 .collect();

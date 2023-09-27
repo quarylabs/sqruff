@@ -561,6 +561,7 @@ impl Lexer {
     ) -> Vec<TemplateElement> {
         let mut idx = 0;
         let mut templated_buff: Vec<TemplateElement> = vec![];
+
         for element in elements {
             let template_slice = idx..idx + element.raw.len();
             idx += element.raw.len();

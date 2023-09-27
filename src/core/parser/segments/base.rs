@@ -148,6 +148,18 @@ pub struct CodeSegmentNewArgs {
     pub source_fixes: Option<Vec<SourceFix>>,
 }
 
+impl Default for CodeSegmentNewArgs {
+    fn default() -> Self {
+        Self {
+            code_type: "code",
+            instance_types: vec![],
+            trim_start: None,
+            trim_chars: None,
+            source_fixes: None,
+        }
+    }
+}
+
 impl CodeSegment {
     pub fn new(
         raw: &str,

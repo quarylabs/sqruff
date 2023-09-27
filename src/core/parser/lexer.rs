@@ -426,7 +426,7 @@ impl Lexer {
             "last_resort",
             "[^\t\n.]*",
             &UnlexableSegment::new,
-            UnlexableSegmentNewArgs {},
+            UnlexableSegmentNewArgs { expected: None },
             None,
             None,
         )

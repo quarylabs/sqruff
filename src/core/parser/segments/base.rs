@@ -351,10 +351,14 @@ impl Segment for WhitespaceSegment {
 // }
 //
 #[derive(Debug, Clone)]
-pub struct UnlexableSegment {}
+pub struct UnlexableSegment {
+    expected: String,
+}
 
 #[derive(Debug, Clone)]
-pub struct UnlexableSegmentNewArgs;
+pub struct UnlexableSegmentNewArgs {
+    pub(crate) expected: Option<String>,
+}
 
 impl UnlexableSegment {
     pub fn new(
@@ -362,7 +366,9 @@ impl UnlexableSegment {
         position_maker: &PositionMarker,
         args: UnlexableSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        panic!("Not implemented yet")
+        Box::new(UnlexableSegment {
+            expected: args.expected.unwrap_or("".to_string()),
+        })
     }
 }
 
@@ -378,5 +384,20 @@ impl Segment for UnlexableSegment {
     }
     fn is_whitespace(&self) -> bool {
         false
+    }
+}
+
+mod tests {
+    use super::*;
+    use crate::core::parser::markers::PositionMarker;
+
+    #[test]
+    /// Test the .is_type() method.
+    fn test__parser__base_segments_type() {
+        let args = UnlexableSegmentNewArgs { expected: None };
+        let segment = UnlexableSegment::new("", &PositionMarker::default(), args);
+
+        assert!(segment.is_type("unlexable"));
+        assert!(!segment.is_type("whitespace"));
     }
 }

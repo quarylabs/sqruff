@@ -11,6 +11,16 @@ struct TemplatedFileSlice {
     pub templated_slice: Range<usize>,
 }
 
+impl TemplatedFileSlice {
+    fn new(slice_type: &str, source_slice: Range<usize>, templated_slice: Range<usize>) -> Self {
+        Self {
+            slice_type: slice_type.to_string(),
+            source_slice,
+            templated_slice,
+        }
+    }
+}
+
 /// A templated SQL file.
 ///
 /// This is the response of a `templater`'s `.process()` method
@@ -343,5 +353,15 @@ mod tests {
         let outstr = templater.process(in_str, "test.sql", None, None).unwrap();
 
         assert_eq!(outstr.templated_str, Some(in_str.to_string()));
+    }
+
+    const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";
+    const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarfss";
+    fn simple_sliced_file() -> &'static [TemplatedFileSlice; 3] {
+        &[
+            TemplatedFileSlice::new("literal", 0..10, 0..10),
+            TemplatedFileSlice::new("templated", 10..17, 10..12),
+            TemplatedFileSlice::new("literal", 17..25, 12..20),
+        ]
     }
 }

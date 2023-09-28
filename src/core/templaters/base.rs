@@ -213,6 +213,24 @@ pub struct RawFileSlice {
 }
 
 impl RawFileSlice {
+    fn new(
+        raw: String,
+        slice_type: String,
+        source_idx: usize,
+        slice_subtype: Option<RawFileSliceType>,
+        block_idx: Option<usize>,
+    ) -> Self {
+        Self {
+            raw,
+            slice_type,
+            source_idx,
+            slice_subtype,
+            block_idx: block_idx.unwrap_or(0),
+        }
+    }
+}
+
+impl RawFileSlice {
     /// Return the closing index of this slice.
     fn end_source_idx(&self) -> usize {
         return self.source_idx + self.raw.len();
@@ -357,11 +375,18 @@ mod tests {
 
     const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";
     const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarfss";
-    fn simple_sliced_file() -> &'static [TemplatedFileSlice; 3] {
-        &[
+    fn simple_sliced_file() -> [TemplatedFileSlice; 3] {
+        [
             TemplatedFileSlice::new("literal", 0..10, 0..10),
             TemplatedFileSlice::new("templated", 10..17, 10..12),
             TemplatedFileSlice::new("literal", 17..25, 12..20),
+        ]
+    }
+    fn simple_raw_sliced_file() -> [RawFileSlice; 3] {
+        [
+            RawFileSlice::new("x".repeat(10), "literal".to_string(), 0, None, None),
+            RawFileSlice::new("x".repeat(7), "templated".to_string(), 10, None, None),
+            RawFileSlice::new("x".repeat(8), "literal".to_string(), 17, None, None),
         ]
     }
 }

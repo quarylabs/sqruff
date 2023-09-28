@@ -389,4 +389,39 @@ mod tests {
             RawFileSlice::new("x".repeat(8), "literal".to_string(), 17, None, None),
         ]
     }
+    fn complex_sliced_file() -> Vec<TemplatedFileSlice> {
+        vec![
+            TemplatedFileSlice::new("literal", 0..13, 0..13),
+            TemplatedFileSlice::new("comment", 13..29, 13..13),
+            TemplatedFileSlice::new("literal", 29..44, 13..28),
+            TemplatedFileSlice::new("block_start", 44..68, 28..28),
+            TemplatedFileSlice::new("literal", 68..81, 28..41),
+            TemplatedFileSlice::new("templated", 81..86, 41..42),
+            TemplatedFileSlice::new("literal", 86..110, 42..66),
+            TemplatedFileSlice::new("templated", 68..86, 66..76),
+            TemplatedFileSlice::new("literal", 68..81, 76..89),
+            TemplatedFileSlice::new("templated", 81..86, 89..90),
+            TemplatedFileSlice::new("literal", 86..110, 90..114),
+            TemplatedFileSlice::new("templated", 68..86, 114..125),
+            TemplatedFileSlice::new("literal", 68..81, 125..138),
+            TemplatedFileSlice::new("templated", 81..86, 138..139),
+            TemplatedFileSlice::new("literal", 86..110, 139..163),
+            TemplatedFileSlice::new("templated", 110..123, 163..166),
+            TemplatedFileSlice::new("literal", 123..132, 166..175),
+            TemplatedFileSlice::new("block_end", 132..144, 175..175),
+            TemplatedFileSlice::new("literal", 144..155, 175..186),
+            TemplatedFileSlice::new("block_start", 155..179, 186..186),
+            TemplatedFileSlice::new("literal", 179..189, 186..196),
+            TemplatedFileSlice::new("templated", 189..194, 196..197),
+            TemplatedFileSlice::new("literal", 194..203, 197..206),
+            TemplatedFileSlice::new("literal", 179..189, 206..216),
+            TemplatedFileSlice::new("templated", 189..194, 216..217),
+            TemplatedFileSlice::new("literal", 194..203, 217..226),
+            TemplatedFileSlice::new("literal", 179..189, 226..236),
+            TemplatedFileSlice::new("templated", 189..194, 236..237),
+            TemplatedFileSlice::new("literal", 194..203, 237..246),
+            TemplatedFileSlice::new("block_end", 203..215, 246..246),
+            TemplatedFileSlice::new("literal", 215..230, 246..261),
+        ]
+    }
 }

@@ -229,13 +229,13 @@ impl Segment for CommentSegment {
 pub struct NewlineSegment {}
 
 #[derive(Debug, Clone)]
-pub struct NewLineSegmentNewArgs;
+pub struct NewlineSegmentNewArgs {}
 
 impl NewlineSegment {
     pub fn new(
         raw: &str,
         position_maker: &PositionMarker,
-        args: NewLineSegmentNewArgs,
+        args: NewlineSegmentNewArgs,
     ) -> Box<dyn Segment> {
         panic!("Not implemented yet")
     }

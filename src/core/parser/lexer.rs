@@ -513,31 +513,39 @@ impl Lexer {
         forward_string: &str,
         lexer_matchers: Vec<Box<dyn Matcher>>,
     ) -> Result<LexMatch, ValueError> {
-        let mut mutating_forward_string = forward_string.to_string().clone();
         let mut elem_buff: Vec<LexedElement> = vec![];
+        let mut forward_string = forward_string.to_string();
+
         loop {
-            if forward_string.len() == 0 {
+            if forward_string.is_empty() {
                 return Ok(LexMatch {
                     forward_string: forward_string.to_string(),
                     elements: elem_buff,
                 });
             };
+
+            let mut matched = false;
+
             for matcher in &lexer_matchers {
                 let res = matcher.match_(forward_string.to_string())?;
-                if res.elements.len() > 0 {
+                if !res.elements.is_empty() {
                     // If we have new segments then whoop!
                     elem_buff.append(res.elements.clone().as_mut());
-                    mutating_forward_string = res.forward_string;
+                    forward_string = res.forward_string;
                     // Cycle back around again and start with the top
                     // matcher again.
+                    matched = true;
                     break;
                 };
             }
+
             // We've got so far, but now can't match. Return
-            return Ok(LexMatch {
-                forward_string: forward_string.to_string(),
-                elements: elem_buff,
-            });
+            if !matched {
+                return Ok(LexMatch {
+                    forward_string: forward_string.to_string(),
+                    elements: elem_buff,
+                });
+            }
         }
     }
 
@@ -693,5 +701,37 @@ mod tests {
         );
         assert_matches(".fsaljk", &matcher, Some("."));
         assert_matches("fsaljk", &matcher, None);
+    }
+
+    /// Test the RepeatedMultiMatcher
+    #[test]
+    fn test__parser__lexer_lex_match() {
+        let matchers: Vec<Box<dyn Matcher>> = vec![
+            Box::new(StringLexer::new(
+                "dot",
+                ".",
+                &CodeSegment::new,
+                CodeSegmentNewArgs { code_type: "" },
+                None,
+                None,
+            )),
+            Box::new(
+                RegexLexer::new(
+                    "test",
+                    r"#[^#]*#",
+                    &CodeSegment::new,
+                    CodeSegmentNewArgs { code_type: "" },
+                    None,
+                    None,
+                )
+                .unwrap(),
+            ),
+        ];
+
+        let res = Lexer::lex_match("..#..#..#", matchers).unwrap();
+
+        assert_eq!(res.forward_string, "#");
+        assert_eq!(res.elements.len(), 5);
+        assert_eq!(res.elements[2].raw, "#..#");
     }
 }

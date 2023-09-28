@@ -325,13 +325,13 @@ mod tests {
             ("foo\nbar", vec![3]),
             ("\nfoo\n\nbar\nfoo\n\nbar\n", vec![0, 4, 5, 9, 13, 14, 18]),
         ]
-            .into_iter()
-            .for_each(|(in_str, expected)| {
-                assert_eq!(
-                    expected,
-                    iter_indices_of_newlines(in_str).collect::<Vec<usize>>()
-                )
-            });
+        .into_iter()
+        .for_each(|(in_str, expected)| {
+            assert_eq!(
+                expected,
+                iter_indices_of_newlines(in_str).collect::<Vec<usize>>()
+            )
+        });
     }
 
     #[test]

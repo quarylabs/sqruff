@@ -183,28 +183,6 @@ pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + 
     raw_str.match_indices('\n').map(|(idx, _)| idx).into_iter()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_iter_indices_of_newlines() {
-        vec![
-            ("", vec![]),
-            ("foo", vec![]),
-            ("foo\nbar", vec![3]),
-            ("\nfoo\n\nbar\nfoo\n\nbar\n", vec![0, 4, 5, 9, 13, 14, 18]),
-        ]
-        .into_iter()
-        .for_each(|(in_str, expected)| {
-            assert_eq!(
-                expected,
-                iter_indices_of_newlines(in_str).collect::<Vec<usize>>()
-            )
-        });
-    }
-}
-
 enum RawFileSliceType {
     Comment,
     BlockEnd,
@@ -333,4 +311,37 @@ pub trait Templater {
         config: Option<&FluffConfig>,
         formatter: Option<&dyn Formatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_iter_indices_of_newlines() {
+        vec![
+            ("", vec![]),
+            ("foo", vec![]),
+            ("foo\nbar", vec![3]),
+            ("\nfoo\n\nbar\nfoo\n\nbar\n", vec![0, 4, 5, 9, 13, 14, 18]),
+        ]
+            .into_iter()
+            .for_each(|(in_str, expected)| {
+                assert_eq!(
+                    expected,
+                    iter_indices_of_newlines(in_str).collect::<Vec<usize>>()
+                )
+            });
+    }
+
+    #[test]
+    /// Test the raw templater
+    fn test__templater_raw() {
+        let templater = RawTemplater::default();
+        let in_str = "SELECT * FROM {{blah}}";
+
+        let outstr = templater.process(in_str, "test.sql", None, None).unwrap();
+
+        assert_eq!(outstr.templated_str, Some(in_str.to_string()));
+    }
 }

@@ -45,20 +45,21 @@ impl TemplatedFile {
     fn new(
         source_str: String,
         f_name: String,
-        templated_str: Option<String>,
+        input_templated_str: Option<String>,
         sliced_file: Option<Vec<TemplatedFileSlice>>,
-        raw_sliced: Option<Vec<RawFileSlice>>,
-        check_consistency: Option<bool>,
+        input_raw_sliced: Option<Vec<RawFileSlice>>,
     ) -> Result<TemplatedFile, SQLFluffSkipFile> {
         // Assume that no sliced_file, means the file is not templated.
-        let temp_str = templated_str.unwrap_or(source_str.clone());
-        let (sliced_file, outer_raw_sliced): (Vec<TemplatedFileSlice>, Vec<RawFileSlice>) =
+        // TODO Will this not always be Some and so type can avoid Option?
+        let templated_str = input_templated_str.clone().unwrap_or(source_str.clone());
+
+        let (sliced_file, raw_sliced): (Vec<TemplatedFileSlice>, Vec<RawFileSlice>) =
             match sliced_file {
                 None => {
-                    if temp_str != source_str {
+                    if templated_str != source_str {
                         panic!("Cannot instantiate a templated file unsliced!")
                     } else {
-                        if raw_sliced.is_some() {
+                        if input_raw_sliced.is_some() {
                             panic!("Templated file was not sliced, but not has raw slices.")
                         } else {
                             (
@@ -79,7 +80,7 @@ impl TemplatedFile {
                     }
                 }
                 Some(sliced_file) => {
-                    if let Some(raw_sliced) = raw_sliced {
+                    if let Some(raw_sliced) = input_raw_sliced {
                         (sliced_file, raw_sliced)
                     } else {
                         panic!("Templated file was sliced, but not raw.")
@@ -89,11 +90,12 @@ impl TemplatedFile {
 
         // Precalculate newlines, character positions.
         let source_newlines: Vec<usize> = iter_indices_of_newlines(source_str.as_str()).collect();
-        let templated_newlines: Vec<usize> = iter_indices_of_newlines(temp_str.as_str()).collect();
+        let templated_newlines: Vec<usize> =
+            iter_indices_of_newlines(templated_str.as_str()).collect();
 
         // Consistency check raw string and slices.
         let mut pos = 0;
-        for rfs in &outer_raw_sliced {
+        for rfs in &raw_sliced {
             if rfs.source_idx != pos {
                 panic!(
                     "TemplatedFile. Consistency fail on running source length. {} != {}",
@@ -141,24 +143,25 @@ impl TemplatedFile {
             previous_slice = Some(tfs);
             outer_tfs = Some(&tfs)
         }
-        if !sliced_file.is_empty() {
-            if !temp_str.is_empty() {
-                if let Some(outer_tfs) = outer_tfs {
-                    if outer_tfs.templated_slice.end != temp_str.len() {
-                        return Err(SQLFluffSkipFile::new(format!("Last templated slice does not end at end of string, (found slice {:?})", outer_tfs.templated_slice)));
-                    }
+        if !sliced_file.is_empty() && input_templated_str.is_some() {
+            if let Some(outer_tfs) = outer_tfs {
+                if outer_tfs.templated_slice.end != templated_str.len() {
+                    return Err(SQLFluffSkipFile::new(format!(
+                        "Last templated slice does not end at end of string, (found slice {:?})",
+                        outer_tfs.templated_slice
+                    )));
                 }
             }
         }
 
         Ok(TemplatedFile {
-            raw_sliced: outer_raw_sliced,
+            raw_sliced,
             source_newlines,
             templated_newlines,
             source_str: source_str.clone(),
-            sliced_file: sliced_file,
+            sliced_file,
             f_name,
-            templated_str: Some(temp_str),
+            templated_str: Some(templated_str),
         })
     }
 
@@ -195,7 +198,7 @@ impl TemplatedFile {
     /// Create TemplatedFile from a string.
     pub fn from_string(raw: String) -> TemplatedFile {
         // TODO: Might need to deal with this unwrap
-        TemplatedFile::new(raw.clone(), "<string>".to_string(), None, None, None, None).unwrap()
+        TemplatedFile::new(raw.clone(), "<string>".to_string(), None, None, None).unwrap()
     }
 
     /// Get templated string
@@ -329,17 +332,13 @@ impl RawFileSlice {
     /// There are *also* some which are source only because they render
     /// to an empty string.
     fn is_source_only_slice(&self) -> bool {
-        // TODO: should any new logic go here?
-        if let Some(t) = &self.slice_subtype {
-            match t {
-                RawFileSliceType::Comment => true,
-                RawFileSliceType::BlockStart => true,
-                RawFileSliceType::BlockEnd => true,
-                RawFileSliceType::BlockMid => true,
-                _ => false,
-            }
-        } else {
-            return false;
+        // TODO: should any new logic go here?. Slice Type could probably go from String To Enum
+        match self.slice_type.as_str() {
+            "comment" => true,
+            "block_end" => true,
+            "block_start" => true,
+            "block_mid" => true,
+            _ => false,
         }
     }
 }
@@ -382,14 +381,8 @@ impl Templater for RawTemplater {
         config: Option<&FluffConfig>,
         formatter: Option<&dyn Formatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        if let Ok(tf) = TemplatedFile::new(
-            in_str.to_string(),
-            f_name.to_string(),
-            None,
-            None,
-            None,
-            None,
-        ) {
+        if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
+        {
             return Ok(tf);
         }
         panic!("Not implemented")
@@ -458,6 +451,7 @@ mod tests {
 
     const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";
     const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarfss";
+
     fn simple_sliced_file() -> Vec<TemplatedFileSlice> {
         vec![
             TemplatedFileSlice::new("literal", 0..10, 0..10),
@@ -465,6 +459,7 @@ mod tests {
             TemplatedFileSlice::new("literal", 17..25, 12..20),
         ]
     }
+
     fn simple_raw_sliced_file() -> [RawFileSlice; 3] {
         [
             RawFileSlice::new("x".repeat(10), "literal".to_string(), 0, None, None),
@@ -472,6 +467,7 @@ mod tests {
             RawFileSlice::new("x".repeat(8), "literal".to_string(), 17, None, None),
         ]
     }
+
     fn complex_sliced_file() -> Vec<TemplatedFileSlice> {
         vec![
             TemplatedFileSlice::new("literal", 0..13, 0..13),
@@ -507,6 +503,7 @@ mod tests {
             TemplatedFileSlice::new("literal", 215..230, 246..261),
         ]
     }
+
     fn complex_raw_sliced_file() -> Vec<RawFileSlice> {
         vec![
             RawFileSlice::new(
@@ -679,7 +676,6 @@ mod tests {
                 kwargs.templated_str,
                 Some(kwargs.sliced_file),
                 Some(kwargs.raw_sliced_file),
-                None,
             )
             .unwrap();
 
@@ -714,7 +710,6 @@ mod tests {
                 args.templated_str,
                 Some(args.sliced_file),
                 Some(args.raw_sliced_file),
-                None,
             )
             .unwrap();
 
@@ -724,6 +719,87 @@ mod tests {
 
             assert_eq!(res_start, test.3);
             assert_eq!(res_stop, test.4);
+        }
+    }
+
+    #[test]
+    /// Test TemplatedFile.source_only_slices
+    fn test__templated_file_source_only_slices() {
+        let test_cases = vec![
+            // Comment example
+            (
+                TemplatedFile::new(
+                    format!("{}{}{}", "a".repeat(10), "{# b #}", "a".repeat(10)),
+                    "test".to_string(),
+                    None,
+                    Some(vec![
+                        TemplatedFileSlice::new("literal", 0..10, 0..10),
+                        TemplatedFileSlice::new("templated", 10..17, 10..10),
+                        TemplatedFileSlice::new("literal", 17..27, 10..20),
+                    ]),
+                    Some(vec![
+                        RawFileSlice::new(
+                            "a".repeat(10).to_string(),
+                            "literal".to_string(),
+                            0,
+                            None,
+                            None,
+                        ),
+                        RawFileSlice::new(
+                            "{# b #}".to_string(),
+                            "comment".to_string(),
+                            10,
+                            None,
+                            None,
+                        ),
+                        RawFileSlice::new(
+                            "a".repeat(10).to_string(),
+                            "literal".to_string(),
+                            17,
+                            None,
+                            None,
+                        ),
+                    ]),
+                )
+                .unwrap(),
+                vec![RawFileSlice::new(
+                    "{# b #}".to_string(),
+                    "comment".to_string(),
+                    10,
+                    None,
+                    None,
+                )],
+            ),
+            // Template tags aren't source only.
+            (
+                TemplatedFile::new(
+                    "aaa{{ b }}aaa".to_string(),
+                    "test".to_string(),
+                    None,
+                    Some(vec![
+                        TemplatedFileSlice::new("literal", 0..3, 0..3),
+                        TemplatedFileSlice::new("templated", 3..10, 3..6),
+                        TemplatedFileSlice::new("literal", 10..13, 6..9),
+                    ]),
+                    Some(vec![
+                        RawFileSlice::new("aaa".to_string(), "literal".to_string(), 0, None, None),
+                        RawFileSlice::new(
+                            "{{ b }}".to_string(),
+                            "templated".to_string(),
+                            3,
+                            None,
+                            None,
+                        ),
+                        RawFileSlice::new("aaa".to_string(), "literal".to_string(), 10, None, None),
+                    ]),
+                )
+                .unwrap(),
+                vec![],
+            ),
+        ];
+
+        for (file, expected) in test_cases {
+            assert_eq!(file.source_only_slices(), expected, "Failed for {:?}", file);
         }
     }
 }

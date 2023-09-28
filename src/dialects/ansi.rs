@@ -1,8 +1,8 @@
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::lexer::{Matcher, RegexLexer};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewLineSegmentNewArgs,
-    NewlineSegment, SegmentConstructorFn, WhitespaceSegment, WhitespaceSegmentNewArgs,
+    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
+    NewlineSegmentNewArgs, SegmentConstructorFn, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 
 #[derive(Debug)]
@@ -57,8 +57,8 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                     RegexLexer::new(
                         "newline",
                         r"\r\n|\n",
-                        &NewlineSegment::new as SegmentConstructorFn<NewLineSegmentNewArgs>,
-                        NewLineSegmentNewArgs {},
+                        &NewlineSegment::new as SegmentConstructorFn<NewlineSegmentNewArgs>,
+                        NewlineSegmentNewArgs {},
                         None,
                         None,
                     )

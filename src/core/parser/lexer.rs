@@ -513,7 +513,7 @@ impl Lexer {
         forward_string: &str,
         lexer_matchers: Vec<Box<dyn Matcher>>,
     ) -> Result<LexMatch, ValueError> {
-        let mut forward_str = forward_string.to_string();
+        let mut mutating_forward_string = forward_string.to_string().clone();
         let mut elem_buff: Vec<LexedElement> = vec![];
         loop {
             if forward_string.len() == 0 {
@@ -527,18 +527,17 @@ impl Lexer {
                 if res.elements.len() > 0 {
                     // If we have new segments then whoop!
                     elem_buff.append(res.elements.clone().as_mut());
-                    forward_str = res.forward_string;
+                    mutating_forward_string = res.forward_string;
                     // Cycle back around again and start with the top
                     // matcher again.
                     break;
-                } else {
-                    // We've got so far, but now can't match. Return
-                    return Ok(LexMatch {
-                        forward_string: forward_string.to_string(),
-                        elements: elem_buff,
-                    });
-                }
+                };
             }
+            // We've got so far, but now can't match. Return
+            return Ok(LexMatch {
+                forward_string: forward_string.to_string(),
+                elements: elem_buff,
+            });
         }
     }
 
@@ -576,7 +575,9 @@ impl Lexer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
+    use crate::core::parser::segments::base::{
+        CodeSegment, CodeSegmentNewArgs, NewlineSegment, NewlineSegmentNewArgs,
+    };
 
     /// Assert that a matcher does or doesn't work on a string.
     ///
@@ -597,48 +598,48 @@ mod tests {
     }
 
     /// Test a RegexLexer with a trim_post_subdivide function.
-    // #[test]
+    #[test]
     // TODO Implement Test
-    // fn test__parser__lexer_trim_post_subdivide() {
-    //     let matcher: Vec<Box<dyn Matcher>> = vec![Box::new(
-    //         RegexLexer::new(
-    //             "function_script_terminator",
-    //             r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
-    //             &CodeSegment::new,
-    //             CodeSegmentNewArgs {
-    //                 code_type: "function_script_terminator",
-    //             },
-    //             Some(Box::new(StringLexer::new(
-    //                 "semicolon",
-    //                 ";",
-    //                 &CodeSegment::new,
-    //                 CodeSegmentNewArgs {
-    //                     code_type: "semicolon",
-    //                 },
-    //                 None,
-    //                 None,
-    //             ))),
-    //             Some(Box::new(
-    //                 RegexLexer::new(
-    //                     "newline",
-    //                     r"(\n|\r\n)+",
-    //                     &NewlineSegment::new,
-    //                     NewLineSegmentNewArgs {},
-    //                     None,
-    //                     None,
-    //                 )
-    //                     .unwrap(),
-    //             )),
-    //         )
-    //             .unwrap(),
-    //     )];
-    //
-    //     let res = Lexer::lex_match(";\n/\n", matcher).unwrap();
-    //     assert_eq!(res.elements[0].raw, ";");
-    //     assert_eq!(res.elements[1].raw, "\n");
-    //     assert_eq!(res.elements[2].raw, "/");
-    //     assert_eq!(res.elements.len(), 3);
-    // }
+    fn test__parser__lexer_trim_post_subdivide() {
+        let matcher: Vec<Box<dyn Matcher>> = vec![Box::new(
+            RegexLexer::new(
+                "function_script_terminator",
+                r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+                &CodeSegment::new,
+                CodeSegmentNewArgs {
+                    code_type: "function_script_terminator",
+                },
+                Some(Box::new(StringLexer::new(
+                    "semicolon",
+                    ";",
+                    &CodeSegment::new,
+                    CodeSegmentNewArgs {
+                        code_type: "semicolon",
+                    },
+                    None,
+                    None,
+                ))),
+                Some(Box::new(
+                    RegexLexer::new(
+                        "newline",
+                        r"(\n|\r\n)+",
+                        &NewlineSegment::new,
+                        NewlineSegmentNewArgs {},
+                        None,
+                        None,
+                    )
+                    .unwrap(),
+                )),
+            )
+            .unwrap(),
+        )];
+
+        let res = Lexer::lex_match(";\n/\n", matcher).unwrap();
+        assert_eq!(res.elements[0].raw, ";");
+        assert_eq!(res.elements[1].raw, "\n");
+        assert_eq!(res.elements[2].raw, "/");
+        assert_eq!(res.elements.len(), 3);
+    }
 
     /// Test the RegexLexer.
     #[test]

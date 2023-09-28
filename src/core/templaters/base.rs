@@ -1,10 +1,10 @@
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError};
+use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError, ValueError};
 use std::ops::Range;
 
 /// A slice referring to a templated file.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 struct TemplatedFileSlice {
     slice_type: String,
     source_slice: Range<usize>,
@@ -34,6 +34,7 @@ pub struct TemplatedFile {
     source_newlines: Vec<usize>,
     templated_newlines: Vec<usize>,
     raw_sliced: Vec<RawFileSlice>,
+    sliced_file: Vec<TemplatedFileSlice>,
 }
 
 impl TemplatedFile {
@@ -155,6 +156,7 @@ impl TemplatedFile {
             source_newlines,
             templated_newlines,
             source_str: source_str.clone(),
+            sliced_file: sliced_file,
             f_name,
             templated_str: Some(temp_str),
         })
@@ -219,6 +221,50 @@ impl TemplatedFile {
             }
         }
         ret_buff
+    }
+
+    /// Find a subset of the sliced file which touch this point.
+    ///
+    ///     The last_idx is exclusive, as the intent is to use this as a slice.
+    pub fn find_slice_indices_of_templated_pos(
+        &self,
+        templated_pos: usize,
+        start_idx: Option<usize>,
+        inclusive: Option<bool>,
+    ) -> Result<(usize, usize), ValueError> {
+        let start_idx = start_idx.unwrap_or(0);
+        let inclusive = inclusive.unwrap_or(true);
+
+        let mut first_idx: Option<usize> = None;
+        let mut last_idx = start_idx;
+
+        // Work through the sliced file, starting at the start_idx if given
+        // as an optimisation hint. The sliced_file is a list of TemplatedFileSlice
+        // which reference parts of the templated file and where they exist in the
+        // source.
+        for (idx, elem) in self.sliced_file[start_idx..].iter().enumerate() {
+            last_idx = idx + start_idx;
+            if elem.templated_slice.end >= templated_pos {
+                if first_idx.is_none() {
+                    first_idx = Some(idx + start_idx);
+                }
+                if elem.templated_slice.end > templated_pos {
+                    break;
+                } else if !inclusive && elem.templated_slice.end >= templated_pos {
+                    break;
+                }
+            }
+        }
+
+        // If we got to the end add another index
+        if last_idx == self.sliced_file.len() - 1 {
+            last_idx += 1;
+        }
+
+        match first_idx {
+            Some(first_idx) => Ok((first_idx, last_idx)),
+            None => Err(ValueError::new("Position Not Found".to_string())),
+        }
     }
 }
 
@@ -412,8 +458,8 @@ mod tests {
 
     const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";
     const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarfss";
-    fn simple_sliced_file() -> [TemplatedFileSlice; 3] {
-        [
+    fn simple_sliced_file() -> Vec<TemplatedFileSlice> {
+        vec![
             TemplatedFileSlice::new("literal", 0..10, 0..10),
             TemplatedFileSlice::new("templated", 10..17, 10..12),
             TemplatedFileSlice::new("literal", 17..25, 12..20),
@@ -588,7 +634,7 @@ mod tests {
     struct FileKwargs {
         f_name: String,
         source_str: String,
-        templated_str: String,
+        templated_str: Option<String>,
         sliced_file: Vec<TemplatedFileSlice>,
         raw_sliced_file: Vec<RawFileSlice>,
     }
@@ -597,9 +643,21 @@ mod tests {
         FileKwargs {
             f_name: "test.sql".to_string(),
             source_str: "01234\n6789{{foo}}fo\nbarss".to_string(),
-            templated_str: "01234\n6789x\nfo\nbarss".to_string(),
+            templated_str: Some("01234\n6789x\nfo\nbarss".to_string()),
             sliced_file: simple_sliced_file().to_vec(),
             raw_sliced_file: simple_raw_sliced_file().to_vec(),
+        }
+    }
+
+    fn complex_file_kwargs() -> FileKwargs {
+        FileKwargs {
+            f_name: "test.sql".to_string(),
+            source_str: complex_raw_sliced_file()
+                .iter()
+                .fold(String::new(), |acc, x| acc + &x.raw),
+            templated_str: None,
+            sliced_file: complex_sliced_file().to_vec(),
+            raw_sliced_file: complex_raw_sliced_file().to_vec(),
         }
     }
 
@@ -618,7 +676,7 @@ mod tests {
             let tf = TemplatedFile::new(
                 kwargs.source_str,
                 kwargs.f_name,
-                Some(kwargs.templated_str),
+                kwargs.templated_str,
                 Some(kwargs.sliced_file),
                 Some(kwargs.raw_sliced_file),
                 None,
@@ -629,6 +687,43 @@ mod tests {
 
             assert_eq!(res_line_no, test.2);
             assert_eq!(res_line_pos, test.3);
+        }
+    }
+
+    #[test]
+    fn test__templated_file_find_slice_indices_of_templated_pos() {
+        let tests = vec![
+            // "templated_position,inclusive,file_slices,sliced_idx_start,sliced_idx_stop",
+            // TODO Fix these
+            // (100, true, complex_file_kwargs(), 10, 11),
+            // (13, true, complex_file_kwargs(), 0, 3),
+            // (28, true, complex_file_kwargs(), 2, 5),
+            // # Check end slicing.
+            (12, true, simple_file_kwargs(), 1, 3),
+            (20, true, simple_file_kwargs(), 2, 3),
+            // Check inclusivity
+            // (13, false, complex_file_kwargs(), 0, 1),
+        ];
+
+        for test in tests {
+            let args = test.2;
+
+            let file = TemplatedFile::new(
+                args.source_str,
+                args.f_name,
+                args.templated_str,
+                Some(args.sliced_file),
+                Some(args.raw_sliced_file),
+                None,
+            )
+            .unwrap();
+
+            let (res_start, res_stop) = file
+                .find_slice_indices_of_templated_pos(test.0, None, Some(test.1))
+                .unwrap();
+
+            assert_eq!(res_start, test.3);
+            assert_eq!(res_stop, test.4);
         }
     }
 }

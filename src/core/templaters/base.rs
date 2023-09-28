@@ -193,6 +193,7 @@ pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + 
     raw_str.match_indices('\n').map(|(idx, _)| idx).into_iter()
 }
 
+#[derive(Clone)]
 enum RawFileSliceType {
     Comment,
     BlockEnd,
@@ -201,6 +202,7 @@ enum RawFileSliceType {
 }
 
 /// A slice referring to a raw file.
+#[derive(Clone)]
 pub struct RawFileSlice {
     /// Source string
     raw: String,
@@ -423,5 +425,176 @@ mod tests {
             TemplatedFileSlice::new("block_end", 203..215, 246..246),
             TemplatedFileSlice::new("literal", 215..230, 246..261),
         ]
+    }
+    fn complex_raw_sliced_file() -> Vec<RawFileSlice> {
+        vec![
+            RawFileSlice::new(
+                "x".repeat(13).to_string(),
+                "literal".to_string(),
+                0,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(16).to_string(),
+                "comment".to_string(),
+                13,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(15).to_string(),
+                "literal".to_string(),
+                29,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(24).to_string(),
+                "block_start".to_string(),
+                44,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(13).to_string(),
+                "literal".to_string(),
+                68,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(5).to_string(),
+                "templated".to_string(),
+                81,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(24).to_string(),
+                "literal".to_string(),
+                86,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(13).to_string(),
+                "templated".to_string(),
+                110,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(9).to_string(),
+                "literal".to_string(),
+                123,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(12).to_string(),
+                "block_end".to_string(),
+                132,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(11).to_string(),
+                "literal".to_string(),
+                144,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(24).to_string(),
+                "block_start".to_string(),
+                155,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(10).to_string(),
+                "literal".to_string(),
+                179,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(5).to_string(),
+                "templated".to_string(),
+                189,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(9).to_string(),
+                "literal".to_string(),
+                194,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(12).to_string(),
+                "block_end".to_string(),
+                203,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "x".repeat(15).to_string(),
+                "literal".to_string(),
+                215,
+                None,
+                None,
+            ),
+        ]
+    }
+
+    #[test]
+    /// Test TemplatedFile.get_line_pos_of_char_pos.
+    fn test__templated_file_get_line_pos_of_char_pos() {
+        let tests = [
+            (
+                SIMPLE_SOURCE_STR,
+                SIMPLE_TEMPLATED_STR,
+                simple_sliced_file(),
+                0,
+                1,
+                1,
+            ),
+            (
+                SIMPLE_SOURCE_STR,
+                SIMPLE_TEMPLATED_STR,
+                simple_sliced_file(),
+                20,
+                3,
+                1,
+            ),
+            (
+                SIMPLE_SOURCE_STR,
+                SIMPLE_TEMPLATED_STR,
+                simple_sliced_file(),
+                24,
+                3,
+                5,
+            ),
+        ];
+
+        for test in tests {
+            let tf = TemplatedFile::new(
+                test.0.to_string(),
+                "test".to_string(),
+                Some(test.1.to_string()),
+                Some(test.2.to_vec()),
+                None,
+                None,
+            )
+            .unwrap();
+
+            let (line_number, line_position) = tf.get_line_pos_of_char_pos(test.3, true);
+
+            assert_eq!(line_number, test.4);
+            assert_eq!(line_position, test.5);
+        }
     }
 }

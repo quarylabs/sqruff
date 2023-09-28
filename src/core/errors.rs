@@ -247,4 +247,5 @@ impl SQLLexError {
     }
 }
 
+#[derive(Debug)]
 pub struct SQLFluffSkipFile {}

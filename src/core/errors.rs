@@ -248,4 +248,12 @@ impl SQLLexError {
 }
 
 #[derive(Debug)]
-pub struct SQLFluffSkipFile {}
+pub struct SQLFluffSkipFile {
+    value: String,
+}
+
+impl SQLFluffSkipFile {
+    pub fn new(value: String) -> SQLFluffSkipFile {
+        SQLFluffSkipFile { value }
+    }
+}

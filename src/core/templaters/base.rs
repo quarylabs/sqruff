@@ -33,6 +33,7 @@ pub struct TemplatedFile {
     pub templated_str: Option<String>,
     source_newlines: Vec<usize>,
     templated_newlines: Vec<usize>,
+    raw_sliced: Vec<RawFileSlice>,
 }
 
 impl TemplatedFile {
@@ -48,88 +49,112 @@ impl TemplatedFile {
         raw_sliced: Option<Vec<RawFileSlice>>,
         check_consistency: Option<bool>,
     ) -> Result<TemplatedFile, SQLFluffSkipFile> {
+        // Assume that no sliced_file, means the file is not templated.
         let temp_str = templated_str.unwrap_or(source_str.clone());
-        if sliced_file.is_none() && temp_str != source_str {
-            // TODO: This is a bit of a hack. We should probably have a clean error be returned here.
-            panic!("Cannot instantiate a templated file unsliced!")
-        };
-        // self.source_str = source_str
-        // # An empty string is still allowed as the templated string.
-        // self.templated_str = source_str if templated_str is None else templated_str
-        // # If no fname, we assume this is from a string or stdin.
-        // self.fname = fname
+        let (sliced_file, outer_raw_sliced): (Vec<TemplatedFileSlice>, Vec<RawFileSlice>) =
+            match sliced_file {
+                None => {
+                    if temp_str != source_str {
+                        panic!("Cannot instantiate a templated file unsliced!")
+                    } else {
+                        if raw_sliced.is_some() {
+                            panic!("Templated file was not sliced, but not has raw slices.")
+                        } else {
+                            (
+                                vec![TemplatedFileSlice::new(
+                                    "literal",
+                                    0..source_str.len(),
+                                    0..source_str.len(),
+                                )],
+                                vec![RawFileSlice::new(
+                                    source_str.clone(),
+                                    "literal".to_string(),
+                                    0,
+                                    None,
+                                    None,
+                                )],
+                            )
+                        }
+                    }
+                }
+                Some(sliced_file) => {
+                    if let Some(raw_sliced) = raw_sliced {
+                        (sliced_file, raw_sliced)
+                    } else {
+                        panic!("Templated file was sliced, but not raw.")
+                    }
+                }
+            };
 
+        // Precalculate newlines, character positions.
         let source_newlines: Vec<usize> = iter_indices_of_newlines(source_str.as_str()).collect();
         let templated_newlines: Vec<usize> = iter_indices_of_newlines(temp_str.as_str()).collect();
 
-        //  NOTE: The "check_consistency" flag should always be True when using
-        // SQLFluff in real life. This flag was only added because some legacy
-        // templater tests in test/core/templaters/jinja_test.py use hardcoded
-        // test data with issues that will trigger errors here. It would be cool
-        // to fix that data someday. I (Barry H.) started looking into it, but
-        // it was much trickier than I expected, because bits of the same data
-        // are shared across multiple tests.
-        if check_consistency.unwrap_or(true) {
-            // Sanity check raw string and slices.
-            let mut pos = 0;
-            let rfs: Option<RawFileSlice> = None;
-            raw_sliced.map(|raw_sliced| {
-                for (idx, rs) in raw_sliced.iter().enumerate() {
-                    if rs.source_idx != pos {
-                        panic!("Raw slices found to be non-contiguous.")
-                    }
-                    pos += rs.raw.len();
-                }
-                if pos != source_str.len() {
-                    panic!("Raw slices found to be non-contiguous.")
-                }
-            });
+        // Consistency check raw string and slices.
+        let mut pos = 0;
+        for rfs in &outer_raw_sliced {
+            if rfs.source_idx != pos {
+                panic!(
+                    "TemplatedFile. Consistency fail on running source length. {} != {}",
+                    pos, rfs.source_idx
+                )
+            }
+            pos += rfs.raw.len();
+        }
+        if pos != source_str.len() {
+            panic!(
+                "TemplatedFile. Consistency fail on final source length. {} != {}",
+                pos,
+                source_str.len()
+            )
+        }
 
-            // Sanity check templated string and slices.
-            // # Sanity check templated string and slices.
-            let mut previous_slice: Option<TemplatedFileSlice> = None;
-            let mut tfs: Option<&TemplatedFileSlice> = None;
-            sliced_file.map(|sliced_file| {
-                for (idx, tfs) in sliced_file.iter().enumerate() {
-                    if let Some(ps) = previous_slice {
-                        if tfs.templated_slice.start != ps.templated_slice.end {
-                            //     raise SQLFluffSkipFile(  # pragma: no cover
-                            //                              "Templated slices found to be non-contiguous. "
-                            //                              f"{tfs.templated_slice} (starting"
-                            //                              f" {self.templated_str[tfs.templated_slice]!r})"
-                            //                              f" does not follow {previous_slice.templated_slice} "
-                            //                              "(starting "
-                            //                              f"{self.templated_str[previous_slice.templated_slice]!r}"
-                            //                              ")"
-
-                            panic!("Templated slices found to be non-contiguous.")
-                        } else {
-                            if tfs.templated_slice.start != 0 {
-                                //     raise SQLFluffSkipFile(  # pragma: no cover
-                                //                              "First Templated slice not started at index 0 "
-                                //                              f"(found slice {tfs.templated_slice})"
-                                // )
-                                panic!("First Templated slice not started at index 0")
-                            }
-                        }
-                        if sliced_file.len() > 0 && temp_str.len() > 0 {
-                            if tfs.templated_slice.end != temp_str.len() {
-                                // raise SQLFluffSkipFile(  # pragma: no cover
-                                //                          "Length of templated file mismatch with final slice: "
-                                //                          f"{len(templated_str)} != {tfs.templated_slice.stop}."
-                                panic!("Length of templated file mismatch with final slice.")
-                            }
-                        }
-                        previous_slice = Some(tfs.clone());
+        // Consistency check templated string and slices.
+        let mut previous_slice: Option<&TemplatedFileSlice> = None;
+        let mut outer_tfs: Option<&TemplatedFileSlice> = None;
+        for tfs in &sliced_file {
+            match &previous_slice {
+                Some(previous_slice) => {
+                    if tfs.templated_slice.start != previous_slice.templated_slice.end {
+                        return Err(SQLFluffSkipFile::new(
+                            "Templated slices found to be non-contiguous.".to_string(), // TODO Make this nicer again
+                                                                                        // format!(
+                                                                                        //     "Templated slices found to be non-contiguous. {:?} (starting {:?}) does not follow {:?} (starting {:?})",
+                                                                                        //     tfs.templated_slice,
+                                                                                        //     templated_str[tfs.templated_slice],
+                                                                                        //     previous_slice.templated_slice,
+                                                                                        //     templated_str[previous_slice.templated_slice],
+                                                                                        // )
+                        ));
                     }
                 }
-            });
-        };
+                None => {
+                    if tfs.templated_slice.start != 0 {
+                        return Err(SQLFluffSkipFile::new(format!(
+                            "First templated slice does not start at 0, (found slice {:?})",
+                            tfs.templated_slice
+                        )));
+                    }
+                }
+            }
+            previous_slice = Some(tfs);
+            outer_tfs = Some(&tfs)
+        }
+        if !sliced_file.is_empty() {
+            if !temp_str.is_empty() {
+                if let Some(outer_tfs) = outer_tfs {
+                    if outer_tfs.templated_slice.end != temp_str.len() {
+                        return Err(SQLFluffSkipFile::new(format!("Last templated slice does not end at end of string, (found slice {:?})", outer_tfs.templated_slice)));
+                    }
+                }
+            }
+        }
 
         Ok(TemplatedFile {
+            raw_sliced: outer_raw_sliced,
             source_newlines,
             templated_newlines,
-            source_str,
+            source_str: source_str.clone(),
             f_name,
             templated_str: Some(temp_str),
         })
@@ -166,14 +191,9 @@ impl TemplatedFile {
     }
 
     /// Create TemplatedFile from a string.
-    pub fn from_string(source_str: String) -> TemplatedFile {
-        TemplatedFile {
-            source_newlines: vec![],
-            templated_newlines: vec![],
-            f_name: "<string>".to_string(),
-            templated_str: None,
-            source_str,
-        }
+    pub fn from_string(raw: String) -> TemplatedFile {
+        // TODO: Might need to deal with this unwrap
+        TemplatedFile::new(raw.clone(), "<string>".to_string(), None, None, None, None).unwrap()
     }
 
     /// Get templated string
@@ -185,6 +205,21 @@ impl TemplatedFile {
     pub fn to_string(&self) -> String {
         self.templated_str.clone().unwrap().to_string()
     }
+
+    /// Return a list a slices which reference the parts only in the source.
+    ///
+    /// All of these slices should be expected to have zero-length in the templated file.
+    ///
+    ///         The results are NECESSARILY sorted.
+    fn source_only_slices(&self) -> Vec<RawFileSlice> {
+        let mut ret_buff = vec![];
+        for element in &self.raw_sliced {
+            if element.is_source_only_slice() {
+                ret_buff.push(element.clone());
+            }
+        }
+        ret_buff
+    }
 }
 
 /// Find the indices of all newlines in a string.
@@ -193,7 +228,7 @@ pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + 
     raw_str.match_indices('\n').map(|(idx, _)| idx).into_iter()
 }
 
-#[derive(Clone)]
+#[derive(Debug, PartialEq, Clone)]
 enum RawFileSliceType {
     Comment,
     BlockEnd,
@@ -202,7 +237,7 @@ enum RawFileSliceType {
 }
 
 /// A slice referring to a raw file.
-#[derive(Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct RawFileSlice {
     /// Source string
     raw: String,
@@ -550,51 +585,50 @@ mod tests {
         ]
     }
 
+    struct FileKwargs {
+        f_name: String,
+        source_str: String,
+        templated_str: String,
+        sliced_file: Vec<TemplatedFileSlice>,
+        raw_sliced_file: Vec<RawFileSlice>,
+    }
+
+    fn simple_file_kwargs() -> FileKwargs {
+        FileKwargs {
+            f_name: "test.sql".to_string(),
+            source_str: "01234\n6789{{foo}}fo\nbarss".to_string(),
+            templated_str: "01234\n6789x\nfo\nbarss".to_string(),
+            sliced_file: simple_sliced_file().to_vec(),
+            raw_sliced_file: simple_raw_sliced_file().to_vec(),
+        }
+    }
+
     #[test]
     /// Test TemplatedFile.get_line_pos_of_char_pos.
     fn test__templated_file_get_line_pos_of_char_pos() {
         let tests = [
-            (
-                SIMPLE_SOURCE_STR,
-                SIMPLE_TEMPLATED_STR,
-                simple_sliced_file(),
-                0,
-                1,
-                1,
-            ),
-            (
-                SIMPLE_SOURCE_STR,
-                SIMPLE_TEMPLATED_STR,
-                simple_sliced_file(),
-                20,
-                3,
-                1,
-            ),
-            (
-                SIMPLE_SOURCE_STR,
-                SIMPLE_TEMPLATED_STR,
-                simple_sliced_file(),
-                24,
-                3,
-                5,
-            ),
+            (simple_file_kwargs(), 0, 1, 1),
+            (simple_file_kwargs(), 20, 3, 1),
+            (simple_file_kwargs(), 24, 3, 5),
         ];
 
         for test in tests {
+            let kwargs = test.0;
+
             let tf = TemplatedFile::new(
-                test.0.to_string(),
-                "test".to_string(),
-                Some(test.1.to_string()),
-                Some(test.2.to_vec()),
-                None,
+                kwargs.source_str,
+                kwargs.f_name,
+                Some(kwargs.templated_str),
+                Some(kwargs.sliced_file),
+                Some(kwargs.raw_sliced_file),
                 None,
             )
             .unwrap();
 
-            let (line_number, line_position) = tf.get_line_pos_of_char_pos(test.3, true);
+            let (res_line_no, res_line_pos) = tf.get_line_pos_of_char_pos(test.1, true);
 
-            assert_eq!(line_number, test.4);
-            assert_eq!(line_position, test.5);
+            assert_eq!(res_line_no, test.2);
+            assert_eq!(res_line_pos, test.3);
         }
     }
 }

@@ -14,6 +14,7 @@ use std::ops::Range;
 /// - Positions within the fixed file are identified with a line number and line
 ///   position, which identify a point.
 /// - Arithmetic comparisons are on the location in the fixed file.
+#[derive(Debug, Clone)]
 pub struct PositionMarker {
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
@@ -95,6 +96,18 @@ impl PositionMarker {
     }
 }
 
+impl PartialEq for PositionMarker {
+    fn eq(&self, other: &Self) -> bool {
+        self.working_loc() == other.working_loc()
+    }
+}
+
+impl PartialOrd for PositionMarker {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.working_loc().cmp(&other.working_loc()))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::core::parser::markers::PositionMarker;
@@ -171,5 +184,39 @@ mod tests {
         let pos = PositionMarker::new(2..5, 2..5, templ, Some(4), Some(4));
         // Can we NOT infer when we're told.
         assert_eq!(pos.working_loc(), (4, 4))
+    }
+
+    /// Test that we can correctly compare markers.
+    #[test]
+    fn test_markers__comparison() {
+        let templ = TemplatedFile::from_string("abc".to_string());
+
+        // Assuming start and end are usize, based on typical Rust slicing/indexing.
+        let a_pos = PositionMarker::new(0..1, 0..1, templ.clone(), None, None);
+        let b_pos = PositionMarker::new(1..2, 1..2, templ.clone(), None, None);
+        let c_pos = PositionMarker::new(2..3, 2..3, templ.clone(), None, None);
+
+        let all_pos = vec![&a_pos, &b_pos, &c_pos];
+
+        // Check equality
+        assert!(all_pos.iter().all(|p| p == p));
+
+        // Check inequality
+        assert!(a_pos != b_pos && a_pos != c_pos && b_pos != c_pos);
+
+        // TODO Finish these tests
+        // Check less than
+        assert!(a_pos < b_pos && b_pos < c_pos);
+        assert!(!(c_pos < a_pos));
+
+        // Check greater than
+        assert!(c_pos > a_pos && c_pos > b_pos);
+        assert!(!(a_pos > c_pos));
+
+        // Check less than or equal
+        assert!(all_pos.iter().all(|p| a_pos <= **p));
+
+        // Check greater than or equal
+        assert!(all_pos.iter().all(|p| c_pos >= **p));
     }
 }

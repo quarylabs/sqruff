@@ -1,6 +1,7 @@
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError, ValueError};
+use crate::core::slice_helpers::zero_slice;
 use std::ops::Range;
 
 /// A slice referring to a templated file.
@@ -120,15 +121,16 @@ impl TemplatedFile {
                 Some(previous_slice) => {
                     if tfs.templated_slice.start != previous_slice.templated_slice.end {
                         return Err(SQLFluffSkipFile::new(
-                            "Templated slices found to be non-contiguous.".to_string(), // TODO Make this nicer again
-                                                                                        // format!(
-                                                                                        //     "Templated slices found to be non-contiguous. {:?} (starting {:?}) does not follow {:?} (starting {:?})",
-                                                                                        //     tfs.templated_slice,
-                                                                                        //     templated_str[tfs.templated_slice],
-                                                                                        //     previous_slice.templated_slice,
-                                                                                        //     templated_str[previous_slice.templated_slice],
-                                                                                        // )
+                            "Templated slices found to be non-contiguous.".to_string(),
                         ));
+                        // TODO Make this nicer again
+                        // format!(
+                        //     "Templated slices found to be non-contiguous. {:?} (starting {:?}) does not follow {:?} (starting {:?})",
+                        //     tfs.templated_slice,
+                        //     templated_str[tfs.templated_slice],
+                        //     previous_slice.templated_slice,
+                        //     templated_str[previous_slice.templated_slice],
+                        // )
                     }
                 }
                 None => {
@@ -245,13 +247,16 @@ impl TemplatedFile {
         // as an optimisation hint. The sliced_file is a list of TemplatedFileSlice
         // which reference parts of the templated file and where they exist in the
         // source.
-        for (idx, elem) in self.sliced_file[start_idx..].iter().enumerate() {
+        for (idx, elem) in self.sliced_file[start_idx..self.sliced_file.len()]
+            .iter()
+            .enumerate()
+        {
             last_idx = idx + start_idx;
             if elem.templated_slice.end >= templated_pos {
                 if first_idx.is_none() {
                     first_idx = Some(idx + start_idx);
                 }
-                if elem.templated_slice.end > templated_pos {
+                if elem.templated_slice.start > templated_pos {
                     break;
                 } else if !inclusive && elem.templated_slice.end >= templated_pos {
                     break;
@@ -268,6 +273,179 @@ impl TemplatedFile {
             Some(first_idx) => Ok((first_idx, last_idx)),
             None => Err(ValueError::new("Position Not Found".to_string())),
         }
+    }
+
+    /// Convert a template slice to a source slice.
+    pub fn templated_slice_to_source_slice(
+        &self,
+        template_slice: Range<usize>,
+    ) -> Result<Range<usize>, ValueError> {
+        if self.sliced_file.is_empty() {
+            return Ok(template_slice);
+        }
+
+        let sliced_file = self.sliced_file.clone();
+
+        let (ts_start_sf_start, ts_start_sf_stop) =
+            self.find_slice_indices_of_templated_pos(template_slice.start, None, None)?;
+
+        let ts_start_subsliced_file = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
+
+        // Work out the insertion point
+        let mut insertion_point: isize = -1;
+        for elem in ts_start_subsliced_file.iter() {
+            // Do slice starts and ends
+            for &slice_elem in ["start", "stop"].iter() {
+                let elem_val = match slice_elem {
+                    "start" => elem.templated_slice.start,
+                    "stop" => elem.templated_slice.end,
+                    _ => panic!("Unexpected slice_elem"),
+                };
+
+                if elem_val == template_slice.start {
+                    let point = if slice_elem == "start" {
+                        elem.source_slice.start
+                    } else {
+                        elem.source_slice.end
+                    };
+
+                    let point: isize = point.try_into().unwrap();
+                    if insertion_point < 0 || point < insertion_point {
+                        insertion_point = point;
+                    }
+                    // We don't break here, because we might find ANOTHER
+                    // later which is actually earlier.
+                }
+            }
+        }
+
+        // Zero length slice.
+        if template_slice.start == template_slice.end {
+            // Is it on a join?
+            if insertion_point >= 0 {
+                return Ok(zero_slice(insertion_point.try_into().unwrap()));
+                // It's within a segment.
+            } else {
+                if ts_start_subsliced_file.len() > 0
+                    && ts_start_subsliced_file[0].slice_type == "literal"
+                {
+                    let offset =
+                        template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
+                    return Ok(
+                        zero_slice(ts_start_subsliced_file[0].source_slice.start + offset)
+                            .try_into()
+                            .unwrap(),
+                    );
+                } else {
+                    return Err(ValueError::new(format!(
+                        "Attempting a single length slice within a templated section! {:?} within {:?}.",
+                        template_slice,
+                        ts_start_subsliced_file
+                    )));
+                }
+            }
+        }
+
+        let (ts_stop_sf_start, ts_stop_sf_stop) =
+            self.find_slice_indices_of_templated_pos(template_slice.end, None, Some(false))?;
+
+        let mut ts_start_sf_start = ts_start_sf_start;
+        if insertion_point >= 0 {
+            for elem in &sliced_file[ts_start_sf_start..] {
+                if elem.source_slice.start != insertion_point.try_into().unwrap() {
+                    ts_start_sf_start += 1;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        let subslices = &sliced_file[usize::min(ts_start_sf_start, ts_stop_sf_start)
+            ..usize::max(ts_start_sf_stop, ts_stop_sf_stop)];
+
+        let start_slices;
+        if ts_start_sf_start == ts_start_sf_stop {
+            if ts_start_sf_start > sliced_file.len() {
+                return Err(ValueError::new(
+                    "Starting position higher than sliced file position".into(),
+                ));
+            } else if ts_start_sf_start < sliced_file.len() {
+                return Ok(sliced_file[1].source_slice.clone());
+            } else {
+                return Ok(sliced_file.last().unwrap().source_slice.clone());
+            }
+        } else {
+            start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
+        }
+
+        let stop_slices;
+        if ts_stop_sf_start == ts_stop_sf_stop {
+            stop_slices = vec![sliced_file[ts_stop_sf_start].clone()];
+        } else {
+            stop_slices = sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec();
+        }
+
+        let source_start: isize = if insertion_point >= 0 {
+            insertion_point
+        } else if start_slices[0].slice_type == "literal" {
+            let offset = template_slice.start - start_slices[0].templated_slice.start;
+            (start_slices[0].source_slice.start + offset)
+                .try_into()
+                .unwrap()
+        } else {
+            (start_slices[0].source_slice.start).try_into().unwrap()
+        };
+
+        let source_stop = if stop_slices.last().unwrap().slice_type == "literal" {
+            let offset = stop_slices.last().unwrap().templated_slice.end - template_slice.end;
+            stop_slices.last().unwrap().source_slice.end - offset
+        } else {
+            stop_slices.last().unwrap().source_slice.end
+        };
+
+        let source_slice;
+        if source_start > source_stop.try_into().unwrap() {
+            let mut source_start = usize::MAX;
+            let mut source_stop = 0;
+            for elem in subslices {
+                source_start = usize::min(source_start, elem.source_slice.start);
+                source_stop = usize::max(source_stop, elem.source_slice.end);
+            }
+            source_slice = source_start..source_stop;
+        } else {
+            source_slice = source_start.try_into().unwrap()..source_stop;
+        }
+
+        Ok(source_slice)
+    }
+
+    ///  Work out whether a slice of the source file is a literal or not.
+    pub fn is_source_slice_literal(&self, source_slice: Range<usize>) -> bool {
+        // No sliced file? Everything is literal
+        if self.raw_sliced.is_empty() {
+            return true;
+        };
+
+        // Zero length slice. It's a literal, because it's definitely not templated.
+        if source_slice.start == source_slice.end {
+            return true;
+        };
+
+        let mut is_literal = true;
+        for raw_slice in &self.raw_sliced {
+            // Reset if we find a literal and we're up to the start
+            // otherwise set false.
+            if raw_slice.source_idx <= source_slice.start {
+                is_literal = raw_slice.slice_type == "literal";
+            } else if raw_slice.source_idx >= source_slice.end {
+                break;
+            } else {
+                if raw_slice.slice_type != "literal" {
+                    is_literal = false;
+                }
+            };
+        }
+        return is_literal;
     }
 }
 
@@ -420,9 +598,10 @@ pub trait Templater {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs::File;
 
     #[test]
-    fn test_iter_indices_of_newlines() {
+    fn test__indices_of_newlines() {
         vec![
             ("", vec![]),
             ("foo", vec![]),
@@ -719,6 +898,143 @@ mod tests {
 
             assert_eq!(res_start, test.3);
             assert_eq!(res_stop, test.4);
+        }
+    }
+
+    #[test]
+    /// Test TemplatedFile.templated_slice_to_source_slice
+    fn test_templated_file_templated_slice_to_source_slice() {
+        let test_cases = vec![
+            // Simple example
+            (
+                5..10,
+                5..10,
+                true,
+                FileKwargs {
+                    sliced_file: vec![TemplatedFileSlice::new("literal", 0..20, 0..20)],
+                    raw_sliced_file: vec![RawFileSlice::new(
+                        "x".repeat(20),
+                        "literal".to_string(),
+                        0,
+                        None,
+                        None,
+                    )],
+                    source_str: "x".repeat(20),
+                    f_name: "foo.sql".to_string(),
+                    templated_str: None,
+                },
+            ),
+            // Trimming the end of a literal (with things that follow).
+            (10..13, 10..13, true, complex_file_kwargs()),
+            // // Unrealistic, but should still work
+            (
+                5..10,
+                55..60,
+                true,
+                FileKwargs {
+                    sliced_file: vec![TemplatedFileSlice::new("literal", 50..70, 0..20)],
+                    raw_sliced_file: vec![
+                        RawFileSlice::new("x".repeat(50), "literal".to_string(), 0, None, None),
+                        RawFileSlice::new("x".repeat(20), "literal".to_string(), 50, None, None),
+                    ],
+                    source_str: "x".repeat(70),
+                    f_name: "foo.sql".to_string(),
+                    templated_str: None,
+                },
+            ),
+            // // Spanning a template
+            (5..15, 5..20, false, simple_file_kwargs()),
+            // // Handling templated
+            (
+                5..15,
+                0..25,
+                false,
+                FileKwargs {
+                    sliced_file: simple_file_kwargs()
+                        .sliced_file
+                        .iter()
+                        .map(|slc| {
+                            TemplatedFileSlice::new(
+                                "templated",
+                                slc.source_slice.clone(),
+                                slc.templated_slice.clone(),
+                            )
+                        })
+                        .collect(),
+                    raw_sliced_file: simple_file_kwargs()
+                        .raw_sliced_file
+                        .iter()
+                        .map(|slc| {
+                            RawFileSlice::new(
+                                slc.raw.to_string(),
+                                "templated".to_string(),
+                                slc.source_idx,
+                                None,
+                                None,
+                            )
+                        })
+                        .collect(),
+                    ..simple_file_kwargs()
+                },
+            ),
+            // // Handling single length slices
+            (10..10, 10..10, true, simple_file_kwargs()),
+            (12..12, 17..17, true, simple_file_kwargs()),
+            // // Dealing with single length elements
+            (
+                20..20,
+                25..25,
+                true,
+                FileKwargs {
+                    sliced_file: simple_file_kwargs()
+                        .sliced_file
+                        .into_iter()
+                        .chain(vec![TemplatedFileSlice::new("comment", 25..35, 20..20)])
+                        .collect(),
+                    raw_sliced_file: simple_file_kwargs()
+                        .raw_sliced_file
+                        .into_iter()
+                        .chain(vec![RawFileSlice::new(
+                            "x".repeat(10),
+                            "comment".to_string(),
+                            25,
+                            None,
+                            None,
+                        )])
+                        .collect(),
+                    source_str: simple_file_kwargs().source_str.to_string() + &"x".repeat(10),
+                    ..simple_file_kwargs()
+                },
+            ),
+            // // Just more test coverage
+            (43..43, 87..87, true, complex_file_kwargs()),
+            (13..13, 13..13, true, complex_file_kwargs()),
+            (186..186, 155..155, true, complex_file_kwargs()),
+            // Backward slicing.
+            (
+                100..130,
+                // NB This actually would reference the wrong way around if we
+                // just take the points. Here we should handle it gracefully.
+                68..110,
+                false,
+                complex_file_kwargs(),
+            ),
+        ];
+
+        for (in_slice, out_slice, is_literal, tf_kwargs) in test_cases {
+            let file = TemplatedFile::new(
+                tf_kwargs.source_str,
+                tf_kwargs.f_name,
+                tf_kwargs.templated_str,
+                Some(tf_kwargs.sliced_file),
+                Some(tf_kwargs.raw_sliced_file),
+            )
+            .unwrap();
+
+            let source_slice = file.templated_slice_to_source_slice(in_slice).unwrap();
+            let literal_test = file.is_source_slice_literal(source_slice.clone());
+
+            assert_eq!((is_literal, source_slice), (literal_test, out_slice));
         }
     }
 

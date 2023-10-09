@@ -104,13 +104,13 @@ impl PositionMarker {
         working_line_no: Option<usize>,
         working_line_pos: Option<usize>,
     ) -> Self {
-        return Self::new(
+        Self::new(
             zero_slice(source_point),
             zero_slice(templated_point),
             templated_file,
             working_line_no,
             working_line_pos,
-        );
+        )
     }
 }
 

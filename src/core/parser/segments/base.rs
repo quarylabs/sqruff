@@ -1,7 +1,6 @@
 use crate::core::parser::markers::PositionMarker;
 use dyn_clone::DynClone;
 use std::fmt::Debug;
-use std::hash::Hash;
 
 /// An element of the response to BaseSegment.path_to().
 ///     Attributes:
@@ -18,7 +17,7 @@ pub struct PathStep<S: Segment> {
 pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
-pub trait Segment: DynClone {
+pub trait Segment: DynClone + Debug {
     fn get_raw(&self) -> Option<&str> {
         None
     }
@@ -46,6 +45,29 @@ pub trait Segment: DynClone {
             Some(raw) => raw.len(),
         }
     }
+
+    /// Are we able to have non-code at the start or end?
+    fn get_can_start_end_non_code(&self) -> bool {
+        false
+    }
+
+    /// Can we allow it to be empty? Usually used in combination with the can_start_end_non_code.
+    fn get_allow_empty(&self) -> bool {
+        false
+    }
+
+    /// get_file_path returns the file path of the segment if it is a file segment.
+    fn get_file_path(&self) -> Option<String> {
+        None
+    }
+
+    /// Iterate raw segments, mostly for searching.
+    ///
+    /// In sqlfluff only implemented for RawSegments and up
+    fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
+        None
+    }
+
     fn indent_val(&self) -> usize {
         panic!("Not implemented yet");
     }
@@ -276,6 +298,14 @@ impl SymbolSegment {
 mod tests {
     use super::*;
     use crate::core::parser::markers::PositionMarker;
+    use crate::core::parser::segments::test_functions::raw_seg;
+
+    #[test]
+    // TODO Implement
+    /// Test raw segments behave as expected.
+    fn test__parser__base_segments_raw() {
+        let raw_seg = raw_seg();
+    }
 
     #[test]
     /// Test the .is_type() method.

@@ -7,15 +7,15 @@ use crate::core::parser::segments::base::Segment;
 ///     and so is usually instantiated directly. It therefore
 ///     has no match_grammar.
 #[derive(Debug, Clone)]
-struct FileSegment {
+struct BaseFileSegment {
+    pub f_name: Option<String>,
+}
+
+struct BaseFileSegmentNewArgs {
     f_name: Option<String>,
 }
 
-struct FileSegmentNewArgs {
-    f_name: Option<String>,
-}
-
-impl Segment for FileSegment {
+impl Segment for BaseFileSegment {
     fn get_type(&self) -> &'static str {
         "file"
     }
@@ -31,20 +31,45 @@ impl Segment for FileSegment {
     fn is_whitespace(&self) -> bool {
         false
     }
-}
 
-impl FileSegment {
-    pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
-        args: FileSegmentNewArgs,
-    ) -> Box<dyn Segment> {
-        Box::new(FileSegment {
-            f_name: args.f_name,
-        })
+    fn get_can_start_end_non_code(&self) -> bool {
+        false
     }
 
-    pub fn get_file_path(&self) -> Option<String> {
+    fn get_allow_empty(&self) -> bool {
+        true
+    }
+
+    fn get_file_path(&self) -> Option<String> {
         self.f_name.clone()
+    }
+}
+
+impl BaseFileSegment {
+    pub fn new(
+        segments: Vec<Box<dyn Segment>>,
+        position_maker: Option<PositionMarker>,
+        f_name: Option<String>,
+    ) -> Box<dyn Segment> {
+        Box::new(BaseFileSegment { f_name })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::core::parser::segments::file::BaseFileSegment;
+    use crate::core::parser::segments::test_functions::raw_segments;
+
+    fn test__parser__base_segments_file() {
+        let segments = raw_segments();
+        let base_seg = BaseFileSegment::new(segments, None, Some("/some/dir/file.sql".to_string()));
+
+        assert_eq!(base_seg.get_type(), "file");
+        assert_eq!(
+            base_seg.get_file_path(),
+            Some("/some/dir/file.sql".to_string())
+        );
+        assert!(!base_seg.get_can_start_end_non_code());
+        assert!(base_seg.get_allow_empty());
     }
 }

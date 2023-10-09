@@ -329,6 +329,7 @@ impl SymbolSegment {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::core::parser::markers::PositionMarker;

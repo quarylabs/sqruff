@@ -387,6 +387,45 @@ impl Segment for UnlexableSegment {
     }
 }
 
+/// A segment used for matching single entities which aren't keywords.
+///
+///     We rename the segment class here so that descendants of
+///     _ProtoKeywordSegment can use the same functionality
+///     but don't end up being labelled as a `keyword` later.
+#[derive(Debug, Clone)]
+pub struct SymbolSegment {}
+
+impl Segment for SymbolSegment {
+    fn get_type(&self) -> &'static str {
+        return "symbol";
+    }
+
+    fn is_code(&self) -> bool {
+        true
+    }
+
+    fn is_comment(&self) -> bool {
+        false
+    }
+
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SymbolSegmentNewArgs {}
+
+impl SymbolSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: SymbolSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        Box::new(SymbolSegment {})
+    }
+}
+
 mod tests {
     use super::*;
     use crate::core::parser::markers::PositionMarker;

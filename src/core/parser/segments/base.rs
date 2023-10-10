@@ -68,12 +68,38 @@ pub trait Segment: DynClone + Debug {
         None
     }
 
+    fn get_uuid(&self) -> Option<String> {
+        None
+    }
+
     fn indent_val(&self) -> usize {
         panic!("Not implemented yet");
     }
 }
 
 dyn_clone::clone_trait_object!(Segment);
+
+impl PartialEq for dyn Segment {
+    fn eq(&self, other: &Self) -> bool {
+        match (self.get_uuid(), other.get_uuid()) {
+            (Some(uuid1), Some(uuid2)) => {
+                if uuid1 == uuid2 {
+                    return true;
+                };
+            }
+            _ => (),
+        };
+        let pos_self = self.get_pos_maker();
+        let pos_other = other.get_pos_maker();
+        if let (Some(pos_self), Some(pos_other)) = (pos_self, pos_other) {
+            self.get_type() == other.get_type()
+                && self.get_raw() == other.get_raw()
+                && pos_self == pos_other
+        } else {
+            false
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct CodeSegment {

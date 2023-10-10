@@ -1,5 +1,4 @@
 use crate::core::parser::markers::PositionMarker;
-use crate::core::rules::base::LintFix;
 use dyn_clone::DynClone;
 use std::fmt::Debug;
 use std::hash::Hash;

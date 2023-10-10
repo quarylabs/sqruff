@@ -1,3 +1,4 @@
+use crate::core::slice_helpers::zero_slice;
 use crate::core::templaters::base::TemplatedFile;
 use std::ops::Range;
 
@@ -93,6 +94,23 @@ impl PositionMarker {
     /// Location tuple for the working position.
     pub fn working_loc(&self) -> (usize, usize) {
         (self.working_line_no, self.working_line_pos)
+    }
+
+    /// Convenience method for creating point markers.
+    pub fn from_point(
+        source_point: usize,
+        templated_point: usize,
+        templated_file: TemplatedFile,
+        working_line_no: Option<usize>,
+        working_line_pos: Option<usize>,
+    ) -> Self {
+        return Self::new(
+            zero_slice(source_point),
+            zero_slice(templated_point),
+            templated_file,
+            working_line_no,
+            working_line_pos,
+        );
     }
 }
 

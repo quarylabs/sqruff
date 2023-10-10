@@ -112,6 +112,18 @@ impl PositionMarker {
             working_line_pos,
         )
     }
+
+    /// Get a point marker from the start.
+    pub fn start_point_marker(&self) -> PositionMarker {
+        return PositionMarker::from_point(
+            self.source_slice.start,
+            self.templated_slice.start,
+            self.templated_file.clone(),
+            // Start points also pass on the working position
+            Some(self.working_line_no),
+            Some(self.working_line_pos),
+        );
+    }
 }
 
 impl PartialEq for PositionMarker {

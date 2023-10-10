@@ -196,62 +196,6 @@ impl Segment for WhitespaceSegment {
     }
 }
 
-// /// A placeholder to un-lexable sections.
-// ///
-// /// This otherwise behaves exactly like a code section.
-// #[derive(Debug, Clone)]
-// pub struct RawSegment {}
-//
-// #[derive(Debug, Clone)]
-// pub struct RawSegmentNewArgs;
-//
-// impl Segment<RawSegmentNewArgs> for RawSegment {
-//     fn new(raw: &str, position_maker: PositionMarker, args: RawSegmentNewArgs) -> Self {
-//         panic!("Not implemented yet")
-//     }
-//     fn get_type(&self) -> &'static str {
-//         "raw"
-//     }
-//     fn is_code(&self) -> bool {
-//         true
-//     }
-//     fn is_comment(&self) -> bool {
-//         false
-//     }
-//     fn is_whitespace(&self) -> bool {
-//         false
-//     }
-// }
-//
-// /// A segment used for matching single entities which aren't keywords.
-// ///
-// /// We rename the segment class here so that descendants of
-// /// _ProtoKeywordSegment can use the same functionality
-// /// but don't end up being labelled as a `keyword` later.
-// #[derive(Debug, Clone)]
-// pub struct SymbolSegment {}
-//
-// #[derive(Debug, Clone)]
-// pub struct SymbolSegmentNewArgs;
-//
-// impl Segment<SymbolSegmentNewArgs> for SymbolSegment {
-//     fn new(raw: &str, position_maker: PositionMarker, args: SymbolSegmentNewArgs) -> Self {
-//         panic!("Not implemented yet")
-//     }
-//     fn get_type(&self) -> &'static str {
-//         "symbol"
-//     }
-//     fn is_code(&self) -> bool {
-//         true
-//     }
-//     fn is_comment(&self) -> bool {
-//         false
-//     }
-//     fn is_whitespace(&self) -> bool {
-//         false
-//     }
-// }
-//
 #[derive(Debug, Clone)]
 pub struct UnlexableSegment {
     expected: String,

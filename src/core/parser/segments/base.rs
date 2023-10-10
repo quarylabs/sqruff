@@ -324,7 +324,37 @@ impl SymbolSegment {
 mod tests {
     use super::*;
     use crate::core::parser::markers::PositionMarker;
+    use crate::core::parser::segments::raw::RawSegment;
     use crate::core::parser::segments::test_functions::raw_seg;
+    use crate::core::templaters::base::TemplatedFile;
+
+    #[test]
+    /// Test comparison of raw segments.
+    fn test__parser__base_segments_raw_compare() {
+        let template = TemplatedFile::from_string("foobar".to_string());
+        let rs1 = RawSegment::new(
+            Some("foobar".to_string()),
+            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
+        let rs2 = RawSegment::new(
+            Some("foobar".to_string()),
+            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
+
+        assert_eq!(rs1, rs2)
+    }
 
     #[test]
     // TODO Implement

@@ -598,7 +598,6 @@ pub trait Templater {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
 
     #[test]
     fn test__indices_of_newlines() {

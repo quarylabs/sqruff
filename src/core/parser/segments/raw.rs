@@ -1,10 +1,24 @@
+use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::fix::SourceFix;
 
 #[derive(Debug, Clone)]
 pub struct RawSegment {}
 
 impl RawSegment {
-    pub fn new() -> Self {
+    pub fn new(
+        raw: Option<String>,
+        pos_marker: Option<PositionMarker>,
+        // For legacy and syntactic sugar we allow the simple
+        // `type` argument here, but for more precise inheritance
+        // we suggest using the `instance_types` option.
+        r#type: Option<String>,
+        instance_types: Option<Vec<String>>,
+        trim_start: Option<Vec<String>>,
+        trim_cars: Option<Vec<String>>,
+        source_fixes: Option<Vec<SourceFix>>,
+        uuid: Option<String>,
+    ) -> Self {
         Self {}
     }
 }

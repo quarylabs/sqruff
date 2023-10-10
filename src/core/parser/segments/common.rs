@@ -1,5 +1,3 @@
-use crate::core::parser::segments::base::Segment;
-
 #[cfg(test)]
 mod test {
     use crate::core::parser::segments::base::Segment;

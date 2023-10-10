@@ -9,9 +9,9 @@ use crate::core::parser::segments::base::Segment;
 ///     in the same place this intentionally *won't* capture it, they will just
 ///     be compared later.
 #[derive(Debug, Clone)]
-struct Indent {}
+pub struct Indent {}
 
-struct IndentNewArgs {}
+pub struct IndentNewArgs {}
 
 impl Segment for Indent {
     fn get_type(&self) -> &'static str {
@@ -32,11 +32,7 @@ impl Segment for Indent {
 }
 
 impl Indent {
-    pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
-        args: IndentNewArgs,
-    ) -> Box<dyn Segment> {
+    pub fn new(position_maker: PositionMarker) -> Box<dyn Segment> {
         Box::new(Indent {})
     }
 }
@@ -49,9 +45,9 @@ impl Indent {
 ///     in the same place this intentionally *won't* capture it, they will just
 ///     be compared later.
 #[derive(Debug, Clone)]
-struct Dedent {}
+pub struct Dedent {}
 
-struct DedentNewArgs {}
+pub struct DedentNewArgs {}
 
 impl Segment for Dedent {
     fn get_type(&self) -> &'static str {
@@ -72,11 +68,7 @@ impl Segment for Dedent {
 }
 
 impl Dedent {
-    pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
-        args: DedentNewArgs,
-    ) -> Box<dyn Segment> {
+    pub fn new(position_maker: PositionMarker) -> Box<dyn Segment> {
         Box::new(Dedent {})
     }
 }

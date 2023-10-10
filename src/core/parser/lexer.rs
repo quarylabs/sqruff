@@ -616,6 +616,10 @@ mod tests {
                 &CodeSegment::new,
                 CodeSegmentNewArgs {
                     code_type: "function_script_terminator",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
                 },
                 Some(Box::new(StringLexer::new(
                     "semicolon",
@@ -623,6 +627,10 @@ mod tests {
                     &CodeSegment::new,
                     CodeSegmentNewArgs {
                         code_type: "semicolon",
+                        instance_types: vec![],
+                        trim_start: None,
+                        trim_chars: None,
+                        source_fixes: None,
                     },
                     None,
                     None,
@@ -678,7 +686,13 @@ mod tests {
                 "test",
                 reg,
                 &CodeSegment::new,
-                CodeSegmentNewArgs { code_type: "" },
+                CodeSegmentNewArgs {
+                    code_type: "",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
+                },
                 None,
                 None,
             )
@@ -695,7 +709,13 @@ mod tests {
             "dot",
             ".",
             &CodeSegment::new,
-            CodeSegmentNewArgs { code_type: "dot" },
+            CodeSegmentNewArgs {
+                code_type: "dot",
+                instance_types: vec![],
+                trim_start: None,
+                trim_chars: None,
+                source_fixes: None,
+            },
             None,
             None,
         );
@@ -711,7 +731,13 @@ mod tests {
                 "dot",
                 ".",
                 &CodeSegment::new,
-                CodeSegmentNewArgs { code_type: "" },
+                CodeSegmentNewArgs {
+                    code_type: "",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
+                },
                 None,
                 None,
             )),
@@ -720,7 +746,13 @@ mod tests {
                     "test",
                     r"#[^#]*#",
                     &CodeSegment::new,
-                    CodeSegmentNewArgs { code_type: "" },
+                    CodeSegmentNewArgs {
+                        code_type: "",
+                        instance_types: vec![],
+                        trim_start: None,
+                        trim_chars: None,
+                        source_fixes: None,
+                    },
                     None,
                     None,
                 )

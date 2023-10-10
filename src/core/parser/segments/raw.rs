@@ -66,6 +66,18 @@ impl Segment for RawSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         Some(self.uuid)
     }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
 }
 
 #[cfg(test)]

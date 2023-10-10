@@ -65,12 +65,12 @@ impl FixPatch {
 
 /// For a given fix anchor, count of the fix edit types and fixes for it."""
 pub struct AnchorEditInfo {
-    delete: usize,
-    replace: usize,
-    create_before: usize,
-    create_after: usize,
-    fixes: Vec<LintFix>,
-    source_fixes: Vec<LintFix>,
+    pub delete: usize,
+    pub replace: usize,
+    pub create_before: usize,
+    pub create_after: usize,
+    pub fixes: Vec<LintFix>,
+    pub source_fixes: Vec<LintFix>,
     // First fix of edit_type "replace" in "fixes"
     pub first_replace_fix: Option<LintFix>,
 }
@@ -122,7 +122,7 @@ impl AnchorEditInfo {
     ///
     /// We also allow potentially multiple source fixes on the same anchor by condensing them
     /// together here.
-    fn add(&mut self, fix: LintFix) {
+    pub fn add(&mut self, fix: LintFix) {
         if self.fixes.contains(&fix) {
             // Deduplicate fixes in case it's already in there.
             return;

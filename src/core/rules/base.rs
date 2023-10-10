@@ -41,7 +41,7 @@ pub enum EditType {
 #[derive(Debug, Clone)]
 pub struct LintFix {
     pub edit_type: EditType,
-    anchor: Box<dyn Segment>,
+    pub anchor: Box<dyn Segment>,
     pub edit: Option<Vec<Box<dyn Segment>>>,
     source: Vec<Box<dyn Segment>>,
 }

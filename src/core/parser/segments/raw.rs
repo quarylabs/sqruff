@@ -3,12 +3,15 @@ use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
 
 #[derive(Debug, Clone)]
-pub struct RawSegment {}
+pub struct RawSegment {
+    raw: Option<String>,
+    position_marker: Option<PositionMarker>,
+}
 
 impl RawSegment {
     pub fn new(
         raw: Option<String>,
-        pos_marker: Option<PositionMarker>,
+        position_marker: Option<PositionMarker>,
         // For legacy and syntactic sugar we allow the simple
         // `type` argument here, but for more precise inheritance
         // we suggest using the `instance_types` option.
@@ -19,7 +22,10 @@ impl RawSegment {
         source_fixes: Option<Vec<SourceFix>>,
         uuid: Option<String>,
     ) -> Self {
-        Self {}
+        Self {
+            position_marker,
+            raw,
+        }
     }
 }
 
@@ -38,6 +44,14 @@ impl Segment for RawSegment {
 
     fn is_whitespace(&self) -> bool {
         false
+    }
+
+    fn get_raw(&self) -> Option<String> {
+        self.raw.clone()
+    }
+
+    fn get_pos_maker(&self) -> Option<PositionMarker> {
+        self.position_marker.clone()
     }
 
     fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {

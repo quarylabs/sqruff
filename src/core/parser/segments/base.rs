@@ -18,7 +18,8 @@ pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment: DynClone + Debug {
-    fn get_raw(&self) -> Option<&str> {
+    fn get_raw(&self) -> Option<String> {
+        panic!("Not implemented yet");
         None
     }
     fn get_type(&self) -> &'static str;
@@ -35,6 +36,7 @@ pub trait Segment: DynClone + Debug {
         None
     }
     fn get_pos_maker(&self) -> Option<PositionMarker> {
+        panic!("Not implemented yet");
         None
     }
 
@@ -79,7 +81,7 @@ pub trait Segment: DynClone + Debug {
 
 dyn_clone::clone_trait_object!(Segment);
 
-impl PartialEq for dyn Segment {
+impl PartialEq for Box<dyn Segment> {
     fn eq(&self, other: &Self) -> bool {
         match (self.get_uuid(), other.get_uuid()) {
             (Some(uuid1), Some(uuid2)) => {
@@ -103,6 +105,8 @@ impl PartialEq for dyn Segment {
 
 #[derive(Debug, Clone)]
 pub struct CodeSegment {
+    raw: String,
+    position_marker: PositionMarker,
     pub code_type: &'static str,
 }
 
@@ -117,7 +121,11 @@ impl CodeSegment {
         position_maker: &PositionMarker,
         args: CodeSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        panic!("Not implemented yet")
+        Box::new(CodeSegment {
+            raw: raw.to_string(),
+            position_marker: position_maker.clone(),
+            code_type: args.code_type,
+        })
     }
 }
 
@@ -332,28 +340,40 @@ mod tests {
     /// Test comparison of raw segments.
     fn test__parser__base_segments_raw_compare() {
         let template = TemplatedFile::from_string("foobar".to_string());
-        let rs1 = RawSegment::new(
+        let rs1 = Box::new(RawSegment::new(
             Some("foobar".to_string()),
-            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
+            Some(PositionMarker::new(
+                0..6,
+                0..6,
+                template.clone(),
+                None,
+                None,
+            )),
             None,
             None,
             None,
             None,
             None,
             None,
-        );
-        let rs2 = RawSegment::new(
+        )) as Box<dyn Segment>;
+        let rs2 = Box::new(RawSegment::new(
             Some("foobar".to_string()),
-            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
+            Some(PositionMarker::new(
+                0..6,
+                0..6,
+                template.clone(),
+                None,
+                None,
+            )),
             None,
             None,
             None,
             None,
             None,
             None,
-        );
+        )) as Box<dyn Segment>;
 
-        assert_eq!(rs1, rs2)
+        assert!(rs1 == rs2)
     }
 
     #[test]

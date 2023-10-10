@@ -1,5 +1,6 @@
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::fix::SourceFix;
 use uuid::Uuid;
 
 /// A segment which is empty but indicates where an indent should be.
@@ -31,7 +32,27 @@ impl Segment for Indent {
         false
     }
 
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }
@@ -72,6 +93,26 @@ impl Segment for Dedent {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
+
+    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }

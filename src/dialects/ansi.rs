@@ -85,6 +85,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "single_quote",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
                 },
                 None,
                 None,
@@ -98,6 +102,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "double_quote",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
                 },
                 None,
                 None,
@@ -111,6 +119,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "back_quote",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
                 },
                 None,
                 None,
@@ -124,6 +136,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "dollar_quote",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
                 },
                 None,
                 None,

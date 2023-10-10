@@ -73,6 +73,10 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
                 &position_marker,
                 CodeSegmentNewArgs {
                     code_type: "double_quote",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
                 },
             )
         } else if elem.starts_with("'") {
@@ -81,10 +85,24 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
                 &position_marker,
                 CodeSegmentNewArgs {
                     code_type: "single_quote",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
                 },
             )
         } else {
-            CodeSegment::new(elem, &position_marker, CodeSegmentNewArgs { code_type: "" })
+            CodeSegment::new(
+                elem,
+                &position_marker,
+                CodeSegmentNewArgs {
+                    code_type: "",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
+                },
+            )
         };
 
         buff.push(seg);

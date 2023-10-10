@@ -1,5 +1,7 @@
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::fix::SourceFix;
+
 use uuid::Uuid;
 /// A segment representing a whole file or script.
 ///
@@ -16,6 +18,10 @@ struct BaseFileSegmentNewArgs {
 }
 
 impl Segment for BaseFileSegment {
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
+
     fn get_type(&self) -> &'static str {
         "file"
     }
@@ -32,6 +38,14 @@ impl Segment for BaseFileSegment {
         false
     }
 
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
     fn get_can_start_end_non_code(&self) -> bool {
         false
     }
@@ -45,6 +59,14 @@ impl Segment for BaseFileSegment {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
         todo!()
     }
 }

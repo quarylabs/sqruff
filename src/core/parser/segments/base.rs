@@ -1,6 +1,8 @@
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::LintFix;
 use dyn_clone::DynClone;
+use std::collections::HashMap;
 use std::fmt::Debug;
 use uuid::Uuid;
 
@@ -20,10 +22,7 @@ pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment: DynClone + Debug {
-    fn get_raw(&self) -> Option<String> {
-        panic!("Not implemented yet");
-        None
-    }
+    fn get_raw(&self) -> Option<String>;
     fn get_type(&self) -> &'static str;
     fn is_type(&self, type_: &str) -> bool {
         self.get_type() == type_
@@ -37,14 +36,8 @@ pub trait Segment: DynClone + Debug {
     fn get_default_raw(&self) -> Option<&'static str> {
         None
     }
-
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        panic!("Not implemented yet");
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        panic!("Not implemented yet");
-    }
+    fn get_position_marker(&self) -> Option<PositionMarker>;
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>);
 
     /// Return the length of the segment in characters.
     fn get_matched_length(&self) -> usize {
@@ -82,8 +75,28 @@ pub trait Segment: DynClone + Debug {
         panic!("Not implemented yet");
     }
 
+    /// Return any source fixes as list.
     fn get_source_fixes(&self) -> Vec<LintFix> {
-        panic!("Not implemented yet");
+        self.get_raw_segments()
+            .unwrap_or(vec![])
+            .iter()
+            .flat_map(|seg| seg.get_source_fixes())
+            .collect()
+    }
+
+    /// Stub.
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment>;
+
+    /// Group and count fixes by anchor, return dictionary.
+    fn compute_anchor_edit_info(&self, fixes: &Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo> {
+        let mut anchor_info = HashMap::<Uuid, AnchorEditInfo>::new();
+        for fix in fixes {
+            // :TRICKY: Use segment uuid as the dictionary key since
+            // different segments may compare as equal.
+            let anchor_id = fix.anchor.get_uuid().unwrap();
+            anchor_info.entry(anchor_id).or_default().add(fix.clone());
+        }
+        anchor_info
     }
 }
 
@@ -114,13 +127,25 @@ impl PartialEq for Box<dyn Segment> {
 #[derive(Debug, Clone)]
 pub struct CodeSegment {
     raw: String,
-    position_marker: PositionMarker,
+    position_marker: Option<PositionMarker>,
     pub code_type: &'static str,
+
+    // From RawSegment
+    uuid: Uuid,
+    instance_types: Vec<String>,
+    trim_start: Option<Vec<String>>,
+    trim_chars: Option<Vec<String>>,
+    source_fixes: Option<Vec<SourceFix>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct CodeSegmentNewArgs {
     pub code_type: &'static str,
+
+    pub instance_types: Vec<String>,
+    pub trim_start: Option<Vec<String>>,
+    pub trim_chars: Option<Vec<String>>,
+    pub source_fixes: Option<Vec<SourceFix>>,
 }
 
 impl CodeSegment {
@@ -131,8 +156,14 @@ impl CodeSegment {
     ) -> Box<dyn Segment> {
         Box::new(CodeSegment {
             raw: raw.to_string(),
-            position_marker: position_maker.clone(),
+            position_marker: Some(position_maker.clone()),
             code_type: args.code_type,
+
+            instance_types: vec![],
+            trim_start: None,
+            trim_chars: None,
+            source_fixes: None,
+            uuid: uuid::Uuid::new_v4(),
         })
     }
 }
@@ -151,8 +182,44 @@ impl Segment for CodeSegment {
         false
     }
 
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.position_marker.clone()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker
+    }
+
+    /// Create a new segment, with exactly the same position but different content.
+    ///
+    ///         Returns:
+    ///             A copy of this object with new contents.
+    ///
+    ///         Used mostly by fixes.
+    ///
+    ///         NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+    ///
+    /// From RawSegment implementation
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+        CodeSegment::new(
+            raw.unwrap_or(self.raw.clone()).as_str(),
+            &self.position_marker.clone().unwrap(),
+            CodeSegmentNewArgs {
+                code_type: self.code_type,
+                instance_types: vec![],
+                trim_start: None,
+                source_fixes,
+                trim_chars: None,
+            },
+        )
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
+        Some(self.uuid.clone())
+    }
+
+    fn get_raw(&self) -> Option<String> {
+        Some(self.raw.clone())
     }
 }
 
@@ -196,6 +263,26 @@ impl Segment for CommentSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         todo!()
     }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
+
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
 }
 
 // Segment containing a newline.
@@ -232,7 +319,27 @@ impl Segment for NewlineSegment {
         Some("\n")
     }
 
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }
@@ -255,6 +362,10 @@ impl WhitespaceSegment {
 }
 
 impl Segment for WhitespaceSegment {
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
+
     fn get_type(&self) -> &'static str {
         "whitespace"
     }
@@ -271,7 +382,23 @@ impl Segment for WhitespaceSegment {
         Some(" ")
     }
 
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
         todo!()
     }
 }
@@ -312,7 +439,27 @@ impl Segment for UnlexableSegment {
         false
     }
 
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }
@@ -342,7 +489,27 @@ impl Segment for SymbolSegment {
         false
     }
 
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }
@@ -365,7 +532,8 @@ mod tests {
     use super::*;
     use crate::core::parser::markers::PositionMarker;
     use crate::core::parser::segments::raw::RawSegment;
-    use crate::core::parser::segments::test_functions::raw_seg;
+    use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
+    use crate::core::rules::base::LintFix;
     use crate::core::templaters::base::TemplatedFile;
 
     #[test]
@@ -416,7 +584,78 @@ mod tests {
     }
 
     #[test]
+    /// Test BaseSegment.compute_anchor_edit_info().
+    fn test__parser_base_segments_compute_anchor_edit_info() {
+        let raw_segs = raw_segments();
+
+        // Construct a fix buffer, intentionally with:
+        // - one duplicate.
+        // - two different incompatible fixes on the same segment.
+        let fixes = vec![
+            LintFix::replace(
+                raw_segs[0].clone(),
+                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                None,
+            ),
+            LintFix::replace(
+                raw_segs[0].clone(),
+                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                None,
+            ),
+            LintFix::replace(
+                raw_segs[0].clone(),
+                vec![raw_segs[0].edit(Some("b".to_string()), None)],
+                None,
+            ),
+        ];
+
+        let anchor_edit_info = raw_segs[0].compute_anchor_edit_info(&fixes);
+
+        // Check the target segment is the only key we have.
+        assert_eq!(
+            anchor_edit_info.keys().collect::<Vec<_>>(),
+            vec![&raw_segs[0].get_uuid().unwrap()]
+        );
+
+        let anchor_info = anchor_edit_info
+            .get(&raw_segs[0].get_uuid().unwrap())
+            .unwrap();
+
+        // Check that the duplicate as been deduplicated i.e. this isn't 3.
+        assert_eq!(anchor_info.replace, 2);
+
+        // Check the fixes themselves.
+        //   Note: There's no duplicated first fix.
+        assert_eq!(
+            anchor_info.fixes[0],
+            LintFix::replace(
+                raw_segs[0].clone(),
+                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                None,
+            )
+        );
+        assert_eq!(
+            anchor_info.fixes[1],
+            LintFix::replace(
+                raw_segs[0].clone(),
+                vec![raw_segs[0].edit(Some("b".to_string()), None)],
+                None,
+            )
+        );
+
+        // Check the first replace
+        assert_eq!(
+            anchor_info.first_replace_fix,
+            Some(LintFix::replace(
+                raw_segs[0].clone(),
+                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                None,
+            ))
+        );
+    }
+
     /// Test the .is_type() method.
+    #[test]
     fn test__parser__base_segments_type() {
         let args = UnlexableSegmentNewArgs { expected: None };
         let segment = UnlexableSegment::new("", &PositionMarker::default(), args);

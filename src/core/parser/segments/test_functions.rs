@@ -5,7 +5,6 @@ use crate::core::parser::segments::base::{
     WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::meta::{Dedent, Indent};
-use crate::core::parser::segments::raw::RawSegment;
 use crate::core::templaters::base::TemplatedFile;
 
 /// Roughly generate test segments.

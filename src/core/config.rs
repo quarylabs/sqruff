@@ -138,8 +138,8 @@ impl FluffConfig {
     // TODO This is not a translation that is particularly accurate.
     pub fn from_root(
         extra_config_path: Option<String>,
-        ignore_local_config: bool,
-        overrides: Option<HashMap<String, String>>,
+        _ignore_local_config: bool,
+        _overrides: Option<HashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
         Ok(FluffConfig::new(
             Some(HashSet::new()),
@@ -174,7 +174,7 @@ impl FluffConfig {
     }
 
     /// Process an inline config command and update self.
-    pub fn process_inline_config(&mut self, config_line: &str) {
+    pub fn process_inline_config(&mut self, _config_line: &str) {
         panic!("Not implemented")
     }
 

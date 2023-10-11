@@ -7,7 +7,7 @@ use crate::core::rules::context::RuleContext;
 pub struct RootOnlyCrawler {}
 
 impl RootOnlyCrawler {
-    pub fn crawl(&self, context: RuleContext) -> &dyn Iterator<Item = RuleContext> {
+    pub fn crawl(&self, _context: RuleContext) -> &dyn Iterator<Item = RuleContext> {
         panic!("Not implemented yet.")
     }
 }

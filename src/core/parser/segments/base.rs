@@ -159,9 +159,9 @@ pub struct CommentSegmentNewArgs {
 
 impl CommentSegment {
     pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
-        args: CommentSegmentNewArgs,
+        _raw: &str,
+        _position_maker: &PositionMarker,
+        _args: CommentSegmentNewArgs,
     ) -> Box<dyn Segment> {
         panic!("Not implemented yet")
     }
@@ -191,9 +191,9 @@ pub struct NewlineSegmentNewArgs {}
 
 impl NewlineSegment {
     pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
-        args: NewlineSegmentNewArgs,
+        _raw: &str,
+        _position_maker: &PositionMarker,
+        _args: NewlineSegmentNewArgs,
     ) -> Box<dyn Segment> {
         panic!("Not implemented yet")
     }
@@ -226,9 +226,9 @@ pub struct WhitespaceSegmentNewArgs;
 
 impl WhitespaceSegment {
     pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
-        args: WhitespaceSegmentNewArgs,
+        _raw: &str,
+        _position_maker: &PositionMarker,
+        _args: WhitespaceSegmentNewArgs,
     ) -> Box<dyn Segment> {
         panic!("Not implemented yet")
     }
@@ -264,8 +264,8 @@ pub struct UnlexableSegmentNewArgs {
 
 impl UnlexableSegment {
     pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
+        _raw: &str,
+        _position_maker: &PositionMarker,
         args: UnlexableSegmentNewArgs,
     ) -> Box<dyn Segment> {
         Box::new(UnlexableSegment {
@@ -320,9 +320,9 @@ pub struct SymbolSegmentNewArgs {}
 
 impl SymbolSegment {
     pub fn new(
-        raw: &str,
-        position_maker: &PositionMarker,
-        args: SymbolSegmentNewArgs,
+        _raw: &str,
+        _position_maker: &PositionMarker,
+        _args: SymbolSegmentNewArgs,
     ) -> Box<dyn Segment> {
         Box::new(SymbolSegment {})
     }
@@ -380,7 +380,7 @@ mod tests {
     // TODO Implement
     /// Test raw segments behave as expected.
     fn test__parser__base_segments_raw() {
-        let raw_seg = raw_seg();
+        let _raw_seg = raw_seg();
     }
 
     #[test]

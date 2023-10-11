@@ -27,7 +27,7 @@ impl RuleL001 {
     ///
     /// Look for newline segments, and then evaluate what
     // it was preceded by.
-    pub fn _eval(&self, context: RuleContext) -> Option<LintResult> {
+    pub fn _eval(&self, _context: RuleContext) -> Option<LintResult> {
         panic!("Not implemented yet.")
     }
 }

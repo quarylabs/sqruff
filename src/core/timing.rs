@@ -16,7 +16,7 @@ impl TimingSummary {
     }
 
     /// Add a timing to the summary.
-    fn add_timing(&mut self, step: String, timing: f64) {
+    fn add_timing(&mut self, _step: String, _timing: f64) {
         if self.steps.is_none() {
             self.steps = Some(Vec::new());
         }

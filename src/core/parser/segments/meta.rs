@@ -32,7 +32,7 @@ impl Segment for Indent {
 }
 
 impl Indent {
-    pub fn new(position_maker: PositionMarker) -> Box<dyn Segment> {
+    pub fn new(_position_maker: PositionMarker) -> Box<dyn Segment> {
         Box::new(Indent {})
     }
 }
@@ -68,7 +68,7 @@ impl Segment for Dedent {
 }
 
 impl Dedent {
-    pub fn new(position_maker: PositionMarker) -> Box<dyn Segment> {
+    pub fn new(_position_maker: PositionMarker) -> Box<dyn Segment> {
         Box::new(Dedent {})
     }
 }

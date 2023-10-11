@@ -91,13 +91,13 @@ impl Default for ReflowConfig {
 impl ReflowConfig {
     pub fn get_block_config(
         &self,
-        block_class_types: Vec<String>,
-        depth_info: Option<DepthInfo>,
+        _block_class_types: Vec<String>,
+        _depth_info: Option<DepthInfo>,
     ) -> BlockConfig {
         panic!("Not implemented yet");
     }
 
-    pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
+    pub fn from_fluff_config(_config: FluffConfig) -> ReflowConfig {
         panic!("Not implemented yet");
     }
 }

@@ -47,8 +47,8 @@ impl Segment for BaseFileSegment {
 
 impl BaseFileSegment {
     pub fn new(
-        segments: Vec<Box<dyn Segment>>,
-        position_maker: Option<PositionMarker>,
+        _segments: Vec<Box<dyn Segment>>,
+        _position_maker: Option<PositionMarker>,
         f_name: Option<String>,
     ) -> Box<dyn Segment> {
         Box::new(BaseFileSegment { f_name })

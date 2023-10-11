@@ -556,8 +556,8 @@ impl Templater for RawTemplater {
         &self,
         in_str: &str,
         f_name: &str,
-        config: Option<&FluffConfig>,
-        formatter: Option<&dyn Formatter>,
+        _config: Option<&FluffConfig>,
+        _formatter: Option<&dyn Formatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
         {

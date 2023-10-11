@@ -206,7 +206,7 @@ impl<SegmentArgs: Clone + Debug> StringLexer<SegmentArgs> {
     }
 
     /// Given a string, trim if we are allowed to.
-    fn _trim_match(self: &Self, matched_string: String) -> Vec<LexedElement> {
+    fn _trim_match(self: &Self, _matched_string: String) -> Vec<LexedElement> {
         panic!("Not implemented")
     }
 
@@ -465,7 +465,7 @@ impl Lexer {
 
         // Map tuple LexedElement to list of TemplateElement.
         // This adds the template_slice to the object.
-        let templated_buffer = Lexer::map_template_slices(element_buffer, template);
+        let _templated_buffer = Lexer::map_template_slices(element_buffer, template);
 
         // while True:
         //     res = self.lex_match(str_buff, self.lexer_matchers)

@@ -48,10 +48,10 @@ pub struct LintFix {
 
 impl LintFix {
     fn new(
-        edit_type: EditType,
-        anchor: Box<dyn Segment>,
-        edit: Option<Vec<Box<dyn Segment>>>,
-        source: Option<Vec<Box<dyn Segment>>>,
+        _edit_type: EditType,
+        _anchor: Box<dyn Segment>,
+        _edit: Option<Vec<Box<dyn Segment>>>,
+        _source: Option<Vec<Box<dyn Segment>>>,
     ) -> Self {
         todo!()
     }
@@ -71,7 +71,7 @@ impl LintFix {
 }
 
 impl PartialEq for LintFix {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         todo!()
     }
 }

@@ -47,7 +47,7 @@ impl Linter {
         fix: Option<bool>,
     ) -> LintingResult {
         // TODO Translate LintingResult
-        let result = LintingResult::new();
+        let _result = LintingResult::new();
         let f_name_default = f_name
             .clone()
             .unwrap_or_else(|| "<string input>".to_string());
@@ -115,14 +115,14 @@ impl Linter {
         &self,
         in_str: Option<String>,
         f_name: Option<String>,
-        fix: Option<bool>,
+        _fix: Option<bool>,
         config: Option<&FluffConfig>,
-        encoding: Option<String>,
+        _encoding: Option<String>,
     ) -> LintedFile {
         // Sort out config, defaulting to the built in config if no override
         let defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
-        let parsed = self.parse_string(
+        let _parsed = self.parse_string(
             in_str.unwrap_or("".to_string()),
             f_name,
             None,
@@ -155,7 +155,7 @@ impl Linter {
         // linter_logger.info!("TEMPLATING RAW [{}] ({})", self.templater.name, f_name);
 
         // Start the templating timer
-        let t0 = Instant::now();
+        let _t0 = Instant::now();
 
         // Newlines are normalised to unix-style line endings (\n).
         // The motivation is that Jinja normalises newlines during templating and
@@ -180,7 +180,7 @@ impl Linter {
         // }
 
         let mut templated_file = None;
-        let mut templater_violations = vec![];
+        let templater_violations = vec![];
         match self.templater.process(
             in_str.as_str(),
             f_name.as_str(),
@@ -190,7 +190,7 @@ impl Linter {
             Ok(file) => {
                 templated_file = Some(file);
             }
-            Err(s) => {
+            Err(_s) => {
                 // TODO Implement linter warning
                 panic!("not implemented")
                 // linter_logger::warning(s.to_string());
@@ -224,15 +224,15 @@ impl Linter {
     }
 
     /// Parse a rendered file.
-    pub fn parse_rendered(rendered: RenderedFile, recurse: bool) -> ParsedString {
+    pub fn parse_rendered(rendered: RenderedFile, _recurse: bool) -> ParsedString {
         // panic!("Not implemented");
 
         let t0 = Instant::now();
-        let mut violations = rendered.templater_violations.clone();
+        let violations = rendered.templater_violations.clone();
         let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
 
         if rendered.templated_file.is_templated() {
-            let (t, lvs, config) =
+            let (_t, _lvs, _config) =
                 Self::lex_templated_file(rendered.templated_file, &rendered.config);
             panic!("Not implemented");
             // tokens = t.clone();
@@ -247,7 +247,7 @@ impl Linter {
         // linter_logger.info("PARSING ({})", rendered.fname);
 
         let parsed: Option<Box<dyn Segment>>;
-        if let Some(token_list) = tokens {
+        if let Some(_token_list) = tokens {
             panic!("Not implemented")
             // let (p, pvs) =
             //     Self::_parse_tokens(&token_list, &rendered.config, recurse, Some(rendered.f_name.to_string()));
@@ -278,10 +278,10 @@ impl Linter {
     }
 
     fn parse_tokens(
-        tokens: &Vec<impl Segment>,
-        config: &FluffConfig,
-        recurse: bool,
-        f_name: Option<String>,
+        _tokens: &Vec<impl Segment>,
+        _config: &FluffConfig,
+        _recurse: bool,
+        _f_name: Option<String>,
     ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
         panic!("Not implemented");
     }
@@ -301,10 +301,10 @@ impl Linter {
         // Lex the file and log any problems
         let result = lexer.lex(StringOrTemplate::Template(templated_file));
         match result {
-            Err(err) => {
+            Err(_err) => {
                 panic!("result not right");
             }
-            Ok((tokens, lex_vs)) => {
+            Ok((_tokens, lex_vs)) => {
                 violations.extend(lex_vs);
                 panic!("not implemented")
             }

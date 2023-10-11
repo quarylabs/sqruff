@@ -15,12 +15,12 @@ impl RawSegment {
         // For legacy and syntactic sugar we allow the simple
         // `type` argument here, but for more precise inheritance
         // we suggest using the `instance_types` option.
-        r#type: Option<String>,
-        instance_types: Option<Vec<String>>,
-        trim_start: Option<Vec<String>>,
-        trim_cars: Option<Vec<String>>,
-        source_fixes: Option<Vec<SourceFix>>,
-        uuid: Option<String>,
+        _type: Option<String>,
+        _instance_types: Option<Vec<String>>,
+        _trim_start: Option<Vec<String>>,
+        _trim_cars: Option<Vec<String>>,
+        _source_fixes: Option<Vec<SourceFix>>,
+        _uuid: Option<String>,
     ) -> Self {
         Self {
             position_marker,
@@ -61,8 +61,6 @@ impl Segment for RawSegment {
 
 #[cfg(test)]
 mod test {
-    use crate::core::parser::segments::test_functions::raw_segments;
-
     // Test niche case of calling get_raw_segments on a raw segment.
     // TODO Implement
     // #[test]

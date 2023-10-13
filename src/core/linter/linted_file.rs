@@ -122,6 +122,7 @@ impl LintedFile {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::core::templaters::base::{TemplatedFile, TemplatedFileSlice};
 
     /// Test _build_up_fixed_source_string. This is part of fix_string().
     #[test]
@@ -387,5 +388,39 @@ mod test {
             );
             assert_eq!(result, expected_result);
         }
+    }
+
+    fn templated_file_1() -> TemplatedFile {
+        TemplatedFile::from_string("abc".to_string())
+    }
+    fn templated_file_2() -> TemplatedFile {
+        TemplatedFile::new(
+            "{# blah #}{{ foo }}bc".to_string(),
+            "<testing>".to_string(),
+            Some("abc".to_string()),
+            Some(vec![
+                TemplatedFileSlice::new("comment", 0..10, 0..0),
+                TemplatedFileSlice::new("templated", 10..19, 0..1),
+                TemplatedFileSlice::new("literal", 19..21, 1..3),
+            ]),
+            Some(vec![
+                RawFileSlice::new(
+                    "{# blah #}".to_string(),
+                    "comment".to_string(),
+                    0,
+                    None,
+                    None,
+                ),
+                RawFileSlice::new(
+                    "{{ foo }}".to_string(),
+                    "templated".to_string(),
+                    10,
+                    None,
+                    None,
+                ),
+                RawFileSlice::new("bc".to_string(), "literal".to_string(), 19, None, None),
+            ]),
+        )
+        .unwrap()
     }
 }

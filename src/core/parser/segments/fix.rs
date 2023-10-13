@@ -2,16 +2,16 @@ use crate::core::rules::base::{EditType, LintFix};
 use std::ops::Range;
 
 /// A stored reference to a fix in the non-templated file.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SourceFix {
-    edit: String,
-    source_slice: Range<usize>,
+    pub(crate) edit: String,
+    pub(crate) source_slice: Range<usize>,
     // TODO: It might be possible to refactor this to not require
     // a templated_slice (because in theory it's unnecessary).
     // However much of the fix handling code assumes we need
     // a position in the templated file to interpret it.
     // More work required to achieve that if desired.
-    templated_slice: Range<usize>,
+    pub(crate) templated_slice: Range<usize>,
 }
 
 impl SourceFix {
@@ -28,12 +28,12 @@ impl SourceFix {
 #[derive(Clone, Debug)]
 pub struct FixPatch {
     templated_slice: Range<usize>,
-    pub(crate) fixed_raw: String,
+    pub fixed_raw: String,
     // The patch category, functions mostly for debugging and explanation
     // than for function. It allows traceability of *why* this patch was
     // generated. It has no significance for processing.
     patch_category: String,
-    pub(crate) source_slice: Range<usize>,
+    pub source_slice: Range<usize>,
     templated_str: String,
     source_str: String,
 }

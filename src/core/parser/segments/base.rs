@@ -1,6 +1,7 @@
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
+use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::LintFix;
+use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -69,6 +70,27 @@ pub trait Segment: DynClone + Debug {
         None
     }
 
+    /// Yield any source patches as fixes now.
+    ///
+    ///         NOTE: This yields source fixes for the segment and any of its
+    ///         children, so it's important to call it at the right point in
+    ///         the recursion to avoid yielding duplicates.
+    fn iter_source_fix_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
+        let mut patches = Vec::new();
+        for source_fix in &self.get_source_fixes() {
+            patches.push(FixPatch::new(
+                source_fix.templated_slice.clone(),
+                source_fix.edit.clone(),
+                String::from("source"),
+                source_fix.source_slice.clone(),
+                templated_file.templated_str.clone().unwrap()[source_fix.templated_slice.clone()]
+                    .to_string(),
+                templated_file.source_str[source_fix.source_slice.clone()].to_string(),
+            ));
+        }
+        patches
+    }
+
     fn get_uuid(&self) -> Option<Uuid>;
 
     fn indent_val(&self) -> usize {
@@ -76,7 +98,7 @@ pub trait Segment: DynClone + Debug {
     }
 
     /// Return any source fixes as list.
-    fn get_source_fixes(&self) -> Vec<LintFix> {
+    fn get_source_fixes(&self) -> Vec<SourceFix> {
         self.get_raw_segments()
             .unwrap_or(vec![])
             .iter()
@@ -169,6 +191,9 @@ impl CodeSegment {
 }
 
 impl Segment for CodeSegment {
+    fn get_raw(&self) -> Option<String> {
+        Some(self.raw.clone())
+    }
     fn get_type(&self) -> &'static str {
         "code"
     }
@@ -178,6 +203,7 @@ impl Segment for CodeSegment {
     fn is_comment(&self) -> bool {
         false
     }
+
     fn is_whitespace(&self) -> bool {
         false
     }
@@ -188,6 +214,10 @@ impl Segment for CodeSegment {
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.position_marker = position_marker
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        Some(self.uuid.clone())
     }
 
     /// Create a new segment, with exactly the same position but different content.
@@ -212,14 +242,6 @@ impl Segment for CodeSegment {
                 trim_chars: None,
             },
         )
-    }
-
-    fn get_uuid(&self) -> Option<Uuid> {
-        Some(self.uuid.clone())
-    }
-
-    fn get_raw(&self) -> Option<String> {
-        Some(self.raw.clone())
     }
 }
 
@@ -426,6 +448,9 @@ impl UnlexableSegment {
 }
 
 impl Segment for UnlexableSegment {
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
     fn get_type(&self) -> &'static str {
         "unlexable"
     }
@@ -435,6 +460,7 @@ impl Segment for UnlexableSegment {
     fn is_comment(&self) -> bool {
         false
     }
+
     fn is_whitespace(&self) -> bool {
         false
     }
@@ -447,19 +473,15 @@ impl Segment for UnlexableSegment {
         todo!()
     }
 
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
     fn edit(
         &self,
         _raw: Option<String>,
         _source_fixes: Option<Vec<SourceFix>>,
     ) -> Box<dyn Segment> {
-        todo!()
-    }
-
-    fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
-    }
-
-    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }
@@ -473,6 +495,10 @@ impl Segment for UnlexableSegment {
 pub struct SymbolSegment {}
 
 impl Segment for SymbolSegment {
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
+
     fn get_type(&self) -> &'static str {
         return "symbol";
     }
@@ -497,19 +523,15 @@ impl Segment for SymbolSegment {
         todo!()
     }
 
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
     fn edit(
         &self,
         _raw: Option<String>,
         _source_fixes: Option<Vec<SourceFix>>,
     ) -> Box<dyn Segment> {
-        todo!()
-    }
-
-    fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
-    }
-
-    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }

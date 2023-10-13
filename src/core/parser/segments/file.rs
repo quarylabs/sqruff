@@ -1,6 +1,6 @@
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
-
+use uuid::Uuid;
 /// A segment representing a whole file or script.
 ///
 ///     This is also the default "root" segment of the dialect,
@@ -42,6 +42,10 @@ impl Segment for BaseFileSegment {
 
     fn get_file_path(&self) -> Option<String> {
         self.f_name.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
     }
 }
 

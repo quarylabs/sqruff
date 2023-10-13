@@ -1,5 +1,6 @@
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
+use uuid::Uuid;
 
 /// A segment which is empty but indicates where an indent should be.
 ///
@@ -28,6 +29,10 @@ impl Segment for Indent {
 
     fn is_whitespace(&self) -> bool {
         false
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
     }
 }
 
@@ -64,6 +69,10 @@ impl Segment for Dedent {
 
     fn is_whitespace(&self) -> bool {
         false
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
     }
 }
 

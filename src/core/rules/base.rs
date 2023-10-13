@@ -111,7 +111,44 @@ impl LintFix {
 }
 
 impl PartialEq for LintFix {
-    fn eq(&self, _other: &Self) -> bool {
-        todo!()
+    fn eq(&self, other: &Self) -> bool {
+        // Check if edit_types are equal
+        if self.edit_type != other.edit_type {
+            return false;
+        }
+        // Check if anchor.class_types are equal
+        if self.anchor.get_type() != other.anchor.get_type() {
+            return false;
+        }
+        // Check if anchor.uuids are equal
+        if self.anchor.get_uuid() != other.anchor.get_uuid() {
+            return false;
+        }
+        // Compare edits if they exist
+        if let Some(self_edit) = &self.edit {
+            if let Some(other_edit) = &other.edit {
+                // Check lengths
+                if self_edit.len() != other_edit.len() {
+                    return false;
+                }
+                // Compare raw and source_fixes for each corresponding BaseSegment
+                for (self_base_segment, other_base_segment) in self_edit.iter().zip(other_edit) {
+                    if self_base_segment.get_raw() != other_base_segment.get_raw()
+                        || self_base_segment.get_source_fixes()
+                            != other_base_segment.get_source_fixes()
+                    {
+                        return false;
+                    }
+                }
+            } else {
+                // self has edit, other doesn't
+                return false;
+            }
+        } else if other.edit.is_some() {
+            // other has edit, self doesn't
+            return false;
+        }
+        // If none of the above conditions were met, objects are equal
+        true
     }
 }

@@ -424,7 +424,7 @@ impl TemplatedFile {
     }
 
     ///  Work out whether a slice of the source file is a literal or not.
-    pub fn is_source_slice_literal(&self, source_slice: Range<usize>) -> bool {
+    pub fn is_source_slice_literal(&self, source_slice: &Range<usize>) -> bool {
         // No sliced file? Everything is literal
         if self.raw_sliced.is_empty() {
             return true;
@@ -1035,7 +1035,7 @@ mod tests {
             .unwrap();
 
             let source_slice = file.templated_slice_to_source_slice(in_slice).unwrap();
-            let literal_test = file.is_source_slice_literal(source_slice.clone());
+            let literal_test = file.is_source_slice_literal(&source_slice);
 
             assert_eq!((is_literal, source_slice), (literal_test, out_slice));
         }

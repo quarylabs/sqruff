@@ -124,6 +124,25 @@ impl PositionMarker {
             Some(self.working_line_pos),
         );
     }
+
+    /// Infer literalness from context.
+    ///
+    ///         is_literal should return True if a fix can be applied across this area
+    ///         in the templated file while being confident that the fix is still
+    ///         appropriate in the source file. This obviously applies to any slices
+    ///         which are the same in the source and the templated files. Slices which
+    ///         are zero-length in the source are also "literal" because they can't be
+    ///         "broken" by any fixes, because they don't exist in the source. This
+    ///         includes meta segments and any segments added during the fixing process.
+    ///
+    ///         This value is used for:
+    ///         - Ignoring linting errors in templated sections.
+    ///         - Whether `iter_patches` can return without recursing.
+    ///         - Whether certain rules (such as JJ01) are triggered.
+    pub fn is_literal(&self) -> bool {
+        self.templated_file
+            .is_source_slice_literal(&self.source_slice)
+    }
 }
 
 impl PartialEq for PositionMarker {

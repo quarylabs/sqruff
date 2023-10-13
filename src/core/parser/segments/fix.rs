@@ -1,4 +1,4 @@
-use crate::core::rules::base::LintFix;
+use crate::core::rules::base::{EditType, LintFix};
 use std::ops::Range;
 
 /// A stored reference to a fix in the non-templated file.
@@ -72,7 +72,7 @@ pub struct AnchorEditInfo {
     fixes: Vec<LintFix>,
     source_fixes: Vec<LintFix>,
     // First fix of edit_type "replace" in "fixes"
-    _first_replace_fix: Option<LintFix>,
+    pub first_replace_fix: Option<LintFix>,
 }
 
 impl Default for AnchorEditInfo {
@@ -84,7 +84,7 @@ impl Default for AnchorEditInfo {
             create_after: 0,
             fixes: Vec::new(),
             source_fixes: Vec::new(),
-            _first_replace_fix: None,
+            first_replace_fix: None,
         }
     }
 }
@@ -115,6 +115,58 @@ impl AnchorEditInfo {
         } else {
             // Definitely bad if > 2.
             false
+        };
+    }
+
+    /// Adds the fix and updates stats.
+    ///
+    /// We also allow potentially multiple source fixes on the same anchor by condensing them
+    /// together here.
+    fn add(&mut self, fix: LintFix) {
+        if self.fixes.contains(&fix) {
+            // Deduplicate fixes in case it's already in there.
+            return;
+        };
+
+        if fix.is_just_source_edit() {
+            if let Some(edit) = fix.edit {
+                todo!()
+                //     // is_just_source_edit confirms there will be a list
+                //     // so we can hint that to mypy.
+                //     self.source_fixes.push(edit[0].source_fixes.clone());
+                //
+                //     // is there already a replace?
+                //     if self.first_replace_fix.is_some() {
+                //         assert!(self.first_replace_fix.unwrap().edit.is_some());
+                //         // is_just_source_edit confirms there will be a list
+                //         // and that's the only way to get into _first_replace
+                //         // if it's populated so we can hint that to mypy.
+                //         // TODO Implement this
+                //         //                 linter_logger.info(
+                //         //                     "Multiple edits detected, condensing %s onto %s",
+                //         //                     fix,
+                //         //                     self._first_replace,
+                //         //                 )
+                //         self._first_replace.edit[0] = self._first_replace.edit[0].edit(&self.source_fixes.clone());
+                //         // TODO
+                //         //                 linter_logger.info("Condensed fix: %s", self._first_replace)
+                //         return;
+                //     }
+                // } else {
+                //     panic!("Fix has no edit: {:?}", fix)
+                // }
+            }
+        }
+
+        self.fixes.push(fix.clone());
+        if fix.edit_type == EditType::Replace && self.first_replace_fix.is_none() {
+            self.first_replace_fix = Some(fix.clone());
+        }
+        match fix.edit_type {
+            EditType::CreateBefore => { self.create_before += 1 }
+            EditType::CreateAfter => { self.create_after += 1 }
+            EditType::Replace => { self.replace += 1 }
+            EditType::Delete => { self.delete += 1 }
         };
     }
 }

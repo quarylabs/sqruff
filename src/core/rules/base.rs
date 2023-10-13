@@ -13,7 +13,7 @@ impl Default for LintResult {
 
 //// One of `create_before`, `create_after`, `replace`, `delete` to indicate the kind of fix required.
 #[derive(Debug, Clone, PartialEq)]
-enum EditType {
+pub enum EditType {
     CreateBefore,
     CreateAfter,
     Replace,
@@ -40,9 +40,9 @@ enum EditType {
 ///             from templated areas.
 #[derive(Debug, Clone)]
 pub struct LintFix {
-    edit_type: EditType,
+    pub edit_type: EditType,
     anchor: Box<dyn Segment>,
-    edit: Option<Vec<Box<dyn Segment>>>,
+    pub edit: Option<Vec<Box<dyn Segment>>>,
     source: Vec<Box<dyn Segment>>,
 }
 

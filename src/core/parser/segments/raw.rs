@@ -50,7 +50,7 @@ impl Segment for RawSegment {
         self.raw.clone()
     }
 
-    fn get_pos_maker(&self) -> Option<PositionMarker> {
+    fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_marker.clone()
     }
 

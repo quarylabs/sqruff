@@ -502,7 +502,7 @@ impl Lexer {
                         "Unable to lex characters: {}",
                         s.get_raw().unwrap().chars().take(10).collect::<String>()
                     ),
-                    s.get_pos_maker().unwrap(),
+                    s.get_position_marker().unwrap(),
                 )
             })
             .collect()

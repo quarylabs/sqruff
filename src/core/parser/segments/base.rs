@@ -35,9 +35,13 @@ pub trait Segment: DynClone + Debug {
     fn get_default_raw(&self) -> Option<&'static str> {
         None
     }
-    fn get_pos_maker(&self) -> Option<PositionMarker> {
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         panic!("Not implemented yet");
-        None
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        panic!("Not implemented yet");
     }
 
     /// Return the length of the segment in characters.
@@ -91,8 +95,8 @@ impl PartialEq for Box<dyn Segment> {
             }
             _ => (),
         };
-        let pos_self = self.get_pos_maker();
-        let pos_other = other.get_pos_maker();
+        let pos_self = self.get_position_marker();
+        let pos_other = other.get_position_marker();
         if let (Some(pos_self), Some(pos_other)) = (pos_self, pos_other) {
             self.get_type() == other.get_type()
                 && self.get_raw() == other.get_raw()

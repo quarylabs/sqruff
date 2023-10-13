@@ -129,7 +129,7 @@ impl AnchorEditInfo {
         };
 
         if fix.is_just_source_edit() {
-            if let Some(edit) = fix.edit {
+            if let Some(_edit) = fix.edit {
                 todo!()
                 //     // is_just_source_edit confirms there will be a list
                 //     // so we can hint that to mypy.

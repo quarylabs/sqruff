@@ -48,12 +48,41 @@ pub struct LintFix {
 
 impl LintFix {
     fn new(
-        _edit_type: EditType,
-        _anchor: Box<dyn Segment>,
-        _edit: Option<Vec<Box<dyn Segment>>>,
-        _source: Option<Vec<Box<dyn Segment>>>,
+        edit_type: EditType,
+        anchor: Box<dyn Segment>,
+        edit: Option<Vec<Box<dyn Segment>>>,
+        source: Option<Vec<Box<dyn Segment>>>,
     ) -> Self {
-        todo!()
+        // If `edit` is provided, copy all elements and strip position markers.
+        let mut clean_edit = None;
+        if let Some(mut edit) = edit {
+            // Developer Note: Ensure position markers are unset for all edit segments.
+            // We rely on realignment to make position markers later in the process.
+            for seg in &mut edit {
+                if seg.get_position_marker().is_some() {
+                    // assuming `pos_marker` is a field of `BaseSegment`
+                    eprintln!("Developer Note: Edit segment found with preset position marker. These should be unset and calculated later.");
+                    // assuming `pos_marker` is Option-like and can be set to None
+                    seg.set_position_marker(None);
+                };
+            }
+            clean_edit = Some(edit);
+        }
+
+        // If `source` is provided, filter segments with position markers.
+        let clean_source = source.map_or(Vec::new(), |source| {
+            source
+                .into_iter()
+                .filter(|seg| seg.get_position_marker().is_some())
+                .collect()
+        });
+
+        LintFix {
+            edit_type,
+            anchor,
+            edit: clean_edit,
+            source: clean_source,
+        }
     }
 
     pub fn replace(

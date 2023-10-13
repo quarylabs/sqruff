@@ -1,6 +1,8 @@
+use std::cmp::Ordering;
 use crate::core::parser::segments::fix::FixPatch;
-use crate::core::templaters::base::RawFileSlice;
+use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 use std::ops::Range;
+use crate::core::parser::segments::base::Segment;
 
 pub struct LintedFile;
 
@@ -118,10 +120,74 @@ impl LintedFile {
 
         slice_buff
     }
+
+    /// Use the fixed tree to generate source patches.
+    ///
+    /// Importantly here we deduplicate and sort the patches
+    /// from their position in the templated file into their
+    /// intended order in the source file.
+    fn generate_source_patches(tree: Box<dyn Segment>, templated_file: &TemplatedFile) -> Vec<FixPatch> {
+        // Log: "### Beginning Patch Iteration."
+        let mut filtered_source_patches = Vec::new();
+        let mut dedupe_buffer = Vec::new();
+
+        for (idx, patch) in tree.iter_patches(templated_file).iter().enumerate() {
+            // Log: "{idx} Yielded patch: {patch}"
+
+            // Check for duplicates
+            if dedupe_buffer.contains(&patch.dedupe_tuple()) {
+                // Log: "      - Skipping. Source space Duplicate: {patch.dedupe_tuple()}"
+                continue;
+            }
+
+            // Get the affected raw slices.
+            let local_raw_slices = templated_file.raw_slices_spanning_source_slice(patch.source_slice.clone());
+            let local_type_list: Vec<String> = local_raw_slices.iter().map(|slc| slc.slice_type.clone()).collect();
+
+            // Deal with the easy cases of 1) New code at end 2) only literals
+            if local_type_list.is_empty() || local_type_list.iter().all(|x| x == "literal") {
+                // Log: "      * Keeping patch on new or literal-only section."
+                filtered_source_patches.push(patch.clone());
+                dedupe_buffer.push(patch.dedupe_tuple());
+            }
+            // Handle the easy case of an explicit source fix
+            else if patch.patch_category == "source" {
+                // Log: "      * Keeping explicit source fix patch."
+                filtered_source_patches.push(patch.clone());
+                dedupe_buffer.push(patch.dedupe_tuple());
+            }
+            // Is it a zero length patch.
+            else if patch.source_slice.start == patch.source_slice.end
+                && patch.source_slice.start == local_raw_slices[0].source_idx {
+                // Log: "      * Keeping insertion patch on slice boundary."
+                filtered_source_patches.push(patch.clone());
+                dedupe_buffer.push(patch.dedupe_tuple());
+            }
+            else {
+                // Log: Warning: "Skipping edit patch on uncertain templated section..."
+                continue;
+            }
+        }
+
+        // Sort the patches before building up the file.
+        filtered_source_patches.sort_by(|a, b| {
+            if a.source_slice.start < b.source_slice.start {
+                Ordering::Less
+            } else if a.source_slice.start > b.source_slice.start {
+                Ordering::Greater
+            } else {
+                Ordering::Equal
+            }
+        });
+
+        filtered_source_patches
+    }
 }
 
 #[cfg(test)]
 mod test {
+    use crate::core::parser::markers::PositionMarker;
+    use crate::core::parser::segments::raw::RawSegment;
     use super::*;
     use crate::core::templaters::base::{TemplatedFile, TemplatedFileSlice};
 
@@ -394,6 +460,7 @@ mod test {
     fn templated_file_1() -> TemplatedFile {
         TemplatedFile::from_string("abc".to_string())
     }
+
     fn templated_file_2() -> TemplatedFile {
         TemplatedFile::new(
             "{# blah #}{{ foo }}bc".to_string(),
@@ -422,6 +489,33 @@ mod test {
                 RawFileSlice::new("bc".to_string(), "literal".to_string(), 19, None, None),
             ]),
         )
-        .unwrap()
+            .unwrap()
+    }
+
+    /// Test _generate_source_patches.
+    ///
+    /// This is part of fix_string().
+    fn test__linted_file__generate_source_patches() {
+        let tests = [
+            (
+                RawSegment::new(
+                    Some("abc".to_string()),
+                    Some(PositionMarker::new(0..3, 0..3, templated_file_1(), None, None)),
+                    Some("code".to_string()),
+                    None, None, None, None, None,
+                ),
+                templated_file_1(),
+                vec![],
+            ),
+        ];
+
+        for (tree, file, expected_result) in tests {
+            let result = LintedFile::generate_source_patches(
+                tree,
+                file,
+            );
+
+            assert_eq!(result, expected_result);
+        }
     }
 }

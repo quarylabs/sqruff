@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use crate::core::parser::segments::fix::FixPatch;
 use crate::core::templaters::base::RawFileSlice;
 use std::ops::Range;
@@ -58,7 +59,7 @@ impl LintedFile {
         // This gives us regions to apply changes to.
         let mut slice_buff: Vec<Range<usize>> = Vec::new();
         let mut source_idx = 0;
-        let mut source_only_slices = source_only_slices.clone();
+        let mut source_only_slices: VecDeque<RawFileSlice> = VecDeque::from(source_only_slices.clone());
 
         for patch in &source_patches {
             // Are there templated slices at or before the start of this patch?
@@ -67,10 +68,10 @@ impl LintedFile {
             // here then this is the last hurdle and it will flow through
             // smoothly from here.
             while source_only_slices
-                .first()
+                .front()
                 .map_or(false, |s| s.source_idx < patch.source_slice.start)
             {
-                let next_so_slice = source_only_slices.remove(0).source_slice();
+                let next_so_slice = source_only_slices.pop_front().unwrap().source_slice();
                 // Add a pre-slice before the next templated slices if needed.
                 if next_so_slice.end > source_idx {
                     slice_buff.push(source_idx..next_so_slice.start.clone());
@@ -82,13 +83,13 @@ impl LintedFile {
 
             // Does this patch cover the next source-only slice directly?
             if source_only_slices
-                .first()
+                .front()
                 .map_or(false, |s| patch.source_slice == s.source_slice())
             {
                 // Log information here if needed
                 // Removing next source only slice from the stack because it
                 // covers the same area of source file as the current patch.
-                source_only_slices.remove(0);
+                source_only_slices.pop_front();
             }
 
             // Is there a gap between current position and this patch?

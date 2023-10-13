@@ -163,10 +163,10 @@ impl AnchorEditInfo {
             self.first_replace_fix = Some(fix.clone());
         }
         match fix.edit_type {
-            EditType::CreateBefore => { self.create_before += 1 }
-            EditType::CreateAfter => { self.create_after += 1 }
-            EditType::Replace => { self.replace += 1 }
-            EditType::Delete => { self.delete += 1 }
+            EditType::CreateBefore => self.create_before += 1,
+            EditType::CreateAfter => self.create_after += 1,
+            EditType::Replace => self.replace += 1,
+            EditType::Delete => self.delete += 1,
         };
     }
 }

@@ -1,6 +1,7 @@
 use crate::core::parser::markers::PositionMarker;
 use dyn_clone::DynClone;
 use std::fmt::Debug;
+use uuid::Uuid;
 
 /// An element of the response to BaseSegment.path_to().
 ///     Attributes:
@@ -74,9 +75,7 @@ pub trait Segment: DynClone + Debug {
         None
     }
 
-    fn get_uuid(&self) -> Option<String> {
-        None
-    }
+    fn get_uuid(&self) -> Option<Uuid>;
 
     fn indent_val(&self) -> usize {
         panic!("Not implemented yet");
@@ -146,6 +145,10 @@ impl Segment for CodeSegment {
     fn is_whitespace(&self) -> bool {
         false
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
 }
 
 /// Segment containing a comment.
@@ -184,6 +187,10 @@ impl Segment for CommentSegment {
     fn is_whitespace(&self) -> bool {
         false
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
 }
 
 // Segment containing a newline.
@@ -219,6 +226,10 @@ impl Segment for NewlineSegment {
     fn get_default_raw(&self) -> Option<&'static str> {
         Some("\n")
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
 }
 
 /// Segment containing whitespace.
@@ -253,6 +264,10 @@ impl Segment for WhitespaceSegment {
     }
     fn get_default_raw(&self) -> Option<&'static str> {
         Some(" ")
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
     }
 }
 
@@ -291,6 +306,10 @@ impl Segment for UnlexableSegment {
     fn is_whitespace(&self) -> bool {
         false
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
 }
 
 /// A segment used for matching single entities which aren't keywords.
@@ -316,6 +335,10 @@ impl Segment for SymbolSegment {
 
     fn is_whitespace(&self) -> bool {
         false
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
     }
 }
 

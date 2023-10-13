@@ -4,19 +4,18 @@ use std::ops::Range;
 pub struct LintedFile;
 
 impl LintedFile {
+    ///  Use patches and raw file to fix the source file.
+    ///
+    ///  This assumes that patches and slices have already
+    ///  been coordinated. If they haven't then this will
+    ///  fail because we rely on patches having a corresponding
+    ///  slice of exactly the right file in the list of file
+    ///  slices.
     pub fn build_up_fixed_source_string(
-        source_file_slices: Vec<Range<usize>>,
-        source_patches: Vec<FixPatch>,
+        source_file_slices: &[Range<usize>],
+        source_patches: &[FixPatch],
         raw_source_string: &str,
     ) -> String {
-        // Use patches and raw file to fix the source file.
-        //
-        // This assumes that patches and slices have already
-        // been coordinated. If they haven't then this will
-        // fail because we rely on patches having a corresponding
-        // slice of exactly the right file in the list of file
-        // slices.
-
         // Iterate through the patches, building up the new string.
         let mut str_buff = String::new();
         for source_slice in source_file_slices.iter() {
@@ -47,7 +46,7 @@ mod test {
     /// Test _build_up_fixed_source_string. This is part of fix_string().
     #[test]
     fn test__linted_file__build_up_fixed_source_string() {
-        let tests = vec![
+        let tests = [
             // Trivial example
             (vec![0..1], vec![], "a", "a"),
             // Simple replacement
@@ -108,11 +107,14 @@ mod test {
             ),
         ];
 
-        for test in tests {
-            let result =
-                LintedFile::build_up_fixed_source_string(test.0.to_vec(), test.1.to_vec(), test.2);
+        for (source_file_slices, source_patches, raw_source_string, expected_result) in tests {
+            let result = LintedFile::build_up_fixed_source_string(
+                &source_file_slices,
+                &source_patches,
+                raw_source_string,
+            );
 
-            assert_eq!(result, test.3)
+            assert_eq!(result, expected_result)
         }
     }
 }

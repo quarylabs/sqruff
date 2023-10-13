@@ -28,12 +28,12 @@ impl SourceFix {
 #[derive(Clone, Debug)]
 pub struct FixPatch {
     templated_slice: Range<usize>,
-    fixed_raw: String,
+    pub(crate) fixed_raw: String,
     // The patch category, functions mostly for debugging and explanation
     // than for function. It allows traceability of *why* this patch was
     // generated. It has no significance for processing.
     patch_category: String,
-    source_slice: Range<usize>,
+    pub(crate) source_slice: Range<usize>,
     templated_str: String,
     source_str: String,
 }

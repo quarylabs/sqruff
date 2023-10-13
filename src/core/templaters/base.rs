@@ -6,14 +6,18 @@ use std::ops::Range;
 
 /// A slice referring to a templated file.
 #[derive(Debug, Clone, PartialEq)]
-struct TemplatedFileSlice {
+pub struct TemplatedFileSlice {
     slice_type: String,
     source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
 }
 
 impl TemplatedFileSlice {
-    fn new(slice_type: &str, source_slice: Range<usize>, templated_slice: Range<usize>) -> Self {
+    pub fn new(
+        slice_type: &str,
+        source_slice: Range<usize>,
+        templated_slice: Range<usize>,
+    ) -> Self {
         Self {
             slice_type: slice_type.to_string(),
             source_slice,
@@ -43,7 +47,7 @@ impl TemplatedFile {
     /// If no templated_str is provided then we assume that
     /// the file is NOT templated and that the templated view
     /// is the same as the source view.
-    fn new(
+    pub fn new(
         source_str: String,
         f_name: String,
         input_templated_str: Option<String>,

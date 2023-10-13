@@ -456,7 +456,7 @@ pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + 
 }
 
 #[derive(Debug, PartialEq, Clone)]
-enum RawFileSliceType {
+pub enum RawFileSliceType {
     Comment,
     BlockEnd,
     BlockStart,
@@ -477,7 +477,7 @@ pub struct RawFileSlice {
 }
 
 impl RawFileSlice {
-    fn new(
+    pub fn new(
         raw: String,
         slice_type: String,
         source_idx: usize,
@@ -501,7 +501,7 @@ impl RawFileSlice {
     }
 
     /// Return the a slice object for this slice.
-    fn source_slice(&self) -> Range<usize> {
+    pub(crate) fn source_slice(&self) -> Range<usize> {
         self.source_idx..self.end_source_idx()
     }
 

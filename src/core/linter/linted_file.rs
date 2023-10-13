@@ -1,4 +1,5 @@
 use crate::core::parser::segments::fix::FixPatch;
+use crate::core::templaters::base::RawFileSlice;
 use std::ops::Range;
 
 pub struct LintedFile;
@@ -36,6 +37,85 @@ impl LintedFile {
             }
         }
         str_buff
+    }
+
+    ///  Use patches to safely slice up the file before fixing.
+    ///
+    ///  This uses source only slices to avoid overwriting sections
+    ///  of templated code in the source file (when we don't want to).
+    ///
+    ///  We assume that the source patches have already been
+    ///  sorted and deduplicated. Sorting is important. If the slices
+    ///  aren't sorted then this function will miss chunks.
+    ///  If there are overlaps or duplicates then this function
+    ///  may produce strange results.
+    fn slice_source_file_using_patches(
+        source_patches: Vec<FixPatch>,
+        mut source_only_slices: Vec<RawFileSlice>,
+        raw_source_string: &str,
+    ) -> Vec<Range<usize>> {
+        // We now slice up the file using the patches and any source only slices.
+        // This gives us regions to apply changes to.
+        let mut slice_buff: Vec<Range<usize>> = Vec::new();
+        let mut source_idx = 0;
+
+        for patch in &source_patches {
+            // Are there templated slices at or before the start of this patch?
+            // TODO: We'll need to explicit handling for template fixes here, because
+            // they ARE source only slices. If we can get handling to work properly
+            // here then this is the last hurdle and it will flow through
+            // smoothly from here.
+            while source_only_slices
+                .first()
+                .map_or(false, |s| s.source_idx < patch.source_slice.start)
+            {
+                let next_so_slice = source_only_slices.remove(0).source_slice();
+                // Add a pre-slice before the next templated slices if needed.
+                if next_so_slice.end > source_idx {
+                    slice_buff.push(source_idx..next_so_slice.start.clone());
+                }
+                // Add the templated slice.
+                slice_buff.push(next_so_slice.clone());
+                source_idx = next_so_slice.end;
+            }
+
+            // Does this patch cover the next source-only slice directly?
+            if source_only_slices
+                .first()
+                .map_or(false, |s| patch.source_slice == s.source_slice())
+            {
+                // Log information here if needed
+                // Removing next source only slice from the stack because it
+                // covers the same area of source file as the current patch.
+                source_only_slices.remove(0);
+            }
+
+            // Is there a gap between current position and this patch?
+            if patch.source_slice.start > source_idx {
+                // Add a slice up to this patch.
+                slice_buff.push(source_idx..patch.source_slice.start);
+            }
+
+            // Is this patch covering an area we've already covered?
+            if patch.source_slice.start < source_idx {
+                // NOTE: This shouldn't happen. With more detailed templating
+                // this shouldn't happen - but in the off-chance that this does
+                // happen - then this code path remains.
+                // Log information here if needed
+                // Skipping overlapping patch at Index.
+                continue;
+            }
+
+            // Add this patch.
+            slice_buff.push(patch.source_slice.clone());
+            source_idx = patch.source_slice.end;
+        }
+        // Add a tail slice.
+        if source_idx < raw_source_string.len() {
+            slice_buff.push(source_idx..raw_source_string.len());
+        }
+
+        slice_buff
     }
 }
 
@@ -115,6 +195,197 @@ mod test {
             );
 
             assert_eq!(result, expected_result)
+        }
+    }
+
+    /// Test _slice_source_file_using_patches.
+    ///
+    ///     This is part of fix_string().
+    #[test]
+    fn test__slice_source_file_using_patches() {
+        let test_cases = [
+            (
+                // Trivial example.
+                // No edits in a single character file. Slice should be one
+                // character long.
+                vec![],
+                vec![],
+                "a",
+                vec![0..1],
+            ),
+            (
+                // Simple replacement.
+                // We've yielded a patch to change a single character. This means
+                // we should get only slices for that character, and for the
+                // unchanged file around it.
+                vec![FixPatch::new(
+                    1..2,
+                    "d".to_string(),
+                    "".to_string(),
+                    1..2,
+                    "b".to_string(),
+                    "b".to_string(),
+                )],
+                vec![],
+                "abc",
+                vec![0..1, 1..2, 2..3],
+            ),
+            (
+                // Templated no fixes.
+                // A templated file, but with no fixes, so no subdivision of the
+                // file is required and we should just get a single slice.
+                vec![],
+                vec![],
+                "a {{ b }} c",
+                vec![0..11],
+            ),
+            (
+                // Templated example with a source-only slice.
+                // A templated file, but with no fixes, so no subdivision of the
+                // file is required and we should just get a single slice. While
+                // there is handling for "source only" slices like template
+                // comments, in this case no additional slicing is required
+                // because no edits have been made.
+                vec![],
+                vec![RawFileSlice::new(
+                    "{# b #}".to_string(),
+                    "comment".to_string(),
+                    2,
+                    None,
+                    None,
+                )],
+                "a {# b #} c",
+                vec![0..11],
+            ),
+            (
+                // Templated fix example with a source-only slice.
+                // We're making an edit adjacent to a source only slice. Edits
+                // _before_ source only slices currently don't trigger additional
+                // slicing. This is fine.
+                vec![FixPatch::new(
+                    0..1,
+                    "a ".to_string(),
+                    "".to_string(),
+                    0..1,
+                    "a".to_string(),
+                    "a".to_string(),
+                )],
+                vec![RawFileSlice::new(
+                    "{# b #}".to_string(),
+                    "comment".to_string(),
+                    1,
+                    None,
+                    None,
+                )],
+                "a{# b #}c",
+                vec![0..1, 1..9],
+            ),
+            (
+                // Templated fix example with a source-only slice.
+                // We've made an edit directly _after_ a source only slice
+                // which should trigger the logic to ensure that the source
+                // only slice isn't included in the source mapping of the
+                // edit.
+                vec![FixPatch::new(
+                    1..2,
+                    " c".to_string(),
+                    "".to_string(),
+                    8..9,
+                    "c".to_string(),
+                    "c".to_string(),
+                )],
+                vec![RawFileSlice::new(
+                    "{# b #}".to_string(),
+                    "comment".to_string(),
+                    1,
+                    None,
+                    None,
+                )],
+                "a{# b #}cc",
+                vec![0..1, 1..8, 8..9, 9..10],
+            ),
+            (
+                // Templated example with a source-only slice.
+                // Here we're making the fix to the templated slice. This
+                // checks that we don't duplicate or fumble the slice
+                // generation when we're explicitly trying to edit the source.
+                vec![FixPatch::new(
+                    2..2,
+                    "{# fixed #}".to_string(),
+                    "".to_string(),
+                    2..9,
+                    "".to_string(),
+                    "".to_string(),
+                )],
+                vec![RawFileSlice::new(
+                    "{# b #}".to_string(),
+                    "comment".to_string(),
+                    2,
+                    None,
+                    None,
+                )],
+                "a {# b #} c",
+                vec![0..2, 2..9, 9..11],
+            ),
+            (
+                // Illustrate potential templating bug (case from JJ01).
+                // In this case we have fixes for all our tempolated sections
+                // and they are all close to each other and so may be either
+                // skipped or duplicated if the logic is not precise.
+                vec![
+                    FixPatch::new(
+                        14..14,
+                        "{%+ if true -%}".to_string(),
+                        "source".to_string(),
+                        14..27,
+                        "".to_string(),
+                        "{%+if true-%}".to_string(),
+                    ),
+                    FixPatch::new(
+                        14..14,
+                        "{{ ref('foo') }}".to_string(),
+                        "source".to_string(),
+                        28..42,
+                        "".to_string(),
+                        "{{ref('foo')}}".to_string(),
+                    ),
+                    FixPatch::new(
+                        17..17,
+                        "{%- endif %}".to_string(),
+                        "source".to_string(),
+                        43..53,
+                        "".to_string(),
+                        "{%-endif%}".to_string(),
+                    ),
+                ],
+                vec![
+                    RawFileSlice::new(
+                        "{%+if true-%}".to_string(),
+                        "block_start".to_string(),
+                        14,
+                        None,
+                        None,
+                    ),
+                    RawFileSlice::new(
+                        "{%-endif%}".to_string(),
+                        "block_end".to_string(),
+                        43,
+                        None,
+                        None,
+                    ),
+                ],
+                "SELECT 1 from {%+if true-%} {{ref('foo')}} {%-endif%}",
+                vec![0..14, 14..27, 27..28, 28..42, 42..43, 43..53],
+            ),
+        ];
+
+        for (source_patches, source_only_slices, raw_source_string, expected_result) in test_cases {
+            let result = LintedFile::slice_source_file_using_patches(
+                source_patches,
+                source_only_slices,
+                &raw_source_string,
+            );
+            assert_eq!(result, expected_result);
         }
     }
 }

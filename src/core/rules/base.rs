@@ -68,6 +68,17 @@ impl LintFix {
             source,
         )
     }
+
+    /// Return whether this a valid source only edit.
+    pub fn is_just_source_edit(&self) -> bool {
+        if let Some(edit) = &self.edit {
+            self.edit_type == EditType::Replace
+                && edit.len() == 1
+                && edit[0].get_raw() == self.anchor.get_raw()
+        } else {
+            false
+        }
+    }
 }
 
 impl PartialEq for LintFix {

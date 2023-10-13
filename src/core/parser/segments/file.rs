@@ -58,6 +58,10 @@ impl Segment for BaseFileSegment {
         self.f_name.clone()
     }
 
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        todo!()
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
         todo!()
     }

@@ -10,6 +10,7 @@ pub struct RawSegment {
 
     // From BaseSegment
     uuid: Uuid,
+    segments: Vec<Box<dyn Segment>>,
 }
 
 impl RawSegment {
@@ -30,6 +31,7 @@ impl RawSegment {
             position_marker,
             raw,
             uuid: uuid::Uuid::new_v4(),
+            segments: vec![],
         }
     }
 }
@@ -59,8 +61,8 @@ impl Segment for RawSegment {
         self.position_marker.clone()
     }
 
-    fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
-        return Some(vec![Box::new(self.clone())]);
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        return self.segments.iter().flat_map(|s| s.get_raw_segments()).collect();
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
@@ -82,14 +84,16 @@ impl Segment for RawSegment {
 
 #[cfg(test)]
 mod test {
+    use crate::core::parser::segments::test_functions::raw_segments;
+
     // Test niche case of calling get_raw_segments on a raw segment.
     // TODO Implement
-    // #[test]
-    // fn test__parser__raw_get_raw_segments() {
-    //     let segs = raw_segments();
-    //
-    //     for seg in segs {
-    //         assert_eq!(seg.get_raw_segments(), Some(vec![seg.clone()]));
-    //     }
-    // }
+    #[test]
+    fn test__parser__raw_get_raw_segments() {
+        let segs = raw_segments();
+
+        for seg in segs {
+            assert_eq!(seg.get_raw_segments(), vec![seg.clone()]);
+        }
+    }
 }

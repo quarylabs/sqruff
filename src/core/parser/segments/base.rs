@@ -5,6 +5,7 @@ use dyn_clone::DynClone;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use uuid::Uuid;
+use crate::core::parser::segments::test_functions::raw_segments;
 
 /// An element of the response to BaseSegment.path_to().
 ///     Attributes:
@@ -65,9 +66,7 @@ pub trait Segment: DynClone + Debug {
     /// Iterate raw segments, mostly for searching.
     ///
     /// In sqlfluff only implemented for RawSegments and up
-    fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
-        None
-    }
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>>;
 
     fn get_uuid(&self) -> Option<Uuid>;
 
@@ -78,7 +77,6 @@ pub trait Segment: DynClone + Debug {
     /// Return any source fixes as list.
     fn get_source_fixes(&self) -> Vec<LintFix> {
         self.get_raw_segments()
-            .unwrap_or(vec![])
             .iter()
             .flat_map(|seg| seg.get_source_fixes())
             .collect()
@@ -136,6 +134,7 @@ pub struct CodeSegment {
     trim_start: Option<Vec<String>>,
     trim_chars: Option<Vec<String>>,
     source_fixes: Option<Vec<SourceFix>>,
+    segments: Vec<Box<dyn Segment>>,
 }
 
 #[derive(Debug, Clone)]
@@ -164,6 +163,7 @@ impl CodeSegment {
             trim_chars: None,
             source_fixes: None,
             uuid: uuid::Uuid::new_v4(),
+            segments: vec![],
         })
     }
 }
@@ -220,6 +220,10 @@ impl Segment for CodeSegment {
 
     fn get_raw(&self) -> Option<String> {
         Some(self.raw.clone())
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        return self.segments.iter().flat_map(|s| s.get_raw_segments()).collect();
     }
 }
 
@@ -283,6 +287,10 @@ impl Segment for CommentSegment {
     fn get_raw(&self) -> Option<String> {
         todo!()
     }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        todo!()
+    }
 }
 
 // Segment containing a newline.
@@ -342,6 +350,10 @@ impl Segment for NewlineSegment {
     fn get_raw(&self) -> Option<String> {
         todo!()
     }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        todo!()
+    }
 }
 
 /// Segment containing whitespace.
@@ -387,6 +399,10 @@ impl Segment for WhitespaceSegment {
     }
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         todo!()
     }
 
@@ -462,6 +478,10 @@ impl Segment for UnlexableSegment {
     fn get_raw(&self) -> Option<String> {
         todo!()
     }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        todo!()
+    }
 }
 
 /// A segment used for matching single entities which aren't keywords.
@@ -510,6 +530,10 @@ impl Segment for SymbolSegment {
     }
 
     fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         todo!()
     }
 }

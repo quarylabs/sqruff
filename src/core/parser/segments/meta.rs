@@ -55,6 +55,10 @@ impl Segment for Indent {
     fn get_raw(&self) -> Option<String> {
         todo!()
     }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        todo!()
+    }
 }
 
 impl Indent {
@@ -113,6 +117,10 @@ impl Segment for Dedent {
     }
 
     fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         todo!()
     }
 }

@@ -65,10 +65,10 @@ impl FixPatch {
 
 /// For a given fix anchor, count of the fix edit types and fixes for it."""
 pub struct AnchorEditInfo {
-    delete: isize,
-    replace: isize,
-    create_before: isize,
-    create_after: isize,
+    delete: usize,
+    replace: usize,
+    create_before: usize,
+    create_after: usize,
     fixes: Vec<LintFix>,
     source_fixes: Vec<LintFix>,
     // First fix of edit_type "replace" in "fixes"
@@ -86,5 +86,35 @@ impl Default for AnchorEditInfo {
             source_fixes: Vec::new(),
             _first_replace_fix: None,
         }
+    }
+}
+
+impl AnchorEditInfo {
+    /// Returns total count of fixes.
+    fn total(&self) -> usize {
+        self.delete + self.replace + self.create_before + self.create_after
+    }
+
+    /// Returns True if valid combination of fixes for anchor.
+    ///
+    /// Cases:
+    /// * 0-1 fixes of any type: Valid
+    /// * 2 fixes: Valid if and only if types are create_before and create_after
+    fn is_valid(&self) -> bool {
+        let total = self.total();
+        return if total <= 1 {
+            // Definitely valid (i.e. no conflict) if 0 or 1. In practice, this
+            // function probably won't be called if there are 0 fixes, but 0 is
+            // valid; it simply means "no fixes to apply".
+            true
+        } else if total == 2 {
+            // This is only OK for this special case. We allow this because
+            // the intent is clear (i.e. no conflict): Insert something *before*
+            // the segment and something else *after* the segment.
+            self.create_before == 1 && self.create_after == 1
+        } else {
+            // Definitely bad if > 2.
+            false
+        };
     }
 }

@@ -33,7 +33,7 @@ impl TemplatedFileSlice {
 /// the capability to split up that file when lexing.
 #[derive(Debug, PartialEq, Clone)]
 pub struct TemplatedFile {
-    source_str: String,
+    pub source_str: String,
     f_name: String,
     pub templated_str: Option<String>,
     source_newlines: Vec<usize>,

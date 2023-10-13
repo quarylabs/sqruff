@@ -1,4 +1,5 @@
 use crate::core::parser::markers::PositionMarker;
+use crate::core::rules::base::LintFix;
 use dyn_clone::DynClone;
 use std::fmt::Debug;
 use uuid::Uuid;
@@ -78,6 +79,10 @@ pub trait Segment: DynClone + Debug {
     fn get_uuid(&self) -> Option<Uuid>;
 
     fn indent_val(&self) -> usize {
+        panic!("Not implemented yet");
+    }
+
+    fn get_source_fixes(&self) -> Vec<LintFix> {
         panic!("Not implemented yet");
     }
 }

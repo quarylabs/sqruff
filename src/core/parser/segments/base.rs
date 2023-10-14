@@ -40,6 +40,11 @@ pub trait Segment: DynClone + Debug {
     fn get_position_marker(&self) -> Option<PositionMarker>;
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>);
 
+    // get_segments is the way the segment returns its children 'self.segments' in Python.
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        todo!()
+    }
+
     /// Return the length of the segment in characters.
     fn get_matched_length(&self) -> usize {
         match self.get_raw() {

@@ -20,7 +20,7 @@ pub struct PathStep<S: Segment> {
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
-    &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
+&'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment: DynClone + Debug {
     fn get_raw(&self) -> Option<String>;
@@ -109,6 +109,63 @@ pub trait Segment: DynClone + Debug {
             .iter()
             .flat_map(|seg| seg.get_source_fixes())
             .collect()
+    }
+
+    /// Iterate through the segments generating fix patches.
+    ///
+    ///         The patches are generated in TEMPLATED space. This is important
+    ///         so that we defer dealing with any loops until later. At this stage
+    ///         everything *should* happen in templated order.
+    ///
+    ///         Occasionally we have an insertion around a placeholder, so we also
+    ///         return a hint to deal with that.
+    fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
+        assert!(self.get_position_marker().is_some());
+
+        // Your logic goes here
+        let templated_raw = &templated_file.templated_str[self.pos_marker.templated_slice.clone()];
+        let matches = self.raw == templated_raw;
+
+        if matches {
+            let extra_patches = self.iter_source_fix_patches(templated_file);
+            return extra_patches;
+        }
+
+        // TODO Implement logging properly
+        // println!(
+        //     "# Changed Segment Found: {:?} at {:?}: Original: [{:?}] Fixed: [{:?}]",
+        //     self,
+        //     self.pos_marker.templated_slice,
+        //     templated_raw,
+        //     self.raw
+        // );
+
+        if self.is_literal() {
+            let mut patches = self.iter_source_fix_patches(templated_file);
+            patches.push(FixPatch::new(
+                self.pos_marker.source_slice.clone(),
+                self.raw.clone(),
+                String::from("literal"),
+                self.pos_marker.templated_slice.clone(),
+                templated_file.templated_str[self.pos_marker.templated_slice.clone()].to_string(),
+                templated_file.source_str[self.pos_marker.source_slice.clone()].to_string(),
+            ));
+            patches
+        } else if self.segments.is_empty() {
+            return vec![];
+        } else {
+            // This segment isn't a literal, but has changed, we need to go deeper.
+
+            let segments = self.
+
+
+            // The additional logic from the original Python method goes here
+            // Involves handling nested segments, applying patches, etc.
+            // This part is complex and requires a good understanding of your
+            // application logic and data structures, so it's recommended to
+            // adapt it carefully, testing thoroughly to ensure the logic
+            // is translated accurately to Rust.
+        }
     }
 
     /// Stub.

@@ -155,8 +155,12 @@ pub trait Segment: DynClone + Debug {
             return vec![];
         } else {
             // This segment isn't a literal, but has changed, we need to go deeper.
-
-            let segments = self.
+            
+            let segments = self.get_segments();
+            while !segments.is_empty() && segments[-1].is_type("end_of_file", "indent") {
+                
+            }
+            
 
 
             // The additional logic from the original Python method goes here

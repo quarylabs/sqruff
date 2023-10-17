@@ -451,6 +451,35 @@ impl TemplatedFile {
         }
         return is_literal;
     }
+
+    /// Return a list of the raw slices spanning a set of indices.
+    fn raw_slices_spanning_source_slice(&self, source_slice: Range<usize>) -> Vec<RawFileSlice> {
+        // Special case: The source_slice is at the end of the file.
+        let last_raw_slice = self.raw_sliced.last().unwrap();
+        if source_slice.start >= last_raw_slice.source_idx + last_raw_slice.raw.len() {
+            return Vec::new();
+        }
+
+        // First find the start index
+        let mut raw_slice_idx = 0;
+        // Move the raw pointer forward to the start of this patch
+        while raw_slice_idx + 1 < self.raw_sliced.len()
+            && self.raw_sliced[raw_slice_idx + 1].source_idx <= source_slice.start
+        {
+            raw_slice_idx += 1;
+        }
+
+        // Find slice index of the end of this patch.
+        let mut slice_span = 1;
+        while raw_slice_idx + slice_span < self.raw_sliced.len()
+            && self.raw_sliced[raw_slice_idx + slice_span].source_idx < source_slice.end
+        {
+            slice_span += 1;
+        }
+
+        // Return the raw slices
+        self.raw_sliced[raw_slice_idx..(raw_slice_idx + slice_span)].to_vec()
+    }
 }
 
 /// Find the indices of all newlines in a string.

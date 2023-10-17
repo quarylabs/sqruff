@@ -32,7 +32,8 @@ pub struct FixPatch {
     // The patch category, functions mostly for debugging and explanation
     // than for function. It allows traceability of *why* this patch was
     // generated. It has no significance for processing.
-    patch_category: String,
+    // TODO See if this can become an enum
+    pub patch_category: String,
     pub source_slice: Range<usize>,
     templated_str: String,
     source_str: String,

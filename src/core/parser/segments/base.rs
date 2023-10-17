@@ -20,7 +20,7 @@ pub struct PathStep<S: Segment> {
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
-&'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
+    &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment: DynClone + Debug {
     fn get_raw(&self) -> Option<String>;
@@ -123,7 +123,8 @@ pub trait Segment: DynClone + Debug {
         assert!(self.get_position_marker().is_some());
 
         // Your logic goes here
-        let templated_raw = &templated_file.templated_str.unwrap()[self.get_position_marker().unwrap().templated_slice.clone()];
+        let templated_raw = &templated_file.templated_str.unwrap()
+            [self.get_position_marker().unwrap().templated_slice.clone()];
         let matches = self.get_raw() == Some(templated_raw.to_string());
 
         if matches {
@@ -147,7 +148,9 @@ pub trait Segment: DynClone + Debug {
                 self.raw.clone(),
                 String::from("literal"),
                 self.get_position_marker().unwrap().templated_slice.clone(),
-                templated_file.templated_str[self.get_position_marker().unwrap().templated_slice.clone()].to_string(),
+                templated_file.templated_str
+                    [self.get_position_marker().unwrap().templated_slice.clone()]
+                .to_string(),
                 templated_file.source_str[self.pos_marker.source_slice.clone()].to_string(),
             ));
             patches
@@ -155,13 +158,9 @@ pub trait Segment: DynClone + Debug {
             return vec![];
         } else {
             // This segment isn't a literal, but has changed, we need to go deeper.
-            
-            let segments = self.get_segments();
-            while !segments.is_empty() && segments[-1].is_type("end_of_file", "indent") {
-                
-            }
-            
 
+            let segments = self.get_segments();
+            while !segments.is_empty() && segments[-1].is_type("end_of_file", "indent") {}
 
             // The additional logic from the original Python method goes here
             // Involves handling nested segments, applying patches, etc.

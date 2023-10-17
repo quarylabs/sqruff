@@ -25,7 +25,7 @@ pub type SegmentConstructorFn<SegmentArgs> =
 pub trait Segment: DynClone + Debug {
     fn get_raw(&self) -> Option<String>;
     fn get_type(&self) -> &'static str;
-    fn is_type(&self, type_: &str) -> bool {
+    fn is_type(&self, type_: &[&str]) -> bool {
         self.get_type() == type_
     }
     fn is_code(&self) -> bool;
@@ -124,7 +124,7 @@ pub trait Segment: DynClone + Debug {
 
         // Your logic goes here
         let templated_raw = &templated_file.templated_str.unwrap()
-            [self.get_position_marker().unwrap().templated_slice.clone()];
+            [self.get_position_marker().unwrap().templated_slice];
         let matches = self.get_raw() == Some(templated_raw.to_string());
 
         if matches {
@@ -141,26 +141,26 @@ pub trait Segment: DynClone + Debug {
         //     self.raw
         // );
 
-        if self.is_literal() {
+        if self.get_position_marker().unwrap().is_literal() {
             let mut patches = self.iter_source_fix_patches(templated_file);
             patches.push(FixPatch::new(
-                self.pos_marker.source_slice.clone(),
-                self.raw.clone(),
+                self.get_position_marker().unwrap().source_slice.clone(),
+                self.get_raw().unwrap().clone(),
                 String::from("literal"),
                 self.get_position_marker().unwrap().templated_slice.clone(),
-                templated_file.templated_str
+                templated_file.templated_str.unwrap()
                     [self.get_position_marker().unwrap().templated_slice.clone()]
                 .to_string(),
-                templated_file.source_str[self.pos_marker.source_slice.clone()].to_string(),
+                templated_file.source_str[self.get_position_marker().unwrap().source_slice.clone()].to_string(),
             ));
             patches
-        } else if self.segments.is_empty() {
+        } else if self.get_segments().is_empty() {
             return vec![];
         } else {
             // This segment isn't a literal, but has changed, we need to go deeper.
 
             let segments = self.get_segments();
-            while !segments.is_empty() && segments[-1].is_type("end_of_file", "indent") {}
+            while !segments.is_empty() && segments[segments.len()-1].is_type("end_of_file", "indent") {}
 
             // The additional logic from the original Python method goes here
             // Involves handling nested segments, applying patches, etc.

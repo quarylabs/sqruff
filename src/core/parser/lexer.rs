@@ -495,7 +495,7 @@ impl Lexer {
     fn violations_from_segments<T: Debug + Clone>(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
         segments
             .into_iter()
-            .filter(|s| s.is_type("unlexable"))
+            .filter(|s| s.is_type(&["unlexable"]))
             .map(|s| {
                 SQLLexError::new(
                     format!(

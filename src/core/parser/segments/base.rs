@@ -3,7 +3,7 @@ use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::LintFix;
 use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use uuid::Uuid;
 
@@ -24,9 +24,35 @@ pub type SegmentConstructorFn<SegmentArgs> =
 
 pub trait Segment: DynClone + Debug {
     fn get_raw(&self) -> Option<String>;
+    // TODO See if those below can be pointers to strings
+    fn get_instance_types(&self) -> Option<Vec<String>> {
+        None
+    }
     fn get_type(&self) -> &'static str;
-    fn is_type(&self, type_: &str) -> bool {
-        self.get_type() == type_
+
+    fn get_class_types(&self) -> HashSet<&'static str> {
+        todo!()
+    }
+
+    /// Is this segment class (or its parent) of the given type.
+    fn class_is_type(&self, types: &[&str]) -> bool {
+        let class_types = self.get_class_types();
+        types
+            .iter()
+            .find(|class_type| class_types.contains(**class_type))
+            .is_some()
+    }
+
+    /// Extend the parent class method with the surrogate types.
+    fn is_type(&self, types: &[&str]) -> bool {
+        if let Some(instance_types) = self.get_instance_types() {
+            for seg_type in types {
+                if instance_types.contains(&seg_type.to_string()) {
+                    return true;
+                }
+            }
+        }
+        self.class_is_type(types)
     }
     fn is_code(&self) -> bool;
     fn is_comment(&self) -> bool;
@@ -274,6 +300,9 @@ impl CommentSegment {
 }
 
 impl Segment for CommentSegment {
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
     fn get_type(&self) -> &'static str {
         "comment"
     }
@@ -283,12 +312,9 @@ impl Segment for CommentSegment {
     fn is_comment(&self) -> bool {
         true
     }
+
     fn is_whitespace(&self) -> bool {
         false
-    }
-
-    fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -299,15 +325,15 @@ impl Segment for CommentSegment {
         todo!()
     }
 
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
     fn edit(
         &self,
         _raw: Option<String>,
         _source_fixes: Option<Vec<SourceFix>>,
     ) -> Box<dyn Segment> {
-        todo!()
-    }
-
-    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }
@@ -330,6 +356,9 @@ impl NewlineSegment {
 }
 
 impl Segment for NewlineSegment {
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
     fn get_type(&self) -> &'static str {
         "newline"
     }
@@ -342,6 +371,7 @@ impl Segment for NewlineSegment {
     fn is_whitespace(&self) -> bool {
         true
     }
+
     fn get_default_raw(&self) -> Option<&'static str> {
         Some("\n")
     }
@@ -354,19 +384,15 @@ impl Segment for NewlineSegment {
         todo!()
     }
 
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
     fn edit(
         &self,
         _raw: Option<String>,
         _source_fixes: Option<Vec<SourceFix>>,
     ) -> Box<dyn Segment> {
-        todo!()
-    }
-
-    fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
-    }
-
-    fn get_raw(&self) -> Option<String> {
         todo!()
     }
 }
@@ -687,7 +713,7 @@ mod tests {
         let args = UnlexableSegmentNewArgs { expected: None };
         let segment = UnlexableSegment::new("", &PositionMarker::default(), args);
 
-        assert!(segment.is_type("unlexable"));
-        assert!(!segment.is_type("whitespace"));
+        assert!(segment.is_type(&["unlexable"]));
+        assert!(!segment.is_type(&["whitespace"]));
     }
 }

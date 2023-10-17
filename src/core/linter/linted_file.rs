@@ -511,8 +511,8 @@ mod test {
 
         for (tree, file, expected_result) in tests {
             let result = LintedFile::generate_source_patches(
-                tree,
-                file,
+                Box::new(tree),
+               & file,
             );
 
             assert_eq!(result, expected_result);

@@ -453,7 +453,7 @@ impl TemplatedFile {
     }
 
     /// Return a list of the raw slices spanning a set of indices.
-    fn raw_slices_spanning_source_slice(&self, source_slice: Range<usize>) -> Vec<RawFileSlice> {
+    pub fn raw_slices_spanning_source_slice(&self, source_slice: Range<usize>) -> Vec<RawFileSlice> {
         // Special case: The source_slice is at the end of the file.
         let last_raw_slice = self.raw_sliced.last().unwrap();
         if source_slice.start >= last_raw_slice.source_idx + last_raw_slice.raw.len() {
@@ -501,7 +501,8 @@ pub enum RawFileSliceType {
 pub struct RawFileSlice {
     /// Source string
     raw: String,
-    slice_type: String,
+    // TODO See if this can become an enum
+    pub slice_type: String,
     /// Offset from beginning of source string
     pub source_idx: usize,
     slice_subtype: Option<RawFileSliceType>,

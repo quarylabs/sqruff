@@ -123,8 +123,8 @@ pub trait Segment: DynClone + Debug {
         assert!(self.get_position_marker().is_some());
 
         // Your logic goes here
-        let templated_raw = &templated_file.templated_str[self.pos_marker.templated_slice.clone()];
-        let matches = self.raw == templated_raw;
+        let templated_raw = &templated_file.templated_str.unwrap()[self.get_position_marker().unwrap().templated_slice.clone()];
+        let matches = self.get_raw() == Some(templated_raw.to_string());
 
         if matches {
             let extra_patches = self.iter_source_fix_patches(templated_file);
@@ -146,8 +146,8 @@ pub trait Segment: DynClone + Debug {
                 self.pos_marker.source_slice.clone(),
                 self.raw.clone(),
                 String::from("literal"),
-                self.pos_marker.templated_slice.clone(),
-                templated_file.templated_str[self.pos_marker.templated_slice.clone()].to_string(),
+                self.get_position_marker().unwrap().templated_slice.clone(),
+                templated_file.templated_str[self.get_position_marker().unwrap().templated_slice.clone()].to_string(),
                 templated_file.source_str[self.pos_marker.source_slice.clone()].to_string(),
             ));
             patches

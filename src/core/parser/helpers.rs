@@ -48,7 +48,7 @@ mod test {
     };
 
     #[test]
-    fn test_trim_non_code_segments() {
+    fn test__parser__helper_trim_non_code_segments() {
         let test_cases = vec![
             (vec!["bar", ".", "bar"], 0, 3, 0),
             (vec![], 0, 0, 0),

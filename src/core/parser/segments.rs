@@ -4,4 +4,4 @@ pub mod file;
 pub mod fix;
 pub mod meta;
 pub mod raw;
-mod test_functions;
+pub mod test_functions;

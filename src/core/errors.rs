@@ -219,7 +219,7 @@ impl SQLFluffUserError {
     }
 }
 
-// Not from SQLFluff but translates Pythn value error
+// Not from SQLFluff but translates Python value error
 #[derive(Debug)]
 pub struct ValueError {
     value: String,

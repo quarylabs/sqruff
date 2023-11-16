@@ -314,18 +314,22 @@ impl Segment for CommentSegment {
 
 // Segment containing a newline.
 #[derive(Debug, Clone)]
-pub struct NewlineSegment {}
+pub struct NewlineSegment {
+    raw: String,
+}
 
 #[derive(Debug, Clone)]
 pub struct NewlineSegmentNewArgs {}
 
 impl NewlineSegment {
     pub fn new(
-        _raw: &str,
+        raw: &str,
         _position_maker: &PositionMarker,
         _args: NewlineSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        panic!("Not implemented yet")
+        Box::new(NewlineSegment {
+            raw: raw.to_string(),
+        })
     }
 }
 
@@ -367,30 +371,34 @@ impl Segment for NewlineSegment {
     }
 
     fn get_raw(&self) -> Option<String> {
-        todo!()
+        Some(self.raw.clone())
     }
 }
 
 /// Segment containing whitespace.
 #[derive(Debug, Clone)]
-pub struct WhitespaceSegment {}
+pub struct WhitespaceSegment {
+    raw: String,
+}
 
 #[derive(Debug, Clone)]
 pub struct WhitespaceSegmentNewArgs;
 
 impl WhitespaceSegment {
     pub fn new(
-        _raw: &str,
+        raw: &str,
         _position_maker: &PositionMarker,
         _args: WhitespaceSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        panic!("Not implemented yet")
+        Box::new(WhitespaceSegment {
+            raw: raw.to_string(),
+        })
     }
 }
 
 impl Segment for WhitespaceSegment {
     fn get_raw(&self) -> Option<String> {
-        todo!()
+        Some(self.raw.clone())
     }
 
     fn get_type(&self) -> &'static str {
@@ -607,7 +615,9 @@ mod tests {
     // TODO Implement
     /// Test raw segments behave as expected.
     fn test__parser__base_segments_raw() {
-        let _raw_seg = raw_seg();
+        let raw_seg = raw_seg();
+
+        assert_eq!(raw_seg.get_raw().unwrap(), "foobar");
     }
 
     #[test]

@@ -118,5 +118,5 @@ pub fn raw_segments() -> Vec<Box<dyn Segment>> {
 }
 
 pub fn raw_seg() -> Box<dyn Segment> {
-    raw_segments()[1].clone()
+    raw_segments()[0].clone()
 }

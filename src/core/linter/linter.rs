@@ -46,18 +46,15 @@ impl Linter {
         f_name: Option<String>,
         fix: Option<bool>,
     ) -> LintingResult {
-        // TODO Translate LintingResult
-        let _result = LintingResult::new();
-        let f_name_default = f_name
-            .clone()
-            .unwrap_or_else(|| "<string input>".to_string());
-        let mut linted_path = LintedDir::new(f_name_default.clone());
-        linted_path.add(self.lint_string(Some(sql), Some(f_name_default), fix, None, None));
-        panic!("Not finished");
-        // linted_path = LintedDir(f_name);
-        // result.add(linted_path)
-        // result.stop_timer()
-        // return result
+        let f_name = f_name.unwrap_or_else(|| "<string input>".into());
+
+        let mut linted_path = LintedDir::new(f_name.clone());
+        linted_path.add(self.lint_string(Some(sql), Some(f_name), fix, None, None));
+
+        let mut result = LintingResult::new();
+        result.add(linted_path);
+        result.stop_timer();
+        result
     }
 
     /// Parse a string.
@@ -76,7 +73,7 @@ impl Linter {
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
         // Dispatch the output for the template header (including the config diff)
         if let Some(formatter) = &self.formatter {
-            if let unwrapped_config = config.unwrap() {
+            if let Some(unwrapped_config) = config {
                 formatter.dispatch_template_header(
                     defaulted_f_name.clone(),
                     self.config.clone(),

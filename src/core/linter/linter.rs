@@ -314,3 +314,65 @@ impl Linter {
         re.replace_all(string, "\n").to_string()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::core::{config::FluffConfig, linter::linter::Linter};
+
+    // TODO:
+    //
+    // test__linter__path_from_paths__dir
+    // test__linter__path_from_paths__default
+    // test__linter__path_from_paths__exts
+    // test__linter__path_from_paths__file
+    // test__linter__skip_large_bytes
+    // test__linter__path_from_paths__not_exist
+    // test__linter__path_from_paths__not_exist_ignore
+    // test__linter__path_from_paths__explicit_ignore
+    // test__linter__path_from_paths__sqlfluffignore_current_directory
+    // test__linter__path_from_paths__dot
+    // test__linter__path_from_paths__ignore
+    // test__linter__lint_string_vs_file
+    // test__linter__get_violations_filter_rules
+    // test__linter__linting_result__sum_dicts
+    // test__linter__linting_result__combine_dicts
+    // test__linter__linting_result_check_tuples_by_path
+    // test__linter__linting_result_get_violations
+    // test__linter__linting_parallel_thread
+    // test_lint_path_parallel_wrapper_exception
+    // test__linter__get_runner_processes
+    // test__linter__linting_unexpected_error_handled_gracefully
+    // test__linter__empty_file
+    // test__linter__mask_templated_violations
+    // test__linter__encoding
+    // test_delayed_exception
+    // test__attempt_to_change_templater_warning
+    // test_advanced_api_methods
+
+    #[test]
+    #[ignore = "The implementation of Lexer::elements_to_segments is required"]
+    fn test_advanced_api_methods() {
+        let sql = "
+        WITH cte AS (
+            SELECT * FROM tab_a
+        )
+        SELECT
+            cte.col_a,
+            tab_b.col_b
+        FROM cte
+        INNER JOIN tab_b;
+        "
+        .to_string();
+
+        let linter = Linter::new(FluffConfig::new(None, None, None, None), None, None);
+        let parsed = linter.parse_string(sql, None, None, None, None).unwrap();
+    }
+
+    #[test]
+    fn test_normalise_newlines() {
+        let in_str = "SELECT\r\n foo\n FROM \r \n\r bar;";
+        let out_str = "SELECT\n foo\n FROM \n \n\n bar;";
+
+        assert_eq!(Linter::normalise_newlines(in_str), out_str);
+    }
+}

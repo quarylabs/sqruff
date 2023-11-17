@@ -4,11 +4,15 @@ use crate::core::errors::{SQLLexError, ValueError};
 use crate::core::parser::segments::base::{
     Segment, SegmentConstructorFn, UnlexableSegment, UnlexableSegmentNewArgs,
 };
+use crate::core::slice_helpers::offset_slice;
 use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
 use fancy_regex::{Error, Regex};
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Range;
+
+use super::markers::PositionMarker;
+use super::segments::raw::RawSegment;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -38,6 +42,15 @@ impl TemplateElement {
             template_slice,
             matcher: element.matcher,
         }
+    }
+
+    pub fn to_segment(
+        &self,
+        pos_marker: PositionMarker,
+        subslice: Option<Range<usize>>,
+    ) -> Box<dyn Segment> {
+        let slice = subslice.map_or_else(|| self.raw.clone(), |slice| self.raw[slice].to_string());
+        self.matcher.construct_segment(slice, pos_marker)
     }
 }
 
@@ -148,6 +161,10 @@ pub trait Matcher: Debug + DynClone {
         }
 
         elem_buff
+    }
+
+    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> Box<dyn Segment> {
+        todo!()
     }
 }
 
@@ -298,6 +315,10 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
     fn get_trim_post_subdivide(self: &Self) -> Option<Box<dyn Matcher>> {
         self.trim_post_subdivide.clone()
     }
+
+    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> Box<dyn Segment> {
+        (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
+    }
 }
 
 /// This RegexLexer matches based on regular expressions.
@@ -333,13 +354,14 @@ impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
     /// Use regexes to match chunks.
     pub fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
         if let Ok(Some(matched)) = self.template.find(forward_string) {
-            Some(LexedElement {
-                raw: matched.as_str().to_string(),
-                matcher: Box::new(self.clone()),
-            })
-        } else {
-            None
+            if matched.start() == 0 {
+                return Some(LexedElement {
+                    raw: matched.as_str().to_string(),
+                    matcher: Box::new(self.clone()),
+                });
+            }
         }
+        None
     }
 }
 
@@ -370,6 +392,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
             Some(matched) => {
                 let length = matched.raw.len();
                 let new_elements = self._subdivide(matched);
+
                 Ok(LexMatch {
                     forward_string: forward_string[length..].to_string(),
                     elements: new_elements,
@@ -465,7 +488,9 @@ impl Lexer {
 
         // Map tuple LexedElement to list of TemplateElement.
         // This adds the template_slice to the object.
-        let _templated_buffer = Lexer::map_template_slices(element_buffer, template);
+        let templated_buffer = Lexer::map_template_slices(element_buffer, template.clone());
+        // Turn lexed elements into segments.
+        let _segments = self.elements_to_segments(templated_buffer, template);
 
         // while True:
         //     res = self.lex_match(str_buff, self.lexer_matchers)
@@ -536,7 +561,7 @@ impl Lexer {
                     // matcher again.
                     matched = true;
                     break;
-                };
+                }
             }
 
             // We've got so far, but now can't match. Return
@@ -562,21 +587,34 @@ impl Lexer {
         let mut idx = 0;
         let mut templated_buff: Vec<TemplateElement> = vec![];
         for element in elements {
-            let template_slice = idx..idx + element.raw.len();
+            let template_slice = offset_slice(idx, element.raw.len());
             idx += element.raw.len();
+
             templated_buff.push(TemplateElement::from_element(
                 element.clone(),
-                template_slice,
+                template_slice.clone(),
             ));
+
             let templated_string = template.get_templated_string().unwrap();
-            if templated_string != element.raw {
+            if templated_string[template_slice.clone()] != element.raw {
                 panic!(
-                    "Template and lexed elements do not match. This should never happen {} != {}",
-                    element.raw, templated_string
+                    "Template and lexed elements do not match. This should never happen {:?} != {:?}",
+                    element.raw, &templated_string[template_slice]
                 );
             }
         }
         return templated_buff;
+    }
+
+    /// Convert a tuple of lexed elements into a tuple of segments.
+    #[track_caller]
+    fn elements_to_segments(
+        &self,
+        _elements: Vec<TemplateElement>,
+        _templated_file: TemplatedFile,
+    ) {
+        // lexer_logger.info("Elements to Segments.")
+        todo!()
     }
 }
 

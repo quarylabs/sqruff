@@ -535,7 +535,6 @@ mod tests {
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 
     #[test]
-    #[ignore = "The implementation of Lexer::elements_to_segments is required"]
     fn test_dialect_ansi_file_lex() {
         // Define the test cases
         let test_cases = vec![
@@ -567,7 +566,7 @@ mod tests {
                 .iter()
                 .map(|token| token.get_raw().unwrap())
                 .collect();
-            assert_eq!(raw_list, res, "Mismatch for input: {}", raw);
+            assert_eq!(raw_list, res, "Mismatch for input: {:?}", raw);
 
             // Check if the concatenated raw components of the tokens match the original raw string
             let concatenated: String = tokens

@@ -125,6 +125,17 @@ impl PositionMarker {
         );
     }
 
+    fn end_point_marker(&self) -> PositionMarker {
+        // Assuming PositionMarker is a struct and from_point is an associated function
+        PositionMarker::from_point(
+            self.source_slice.end,
+            self.templated_slice.end,
+            self.templated_file.clone(),
+            None,
+            None,
+        )
+    }
+
     /// Infer literalness from context.
     ///
     ///         is_literal should return True if a fix can be applied across this area

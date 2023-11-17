@@ -4,14 +4,15 @@ use crate::core::errors::{SQLLexError, ValueError};
 use crate::core::parser::segments::base::{
     Segment, SegmentConstructorFn, UnlexableSegment, UnlexableSegmentNewArgs,
 };
-use crate::core::slice_helpers::offset_slice;
+use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
 use fancy_regex::{Error, Regex};
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::Range;
+use std::ops::{Range, RangeFrom};
 
 use super::markers::PositionMarker;
+use super::segments::meta::EndOfFile;
 use super::segments::raw::RawSegment;
 
 /// An element matched during lexing.
@@ -28,6 +29,7 @@ impl LexedElement {
 }
 
 /// A LexedElement, bundled with it's position in the templated file.
+#[derive(Debug)]
 pub struct TemplateElement {
     raw: String,
     template_slice: Range<usize>,
@@ -47,7 +49,7 @@ impl TemplateElement {
     pub fn to_segment(
         &self,
         pos_marker: PositionMarker,
-        subslice: Option<Range<usize>>,
+        subslice: Option<RangeFrom<usize>>,
     ) -> Box<dyn Segment> {
         let slice = subslice.map_or_else(|| self.raw.clone(), |slice| self.raw[slice].to_string());
         self.matcher.construct_segment(slice, pos_marker)
@@ -164,7 +166,7 @@ pub trait Matcher: Debug + DynClone {
     }
 
     fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> Box<dyn Segment> {
-        todo!()
+        unimplemented!("{}", std::any::type_name::<Self>());
     }
 }
 
@@ -428,6 +430,10 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
     fn get_trim_post_subdivide(self: &Self) -> Option<Box<dyn Matcher>> {
         self.trim_post_subdivide.clone()
     }
+
+    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> Box<dyn Segment> {
+        (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
+    }
 }
 
 /// The Lexer class actually does the lexing step.
@@ -490,28 +496,9 @@ impl Lexer {
         // This adds the template_slice to the object.
         let templated_buffer = Lexer::map_template_slices(element_buffer, template.clone());
         // Turn lexed elements into segments.
-        let _segments = self.elements_to_segments(templated_buffer, template);
+        let segments = self.elements_to_segments(templated_buffer, template);
 
-        // while True:
-        //     res = self.lex_match(str_buff, self.lexer_matchers)
-        // element_buffer += res.elements
-        // if res.forward_string:
-        //     resort_res = self.last_resort_lexer.match(res.forward_string)
-        // if not resort_res:  # pragma: no cover
-        // # If we STILL can't match, then just panic out.
-        //     raise SQLLexError(
-        //     "Fatal. Unable to lex characters: {0!r}".format(
-        //         res.forward_string[:10] + "..."
-        //         if len(res.forward_string) > 9
-        //         else res.forward_string
-        //     )
-        // )
-        // str_buff = resort_res.forward_string
-        // element_buffer += resort_res.elements
-        // else:  # pragma: no cover TODO?
-        // break
-
-        panic!("Not implemented");
+        Ok((segments, Vec::new()))
     }
 
     /// Generate any lexing errors for any un-lex-ables.
@@ -610,12 +597,116 @@ impl Lexer {
     #[track_caller]
     fn elements_to_segments(
         &self,
-        _elements: Vec<TemplateElement>,
-        _templated_file: TemplatedFile,
-    ) {
-        // lexer_logger.info("Elements to Segments.")
-        todo!()
+        elements: Vec<TemplateElement>,
+        templated_file: TemplatedFile,
+    ) -> Vec<Box<dyn Segment>> {
+        let mut segments = iter_segments(elements, templated_file.clone());
+
+        // Add an end of file marker
+        let position_maker = segments
+            .last()
+            .map(|segment| segment.get_position_marker().unwrap())
+            .unwrap_or_else(|| PositionMarker::from_point(0, 0, templated_file, None, None));
+        segments.push(EndOfFile::new(position_maker));
+
+        segments
     }
+}
+
+fn iter_segments(
+    lexed_elements: Vec<TemplateElement>,
+    templated_file: TemplatedFile,
+) -> Vec<Box<dyn Segment>> {
+    let mut result = Vec::new();
+    // An index to track where we've got to in the templated file.
+    let tfs_idx = 0;
+    // We keep a map of previous block locations in case they re-occur.
+    // let block_stack = BlockTracker()
+    let templated_file_slices = templated_file.clone().sliced_file;
+
+    // Now work out source slices, and add in template placeholders.
+    for (idx, element) in lexed_elements.into_iter().enumerate() {
+        let consumed_element_length = 0;
+        let stashed_source_idx = None;
+
+        for (mut tfs_idx, tfs) in templated_file_slices
+            .iter()
+            .skip(tfs_idx)
+            .enumerate()
+            .map(|(i, tfs)| (i + tfs_idx, tfs))
+        {
+            // Is it a zero slice?
+            if is_zero_slice(tfs.templated_slice.clone()) {
+                let _slice = if tfs_idx + 1 < templated_file_slices.len() {
+                    templated_file_slices[tfs_idx + 1].clone().into()
+                } else {
+                    None
+                };
+
+                _handle_zero_length_slice();
+
+                continue;
+            }
+
+            if tfs.slice_type == "literal" {
+                let tfs_offset = tfs.source_slice.start - tfs.templated_slice.start;
+
+                // NOTE: Greater than OR EQUAL, to include the case of it matching
+                // length exactly.
+                if element.template_slice.end <= tfs.templated_slice.end {
+                    let slice_start = stashed_source_idx.unwrap_or_else(|| {
+                        element.template_slice.start + consumed_element_length + tfs_offset
+                    });
+
+                    result.push(element.to_segment(
+                        PositionMarker::new(
+                            slice_start..element.template_slice.end + tfs_offset,
+                            element.template_slice.clone(),
+                            templated_file.clone(),
+                            None,
+                            None,
+                        ),
+                        Some(consumed_element_length..),
+                    ));
+
+                    // If it was an exact match, consume the templated element too.
+                    if element.template_slice.end == tfs.templated_slice.end {
+                        tfs_idx += 1
+                    }
+                    // In any case, we're done with this element. Move on
+                    break;
+                }
+            } else if element.template_slice.start == tfs.templated_slice.end {
+                // Did we forget to move on from the last tfs and there's
+                // overlap?
+                // NOTE: If the rest of the logic works, this should never
+                // happen.
+                // lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
+                continue;
+            } else {
+                // This means that the current lexed element spans across
+                // multiple templated file slices.
+                // lexer_logger.debug("     Consuming whole spanning literal")
+                // This almost certainly means there's a templated element
+                // in the middle of a whole lexed element.
+
+                // What we do here depends on whether we're allowed to split
+                // lexed elements. This is basically only true if it's whitespace.
+                // NOTE: We should probably make this configurable on the
+                // matcher object, but for now we're going to look for the
+                // name of the lexer.
+                if element.matcher.get_name() == "whitespace" {
+                    panic!();
+                }
+            }
+        }
+    }
+
+    result
+}
+
+fn _handle_zero_length_slice() {
+    // impl me
 }
 
 #[cfg(test)]

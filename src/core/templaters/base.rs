@@ -7,8 +7,8 @@ use std::ops::Range;
 /// A slice referring to a templated file.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TemplatedFileSlice {
-    slice_type: String,
-    source_slice: Range<usize>,
+    pub slice_type: String,
+    pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
 }
 
@@ -39,7 +39,7 @@ pub struct TemplatedFile {
     source_newlines: Vec<usize>,
     templated_newlines: Vec<usize>,
     raw_sliced: Vec<RawFileSlice>,
-    sliced_file: Vec<TemplatedFileSlice>,
+    pub sliced_file: Vec<TemplatedFileSlice>,
 }
 
 impl TemplatedFile {

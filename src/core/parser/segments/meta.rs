@@ -122,3 +122,50 @@ impl Dedent {
         Box::new(Dedent {})
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct EndOfFile {}
+
+impl EndOfFile {
+    pub fn new(_position_maker: PositionMarker) -> Box<dyn Segment> {
+        Box::new(EndOfFile {})
+    }
+}
+
+impl Segment for EndOfFile {
+    fn get_raw(&self) -> Option<String> {
+        Some(String::new())
+    }
+
+    fn get_type(&self) -> &'static str {
+        "EndOfFile"
+    }
+
+    fn is_code(&self) -> bool {
+        todo!()
+    }
+
+    fn is_comment(&self) -> bool {
+        todo!()
+    }
+
+    fn is_whitespace(&self) -> bool {
+        todo!()
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        todo!()
+    }
+
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+        todo!()
+    }
+}

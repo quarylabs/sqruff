@@ -165,7 +165,7 @@ pub struct CodeSegment {
     source_fixes: Option<Vec<SourceFix>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct CodeSegmentNewArgs {
     pub code_type: &'static str,
 

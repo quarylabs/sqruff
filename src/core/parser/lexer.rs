@@ -49,7 +49,7 @@ impl TemplateElement {
     pub fn to_segment(
         &self,
         pos_marker: PositionMarker,
-        subslice: Option<RangeFrom<usize>>,
+        subslice: Option<Range<usize>>,
     ) -> Box<dyn Segment> {
         let slice = subslice.map_or_else(|| self.raw.clone(), |slice| self.raw[slice].to_string());
         self.matcher.construct_segment(slice, pos_marker)
@@ -627,7 +627,7 @@ fn iter_segments(
     // Now work out source slices, and add in template placeholders.
     for (idx, element) in lexed_elements.into_iter().enumerate() {
         let consumed_element_length = 0;
-        let stashed_source_idx = None;
+        let mut stashed_source_idx = None;
 
         for (mut tfs_idx, tfs) in templated_file_slices
             .iter()
@@ -666,7 +666,7 @@ fn iter_segments(
                             None,
                             None,
                         ),
-                        Some(consumed_element_length..),
+                        Some(consumed_element_length..element.raw.len()),
                     ));
 
                     // If it was an exact match, consume the templated element too.
@@ -675,29 +675,59 @@ fn iter_segments(
                     }
                     // In any case, we're done with this element. Move on
                     break;
-                }
-            } else if element.template_slice.start == tfs.templated_slice.end {
-                // Did we forget to move on from the last tfs and there's
-                // overlap?
-                // NOTE: If the rest of the logic works, this should never
-                // happen.
-                // lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
-                continue;
-            } else {
-                // This means that the current lexed element spans across
-                // multiple templated file slices.
-                // lexer_logger.debug("     Consuming whole spanning literal")
-                // This almost certainly means there's a templated element
-                // in the middle of a whole lexed element.
+                } else if element.template_slice.start == tfs.templated_slice.end {
+                    // Did we forget to move on from the last tfs and there's
+                    // overlap?
+                    // NOTE: If the rest of the logic works, this should never
+                    // happen.
+                    // lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
+                    continue;
+                } else {
+                    // This means that the current lexed element spans across
+                    // multiple templated file slices.
+                    // lexer_logger.debug("     Consuming whole spanning literal")
+                    // This almost certainly means there's a templated element
+                    // in the middle of a whole lexed element.
 
-                // What we do here depends on whether we're allowed to split
-                // lexed elements. This is basically only true if it's whitespace.
-                // NOTE: We should probably make this configurable on the
-                // matcher object, but for now we're going to look for the
-                // name of the lexer.
-                if element.matcher.get_name() == "whitespace" {
-                    panic!();
+                    // What we do here depends on whether we're allowed to split
+                    // lexed elements. This is basically only true if it's whitespace.
+                    // NOTE: We should probably make this configurable on the
+                    // matcher object, but for now we're going to look for the
+                    // name of the lexer.
+                    if element.matcher.get_name() == "whitespace" {
+                        if stashed_source_idx.is_some() {
+                            panic!("Found literal whitespace with stashed idx!")
+                        }
+
+                        let incremental_length =
+                            tfs.templated_slice.end - element.template_slice.start;
+                        result.push(element.to_segment(
+                            PositionMarker::new(
+                                element.template_slice.start + consumed_element_length + tfs_offset
+                                    ..tfs.templated_slice.end + tfs_offset,
+                                element.template_slice.clone(),
+                                templated_file.clone(),
+                                None,
+                                None,
+                            ),
+                            offset_slice(consumed_element_length, incremental_length).into(),
+                        ));
+                    } else {
+                        // We can't split it. We're going to end up yielding a segment
+                        // which spans multiple slices. Stash the type, and if we haven't
+                        // set the start yet, stash it too.
+                        // lexer_logger.debug("     Spilling over literal slice.")
+                        if stashed_source_idx.is_none() {
+                            stashed_source_idx = (element.template_slice.start + tfs_idx).into();
+                            // lexer_logger.debug(
+                            //     "     Stashing a source start. %s", stashed_source_idx
+                            // )
+                            continue;
+                        }
+                    }
                 }
+            } else if matches!(tfs.slice_type.as_str(), "templated" | "block_start") {
+                unimplemented!();
             }
         }
     }

@@ -350,7 +350,7 @@ mod tests {
     // test_advanced_api_methods
 
     #[test]
-    #[ignore = "The implementation of Lexer::elements_to_segments is required"]
+    #[ignore = "The implementation of Lexer::lex_templated_file is required"]
     fn test_advanced_api_methods() {
         let sql = "
         WITH cte AS (

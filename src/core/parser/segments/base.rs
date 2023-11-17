@@ -379,6 +379,7 @@ impl Segment for NewlineSegment {
 #[derive(Debug, Clone)]
 pub struct WhitespaceSegment {
     raw: String,
+    position_marker: PositionMarker,
 }
 
 #[derive(Debug, Clone)]
@@ -387,11 +388,12 @@ pub struct WhitespaceSegmentNewArgs;
 impl WhitespaceSegment {
     pub fn new(
         raw: &str,
-        _position_maker: &PositionMarker,
+        position_maker: &PositionMarker,
         _args: WhitespaceSegmentNewArgs,
     ) -> Box<dyn Segment> {
         Box::new(WhitespaceSegment {
             raw: raw.to_string(),
+            position_marker: position_maker.clone(),
         })
     }
 }
@@ -418,7 +420,7 @@ impl Segment for WhitespaceSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        todo!()
+        self.position_marker.clone().into()
     }
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {

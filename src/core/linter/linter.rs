@@ -9,6 +9,7 @@ use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
 use std::collections::HashMap;
+
 use std::time::Instant;
 
 use super::linted_dir::LintedDir;
@@ -229,11 +230,12 @@ impl Linter {
         let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
 
         if rendered.templated_file.is_templated() {
-            let (_t, _lvs, _config) =
-                Self::lex_templated_file(rendered.templated_file, &rendered.config);
-            panic!("Not implemented");
-            // tokens = t.clone();
-            // violations.extend(lvs);
+            let (t, lvs, _config) =
+                Self::lex_templated_file(rendered.templated_file.clone(), &rendered.config);
+            tokens = t;
+            if !lvs.is_empty() {
+                unimplemented!("violations.extend(lvs);")
+            }
         } else {
             tokens = None;
         };
@@ -299,11 +301,18 @@ impl Linter {
         let result = lexer.lex(StringOrTemplate::Template(templated_file));
         match result {
             Err(_err) => {
-                panic!("result not right");
+                // FIXME:
+                unimplemented!("violations.push(_err)");
+                return (None, violations, config.clone());
             }
-            Ok((_tokens, lex_vs)) => {
+            Ok((tokens, lex_vs)) => {
                 violations.extend(lex_vs);
-                panic!("not implemented")
+
+                if !tokens.is_empty() {
+                    return (None, violations, config.clone());
+                }
+
+                unimplemented!()
             }
         }
     }
@@ -342,12 +351,20 @@ mod tests {
     // test_lint_path_parallel_wrapper_exception
     // test__linter__get_runner_processes
     // test__linter__linting_unexpected_error_handled_gracefully
-    // test__linter__empty_file
+    #[test]
+    fn test__linter__empty_file() {
+        let linter = Linter::new(FluffConfig::new(None, None, None, None), None, None);
+        let parsed = linter
+            .parse_string("".into(), None, None, None, None)
+            .unwrap();
+
+        assert!(parsed.violations.is_empty());
+    }
+
     // test__linter__mask_templated_violations
     // test__linter__encoding
     // test_delayed_exception
     // test__attempt_to_change_templater_warning
-    // test_advanced_api_methods
 
     #[test]
     #[ignore = "The implementation of Lexer::lex_templated_file is required"]

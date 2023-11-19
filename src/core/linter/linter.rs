@@ -63,21 +63,21 @@ impl Linter {
     pub fn parse_string(
         &self,
         in_str: String,
-        fname: Option<String>,
-        recurse: Option<bool>,
+        f_name: Option<String>,
         config: Option<&FluffConfig>,
         encoding: Option<String>,
+        parse_statistics: Option<bool>,
     ) -> Result<ParsedString, SQLFluffUserError> {
-        let defaulted_f_name = fname.unwrap_or("<string>".to_string());
-        let defaulted_recurse = recurse.unwrap_or(true);
-        let defaulted_encoding = encoding.unwrap_or("utf-8".to_string());
+        let f_name = f_name.unwrap_or_else(|| "<string>".to_string());
+        let encoding = encoding.unwrap_or_else(|| "utf-8".to_string());
+        let parse_statistics = parse_statistics.unwrap_or(false);
 
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
         // Dispatch the output for the template header (including the config diff)
         if let Some(formatter) = &self.formatter {
             if let Some(unwrapped_config) = config {
                 formatter.dispatch_template_header(
-                    defaulted_f_name.clone(),
+                    f_name.clone(),
                     self.config.clone(),
                     unwrapped_config.clone(),
                 )
@@ -91,12 +91,7 @@ impl Linter {
         let mut config = config.unwrap_or(&binding).clone();
         // Scan the raw file for config commands.
         config.process_raw_file_for_config(&in_str);
-        let rendered = self.render_string(
-            in_str,
-            defaulted_f_name.clone(),
-            config,
-            Some(defaulted_encoding),
-        )?;
+        let rendered = self.render_string(in_str, f_name.clone(), config, Some(encoding))?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));
@@ -104,9 +99,9 @@ impl Linter {
 
         // Dispatch the output for the parse header
         if let Some(formatter) = &self.formatter {
-            formatter.dispatch_parse_header(defaulted_f_name.clone());
+            formatter.dispatch_parse_header(f_name.clone());
         }
-        return Ok(Self::parse_rendered(rendered, defaulted_recurse));
+        return Ok(Self::parse_rendered(rendered, parse_statistics));
     }
 
     /// Lint a string.
@@ -124,8 +119,8 @@ impl Linter {
         let _parsed = self.parse_string(
             in_str.unwrap_or("".to_string()),
             f_name,
-            None,
             Some(defaulted_config),
+            None,
             None,
         );
         panic!("Not implemented")
@@ -223,7 +218,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
-    pub fn parse_rendered(rendered: RenderedFile, _recurse: bool) -> ParsedString {
+    pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
         // panic!("Not implemented");
 
         let t0 = Instant::now();
@@ -251,8 +246,8 @@ impl Linter {
             let (p, pvs) = Self::parse_tokens(
                 &token_list,
                 &rendered.config,
-                false,
                 Some(rendered.f_name.to_string()),
+                parse_statistics,
             );
             parsed = p;
             if !pvs.is_empty() {
@@ -285,13 +280,13 @@ impl Linter {
     fn parse_tokens(
         tokens: &[Box<dyn Segment>],
         config: &FluffConfig,
-        _recurse: bool,
         f_name: Option<String>,
+        parse_statistics: bool,
     ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
         let mut parser = Parser::new(Some(config.clone()), None);
         let _violations: Vec<SQLParseError> = Vec::new();
 
-        let parsed = parser.parse(tokens, f_name, false);
+        let parsed = parser.parse(tokens, f_name, parse_statistics);
 
         if parsed.is_none() {
             return (None, Vec::new());

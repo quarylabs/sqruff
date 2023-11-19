@@ -10,7 +10,7 @@ use std::fmt;
 ///             matched in this matching operation.
 ///         unmatched_segments: A tuple of the segments, which come after
 ///             the `matched_segments` which could not be matched.
-struct MatchResult {
+pub struct MatchResult {
     matched_segments: Vec<Box<dyn Segment>>,
     unmatched_segments: Vec<Box<dyn Segment>>,
 }

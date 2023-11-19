@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
@@ -585,7 +587,7 @@ impl Segment for FileSegment {
         self.segments
             .iter()
             .map(|segment| segment.get_raw())
-            .collect::<Option<Vec<_>>>()?
+            .flatten()
             .join("")
             .into()
     }

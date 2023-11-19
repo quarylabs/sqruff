@@ -57,7 +57,7 @@ impl MatchResult {
 
     /// Make a string from the raw matched segments.
     fn raw_matched(&self) -> String {
-        join_segments_raw(self.matched_segments.clone())
+        join_segments_raw(&self.matched_segments)
     }
 }
 

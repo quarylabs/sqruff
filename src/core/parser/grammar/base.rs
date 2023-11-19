@@ -54,8 +54,16 @@ impl BaseGrammar {
         parse_context: &ParseContext,
         trim_noncode: bool,
     ) -> (MatchResult, Option<Box<dyn Matchable>>) {
-        // Placeholder implementation
-        (MatchResult::new(Vec::new(), Vec::new()), None)
+        // Have we been passed an empty list?
+        if segments.is_empty() {
+            return (MatchResult::from_empty(), None);
+        }
+        // If presented with no options, return no match
+        else if matchers.is_empty() {
+            return (MatchResult::from_unmatched(segments), None);
+        }
+
+        unimplemented!()
     }
 }
 

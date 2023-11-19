@@ -16,7 +16,7 @@ pub struct MatchResult {
 }
 
 impl MatchResult {
-    fn new(
+    pub fn new(
         matched_segments: Vec<Box<dyn Segment>>,
         unmatched_segments: Vec<Box<dyn Segment>>,
     ) -> Self {

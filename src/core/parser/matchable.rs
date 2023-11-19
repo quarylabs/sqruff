@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 
+use dyn_clone::DynClone;
+
 use super::{context::ParseContext, match_result::MatchResult, segments::base::Segment};
 
 // Define a trait to represent the Matchable interface.
 // This trait is similar to the abstract base class in Python.
-trait Matchable {
+pub trait Matchable: DynClone {
     // Return whether this element is optional.
     fn is_optional(&self) -> bool;
 
@@ -42,3 +44,5 @@ trait Matchable {
         self.clone()
     }
 }
+
+dyn_clone::clone_trait_object!(Matchable);

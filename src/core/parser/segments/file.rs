@@ -86,6 +86,7 @@ mod test {
     use crate::core::parser::segments::file::BaseFileSegment;
     use crate::core::parser::segments::test_functions::raw_segments;
 
+    #[test]
     fn test__parser__base_segments_file() {
         let segments = raw_segments();
         let base_seg = BaseFileSegment::new(segments, None, Some("/some/dir/file.sql".to_string()));

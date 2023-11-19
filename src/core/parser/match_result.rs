@@ -26,6 +26,16 @@ impl MatchResult {
         }
     }
 
+    /// Construct an empty `MatchResult`.
+    pub fn from_empty() -> Self {
+        Self::new(Vec::new(), Vec::new())
+    }
+
+    /// Construct a `MatchResult` from just unmatched segments.
+    pub(crate) fn from_unmatched(segments: &[Box<dyn Segment>]) -> MatchResult {
+        Self::new(Vec::new(), segments.to_vec())
+    }
+
     /// Return the length of the match in characters, trimming whitespace.
     fn trimmed_matched_length(&self) -> usize {
         let (_, segs, _) = trim_non_code_segments(&self.matched_segments);

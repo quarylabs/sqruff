@@ -141,7 +141,7 @@ impl Ref {
     }
 
     // Method to get the referenced element
-    fn _get_elem(&self, dialect: &dyn Dialect) -> Box<dyn Matchable> {
+    fn _get_elem(&self, _dialect: &dyn Dialect) -> Box<dyn Matchable> {
         // Implementation to retrieve the grammar it refers to
         unimplemented!()
     }
@@ -171,8 +171,8 @@ impl Matchable for Ref {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         // Implementation...
         unimplemented!()
@@ -180,8 +180,8 @@ impl Matchable for Ref {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
-        parse_context: &ParseContext,
+        _segments: Vec<Box<dyn Segment>>,
+        _parse_context: &ParseContext,
     ) -> MatchResult {
         // Implementation...
         unimplemented!()
@@ -203,16 +203,16 @@ impl Matchable for Anything {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         todo!()
     }
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
-        parse_context: &ParseContext,
+        _segments: Vec<Box<dyn Segment>>,
+        _parse_context: &ParseContext,
     ) -> MatchResult {
         todo!()
     }
@@ -232,16 +232,16 @@ impl Matchable for Nothing {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         todo!()
     }
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
-        parse_context: &ParseContext,
+        _segments: Vec<Box<dyn Segment>>,
+        _parse_context: &ParseContext,
     ) -> MatchResult {
         todo!()
     }

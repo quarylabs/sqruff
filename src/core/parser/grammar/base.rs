@@ -193,6 +193,64 @@ impl Matchable for Ref {
     }
 }
 
+#[derive(Clone, Debug)]
+struct Anything {}
+
+impl Matchable for Anything {
+    fn is_optional(&self) -> bool {
+        todo!()
+    }
+
+    fn simple(
+        &self,
+        parse_context: &ParseContext,
+        crumbs: Option<Vec<&str>>,
+    ) -> Option<(HashSet<String>, HashSet<String>)> {
+        todo!()
+    }
+
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &ParseContext,
+    ) -> MatchResult {
+        todo!()
+    }
+
+    fn cache_key(&self) -> String {
+        todo!()
+    }
+}
+
+#[derive(Clone, Debug)]
+struct Nothing {}
+
+impl Matchable for Nothing {
+    fn is_optional(&self) -> bool {
+        todo!()
+    }
+
+    fn simple(
+        &self,
+        parse_context: &ParseContext,
+        crumbs: Option<Vec<&str>>,
+    ) -> Option<(HashSet<String>, HashSet<String>)> {
+        todo!()
+    }
+
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &ParseContext,
+    ) -> MatchResult {
+        todo!()
+    }
+
+    fn cache_key(&self) -> String {
+        todo!()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*; // Import necessary items from the parent module

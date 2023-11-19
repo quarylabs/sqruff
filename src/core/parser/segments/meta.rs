@@ -142,7 +142,7 @@ impl Segment for EndOfFile {
     }
 
     fn is_code(&self) -> bool {
-        todo!()
+        false
     }
 
     fn is_comment(&self) -> bool {

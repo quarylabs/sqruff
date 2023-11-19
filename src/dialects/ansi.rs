@@ -1,8 +1,11 @@
 use crate::core::dialects::base::Dialect;
+use crate::core::parser::context::ParseContext;
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
+use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
-    NewlineSegmentNewArgs, SegmentConstructorFn, WhitespaceSegment, WhitespaceSegmentNewArgs,
+    NewlineSegmentNewArgs, Segment, SegmentConstructorFn, WhitespaceSegment,
+    WhitespaceSegmentNewArgs,
 };
 
 #[derive(Debug)]
@@ -11,6 +14,10 @@ pub struct AnsiDialect;
 impl Dialect for AnsiDialect {
     fn get_lexer_matchers(&self) -> Vec<Box<dyn Matcher>> {
         lexer_matchers()
+    }
+
+    fn root_segment_name(&self) -> &str {
+        "FileSegment"
     }
 }
 
@@ -527,6 +534,83 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             .unwrap(),
         ),
     ]
+}
+
+#[derive(Debug, Clone)]
+pub struct FileSegment {}
+
+impl FileSegment {
+    pub fn root_parse(
+        &self,
+        segments: &[Box<dyn Segment>],
+        parse_context: ParseContext,
+        f_name: Option<String>,
+    ) -> Box<dyn Segment> {
+        // Trim the start
+        let start_idx = segments
+            .iter()
+            .enumerate()
+            .find(|&(_, segment)| segment.is_code())
+            .map(|(idx, _)| idx)
+            .unwrap_or(0);
+
+        // Trim the end
+        let end_idx = segments
+            .iter()
+            .enumerate()
+            .rev() // reverse the iterator
+            .take(segments.len() - start_idx) // take elements up to start_idx
+            .find(|&(_, segment)| segment.is_code())
+            .map_or(start_idx, |(idx, _)| idx + 1); // +1 because we're looking for the end index
+
+        if start_idx == end_idx {
+            return Box::new(FileSegment {});
+        }
+
+        unimplemented!()
+    }
+}
+
+impl Segment for FileSegment {
+    fn get_raw(&self) -> Option<String> {
+        todo!()
+    }
+
+    fn get_type(&self) -> &'static str {
+        todo!()
+    }
+
+    fn is_code(&self) -> bool {
+        todo!()
+    }
+
+    fn is_comment(&self) -> bool {
+        todo!()
+    }
+
+    fn is_whitespace(&self) -> bool {
+        todo!()
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        todo!()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn get_uuid(&self) -> Option<uuid::Uuid> {
+        todo!()
+    }
+
+    fn edit(
+        &self,
+        raw: Option<String>,
+        source_fixes: Option<Vec<crate::core::parser::segments::fix::SourceFix>>,
+    ) -> Box<dyn Segment> {
+        todo!()
+    }
 }
 
 #[cfg(test)]

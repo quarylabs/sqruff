@@ -5,6 +5,7 @@ use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
+use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use regex::Regex;
@@ -246,12 +247,17 @@ impl Linter {
         // linter_logger.info("PARSING ({})", rendered.fname);
 
         let parsed: Option<Box<dyn Segment>>;
-        if let Some(_token_list) = tokens {
-            panic!("Not implemented")
-            // let (p, pvs) =
-            //     Self::_parse_tokens(&token_list, &rendered.config, recurse, Some(rendered.f_name.to_string()));
-            // parsed = p;
-            // violations.extend(pvs);
+        if let Some(token_list) = tokens {
+            let (p, pvs) = Self::parse_tokens(
+                &token_list,
+                &rendered.config,
+                false,
+                Some(rendered.f_name.to_string()),
+            );
+            parsed = p;
+            if !pvs.is_empty() {
+                unimplemented!("violations.extend(pvs);")
+            }
         } else {
             parsed = None;
         };
@@ -277,12 +283,21 @@ impl Linter {
     }
 
     fn parse_tokens(
-        _tokens: &Vec<impl Segment>,
-        _config: &FluffConfig,
+        tokens: &[Box<dyn Segment>],
+        config: &FluffConfig,
         _recurse: bool,
         _f_name: Option<String>,
     ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
-        panic!("Not implemented");
+        let mut parser = Parser::new(Some(config.clone()), None);
+        let _violations: Vec<SQLParseError> = Vec::new();
+
+        let parsed = parser.parse(tokens, "".into(), false);
+
+        if parsed.is_none() {
+            return (None, Vec::new());
+        }
+
+        (parsed, Vec::new())
     }
 
     /// Lex a templated file.
@@ -301,7 +316,6 @@ impl Linter {
         let result = lexer.lex(StringOrTemplate::Template(templated_file));
         match result {
             Err(_err) => {
-                // FIXME:
                 unimplemented!("violations.push(_err)");
                 return (None, violations, config.clone());
             }
@@ -312,7 +326,7 @@ impl Linter {
                     return (None, violations, config.clone());
                 }
 
-                unimplemented!()
+                (tokens.into(), violations, config.clone())
             }
         }
     }

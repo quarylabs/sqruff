@@ -308,7 +308,7 @@ impl Linter {
             Ok((tokens, lex_vs)) => {
                 violations.extend(lex_vs);
 
-                if !tokens.is_empty() {
+                if tokens.is_empty() {
                     return (None, violations, config.clone());
                 }
 

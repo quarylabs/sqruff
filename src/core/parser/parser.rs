@@ -23,7 +23,7 @@ impl Parser {
     pub fn parse(
         &mut self,
         segments: &[Box<dyn Segment>],
-        f_name: String,
+        f_name: Option<String>,
         parse_statistics: bool,
     ) -> Option<Box<dyn Segment>> {
         if segments.is_empty() {
@@ -43,7 +43,7 @@ impl Parser {
         let root = self.root_segment.root_parse(segments, ctx, f_name.into());
 
         // Basic Validation, that we haven't dropped anything.
-        check_still_complete(segments, root.clone());
+        check_still_complete(segments, &[root.clone()]);
 
         if parse_statistics {
             unimplemented!();

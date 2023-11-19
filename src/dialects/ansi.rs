@@ -582,7 +582,12 @@ impl FileSegment {
 
 impl Segment for FileSegment {
     fn get_raw(&self) -> Option<String> {
-        todo!()
+        self.segments
+            .iter()
+            .map(|segment| segment.get_raw())
+            .collect::<Option<Vec<_>>>()?
+            .join("")
+            .into()
     }
 
     fn get_type(&self) -> &'static str {

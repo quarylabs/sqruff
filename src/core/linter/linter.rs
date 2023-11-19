@@ -286,12 +286,12 @@ impl Linter {
         tokens: &[Box<dyn Segment>],
         config: &FluffConfig,
         _recurse: bool,
-        _f_name: Option<String>,
+        f_name: Option<String>,
     ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
         let mut parser = Parser::new(Some(config.clone()), None);
         let _violations: Vec<SQLParseError> = Vec::new();
 
-        let parsed = parser.parse(tokens, "".into(), false);
+        let parsed = parser.parse(tokens, f_name, false);
 
         if parsed.is_none() {
             return (None, Vec::new());

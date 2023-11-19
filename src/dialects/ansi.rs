@@ -543,8 +543,8 @@ impl FileSegment {
     pub fn root_parse(
         &self,
         segments: &[Box<dyn Segment>],
-        parse_context: ParseContext,
-        f_name: Option<String>,
+        _parse_context: ParseContext,
+        _f_name: Option<String>,
     ) -> Box<dyn Segment> {
         // Trim the start
         let start_idx = segments
@@ -596,7 +596,7 @@ impl Segment for FileSegment {
         todo!()
     }
 
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         todo!()
     }
 
@@ -606,8 +606,8 @@ impl Segment for FileSegment {
 
     fn edit(
         &self,
-        raw: Option<String>,
-        source_fixes: Option<Vec<crate::core::parser::segments::fix::SourceFix>>,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<crate::core::parser::segments::fix::SourceFix>>,
     ) -> Box<dyn Segment> {
         todo!()
     }

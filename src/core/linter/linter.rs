@@ -396,7 +396,7 @@ mod tests {
         .to_string();
 
         let linter = Linter::new(FluffConfig::new(None, None, None, None), None, None);
-        let parsed = linter.parse_string(sql, None, None, None, None).unwrap();
+        let _parsed = linter.parse_string(sql, None, None, None, None).unwrap();
     }
 
     #[test]

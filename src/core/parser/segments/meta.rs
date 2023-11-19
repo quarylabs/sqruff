@@ -157,7 +157,7 @@ impl Segment for EndOfFile {
         todo!()
     }
 
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         todo!()
     }
 
@@ -165,7 +165,11 @@ impl Segment for EndOfFile {
         todo!()
     }
 
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+    fn edit(
+        &self,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> Box<dyn Segment> {
         todo!()
     }
 }

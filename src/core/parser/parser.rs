@@ -52,3 +52,18 @@ impl Parser {
         root.into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::core::{config::FluffConfig, linter::linter::Linter};
+
+    #[test]
+    #[ignore]
+    fn test__parser__parse_error() {
+        let in_str = "SELECT ;".to_string();
+        let config = FluffConfig::new(None, None, None, None);
+        let linter = Linter::new(config, None, None);
+
+        linter.parse_string(in_str, None, None, None, None);
+    }
+}

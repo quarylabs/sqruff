@@ -41,6 +41,7 @@ pub struct RenderedFile {
 }
 
 /// An object to store the result of parsing a string.
+#[derive(Debug)]
 pub struct ParsedString {
     pub tree: Option<Box<dyn Segment + 'static>>,
     pub violations: Vec<SQLBaseError>,

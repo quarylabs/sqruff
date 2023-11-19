@@ -124,11 +124,13 @@ impl Dedent {
 }
 
 #[derive(Clone, Debug)]
-pub struct EndOfFile {}
+pub struct EndOfFile {
+    position_maker: PositionMarker,
+}
 
 impl EndOfFile {
-    pub fn new(_position_maker: PositionMarker) -> Box<dyn Segment> {
-        Box::new(EndOfFile {})
+    pub fn new(position_maker: PositionMarker) -> Box<dyn Segment> {
+        Box::new(EndOfFile { position_maker })
     }
 }
 
@@ -154,7 +156,7 @@ impl Segment for EndOfFile {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        todo!()
+        self.position_maker.clone().into()
     }
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {

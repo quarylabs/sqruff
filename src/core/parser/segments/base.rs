@@ -24,6 +24,9 @@ pub type SegmentConstructorFn<SegmentArgs> =
 
 pub trait Segment: DynClone + Debug {
     fn get_raw(&self) -> Option<String>;
+    fn get_raw_upper(&self) -> Option<String> {
+        self.get_raw()?.to_uppercase().into()
+    }
     fn get_type(&self) -> &'static str;
     fn is_type(&self, type_: &str) -> bool {
         self.get_type() == type_

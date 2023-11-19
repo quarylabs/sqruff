@@ -8,9 +8,12 @@ pub fn join_segments_raw(segments: &[Box<dyn Segment>]) -> String {
         .concat()
 }
 
-pub fn check_still_complete(segments: &[Box<dyn Segment>], root: Box<dyn Segment>) {
-    let initial_str = join_segments_raw(segments);
-    let current_str = join_segments_raw(segments);
+pub fn check_still_complete(
+    segments_in: &[Box<dyn Segment>],
+    matched_segments: &[Box<dyn Segment>],
+) {
+    let initial_str = join_segments_raw(segments_in);
+    let current_str = join_segments_raw(matched_segments);
 
     if initial_str != current_str {
         panic!("Parse completeness check fail: {current_str:?} != {initial_str:?}")

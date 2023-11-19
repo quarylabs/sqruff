@@ -65,7 +65,7 @@ pub struct LexMatch {
 impl LexMatch {
     /// A LexMatch is truthy if it contains a non-zero number of matched elements.
     pub fn is_non_empty(self: &Self) -> bool {
-        self.elements.len() > 0
+        !self.elements.is_empty()
     }
 }
 
@@ -213,7 +213,7 @@ impl<SegmentArgs: Clone + Debug> StringLexer<SegmentArgs> {
 
     /// The private match function. Just look for a literal string.
     fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
-        if forward_string.starts_with(&self.template) {
+        if forward_string.starts_with(self.template) {
             Some(LexedElement {
                 raw: self.template.to_string(),
                 matcher: Box::new(self.clone()),

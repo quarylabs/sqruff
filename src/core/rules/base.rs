@@ -11,7 +11,7 @@ impl Default for LintResult {
     }
 }
 
-//// One of `create_before`, `create_after`, `replace`, `delete` to indicate the kind of fix required.
+/// One of `create_before`, `create_after`, `replace`, `delete` to indicate the kind of fix required.
 #[derive(Debug, Clone, PartialEq)]
 pub enum EditType {
     CreateBefore,

@@ -20,11 +20,7 @@ pub fn find_all(substr: &str, in_str: &str) -> Vec<usize> {
     if substr.is_empty() || in_str.is_empty() {
         return Vec::new();
     }
-    in_str
-        .match_indices(substr)
-        .into_iter()
-        .map(|(i, _)| i)
-        .collect()
+    in_str.match_indices(substr).map(|(i, _)| i).collect()
 }
 
 #[cfg(test)]

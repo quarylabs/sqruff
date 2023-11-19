@@ -67,7 +67,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
                     trim_start: None,
                 },
             )
-        } else if elem.starts_with("\"") {
+        } else if elem.starts_with('\"') {
             CodeSegment::new(
                 elem,
                 &position_marker,
@@ -79,7 +79,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
                     source_fixes: None,
                 },
             )
-        } else if elem.starts_with("'") {
+        } else if elem.starts_with('\'') {
             CodeSegment::new(
                 elem,
                 &position_marker,

@@ -147,7 +147,7 @@ impl TemplatedFile {
                 }
             }
             previous_slice = Some(tfs);
-            outer_tfs = Some(&tfs)
+            outer_tfs = Some(tfs)
         }
         if !sliced_file.is_empty() && input_templated_str.is_some() {
             if let Some(outer_tfs) = outer_tfs {
@@ -209,7 +209,7 @@ impl TemplatedFile {
 
     /// Get templated string
     pub fn get_templated_string(&self) -> Option<&str> {
-        self.templated_str.as_ref().map(|s| s.as_str())
+        self.templated_str.as_deref()
     }
 
     /// Return the templated file if coerced to string.
@@ -330,7 +330,7 @@ impl TemplatedFile {
                 return Ok(zero_slice(insertion_point.try_into().unwrap()));
                 // It's within a segment.
             } else {
-                if ts_start_subsliced_file.len() > 0
+                if !ts_start_subsliced_file.is_empty()
                     && ts_start_subsliced_file[0].slice_type == "literal"
                 {
                     let offset =
@@ -485,7 +485,7 @@ impl TemplatedFile {
 /// Find the indices of all newlines in a string.
 pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + '_ {
     // TODO: This may be optimize-able by not doing it all up front.
-    raw_str.match_indices('\n').map(|(idx, _)| idx).into_iter()
+    raw_str.match_indices('\n').map(|(idx, _)| idx)
 }
 
 #[derive(Debug, PartialEq, Clone)]

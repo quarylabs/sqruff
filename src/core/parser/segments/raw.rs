@@ -60,7 +60,7 @@ impl Segment for RawSegment {
     }
 
     fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
-        return Some(vec![Box::new(self.clone())]);
+        Some(vec![Box::new(self.clone())])
     }
 
     fn get_uuid(&self) -> Option<Uuid> {

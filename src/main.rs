@@ -1,4 +1,4 @@
-#![allow(non_snake_case)]
+#![allow(non_snake_case, clippy::module_inception)]
 
 pub mod api;
 pub mod cli;

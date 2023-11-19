@@ -1,11 +1,20 @@
 use crate::core::parser::segments::base::Segment;
 
-pub fn join_segments_raw(segments: Vec<Box<dyn Segment>>) -> String {
+pub fn join_segments_raw(segments: &[Box<dyn Segment>]) -> String {
     segments
         .iter()
         .filter_map(|s| s.get_raw())
         .collect::<Vec<_>>()
         .concat()
+}
+
+pub fn check_still_complete(segments: &[Box<dyn Segment>], root: Box<dyn Segment>) {
+    let initial_str = join_segments_raw(segments);
+    let current_str = join_segments_raw(segments);
+
+    if initial_str != current_str {
+        panic!("Parse completeness check fail: {current_str:?} != {initial_str:?}")
+    }
 }
 
 /// Take segments and split off surrounding non-code segments as appropriate.

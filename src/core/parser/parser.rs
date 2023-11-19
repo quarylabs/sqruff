@@ -1,6 +1,6 @@
 use crate::{core::config::FluffConfig, dialects::ansi::FileSegment};
 
-use super::{context::ParseContext, segments::base::Segment};
+use super::{context::ParseContext, helpers::check_still_complete, segments::base::Segment};
 
 /// Instantiates parsed queries from a sequence of lexed raw segments.
 pub struct Parser {
@@ -16,7 +16,7 @@ impl Parser {
 
         Self {
             config,
-            root_segment: FileSegment {},
+            root_segment: FileSegment::default(),
         }
     }
 
@@ -41,6 +41,9 @@ impl Parser {
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
         let root = self.root_segment.root_parse(segments, ctx, f_name.into());
+
+        // Basic Validation, that we haven't dropped anything.
+        check_still_complete(segments, root.clone());
 
         if parse_statistics {
             unimplemented!();

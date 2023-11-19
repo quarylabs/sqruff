@@ -536,8 +536,10 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
     ]
 }
 
-#[derive(Debug, Clone)]
-pub struct FileSegment {}
+#[derive(Default, Debug, Clone)]
+pub struct FileSegment {
+    segments: Vec<Box<dyn Segment>>,
+}
 
 impl FileSegment {
     pub fn root_parse(
@@ -564,8 +566,15 @@ impl FileSegment {
             .map_or(start_idx, |(idx, _)| idx + 1); // +1 because we're looking for the end index
 
         if start_idx == end_idx {
-            return Box::new(FileSegment {});
+            return Box::new(FileSegment {
+                segments: segments.to_vec(),
+            });
         }
+
+        let final_seg = segments.last().unwrap();
+        assert!(final_seg.get_position_marker().is_some());
+
+        let _closing_position = final_seg.get_position_marker().unwrap().templated_slice.end;
 
         unimplemented!()
     }

@@ -9,11 +9,10 @@ use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
 use fancy_regex::{Error, Regex};
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::{Range, RangeFrom};
+use std::ops::Range;
 
 use super::markers::PositionMarker;
 use super::segments::meta::EndOfFile;
-use super::segments::raw::RawSegment;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -165,7 +164,7 @@ pub trait Matcher: Debug + DynClone {
         elem_buff
     }
 
-    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> Box<dyn Segment> {
+    fn construct_segment(&self, _raw: String, _pos_marker: PositionMarker) -> Box<dyn Segment> {
         unimplemented!("{}", std::any::type_name::<Self>());
     }
 }
@@ -625,7 +624,7 @@ fn iter_segments(
     let templated_file_slices = templated_file.clone().sliced_file;
 
     // Now work out source slices, and add in template placeholders.
-    for (idx, element) in lexed_elements.into_iter().enumerate() {
+    for (_idx, element) in lexed_elements.into_iter().enumerate() {
         let consumed_element_length = 0;
         let mut stashed_source_idx = None;
 

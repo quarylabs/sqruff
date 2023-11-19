@@ -1,4 +1,3 @@
-use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::LintFix;

@@ -14,7 +14,7 @@ pub struct ParseContext {
 }
 
 impl ParseContext {
-    fn new(dialect: Box<dyn Dialect>) -> Self {
+    pub fn new(dialect: Box<dyn Dialect>) -> Self {
         Self { dialect }
     }
 

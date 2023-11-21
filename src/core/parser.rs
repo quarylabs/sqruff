@@ -6,5 +6,6 @@ pub mod markers;
 mod match_result;
 pub mod matchable;
 pub mod parser;
+pub mod parsers;
 pub mod segments;
 pub mod types;

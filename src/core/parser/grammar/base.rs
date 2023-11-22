@@ -88,7 +88,7 @@ impl Matchable for BaseGrammar {
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
-        parse_context: &ParseContext,
+        parse_context: &mut ParseContext,
     ) -> MatchResult {
         // Placeholder implementation
         MatchResult::new(Vec::new(), Vec::new())
@@ -181,7 +181,7 @@ impl Matchable for Ref {
     fn match_segments(
         &self,
         _segments: Vec<Box<dyn Segment>>,
-        _parse_context: &ParseContext,
+        _parse_context: &mut ParseContext,
     ) -> MatchResult {
         // Implementation...
         unimplemented!()
@@ -212,7 +212,7 @@ impl Matchable for Anything {
     fn match_segments(
         &self,
         _segments: Vec<Box<dyn Segment>>,
-        _parse_context: &ParseContext,
+        _parse_context: &mut ParseContext,
     ) -> MatchResult {
         todo!()
     }
@@ -241,7 +241,7 @@ impl Matchable for Nothing {
     fn match_segments(
         &self,
         _segments: Vec<Box<dyn Segment>>,
-        _parse_context: &ParseContext,
+        _parse_context: &mut ParseContext,
     ) -> MatchResult {
         todo!()
     }

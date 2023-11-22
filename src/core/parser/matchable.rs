@@ -26,7 +26,7 @@ pub trait Matchable: DynClone + Debug {
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
-        parse_context: &ParseContext,
+        parse_context: &mut ParseContext,
     ) -> MatchResult;
 
     // A method to generate a unique cache key for the matchable object.

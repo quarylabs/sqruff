@@ -60,10 +60,11 @@ impl TypedParser {
 }
 
 // Assuming RawSegment and BaseSegment are defined elsewhere in your Rust code.
+#[derive(Clone, Debug)]
 pub struct StringParser {
     template: String,
     simple: HashSet<String>,
-    // raw_class: Box<dyn Segment>, // Type for raw_class
+    factory: fn(&dyn Segment) -> Box<dyn Segment>,
     type_: Option<String>, // Renamed `type` to `type_` because `type` is a reserved keyword in Rust
     optional: bool,
     trim_chars: Option<Vec<char>>,
@@ -72,7 +73,7 @@ pub struct StringParser {
 impl StringParser {
     pub fn new(
         template: &str,
-        /*raw_class: Box<dyn Segment>,*/
+        factory: fn(&dyn Segment) -> Box<dyn Segment>,
         type_: Option<String>,
         optional: bool,
         trim_chars: Option<Vec<char>>,
@@ -83,7 +84,7 @@ impl StringParser {
         StringParser {
             template: template_upper,
             simple: simple_set,
-            /*raw_class,*/
+            factory,
             type_,
             optional,
             trim_chars,
@@ -101,24 +102,78 @@ impl StringParser {
     }
 }
 
+impl StringParser {
+    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+        // Check if the segment matches the first condition.
+        if !self.is_first_match(segment) {
+            return None;
+        }
+
+        // // Check if the segment is already of the correct type.
+        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a Vec<String>
+        // if segment.is_type(&self.raw_class) && segment.get_type() == self._instance_types[0] {
+        //     return Some(segment.clone()); // Assuming BaseSegment implements Clone
+        // }
+
+        // Otherwise, create a new match segment.
+        // Assuming _make_match_from_segment is a method that returns RawSegment
+        // Some(self.make_match_from_segment(segment))
+        (self.factory)(segment).into()
+    }
+}
+
+impl Matchable for StringParser {
+    fn is_optional(&self) -> bool {
+        todo!()
+    }
+
+    fn simple(
+        &self,
+        parse_context: &ParseContext,
+        crumbs: Option<Vec<&str>>,
+    ) -> Option<(HashSet<String>, HashSet<String>)> {
+        todo!()
+    }
+
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &mut ParseContext,
+    ) -> MatchResult {
+        if !segments.is_empty() {
+            let segment = &*segments[0];
+            if let Some(seg) = self.match_single(segment) {
+                return MatchResult::new(vec![seg], segments[1..].to_vec());
+            }
+        }
+
+        MatchResult::from_unmatched(&segments)
+    }
+
+    fn cache_key(&self) -> String {
+        todo!()
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct RegexParser {
     template: String,
     anti_template: Option<String>,
     _template: Regex,
     _anti_template: Regex,
+    factory: fn(&dyn Segment) -> Box<dyn Segment>,
     // Add other fields as needed
 }
 
 impl RegexParser {
-    fn new(
+    pub fn new(
         template: &str,
-        /*raw_class: RawSegment, // Assuming RawSegment is defined elsewhere*/
+        factory: fn(&dyn Segment) -> Box<dyn Segment>,
         type_: Option<String>,
         optional: bool,
-        anti_template: Option<&str>,
+        anti_template: Option<String>,
         trim_chars: Option<Vec<String>>, // Assuming trim_chars is a vector of strings
     ) -> Self {
-        let anti_template = anti_template.map(ToOwned::to_owned);
         let anti_template_or_empty = anti_template.clone().unwrap_or_default();
         let anti_template_pattern = Regex::new(&format!("(?i){anti_template_or_empty}")).unwrap();
         let template_pattern = Regex::new(&format!("(?i){}", template)).unwrap();
@@ -128,14 +183,8 @@ impl RegexParser {
             anti_template,
             _template: template_pattern,
             _anti_template: anti_template_pattern,
-            // Initialize other fields here
+            factory, // Initialize other fields here
         }
-    }
-
-    fn simple(&self, parse_context: &ParseContext) -> Option<()> {
-        // Does this matcher support a uppercase hash matching route?
-        // Regex segment does NOT for now. We might need to later for efficiency.
-        None
     }
 
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
@@ -159,6 +208,59 @@ impl RegexParser {
             }
         }
         false
+    }
+
+    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+        // Check if the segment matches the first condition.
+        if !self.is_first_match(segment) {
+            return None;
+        }
+
+        // // Check if the segment is already of the correct type.
+        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a Vec<String>
+        // if segment.is_type(&self.raw_class) && segment.get_type() == self._instance_types[0] {
+        //     return Some(segment.clone()); // Assuming BaseSegment implements Clone
+        // }
+
+        // Otherwise, create a new match segment.
+        // Assuming _make_match_from_segment is a method that returns RawSegment
+        // Some(self.make_match_from_segment(segment))
+        (self.factory)(segment).into()
+    }
+}
+
+impl Matchable for RegexParser {
+    fn is_optional(&self) -> bool {
+        unimplemented!()
+    }
+
+    fn simple(
+        &self,
+        parse_context: &ParseContext,
+        crumbs: Option<Vec<&str>>,
+    ) -> Option<(HashSet<String>, HashSet<String>)> {
+        // Does this matcher support a uppercase hash matching route?
+        // Regex segment does NOT for now. We might need to later for efficiency.
+        None
+    }
+
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &mut ParseContext,
+    ) -> MatchResult {
+        if !segments.is_empty() {
+            let segment = &*segments[0];
+            if let Some(seg) = self.match_single(segment) {
+                return MatchResult::new(vec![seg], segments[1..].to_vec());
+            }
+        }
+
+        MatchResult::from_unmatched(&segments)
+    }
+
+    fn cache_key(&self) -> String {
+        todo!()
     }
 }
 
@@ -244,10 +346,8 @@ impl Matchable for MultiStringParser {
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
-        parse_context: &ParseContext,
+        parse_context: &mut ParseContext,
     ) -> super::match_result::MatchResult {
-        println!("{segments:?}");
-
         if !segments.is_empty() {
             let segment = &*segments[0];
             if let Some(seg) = self.match_single(segment) {
@@ -300,7 +400,7 @@ mod tests {
     #[test]
     fn test_stringparser_simple() {
         // Initialize an instance of StringParser
-        let parser = StringParser::new("foo", None, false, None);
+        let parser = StringParser::new("foo", |_| todo!(), None, false, None);
 
         // Create a dummy ParseContext
         let parse_cx = ParseContext::new(Box::new(AnsiDialect));
@@ -314,10 +414,10 @@ mod tests {
 
     #[test]
     fn test_parser_regexparser_simple() {
-        let parser = RegexParser::new("b.r", None, false, None, None);
+        let parser = RegexParser::new("b.r", |_| todo!(), None, false, None, None);
         let ctx = ParseContext::new(Box::new(AnsiDialect)); // Assuming ParseContext has a dialect field
 
-        assert_eq!(parser.simple(&ctx), None);
+        assert_eq!(parser.simple(&ctx, None), None);
     }
 
     #[test]
@@ -330,19 +430,19 @@ mod tests {
             false,
             None,
         );
-        let ctx = ParseContext::new(Box::new(AnsiDialect)); // Assuming ParseContext has a dialect field
+        let mut ctx = ParseContext::new(Box::new(AnsiDialect)); // Assuming ParseContext has a dialect field
 
         // Check directly
         let segments = generate_test_segments_func(vec!["foo", "fo"]);
 
         // Matches when it should
-        let result = parser.match_segments(segments[0..1].to_vec(), &ctx);
+        let result = parser.match_segments(segments[0..1].to_vec(), &mut ctx);
         let result1 = &result.matched_segments[0];
 
         assert_eq!(result1.get_raw().unwrap(), "foo");
 
         // Doesn't match when it shouldn't
-        let result = parser.match_segments(segments[1..].to_vec(), &ctx);
+        let result = parser.match_segments(segments[1..].to_vec(), &mut ctx);
         assert_eq!(result.matched_segments, &[]);
     }
 

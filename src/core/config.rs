@@ -100,7 +100,7 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 
 /// The class that actually gets passed around as a config object.
 // TODO This is not a translation that is particularly accurate.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct FluffConfig {
     pub indentation: FluffConfigIndentation,
     configs: Option<HashSet<String>>,

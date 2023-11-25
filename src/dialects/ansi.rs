@@ -10,7 +10,7 @@ use crate::core::parser::segments::base::{
     WhitespaceSegmentNewArgs,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AnsiDialect;
 
 impl Dialect for AnsiDialect {

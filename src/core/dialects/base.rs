@@ -3,7 +3,7 @@ use std::fmt::Debug;
 
 pub struct Base {}
 
-pub trait Dialect: Debug {
+pub trait Dialect: Debug + dyn_clone::DynClone {
     /// Fetch the lexer struct for this dialect.
     fn get_lexer_matchers(&self) -> Vec<Box<dyn Matcher>>;
 
@@ -23,3 +23,5 @@ pub trait Dialect: Debug {
         self.r#ref(self.root_segment_name())
     }
 }
+
+dyn_clone::clone_trait_object!(Dialect);

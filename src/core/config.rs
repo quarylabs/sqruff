@@ -107,6 +107,7 @@ pub struct FluffConfig {
     extra_config_path: Option<String>,
     _configs: HashMap<String, HashMap<String, String>>,
     dialect: String,
+    sql_file_exts: Vec<String>,
 }
 
 impl FluffConfig {
@@ -131,7 +132,13 @@ impl FluffConfig {
             extra_config_path,
             _configs: HashMap::new(),
             indentation: indentation.unwrap_or(FluffConfigIndentation::default()),
+            sql_file_exts: vec![".sql".into()],
         }
+    }
+
+    pub fn with_sql_file_exts(mut self, exts: Vec<String>) -> Self {
+        self.sql_file_exts = exts;
+        self
     }
 
     /// Loads a config object just based on the root directory.
@@ -199,6 +206,10 @@ command. Available dialects: {}",
             None => panic!("dialect not found"),
             Some(d) => d,
         }
+    }
+
+    pub fn sql_file_exts(&self) -> &[String] {
+        self.sql_file_exts.as_ref()
     }
 }
 

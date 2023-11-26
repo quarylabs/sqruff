@@ -426,7 +426,7 @@ impl Linter {
 
         let mut buffer = Vec::new();
         let mut ignores = std::collections::HashMap::new();
-        let sql_file_exts = vec!["sql"]; // Replace with actual extensions
+        let sql_file_exts = self.config.sql_file_exts(); // Replace with actual extensions
 
         for (dirpath, _, filenames) in path_walk {
             for fname in filenames {
@@ -447,7 +447,7 @@ impl Linter {
                 // that the ignore file is processed after the sql file.
 
                 // Scan for remaining files
-                for ext in &sql_file_exts {
+                for ext in sql_file_exts {
                     // is it a sql file?
                     if fname.to_lowercase().ends_with(ext) {
                         buffer.push(fpath.clone());
@@ -562,17 +562,16 @@ mod tests {
     // test__linter__path_from_paths__dir
     // test__linter__path_from_paths__default
     #[test]
-    #[ignore]
     fn test_linter_path_from_paths_exts() {
         // Assuming Linter is initialized with a configuration similar to Python's FluffConfig
-        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+        let config =
+            FluffConfig::new(None, None, None, None).with_sql_file_exts(vec![".txt".into()]);
+        let lntr = Linter::new(config, None, None); // Assuming Linter has a new() method for initialization
 
         let paths = lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None);
 
         // Normalizing paths as in the Python version
         let normalized_paths = normalise_paths(paths);
-
-        dbg!(&normalized_paths);
 
         // Assertions as per the Python test
         assert!(!normalized_paths.contains(&"test.fixtures.linter.passing.sql".into()));

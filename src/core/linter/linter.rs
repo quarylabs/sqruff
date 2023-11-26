@@ -1,3 +1,4 @@
+use super::linted_dir::LintedDir;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlError};
@@ -8,12 +9,14 @@ use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
+use itertools::Itertools;
 use regex::Regex;
-use std::collections::HashMap;
-
-use std::time::Instant;
-
-use super::linted_dir::LintedDir;
+use std::collections::{HashMap, HashSet};
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::{Component, Path};
+use std::{path::PathBuf, time::Instant};
+use walkdir::WalkDir;
 
 pub struct Linter {
     config: FluffConfig,
@@ -331,18 +334,243 @@ impl Linter {
         let re = Regex::new(r"\r\n|\r").unwrap();
         re.replace_all(string, "\n").to_string()
     }
+
+    // Return a set of sql file paths from a potentially more ambiguous path string.
+    // Here we also deal with the .sqlfluffignore file if present.
+    // When a path to a file to be linted is explicitly passed
+    // we look for ignore files in all directories that are parents of the file,
+    // up to the current directory.
+    // If the current directory is not a parent of the file we only
+    // look for an ignore file in the direct parent of the file.
+    fn paths_from_path(
+        &self,
+        path: String,
+        ignore_file_name: Option<String>,
+        ignore_non_existent_files: Option<bool>,
+        ignore_files: Option<bool>,
+        working_path: Option<String>,
+    ) -> Vec<String> {
+        let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
+        let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
+        let ignore_files = ignore_files.unwrap_or(true);
+        let working_path =
+            working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string());
+
+        let Ok(metadata) = std::fs::metadata(&path) else {
+            if ignore_non_existent_files {
+                return Vec::new();
+            } else {
+                panic!(
+                    "Specified path does not exist. Check it/they exist(s): {:?}",
+                    path
+                );
+            }
+        };
+
+        // Files referred to exactly are also ignored if
+        // matched, but we warn the users when that happens
+        let is_exact_file = metadata.is_file();
+
+        let mut path_walk = if is_exact_file {
+            let path = Path::new(&path);
+            let dirpath = path.parent().unwrap().to_str().unwrap().to_string();
+            let files = vec![path.file_name().unwrap().to_str().unwrap().to_string()];
+            vec![(dirpath, None, files)]
+        } else {
+            todo!()
+        };
+
+        // TODO:
+        // let ignore_file_paths = ConfigLoader.find_ignore_config_files(
+        //     path=path, working_path=working_path, ignore_file_name=ignore_file_name
+        // );
+        let ignore_file_paths: Vec<String> = Vec::new();
+
+        // Add paths that could contain "ignore files"
+        // to the path_walk list
+        let path_walk_ignore_file: Vec<(String, Option<()>, Vec<String>)> = ignore_file_paths
+            .iter()
+            .map(|ignore_file_path| {
+                let ignore_file_path = Path::new(ignore_file_path);
+
+                // Extracting the directory name from the ignore file path
+                let dir_name = ignore_file_path
+                    .parent()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+
+                // Only one possible file, since we only
+                // have one "ignore file name"
+                let file_name = vec![ignore_file_path
+                    .file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string()];
+
+                (dir_name, None, file_name)
+            })
+            .collect();
+
+        path_walk.extend(path_walk_ignore_file);
+
+        let mut buffer = Vec::new();
+        let mut ignores = std::collections::HashMap::new();
+        let sql_file_exts = vec!["sql"]; // Replace with actual extensions
+
+        for (dirpath, _, filenames) in path_walk {
+            for fname in filenames {
+                let fpath = Path::new(&dirpath).join(&fname);
+
+                // Handle potential .sqlfluffignore files
+                if ignore_files && fname == ignore_file_name {
+                    let file = File::open(&fpath).unwrap();
+                    let lines = BufReader::new(file).lines();
+                    let spec = lines.filter_map(|line| line.ok()); // Simple placeholder for pathspec logic
+                    ignores.insert(dirpath.clone(), spec.collect::<Vec<String>>());
+
+                    // We don't need to process the ignore file any further
+                    continue;
+                }
+
+                // We won't purge files *here* because there's an edge case
+                // that the ignore file is processed after the sql file.
+
+                // Scan for remaining files
+                for ext in &sql_file_exts {
+                    // is it a sql file?
+                    if fname.to_lowercase().ends_with(ext) {
+                        buffer.push(fpath.clone());
+                    }
+                }
+            }
+        }
+
+        let mut filtered_buffer = HashSet::new();
+
+        for fpath in buffer {
+            assert!(ignores.is_empty());
+
+            let npath = normalize(&fpath).to_str().unwrap().to_string();
+            filtered_buffer.insert(npath);
+        }
+
+        let mut files = filtered_buffer.into_iter().collect_vec();
+        files.sort();
+        files
+    }
+}
+
+// https://github.com/rust-lang/rfcs/issues/2208#issuecomment-342679694
+fn normalize(p: &Path) -> PathBuf {
+    let mut stack: Vec<Component> = vec![];
+
+    // We assume .components() removes redundant consecutive path separators.
+    // Note that .components() also does some normalization of '.' on its own anyways.
+    // This '.' normalization happens to be compatible with the approach below.
+    for component in p.components() {
+        match component {
+            // Drop CurDir components, do not even push onto the stack.
+            Component::CurDir => {}
+
+            // For ParentDir components, we need to use the contents of the stack.
+            Component::ParentDir => {
+                // Look at the top element of stack, if any.
+                let top = stack.last().cloned();
+
+                match top {
+                    // A component is on the stack, need more pattern matching.
+                    Some(c) => {
+                        match c {
+                            // Push the ParentDir on the stack.
+                            Component::Prefix(_) => {
+                                stack.push(component);
+                            }
+
+                            // The parent of a RootDir is itself, so drop the ParentDir (no-op).
+                            Component::RootDir => {}
+
+                            // A CurDir should never be found on the stack, since they are dropped when seen.
+                            Component::CurDir => {
+                                unreachable!();
+                            }
+
+                            // If a ParentDir is found, it must be due to it piling up at the start of a path.
+                            // Push the new ParentDir onto the stack.
+                            Component::ParentDir => {
+                                stack.push(component);
+                            }
+
+                            // If a Normal is found, pop it off.
+                            Component::Normal(_) => {
+                                let _ = stack.pop();
+                            }
+                        }
+                    }
+
+                    // Stack is empty, so path is empty, just push.
+                    None => {
+                        stack.push(component);
+                    }
+                }
+            }
+
+            // All others, simply push onto the stack.
+            _ => {
+                stack.push(component);
+            }
+        }
+    }
+
+    // If an empty PathBuf would be return, instead return CurDir ('.').
+    if stack.is_empty() {
+        return PathBuf::from(".");
+    }
+
+    let mut norm_path = PathBuf::new();
+
+    for item in &stack {
+        norm_path.push(item);
+    }
+
+    norm_path
 }
 
 #[cfg(test)]
 mod tests {
     use crate::core::{config::FluffConfig, linter::linter::Linter};
 
+    fn normalise_paths(paths: Vec<String>) -> Vec<String> {
+        paths
+            .into_iter()
+            .map(|path| path.replace("/", ".").replace("\\", "."))
+            .collect()
+    }
+
     // TODO:
     //
     // test__linter__path_from_paths__dir
     // test__linter__path_from_paths__default
     // test__linter__path_from_paths__exts
-    // test__linter__path_from_paths__file
+    #[test]
+    fn test__linter__path_from_paths__file() {
+        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+        let paths = lntr.paths_from_path(
+            "test/fixtures/linter/indentation_errors.sql".into(),
+            None,
+            None,
+            None,
+            None,
+        );
+
+        assert_eq!(
+            normalise_paths(paths),
+            &["test.fixtures.linter.indentation_errors.sql"]
+        );
+    }
+
     // test__linter__skip_large_bytes
     // test__linter__path_from_paths__not_exist
     // test__linter__path_from_paths__not_exist_ignore

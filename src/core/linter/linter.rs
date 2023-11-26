@@ -377,7 +377,15 @@ impl Linter {
             let files = vec![path.file_name().unwrap().to_str().unwrap().to_string()];
             vec![(dirpath, None, files)]
         } else {
-            todo!()
+            WalkDir::new(&path)
+                .into_iter()
+                .filter_map(Result::ok) // Filter out the Result and get DirEntry
+                .map(|entry| {
+                    let dirpath = entry.path().parent().unwrap().to_str().unwrap().to_string();
+                    let files = vec![entry.file_name().to_str().unwrap().to_string()];
+                    (dirpath, None, files)
+                })
+                .collect_vec()
         };
 
         // TODO:
@@ -553,7 +561,27 @@ mod tests {
     //
     // test__linter__path_from_paths__dir
     // test__linter__path_from_paths__default
-    // test__linter__path_from_paths__exts
+    #[test]
+    #[ignore]
+    fn test_linter_path_from_paths_exts() {
+        // Assuming Linter is initialized with a configuration similar to Python's FluffConfig
+        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+
+        let paths = lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None);
+
+        // Normalizing paths as in the Python version
+        let normalized_paths = normalise_paths(paths);
+
+        dbg!(&normalized_paths);
+
+        // Assertions as per the Python test
+        assert!(!normalized_paths.contains(&"test.fixtures.linter.passing.sql".into()));
+        assert!(
+            !normalized_paths.contains(&"test.fixtures.linter.passing_cap_extension.SQL".into())
+        );
+        assert!(normalized_paths.contains(&"test.fixtures.linter.discovery_file.txt".into()));
+    }
+
     #[test]
     fn test__linter__path_from_paths__file() {
         let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization

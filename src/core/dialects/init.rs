@@ -1,8 +1,8 @@
-use crate::core::dialects::base::Dialect;
+use super::base::Dialect;
 
-pub fn dialect_selector(s: &str) -> Option<Box<dyn Dialect>> {
+pub fn dialect_selector(s: &str) -> Option<Dialect> {
     match s {
-        "ansi" => Some(Box::new(crate::dialects::ansi::AnsiDialect {})),
+        "ansi" => Some(crate::dialects::ansi::ansi_dialect()),
         _ => None,
     }
 }

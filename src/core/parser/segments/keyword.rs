@@ -38,7 +38,7 @@ impl Segment for KeywordSegment {
 
     fn set_position_marker(
         &mut self,
-        position_marker: Option<crate::core::parser::markers::PositionMarker>,
+        _position_marker: Option<crate::core::parser::markers::PositionMarker>,
     ) {
         todo!()
     }
@@ -49,8 +49,8 @@ impl Segment for KeywordSegment {
 
     fn edit(
         &self,
-        raw: Option<String>,
-        source_fixes: Option<Vec<super::fix::SourceFix>>,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<super::fix::SourceFix>>,
     ) -> Box<dyn Segment> {
         todo!()
     }

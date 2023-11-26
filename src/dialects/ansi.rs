@@ -1,26 +1,142 @@
 use itertools::Itertools;
 
-use crate::core::dialects::base::Dialect;
+use crate::add_to_dialect;
+use crate::core::dialects::base::{BracketPair, Dialect};
 use crate::core::parser::context::ParseContext;
+use crate::core::parser::grammar::base::Ref;
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::markers::PositionMarker;
+
+use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
+use crate::core::parser::parsers::RegexParser;
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
     NewlineSegmentNewArgs, Segment, SegmentConstructorFn, WhitespaceSegment,
     WhitespaceSegmentNewArgs,
 };
+use crate::core::parser::segments::generator::SegmentGenerator;
+use crate::core::parser::types::DialectElementType;
 
-#[derive(Debug, Clone)]
-pub struct AnsiDialect;
+pub fn ansi_dialect() -> Dialect {
+    let mut ansi_dialect = Dialect::new("FileSegment");
 
-impl Dialect for AnsiDialect {
-    fn get_lexer_matchers(&self) -> Vec<Box<dyn Matcher>> {
-        lexer_matchers()
-    }
+    ansi_dialect.set_lexer_matchers(lexer_matchers());
 
-    fn root_segment_name(&self) -> &str {
-        "FileSegment"
-    }
+    // Set the bare functions
+    ansi_dialect.sets_mut("bare_functions").extend([
+        "current_timestamp",
+        "current_time",
+        "current_date",
+    ]);
+
+    // Set the datetime units
+    ansi_dialect.sets_mut("datetime_units").extend([
+        "DAY",
+        "DAYOFYEAR",
+        "HOUR",
+        "MILLISECOND",
+        "MINUTE",
+        "MONTH",
+        "QUARTER",
+        "SECOND",
+        "WEEK",
+        "WEEKDAY",
+        "YEAR",
+    ]);
+
+    ansi_dialect
+        .sets_mut("date_part_function_name")
+        .extend(["DATEADD"]);
+
+    // Set Keywords
+    ansi_dialect
+        .update_keywords_set_from_multiline_string("unreserved_keywords", ANSI_UNRESERVED_KEYWORDS);
+    ansi_dialect
+        .update_keywords_set_from_multiline_string("reserved_keywords", ANSI_RESERVED_KEYWORDS);
+
+    // Bracket pairs (a set of tuples).
+    // (name, startref, endref, persists)
+    // NOTE: The `persists` value controls whether this type
+    // of bracket is persisted during matching to speed up other
+    // parts of the matching process. Round brackets are the most
+    // common and match the largest areas and so are sufficient.
+    ansi_dialect.update_bracket_sets(
+        "bracket_pairs",
+        vec![
+            BracketPair {
+                bracket_type: "round".to_string(),
+                start_ref: "StartBracketSegment".to_string(),
+                end_ref: "EndBracketSegment".to_string(),
+                persists: true,
+            },
+            BracketPair {
+                bracket_type: "square".to_string(),
+                start_ref: "StartSquareBracketSegment".to_string(),
+                end_ref: "EndSquareBracketSegment".to_string(),
+                persists: false,
+            },
+            BracketPair {
+                bracket_type: "curly".to_string(),
+                start_ref: "StartCurlyBracketSegment".to_string(),
+                end_ref: "EndCurlyBracketSegment".to_string(),
+                persists: false,
+            },
+        ],
+    );
+
+    // Set the value table functions. These are functions that, if they appear as
+    // an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
+    // among dialects supported by SQLFluff, only BigQuery has this concept, but this
+    // set is defined in the ANSI dialect because:
+    // - It impacts core linter rules (see AL04 and several other rules that subclass
+    //   from it) and how they interpret the contents of table_expressions
+    // - At least one other database (DB2) has the same value table function,
+    //   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
+    ansi_dialect.sets_mut("value_table_functions");
+
+    add_to_dialect!(ansi_dialect,
+        "DelimiterGrammar" => {
+            DialectElementType::Matchable(Box::new(Ref::new("SemicolonSegment".into(), None, Vec::new(), false, false, false)))
+        },
+        "NakedIdentifierSegment" => {
+            DialectElementType::SegmentGenerator(SegmentGenerator::new(|dialect| {
+                let reserved_keywords = dialect.sets("reserved_keywords");
+
+                // Join the keywords with the pipe symbol
+                let pattern = reserved_keywords.iter().join("|");
+
+                // Format the string to include the regex anchors
+                let anti_template = format!("^({})$", pattern);
+
+                Box::new(RegexParser::new(
+                    "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+                    |_| todo!(),
+                    None,
+                    false,
+                    anti_template.into(),
+                    None,
+                ))
+            }))
+        },
+        "ParameterNameSegment" => {
+            DialectElementType::SegmentGenerator(SegmentGenerator::new(|_dialect| {
+                // Define the regex pattern for the parameter name segment
+                let pattern = r#"\"?[A-Z][A-Z0-9_]*\"?"#;
+
+                Box::new(RegexParser::new(
+                    pattern,
+                    |_| todo!(),
+                    None,
+                    false,
+                    None,
+                    None,
+                ))
+            }))
+        }
+    );
+
+    ansi_dialect.expand();
+    ansi_dialect
 }
 
 fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
@@ -138,23 +254,55 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             )
             .unwrap(),
         ),
-        // Box::new(
-        //     RegexLexer::new(
-        //         "dollar_quote",
-        //         r"\$(\w*)\$[^\1]*?\$\1\$",
-        //         &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-        //         CodeSegmentNewArgs {
-        //             code_type: "dollar_quote",
-        //             instance_types: vec![],
-        //             trim_start: None,
-        //             trim_chars: None,
-        //             source_fixes: None,
-        //         },
-        //         None,
-        //         None,
-        //     )
-        //     .unwrap(),
-        // ),
+        Box::new(
+            RegexLexer::new(
+                "dollar_quote",
+                // r"\$(\w*)\$[^\1]*?\$\1\$" is the original regex, but it doesn't work in Rust.
+                r"\$(\w*)\$[^\$]*?\$\1\$",
+                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                CodeSegmentNewArgs {
+                    code_type: "dollar_quote",
+                    instance_types: vec![],
+                    trim_start: None,
+                    trim_chars: None,
+                    source_fixes: None,
+                },
+                None,
+                None,
+            )
+            .unwrap(),
+        ),
+        //
+        // NOTE: Instead of using a created LiteralSegment and ComparisonOperatorSegment in the next two,
+        // in Rust we just use a CodeSegment
+        Box::new(
+            RegexLexer::new(
+                "numeric_literal",
+                r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                CodeSegmentNewArgs {
+                    code_type: "numeric_literal",
+                    ..CodeSegmentNewArgs::default()
+                },
+                None,
+                None,
+            )
+            .unwrap(),
+        ),
+        Box::new(
+            RegexLexer::new(
+                "like_operator",
+                r"!?~~?\*?",
+                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                CodeSegmentNewArgs {
+                    code_type: "like_operator",
+                    ..CodeSegmentNewArgs::default()
+                },
+                None,
+                None,
+            )
+            .unwrap(),
+        ),
         Box::new(
             RegexLexer::new(
                 "newline",
@@ -553,19 +701,15 @@ impl FileSegment {
         // Trim the start
         let start_idx = segments
             .iter()
-            .enumerate()
-            .find(|&(_, segment)| segment.is_code())
-            .map(|(idx, _)| idx)
+            .position(|segment| segment.is_code())
             .unwrap_or(0);
 
         // Trim the end
+        // Note: The '+ 1' in the end is to include the segment at 'end_idx' in the slice.
         let end_idx = segments
             .iter()
-            .enumerate()
-            .rev() // reverse the iterator
-            .take(segments.len() - start_idx) // take elements up to start_idx
-            .find(|&(_, segment)| segment.is_code())
-            .map_or(start_idx, |(idx, _)| idx + 1); // +1 because we're looking for the end index
+            .rposition(|segment| segment.is_code())
+            .map_or(start_idx, |idx| idx + 1);
 
         if start_idx == end_idx {
             return Box::new(FileSegment {
@@ -586,8 +730,7 @@ impl Segment for FileSegment {
     fn get_raw(&self) -> Option<String> {
         self.segments
             .iter()
-            .map(|segment| segment.get_raw())
-            .flatten()
+            .filter_map(|segment| segment.get_raw())
             .join("")
             .into()
     }

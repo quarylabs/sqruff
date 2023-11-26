@@ -8,7 +8,7 @@ use crate::core::{
 /// Struct for holding the context passed to rule eval function
 pub struct RuleContext {
     // These don't change within a file.
-    dialect: Box<dyn Dialect>,
+    dialect: Dialect,
     fix: bool,
     templated_file: Option<TemplatedFile>,
     path: Option<String>,

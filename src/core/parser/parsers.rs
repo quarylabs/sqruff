@@ -48,12 +48,12 @@ impl TypedParser {
         }
     }
 
-    pub fn simple(&self, parse_cx: &ParseContext) -> (HashSet<String>, HashSet<String>) {
+    pub fn simple(&self, _parse_cx: &ParseContext) -> (HashSet<String>, HashSet<String>) {
         // Assuming SimpleHintType is a type alias for (HashSet<String>, HashSet<String>)
         (HashSet::new(), self.target_types.clone())
     }
 
-    pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
+    pub fn is_first_match(&self, _segment: &dyn Segment) -> bool {
         unimplemented!()
         // segment.is_type(&self.target_types)
     }
@@ -129,8 +129,8 @@ impl Matchable for StringParser {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         todo!()
     }
@@ -138,7 +138,7 @@ impl Matchable for StringParser {
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
-        parse_context: &mut ParseContext,
+        _parse_context: &mut ParseContext,
     ) -> MatchResult {
         if !segments.is_empty() {
             let segment = &*segments[0];
@@ -169,10 +169,10 @@ impl RegexParser {
     pub fn new(
         template: &str,
         factory: fn(&dyn Segment) -> Box<dyn Segment>,
-        type_: Option<String>,
-        optional: bool,
+        _type_: Option<String>,
+        _optional: bool,
         anti_template: Option<String>,
-        trim_chars: Option<Vec<String>>, // Assuming trim_chars is a vector of strings
+        _trim_chars: Option<Vec<String>>, // Assuming trim_chars is a vector of strings
     ) -> Self {
         let anti_template_or_empty = anti_template.clone().unwrap_or_default();
         let anti_template_pattern = Regex::new(&format!("(?i){anti_template_or_empty}")).unwrap();
@@ -195,7 +195,7 @@ impl RegexParser {
         let segment_raw_upper = segment.get_raw().unwrap().to_ascii_uppercase();
         if let Some(result) = self._template.find(&segment_raw_upper).ok().flatten() {
             if result.as_str() == segment_raw_upper {
-                if let Some(anti_template) = &self.anti_template {
+                if let Some(_anti_template) = &self.anti_template {
                     if self
                         ._anti_template
                         .is_match(&segment_raw_upper)
@@ -236,8 +236,8 @@ impl Matchable for RegexParser {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
@@ -247,7 +247,7 @@ impl Matchable for RegexParser {
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
-        parse_context: &mut ParseContext,
+        _parse_context: &mut ParseContext,
     ) -> MatchResult {
         if !segments.is_empty() {
             let segment = &*segments[0];
@@ -276,9 +276,9 @@ impl MultiStringParser {
     fn new(
         templates: Vec<String>,
         factory: fn(&dyn Segment) -> Box<dyn Segment>, // Assuming RawSegment is defined elsewhere
-        type_: Option<String>,
-        optional: bool,
-        trim_chars: Option<Vec<String>>, // Assuming trim_chars is a vector of strings
+        _type_: Option<String>,
+        _optional: bool,
+        _trim_chars: Option<Vec<String>>, // Assuming trim_chars is a vector of strings
     ) -> Self {
         let templates = templates
             .iter()
@@ -337,8 +337,8 @@ impl Matchable for MultiStringParser {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         todo!()
     }
@@ -346,8 +346,8 @@ impl Matchable for MultiStringParser {
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
-        parse_context: &mut ParseContext,
-    ) -> super::match_result::MatchResult {
+        _parse_context: &mut ParseContext,
+    ) -> MatchResult {
         if !segments.is_empty() {
             let segment = &*segments[0];
             if let Some(seg) = self.match_single(segment) {
@@ -365,16 +365,16 @@ impl Matchable for MultiStringParser {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::{HashMap, HashSet};
+    use std::collections::HashSet;
 
-    use crate::{
-        core::parser::{
+    use crate::core::{
+        dialects::init::dialect_selector,
+        parser::{
             context::ParseContext,
             matchable::Matchable,
             parsers::{MultiStringParser, RegexParser, StringParser},
             segments::{keyword::KeywordSegment, test_functions::generate_test_segments_func},
         },
-        dialects::ansi::AnsiDialect,
     };
 
     use super::TypedParser;
@@ -389,7 +389,7 @@ mod tests {
             <_>::default(),
         );
 
-        let parse_cx = ParseContext::new(Box::new(AnsiDialect));
+        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap());
 
         assert_eq!(
             parser.simple(&parse_cx),
@@ -403,7 +403,7 @@ mod tests {
         let parser = StringParser::new("foo", |_| todo!(), None, false, None);
 
         // Create a dummy ParseContext
-        let parse_cx = ParseContext::new(Box::new(AnsiDialect));
+        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap());
 
         // Perform the test
         assert_eq!(
@@ -415,7 +415,7 @@ mod tests {
     #[test]
     fn test_parser_regexparser_simple() {
         let parser = RegexParser::new("b.r", |_| todo!(), None, false, None, None);
-        let ctx = ParseContext::new(Box::new(AnsiDialect)); // Assuming ParseContext has a dialect field
+        let ctx = ParseContext::new(dialect_selector("ansi").unwrap()); // Assuming ParseContext has a dialect field
 
         assert_eq!(parser.simple(&ctx, None), None);
     }
@@ -430,7 +430,7 @@ mod tests {
             false,
             None,
         );
-        let mut ctx = ParseContext::new(Box::new(AnsiDialect)); // Assuming ParseContext has a dialect field
+        let mut ctx = ParseContext::new(dialect_selector("ansi").unwrap()); // Assuming ParseContext has a dialect field
 
         // Check directly
         let segments = generate_test_segments_func(vec!["foo", "fo"]);

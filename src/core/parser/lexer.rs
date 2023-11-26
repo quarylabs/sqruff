@@ -448,7 +448,7 @@ pub enum StringOrTemplate {
 
 impl Lexer {
     /// Create a new lexer.
-    pub fn new(config: FluffConfig, dialect: Option<Box<dyn Dialect>>) -> Self {
+    pub fn new(config: FluffConfig, dialect: Option<Dialect>) -> Self {
         let fluff_config = FluffConfig::from_kwargs(Some(config), dialect, None);
         let last_resort_lexer = RegexLexer::new(
             "last_resort",
@@ -478,8 +478,8 @@ impl Lexer {
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<LexedElement> = Vec::new();
         loop {
-            let res = Lexer::lex_match(&str_buff, self.config.get_dialect().get_lexer_matchers())
-                .unwrap();
+            let res =
+                Lexer::lex_match(&str_buff, self.config.get_dialect().lexer_matchers()).unwrap();
             element_buffer.extend(res.elements);
             if !res.forward_string.is_empty() {
                 // If we STILL can't match, then just panic out.
@@ -522,7 +522,7 @@ impl Lexer {
     /// Iteratively match strings using the selection of sub-matchers.
     fn lex_match(
         forward_string: &str,
-        lexer_matchers: Vec<Box<dyn Matcher>>,
+        lexer_matchers: &[Box<dyn Matcher>],
     ) -> Result<LexMatch, ValueError> {
         let mut elem_buff: Vec<LexedElement> = vec![];
         let mut forward_string = forward_string.to_string();
@@ -537,7 +537,7 @@ impl Lexer {
 
             let mut matched = false;
 
-            for matcher in &lexer_matchers {
+            for matcher in lexer_matchers {
                 let res = matcher.match_(forward_string.to_string())?;
                 if !res.elements.is_empty() {
                     // If we have new segments then whoop!
@@ -808,7 +808,7 @@ mod tests {
             .unwrap(),
         )];
 
-        let res = Lexer::lex_match(";\n/\n", matcher).unwrap();
+        let res = Lexer::lex_match(";\n/\n", &matcher).unwrap();
         assert_eq!(res.elements[0].raw, ";");
         assert_eq!(res.elements[1].raw, "\n");
         assert_eq!(res.elements[2].raw, "/");
@@ -918,7 +918,7 @@ mod tests {
             ),
         ];
 
-        let res = Lexer::lex_match("..#..#..#", matchers).unwrap();
+        let res = Lexer::lex_match("..#..#..#", &matchers).unwrap();
 
         assert_eq!(res.forward_string, "#");
         assert_eq!(res.elements.len(), 5);

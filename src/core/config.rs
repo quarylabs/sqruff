@@ -1,7 +1,8 @@
-use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
 use crate::core::errors::SQLFluffUserError;
 use std::collections::{HashMap, HashSet};
+
+use super::dialects::base::Dialect;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
@@ -158,7 +159,7 @@ impl FluffConfig {
 
     pub fn from_kwargs(
         config: Option<FluffConfig>,
-        dialect: Option<Box<dyn Dialect>>,
+        dialect: Option<Dialect>,
         rules: Option<Vec<String>>,
     ) -> Self {
         if (dialect.is_some() || rules.is_some()) && config.is_some() {
@@ -201,7 +202,7 @@ command. Available dialects: {}",
         )))
     }
 
-    pub fn get_dialect(&self) -> Box<dyn Dialect> {
+    pub fn get_dialect(&self) -> Dialect {
         match dialect_selector(self.dialect.as_str()) {
             None => panic!("dialect not found"),
             Some(d) => d,

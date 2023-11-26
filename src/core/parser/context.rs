@@ -1,11 +1,11 @@
-use crate::{
-    core::{config::FluffConfig, dialects::base::Dialect},
-    dialects::ansi::AnsiDialect,
+use crate::core::{
+    config::FluffConfig,
+    dialects::{base::Dialect, init::dialect_selector},
 };
 
 #[derive(Debug)]
 pub struct ParseContext {
-    dialect: Box<dyn Dialect>,
+    dialect: Dialect,
     // recurse: bool,
     // indentation_config: HashMap<String, bool>,
     // denylist: ParseDenylist,
@@ -14,12 +14,12 @@ pub struct ParseContext {
 }
 
 impl ParseContext {
-    pub fn new(dialect: Box<dyn Dialect>) -> Self {
+    pub fn new(dialect: Dialect) -> Self {
         Self { dialect }
     }
 
     pub fn from_config(_config: FluffConfig) -> Self {
-        let dialect = Box::new(AnsiDialect);
+        let dialect = dialect_selector("ansi").unwrap();
         Self::new(dialect)
     }
 }

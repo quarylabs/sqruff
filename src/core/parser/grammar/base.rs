@@ -100,7 +100,7 @@ impl Matchable for BaseGrammar {
 }
 
 #[derive(Clone)]
-struct Ref {
+pub struct Ref {
     _ref: String,
     exclude: Option<Box<dyn Matchable>>, // Using Box<dyn Matchable> for dynamic dispatch
     terminators: Vec<Box<dyn Matchable>>,
@@ -141,7 +141,7 @@ impl Ref {
     }
 
     // Method to get the referenced element
-    fn _get_elem(&self, _dialect: &dyn Dialect) -> Box<dyn Matchable> {
+    fn _get_elem(&self, _dialect: &Dialect) -> Box<dyn Matchable> {
         // Implementation to retrieve the grammar it refers to
         unimplemented!()
     }

@@ -1,3 +1,11 @@
+use super::{matchable::Matchable, segments::generator::SegmentGenerator};
+
+#[derive(Debug, Clone)]
+pub enum DialectElementType {
+    Matchable(Box<dyn Matchable>),
+    SegmentGenerator(SegmentGenerator),
+}
+
 /// ParseMode defines the potential parse modes used in grammars
 /// to determine how they handle unmatched segments.
 ///

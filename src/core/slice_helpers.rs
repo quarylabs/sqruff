@@ -8,6 +8,6 @@ pub fn is_zero_slice(s: Range<usize>) -> bool {
     s.start == s.end
 }
 
-pub fn offset_slice(start: usize, offset: usize) -> std::ops::Range<usize> {
+pub fn offset_slice(start: usize, offset: usize) -> Range<usize> {
     start..start + offset
 }

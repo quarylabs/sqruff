@@ -557,10 +557,35 @@ mod tests {
             .collect()
     }
 
-    // TODO:
-    //
-    // test__linter__path_from_paths__dir
-    // test__linter__path_from_paths__default
+    #[test]
+    fn test_linter_path_from_paths_dir() {
+        // Test extracting paths from directories.
+        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+        let paths = lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None);
+        let expected = vec![
+            "test.fixtures.lexer.basic.sql",
+            "test.fixtures.lexer.block_comment.sql",
+            "test.fixtures.lexer.inline_comment.sql",
+        ];
+        assert_eq!(normalise_paths(paths), expected);
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_default() {
+        // Test .sql files are found by default.
+        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+        let paths = normalise_paths(lntr.paths_from_path(
+            "test/fixtures/linter".into(),
+            None,
+            None,
+            None,
+            None,
+        ));
+        assert!(paths.contains(&"test.fixtures.linter.passing.sql".to_string()));
+        assert!(paths.contains(&"test.fixtures.linter.passing_cap_extension.SQL".to_string()));
+        assert!(!paths.contains(&"test.fixtures.linter.discovery_file.txt".to_string()));
+    }
+
     #[test]
     fn test_linter_path_from_paths_exts() {
         // Assuming Linter is initialized with a configuration similar to Python's FluffConfig

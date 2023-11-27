@@ -6,6 +6,7 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::grammar::base::Ref;
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::segments::keyword::KeywordSegment;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 use crate::core::parser::parsers::RegexParser;
@@ -110,7 +111,7 @@ pub fn ansi_dialect() -> Dialect {
 
                 Box::new(RegexParser::new(
                     "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
-                    |_| todo!(),
+                    |segment| Box::new(KeywordSegment::new(segment.get_raw().unwrap())),
                     None,
                     false,
                     anti_template.into(),

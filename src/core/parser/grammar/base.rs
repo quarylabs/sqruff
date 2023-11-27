@@ -141,13 +141,13 @@ impl Ref {
     }
 
     // Method to get the referenced element
-    fn _get_elem(&self, _dialect: &Dialect) -> Box<dyn Matchable> {
-        // Implementation to retrieve the grammar it refers to
-        unimplemented!()
+    fn _get_elem(&self, dialect: &Dialect) -> Box<dyn Matchable> {
+        dialect.r#ref(&self._ref)
     }
 
     // Static method to create a Ref instance for a keyword
-    pub fn keyword(keyword: &str, optional: bool) -> Self {
+    pub fn keyword(keyword: &str, optional: Option<bool>) -> Self {
+        let optional = optional.unwrap_or_default();
         let name = format!("{}KeywordSegment", keyword.to_uppercase());
         Ref::new(name, None, vec![], false, true, optional)
     }
@@ -180,11 +180,47 @@ impl Matchable for Ref {
 
     fn match_segments(
         &self,
-        _segments: Vec<Box<dyn Segment>>,
-        _parse_context: &mut ParseContext,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &mut ParseContext,
     ) -> MatchResult {
-        // Implementation...
-        unimplemented!()
+        // Implement the logic for `_get_elem`
+        let elem = self._get_elem(parse_context.dialect());
+
+        // Check the exclude condition
+        if self.exclude.is_some() {
+            let ctx = parse_context.deeper_match(
+                &format!("{}-Exclude", self._ref),
+                self.reset_terminators,
+                &self.terminators,
+                None,
+                |this| {
+                    if !self
+                        .exclude
+                        .as_ref()
+                        .unwrap()
+                        .match_segments(segments.clone(), this)
+                        .matched_segments
+                        .is_empty()
+                    {
+                        return Some(MatchResult::from_unmatched(&segments));
+                    }
+
+                    None
+                },
+            );
+
+            if ctx.is_some() {
+                return ctx.unwrap();
+            }
+        }
+
+        parse_context.deeper_match(
+            &self._ref,
+            self.reset_terminators,
+            &self.terminators,
+            None,
+            |this| elem.match_segments(segments, this),
+        )
     }
 
     fn cache_key(&self) -> String {
@@ -253,10 +289,15 @@ impl Matchable for Nothing {
 
 #[cfg(test)]
 mod tests {
+    use crate::core::{
+        dialects::init::{dialect_selector, get_default_dialect},
+        parser::segments::test_functions::generate_test_segments_func,
+    };
+
     use super::*; // Import necessary items from the parent module
 
     #[test]
-    fn test_parser_grammar_ref_eq() {
+    fn test__parser__grammar__ref_eq() {
         // Assuming Ref implements Clone and PartialEq
         let r1 = Ref::new("foo".to_string(), None, vec![], false, true, false);
         let r2 = Ref::new("foo".to_string(), None, vec![], false, true, false);
@@ -285,12 +326,41 @@ mod tests {
     }
 
     #[test]
-    fn test_parser_grammar_ref_repr() {
+    fn test__parser__grammar__ref_repr() {
         // Assuming that Ref has a constructor that accepts a &str and an optional bool
         let r1 = Ref::new("foo".to_string(), None, vec![], false, true, false);
         assert_eq!(format!("{:?}", r1), "<Ref: foo>");
 
         let r2 = Ref::new("bar".to_string(), None, vec![], false, true, true);
         assert_eq!(format!("{:?}", r2), "<Ref: bar [opt]>");
+    }
+
+    #[test]
+    fn test__parser__grammar_ref_exclude() {
+        // Assuming 'Ref' and 'NakedIdentifierSegment' are defined elsewhere
+        let ni = Ref::new(
+            "NakedIdentifierSegment".to_string(),
+            Some(Box::new(Ref::keyword("ABS", None))), // Exclude
+            vec![], // Terminators, assuming an empty Vec for this test
+            false,  // reset_terminators
+            false,  // allow_gaps
+            false,  // optional
+        );
+
+        // Assuming 'generate_test_segments' and 'fresh_ansi_dialect' are implemented elsewhere
+        let ts = generate_test_segments_func(vec!["ABS", "ABSOLUTE"]);
+        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+
+        // Assert ABS does not match, due to the exclude
+        assert!(ni
+            .match_segments(vec![ts[0].clone()], &mut ctx)
+            .matched_segments
+            .is_empty());
+
+        // Assert ABSOLUTE does match
+        assert!(!ni
+            .match_segments(vec![ts[1].clone()], &mut ctx)
+            .matched_segments
+            .is_empty());
     }
 }

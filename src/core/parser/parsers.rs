@@ -192,6 +192,7 @@ impl RegexParser {
             // TODO: Handle this case
             return false;
         }
+
         let segment_raw_upper = segment.get_raw().unwrap().to_ascii_uppercase();
         if let Some(result) = self._template.find(&segment_raw_upper).ok().flatten() {
             if result.as_str() == segment_raw_upper {

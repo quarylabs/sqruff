@@ -1,12 +1,13 @@
 use std::{collections::HashSet, fmt::Debug};
 
 use dyn_clone::DynClone;
+use dyn_ord::DynEq;
 
 use super::{context::ParseContext, match_result::MatchResult, segments::base::Segment};
 
 // Define a trait to represent the Matchable interface.
 // This trait is similar to the abstract base class in Python.
-pub trait Matchable: DynClone + Debug {
+pub trait Matchable: DynClone + Debug + DynEq {
     // Return whether this element is optional.
     fn is_optional(&self) -> bool;
 

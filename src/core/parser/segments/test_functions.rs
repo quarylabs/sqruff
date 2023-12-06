@@ -120,3 +120,7 @@ pub fn raw_segments() -> Vec<Box<dyn Segment>> {
 pub fn raw_seg() -> Box<dyn Segment> {
     raw_segments()[0].clone()
 }
+
+pub fn test_segments() -> Vec<Box<dyn Segment>> {
+    generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "])
+}

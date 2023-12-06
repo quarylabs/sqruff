@@ -81,6 +81,18 @@ impl Dialect {
         self.sets_mut(set_label).extend(keywords);
     }
 
+    pub fn bracket_sets(&self, label: &str) -> HashSet<BracketPair> {
+        assert!(
+            label == "bracket_pairs" || label == "angle_bracket_pairs",
+            "Invalid bracket set. Consider using another identifier instead."
+        );
+
+        self.bracket_collections
+            .get(label)
+            .cloned()
+            .unwrap_or_default()
+    }
+
     pub fn bracket_sets_mut(&mut self, label: &str) -> &mut HashSet<BracketPair> {
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",
@@ -89,7 +101,7 @@ impl Dialect {
 
         self.bracket_collections
             .entry(label.to_string())
-            .or_insert_with(HashSet::new)
+            .or_default()
     }
 
     pub fn update_bracket_sets(&mut self, label: &str, pairs: Vec<BracketPair>) {
@@ -121,14 +133,10 @@ impl Dialect {
                         keyword and/or dialect updates:\n\
                         https://github.com/quarylabs/sqruff";
                     panic!(
-                        "Grammar refers to the '{keyword}' keyword which was not found in the dialect.{}",
-                        keyword_tip
+                        "Grammar refers to the '{keyword}' keyword which was not found in the dialect.{keyword_tip}",
                     );
                 } else {
-                    panic!(
-                        "Grammar refers to '{}' which was not found in the dialect.",
-                        name
-                    );
+                    panic!("Grammar refers to '{name}' which was not found in the dialect.",);
                 }
             }
         }
@@ -160,7 +168,10 @@ impl Dialect {
                         let parser = StringParser::new(
                             &kw.to_lowercase(),
                             |segment| {
-                                Box::new(KeywordSegment::new(segment.get_raw().unwrap().clone()))
+                                Box::new(KeywordSegment::new(
+                                    segment.get_raw().unwrap().clone(),
+                                    segment.get_position_marker().unwrap(),
+                                ))
                             },
                             None,
                             false,
@@ -184,10 +195,4 @@ impl Dialect {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct BracketPair {
-    pub bracket_type: String,
-    pub start_ref: String,
-    pub end_ref: String,
-    pub persists: bool,
-}
+pub type BracketPair = (String, String, String, bool);

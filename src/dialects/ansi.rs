@@ -1,19 +1,20 @@
-use itertools::Itertools;
-
 use crate::add_to_dialect;
-use crate::core::dialects::base::{BracketPair, Dialect};
+use crate::core::dialects::base::Dialect;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::grammar::base::Ref;
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::traits::Boxed;
+use itertools::Itertools;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
-use crate::core::parser::parsers::RegexParser;
+use crate::core::parser::parsers::{RegexParser, StringParser};
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
-    NewlineSegmentNewArgs, Segment, SegmentConstructorFn, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
+    NewlineSegmentNewArgs, Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs,
+    WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::types::DialectElementType;
@@ -64,24 +65,24 @@ pub fn ansi_dialect() -> Dialect {
     ansi_dialect.update_bracket_sets(
         "bracket_pairs",
         vec![
-            BracketPair {
-                bracket_type: "round".to_string(),
-                start_ref: "StartBracketSegment".to_string(),
-                end_ref: "EndBracketSegment".to_string(),
-                persists: true,
-            },
-            BracketPair {
-                bracket_type: "square".to_string(),
-                start_ref: "StartSquareBracketSegment".to_string(),
-                end_ref: "EndSquareBracketSegment".to_string(),
-                persists: false,
-            },
-            BracketPair {
-                bracket_type: "curly".to_string(),
-                start_ref: "StartCurlyBracketSegment".to_string(),
-                end_ref: "EndCurlyBracketSegment".to_string(),
-                persists: false,
-            },
+            (
+                "round".into(),
+                "StartBracketSegment".into(),
+                "EndBracketSegment".into(),
+                true,
+            ),
+            (
+                "square".into(),
+                "StartSquareBracketSegment".into(),
+                "EndSquareBracketSegment".into(),
+                false,
+            ),
+            (
+                "curly".into(),
+                "StartCurlyBracketSegment".into(),
+                "EndCurlyBracketSegment".into(),
+                false,
+            ),
         ],
     );
 
@@ -95,9 +96,41 @@ pub fn ansi_dialect() -> Dialect {
     //   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
     ansi_dialect.sets_mut("value_table_functions");
 
+    let symbol_factory = |segment: &dyn Segment| {
+        SymbolSegment::new(
+            &segment.get_raw().unwrap(),
+            &segment.get_position_marker().unwrap(),
+            SymbolSegmentNewArgs {},
+        )
+    };
+
     add_to_dialect!(ansi_dialect,
         "DelimiterGrammar" => {
-            DialectElementType::Matchable(Box::new(Ref::new("SemicolonSegment".into(), None, Vec::new(), false, false, false)))
+            (Ref::new("SemicolonSegment".into(), None, Vec::new(), false, false, false).boxed() as Box<dyn Matchable>).into()
+        },
+        // SemicolonSegment
+        // ColonSegment
+        // SliceSegment
+        // NOTE: The purpose of the colon_delimiter is that it has different layout rules.
+        // It assumes no whitespace on either side.
+        // ColonDelimiterSegment
+        "StartBracketSegment" => {
+            (StringParser::new("(", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+        },
+        "EndBracketSegment" => {
+            (StringParser::new(")", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+        },
+        "StartSquareBracketSegment" => {
+            (StringParser::new("[", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+        },
+        "EndSquareBracketSegment" => {
+            (StringParser::new("]", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+        },
+        "StartCurlyBracketSegment" => {
+            (StringParser::new("{", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+        },
+        "EndCurlyBracketSegment" => {
+            (StringParser::new("}", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
         },
         "NakedIdentifierSegment" => {
             DialectElementType::SegmentGenerator(SegmentGenerator::new(|dialect| {
@@ -111,7 +144,7 @@ pub fn ansi_dialect() -> Dialect {
 
                 Box::new(RegexParser::new(
                     "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
-                    |segment| Box::new(KeywordSegment::new(segment.get_raw().unwrap())),
+                    |segment| Box::new(KeywordSegment::new(segment.get_raw().unwrap(), segment.get_position_marker().unwrap())),
                     None,
                     false,
                     anti_template.into(),
@@ -728,12 +761,8 @@ impl FileSegment {
 }
 
 impl Segment for FileSegment {
-    fn get_raw(&self) -> Option<String> {
-        self.segments
-            .iter()
-            .filter_map(|segment| segment.get_raw())
-            .join("")
-            .into()
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
     }
 
     fn get_type(&self) -> &'static str {

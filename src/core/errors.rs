@@ -1,5 +1,7 @@
 // use super::pos::PosMarker;
 
+use fancy_regex::Regex;
+
 use crate::core::parser::markers::PositionMarker;
 
 type CheckTuple = (String, usize, usize);
@@ -231,7 +233,32 @@ impl ValueError {
     }
 }
 
-pub struct SQLParseError {}
+#[derive(Debug)]
+pub struct SQLParseError {
+    pub description: String,
+}
+
+impl SQLParseError {
+    pub fn matches(&self, regexp: &str) -> bool {
+        let value = &self.description;
+        let regex = Regex::new(regexp).expect("Invalid regex pattern");
+
+        if let Ok(true) = regex.is_match(value) {
+            true
+        } else {
+            let msg = format!(
+                "Regex pattern did not match.\nRegex: {:?}\nInput: {:?}",
+                regexp, value
+            );
+
+            if regexp == value {
+                panic!("{}\nDid you mean to escape the regex?", msg);
+            } else {
+                panic!("{}", msg);
+            }
+        }
+    }
+}
 
 pub struct SQLLexError {
     message: String,

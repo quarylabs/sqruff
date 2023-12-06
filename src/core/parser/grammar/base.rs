@@ -21,6 +21,18 @@ pub struct BaseGrammar {
     cache_key: String,
 }
 
+impl PartialEq for BaseGrammar {
+    fn eq(&self, other: &Self) -> bool {
+        // self.elements == other.elements &&
+        self.allow_gaps == other.allow_gaps
+            && self.optional == other.optional
+        //   && self.terminators == other.terminators
+            && self.reset_terminators == other.reset_terminators
+            && self.parse_mode == other.parse_mode
+            && self.cache_key == other.cache_key
+    }
+}
+
 impl BaseGrammar {
     pub fn new(
         elements: Vec<Box<dyn Matchable>>,
@@ -229,7 +241,7 @@ impl Matchable for Ref {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct Anything {}
 
 impl Matchable for Anything {
@@ -258,7 +270,7 @@ impl Matchable for Anything {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct Nothing {}
 
 impl Matchable for Nothing {

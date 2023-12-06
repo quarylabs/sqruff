@@ -6,6 +6,7 @@ pub mod cli;
 mod core;
 pub mod dialects;
 mod rules;
+pub mod traits;
 mod utils;
 
 fn main() {

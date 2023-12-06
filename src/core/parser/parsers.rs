@@ -60,7 +60,7 @@ impl TypedParser {
 }
 
 // Assuming RawSegment and BaseSegment are defined elsewhere in your Rust code.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct StringParser {
     template: String,
     simple: HashSet<String>,
@@ -132,7 +132,7 @@ impl Matchable for StringParser {
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        todo!()
+        (self.simple.clone(), <_>::default()).into()
     }
 
     fn match_segments(
@@ -163,6 +163,16 @@ pub struct RegexParser {
     _anti_template: Regex,
     factory: fn(&dyn Segment) -> Box<dyn Segment>,
     // Add other fields as needed
+}
+
+impl PartialEq for RegexParser {
+    fn eq(&self, other: &Self) -> bool {
+        self.template == other.template
+            && self.anti_template == other.anti_template
+            // && self._template == other._template
+            // && self._anti_template == other._anti_template
+            && self.factory == other.factory
+    }
 }
 
 impl RegexParser {
@@ -265,7 +275,7 @@ impl Matchable for RegexParser {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct MultiStringParser {
     templates: HashSet<String>,
     _simple: HashSet<String>,
@@ -426,7 +436,12 @@ mod tests {
         let parser = MultiStringParser::new(
             vec!["foo".to_string(), "bar".to_string()],
             /* KeywordSegment */
-            |segment| Box::new(KeywordSegment::new(segment.get_raw().unwrap())),
+            |segment| {
+                Box::new(KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                ))
+            },
             None,
             false,
             None,

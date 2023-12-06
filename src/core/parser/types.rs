@@ -6,6 +6,18 @@ pub enum DialectElementType {
     SegmentGenerator(SegmentGenerator),
 }
 
+impl From<Box<dyn Matchable>> for DialectElementType {
+    fn from(value: Box<dyn Matchable>) -> Self {
+        DialectElementType::Matchable(value)
+    }
+}
+
+impl From<SegmentGenerator> for DialectElementType {
+    fn from(value: SegmentGenerator) -> Self {
+        DialectElementType::SegmentGenerator(value)
+    }
+}
+
 /// ParseMode defines the potential parse modes used in grammars
 /// to determine how they handle unmatched segments.
 ///

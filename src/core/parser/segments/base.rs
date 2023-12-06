@@ -3,6 +3,7 @@ use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::LintFix;
 use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
+use itertools::Itertools;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use uuid::Uuid;
@@ -23,11 +24,19 @@ pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment: DynClone + Debug {
-    fn get_raw(&self) -> Option<String>;
+    fn get_raw(&self) -> Option<String> {
+        self.get_segments()
+            .iter()
+            .filter_map(|segment| segment.get_raw())
+            .join("")
+            .into()
+    }
     fn get_raw_upper(&self) -> Option<String> {
         self.get_raw()?.to_uppercase().into()
     }
-    fn get_type(&self) -> &'static str;
+    fn get_type(&self) -> &'static str {
+        std::any::type_name::<Self>().split("::").last().unwrap()
+    }
     fn is_type(&self, type_: &str) -> bool {
         self.get_type() == type_
     }
@@ -45,7 +54,7 @@ pub trait Segment: DynClone + Debug {
 
     // get_segments is the way the segment returns its children 'self.segments' in Python.
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        todo!()
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 
     /// Return the length of the segment in characters.
@@ -510,11 +519,14 @@ impl Segment for UnlexableSegment {
 ///     _ProtoKeywordSegment can use the same functionality
 ///     but don't end up being labelled as a `keyword` later.
 #[derive(Debug, Clone)]
-pub struct SymbolSegment {}
+pub struct SymbolSegment {
+    raw: String,
+    position_maker: PositionMarker,
+}
 
 impl Segment for SymbolSegment {
     fn get_raw(&self) -> Option<String> {
-        todo!()
+        self.raw.clone().into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -534,7 +546,7 @@ impl Segment for SymbolSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        todo!()
+        self.position_maker.clone().into()
     }
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
@@ -559,11 +571,14 @@ pub struct SymbolSegmentNewArgs {}
 
 impl SymbolSegment {
     pub fn new(
-        _raw: &str,
-        _position_maker: &PositionMarker,
+        raw: &str,
+        position_maker: &PositionMarker,
         _args: SymbolSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        Box::new(SymbolSegment {})
+        Box::new(SymbolSegment {
+            raw: raw.to_string(),
+            position_maker: position_maker.clone(),
+        })
     }
 }
 

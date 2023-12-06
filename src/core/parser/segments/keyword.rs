@@ -1,13 +1,21 @@
+use crate::core::parser::markers::PositionMarker;
+
 use super::base::Segment;
 
 #[derive(Debug, Clone, Default)]
 pub struct KeywordSegment {
     raw: String,
+    uuid: uuid::Uuid,
+    position_marker: PositionMarker,
 }
 
 impl KeywordSegment {
-    pub fn new(raw: String) -> Self {
-        Self { raw }
+    pub fn new(raw: String, position_marker: PositionMarker) -> Self {
+        Self {
+            raw,
+            uuid: uuid::Uuid::new_v4(),
+            position_marker,
+        }
     }
 }
 
@@ -17,7 +25,7 @@ impl Segment for KeywordSegment {
     }
 
     fn get_type(&self) -> &'static str {
-        todo!()
+        "kw"
     }
 
     fn is_code(&self) -> bool {
@@ -32,19 +40,16 @@ impl Segment for KeywordSegment {
         todo!()
     }
 
-    fn get_position_marker(&self) -> Option<crate::core::parser::markers::PositionMarker> {
-        todo!()
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.position_marker.clone().into()
     }
 
-    fn set_position_marker(
-        &mut self,
-        _position_marker: Option<crate::core::parser::markers::PositionMarker>,
-    ) {
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         todo!()
     }
 
     fn get_uuid(&self) -> Option<uuid::Uuid> {
-        todo!()
+        self.uuid.into()
     }
 
     fn edit(

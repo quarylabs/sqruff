@@ -98,7 +98,7 @@ pub trait Segment: DynClone + Debug {
     ///
     /// In sqlfluff only implemented for RawSegments and up
     fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
-        unimplemented!("{}", std::any::type_name::<Self>())
+        None
     }
 
     /// Yield any source patches as fixes now.

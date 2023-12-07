@@ -1,11 +1,50 @@
 use std::collections::HashSet;
 
-use itertools::{chain, Itertools};
+use itertools::{chain, enumerate, Itertools};
 
 use crate::core::parser::{
     context::ParseContext, helpers::trim_non_code_segments, match_algorithms::prune_options,
-    match_result::MatchResult, matchable::Matchable, segments::base::Segment,
+    match_result::MatchResult, matchable::Matchable, segments::base::Segment, types::ParseMode,
 };
+
+fn parse_mode_match_result(
+    matched_segments: Vec<Box<dyn Segment>>,
+    mut unmatched_segments: Vec<Box<dyn Segment>>,
+    tail: Vec<Box<dyn Segment>>,
+    parse_mode: ParseMode,
+) -> MatchResult {
+    if let ParseMode::Strict = parse_mode {
+        let mut unmatched = unmatched_segments;
+        unmatched.extend(tail);
+        return MatchResult::new(matched_segments, unmatched);
+    }
+
+    if unmatched_segments.is_empty() || unmatched_segments.iter().all(|s| !s.is_code()) {
+        let mut unmatched = unmatched_segments;
+        unmatched.extend(tail);
+        return MatchResult::new(matched_segments, unmatched);
+    }
+
+    let trim_idx = unmatched_segments
+        .iter()
+        .position(|s| s.is_code())
+        .unwrap_or(0);
+
+    // Create an unmatched segment
+    let expected = if let Some(first_tail_segment) = tail.get(0) {
+        format!("Nothing else before {first_tail_segment:?}")
+    } else {
+        "Nothing else".to_string()
+    };
+
+    let unmatched_seg = unimplemented!();
+    // let unmatched_seg = UnparsableSegment::new(&unmatched_segments[trim_idx..], expected);
+    let mut matched = matched_segments;
+    matched.extend_from_slice(&unmatched_segments[..trim_idx]);
+    matched.push(unmatched_seg);
+
+    MatchResult::new(matched, tail)
+}
 
 #[derive(Debug, Clone)]
 pub struct AnyNumberOf {
@@ -53,6 +92,34 @@ impl AnyNumberOf {
             return (MatchResult::from_unmatched(segments), None);
         }
 
+        let mut best_match_length = 0;
+        let mut best_match = None;
+
+        for (idx, matcher) in enumerate(available_options) {
+            let match_result = matcher.match_segments(segments.to_vec(), parse_context);
+
+            // No match. Skip this one.
+            if !match_result.has_match() {
+                continue;
+            }
+
+            if match_result.is_complete() {
+                unimplemented!()
+            } else if match_result.has_match() {
+                if match_result.trimmed_matched_length() > best_match_length {
+                    best_match_length = match_result.trimmed_matched_length();
+                    best_match = ((match_result, matcher)).into();
+                }
+            }
+        }
+
+        // If we get here, then there wasn't a complete match. If we
+        // has a best_match, return that.
+        if best_match_length > 0 {
+            let (match_result, matchable) = best_match.unwrap();
+            return (match_result, matchable.into());
+        }
+
         unimplemented!()
     }
 
@@ -61,13 +128,13 @@ impl AnyNumberOf {
     // for AnyNumberOf.
     pub fn match_once(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> (MatchResult, Option<Box<dyn Matchable>>) {
         let name = std::any::type_name::<Self>();
 
         parse_context.deeper_match(name, false, &[], None, |ctx| {
-            self._longest_trimmed_match(&segments, self.elements.clone(), ctx, false)
+            self._longest_trimmed_match(segments, self.elements.clone(), ctx, false)
         })
     }
 }
@@ -90,10 +157,12 @@ impl Matchable for AnyNumberOf {
         segments: Vec<Box<dyn Segment>>,
         parse_context: &mut ParseContext,
     ) -> MatchResult {
+        let mut matched_segments = MatchResult::from_empty();
         let mut unmatched_segments = segments;
+        let tail = Vec::new();
 
         // Keep track of the number of times each option has been matched.
-        let n_matches = 0;
+        let mut n_matches = 0;
         // let option_counter = {elem.cache_key(): 0 for elem in self._elements}
         loop {
             if self.max_times.is_some() && Some(n_matches) >= self.max_times {
@@ -117,12 +186,44 @@ impl Matchable for AnyNumberOf {
                 Vec::new()
             };
 
-            let (match_result, matched_option) = self.match_once(unmatched_segments, parse_context);
+            let (match_result, matched_option) =
+                self.match_once(&unmatched_segments, parse_context);
 
-            dbg!(match_result.matched_segments.len());
-            dbg!(match_result.unmatched_segments.len());
+            // Increment counter for matched option.
+            if let Some(_matched_option) = matched_option {
+                // TODO:
+                // if matched_option.cache_key() in option_counter:
+            }
 
-            unimplemented!()
+            if match_result.has_match() {
+                matched_segments
+                    .matched_segments
+                    .extend(chain(pre_seg, match_result.matched_segments));
+                unmatched_segments = match_result.unmatched_segments;
+                n_matches += 1;
+            } else {
+                // If we get here, then we've not managed to match. And the next
+                // unmatched segments are meaningful, i.e. they're not what we're
+                // looking for.
+                return if n_matches >= self.min_times {
+                    parse_mode_match_result(
+                        matched_segments.matched_segments,
+                        chain(pre_seg, unmatched_segments).collect_vec(),
+                        tail,
+                        ParseMode::Strict,
+                    )
+                } else {
+                    // We didn't meet the hurdle
+                    parse_mode_match_result(
+                        vec![],
+                        chain(matched_segments.matched_segments, pre_seg)
+                            .chain(unmatched_segments)
+                            .collect_vec(),
+                        tail,
+                        ParseMode::Strict,
+                    )
+                };
+            }
         }
     }
 
@@ -139,35 +240,66 @@ mod tests {
         core::{
             dialects::init::{dialect_selector, get_default_dialect},
             parser::{
-                context::ParseContext, matchable::Matchable, parsers::StringParser,
-                segments::test_functions::generate_test_segments_func,
+                context::ParseContext,
+                matchable::Matchable,
+                parsers::StringParser,
+                segments::{keyword::KeywordSegment, test_functions::generate_test_segments_func},
             },
         },
         helpers::ToMatchable,
+        traits::Boxed,
     };
 
     use super::AnyNumberOf;
 
     #[test]
     fn test__parser__grammar_anyof_modes() {
-        let cases = [(["a"].as_slice(),)];
+        let cases = [
+            (["a"].as_slice(), [("a", "kw")].as_slice()),
+            (["b"].as_slice(), [].as_slice()),
+        ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
         let mut parse_cx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
 
-        for (sequence,) in cases {
+        for (sequence, output_tuple) in cases {
             let elements = sequence
                 .iter()
                 .map(|it| {
-                    StringParser::new(it, |it| unimplemented!(), None, false, None).to_matchable()
+                    StringParser::new(
+                        it,
+                        |it| {
+                            KeywordSegment::new(
+                                it.get_raw().unwrap(),
+                                it.get_position_marker().unwrap(),
+                            )
+                            .boxed()
+                        },
+                        None,
+                        false,
+                        None,
+                    )
+                    .to_matchable()
                 })
                 .collect_vec();
 
             let seq = AnyNumberOf::new(elements);
 
-            let match_result = seq.match_segments(segments, &mut parse_cx);
+            let match_result = seq.match_segments(segments.clone(), &mut parse_cx);
+            let matched_segments = match_result.matched_segments;
 
-            unimplemented!()
+            let expected = matched_segments
+                .into_iter()
+                .map(|segment| (segment.get_raw().unwrap(), segment.get_type()))
+                .collect_vec();
+
+            let are_equal = expected
+                .iter()
+                .map(|(s, str_ref)| (s.as_str(), str_ref))
+                .zip(output_tuple.iter())
+                .all(|((s1, str_ref1), (s2, str_ref2))| s1 == *s2 && str_ref1 == str_ref2);
+
+            assert!(are_equal);
         }
     }
 }

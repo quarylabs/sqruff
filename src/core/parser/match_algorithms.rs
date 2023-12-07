@@ -173,7 +173,7 @@ pub fn look_ahead_match(
 
             let match_result = simple_match.match_segments(segments[idx..].to_vec(), parse_context);
 
-            if match_result.matched_segments.is_empty() {
+            if !match_result.has_match() {
                 continue;
             }
 
@@ -275,7 +275,7 @@ pub fn bracket_sensitive_look_ahead_match(
                 let (pre, match_result, matcher) =
                     look_ahead_match(&seg_buff, bracket_matchers.clone(), parse_cx);
 
-                if !match_result.matched_segments.is_empty() {
+                if match_result.has_match() {
                     // NB: We can only consider this as a nested bracket if the start
                     // and end tokens are not the same. If a matcher is both a start
                     // and end token we cannot deepen the bracket stack. In general,
@@ -662,7 +662,7 @@ mod tests {
         match result {
             Ok((_, match_result, _)) => {
                 // Check we don't match (even though there's a 'foo' at the end)
-                assert!(match_result.matched_segments.is_empty());
+                assert!(!match_result.has_match());
 
                 // Assuming we have a way to get unmatched_segments from match_result
                 let segs = match_result.unmatched_segments;

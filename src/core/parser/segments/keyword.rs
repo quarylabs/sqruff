@@ -29,7 +29,7 @@ impl Segment for KeywordSegment {
     }
 
     fn is_code(&self) -> bool {
-        todo!()
+        true
     }
 
     fn is_comment(&self) -> bool {

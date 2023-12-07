@@ -254,9 +254,13 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_anyof_modes() {
-        let cases = [
-            (["a"].as_slice(), [("a", "kw")].as_slice()),
-            (["b"].as_slice(), [].as_slice()),
+        let cases: [(&[&str], &[(&str, &str)]); 3] = [
+            (&["a"], &[("a", "kw")]),
+            (&["b"], &[]),
+            (
+                &["b", "a"],
+                &[("a", "kw"), (" ", "whitespace"), ("b", "kw")],
+            ),
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
@@ -288,12 +292,12 @@ mod tests {
             let match_result = seq.match_segments(segments.clone(), &mut parse_cx);
             let matched_segments = match_result.matched_segments;
 
-            let expected = matched_segments
+            let result = matched_segments
                 .into_iter()
                 .map(|segment| (segment.get_raw().unwrap(), segment.get_type()))
                 .collect_vec();
 
-            let are_equal = expected
+            let are_equal = result
                 .iter()
                 .map(|(s, str_ref)| (s.as_str(), str_ref))
                 .zip(output_tuple.iter())

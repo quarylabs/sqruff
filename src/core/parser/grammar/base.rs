@@ -273,6 +273,12 @@ impl Matchable for Anything {
 #[derive(Clone, Debug, PartialEq)]
 struct Nothing {}
 
+impl Nothing {
+    fn new() -> Self {
+        Self {}
+    }
+}
+
 impl Matchable for Nothing {
     fn is_optional(&self) -> bool {
         todo!()
@@ -288,10 +294,10 @@ impl Matchable for Nothing {
 
     fn match_segments(
         &self,
-        _segments: Vec<Box<dyn Segment>>,
+        segments: Vec<Box<dyn Segment>>,
         _parse_context: &mut ParseContext,
     ) -> MatchResult {
-        todo!()
+        MatchResult::from_unmatched(&segments)
     }
 
     fn cache_key(&self) -> String {
@@ -303,7 +309,7 @@ impl Matchable for Nothing {
 mod tests {
     use crate::core::{
         dialects::init::{dialect_selector, get_default_dialect},
-        parser::segments::test_functions::generate_test_segments_func,
+        parser::segments::test_functions::{generate_test_segments_func, test_segments},
     };
 
     use super::*; // Import necessary items from the parent module
@@ -372,6 +378,16 @@ mod tests {
         // Assert ABSOLUTE does match
         assert!(!ni
             .match_segments(vec![ts[1].clone()], &mut ctx)
+            .matched_segments
+            .is_empty());
+    }
+
+    #[test]
+    fn test_parser_grammar_nothing() {
+        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+
+        assert!(Nothing::new()
+            .match_segments(test_segments(), &mut ctx)
             .matched_segments
             .is_empty());
     }

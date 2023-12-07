@@ -21,14 +21,12 @@ pub fn check_still_complete(
 }
 
 /// Take segments and split off surrounding non-code segments as appropriate.
-///
-/// We use slices to avoid creating too many unnecessary Vecs.
 pub fn trim_non_code_segments(
-    segments: &Vec<Box<dyn Segment>>,
+    segments: &[Box<dyn Segment>],
 ) -> (
-    Vec<Box<dyn Segment>>,
-    Vec<Box<dyn Segment>>,
-    Vec<Box<dyn Segment>>,
+    &[Box<dyn Segment>],
+    &[Box<dyn Segment>],
+    &[Box<dyn Segment>],
 ) {
     let seg_len = segments.len();
     let mut pre_idx = 0;
@@ -47,9 +45,9 @@ pub fn trim_non_code_segments(
     }
 
     (
-        segments[..pre_idx].iter().cloned().collect(),
-        segments[pre_idx..post_idx].iter().cloned().collect(),
-        segments[post_idx..].iter().cloned().collect(),
+        &segments[..pre_idx],
+        &segments[pre_idx..post_idx],
+        &segments[post_idx..],
     )
 }
 

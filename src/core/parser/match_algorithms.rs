@@ -18,8 +18,14 @@ pub fn first_trimmed_raw(seg: &dyn Segment) -> String {
         .unwrap_or_default()
 }
 
-pub fn _first_non_whitespace() {
-    unimplemented!()
+pub fn _first_non_whitespace(segments: &[Box<dyn Segment>]) -> Option<String> {
+    for segment in segments {
+        if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
+            return Some(raw);
+        }
+    }
+
+    None
 }
 
 #[derive(Debug)]
@@ -44,8 +50,58 @@ impl BracketInfo {
     }
 }
 
-pub fn prune_options() {
-    unimplemented!()
+/// Use the simple matchers to prune which options to match on.
+///
+/// Works in the context of a grammar making choices between options
+/// such as AnyOf or the content of Delimited.
+pub fn prune_options(
+    options: &[Box<dyn Matchable>],
+    segments: &[Box<dyn Segment>],
+    parse_context: &mut ParseContext,
+) -> Vec<Box<dyn Matchable>> {
+    let mut available_options = vec![];
+    let mut prune_buff = vec![];
+
+    // Find the first code element to match against.
+    let Some(first_raw) = _first_non_whitespace(segments) else {
+        // return options.to_vec();
+        unimplemented!()
+    };
+
+    for opt in options {
+        let Some(simple) = opt.simple(parse_context, None) else {
+            // This element is not simple, we have to do a
+            // full match with it...
+            available_options.push(opt.clone());
+            continue;
+        };
+
+        // Otherwise we have a simple option, so let's use
+        // it for pruning.
+        let (simple_raws, simple_types) = simple;
+        let mut matched = false;
+
+        // We want to know if the first meaningful element of the str_buff
+        // matches the option, based on either simple _raw_ matching or
+        // simple _type_ matching.
+
+        // Match Raws
+        if simple_raws.contains(&first_raw) {
+            // If we get here, it's matched the FIRST element of the string buffer.
+            available_options.push(opt.clone());
+            matched = true;
+        }
+
+        // Match Types
+        // if !simple_types.is_empty() && !matched && first_types.intersection(simple_types) {
+        // }
+
+        if !matched {
+            prune_buff.push(opt.clone());
+        }
+    }
+
+    available_options
 }
 
 // Look ahead for matches beyond the first element of the segments list.

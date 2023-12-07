@@ -34,6 +34,20 @@ pub trait Segment: DynClone + Debug {
     fn get_raw_upper(&self) -> Option<String> {
         self.get_raw()?.to_uppercase().into()
     }
+
+    // Assuming `raw_segments` is a field that holds a collection of segments
+    fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
+        for seg in &self.get_segments() {
+            // Assuming `raw_upper` is a method or field that returns a String
+            if !seg.get_raw_upper().unwrap().trim().is_empty() {
+                // Return Some(String) if the condition is met
+                return Some(seg.get_raw_upper().unwrap());
+            }
+        }
+        // Return None if no non-whitespace segment is found
+        None
+    }
+
     fn get_type(&self) -> &'static str {
         std::any::type_name::<Self>().split("::").last().unwrap()
     }
@@ -84,7 +98,7 @@ pub trait Segment: DynClone + Debug {
     ///
     /// In sqlfluff only implemented for RawSegments and up
     fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
-        None
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 
     /// Yield any source patches as fixes now.
@@ -235,6 +249,10 @@ impl Segment for CodeSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         Some(self.uuid.clone())
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![Box::new(self.clone())]
     }
 
     /// Create a new segment, with exactly the same position but different content.

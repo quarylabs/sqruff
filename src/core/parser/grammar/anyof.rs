@@ -338,7 +338,7 @@ mod tests {
             // Check directly
             let mut segments = g.match_segments(test_segments(), &mut ctx);
 
-            assert_eq!(segments.matched_segments.len(), 1);
+            assert_eq!(segments.len(), 1);
             assert_eq!(
                 segments.matched_segments.pop().unwrap().get_raw().unwrap(),
                 "bar"

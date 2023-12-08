@@ -582,7 +582,7 @@ mod tests {
 
         // NB the middle element is a match object
         assert_eq!(match_result.matched_segments[0].get_raw().unwrap(), "bar");
-        assert_eq!(match_result.matched_segments.len(), 1);
+        assert_eq!(match_result.len(), 1);
 
         // Look ahead for foo, we should find the one AFTER the brackets, not the
         // on IN the brackets.

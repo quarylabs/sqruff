@@ -124,7 +124,7 @@ impl StringParser {
 
 impl Matchable for StringParser {
     fn is_optional(&self) -> bool {
-        todo!()
+        self.optional
     }
 
     fn simple(

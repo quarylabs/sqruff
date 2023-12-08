@@ -70,6 +70,21 @@ impl AnyNumberOf {
         }
     }
 
+    fn with_allow_gaps(mut self, allow_gaps: bool) -> Self {
+        self.allow_gaps = allow_gaps;
+        self
+    }
+
+    fn with_max_times(mut self, max_times: usize) -> Self {
+        self.max_times = max_times.into();
+        self
+    }
+
+    fn with_min_times(mut self, min_times: usize) -> Self {
+        self.min_times = min_times;
+        self
+    }
+
     fn _longest_trimmed_match(
         &self,
         segments: &[Box<dyn Segment>],
@@ -120,7 +135,8 @@ impl AnyNumberOf {
             return (match_result, matchable.into());
         }
 
-        unimplemented!()
+        // If no match at all, return nothing
+        (MatchResult::from_unmatched(segments), None)
     }
 
     // Match the forward segments against the available elements once.
@@ -158,7 +174,7 @@ impl Matchable for AnyNumberOf {
         parse_context: &mut ParseContext,
     ) -> MatchResult {
         let mut matched_segments = MatchResult::from_empty();
-        let mut unmatched_segments = segments;
+        let mut unmatched_segments = segments.clone();
         let tail = Vec::new();
 
         // Keep track of the number of times each option has been matched.
@@ -167,12 +183,28 @@ impl Matchable for AnyNumberOf {
         loop {
             if self.max_times.is_some() && Some(n_matches) >= self.max_times {
                 // We've matched as many times as we can
-                unimplemented!()
+                return parse_mode_match_result(
+                    matched_segments.matched_segments,
+                    unmatched_segments,
+                    tail,
+                    ParseMode::Strict,
+                );
             }
 
             // Is there anything left to match?
             if unmatched_segments.is_empty() {
-                unimplemented!()
+                return if n_matches >= self.min_times {
+                    // No...
+                    parse_mode_match_result(
+                        matched_segments.matched_segments,
+                        unmatched_segments,
+                        tail,
+                        ParseMode::Strict,
+                    )
+                } else {
+                    // We didn't meet the hurdle
+                    MatchResult::from_unmatched(&segments)
+                };
             }
 
             let pre_seg = if n_matches > 0 && self.allow_gaps {
@@ -232,6 +264,12 @@ impl Matchable for AnyNumberOf {
     }
 }
 
+pub fn one_of(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
+    AnyNumberOf::new(elements)
+        .with_max_times(1)
+        .with_min_times(1)
+}
+
 #[cfg(test)]
 mod tests {
     use itertools::Itertools;
@@ -243,14 +281,116 @@ mod tests {
                 context::ParseContext,
                 matchable::Matchable,
                 parsers::StringParser,
-                segments::{keyword::KeywordSegment, test_functions::generate_test_segments_func},
+                segments::{
+                    keyword::KeywordSegment,
+                    test_functions::{generate_test_segments_func, test_segments},
+                },
             },
         },
         helpers::ToMatchable,
         traits::Boxed,
     };
 
-    use super::AnyNumberOf;
+    use super::{one_of, AnyNumberOf};
+
+    #[test]
+    fn test__parser__grammar_oneof() {
+        // Test cases with allow_gaps as true and false
+        let test_cases = [true, false];
+
+        for allow_gaps in test_cases {
+            // Test the OneOf grammar.
+            // NOTE: Should behave the same regardless of allow_gaps.
+
+            let bs = StringParser::new(
+                "bar",
+                |segment| {
+                    KeywordSegment::new(
+                        segment.get_raw().unwrap(),
+                        segment.get_position_marker().unwrap(),
+                    )
+                    .boxed()
+                },
+                None,
+                false,
+                None,
+            )
+            .boxed();
+
+            let fs = StringParser::new(
+                "foo",
+                |segment| {
+                    KeywordSegment::new(
+                        segment.get_raw().unwrap(),
+                        segment.get_position_marker().unwrap(),
+                    )
+                    .boxed()
+                },
+                None,
+                false,
+                None,
+            )
+            .boxed();
+
+            let g = one_of(vec![fs, bs]).with_allow_gaps(allow_gaps);
+            let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+
+            // Check directly
+            let mut segments = g.match_segments(test_segments(), &mut ctx);
+
+            assert_eq!(segments.matched_segments.len(), 1);
+            assert_eq!(
+                segments.matched_segments.pop().unwrap().get_raw().unwrap(),
+                "bar"
+            );
+
+            // Check with a bit of whitespace
+            assert!(!g
+                .match_segments(test_segments()[1..].to_vec(), &mut ctx)
+                .has_match());
+        }
+    }
+
+    #[test]
+    fn test__parser__grammar_oneof_templated() {
+        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+
+        let bs = StringParser::new(
+            "bar",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let fs = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let g = one_of(vec![bs, fs]);
+
+        assert!(!g
+            .match_segments(test_segments()[5..].to_vec(), &mut ctx)
+            .has_match());
+    }
 
     #[test]
     fn test__parser__grammar_anyof_modes() {

@@ -429,6 +429,10 @@ impl WhitespaceSegment {
 }
 
 impl Segment for WhitespaceSegment {
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        Vec::new()
+    }
+
     fn get_raw(&self) -> Option<String> {
         Some(self.raw.clone())
     }

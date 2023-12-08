@@ -41,7 +41,7 @@ impl ParseContext {
 
     pub(crate) fn deeper_match<T>(
         &mut self,
-        name: &str,
+        name: impl ToString,
         clear_terminators: bool,
         push_terminators: &[Box<dyn Matchable>],
         track_progress: Option<bool>,

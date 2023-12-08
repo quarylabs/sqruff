@@ -11,7 +11,15 @@ use uuid::Uuid;
 ///     in the same place this intentionally *won't* capture it, they will just
 ///     be compared later.
 #[derive(Debug, Clone)]
-pub struct Indent {}
+pub struct Indent {
+    pub indent_val: usize,
+}
+
+impl Default for Indent {
+    fn default() -> Self {
+        Self { indent_val: 1 }
+    }
+}
 
 pub struct IndentNewArgs {}
 
@@ -59,7 +67,7 @@ impl Segment for Indent {
 
 impl Indent {
     pub fn new(_position_maker: PositionMarker) -> Box<dyn Segment> {
-        Box::new(Indent {})
+        Box::new(Indent::default())
     }
 }
 

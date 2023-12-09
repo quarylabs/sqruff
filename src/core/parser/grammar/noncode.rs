@@ -44,17 +44,16 @@ impl Matchable for NonCodeMatcher {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{
-        dialects::init::{dialect_selector, get_default_dialect},
-        parser::{
-            context::ParseContext, grammar::noncode::NonCodeMatcher, matchable::Matchable,
-            segments::test_functions::test_segments,
-        },
+    use crate::core::parser::{
+        context::ParseContext,
+        grammar::noncode::NonCodeMatcher,
+        matchable::Matchable,
+        segments::test_functions::{fresh_ansi_dialect, test_segments},
     };
 
     #[test]
     fn test_non_code_matcher() {
-        let dialect = dialect_selector(get_default_dialect()).unwrap(); // Assuming this function exists and returns a Dialect
+        let dialect = fresh_ansi_dialect(); // Assuming this function exists and returns a Dialect
         let mut ctx = ParseContext::new(dialect);
 
         let matcher = NonCodeMatcher;

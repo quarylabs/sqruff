@@ -383,7 +383,8 @@ mod tests {
                 segments::{
                     keyword::KeywordSegment,
                     test_functions::{
-                        generate_test_segments_func, make_result_tuple, test_segments,
+                        fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
+                        test_segments,
                     },
                 },
             },
@@ -449,7 +450,7 @@ mod tests {
 
         // Assuming 'generate_test_segments' and 'fresh_ansi_dialect' are implemented elsewhere
         let ts = generate_test_segments_func(vec!["ABS", "ABSOLUTE"]);
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         // Assert ABS does not match, due to the exclude
         assert!(ni
@@ -466,7 +467,7 @@ mod tests {
 
     #[test]
     fn test_parser_grammar_nothing() {
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         assert!(Nothing::new()
             .match_segments(test_segments(), &mut ctx)
@@ -488,7 +489,7 @@ mod tests {
             (0..2, "bar", true, (0..2).into()),
         ];
 
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
         for (segments_slice, matcher_keyword, trim_noncode, result_slice) in cases {
             let matchers = vec![StringParser::new(
                 matcher_keyword,
@@ -559,7 +560,7 @@ mod tests {
             Sequence::new(vec![bs, fs]).boxed(),
         ];
 
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
         // Matching the first element of the list
         let (match_result, matcher) =
             longest_trimmed_match(&test_segments(), matchers.clone(), &mut ctx, true);

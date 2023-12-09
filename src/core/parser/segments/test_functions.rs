@@ -1,5 +1,7 @@
 use std::ops::Range;
 
+use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::dialect_selector;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
@@ -11,6 +13,10 @@ use crate::core::templaters::base::TemplatedFile;
 use crate::traits::Boxed;
 
 use super::keyword::KeywordSegment;
+
+pub fn fresh_ansi_dialect() -> Dialect {
+    dialect_selector("ansi").unwrap()
+}
 
 /// Roughly generate test segments.
 ///

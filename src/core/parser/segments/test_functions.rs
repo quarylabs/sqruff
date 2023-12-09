@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
@@ -7,6 +9,8 @@ use crate::core::parser::segments::base::{
 use crate::core::parser::segments::meta::{Dedent, Indent};
 use crate::core::templaters::base::TemplatedFile;
 use crate::traits::Boxed;
+
+use super::keyword::KeywordSegment;
 
 /// Roughly generate test segments.
 ///
@@ -127,4 +131,29 @@ pub fn raw_seg() -> Box<dyn Segment> {
 
 pub fn test_segments() -> Vec<Box<dyn Segment>> {
     generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "])
+}
+
+pub fn make_result_tuple(
+    result_slice: Option<Range<usize>>,
+    matcher_keywords: &[&str],
+    test_segments: &[Box<dyn Segment>],
+) -> Vec<Box<dyn Segment>> {
+    // Make a comparison tuple for test matching.
+    // No result slice means no match.
+    match result_slice {
+        None => vec![],
+        Some(slice) => test_segments[slice]
+            .iter()
+            .filter_map(|elem| {
+                elem.get_raw().map(|raw| {
+                    if matcher_keywords.contains(&raw.as_str()) {
+                        KeywordSegment::new(raw, elem.get_position_marker().unwrap()).boxed()
+                            as Box<dyn Segment>
+                    } else {
+                        elem.clone()
+                    }
+                })
+            })
+            .collect(),
+    }
 }

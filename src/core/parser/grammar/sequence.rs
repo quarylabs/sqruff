@@ -34,7 +34,7 @@ fn position_metas(
     }
 }
 
-use std::collections::HashSet;
+use std::{collections::HashSet, iter::zip};
 
 use itertools::enumerate;
 
@@ -57,7 +57,7 @@ pub struct Sequence {
 }
 
 impl Sequence {
-    fn new(elements: Vec<Box<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Box<dyn Matchable>>) -> Self {
         Self {
             elements,
             allow_gaps: true,
@@ -65,7 +65,7 @@ impl Sequence {
         }
     }
 
-    fn with_allow_gaps(mut self, allow_gaps: bool) -> Self {
+    pub fn with_allow_gaps(mut self, allow_gaps: bool) -> Self {
         self.allow_gaps = allow_gaps;
         self
     }
@@ -73,7 +73,7 @@ impl Sequence {
 
 impl PartialEq for Sequence {
     fn eq(&self, other: &Self) -> bool {
-        unimplemented!()
+        zip(&self.elements, &other.elements).all(|(a, b)| a.dyn_eq(&*b.clone()))
     }
 }
 
@@ -82,12 +82,34 @@ impl Matchable for Sequence {
         self.is_optional
     }
 
+    // Does this matcher support a uppercase hash matching route?
+    //
+    // Sequence does provide this, as long as the *first* non-optional
+    // element does, *AND* and optional elements which preceded it also do.
     fn simple(
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        todo!()
+        let mut simple_raws = HashSet::new();
+        let mut simple_types = HashSet::new();
+
+        for opt in &self.elements {
+            let Some((raws, types)) = opt.simple(parse_context, crumbs.clone()) else {
+                return None;
+            };
+
+            simple_raws.extend(raws);
+            simple_types.extend(types);
+
+            if !opt.is_optional() {
+                // We found our first non-optional element!
+                return ((simple_raws, simple_types)).into();
+            }
+        }
+
+        // If *all* elements are optional AND simple, I guess it's also simple.
+        ((simple_raws, simple_types)).into()
     }
 
     fn match_segments(
@@ -159,7 +181,7 @@ impl Matchable for Sequence {
                 if ParseMode::Strict == ParseMode::Strict {
                     // In a strict mode, failing to match an element means that
                     // we don't match anything.
-                    return MatchResult::from_unmatched(&segments);
+                    return MatchResult::from_unmatched(segments);
                 }
             }
 

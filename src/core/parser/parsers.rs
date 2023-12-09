@@ -147,7 +147,7 @@ impl Matchable for StringParser {
             }
         }
 
-        MatchResult::from_unmatched(&segments)
+        MatchResult::from_unmatched(segments)
     }
 
     fn cache_key(&self) -> String {
@@ -267,7 +267,7 @@ impl Matchable for RegexParser {
             }
         }
 
-        MatchResult::from_unmatched(&segments)
+        MatchResult::from_unmatched(segments)
     }
 
     fn cache_key(&self) -> String {
@@ -366,7 +366,7 @@ impl Matchable for MultiStringParser {
             }
         }
 
-        MatchResult::from_unmatched(&segments)
+        MatchResult::from_unmatched(segments)
     }
 
     fn cache_key(&self) -> String {

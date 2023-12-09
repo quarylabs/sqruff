@@ -196,7 +196,11 @@ pub fn look_ahead_match(
     if let Some(best_simple_match) = best_simple_match {
         best_simple_match
     } else {
-        (Vec::new(), MatchResult::from_unmatched(segments), None)
+        (
+            Vec::new(),
+            MatchResult::from_unmatched(segments.to_vec()),
+            None,
+        )
     }
 }
 
@@ -227,7 +231,7 @@ pub fn bracket_sensitive_look_ahead_match(
 
     // Have we been passed an empty tuple?
     if segments.is_empty() {
-        return Ok((Vec::new(), MatchResult::from_unmatched(&segments), None));
+        return Ok((Vec::new(), MatchResult::from_unmatched(segments), None));
     }
 
     // Get hold of the bracket matchers from the dialect, and append them
@@ -424,7 +428,7 @@ pub fn bracket_sensitive_look_ahead_match(
         // bracket matching.
         return Ok((
             Vec::new(),
-            MatchResult::from_unmatched(&chain(pre_seg_buff, seg_buff).collect_vec()),
+            MatchResult::from_unmatched(chain(pre_seg_buff, seg_buff).collect_vec()),
             None,
         ));
     }
@@ -443,39 +447,15 @@ mod tests {
                 segments::{
                     base::Segment,
                     keyword::KeywordSegment,
-                    test_functions::{generate_test_segments_func, test_segments},
+                    test_functions::{
+                        generate_test_segments_func, make_result_tuple, test_segments,
+                    },
                 },
             },
         },
         traits::Boxed,
     };
     use itertools::Itertools;
-    use std::ops::Range;
-
-    fn make_result_tuple(
-        result_slice: Option<Range<usize>>,
-        matcher_keywords: &[&str],
-        test_segments: &[Box<dyn Segment>],
-    ) -> Vec<Box<dyn Segment>> {
-        // Make a comparison tuple for test matching.
-        // No result slice means no match.
-        match result_slice {
-            None => vec![],
-            Some(slice) => test_segments[slice]
-                .iter()
-                .filter_map(|elem| {
-                    elem.get_raw().map(|raw| {
-                        if matcher_keywords.contains(&raw.as_str()) {
-                            KeywordSegment::new(raw, elem.get_position_marker().unwrap()).boxed()
-                                as Box<dyn Segment>
-                        } else {
-                            elem.clone()
-                        }
-                    })
-                })
-                .collect(),
-        }
-    }
 
     #[test]
     fn test__parser__algorithms__look_ahead_match() {

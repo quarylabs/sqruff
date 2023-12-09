@@ -2,6 +2,8 @@ use crate::core::parser::helpers::{join_segments_raw, trim_non_code_segments};
 use crate::core::parser::segments::base::Segment;
 use std::fmt;
 
+use super::lexer::Matcher;
+
 #[derive(Clone)]
 /// This should be the default response from any `match` method.
 ///
@@ -33,8 +35,15 @@ impl MatchResult {
     }
 
     /// Construct a `MatchResult` from just unmatched segments.
-    pub fn from_unmatched(segments: &[Box<dyn Segment>]) -> MatchResult {
+    pub fn from_unmatched(segments: Vec<Box<dyn Segment>>) -> MatchResult {
         Self::new(Vec::new(), segments.to_vec())
+    }
+
+    pub fn from_matched(matched: Vec<Box<dyn Segment>>) -> MatchResult {
+        MatchResult {
+            unmatched_segments: vec![],
+            matched_segments: matched,
+        }
     }
 
     /// Return the length of the match in characters, trimming whitespace.

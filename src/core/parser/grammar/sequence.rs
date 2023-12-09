@@ -228,7 +228,11 @@ mod tests {
                 markers::PositionMarker,
                 matchable::Matchable,
                 parsers::StringParser,
-                segments::{keyword::KeywordSegment, meta::Indent, test_functions::test_segments},
+                segments::{
+                    keyword::KeywordSegment,
+                    meta::Indent,
+                    test_functions::{fresh_ansi_dialect, test_segments},
+                },
             },
         },
         helpers::ToMatchable,
@@ -269,7 +273,7 @@ mod tests {
         )
         .boxed();
 
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         let g = Sequence::new(vec![bs.clone(), fs.clone()]);
         let gc = Sequence::new(vec![bs, fs]).with_allow_gaps(false);
@@ -340,7 +344,7 @@ mod tests {
 
         let g = Sequence::new(vec![Sequence::new(vec![bs, fs]).boxed(), bas]);
 
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         assert!(
             !g.match_segments(test_segments()[..2].to_vec(), &mut ctx)
@@ -396,7 +400,7 @@ mod tests {
             bs,
             fs,
         ]);
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
         let segments = g.match_segments(test_segments(), &mut ctx).matched_segments;
 
         assert_eq!(segments[0].get_type(), "indent");

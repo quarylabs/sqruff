@@ -256,7 +256,9 @@ mod tests {
                 parsers::StringParser,
                 segments::{
                     keyword::KeywordSegment,
-                    test_functions::{generate_test_segments_func, test_segments},
+                    test_functions::{
+                        fresh_ansi_dialect, generate_test_segments_func, test_segments,
+                    },
                 },
             },
         },
@@ -306,7 +308,7 @@ mod tests {
             .boxed();
 
             let g = one_of(vec![fs, bs]).with_allow_gaps(allow_gaps);
-            let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+            let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
             // Check directly
             let mut segments = g.match_segments(test_segments(), &mut ctx);
@@ -326,7 +328,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_oneof_templated() {
-        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         let bs = StringParser::new(
             "bar",
@@ -377,7 +379,7 @@ mod tests {
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
-        let mut parse_cx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let mut parse_cx = ParseContext::new(fresh_ansi_dialect());
 
         for (sequence, output_tuple) in cases {
             let elements = sequence

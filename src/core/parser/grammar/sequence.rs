@@ -53,6 +53,7 @@ use crate::{
 pub struct Sequence {
     elements: Vec<Box<dyn Matchable>>,
     allow_gaps: bool,
+    is_optional: bool,
 }
 
 impl Sequence {
@@ -60,6 +61,7 @@ impl Sequence {
         Self {
             elements,
             allow_gaps: true,
+            is_optional: false,
         }
     }
 
@@ -77,7 +79,7 @@ impl PartialEq for Sequence {
 
 impl Matchable for Sequence {
     fn is_optional(&self) -> bool {
-        todo!()
+        self.is_optional
     }
 
     fn simple(
@@ -103,6 +105,17 @@ impl Matchable for Sequence {
         let mut non_code_buffer = Vec::new();
 
         for (idx, elem) in enumerate(&self.elements) {
+            // 1. Handle any metas or conditionals.
+            // We do this first so that it's the same whether we've run
+            // out of segments or not.
+            // If it's a conditional, evaluate it.
+            // In both cases, we don't actually add them as inserts yet
+            // because their position will depend on what types we accrue.
+            if let Some(indent) = elem.as_any().downcast_ref::<Indent>() {
+                meta_buffer.push(indent.clone());
+                continue;
+            }
+
             // 2. Handle any gaps in the sequence.
             // At this point we know the next element isn't a meta or conditional
             // so if we're going to look for it we need to work up to the next
@@ -169,7 +182,6 @@ impl Matchable for Sequence {
 
         // If we get to here, we've matched all of the elements (or skipped them).
         // Return successfully.
-        dbg!(matched_segments.len());
         unmatched_segments.extend(tail);
         MatchResult {
             matched_segments,
@@ -191,11 +203,13 @@ mod tests {
             dialects::init::{dialect_selector, get_default_dialect},
             parser::{
                 context::ParseContext,
+                markers::PositionMarker,
                 matchable::Matchable,
                 parsers::StringParser,
-                segments::{keyword::KeywordSegment, test_functions::test_segments},
+                segments::{keyword::KeywordSegment, meta::Indent, test_functions::test_segments},
             },
         },
+        helpers::ToMatchable,
         traits::Boxed,
     };
 
@@ -239,8 +253,131 @@ mod tests {
         let gc = Sequence::new(vec![bs, fs]).with_allow_gaps(false);
 
         let match_result = g.match_segments(test_segments(), &mut ctx);
+
+        assert_eq!(match_result.matched_segments[0].get_raw().unwrap(), "bar");
+        assert_eq!(
+            match_result.matched_segments[1].get_raw().unwrap(),
+            test_segments()[1].get_raw().unwrap()
+        );
+        assert_eq!(match_result.matched_segments[2].get_raw().unwrap(), "foo");
         assert_eq!(match_result.len(), 3);
 
         assert!(!gc.match_segments(test_segments(), &mut ctx).has_match());
+
+        assert!(!g
+            .match_segments(test_segments()[1..].to_vec(), &mut ctx)
+            .has_match());
+    }
+
+    #[test]
+    fn test__parser__grammar_sequence_nested() {
+        let bs = StringParser::new(
+            "bar",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let fs = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let bas = StringParser::new(
+            "baar",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let g = Sequence::new(vec![Sequence::new(vec![bs, fs]).boxed(), bas]);
+
+        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+
+        assert!(
+            !g.match_segments(test_segments()[..2].to_vec(), &mut ctx)
+                .has_match(),
+            "Expected no match, but a match was found."
+        );
+
+        let segments = g.match_segments(test_segments(), &mut ctx).matched_segments;
+        assert_eq!(segments[0].get_raw().unwrap(), "bar");
+        assert_eq!(
+            segments[1].get_raw().unwrap(),
+            test_segments()[1].get_raw().unwrap()
+        );
+        assert_eq!(segments[2].get_raw().unwrap(), "foo");
+        assert_eq!(segments[3].get_raw().unwrap(), "baar");
+        assert_eq!(segments.len(), 4);
+    }
+
+    #[test]
+    fn test__parser__grammar_sequence_indent() {
+        let bs = StringParser::new(
+            "bar",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let fs = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let g = Sequence::new(vec![
+            Indent::new(PositionMarker::default()).to_matchable(),
+            bs,
+            fs,
+        ]);
+        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        let segments = g.match_segments(test_segments(), &mut ctx).matched_segments;
+
+        assert_eq!(segments[0].get_type(), "indent");
+        assert_eq!(segments[1].get_type(), "kw");
     }
 }

@@ -1,4 +1,5 @@
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
 use uuid::Uuid;
@@ -10,7 +11,7 @@ use uuid::Uuid;
 ///     and reconstruction. Even if there is an *actual indent* that occurs
 ///     in the same place this intentionally *won't* capture it, they will just
 ///     be compared later.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Indent {
     pub indent_val: usize,
 }
@@ -22,6 +23,35 @@ impl Default for Indent {
 }
 
 pub struct IndentNewArgs {}
+
+impl Matchable for Indent {
+    fn is_optional(&self) -> bool {
+        todo!()
+    }
+
+    fn simple(
+        &self,
+        parse_context: &crate::core::parser::context::ParseContext,
+        crumbs: Option<Vec<&str>>,
+    ) -> Option<(
+        std::collections::HashSet<String>,
+        std::collections::HashSet<String>,
+    )> {
+        todo!()
+    }
+
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &mut crate::core::parser::context::ParseContext,
+    ) -> crate::core::parser::match_result::MatchResult {
+        todo!()
+    }
+
+    fn cache_key(&self) -> String {
+        todo!()
+    }
+}
 
 impl Segment for Indent {
     fn get_type(&self) -> &'static str {
@@ -66,8 +96,8 @@ impl Segment for Indent {
 }
 
 impl Indent {
-    pub fn new(_position_maker: PositionMarker) -> Box<dyn Segment> {
-        Box::new(Indent::default())
+    pub fn new(_position_maker: PositionMarker) -> Self {
+        Indent::default()
     }
 }
 

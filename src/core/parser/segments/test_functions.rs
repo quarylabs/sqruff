@@ -6,6 +6,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::meta::{Dedent, Indent};
 use crate::core::templaters::base::TemplatedFile;
+use crate::traits::Boxed;
 
 /// Roughly generate test segments.
 ///
@@ -23,13 +24,16 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
 
     for elem in elems {
         if elem == "<indent>" {
-            buff.push(Indent::new(PositionMarker::from_point(
-                idx,
-                idx,
-                templated_file.clone(),
-                None,
-                None,
-            )));
+            buff.push(
+                Indent::new(PositionMarker::from_point(
+                    idx,
+                    idx,
+                    templated_file.clone(),
+                    None,
+                    None,
+                ))
+                .boxed() as Box<dyn Segment>,
+            );
             continue;
         } else if elem == "<dedent>" {
             buff.push(Dedent::new(PositionMarker::from_point(

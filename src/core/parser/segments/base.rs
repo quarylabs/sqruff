@@ -410,6 +410,7 @@ impl Segment for NewlineSegment {
 pub struct WhitespaceSegment {
     raw: String,
     position_marker: PositionMarker,
+    uuid: Uuid,
 }
 
 #[derive(Debug, Clone)]
@@ -424,6 +425,7 @@ impl WhitespaceSegment {
         Box::new(WhitespaceSegment {
             raw: raw.to_string(),
             position_marker: position_maker.clone(),
+            uuid: Uuid::new_v4(),
         })
     }
 }
@@ -462,7 +464,7 @@ impl Segment for WhitespaceSegment {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
+        self.uuid.into()
     }
 
     fn edit(

@@ -1,12 +1,13 @@
 use std::collections::HashSet;
 
+use itertools::enumerate;
 use uuid::Uuid;
 
 use crate::core::{
     dialects::base::Dialect,
     parser::{
-        context::ParseContext, match_result::MatchResult, matchable::Matchable,
-        segments::base::Segment, types::ParseMode,
+        context::ParseContext, helpers::trim_non_code_segments, match_algorithms::prune_options,
+        match_result::MatchResult, matchable::Matchable, segments::base::Segment, types::ParseMode,
     },
 };
 
@@ -59,26 +60,6 @@ impl BaseGrammar {
     fn _resolve_ref(elem: Box<dyn Matchable>) -> Box<dyn Matchable> {
         // Placeholder implementation
         elem
-    }
-
-    // Placeholder for the _longest_trimmed_match method
-    #[allow(unused_variables)]
-    fn _longest_trimmed_match(
-        segments: &[Box<dyn Segment>],
-        matchers: Vec<Box<dyn Matchable>>,
-        parse_context: &ParseContext,
-        trim_noncode: bool,
-    ) -> (MatchResult, Option<Box<dyn Matchable>>) {
-        // Have we been passed an empty list?
-        if segments.is_empty() {
-            return (MatchResult::from_empty(), None);
-        }
-        // If presented with no options, return no match
-        else if matchers.is_empty() {
-            return (MatchResult::from_unmatched(segments), None);
-        }
-
-        unimplemented!()
     }
 }
 
@@ -214,7 +195,7 @@ impl Matchable for Ref {
                         .matched_segments
                         .is_empty()
                     {
-                        return Some(MatchResult::from_unmatched(&segments));
+                        return Some(MatchResult::from_unmatched(segments.clone()));
                     }
 
                     None
@@ -297,7 +278,7 @@ impl Matchable for Nothing {
         segments: Vec<Box<dyn Segment>>,
         _parse_context: &mut ParseContext,
     ) -> MatchResult {
-        MatchResult::from_unmatched(&segments)
+        MatchResult::from_unmatched(segments)
     }
 
     fn cache_key(&self) -> String {
@@ -305,12 +286,113 @@ impl Matchable for Nothing {
     }
 }
 
+pub fn longest_trimmed_match(
+    mut segments: &[Box<dyn Segment>],
+    matchers: Vec<Box<dyn Matchable>>,
+    parse_context: &mut ParseContext,
+    trim_noncode: bool,
+) -> (MatchResult, Option<Box<dyn Matchable>>) {
+    // Have we been passed an empty list?
+    if segments.is_empty() {
+        return (MatchResult::from_empty(), None);
+    }
+    // If presented with no options, return no match
+    else if matchers.is_empty() {
+        return (MatchResult::from_unmatched(segments.to_vec()), None);
+    }
+
+    let available_options = prune_options(&matchers, segments, parse_context);
+
+    if available_options.is_empty() {
+        return (MatchResult::from_unmatched(segments.to_vec()), None);
+    }
+
+    let mut pre_nc = &[][..];
+    let mut post_nc = &[][..];
+
+    if trim_noncode {
+        (pre_nc, segments, post_nc) = trim_non_code_segments(segments);
+    }
+
+    let mut best_match_length = 0;
+    let mut best_match = None;
+
+    for (idx, matcher) in enumerate(available_options) {
+        let match_result = matcher.match_segments(segments.to_vec(), parse_context);
+
+        // No match. Skip this one.
+        if !match_result.has_match() {
+            continue;
+        }
+
+        if match_result.is_complete() {
+            // Just return it! (WITH THE RIGHT OTHER STUFF)
+            return if trim_noncode {
+                let mut matched_segments = pre_nc.to_vec();
+                matched_segments.extend(match_result.matched_segments);
+                matched_segments.extend(post_nc.to_vec());
+
+                (MatchResult::from_matched(matched_segments), matcher.into())
+            } else {
+                (match_result, matcher.into())
+            };
+        } else if match_result.has_match() {
+            if match_result.trimmed_matched_length() > best_match_length {
+                best_match_length = match_result.trimmed_matched_length();
+                best_match = ((match_result, matcher)).into();
+            }
+        }
+    }
+
+    // If we get here, then there wasn't a complete match. If we
+    // has a best_match, return that.
+    if best_match_length > 0 {
+        let (match_result, matchable) = best_match.unwrap();
+
+        return if trim_noncode {
+            let mut matched_segments = pre_nc.to_vec();
+            matched_segments.extend(match_result.matched_segments);
+
+            let mut unmatched_segments = match_result.unmatched_segments;
+            unmatched_segments.extend(post_nc.into_iter().cloned());
+
+            (
+                MatchResult {
+                    matched_segments,
+                    unmatched_segments,
+                },
+                matchable.into(),
+            )
+        } else {
+            (match_result, matchable.into())
+        };
+    }
+
+    // If no match at all, return nothing
+    (MatchResult::from_unmatched(segments.to_vec()), None)
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::core::{
-        dialects::init::{dialect_selector, get_default_dialect},
-        parser::segments::test_functions::{generate_test_segments_func, test_segments},
+    use crate::{
+        core::{
+            dialects::init::{dialect_selector, get_default_dialect},
+            parser::{
+                grammar::{anyof::one_of, sequence::Sequence},
+                parsers::StringParser,
+                segments::{
+                    keyword::KeywordSegment,
+                    test_functions::{
+                        generate_test_segments_func, make_result_tuple, test_segments,
+                    },
+                },
+            },
+        },
+        helpers::ToMatchable,
+        traits::Boxed,
     };
+
+    use pretty_assertions::assert_eq;
 
     use super::*; // Import necessary items from the parent module
 
@@ -390,5 +472,103 @@ mod tests {
             .match_segments(test_segments(), &mut ctx)
             .matched_segments
             .is_empty());
+    }
+
+    #[test]
+    fn test__parser__grammar__base__longest_trimmed_match__basic() {
+        let test_segments = test_segments();
+        let cases = [
+            // Matching the first element of the list
+            (0..test_segments.len(), "bar", false, (0..1).into()),
+            // Matching with a bit of whitespace before
+            (1..test_segments.len(), "foo", true, (1..3).into()),
+            // Matching with a bit of whitespace before (not trim_noncode)
+            (1..test_segments.len(), "foo", false, None),
+            // Matching with whitespace after
+            (0..2, "bar", true, (0..2).into()),
+        ];
+
+        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        for (segments_slice, matcher_keyword, trim_noncode, result_slice) in cases {
+            let matchers = vec![StringParser::new(
+                matcher_keyword,
+                |segment| {
+                    KeywordSegment::new(
+                        segment.get_raw().unwrap(),
+                        segment.get_position_marker().unwrap(),
+                    )
+                    .boxed()
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()];
+
+            let (m, _) = longest_trimmed_match(
+                &test_segments[segments_slice],
+                matchers,
+                &mut ctx,
+                trim_noncode,
+            );
+
+            let expected_result =
+                make_result_tuple(result_slice, &[matcher_keyword], &test_segments);
+
+            assert_eq!(expected_result, m.matched_segments);
+        }
+    }
+
+    #[test]
+    fn test__parser__grammar__base__longest_trimmed_match__adv() {
+        let bs = StringParser::new(
+            "bar",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let fs = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed();
+
+        let matchers: Vec<Box<dyn Matchable>> = vec![
+            bs.clone(),
+            fs.clone(),
+            Sequence::new(vec![bs.clone(), fs.clone()]).boxed(),
+            one_of(vec![bs.clone(), fs.clone()]).boxed(),
+            Sequence::new(vec![bs, fs]).boxed(),
+        ];
+
+        let mut ctx = ParseContext::new(dialect_selector(get_default_dialect()).unwrap());
+        // Matching the first element of the list
+        let (match_result, matcher) =
+            longest_trimmed_match(&test_segments(), matchers.clone(), &mut ctx, true);
+
+        // Check we got a match
+        assert!(match_result.has_match());
+        // Check we got the right one.
+        assert!(matcher.unwrap().dyn_eq(&*matchers[2]));
+        // And it matched the first three segments
+        assert_eq!(match_result.len(), 3);
     }
 }

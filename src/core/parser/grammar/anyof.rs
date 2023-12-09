@@ -7,6 +7,8 @@ use crate::core::parser::{
     match_result::MatchResult, matchable::Matchable, segments::base::Segment, types::ParseMode,
 };
 
+use super::base::longest_trimmed_match;
+
 fn parse_mode_match_result(
     matched_segments: Vec<Box<dyn Segment>>,
     mut unmatched_segments: Vec<Box<dyn Segment>>,
@@ -85,60 +87,6 @@ impl AnyNumberOf {
         self
     }
 
-    fn _longest_trimmed_match(
-        &self,
-        segments: &[Box<dyn Segment>],
-        matchers: Vec<Box<dyn Matchable>>,
-        parse_context: &mut ParseContext,
-        trim_noncode: bool,
-    ) -> (MatchResult, Option<Box<dyn Matchable>>) {
-        // Have we been passed an empty list?
-        if segments.is_empty() {
-            return (MatchResult::from_empty(), None);
-        }
-        // If presented with no options, return no match
-        else if matchers.is_empty() {
-            return (MatchResult::from_unmatched(segments), None);
-        }
-
-        let available_options = prune_options(&matchers, segments, parse_context);
-
-        if available_options.is_empty() {
-            return (MatchResult::from_unmatched(segments), None);
-        }
-
-        let mut best_match_length = 0;
-        let mut best_match = None;
-
-        for (idx, matcher) in enumerate(available_options) {
-            let match_result = matcher.match_segments(segments.to_vec(), parse_context);
-
-            // No match. Skip this one.
-            if !match_result.has_match() {
-                continue;
-            }
-
-            if match_result.is_complete() {
-                unimplemented!()
-            } else if match_result.has_match() {
-                if match_result.trimmed_matched_length() > best_match_length {
-                    best_match_length = match_result.trimmed_matched_length();
-                    best_match = ((match_result, matcher)).into();
-                }
-            }
-        }
-
-        // If we get here, then there wasn't a complete match. If we
-        // has a best_match, return that.
-        if best_match_length > 0 {
-            let (match_result, matchable) = best_match.unwrap();
-            return (match_result, matchable.into());
-        }
-
-        // If no match at all, return nothing
-        (MatchResult::from_unmatched(segments), None)
-    }
-
     // Match the forward segments against the available elements once.
     // This serves as the main body of OneOf, but also a building block
     // for AnyNumberOf.
@@ -150,7 +98,7 @@ impl AnyNumberOf {
         let name = std::any::type_name::<Self>();
 
         parse_context.deeper_match(name, false, &[], None, |ctx| {
-            self._longest_trimmed_match(segments, self.elements.clone(), ctx, false)
+            longest_trimmed_match(segments, self.elements.clone(), ctx, false)
         })
     }
 }
@@ -165,7 +113,32 @@ impl Matchable for AnyNumberOf {
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        todo!()
+        let option_simples: Vec<Option<(HashSet<String>, HashSet<String>)>> = self
+            .elements
+            .iter()
+            .map(|opt| opt.simple(parse_context, crumbs.clone()))
+            .collect();
+
+        if option_simples.iter().any(Option::is_none) {
+            return None;
+        }
+
+        let simple_buff: Vec<(HashSet<String>, HashSet<String>)> =
+            option_simples.into_iter().flatten().collect();
+
+        let simple_raws: HashSet<String> = simple_buff
+            .iter()
+            .flat_map(|(raws, _)| raws)
+            .cloned()
+            .collect();
+
+        let simple_types: HashSet<String> = simple_buff
+            .iter()
+            .flat_map(|(_, types)| types)
+            .cloned()
+            .collect();
+
+        Some((simple_raws, simple_types))
     }
 
     fn match_segments(
@@ -203,7 +176,7 @@ impl Matchable for AnyNumberOf {
                     )
                 } else {
                     // We didn't meet the hurdle
-                    MatchResult::from_unmatched(&segments)
+                    MatchResult::from_unmatched(segments)
                 };
             }
 

@@ -246,18 +246,13 @@ mod tests {
     use itertools::Itertools;
 
     use crate::{
-        core::{
-            dialects::init::{dialect_selector, get_default_dialect},
-            parser::{
-                context::ParseContext,
-                matchable::Matchable,
-                parsers::StringParser,
-                segments::{
-                    keyword::KeywordSegment,
-                    test_functions::{
-                        fresh_ansi_dialect, generate_test_segments_func, test_segments,
-                    },
-                },
+        core::parser::{
+            context::ParseContext,
+            matchable::Matchable,
+            parsers::StringParser,
+            segments::{
+                keyword::KeywordSegment,
+                test_functions::{fresh_ansi_dialect, generate_test_segments_func, test_segments},
             },
         },
         helpers::ToMatchable,
@@ -369,7 +364,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_anyof_modes() {
-        let cases: [(&[&str], &[(&str, &str)]); 3] = [
+        let cases: [(&[_], &[_]); 3] = [
             (&["a"], &[("a", "kw")]),
             (&["b"], &[]),
             (

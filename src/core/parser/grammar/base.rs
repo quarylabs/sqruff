@@ -327,7 +327,7 @@ pub fn longest_trimmed_match(
     let mut best_match_length = 0;
     let mut best_match = None;
 
-    for (idx, matcher) in enumerate(available_options) {
+    for (_idx, matcher) in enumerate(available_options) {
         let match_result = matcher.match_segments(segments.to_vec(), parse_context);
 
         // No match. Skip this one.
@@ -346,11 +346,11 @@ pub fn longest_trimmed_match(
             } else {
                 (match_result, matcher.into())
             };
-        } else if match_result.has_match() {
-            if match_result.trimmed_matched_length() > best_match_length {
-                best_match_length = match_result.trimmed_matched_length();
-                best_match = ((match_result, matcher)).into();
-            }
+        } else if match_result.has_match()
+            && match_result.trimmed_matched_length() > best_match_length
+        {
+            best_match_length = match_result.trimmed_matched_length();
+            best_match = (match_result, matcher).into();
         }
     }
 
@@ -363,7 +363,7 @@ pub fn longest_trimmed_match(
             matched_segments.extend(match_result.matched_segments);
 
             let mut unmatched_segments = match_result.unmatched_segments;
-            unmatched_segments.extend(post_nc.into_iter().cloned());
+            unmatched_segments.extend(post_nc.iter().cloned());
 
             (
                 MatchResult {
@@ -384,17 +384,14 @@ pub fn longest_trimmed_match(
 #[cfg(test)]
 mod tests {
     use crate::{
-        core::{
-            dialects::init::{dialect_selector, get_default_dialect},
-            parser::{
-                grammar::{anyof::one_of, sequence::Sequence},
-                parsers::StringParser,
-                segments::{
-                    keyword::KeywordSegment,
-                    test_functions::{
-                        fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
-                        test_segments,
-                    },
+        core::parser::{
+            grammar::{anyof::one_of, sequence::Sequence},
+            parsers::StringParser,
+            segments::{
+                keyword::KeywordSegment,
+                test_functions::{
+                    fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
+                    test_segments,
                 },
             },
         },

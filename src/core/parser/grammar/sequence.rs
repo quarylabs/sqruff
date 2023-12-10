@@ -104,12 +104,12 @@ impl Matchable for Sequence {
 
             if !opt.is_optional() {
                 // We found our first non-optional element!
-                return ((simple_raws, simple_types)).into();
+                return (simple_raws, simple_types).into();
             }
         }
 
         // If *all* elements are optional AND simple, I guess it's also simple.
-        ((simple_raws, simple_types)).into()
+        (simple_raws, simple_types).into()
     }
 
     fn match_segments(
@@ -221,18 +221,15 @@ impl Matchable for Sequence {
 #[cfg(test)]
 mod tests {
     use crate::{
-        core::{
-            dialects::init::{dialect_selector, get_default_dialect},
-            parser::{
-                context::ParseContext,
-                markers::PositionMarker,
-                matchable::Matchable,
-                parsers::StringParser,
-                segments::{
-                    keyword::KeywordSegment,
-                    meta::Indent,
-                    test_functions::{fresh_ansi_dialect, test_segments},
-                },
+        core::parser::{
+            context::ParseContext,
+            markers::PositionMarker,
+            matchable::Matchable,
+            parsers::StringParser,
+            segments::{
+                keyword::KeywordSegment,
+                meta::Indent,
+                test_functions::{fresh_ansi_dialect, test_segments},
             },
         },
         helpers::ToMatchable,

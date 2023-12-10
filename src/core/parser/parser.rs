@@ -64,6 +64,6 @@ mod tests {
         let config = FluffConfig::new(None, None, None, None);
         let linter = Linter::new(config, None, None);
 
-        linter.parse_string(in_str, None, None, None, None);
+        let _ = linter.parse_string(in_str, None, None, None, None);
     }
 }

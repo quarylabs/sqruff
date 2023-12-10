@@ -65,7 +65,7 @@ impl Sequence {
         }
     }
 
-    pub fn with_allow_gaps(mut self, allow_gaps: bool) -> Self {
+    pub fn allow_gaps(mut self, allow_gaps: bool) -> Self {
         self.allow_gaps = allow_gaps;
         self
     }
@@ -276,7 +276,7 @@ mod tests {
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         let g = Sequence::new(vec![bs.clone(), fs.clone()]);
-        let gc = Sequence::new(vec![bs, fs]).with_allow_gaps(false);
+        let gc = Sequence::new(vec![bs, fs]).allow_gaps(false);
 
         let match_result = g.match_segments(test_segments(), &mut ctx);
 

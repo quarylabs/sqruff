@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 
-use itertools::{chain, enumerate, Itertools};
+use itertools::{chain, Itertools};
 
 use crate::core::parser::{
-    context::ParseContext, helpers::trim_non_code_segments, match_algorithms::prune_options,
-    match_result::MatchResult, matchable::Matchable, segments::base::Segment, types::ParseMode,
+    context::ParseContext, helpers::trim_non_code_segments, match_result::MatchResult,
+    matchable::Matchable, segments::base::Segment, types::ParseMode,
 };
 
 use super::base::longest_trimmed_match;

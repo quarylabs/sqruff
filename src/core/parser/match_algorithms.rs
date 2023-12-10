@@ -92,9 +92,9 @@ pub fn prune_options(
             matched = true;
         }
 
-        // Match Types
-        // if !simple_types.is_empty() && !matched && first_types.intersection(simple_types) {
-        // }
+        if !simple_types.is_empty() {
+            unimplemented!()
+        }
 
         if !matched {
             prune_buff.push(opt.clone());

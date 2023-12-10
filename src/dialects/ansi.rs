@@ -6,6 +6,7 @@ use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::helpers::ToMatchable;
 use crate::traits::Boxed;
 use itertools::Itertools;
 
@@ -115,22 +116,25 @@ pub fn ansi_dialect() -> Dialect {
         // It assumes no whitespace on either side.
         // ColonDelimiterSegment
         "StartBracketSegment" => {
-            (StringParser::new("(", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+            (StringParser::new("(", symbol_factory, None, false, None).to_matchable()).into()
         },
         "EndBracketSegment" => {
-            (StringParser::new(")", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+            (StringParser::new(")", symbol_factory, None, false, None).to_matchable()).into()
         },
         "StartSquareBracketSegment" => {
-            (StringParser::new("[", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+            (StringParser::new("[", symbol_factory, None, false, None).to_matchable()).into()
         },
         "EndSquareBracketSegment" => {
-            (StringParser::new("]", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+            (StringParser::new("]", symbol_factory, None, false, None).to_matchable()).into()
         },
         "StartCurlyBracketSegment" => {
-            (StringParser::new("{", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+            (StringParser::new("{", symbol_factory, None, false, None).to_matchable()).into()
         },
         "EndCurlyBracketSegment" => {
-            (StringParser::new("}", symbol_factory, None, false, None).boxed() as Box<dyn Matchable>).into()
+            (StringParser::new("}", symbol_factory, None, false, None).to_matchable()).into()
+        },
+        "CommaSegment" => {
+            (StringParser::new(",", symbol_factory, None, false, None).to_matchable()).into()
         },
         "NakedIdentifierSegment" => {
             DialectElementType::SegmentGenerator(SegmentGenerator::new(|dialect| {

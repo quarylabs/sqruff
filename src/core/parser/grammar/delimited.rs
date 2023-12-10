@@ -14,6 +14,7 @@ use crate::{
 use super::{
     anyof::{one_of, AnyNumberOf},
     base::{longest_trimmed_match, Ref},
+    noncode::NonCodeMatcher,
 };
 
 /// Match an arbitrary number of elements separated by a delimiter.
@@ -25,6 +26,7 @@ pub struct Delimited {
     base: AnyNumberOf,
     allow_trailing: bool,
     delimiter: Box<dyn Matchable>,
+    min_delimiters: Option<usize>,
 }
 
 impl Delimited {
@@ -34,6 +36,7 @@ impl Delimited {
             allow_trailing: false,
             delimiter: Ref::new("CommaSegment".into(), None, Vec::new(), false, true, false)
                 .to_matchable(),
+            min_delimiters: None,
         }
     }
 
@@ -94,7 +97,11 @@ impl Matchable for Delimited {
         // NOTE: If the configured delimiter is in parse_context.terminators then
         // treat is _only_ as a delimiter and not as a terminator. This happens
         // frequently during nested comma expressions.
-        let terminator_matchers = Vec::new();
+        let mut terminator_matchers = Vec::new();
+
+        if !self.allow_gaps {
+            terminator_matchers.push(NonCodeMatcher.to_matchable());
+        }
 
         let mut tmp_sg = Vec::new();
         loop {
@@ -107,7 +114,8 @@ impl Matchable for Delimited {
             let (pre_non_code, seg_content, post_non_code) = trim_non_code_segments(&tmp_sg);
 
             if !self.allow_gaps && pre_non_code.iter().any(|seg| seg.is_whitespace()) {
-                unimplemented!()
+                unmatched_segments = seg_buff;
+                break;
             }
 
             if seg_content.is_empty() {
@@ -197,10 +205,12 @@ impl Matchable for Delimited {
             seeking_delimiter = !seeking_delimiter;
         }
 
-        // if self.min_delimiters:
-        //     if delimiters < self.min_delimiters:
-        //         print("if delimiters < self.min_delimiters")
-        //         return MatchResult.from_unmatched(matched_segments + unmatched_segments)
+        if Some(delimiters) < self.min_delimiters {
+            let mut matched_segments = matched_segments;
+            matched_segments.extend(unmatched_segments);
+
+            return MatchResult::from_unmatched(matched_segments);
+        }
 
         if terminated {
             return if has_matched_segs {
@@ -284,16 +294,63 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_delimited() {
-        let cases = [(
-            /*None*/ true,
-            false,
-            vec!["bar", " \t ", ".", "    ", "bar"],
-            5,
-        )];
+        let cases = [
+            // Basic testing
+            (
+                None,
+                true,
+                false,
+                vec!["bar", " \t ", ".", "    ", "bar"],
+                5,
+            ),
+            (
+                None,
+                true,
+                false,
+                vec!["bar", " \t ", ".", "    ", "bar", "    "],
+                6,
+            ),
+            // Testing allow_trailing
+            (None, true, false, vec!["bar", " \t ", ".", "   "], 0),
+            (None, true, true, vec!["bar", " \t ", ".", "   "], 4),
+            // Testing the implications of allow_gaps
+            (
+                0.into(),
+                true,
+                false,
+                vec!["bar", " \t ", ".", "    ", "bar"],
+                5,
+            ),
+            (
+                0.into(),
+                false,
+                false,
+                vec!["bar", " \t ", ".", "    ", "bar"],
+                1,
+            ),
+            (
+                1.into(),
+                true,
+                false,
+                vec!["bar", " \t ", ".", "    ", "bar"],
+                5,
+            ),
+            (
+                1.into(),
+                false,
+                false,
+                vec!["bar", " \t ", ".", "    ", "bar"],
+                0,
+            ),
+            // Check we still succeed with something trailing right on the end.
+            (1.into(), false, false, vec!["bar", ".", "bar", "foo"], 3),
+            // Check min_delimiters. There's a delimiter here, but not enough to match.
+            (2.into(), true, false, vec!["bar", ".", "bar", "foo"], 0),
+        ];
 
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
-        for (allow_gaps, allow_trailing, token_list, match_len) in cases {
+        for (min_delimiters, allow_gaps, allow_trailing, token_list, match_len) in cases {
             let test_segments = generate_test_segments_func(token_list);
             let mut g = Delimited::new(vec![StringParser::new(
                 "bar",
@@ -317,10 +374,11 @@ mod tests {
                     SymbolSegmentNewArgs {},
                 )
             };
-            g.delimiter = StringParser::new(".", symbol_factory, None, false, None).to_matchable();
 
+            g.delimiter = StringParser::new(".", symbol_factory, None, false, None).to_matchable();
             g.allow_gaps(allow_gaps);
             g.allow_trailing(allow_trailing);
+            g.min_delimiters = min_delimiters;
 
             let match_result = g.match_segments(test_segments.clone(), &mut ctx);
             assert_eq!(match_result.len(), match_len);

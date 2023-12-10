@@ -50,10 +50,10 @@ fn parse_mode_match_result(
 
 #[derive(Debug, Clone)]
 pub struct AnyNumberOf {
-    elements: Vec<Box<dyn Matchable>>,
-    max_times: Option<usize>,
-    min_times: usize,
-    allow_gaps: bool,
+    pub elements: Vec<Box<dyn Matchable>>,
+    pub max_times: Option<usize>,
+    pub min_times: usize,
+    pub allow_gaps: bool,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -72,19 +72,16 @@ impl AnyNumberOf {
         }
     }
 
-    fn with_allow_gaps(mut self, allow_gaps: bool) -> Self {
+    pub fn allow_gaps(&mut self, allow_gaps: bool) {
         self.allow_gaps = allow_gaps;
-        self
     }
 
-    fn with_max_times(mut self, max_times: usize) -> Self {
+    pub fn max_times(&mut self, max_times: usize) {
         self.max_times = max_times.into();
-        self
     }
 
-    fn with_min_times(mut self, min_times: usize) -> Self {
+    pub fn min_times(&mut self, min_times: usize) {
         self.min_times = min_times;
-        self
     }
 
     // Match the forward segments against the available elements once.
@@ -238,9 +235,10 @@ impl Matchable for AnyNumberOf {
 }
 
 pub fn one_of(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
-    AnyNumberOf::new(elements)
-        .with_max_times(1)
-        .with_min_times(1)
+    let mut matcher = AnyNumberOf::new(elements);
+    matcher.max_times(1);
+    matcher.min_times(1);
+    matcher
 }
 
 #[cfg(test)]
@@ -307,7 +305,9 @@ mod tests {
             )
             .boxed();
 
-            let g = one_of(vec![fs, bs]).with_allow_gaps(allow_gaps);
+            let mut g = one_of(vec![fs, bs]);
+            g.allow_gaps(allow_gaps);
+
             let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
             // Check directly

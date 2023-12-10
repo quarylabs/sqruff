@@ -438,19 +438,16 @@ pub fn bracket_sensitive_look_ahead_match(
 mod tests {
     use super::{bracket_sensitive_look_ahead_match, look_ahead_match};
     use crate::{
-        core::{
-            dialects::init::{dialect_selector, get_default_dialect},
-            parser::{
-                context::ParseContext,
-                matchable::Matchable,
-                parsers::StringParser,
-                segments::{
-                    base::Segment,
-                    keyword::KeywordSegment,
-                    test_functions::{
-                        fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
-                        test_segments,
-                    },
+        core::parser::{
+            context::ParseContext,
+            matchable::Matchable,
+            parsers::StringParser,
+            segments::{
+                base::Segment,
+                keyword::KeywordSegment,
+                test_functions::{
+                    fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
+                    test_segments,
                 },
             },
         },

@@ -68,9 +68,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
             WhitespaceSegment::new(elem, &position_marker, WhitespaceSegmentNewArgs {})
         } else if elem.chars().all(|c| c == '\n') {
             NewlineSegment::new(elem, &position_marker, NewlineSegmentNewArgs {})
-        } else if elem == "(" {
-            SymbolSegment::new(elem, &position_marker, SymbolSegmentNewArgs {})
-        } else if elem == ")" {
+        } else if elem == "(" || elem == ")" {
             SymbolSegment::new(elem, &position_marker, SymbolSegmentNewArgs {})
         } else if elem.starts_with("--") {
             CommentSegment::new(

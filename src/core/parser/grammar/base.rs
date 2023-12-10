@@ -164,11 +164,21 @@ impl Matchable for Ref {
 
     fn simple(
         &self,
-        _parse_context: &ParseContext,
-        _crumbs: Option<Vec<&str>>,
+        parse_context: &ParseContext,
+        crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        // Implementation...
-        unimplemented!()
+        if let Some(ref c) = crumbs {
+            if c.contains(&self._ref.as_str()) {
+                let loop_string = c.join(" -> ");
+                panic!("Self referential grammar detected: {}", loop_string);
+            }
+        }
+
+        let mut new_crumbs = crumbs.unwrap_or_else(Vec::new);
+        new_crumbs.push(&self._ref);
+
+        self._get_elem(parse_context.dialect())
+            .simple(parse_context, Some(new_crumbs))
     }
 
     fn match_segments(
@@ -348,7 +358,6 @@ pub fn longest_trimmed_match(
     // has a best_match, return that.
     if best_match_length > 0 {
         let (match_result, matchable) = best_match.unwrap();
-
         return if trim_noncode {
             let mut matched_segments = pre_nc.to_vec();
             matched_segments.extend(match_result.matched_segments);

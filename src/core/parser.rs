@@ -4,7 +4,7 @@ mod helpers;
 pub mod lexer;
 pub mod markers;
 pub mod match_algorithms;
-mod match_result;
+pub mod match_result;
 pub mod matchable;
 pub mod parser;
 pub mod parsers;

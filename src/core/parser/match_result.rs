@@ -2,8 +2,6 @@ use crate::core::parser::helpers::{join_segments_raw, trim_non_code_segments};
 use crate::core::parser::segments::base::Segment;
 use std::fmt;
 
-use super::lexer::Matcher;
-
 #[derive(Clone)]
 /// This should be the default response from any `match` method.
 ///

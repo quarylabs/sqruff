@@ -15,7 +15,7 @@ use std::ops::Range;
 /// - Positions within the fixed file are identified with a line number and line
 ///   position, which identify a point.
 /// - Arithmetic comparisons are on the location in the fixed file.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq)]
 pub struct PositionMarker {
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
@@ -69,6 +69,12 @@ impl PositionMarker {
     }
 
     /// Return the line and position of this marker in the source.
+    pub fn source_position(self) -> (usize, usize) {
+        self.templated_file
+            .get_line_pos_of_char_pos(self.templated_slice.start, true)
+    }
+
+    /// Return the line and position of this marker in the source.
     pub fn templated_position(&self) -> (usize, usize) {
         self.templated_file
             .get_line_pos_of_char_pos(self.templated_slice.start, false)
@@ -115,14 +121,14 @@ impl PositionMarker {
 
     /// Get a point marker from the start.
     pub fn start_point_marker(&self) -> PositionMarker {
-        return PositionMarker::from_point(
+        PositionMarker::from_point(
             self.source_slice.start,
             self.templated_slice.start,
             self.templated_file.clone(),
             // Start points also pass on the working position
             Some(self.working_line_no),
             Some(self.working_line_pos),
-        );
+        )
     }
 
     fn end_point_marker(&self) -> PositionMarker {

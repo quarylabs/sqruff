@@ -1,6 +1,6 @@
 //! A list of all SQL key words.
 
-pub const ANSI_RESERVED_KEYWORDS: &'static str = "SELECT
+pub const ANSI_RESERVED_KEYWORDS: &str = "SELECT
 JOIN
 ON
 USING
@@ -24,7 +24,7 @@ SET
 NATURAL
 ";
 
-pub const ANSI_UNRESERVED_KEYWORDS: &'static str = "ABORT
+pub const ANSI_UNRESERVED_KEYWORDS: &str = "ABORT
 ABS
 ABSOLUTE
 ACCESS

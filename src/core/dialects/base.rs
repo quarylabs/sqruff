@@ -1,31 +1,24 @@
-use crate::core::parser::{
-    lexer::Matcher, matchable::Matchable, parsers::StringParser, segments::keyword::KeywordSegment,
-    types::DialectElementType,
+use itertools::Itertools;
+
+use crate::{
+    core::parser::{
+        lexer::Matcher, matchable::Matchable, parsers::StringParser,
+        segments::keyword::KeywordSegment, types::DialectElementType,
+    },
+    helpers::capitalize,
 };
 use std::{
+    borrow::Cow,
     collections::{hash_map::Entry, HashMap, HashSet},
     fmt::Debug,
 };
-
-#[macro_export]
-macro_rules! add_to_dialect {
-    ($dialect:expr, $( $key:expr => $value:expr ),+ $(,)?) => {
-        $(
-            if $dialect.library.contains_key($key) {
-                panic!("{:?} is already registered in {:?}", $key, $dialect);
-            }
-            $dialect.library.insert(String::from($key), $value);
-        )*
-    };
-}
 
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
     root_segment_name: &'static str,
     lexer_matchers: Option<Vec<Box<dyn Matcher>>>,
     // TODO: Can we use PHF here? https://crates.io/crates/phf
-    // TODO: remove pub
-    pub library: HashMap<String, DialectElementType>,
+    library: HashMap<Cow<'static, str>, DialectElementType>,
     sets: HashMap<&'static str, HashSet<&'static str>>,
     bracket_collections: HashMap<String, HashSet<BracketPair>>,
 }
@@ -35,6 +28,15 @@ impl Dialect {
         let mut this = Dialect::default();
         this.root_segment_name = root_segment_name;
         this
+    }
+
+    pub fn extend(
+        &mut self,
+        iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)> + Clone,
+    ) {
+        check_unique_names(self, &iter.clone().into_iter().collect_vec());
+
+        self.library.extend(iter);
     }
 
     pub fn lexer_matchers(&self) -> &[Box<dyn Matcher>] {
@@ -123,8 +125,7 @@ impl Dialect {
                 panic!("Unexpected SegmentGenerator while fetching '{}'", name);
             }
             None => {
-                if name.ends_with("KeywordSegment") {
-                    let keyword = &name[..name.len() - 14];
+                if let Some(keyword) = name.strip_suffix("KeywordSegment") {
                     let keyword_tip = "\
                         \n\nThe syntax in the query is not (yet?) supported. Try to \
                         narrow down your query to a minimal, reproducible case and \
@@ -143,14 +144,6 @@ impl Dialect {
     }
 
     pub fn expand(&mut self) {
-        fn capitalize_first(s: &str) -> String {
-            let mut chars = s.chars();
-            match chars.next() {
-                None => String::new(),
-                Some(first_char) => first_char.to_uppercase().chain(chars).collect(),
-            }
-        }
-
         // Temporarily take ownership of 'library' from 'self' to avoid borrow checker errors during mutation.
         let mut library = std::mem::take(&mut self.library);
         for element in library.values_mut() {
@@ -163,8 +156,8 @@ impl Dialect {
         for keyword_set in ["unreserved_keywords", "reserved_keywords"] {
             if let Some(keywords) = self.sets.get(keyword_set) {
                 for kw in keywords {
-                    let n = format!("{}KeywordSegment", capitalize_first(kw));
-                    if !self.library.contains_key(&n) {
+                    let n = format!("{}KeywordSegment", capitalize(kw));
+                    if !self.library.contains_key(n.as_str()) {
                         let parser = StringParser::new(
                             &kw.to_lowercase(),
                             |segment| {
@@ -179,7 +172,7 @@ impl Dialect {
                         );
 
                         self.library
-                            .insert(n, DialectElementType::Matchable(Box::new(parser)));
+                            .insert(n.into(), DialectElementType::Matchable(Box::new(parser)));
                     }
                 }
             }
@@ -192,6 +185,23 @@ impl Dialect {
 
     pub fn get_root_segment(&self) -> Box<dyn Matchable> {
         self.r#ref(self.root_segment_name())
+    }
+}
+
+fn check_unique_names(dialect: &Dialect, xs: &[(Cow<'static, str>, DialectElementType)]) {
+    let mut names = HashSet::new();
+
+    for (name, _) in xs {
+        assert!(
+            names.insert(name),
+            "ERROR: the name {name} is already registered."
+        );
+
+        assert!(
+            !dialect.library.contains_key(name),
+            "ERROR: the name '{}' is repeated.",
+            name
+        );
     }
 }
 

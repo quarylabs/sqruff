@@ -3,12 +3,17 @@ use std::collections::HashSet;
 use itertools::enumerate;
 use uuid::Uuid;
 
-use crate::core::{
-    dialects::base::Dialect,
-    parser::{
-        context::ParseContext, helpers::trim_non_code_segments, match_algorithms::prune_options,
-        match_result::MatchResult, matchable::Matchable, segments::base::Segment, types::ParseMode,
+use crate::{
+    core::{
+        dialects::base::Dialect,
+        errors::SQLParseError,
+        parser::{
+            context::ParseContext, helpers::trim_non_code_segments,
+            match_algorithms::prune_options, match_result::MatchResult, matchable::Matchable,
+            segments::base::Segment, types::ParseMode,
+        },
     },
+    helpers::{capitalize, ToMatchable},
 };
 
 #[derive(Clone, Debug)]
@@ -63,6 +68,8 @@ impl BaseGrammar {
     }
 }
 
+impl Segment for BaseGrammar {}
+
 #[allow(unused_variables)]
 impl Matchable for BaseGrammar {
     fn is_optional(&self) -> bool {
@@ -82,9 +89,9 @@ impl Matchable for BaseGrammar {
         &self,
         segments: Vec<Box<dyn Segment>>,
         parse_context: &mut ParseContext,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, SQLParseError> {
         // Placeholder implementation
-        MatchResult::new(Vec::new(), Vec::new())
+        Ok(MatchResult::new(Vec::new(), Vec::new()))
     }
 
     fn cache_key(&self) -> String {
@@ -94,8 +101,8 @@ impl Matchable for BaseGrammar {
 
 #[derive(Clone)]
 pub struct Ref {
-    _ref: String,
-    exclude: Option<Box<dyn Matchable>>, // Using Box<dyn Matchable> for dynamic dispatch
+    reference: String,
+    exclude: Option<Box<dyn Matchable>>,
     terminators: Vec<Box<dyn Matchable>>,
     reset_terminators: bool,
     allow_gaps: bool,
@@ -107,7 +114,7 @@ impl std::fmt::Debug for Ref {
         write!(
             f,
             "<Ref: {}{}>",
-            self._ref,
+            self.reference,
             if self.is_optional() { " [opt]" } else { "" }
         )
     }
@@ -115,40 +122,42 @@ impl std::fmt::Debug for Ref {
 
 impl Ref {
     // Constructor function
-    pub fn new(
-        reference: String,
-        exclude: Option<Box<dyn Matchable>>,
-        terminators: Vec<Box<dyn Matchable>>,
-        reset_terminators: bool,
-        allow_gaps: bool,
-        optional: bool,
-    ) -> Self {
+    pub fn new(reference: impl ToString) -> Self {
         Ref {
-            _ref: reference,
-            exclude,
-            terminators,
-            reset_terminators,
-            allow_gaps,
-            optional,
+            reference: reference.to_string(),
+            exclude: None,
+            terminators: Vec::new(),
+            reset_terminators: false,
+            allow_gaps: true,
+            optional: false,
         }
+    }
+
+    pub fn exclude(mut self, exclude: impl ToMatchable) -> Self {
+        self.exclude = exclude.to_matchable().into();
+        self
+    }
+
+    pub fn optional(mut self) -> Self {
+        self.optional = true;
+        self
     }
 
     // Method to get the referenced element
     fn _get_elem(&self, dialect: &Dialect) -> Box<dyn Matchable> {
-        dialect.r#ref(&self._ref)
+        dialect.r#ref(&self.reference)
     }
 
     // Static method to create a Ref instance for a keyword
-    pub fn keyword(keyword: &str, optional: Option<bool>) -> Self {
-        let optional = optional.unwrap_or_default();
-        let name = format!("{}KeywordSegment", keyword.to_uppercase());
-        Ref::new(name, None, vec![], false, true, optional)
+    pub fn keyword(keyword: &str) -> Self {
+        let name = format!("{}KeywordSegment", capitalize(keyword));
+        Ref::new(name)
     }
 }
 
 impl PartialEq for Ref {
     fn eq(&self, other: &Self) -> bool {
-        self._ref == other._ref
+        self.reference == other.reference
             && self.reset_terminators == other.reset_terminators
             && self.allow_gaps == other.allow_gaps
             && self.optional == other.optional
@@ -156,6 +165,8 @@ impl PartialEq for Ref {
 }
 
 impl Eq for Ref {}
+
+impl Segment for Ref {}
 
 impl Matchable for Ref {
     fn is_optional(&self) -> bool {
@@ -168,14 +179,14 @@ impl Matchable for Ref {
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         if let Some(ref c) = crumbs {
-            if c.contains(&self._ref.as_str()) {
+            if c.contains(&self.reference.as_str()) {
                 let loop_string = c.join(" -> ");
                 panic!("Self referential grammar detected: {}", loop_string);
             }
         }
 
-        let mut new_crumbs = crumbs.unwrap_or_else(Vec::new);
-        new_crumbs.push(&self._ref);
+        let mut new_crumbs = crumbs.unwrap_or_default();
+        new_crumbs.push(&self.reference);
 
         self._get_elem(parse_context.dialect())
             .simple(parse_context, Some(new_crumbs))
@@ -185,25 +196,22 @@ impl Matchable for Ref {
         &self,
         segments: Vec<Box<dyn Segment>>,
         parse_context: &mut ParseContext,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, SQLParseError> {
         // Implement the logic for `_get_elem`
         let elem = self._get_elem(parse_context.dialect());
 
         // Check the exclude condition
-        if self.exclude.is_some() {
+        if let Some(exclude) = &self.exclude {
             let ctx = parse_context.deeper_match(
-                &format!("{}-Exclude", self._ref),
+                &format!("{}-Exclude", self.reference),
                 self.reset_terminators,
                 &self.terminators,
                 None,
                 |this| {
-                    if !self
-                        .exclude
-                        .as_ref()
-                        .unwrap()
+                    if !exclude
                         .match_segments(segments.clone(), this)
-                        .matched_segments
-                        .is_empty()
+                        .map_err(|e| dbg!(e))
+                        .map_or(false, |match_result| !match_result.has_match())
                     {
                         return Some(MatchResult::from_unmatched(segments.clone()));
                     }
@@ -212,87 +220,48 @@ impl Matchable for Ref {
                 },
             );
 
-            if ctx.is_some() {
-                return ctx.unwrap();
+            if let Some(ctx) = ctx {
+                return Ok(ctx);
             }
         }
 
+        // Match against that. NB We're not incrementing the match_depth here.
+        // References shouldn't really count as a depth of match.
         parse_context.deeper_match(
-            &self._ref,
+            &self.reference,
             self.reset_terminators,
             &self.terminators,
             None,
             |this| elem.match_segments(segments, this),
         )
     }
-
-    fn cache_key(&self) -> String {
-        // Implementation...
-        unimplemented!()
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 struct Anything {}
 
-impl Matchable for Anything {
-    fn is_optional(&self) -> bool {
-        todo!()
-    }
+impl Segment for Anything {}
 
-    fn simple(
-        &self,
-        _parse_context: &ParseContext,
-        _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
-        todo!()
-    }
-
-    fn match_segments(
-        &self,
-        _segments: Vec<Box<dyn Segment>>,
-        _parse_context: &mut ParseContext,
-    ) -> MatchResult {
-        todo!()
-    }
-
-    fn cache_key(&self) -> String {
-        todo!()
-    }
-}
+impl Matchable for Anything {}
 
 #[derive(Clone, Debug, PartialEq)]
 struct Nothing {}
 
 impl Nothing {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {}
     }
 }
 
+impl Segment for Nothing {}
+
 impl Matchable for Nothing {
-    fn is_optional(&self) -> bool {
-        todo!()
-    }
-
-    fn simple(
-        &self,
-        _parse_context: &ParseContext,
-        _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
-        todo!()
-    }
-
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
         _parse_context: &mut ParseContext,
-    ) -> MatchResult {
-        MatchResult::from_unmatched(segments)
-    }
-
-    fn cache_key(&self) -> String {
-        todo!()
+    ) -> Result<MatchResult, SQLParseError> {
+        Ok(MatchResult::from_unmatched(segments))
     }
 }
 
@@ -301,20 +270,20 @@ pub fn longest_trimmed_match(
     matchers: Vec<Box<dyn Matchable>>,
     parse_context: &mut ParseContext,
     trim_noncode: bool,
-) -> (MatchResult, Option<Box<dyn Matchable>>) {
+) -> Result<(MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
     // Have we been passed an empty list?
     if segments.is_empty() {
-        return (MatchResult::from_empty(), None);
+        return Ok((MatchResult::from_empty(), None));
     }
     // If presented with no options, return no match
     else if matchers.is_empty() {
-        return (MatchResult::from_unmatched(segments.to_vec()), None);
+        return Ok((MatchResult::from_unmatched(segments.to_vec()), None));
     }
 
     let available_options = prune_options(&matchers, segments, parse_context);
 
     if available_options.is_empty() {
-        return (MatchResult::from_unmatched(segments.to_vec()), None);
+        return Ok((MatchResult::from_unmatched(segments.to_vec()), None));
     }
 
     let mut pre_nc = &[][..];
@@ -328,7 +297,7 @@ pub fn longest_trimmed_match(
     let mut best_match = None;
 
     for (_idx, matcher) in enumerate(available_options) {
-        let match_result = matcher.match_segments(segments.to_vec(), parse_context);
+        let match_result = matcher.match_segments(segments.to_vec(), parse_context)?;
 
         // No match. Skip this one.
         if !match_result.has_match() {
@@ -342,9 +311,9 @@ pub fn longest_trimmed_match(
                 matched_segments.extend(match_result.matched_segments);
                 matched_segments.extend(post_nc.to_vec());
 
-                (MatchResult::from_matched(matched_segments), matcher.into())
+                Ok((MatchResult::from_matched(matched_segments), matcher.into()))
             } else {
-                (match_result, matcher.into())
+                Ok((match_result, matcher.into()))
             };
         } else if match_result.has_match()
             && match_result.trimmed_matched_length() > best_match_length
@@ -365,20 +334,20 @@ pub fn longest_trimmed_match(
             let mut unmatched_segments = match_result.unmatched_segments;
             unmatched_segments.extend(post_nc.iter().cloned());
 
-            (
+            Ok((
                 MatchResult {
                     matched_segments,
                     unmatched_segments,
                 },
                 matchable.into(),
-            )
+            ))
         } else {
-            (match_result, matchable.into())
+            Ok((match_result, matchable.into()))
         };
     }
 
     // If no match at all, return nothing
-    (MatchResult::from_unmatched(segments.to_vec()), None)
+    Ok((MatchResult::from_unmatched(segments.to_vec()), None))
 }
 
 #[cfg(test)]
@@ -395,8 +364,7 @@ mod tests {
                 },
             },
         },
-        helpers::ToMatchable,
-        traits::Boxed,
+        helpers::{Boxed, ToMatchable},
     };
 
     use pretty_assertions::assert_eq;
@@ -406,8 +374,8 @@ mod tests {
     #[test]
     fn test__parser__grammar__ref_eq() {
         // Assuming Ref implements Clone and PartialEq
-        let r1 = Ref::new("foo".to_string(), None, vec![], false, true, false);
-        let r2 = Ref::new("foo".to_string(), None, vec![], false, true, false);
+        let r1 = Ref::new("foo".to_string());
+        let r2 = Ref::new("foo".to_string());
 
         // Rust does not directly compare object identities like Python's `is`,
         // but we can ensure they are not the same object by comparing memory addresses
@@ -435,24 +403,17 @@ mod tests {
     #[test]
     fn test__parser__grammar__ref_repr() {
         // Assuming that Ref has a constructor that accepts a &str and an optional bool
-        let r1 = Ref::new("foo".to_string(), None, vec![], false, true, false);
+        let r1 = Ref::new("foo".to_string());
         assert_eq!(format!("{:?}", r1), "<Ref: foo>");
 
-        let r2 = Ref::new("bar".to_string(), None, vec![], false, true, true);
+        let r2 = Ref::new("bar".to_string()).optional();
         assert_eq!(format!("{:?}", r2), "<Ref: bar [opt]>");
     }
 
     #[test]
     fn test__parser__grammar_ref_exclude() {
         // Assuming 'Ref' and 'NakedIdentifierSegment' are defined elsewhere
-        let ni = Ref::new(
-            "NakedIdentifierSegment".to_string(),
-            Some(Box::new(Ref::keyword("ABS", None))), // Exclude
-            vec![], // Terminators, assuming an empty Vec for this test
-            false,  // reset_terminators
-            false,  // allow_gaps
-            false,  // optional
-        );
+        let ni = Ref::new("NakedIdentifierSegment".to_string()).exclude(Ref::keyword("ABS"));
 
         // Assuming 'generate_test_segments' and 'fresh_ansi_dialect' are implemented elsewhere
         let ts = generate_test_segments_func(vec!["ABS", "ABSOLUTE"]);
@@ -461,12 +422,14 @@ mod tests {
         // Assert ABS does not match, due to the exclude
         assert!(ni
             .match_segments(vec![ts[0].clone()], &mut ctx)
+            .unwrap()
             .matched_segments
             .is_empty());
 
         // Assert ABSOLUTE does match
         assert!(!ni
             .match_segments(vec![ts[1].clone()], &mut ctx)
+            .unwrap()
             .matched_segments
             .is_empty());
     }
@@ -477,6 +440,7 @@ mod tests {
 
         assert!(Nothing::new()
             .match_segments(test_segments(), &mut ctx)
+            .unwrap()
             .matched_segments
             .is_empty());
     }
@@ -517,7 +481,8 @@ mod tests {
                 matchers,
                 &mut ctx,
                 trim_noncode,
-            );
+            )
+            .unwrap();
 
             let expected_result =
                 make_result_tuple(result_slice, &[matcher_keyword], &test_segments);
@@ -569,7 +534,7 @@ mod tests {
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
         // Matching the first element of the list
         let (match_result, matcher) =
-            longest_trimmed_match(&test_segments(), matchers.clone(), &mut ctx, true);
+            longest_trimmed_match(&test_segments(), matchers.clone(), &mut ctx, true).unwrap();
 
         // Check we got a match
         assert!(match_result.has_match());

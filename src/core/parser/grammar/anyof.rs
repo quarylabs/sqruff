@@ -2,16 +2,26 @@ use std::collections::HashSet;
 
 use itertools::{chain, Itertools};
 
-use crate::core::parser::{
-    context::ParseContext, helpers::trim_non_code_segments, match_result::MatchResult,
-    matchable::Matchable, segments::base::Segment, types::ParseMode,
+use crate::{
+    core::parser::matchable::Matchable,
+    core::{
+        errors::SQLParseError,
+        parser::{
+            context::ParseContext, helpers::trim_non_code_segments, match_result::MatchResult,
+            segments::base::Segment, types::ParseMode,
+        },
+    },
+    helpers::ToMatchable,
 };
 
-use super::base::longest_trimmed_match;
+use super::{
+    base::longest_trimmed_match,
+    sequence::{Bracketed, Sequence},
+};
 
 fn parse_mode_match_result(
     matched_segments: Vec<Box<dyn Segment>>,
-    mut unmatched_segments: Vec<Box<dyn Segment>>,
+    unmatched_segments: Vec<Box<dyn Segment>>,
     tail: Vec<Box<dyn Segment>>,
     parse_mode: ParseMode,
 ) -> MatchResult {
@@ -48,6 +58,38 @@ fn parse_mode_match_result(
     MatchResult::new(matched, tail)
 }
 
+pub fn simple(
+    elements: &[Box<dyn Matchable>],
+    parse_context: &ParseContext,
+    crumbs: Option<Vec<&str>>,
+) -> Option<(HashSet<String>, HashSet<String>)> {
+    let option_simples: Vec<Option<(HashSet<String>, HashSet<String>)>> = elements
+        .iter()
+        .map(|opt| opt.simple(parse_context, crumbs.clone()))
+        .collect();
+
+    if option_simples.iter().any(Option::is_none) {
+        return None;
+    }
+
+    let simple_buff: Vec<(HashSet<String>, HashSet<String>)> =
+        option_simples.into_iter().flatten().collect();
+
+    let simple_raws: HashSet<String> = simple_buff
+        .iter()
+        .flat_map(|(raws, _)| raws)
+        .cloned()
+        .collect();
+
+    let simple_types: HashSet<String> = simple_buff
+        .iter()
+        .flat_map(|(_, types)| types)
+        .cloned()
+        .collect();
+
+    Some((simple_raws, simple_types))
+}
+
 #[derive(Debug, Clone)]
 pub struct AnyNumberOf {
     pub elements: Vec<Box<dyn Matchable>>,
@@ -57,7 +99,7 @@ pub struct AnyNumberOf {
 }
 
 impl PartialEq for AnyNumberOf {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         unimplemented!()
     }
 }
@@ -67,7 +109,7 @@ impl AnyNumberOf {
         Self {
             elements,
             max_times: None,
-            min_times: 1,
+            min_times: 0,
             allow_gaps: true,
         }
     }
@@ -91,7 +133,7 @@ impl AnyNumberOf {
         &self,
         segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
-    ) -> (MatchResult, Option<Box<dyn Matchable>>) {
+    ) -> Result<(MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
         let name = std::any::type_name::<Self>();
 
         parse_context.deeper_match(name, false, &[], None, |ctx| {
@@ -100,9 +142,11 @@ impl AnyNumberOf {
     }
 }
 
+impl Segment for AnyNumberOf {}
+
 impl Matchable for AnyNumberOf {
     fn is_optional(&self) -> bool {
-        todo!()
+        self.min_times == 0
     }
 
     fn simple(
@@ -110,39 +154,14 @@ impl Matchable for AnyNumberOf {
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        let option_simples: Vec<Option<(HashSet<String>, HashSet<String>)>> = self
-            .elements
-            .iter()
-            .map(|opt| opt.simple(parse_context, crumbs.clone()))
-            .collect();
-
-        if option_simples.iter().any(Option::is_none) {
-            return None;
-        }
-
-        let simple_buff: Vec<(HashSet<String>, HashSet<String>)> =
-            option_simples.into_iter().flatten().collect();
-
-        let simple_raws: HashSet<String> = simple_buff
-            .iter()
-            .flat_map(|(raws, _)| raws)
-            .cloned()
-            .collect();
-
-        let simple_types: HashSet<String> = simple_buff
-            .iter()
-            .flat_map(|(_, types)| types)
-            .cloned()
-            .collect();
-
-        Some((simple_raws, simple_types))
+        simple(&self.elements, parse_context, crumbs)
     }
 
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
         parse_context: &mut ParseContext,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, SQLParseError> {
         let mut matched_segments = MatchResult::from_empty();
         let mut unmatched_segments = segments.clone();
         let tail = Vec::new();
@@ -151,29 +170,29 @@ impl Matchable for AnyNumberOf {
         let mut n_matches = 0;
         // let option_counter = {elem.cache_key(): 0 for elem in self._elements}
         loop {
-            if self.max_times.is_some() && Some(n_matches) >= self.max_times {
+            if Some(n_matches) >= self.max_times {
                 // We've matched as many times as we can
-                return parse_mode_match_result(
+                return Ok(parse_mode_match_result(
                     matched_segments.matched_segments,
                     unmatched_segments,
                     tail,
                     ParseMode::Strict,
-                );
+                ));
             }
 
             // Is there anything left to match?
             if unmatched_segments.is_empty() {
                 return if n_matches >= self.min_times {
                     // No...
-                    parse_mode_match_result(
+                    Ok(parse_mode_match_result(
                         matched_segments.matched_segments,
                         unmatched_segments,
                         tail,
                         ParseMode::Strict,
-                    )
+                    ))
                 } else {
                     // We didn't meet the hurdle
-                    MatchResult::from_unmatched(segments)
+                    Ok(MatchResult::from_unmatched(segments))
                 };
             }
 
@@ -189,7 +208,7 @@ impl Matchable for AnyNumberOf {
             };
 
             let (match_result, matched_option) =
-                self.match_once(&unmatched_segments, parse_context);
+                self.match_once(&unmatched_segments, parse_context)?;
 
             // Increment counter for matched option.
             if let Some(_matched_option) = matched_option {
@@ -208,22 +227,22 @@ impl Matchable for AnyNumberOf {
                 // unmatched segments are meaningful, i.e. they're not what we're
                 // looking for.
                 return if n_matches >= self.min_times {
-                    parse_mode_match_result(
+                    Ok(parse_mode_match_result(
                         matched_segments.matched_segments,
                         chain(pre_seg, unmatched_segments).collect_vec(),
                         tail,
                         ParseMode::Strict,
-                    )
+                    ))
                 } else {
                     // We didn't meet the hurdle
-                    parse_mode_match_result(
+                    Ok(parse_mode_match_result(
                         vec![],
                         chain(matched_segments.matched_segments, pre_seg)
                             .chain(unmatched_segments)
                             .collect_vec(),
                         tail,
                         ParseMode::Strict,
-                    )
+                    ))
                 };
             }
         }
@@ -241,6 +260,18 @@ pub fn one_of(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
     matcher
 }
 
+pub fn optionally_bracketed(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
+    let mut args = vec![Bracketed::new(elements.clone()).to_matchable()];
+
+    if elements.len() > 1 {
+        args.push(Sequence::new(elements).to_matchable());
+    } else {
+        args.extend(elements);
+    }
+
+    one_of(args)
+}
+
 #[cfg(test)]
 mod tests {
     use itertools::Itertools;
@@ -255,8 +286,7 @@ mod tests {
                 test_functions::{fresh_ansi_dialect, generate_test_segments_func, test_segments},
             },
         },
-        helpers::ToMatchable,
-        traits::Boxed,
+        helpers::{Boxed, ToMatchable},
     };
 
     use super::{one_of, AnyNumberOf};
@@ -306,7 +336,7 @@ mod tests {
             let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
             // Check directly
-            let mut segments = g.match_segments(test_segments(), &mut ctx);
+            let mut segments = g.match_segments(test_segments(), &mut ctx).unwrap();
 
             assert_eq!(segments.len(), 1);
             assert_eq!(
@@ -317,6 +347,7 @@ mod tests {
             // Check with a bit of whitespace
             assert!(!g
                 .match_segments(test_segments()[1..].to_vec(), &mut ctx)
+                .unwrap()
                 .has_match());
         }
     }
@@ -359,6 +390,7 @@ mod tests {
 
         assert!(!g
             .match_segments(test_segments()[5..].to_vec(), &mut ctx)
+            .unwrap()
             .has_match());
     }
 
@@ -399,7 +431,7 @@ mod tests {
 
             let seq = AnyNumberOf::new(elements);
 
-            let match_result = seq.match_segments(segments.clone(), &mut parse_cx);
+            let match_result = seq.match_segments(segments.clone(), &mut parse_cx).unwrap();
             let matched_segments = match_result.matched_segments;
 
             let result = matched_segments

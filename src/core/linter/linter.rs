@@ -226,6 +226,11 @@ impl Linter {
 
         let t0 = Instant::now();
         let violations = rendered.templater_violations.clone();
+        if !violations.is_empty() {
+            unimplemented!()
+        }
+
+        let mut violations = Vec::new();
         let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
 
         if rendered.templated_file.is_templated() {
@@ -253,9 +258,7 @@ impl Linter {
                 parse_statistics,
             );
             parsed = p;
-            if !pvs.is_empty() {
-                unimplemented!("violations.extend(pvs);")
-            }
+            violations.extend(pvs.into_iter().map(Into::into));
         } else {
             parsed = None;
         };
@@ -265,13 +268,9 @@ impl Linter {
         time_dict.insert("lexing".to_string(), (t1 - t0).as_secs_f64());
         time_dict.insert("parsing".to_string(), (Instant::now() - t1).as_secs_f64());
 
-        if !violations.is_empty() {
-            panic!("Not implemented, need to pass the violations to the ParsedString")
-        }
-
         ParsedString {
             tree: parsed,
-            violations: vec![],
+            violations,
             time_dict,
             templated_file: rendered.templated_file,
             config: rendered.config,
@@ -287,15 +286,17 @@ impl Linter {
         parse_statistics: bool,
     ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
         let mut parser = Parser::new(Some(config.clone()), None);
-        let _violations: Vec<SQLParseError> = Vec::new();
+        let mut violations: Vec<SQLParseError> = Vec::new();
 
-        let parsed = parser.parse(tokens, f_name, parse_statistics);
+        let parsed = match parser.parse(tokens, f_name, parse_statistics) {
+            Ok(parsed) => parsed,
+            Err(error) => {
+                violations.push(error);
+                None
+            }
+        };
 
-        if parsed.is_none() {
-            return (None, Vec::new());
-        }
-
-        (parsed, Vec::new())
+        (parsed, violations)
     }
 
     /// Lex a templated file.

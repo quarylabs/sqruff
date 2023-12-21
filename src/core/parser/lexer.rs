@@ -593,7 +593,7 @@ impl Lexer {
     }
 
     /// Convert a tuple of lexed elements into a tuple of segments.
-    #[track_caller]
+
     fn elements_to_segments(
         &self,
         elements: Vec<TemplateElement>,

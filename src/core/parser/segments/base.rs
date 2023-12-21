@@ -1,10 +1,11 @@
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::LintFix;
 use crate::core::templaters::base::TemplatedFile;
 use dyn_clone::DynClone;
 use itertools::Itertools;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use uuid::Uuid;
 
@@ -24,6 +25,11 @@ pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
 pub trait Segment: DynClone + Debug {
+    // TODO: remove &self?
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        None
+    }
+
     fn get_raw(&self) -> Option<String> {
         self.get_segments()
             .iter()
@@ -31,6 +37,7 @@ pub trait Segment: DynClone + Debug {
             .join("")
             .into()
     }
+
     fn get_raw_upper(&self) -> Option<String> {
         self.get_raw()?.to_uppercase().into()
     }
@@ -54,17 +61,27 @@ pub trait Segment: DynClone + Debug {
     fn is_type(&self, type_: &str) -> bool {
         self.get_type() == type_
     }
-    fn is_code(&self) -> bool;
-    fn is_comment(&self) -> bool;
-    fn is_whitespace(&self) -> bool;
+    fn is_code(&self) -> bool {
+        self.get_segments().iter().any(|s| s.is_code())
+    }
+    fn is_comment(&self) -> bool {
+        unimplemented!("{}", std::any::type_name::<Self>())
+    }
+    fn is_whitespace(&self) -> bool {
+        unimplemented!("{}", std::any::type_name::<Self>())
+    }
     fn is_meta(&self) -> bool {
         false
     }
     fn get_default_raw(&self) -> Option<&'static str> {
         None
     }
-    fn get_position_marker(&self) -> Option<PositionMarker>;
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>);
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        unimplemented!()
+    }
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        unimplemented!()
+    }
 
     // get_segments is the way the segment returns its children 'self.segments' in Python.
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -122,7 +139,9 @@ pub trait Segment: DynClone + Debug {
         patches
     }
 
-    fn get_uuid(&self) -> Option<Uuid>;
+    fn get_uuid(&self) -> Option<Uuid> {
+        unimplemented!()
+    }
 
     fn indent_val(&self) -> usize {
         panic!("Not implemented yet");
@@ -138,7 +157,9 @@ pub trait Segment: DynClone + Debug {
     }
 
     /// Stub.
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment>;
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+        unimplemented!()
+    }
 
     /// Group and count fixes by anchor, return dictionary.
     fn compute_anchor_edit_info(&self, fixes: &Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo> {
@@ -150,6 +171,10 @@ pub trait Segment: DynClone + Debug {
             anchor_info.entry(anchor_id).or_default().add(fix.clone());
         }
         anchor_info
+    }
+
+    fn class_types(&self) -> HashSet<String> {
+        HashSet::new()
     }
 }
 
@@ -226,7 +251,7 @@ impl Segment for CodeSegment {
         Some(self.raw.clone())
     }
     fn get_type(&self) -> &'static str {
-        "code"
+        self.code_type
     }
     fn is_code(&self) -> bool {
         true

@@ -5,7 +5,7 @@ use crate::core::slice_helpers::zero_slice;
 use std::ops::Range;
 
 /// A slice referring to a templated file.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TemplatedFileSlice {
     pub slice_type: String,
     pub source_slice: Range<usize>,
@@ -31,7 +31,7 @@ impl TemplatedFileSlice {
 /// This is the response of a `templater`'s `.process()` method
 /// and contains both references to the original file and also
 /// the capability to split up that file when lexing.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct TemplatedFile {
     pub source_str: String,
     f_name: String,
@@ -443,10 +443,8 @@ impl TemplatedFile {
                 is_literal = raw_slice.slice_type == "literal";
             } else if raw_slice.source_idx >= source_slice.end {
                 break;
-            } else {
-                if raw_slice.slice_type != "literal" {
-                    is_literal = false;
-                }
+            } else if raw_slice.slice_type != "literal" {
+                is_literal = false;
             };
         }
         return is_literal;
@@ -488,7 +486,7 @@ pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + 
     raw_str.match_indices('\n').map(|(idx, _)| idx)
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum RawFileSliceType {
     Comment,
     BlockEnd,
@@ -497,7 +495,7 @@ pub enum RawFileSliceType {
 }
 
 /// A slice referring to a raw file.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct RawFileSlice {
     /// Source string
     raw: String,
@@ -582,7 +580,7 @@ impl Templater for RawTemplater {
         _: Option<&dyn Formatter>,
     ) -> Vec<String> {
         // Default is to process in the original order.
-        return f_names;
+        f_names
     }
 
     fn process(

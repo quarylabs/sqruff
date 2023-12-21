@@ -1,11 +1,17 @@
 use std::collections::HashSet;
 
-use crate::core::parser::{
-    context::ParseContext, match_result::MatchResult, matchable::Matchable, segments::base::Segment,
+use crate::core::{
+    errors::SQLParseError,
+    parser::{
+        context::ParseContext, match_result::MatchResult, matchable::Matchable,
+        segments::base::Segment,
+    },
 };
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonCodeMatcher;
+
+impl Segment for NonCodeMatcher {}
 
 impl Matchable for NonCodeMatcher {
     // Implement the simple method
@@ -30,7 +36,7 @@ impl Matchable for NonCodeMatcher {
         &self,
         segments: Vec<Box<dyn Segment>>,
         _parse_context: &mut ParseContext,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, SQLParseError> {
         // Match any starting non-code segments
         let mut idx = 0;
 
@@ -38,7 +44,10 @@ impl Matchable for NonCodeMatcher {
             idx += 1;
         }
 
-        MatchResult::new(segments[0..idx].to_vec(), segments[idx..].to_vec())
+        Ok(MatchResult::new(
+            segments[0..idx].to_vec(),
+            segments[idx..].to_vec(),
+        ))
     }
 }
 
@@ -52,13 +61,15 @@ mod tests {
     };
 
     #[test]
-    fn test_non_code_matcher() {
+    fn test__parser__grammar_noncode() {
         let dialect = fresh_ansi_dialect(); // Assuming this function exists and returns a Dialect
         let mut ctx = ParseContext::new(dialect);
 
         let matcher = NonCodeMatcher;
         let test_segments = test_segments(); // Assuming this function exists and generates test segments
-        let m = matcher.match_segments(test_segments[1..].to_vec(), &mut ctx);
+        let m = matcher
+            .match_segments(test_segments[1..].to_vec(), &mut ctx)
+            .unwrap();
 
         // NonCode Matcher doesn't work with simple
         assert!(matcher.simple(&ctx, None).is_none());

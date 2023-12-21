@@ -1,9 +1,12 @@
+use std::collections::HashSet;
+
 use itertools::{chain, enumerate, multiunzip, Itertools};
 
-use crate::{core::errors::SQLParseError, traits::Boxed};
+use crate::{core::errors::SQLParseError, helpers::Boxed};
 
 use super::{
     context::ParseContext,
+    helpers::trim_non_code_segments,
     match_result::MatchResult,
     matchable::Matchable,
     segments::{base::Segment, bracketed::BracketedSegment},
@@ -12,16 +15,16 @@ use super::{
 pub fn first_trimmed_raw(seg: &dyn Segment) -> String {
     seg.get_raw_upper()
         .unwrap()
-        .splitn(1, char::is_whitespace)
+        .split(char::is_whitespace)
         .next()
         .map(ToString::to_string)
         .unwrap_or_default()
 }
 
-pub fn _first_non_whitespace(segments: &[Box<dyn Segment>]) -> Option<String> {
+pub fn first_non_whitespace(segments: &[Box<dyn Segment>]) -> Option<(String, HashSet<String>)> {
     for segment in segments {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
-            return Some(raw);
+            return Some((raw, segment.class_types()));
         }
     }
 
@@ -63,7 +66,7 @@ pub fn prune_options(
     let mut prune_buff = vec![];
 
     // Find the first code element to match against.
-    let Some(first_raw) = _first_non_whitespace(segments) else {
+    let Some((first_raw, first_types)) = first_non_whitespace(segments) else {
         // return options.to_vec();
         unimplemented!()
     };
@@ -92,8 +95,14 @@ pub fn prune_options(
             matched = true;
         }
 
-        if !simple_types.is_empty() {
-            unimplemented!()
+        if !matched
+            && !first_types
+                .intersection(&simple_types)
+                .collect_vec()
+                .is_empty()
+        {
+            available_options.push(opt.clone());
+            matched = true;
         }
 
         if !matched {
@@ -116,14 +125,17 @@ pub fn look_ahead_match(
     segments: &[Box<dyn Segment>],
     matchers: Vec<Box<dyn Matchable>>,
     parse_context: &mut ParseContext,
-) -> (
-    Vec<Box<dyn Segment>>,
-    MatchResult,
-    Option<Box<dyn Matchable>>,
-) {
+) -> Result<
+    (
+        Vec<Box<dyn Segment>>,
+        MatchResult,
+        Option<Box<dyn Matchable>>,
+    ),
+    SQLParseError,
+> {
     // Have we been passed an empty tuple?
     if segments.is_empty() {
-        return (Vec::new(), MatchResult::from_empty(), None);
+        return Ok((Vec::new(), MatchResult::from_empty(), None));
     }
 
     // Here we enable a performance optimisation. Most of the time in this cycle
@@ -151,10 +163,8 @@ pub fn look_ahead_match(
                 "Both simple_raws and simple_types are empty"
             );
 
-            if !simple_raws.is_empty() {
-                if simple_raws.contains(&trimmed_seg) {
-                    simple_match = Some(matcher);
-                }
+            if !simple_raws.is_empty() && simple_raws.contains(&trimmed_seg) {
+                simple_match = Some(matcher);
             }
 
             if !simple_types.is_empty() && simple_match.is_none() {
@@ -171,7 +181,8 @@ pub fn look_ahead_match(
                 continue;
             };
 
-            let match_result = simple_match.match_segments(segments[idx..].to_vec(), parse_context);
+            let match_result =
+                simple_match.match_segments(segments[idx..].to_vec(), parse_context)?;
 
             if !match_result.has_match() {
                 continue;
@@ -193,7 +204,7 @@ pub fn look_ahead_match(
         }
     }
 
-    if let Some(best_simple_match) = best_simple_match {
+    Ok(if let Some(best_simple_match) = best_simple_match {
         best_simple_match
     } else {
         (
@@ -201,7 +212,7 @@ pub fn look_ahead_match(
             MatchResult::from_unmatched(segments.to_vec()),
             None,
         )
-    }
+    })
 }
 
 // Same as `look_ahead_match` but with bracket counting.
@@ -277,7 +288,7 @@ pub fn bracket_sensitive_look_ahead_match(
                 // Yes, we're just looking for the closing bracket, or
                 // another opening bracket.
                 let (pre, match_result, matcher) =
-                    look_ahead_match(&seg_buff, bracket_matchers.clone(), parse_cx);
+                    look_ahead_match(&seg_buff, bracket_matchers.clone(), parse_cx)?;
 
                 if match_result.has_match() {
                     // NB: We can only consider this as a nested bracket if the start
@@ -346,11 +357,17 @@ pub fn bracket_sensitive_look_ahead_match(
 
                         // The types don't match. Error.
                         return Err(SQLParseError {
-                          description:  format!("Found unexpected end bracket!, was expecting {end_type:?}, but got {matcher:?}")
+                          description:  format!("Found unexpected end bracket!, was expecting {end_type:?}, but got {matcher:?}"),
+                          segment: None
                         });
-                    } else {
-                        panic!("I don't know how we get here?!")
                     }
+                } else {
+                    let segment = bracket_stack.pop().unwrap().bracket;
+                    return Err(SQLParseError {
+                        description: "Couldn't find closing bracket for opening bracket."
+                            .to_string(),
+                        segment: Some(segment),
+                    });
                 }
             } else {
                 // No, we're open to more opening brackets or the thing(s)
@@ -359,11 +376,10 @@ pub fn bracket_sensitive_look_ahead_match(
                     &seg_buff,
                     chain(matchers.clone(), bracket_matchers.clone()).collect_vec(),
                     parse_cx,
-                );
-
-                let matcher_dyn: &dyn Matchable = &*matcher.clone().unwrap();
+                )?;
 
                 if !match_result.matched_segments.is_empty() {
+                    let matcher_dyn: &dyn Matchable = &*matcher.clone().unwrap();
                     let has_matching_start_bracket =
                         start_brackets.iter().any(|item| item.dyn_eq(matcher_dyn));
                     let has_matching_end_bracket =
@@ -414,10 +430,8 @@ pub fn bracket_sensitive_look_ahead_match(
                     }
                 }
             }
-        } else {
-            if !bracket_stack.is_empty() {
-                panic!("Couldn't find closing bracket for opened brackets: `{bracket_stack:?}`.",);
-            }
+        } else if !bracket_stack.is_empty() {
+            panic!("Couldn't find closing bracket for opened brackets: `{bracket_stack:?}`.",);
         }
 
         // This is the happy unmatched path. This occurs when:
@@ -434,8 +448,52 @@ pub fn bracket_sensitive_look_ahead_match(
     }
 }
 
+/// Looks ahead to claim everything up to some future terminators.
+pub fn greedy_match(
+    segments: Vec<Box<dyn Segment>>,
+    parse_context: &mut ParseContext,
+    matchers: Vec<Box<dyn Matchable>>,
+    _include_terminator: bool,
+) -> Result<MatchResult, SQLParseError> {
+    let seg_buff = segments.clone();
+    let seg_bank = Vec::new();
+
+    #[allow(clippy::never_loop)]
+    loop {
+        let (pre, mat, _matcher) =
+            parse_context.deeper_match("Greedy", false, &[], None, |this| {
+                bracket_sensitive_look_ahead_match(
+                    seg_buff.clone(),
+                    matchers.clone(),
+                    this,
+                    None,
+                    None,
+                    None,
+                )
+            })?;
+
+        if !mat.has_match() {
+            // No terminator match? Return everything
+            return Ok(MatchResult::from_unmatched(segments));
+        }
+
+        // We can't claim any non-code segments, so we trim them off the end.
+        let buf = chain(seg_bank, pre).collect_vec();
+        let (leading_nc, pre_seg_mid, trailing_nc) = trim_non_code_segments(&buf);
+
+        let n = MatchResult {
+            matched_segments: chain(leading_nc.to_vec(), pre_seg_mid.to_vec()).collect_vec(),
+            unmatched_segments: chain(trailing_nc.to_vec(), mat.all_segments()).collect_vec(),
+        };
+
+        return Ok(n);
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use itertools::Itertools;
+
     use super::{bracket_sensitive_look_ahead_match, look_ahead_match};
     use crate::{
         core::parser::{
@@ -451,9 +509,8 @@ mod tests {
                 },
             },
         },
-        traits::Boxed,
+        helpers::Boxed,
     };
-    use itertools::Itertools;
 
     #[test]
     fn test__parser__algorithms__look_ahead_match() {
@@ -492,12 +549,12 @@ mod tests {
 
             let mut cx = ParseContext::new(fresh_ansi_dialect());
             let (_result_pre_match, result_match, result_matcher) =
-                look_ahead_match(&test_segments, matchers, &mut cx);
+                look_ahead_match(&test_segments, matchers, &mut cx).unwrap();
 
             assert!(result_matcher.unwrap().dyn_eq(winning_matcher));
 
             let expected_result =
-                make_result_tuple((result_slice).into(), &matcher_keywords, &test_segments);
+                make_result_tuple((result_slice).into(), matcher_keywords, &test_segments);
             assert_eq!(result_match.matched_segments, expected_result);
         }
     }

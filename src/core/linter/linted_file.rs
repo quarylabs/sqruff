@@ -385,7 +385,7 @@ mod test {
             let result = LintedFile::slice_source_file_using_patches(
                 source_patches,
                 source_only_slices,
-                &raw_source_string,
+                raw_source_string,
             );
             assert_eq!(result, expected_result);
         }

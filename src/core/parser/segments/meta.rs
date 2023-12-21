@@ -1,4 +1,9 @@
+use std::collections::HashSet;
+
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
@@ -31,20 +36,17 @@ impl Matchable for Indent {
 
     fn simple(
         &self,
-        parse_context: &crate::core::parser::context::ParseContext,
+        parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(
-        std::collections::HashSet<String>,
-        std::collections::HashSet<String>,
-    )> {
+    ) -> Option<(HashSet<String>, HashSet<String>)> {
         todo!()
     }
 
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
-        parse_context: &mut crate::core::parser::context::ParseContext,
-    ) -> crate::core::parser::match_result::MatchResult {
+        parse_context: &mut ParseContext,
+    ) -> Result<MatchResult, SQLParseError> {
         todo!()
     }
 

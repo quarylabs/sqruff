@@ -1,7 +1,9 @@
 use std::ops::Range;
 
+use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;
+use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
@@ -10,12 +12,21 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::meta::{Dedent, Indent};
 use crate::core::templaters::base::TemplatedFile;
-use crate::traits::Boxed;
+use crate::helpers::Boxed;
 
 use super::keyword::KeywordSegment;
 
 pub fn fresh_ansi_dialect() -> Dialect {
     dialect_selector("ansi").unwrap()
+}
+
+pub fn lex(string: &str) -> Vec<Box<dyn Segment>> {
+    let config = FluffConfig::new(None, None, None, None);
+    let lexer = Lexer::new(config, None);
+
+    let (segments, errors) = lexer.lex(StringOrTemplate::String(string.into())).unwrap();
+    assert_eq!(errors, &[]);
+    segments
 }
 
 /// Roughly generate test segments.

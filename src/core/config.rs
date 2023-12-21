@@ -188,7 +188,7 @@ impl FluffConfig {
 
     /// Check if the config specifies a dialect, raising an error if not.
     pub fn verify_dialect_specified(&self) -> Option<SQLFluffUserError> {
-        if let Some(_) = self._configs.get("core")?.get("dialect") {
+        if self._configs.get("core")?.get("dialect").is_some() {
             return None;
         }
         // Get list of available dialects for the error message. We must

@@ -4,9 +4,12 @@ use std::{
 };
 
 use crate::{
-    core::parser::{
-        context::ParseContext, helpers::trim_non_code_segments, match_result::MatchResult,
-        matchable::Matchable, segments::base::Segment,
+    core::{
+        errors::SQLParseError,
+        parser::{
+            context::ParseContext, helpers::trim_non_code_segments, match_result::MatchResult,
+            matchable::Matchable, segments::base::Segment,
+        },
     },
     helpers::ToMatchable,
 };
@@ -27,6 +30,7 @@ pub struct Delimited {
     allow_trailing: bool,
     delimiter: Box<dyn Matchable>,
     min_delimiters: Option<usize>,
+    optional: bool,
 }
 
 impl Delimited {
@@ -34,14 +38,18 @@ impl Delimited {
         Self {
             base: one_of(elements),
             allow_trailing: false,
-            delimiter: Ref::new("CommaSegment".into(), None, Vec::new(), false, true, false)
-                .to_matchable(),
+            delimiter: Ref::new("CommaSegment").to_matchable(),
             min_delimiters: None,
+            optional: false,
         }
     }
 
     pub fn allow_trailing(&mut self, allow_trailing: bool) {
         self.allow_trailing = allow_trailing;
+    }
+
+    pub fn delimiter(&mut self, delimiter: impl ToMatchable) {
+        self.delimiter = delimiter.to_matchable();
     }
 }
 
@@ -52,9 +60,11 @@ impl PartialEq for Delimited {
     }
 }
 
+impl Segment for Delimited {}
+
 impl Matchable for Delimited {
     fn is_optional(&self) -> bool {
-        todo!()
+        self.optional
     }
 
     fn simple(
@@ -62,7 +72,7 @@ impl Matchable for Delimited {
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        todo!()
+        super::anyof::simple(&self.elements, parse_context, crumbs)
     }
 
     /// Match an arbitrary number of elements separated by a delimiter.
@@ -73,10 +83,10 @@ impl Matchable for Delimited {
         &self,
         segments: Vec<Box<dyn Segment>>,
         parse_context: &mut ParseContext,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, SQLParseError> {
         // Have we been passed an empty list?
         if segments.is_empty() {
-            return MatchResult::from_empty();
+            return Ok(MatchResult::from_empty());
         }
 
         // Make some buffers
@@ -105,12 +115,11 @@ impl Matchable for Delimited {
 
         let mut tmp_sg = Vec::new();
         loop {
-            tmp_sg = seg_buff.clone();
-
             if seg_buff.is_empty() {
                 break;
             }
 
+            tmp_sg = seg_buff.clone();
             let (pre_non_code, seg_content, post_non_code) = trim_non_code_segments(&tmp_sg);
 
             if !self.allow_gaps && pre_non_code.iter().any(|seg| seg.is_whitespace()) {
@@ -119,14 +128,14 @@ impl Matchable for Delimited {
             }
 
             if seg_content.is_empty() {
-                unimplemented!()
+                matched_segments.extend(pre_non_code.iter().cloned());
             }
 
             // Check whether there is a terminator before checking for content
             let (match_result, _) =
                 parse_context.deeper_match("Delimited-Term", false, &[], None, |this| {
-                    longest_trimmed_match(&seg_content, terminator_matchers.clone(), this, false)
-                });
+                    longest_trimmed_match(seg_content, terminator_matchers.clone(), this, false)
+                })?;
 
             if match_result.has_match() {
                 terminated = true;
@@ -160,7 +169,7 @@ impl Matchable for Delimited {
                         /*We've already trimmed*/ false,
                     )
                 },
-            );
+            )?;
 
             if !match_result.has_match() {
                 unmatched_segments = {
@@ -209,11 +218,11 @@ impl Matchable for Delimited {
             let mut matched_segments = matched_segments;
             matched_segments.extend(unmatched_segments);
 
-            return MatchResult::from_unmatched(matched_segments);
+            return Ok(MatchResult::from_unmatched(matched_segments));
         }
 
         if terminated {
-            return if has_matched_segs {
+            return Ok(if has_matched_segs {
                 MatchResult {
                     matched_segments,
                     unmatched_segments,
@@ -222,11 +231,11 @@ impl Matchable for Delimited {
                 let mut segments = matched_segments;
                 segments.extend(unmatched_segments);
                 MatchResult::from_unmatched(segments)
-            };
+            });
         }
 
         if matched_delimiter && !self.allow_trailing {
-            return if unmatched_segments.is_empty() {
+            return Ok(if unmatched_segments.is_empty() {
                 let mut segments = matched_segments;
                 segments.extend(unmatched_segments);
                 MatchResult::from_unmatched(segments)
@@ -235,23 +244,23 @@ impl Matchable for Delimited {
                     matched_segments: cached_matched_segments,
                     unmatched_segments: cached_unmatched_segments,
                 }
-            };
+            });
         }
 
         if !has_matched_segs {
             let mut segments = matched_segments;
             segments.extend(unmatched_segments);
-            return MatchResult::from_unmatched(segments);
+            return Ok(MatchResult::from_unmatched(segments));
         }
 
         if unmatched_segments.is_empty() {
-            return MatchResult::from_matched(matched_segments);
+            return Ok(MatchResult::from_matched(matched_segments));
         }
 
-        MatchResult {
+        Ok(MatchResult {
             matched_segments,
             unmatched_segments,
-        }
+        })
     }
 
     fn cache_key(&self) -> String {
@@ -286,8 +295,7 @@ mod tests {
                 test_functions::{fresh_ansi_dialect, generate_test_segments_func},
             },
         },
-        helpers::ToMatchable,
-        traits::Boxed,
+        helpers::{Boxed, ToMatchable},
     };
 
     use super::Delimited;
@@ -380,7 +388,7 @@ mod tests {
             g.allow_trailing(allow_trailing);
             g.min_delimiters = min_delimiters;
 
-            let match_result = g.match_segments(test_segments.clone(), &mut ctx);
+            let match_result = g.match_segments(test_segments.clone(), &mut ctx).unwrap();
             assert_eq!(match_result.len(), match_len);
         }
     }

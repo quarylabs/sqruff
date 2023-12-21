@@ -2,10 +2,13 @@ use std::collections::HashSet;
 
 use fancy_regex::Regex;
 
+use crate::core::errors::SQLParseError;
+
 use super::{
     context::ParseContext, match_result::MatchResult, matchable::Matchable, segments::base::Segment,
 };
-// Assuming BaseSegment and RawSegment are defined elsewhere in your Rust code.
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
     template: String,
     target_types: HashSet<String>,
@@ -13,11 +16,14 @@ pub struct TypedParser {
     /*raw_class: RawSegment, // Type for raw_class*/
     optional: bool,
     trim_chars: Option<Vec<char>>,
+
+    factory: fn(&dyn Segment) -> Box<dyn Segment>,
 }
 
 impl TypedParser {
     pub fn new(
         template: &str,
+        factory: fn(&dyn Segment) -> Box<dyn Segment>,
         /*raw_class: RawSegment,*/
         type_: Option<String>,
         optional: bool,
@@ -40,6 +46,7 @@ impl TypedParser {
 
         TypedParser {
             template: template.to_string(),
+            factory,
             target_types,
             instance_types,
             /*raw_class,*/
@@ -48,14 +55,54 @@ impl TypedParser {
         }
     }
 
-    pub fn simple(&self, _parse_cx: &ParseContext) -> (HashSet<String>, HashSet<String>) {
-        // Assuming SimpleHintType is a type alias for (HashSet<String>, HashSet<String>)
-        (HashSet::new(), self.target_types.clone())
+    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+        // Check if the segment matches the first condition.
+        if !self.is_first_match(segment) {
+            return None;
+        }
+
+        // // Check if the segment is already of the correct type.
+        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a Vec<String>
+        // if segment.is_type(&self.raw_class) && segment.get_type() == self._instance_types[0] {
+        //     return Some(segment.clone()); // Assuming BaseSegment implements Clone
+        // }
+
+        // Otherwise, create a new match segment.
+        // Assuming _make_match_from_segment is a method that returns RawSegment
+        // Some(self.make_match_from_segment(segment))
+        (self.factory)(segment).into()
     }
 
-    pub fn is_first_match(&self, _segment: &dyn Segment) -> bool {
-        unimplemented!()
-        // segment.is_type(&self.target_types)
+    pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
+        self.target_types.iter().any(|typ| segment.is_type(typ))
+    }
+}
+
+impl Segment for TypedParser {}
+
+impl Matchable for TypedParser {
+    fn simple(
+        &self,
+        parse_context: &ParseContext,
+        crumbs: Option<Vec<&str>>,
+    ) -> Option<(HashSet<String>, HashSet<String>)> {
+        let _ = (parse_context, crumbs);
+        (HashSet::new(), self.target_types.clone()).into()
+    }
+
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        _parse_context: &mut ParseContext,
+    ) -> Result<MatchResult, SQLParseError> {
+        if !segments.is_empty() {
+            let segment = &*segments[0];
+            if let Some(seg) = self.match_single(segment) {
+                return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
+            }
+        };
+
+        Ok(MatchResult::from_unmatched(segments))
     }
 }
 
@@ -122,6 +169,8 @@ impl StringParser {
     }
 }
 
+impl Segment for StringParser {}
+
 impl Matchable for StringParser {
     fn is_optional(&self) -> bool {
         self.optional
@@ -139,15 +188,15 @@ impl Matchable for StringParser {
         &self,
         segments: Vec<Box<dyn Segment>>,
         _parse_context: &mut ParseContext,
-    ) -> MatchResult {
-        if !segments.is_empty() {
+    ) -> Result<MatchResult, SQLParseError> {
+        let match_result = if !segments.is_empty() {
             let segment = &*segments[0];
             if let Some(seg) = self.match_single(segment) {
-                return MatchResult::new(vec![seg], segments[1..].to_vec());
+                return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
             }
-        }
+        };
 
-        MatchResult::from_unmatched(segments)
+        Ok(MatchResult::from_unmatched(segments))
     }
 
     fn cache_key(&self) -> String {
@@ -198,7 +247,7 @@ impl RegexParser {
     }
 
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
-        if segment.get_raw().unwrap().len() == 0 {
+        if segment.get_raw().unwrap().is_empty() {
             // TODO: Handle this case
             return false;
         }
@@ -240,6 +289,8 @@ impl RegexParser {
     }
 }
 
+impl Segment for RegexParser {}
+
 impl Matchable for RegexParser {
     fn is_optional(&self) -> bool {
         unimplemented!()
@@ -259,15 +310,15 @@ impl Matchable for RegexParser {
         &self,
         segments: Vec<Box<dyn Segment>>,
         _parse_context: &mut ParseContext,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
             let segment = &*segments[0];
             if let Some(seg) = self.match_single(segment) {
-                return MatchResult::new(vec![seg], segments[1..].to_vec());
+                return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
             }
         }
 
-        MatchResult::from_unmatched(segments)
+        Ok(MatchResult::from_unmatched(segments))
     }
 
     fn cache_key(&self) -> String {
@@ -284,7 +335,7 @@ pub struct MultiStringParser {
 }
 
 impl MultiStringParser {
-    fn new(
+    pub fn new(
         templates: Vec<String>,
         factory: fn(&dyn Segment) -> Box<dyn Segment>, // Assuming RawSegment is defined elsewhere
         _type_: Option<String>,
@@ -341,6 +392,8 @@ impl MultiStringParser {
     }
 }
 
+impl Segment for MultiStringParser {}
+
 impl Matchable for MultiStringParser {
     fn is_optional(&self) -> bool {
         todo!()
@@ -358,15 +411,15 @@ impl Matchable for MultiStringParser {
         &self,
         segments: Vec<Box<dyn Segment>>,
         _parse_context: &mut ParseContext,
-    ) -> MatchResult {
+    ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
             let segment = &*segments[0];
             if let Some(seg) = self.match_single(segment) {
-                return MatchResult::new(vec![seg], segments[1..].to_vec());
+                return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
             }
         }
 
-        MatchResult::from_unmatched(segments)
+        Ok(MatchResult::from_unmatched(segments))
     }
 
     fn cache_key(&self) -> String {
@@ -395,6 +448,7 @@ mod tests {
     fn test__parser__typedparser__simple() {
         let parser = TypedParser::new(
             "single_quote",
+            |_| unimplemented!(),
             <_>::default(),
             <_>::default(),
             <_>::default(),
@@ -403,8 +457,8 @@ mod tests {
         let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap());
 
         assert_eq!(
-            parser.simple(&parse_cx),
-            (HashSet::new(), HashSet::from(["single_quote".into()]))
+            parser.simple(&parse_cx, None),
+            ((HashSet::new(), HashSet::from(["single_quote".into()]))).into()
         );
     }
 
@@ -452,13 +506,17 @@ mod tests {
         let segments = generate_test_segments_func(vec!["foo", "fo"]);
 
         // Matches when it should
-        let result = parser.match_segments(segments[0..1].to_vec(), &mut ctx);
+        let result = parser
+            .match_segments(segments[0..1].to_vec(), &mut ctx)
+            .unwrap();
         let result1 = &result.matched_segments[0];
 
         assert_eq!(result1.get_raw().unwrap(), "foo");
 
         // Doesn't match when it shouldn't
-        let result = parser.match_segments(segments[1..].to_vec(), &mut ctx);
+        let result = parser
+            .match_segments(segments[1..].to_vec(), &mut ctx)
+            .unwrap();
         assert_eq!(result.matched_segments, &[]);
     }
 

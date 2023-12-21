@@ -1,4 +1,7 @@
-use crate::{core::config::FluffConfig, dialects::ansi::FileSegment};
+use crate::{
+    core::{config::FluffConfig, errors::SQLParseError},
+    dialects::ansi::FileSegment,
+};
 
 use super::{context::ParseContext, helpers::check_still_complete, segments::base::Segment};
 
@@ -25,22 +28,24 @@ impl Parser {
         segments: &[Box<dyn Segment>],
         f_name: Option<String>,
         parse_statistics: bool,
-    ) -> Option<Box<dyn Segment>> {
+    ) -> Result<Option<Box<dyn Segment>>, SQLParseError> {
         if segments.is_empty() {
             // This should normally never happen because there will usually
             // be an end_of_file segment. It would probably only happen in
             // api use cases.
-            return None;
+            return Ok(None);
         }
 
         // NOTE: This is the only time we use the parse context not in the
         // context of a context manager. That's because it's the initial
         // instantiation.
-        let ctx = ParseContext::from_config(self.config.clone());
+        let mut parse_cx = ParseContext::from_config(self.config.clone());
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
-        let root = self.root_segment.root_parse(segments, ctx, f_name.into());
+        let root = self
+            .root_segment
+            .root_parse(segments, &mut parse_cx, f_name.into())?;
 
         // Basic Validation, that we haven't dropped anything.
         check_still_complete(segments, &[root.clone()]);
@@ -49,7 +54,7 @@ impl Parser {
             unimplemented!();
         }
 
-        root.into()
+        Ok(root.into())
     }
 }
 

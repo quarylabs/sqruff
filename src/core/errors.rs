@@ -4,6 +4,8 @@ use fancy_regex::Regex;
 
 use crate::core::parser::markers::PositionMarker;
 
+use super::parser::segments::base::Segment;
+
 type CheckTuple = (String, usize, usize);
 
 pub trait SqlError {
@@ -16,11 +18,11 @@ pub trait SqlError {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SQLBaseError {
-    fatal: bool,
-    ignore: bool,
-    warning: bool,
-    line_no: usize,
-    line_pos: usize,
+    pub fatal: bool,
+    pub ignore: bool,
+    pub warning: bool,
+    pub line_no: usize,
+    pub line_pos: usize,
 }
 
 impl SQLBaseError {
@@ -236,6 +238,7 @@ impl ValueError {
 #[derive(Debug)]
 pub struct SQLParseError {
     pub description: String,
+    pub segment: Option<Box<dyn Segment>>,
 }
 
 impl SQLParseError {
@@ -260,6 +263,29 @@ impl SQLParseError {
     }
 }
 
+impl From<SQLParseError> for SQLBaseError {
+    fn from(value: SQLParseError) -> Self {
+        let (mut line_no, mut line_pos) = Default::default();
+
+        let pos_marker = value
+            .segment
+            .and_then(|segment| segment.get_position_marker());
+
+        if let Some(pos_marker) = pos_marker {
+            (line_no, line_pos) = pos_marker.source_position();
+        }
+
+        Self {
+            fatal: true,
+            ignore: false,
+            warning: false,
+            line_no,
+            line_pos,
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, Debug)]
 pub struct SQLLexError {
     message: String,
     position_marker: PositionMarker,

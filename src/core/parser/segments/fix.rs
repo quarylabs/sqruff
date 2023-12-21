@@ -102,7 +102,7 @@ impl AnchorEditInfo {
     /// * 2 fixes: Valid if and only if types are create_before and create_after
     fn is_valid(&self) -> bool {
         let total = self.total();
-        return if total <= 1 {
+        if total <= 1 {
             // Definitely valid (i.e. no conflict) if 0 or 1. In practice, this
             // function probably won't be called if there are 0 fixes, but 0 is
             // valid; it simply means "no fixes to apply".
@@ -115,7 +115,7 @@ impl AnchorEditInfo {
         } else {
             // Definitely bad if > 2.
             false
-        };
+        }
     }
 
     /// Adds the fix and updates stats.

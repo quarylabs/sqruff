@@ -1,5 +1,6 @@
-use crate::core::parser::segments::base::{PathStep, Segment};
 use std::collections::{HashMap, HashSet};
+
+use crate::core::parser::segments::base::{PathStep, Segment};
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]

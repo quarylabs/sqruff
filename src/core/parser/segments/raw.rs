@@ -1,7 +1,8 @@
+use uuid::Uuid;
+
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
-use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct RawSegment {
@@ -26,11 +27,7 @@ impl RawSegment {
         _source_fixes: Option<Vec<SourceFix>>,
         _uuid: Option<String>,
     ) -> Self {
-        Self {
-            position_marker,
-            raw,
-            uuid: uuid::Uuid::new_v4(),
-        }
+        Self { position_marker, raw, uuid: uuid::Uuid::new_v4() }
     }
 }
 

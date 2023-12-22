@@ -1,8 +1,8 @@
+use uuid::Uuid;
+
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
-
-use uuid::Uuid;
 /// A segment representing a whole file or script.
 ///
 ///     This is also the default "root" segment of the dialect,
@@ -92,10 +92,7 @@ mod test {
         let base_seg = BaseFileSegment::new(segments, None, Some("/some/dir/file.sql".to_string()));
 
         assert_eq!(base_seg.get_type(), "file");
-        assert_eq!(
-            base_seg.get_file_path(),
-            Some("/some/dir/file.sql".to_string())
-        );
+        assert_eq!(base_seg.get_file_path(), Some("/some/dir/file.sql".to_string()));
         assert!(!base_seg.get_can_start_end_non_code());
         assert!(base_seg.get_allow_empty());
     }

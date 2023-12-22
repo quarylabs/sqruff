@@ -1,6 +1,7 @@
+use std::ops::Range;
+
 use crate::core::parser::segments::fix::FixPatch;
 use crate::core::templaters::base::RawFileSlice;
-use std::ops::Range;
 
 pub struct LintedFile;
 
@@ -81,9 +82,7 @@ impl LintedFile {
             }
 
             // Does this patch cover the next source-only slice directly?
-            if source_only_slices
-                .first()
-                .map_or(false, |s| patch.source_slice == s.source_slice())
+            if source_only_slices.first().map_or(false, |s| patch.source_slice == s.source_slice())
             {
                 // Log information here if needed
                 // Removing next source only slice from the stack because it
@@ -173,7 +172,8 @@ mod test {
                 "abc",
                 "ac",
             ),
-            // Illustrative templated example (although practically at this step, the routine shouldn't care if it's templated).
+            // Illustrative templated example (although practically at this step, the routine
+            // shouldn't care if it's templated).
             (
                 vec![(0..2), (2..7), (7..9)],
                 vec![FixPatch::new(
@@ -405,20 +405,8 @@ mod test {
                 TemplatedFileSlice::new("literal", 19..21, 1..3),
             ]),
             Some(vec![
-                RawFileSlice::new(
-                    "{# blah #}".to_string(),
-                    "comment".to_string(),
-                    0,
-                    None,
-                    None,
-                ),
-                RawFileSlice::new(
-                    "{{ foo }}".to_string(),
-                    "templated".to_string(),
-                    10,
-                    None,
-                    None,
-                ),
+                RawFileSlice::new("{# blah #}".to_string(), "comment".to_string(), 0, None, None),
+                RawFileSlice::new("{{ foo }}".to_string(), "templated".to_string(), 10, None, None),
                 RawFileSlice::new("bc".to_string(), "literal".to_string(), 19, None, None),
             ]),
         )

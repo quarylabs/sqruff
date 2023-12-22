@@ -1,3 +1,11 @@
+use std::fmt::{Debug, Display, Formatter};
+use std::ops::Range;
+
+use dyn_clone::DynClone;
+use fancy_regex::{Error, Regex};
+
+use super::markers::PositionMarker;
+use super::segments::meta::EndOfFile;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
@@ -6,13 +14,6 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
-use dyn_clone::DynClone;
-use fancy_regex::{Error, Regex};
-use std::fmt::{Debug, Display, Formatter};
-use std::ops::Range;
-
-use super::markers::PositionMarker;
-use super::segments::meta::EndOfFile;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -38,11 +39,7 @@ pub struct TemplateElement {
 impl TemplateElement {
     /// Make a TemplateElement from a LexedElement.
     pub fn from_element(element: LexedElement, template_slice: Range<usize>) -> Self {
-        TemplateElement {
-            raw: element.raw,
-            template_slice,
-            matcher: element.matcher,
-        }
+        TemplateElement { raw: element.raw, template_slice, matcher: element.matcher }
     }
 
     pub fn to_segment(
@@ -63,7 +60,8 @@ pub struct LexMatch {
 }
 
 impl LexMatch {
-    /// A LexMatch is truthy if it contains a non-zero number of matched elements.
+    /// A LexMatch is truthy if it contains a non-zero number of matched
+    /// elements.
     pub fn is_non_empty(self: &Self) -> bool {
         !self.elements.is_empty()
     }
@@ -214,10 +212,7 @@ impl<SegmentArgs: Clone + Debug> StringLexer<SegmentArgs> {
     /// The private match function. Just look for a literal string.
     fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
         if forward_string.starts_with(self.template) {
-            Some(LexedElement {
-                raw: self.template.to_string(),
-                matcher: Box::new(self.clone()),
-            })
+            Some(LexedElement { raw: self.template.to_string(), matcher: Box::new(self.clone()) })
         } else {
             None
         }
@@ -293,10 +288,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
                     elements: new_elements,
                 })
             }
-            None => Ok(LexMatch {
-                forward_string: forward_string.to_string(),
-                elements: vec![],
-            }),
+            None => Ok(LexMatch { forward_string: forward_string.to_string(), elements: vec![] }),
         }
     }
 
@@ -399,10 +391,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
                     elements: new_elements,
                 })
             }
-            None => Ok(LexMatch {
-                forward_string: forward_string.to_string(),
-                elements: vec![],
-            }),
+            None => Ok(LexMatch { forward_string: forward_string.to_string(), elements: vec![] }),
         }
     }
 
@@ -459,17 +448,15 @@ impl Lexer {
             None,
         )
         .expect("Unable to create last resort lexer");
-        Lexer {
-            config: fluff_config,
-            last_resort_lexer: Box::new(last_resort_lexer),
-        }
+        Lexer { config: fluff_config, last_resort_lexer: Box::new(last_resort_lexer) }
     }
 
     pub fn lex(
         &self,
         raw: StringOrTemplate,
     ) -> Result<(Vec<Box<dyn Segment>>, Vec<SQLLexError>), ValueError> {
-        // Make sure we've got a string buffer and a template regardless of what was passed in.
+        // Make sure we've got a string buffer and a template regardless of what was
+        // passed in.
         let (mut str_buff, template) = match raw {
             StringOrTemplate::String(s) => (s.clone(), TemplatedFile::from_string(s.to_string())),
             StringOrTemplate::Template(f) => (f.to_string(), f),
@@ -502,7 +489,8 @@ impl Lexer {
 
     /// Generate any lexing errors for any un-lex-ables.
     ///
-    /// TODO: Taking in an iterator, also can make the typing better than use unwrap.
+    /// TODO: Taking in an iterator, also can make the typing better than use
+    /// unwrap.
     fn violations_from_segments<T: Debug + Clone>(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
         segments
             .into_iter()
@@ -565,7 +553,8 @@ impl Lexer {
     /// This adds slices in the templated file to the original lexed
     /// elements. We'll need this to work out the position in the source
     /// file.
-    /// TODO Can this vec be turned into an iterator and return iterator to make lazy?
+    /// TODO Can this vec be turned into an iterator and return iterator to make
+    /// lazy?
     fn map_template_slices(
         elements: Vec<LexedElement>,
         template: TemplatedFile,
@@ -576,15 +565,14 @@ impl Lexer {
             let template_slice = offset_slice(idx, element.raw.len());
             idx += element.raw.len();
 
-            templated_buff.push(TemplateElement::from_element(
-                element.clone(),
-                template_slice.clone(),
-            ));
+            templated_buff
+                .push(TemplateElement::from_element(element.clone(), template_slice.clone()));
 
             let templated_string = template.get_templated_string().unwrap();
             if templated_string[template_slice.clone()] != element.raw {
                 panic!(
-                    "Template and lexed elements do not match. This should never happen {:?} != {:?}",
+                    "Template and lexed elements do not match. This should never happen {:?} != \
+                     {:?}",
                     element.raw, &templated_string[template_slice]
                 );
             }
@@ -827,11 +815,7 @@ mod tests {
             // Matching whitespace segments (with a newline)
             ("   \t \n  fsaljk", r"[^\S\r\n]*", "   \t "),
             // Matching quotes containing stuff
-            (
-                "'something boring'   \t \n  fsaljk",
-                r"'[^']*'",
-                "'something boring'",
-            ),
+            ("'something boring'   \t \n  fsaljk", r"'[^']*'", "'something boring'"),
             (
                 "' something exciting \t\n '   \t \n  fsaljk",
                 r"'[^']*'",

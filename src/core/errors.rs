@@ -2,9 +2,8 @@
 
 use fancy_regex::Regex;
 
-use crate::core::parser::markers::PositionMarker;
-
 use super::parser::segments::base::Segment;
+use crate::core::parser::markers::PositionMarker;
 
 type CheckTuple = (String, usize, usize);
 
@@ -27,13 +26,7 @@ pub struct SQLBaseError {
 
 impl SQLBaseError {
     pub fn new(fatal: bool, ignore: bool, warning: bool, line_no: usize, line_pos: usize) -> Self {
-        Self {
-            fatal,
-            ignore,
-            warning,
-            line_no,
-            line_pos,
-        }
+        Self { fatal, ignore, warning, line_no, line_pos }
     }
 }
 
@@ -249,10 +242,8 @@ impl SQLParseError {
         if let Ok(true) = regex.is_match(value) {
             true
         } else {
-            let msg = format!(
-                "Regex pattern did not match.\nRegex: {:?}\nInput: {:?}",
-                regexp, value
-            );
+            let msg =
+                format!("Regex pattern did not match.\nRegex: {:?}\nInput: {:?}", regexp, value);
 
             if regexp == value {
                 panic!("{}\nDid you mean to escape the regex?", msg);
@@ -267,21 +258,13 @@ impl From<SQLParseError> for SQLBaseError {
     fn from(value: SQLParseError) -> Self {
         let (mut line_no, mut line_pos) = Default::default();
 
-        let pos_marker = value
-            .segment
-            .and_then(|segment| segment.get_position_marker());
+        let pos_marker = value.segment.and_then(|segment| segment.get_position_marker());
 
         if let Some(pos_marker) = pos_marker {
             (line_no, line_pos) = pos_marker.source_position();
         }
 
-        Self {
-            fatal: true,
-            ignore: false,
-            warning: false,
-            line_no,
-            line_pos,
-        }
+        Self { fatal: true, ignore: false, warning: false, line_no, line_pos }
     }
 }
 
@@ -293,10 +276,7 @@ pub struct SQLLexError {
 
 impl SQLLexError {
     pub fn new(message: String, position_marker: PositionMarker) -> SQLLexError {
-        SQLLexError {
-            message,
-            position_marker,
-        }
+        SQLLexError { message, position_marker }
     }
 }
 

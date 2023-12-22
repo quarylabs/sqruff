@@ -9,10 +9,7 @@ pub struct TimingSummary {
 
 impl TimingSummary {
     fn new(steps: Option<Vec<String>>) -> TimingSummary {
-        TimingSummary {
-            steps,
-            timings: Vec::new(),
-        }
+        TimingSummary { steps, timings: Vec::new() }
     }
 
     /// Add a timing to the summary.

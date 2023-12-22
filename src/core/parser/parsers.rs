@@ -2,18 +2,18 @@ use std::collections::HashSet;
 
 use fancy_regex::Regex;
 
+use super::context::ParseContext;
+use super::match_result::MatchResult;
+use super::matchable::Matchable;
+use super::segments::base::Segment;
 use crate::core::errors::SQLParseError;
-
-use super::{
-    context::ParseContext, match_result::MatchResult, matchable::Matchable, segments::base::Segment,
-};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
     template: String,
     target_types: HashSet<String>,
     instance_types: Vec<String>,
-    /*raw_class: RawSegment, // Type for raw_class*/
+    /* raw_class: RawSegment, // Type for raw_class */
     optional: bool,
     trim_chars: Option<Vec<char>>,
 
@@ -24,7 +24,7 @@ impl TypedParser {
     pub fn new(
         template: &str,
         factory: fn(&dyn Segment) -> Box<dyn Segment>,
-        /*raw_class: RawSegment,*/
+        /* raw_class: RawSegment, */
         type_: Option<String>,
         optional: bool,
         trim_chars: Option<Vec<char>>,
@@ -49,7 +49,7 @@ impl TypedParser {
             factory,
             target_types,
             instance_types,
-            /*raw_class,*/
+            /* raw_class, */
             optional,
             trim_chars,
         }
@@ -62,10 +62,10 @@ impl TypedParser {
         }
 
         // // Check if the segment is already of the correct type.
-        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a Vec<String>
-        // if segment.is_type(&self.raw_class) && segment.get_type() == self._instance_types[0] {
-        //     return Some(segment.clone()); // Assuming BaseSegment implements Clone
-        // }
+        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a
+        // Vec<String> if segment.is_type(&self.raw_class) && segment.get_type()
+        // == self._instance_types[0] {     return Some(segment.clone()); //
+        // Assuming BaseSegment implements Clone }
 
         // Otherwise, create a new match segment.
         // Assuming _make_match_from_segment is a method that returns RawSegment
@@ -112,7 +112,8 @@ pub struct StringParser {
     template: String,
     simple: HashSet<String>,
     factory: fn(&dyn Segment) -> Box<dyn Segment>,
-    type_: Option<String>, // Renamed `type` to `type_` because `type` is a reserved keyword in Rust
+    type_: Option<String>, /* Renamed `type` to `type_` because `type` is a reserved keyword in
+                            * Rust */
     optional: bool,
     trim_chars: Option<Vec<char>>,
 }
@@ -139,7 +140,8 @@ impl StringParser {
     }
 
     pub fn simple(&self, _parse_cx: &ParseContext) -> (HashSet<String>, HashSet<String>) {
-        // Assuming SimpleHintType is a type alias for (&HashSet<String>, HashSet<String>)
+        // Assuming SimpleHintType is a type alias for (&HashSet<String>,
+        // HashSet<String>)
         (self.simple.clone(), HashSet::new())
     }
 
@@ -157,10 +159,10 @@ impl StringParser {
         }
 
         // // Check if the segment is already of the correct type.
-        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a Vec<String>
-        // if segment.is_type(&self.raw_class) && segment.get_type() == self._instance_types[0] {
-        //     return Some(segment.clone()); // Assuming BaseSegment implements Clone
-        // }
+        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a
+        // Vec<String> if segment.is_type(&self.raw_class) && segment.get_type()
+        // == self._instance_types[0] {     return Some(segment.clone()); //
+        // Assuming BaseSegment implements Clone }
 
         // Otherwise, create a new match segment.
         // Assuming _make_match_from_segment is a method that returns RawSegment
@@ -256,11 +258,7 @@ impl RegexParser {
         if let Some(result) = self._template.find(&segment_raw_upper).ok().flatten() {
             if result.as_str() == segment_raw_upper {
                 if let Some(_anti_template) = &self.anti_template {
-                    if self
-                        ._anti_template
-                        .is_match(&segment_raw_upper)
-                        .unwrap_or_default()
-                    {
+                    if self._anti_template.is_match(&segment_raw_upper).unwrap_or_default() {
                         return false;
                     }
                 }
@@ -277,10 +275,10 @@ impl RegexParser {
         }
 
         // // Check if the segment is already of the correct type.
-        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a Vec<String>
-        // if segment.is_type(&self.raw_class) && segment.get_type() == self._instance_types[0] {
-        //     return Some(segment.clone()); // Assuming BaseSegment implements Clone
-        // }
+        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a
+        // Vec<String> if segment.is_type(&self.raw_class) && segment.get_type()
+        // == self._instance_types[0] {     return Some(segment.clone()); //
+        // Assuming BaseSegment implements Clone }
 
         // Otherwise, create a new match segment.
         // Assuming _make_match_from_segment is a method that returns RawSegment
@@ -368,9 +366,7 @@ impl MultiStringParser {
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
         // Check if the segment is code and its raw_upper is in the templates
         segment.is_code()
-            && self
-                .templates
-                .contains(&segment.get_raw().unwrap().to_ascii_uppercase())
+            && self.templates.contains(&segment.get_raw().unwrap().to_ascii_uppercase())
     }
 
     fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
@@ -380,10 +376,10 @@ impl MultiStringParser {
         }
 
         // // Check if the segment is already of the correct type.
-        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a Vec<String>
-        // if segment.is_type(&self.raw_class) && segment.get_type() == self._instance_types[0] {
-        //     return Some(segment.clone()); // Assuming BaseSegment implements Clone
-        // }
+        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a
+        // Vec<String> if segment.is_type(&self.raw_class) && segment.get_type()
+        // == self._instance_types[0] {     return Some(segment.clone()); //
+        // Assuming BaseSegment implements Clone }
 
         // Otherwise, create a new match segment.
         // Assuming _make_match_from_segment is a method that returns RawSegment
@@ -431,17 +427,13 @@ impl Matchable for MultiStringParser {
 mod tests {
     use std::collections::HashSet;
 
-    use crate::core::{
-        dialects::init::dialect_selector,
-        parser::{
-            context::ParseContext,
-            matchable::Matchable,
-            parsers::{MultiStringParser, RegexParser, StringParser},
-            segments::{keyword::KeywordSegment, test_functions::generate_test_segments_func},
-        },
-    };
-
     use super::TypedParser;
+    use crate::core::dialects::init::dialect_selector;
+    use crate::core::parser::context::ParseContext;
+    use crate::core::parser::matchable::Matchable;
+    use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser};
+    use crate::core::parser::segments::keyword::KeywordSegment;
+    use crate::core::parser::segments::test_functions::generate_test_segments_func;
 
     // Test the simple method of TypedParser
     #[test]
@@ -471,10 +463,7 @@ mod tests {
         let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap());
 
         // Perform the test
-        assert_eq!(
-            parser.simple(&parse_cx),
-            (HashSet::from(["FOO".to_string()]), HashSet::new())
-        );
+        assert_eq!(parser.simple(&parse_cx), (HashSet::from(["FOO".to_string()]), HashSet::new()));
     }
 
     #[test]
@@ -506,17 +495,13 @@ mod tests {
         let segments = generate_test_segments_func(vec!["foo", "fo"]);
 
         // Matches when it should
-        let result = parser
-            .match_segments(segments[0..1].to_vec(), &mut ctx)
-            .unwrap();
+        let result = parser.match_segments(segments[0..1].to_vec(), &mut ctx).unwrap();
         let result1 = &result.matched_segments[0];
 
         assert_eq!(result1.get_raw().unwrap(), "foo");
 
         // Doesn't match when it shouldn't
-        let result = parser
-            .match_segments(segments[1..].to_vec(), &mut ctx)
-            .unwrap();
+        let result = parser.match_segments(segments[1..].to_vec(), &mut ctx).unwrap();
         assert_eq!(result.matched_segments, &[]);
     }
 
@@ -528,8 +513,10 @@ mod tests {
 
     //     // Example implementations for these structs/functions will be needed
 
-    //     let pre_match_types: HashSet<&str> = ["single_quote", "raw", "base"].iter().cloned().collect();
-    //     let mut post_match_types: HashSet<&str> = ["example", "single_quote", "raw", "base"].iter().cloned().collect();
+    //     let pre_match_types: HashSet<&str> = ["single_quote", "raw",
+    // "base"].iter().cloned().collect();     let mut post_match_types:
+    // HashSet<&str> = ["example", "single_quote", "raw",
+    // "base"].iter().cloned().collect();
 
     //     let mut kwargs = HashMap::new();
     //     let mut expected_type = "example";
@@ -539,27 +526,29 @@ mod tests {
     //         expected_type = t;
     //     }
 
-    //     let segments = generate_test_segments_func(["'foo'"]); // Placeholder for actual implementation
+    //     let segments = generate_test_segments_func(["'foo'"]); // Placeholder
+    // for actual implementation
 
     //     assert_eq!(segments[0].class_types(), &pre_match_types);
 
-    //     let parser = TypedParser::new("single_quote", ExampleSegment, kwargs);
-    //     let ctx = ParseContext::new();
+    //     let parser = TypedParser::new("single_quote", ExampleSegment,
+    // kwargs);     let ctx = ParseContext::new();
 
     //     let match1 = parser.match(&segments, &ctx);
     //     assert!(match1.is_some());
     //     let match1 = match1.unwrap();
-    //     assert_eq!(match1.matched_segments()[0].class_types(), &post_match_types);
-    //     assert_eq!(match1.matched_segments()[0].get_type(), expected_type);
-    //     assert_eq!(match1.matched_segments()[0].to_tuple(true), (expected_type, "'foo'"));
+    //     assert_eq!(match1.matched_segments()[0].class_types(),
+    // &post_match_types);     assert_eq!(match1.matched_segments()[0].
+    // get_type(), expected_type);     assert_eq!(match1.
+    // matched_segments()[0].to_tuple(true), (expected_type, "'foo'"));
 
     //     let match2 = parser.match(match1.matched_segments(), &ctx);
     //     assert!(match2.is_some());
     //     let match2 = match2.unwrap();
-    //     assert_eq!(match2.matched_segments()[0].class_types(), &post_match_types);
-    //     assert_eq!(match2.matched_segments()[0].get_type(), expected_type);
-    //     assert_eq!(match2.matched_segments()[0].to_tuple(true), (expected_type, "'foo'"));
-    // }
+    //     assert_eq!(match2.matched_segments()[0].class_types(),
+    // &post_match_types);     assert_eq!(match2.matched_segments()[0].
+    // get_type(), expected_type);     assert_eq!(match2.
+    // matched_segments()[0].to_tuple(true), (expected_type, "'foo'")); }
 
     // #[test]
     // fn test_parser_typedparser_rematch_none() {

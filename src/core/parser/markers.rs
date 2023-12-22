@@ -1,17 +1,19 @@
+use std::ops::Range;
+
 use crate::core::slice_helpers::zero_slice;
 use crate::core::templaters::base::TemplatedFile;
-use std::ops::Range;
 
 /// A reference to a position in a file.
 ///
 /// Things to note:
-/// - This combines the previous functionality of FilePositionMarker
-///   and EnrichedFilePositionMarker. Additionally it contains a reference
-///   to the original templated file.
+/// - This combines the previous functionality of FilePositionMarker and
+///   EnrichedFilePositionMarker. Additionally it contains a reference to the
+///   original templated file.
 /// - It no longer explicitly stores a line number or line position in the
-///   source or template. This is extrapolated from the templated file as required.
-/// - Positions in the source and template are with slices and therefore identify
-///   ranges.
+///   source or template. This is extrapolated from the templated file as
+///   required.
+/// - Positions in the source and template are with slices and therefore
+///   identify ranges.
 /// - Positions within the fixed file are identified with a line number and line
 ///   position, which identify a point.
 /// - Arithmetic comparisons are on the location in the fixed file.
@@ -70,14 +72,12 @@ impl PositionMarker {
 
     /// Return the line and position of this marker in the source.
     pub fn source_position(self) -> (usize, usize) {
-        self.templated_file
-            .get_line_pos_of_char_pos(self.templated_slice.start, true)
+        self.templated_file.get_line_pos_of_char_pos(self.templated_slice.start, true)
     }
 
     /// Return the line and position of this marker in the source.
     pub fn templated_position(&self) -> (usize, usize) {
-        self.templated_file
-            .get_line_pos_of_char_pos(self.templated_slice.start, false)
+        self.templated_file.get_line_pos_of_char_pos(self.templated_slice.start, false)
     }
 
     /// Using the raw string provided to infer the position of the next.
@@ -89,11 +89,7 @@ impl PositionMarker {
         let split: Vec<&str> = raw.split('\n').collect();
         (
             line_no + (split.len() - 1),
-            if split.len() == 1 {
-                line_pos + raw.len()
-            } else {
-                split.last().unwrap().len() + 1
-            },
+            if split.len() == 1 { line_pos + raw.len() } else { split.last().unwrap().len() + 1 },
         )
     }
 
@@ -144,21 +140,22 @@ impl PositionMarker {
 
     /// Infer literalness from context.
     ///
-    ///         is_literal should return True if a fix can be applied across this area
-    ///         in the templated file while being confident that the fix is still
-    ///         appropriate in the source file. This obviously applies to any slices
-    ///         which are the same in the source and the templated files. Slices which
-    ///         are zero-length in the source are also "literal" because they can't be
-    ///         "broken" by any fixes, because they don't exist in the source. This
-    ///         includes meta segments and any segments added during the fixing process.
+    /// is_literal should return True if a fix can be applied across
+    /// this area in the templated file while being confident that
+    /// the fix is still appropriate in the source file. This
+    /// obviously applies to any slices which are the same in the
+    /// source and the templated files. Slices which are zero-length
+    /// in the source are also "literal" because they can't be
+    /// "broken" by any fixes, because they don't exist in the source.
+    /// This includes meta segments and any segments added during
+    /// the fixing process.
     ///
-    ///         This value is used for:
-    ///         - Ignoring linting errors in templated sections.
-    ///         - Whether `iter_patches` can return without recursing.
-    ///         - Whether certain rules (such as JJ01) are triggered.
+    /// This value is used for:
+    ///     - Ignoring linting errors in templated sections.
+    ///     - Whether `iter_patches` can return without recursing.
+    ///     - Whether certain rules (such as JJ01) are triggered.
     pub fn is_literal(&self) -> bool {
-        self.templated_file
-            .is_source_slice_literal(&self.source_slice)
+        self.templated_file.is_source_slice_literal(&self.source_slice)
     }
 }
 
@@ -176,9 +173,10 @@ impl PartialOrd for PositionMarker {
 
 #[cfg(test)]
 mod tests {
+    use std::ops::Range;
+
     use crate::core::parser::markers::PositionMarker;
     use crate::core::templaters::base::TemplatedFile;
-    use std::ops::Range;
 
     /// Test that we can correctly infer positions from strings.
     #[test]
@@ -190,36 +188,12 @@ mod tests {
         }
 
         let tests: Vec<Test> = vec![
-            Test {
-                raw: "fsaljk".to_string(),
-                start: (0..0),
-                end: (0..6),
-            },
-            Test {
-                raw: "".to_string(),
-                start: (2..2),
-                end: (2..2),
-            },
-            Test {
-                raw: "\n".to_string(),
-                start: (2..2),
-                end: (3..1),
-            },
-            Test {
-                raw: "boo\n".to_string(),
-                start: (2..2),
-                end: (3..1),
-            },
-            Test {
-                raw: "boo\nfoo".to_string(),
-                start: (2..2),
-                end: (3..4),
-            },
-            Test {
-                raw: "\nfoo".to_string(),
-                start: (2..2),
-                end: (3..4),
-            },
+            Test { raw: "fsaljk".to_string(), start: (0..0), end: (0..6) },
+            Test { raw: "".to_string(), start: (2..2), end: (2..2) },
+            Test { raw: "\n".to_string(), start: (2..2), end: (3..1) },
+            Test { raw: "boo\n".to_string(), start: (2..2), end: (3..1) },
+            Test { raw: "boo\nfoo".to_string(), start: (2..2), end: (3..4) },
+            Test { raw: "\nfoo".to_string(), start: (2..2), end: (3..4) },
         ];
 
         for t in tests {

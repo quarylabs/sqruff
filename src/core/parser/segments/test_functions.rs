@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use super::keyword::KeywordSegment;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;
@@ -13,8 +14,6 @@ use crate::core::parser::segments::base::{
 use crate::core::parser::segments::meta::{Dedent, Indent};
 use crate::core::templaters::base::TemplatedFile;
 use crate::helpers::Boxed;
-
-use super::keyword::KeywordSegment;
 
 pub fn fresh_ansi_dialect() -> Dialect {
     dialect_selector("ansi").unwrap()
@@ -85,10 +84,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
             CommentSegment::new(
                 elem,
                 &position_marker,
-                CommentSegmentNewArgs {
-                    r#type: "inline",
-                    trim_start: None,
-                },
+                CommentSegmentNewArgs { r#type: "inline", trim_start: None },
             )
         } else if elem.starts_with('\"') {
             CodeSegment::new(

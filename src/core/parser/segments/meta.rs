@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use uuid::Uuid;
+
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
@@ -7,15 +9,14 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
-use uuid::Uuid;
 
 /// A segment which is empty but indicates where an indent should be.
 ///
-///     This segment is always empty, i.e. its raw format is '', but it indicates
-///     the position of a theoretical indent which will be used in linting
-///     and reconstruction. Even if there is an *actual indent* that occurs
-///     in the same place this intentionally *won't* capture it, they will just
-///     be compared later.
+///     This segment is always empty, i.e. its raw format is '', but it
+/// indicates     the position of a theoretical indent which will be used in
+/// linting     and reconstruction. Even if there is an *actual indent* that
+/// occurs     in the same place this intentionally *won't* capture it, they
+/// will just     be compared later.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Indent {
     pub indent_val: usize,
@@ -105,11 +106,11 @@ impl Indent {
 
 /// A segment which is empty but indicates where an dedent should be.
 ///
-///     This segment is always empty, i.e. its raw format is '', but it indicates
-///     the position of a theoretical dedent which will be used in linting
-///     and reconstruction. Even if there is an *actual dedent* that occurs
-///     in the same place this intentionally *won't* capture it, they will just
-///     be compared later.
+/// This segment is always empty, i.e. its raw format is '', but it
+/// indicates the position of a theoretical dedent which will be used in
+/// linting and reconstruction. Even if there is an *actual dedent* that
+/// occurs in the same place this intentionally *won't* capture it, they
+/// will just be compared later.
 #[derive(Debug, Clone)]
 pub struct Dedent {}
 

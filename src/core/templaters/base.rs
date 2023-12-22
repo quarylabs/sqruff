@@ -1,8 +1,9 @@
+use std::ops::Range;
+
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError, ValueError};
 use crate::core::slice_helpers::zero_slice;
-use std::ops::Range;
 
 /// A slice referring to a templated file.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,11 +19,7 @@ impl TemplatedFileSlice {
         source_slice: Range<usize>,
         templated_slice: Range<usize>,
     ) -> Self {
-        Self {
-            slice_type: slice_type.to_string(),
-            source_slice,
-            templated_slice,
-        }
+        Self { slice_type: slice_type.to_string(), source_slice, templated_slice }
     }
 }
 
@@ -129,7 +126,9 @@ impl TemplatedFile {
                         ));
                         // TODO Make this nicer again
                         // format!(
-                        //     "Templated slices found to be non-contiguous. {:?} (starting {:?}) does not follow {:?} (starting {:?})",
+                        //     "Templated slices found to be non-contiguous.
+                        // {:?} (starting {:?}) does not follow {:?} (starting
+                        // {:?})",
                         //     tfs.templated_slice,
                         //     templated_str[tfs.templated_slice],
                         //     previous_slice.templated_slice,
@@ -179,15 +178,12 @@ impl TemplatedFile {
     /// Get the line number and position of a point in the source file.
     /// Args:
     ///  - char_pos: The character position in the relevant file.
-    ///  - source: Are we checking the source file (as opposed to the templated file)
+    ///  - source: Are we checking the source file (as opposed to the templated
+    ///    file)
     ///
     /// Returns: line_number, line_position
     pub fn get_line_pos_of_char_pos(&self, char_pos: usize, source: bool) -> (usize, usize) {
-        let ref_str = if source {
-            &self.source_newlines
-        } else {
-            &self.templated_newlines
-        };
+        let ref_str = if source { &self.source_newlines } else { &self.templated_newlines };
         match ref_str.binary_search(&char_pos) {
             Ok(nl_idx) | Err(nl_idx) => {
                 if nl_idx > 0 {
@@ -219,7 +215,8 @@ impl TemplatedFile {
 
     /// Return a list a slices which reference the parts only in the source.
     ///
-    /// All of these slices should be expected to have zero-length in the templated file.
+    /// All of these slices should be expected to have zero-length in the
+    /// templated file.
     ///
     ///         The results are NECESSARILY sorted.
     fn source_only_slices(&self) -> Vec<RawFileSlice> {
@@ -251,10 +248,7 @@ impl TemplatedFile {
         // as an optimisation hint. The sliced_file is a list of TemplatedFileSlice
         // which reference parts of the templated file and where they exist in the
         // source.
-        for (idx, elem) in self.sliced_file[start_idx..self.sliced_file.len()]
-            .iter()
-            .enumerate()
-        {
+        for (idx, elem) in self.sliced_file[start_idx..self.sliced_file.len()].iter().enumerate() {
             last_idx = idx + start_idx;
             if elem.templated_slice.end >= templated_pos {
                 if first_idx.is_none() {
@@ -335,16 +329,14 @@ impl TemplatedFile {
                 {
                     let offset =
                         template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
-                    return Ok(
-                        zero_slice(ts_start_subsliced_file[0].source_slice.start + offset)
-                            .try_into()
-                            .unwrap(),
-                    );
+                    return Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset)
+                        .try_into()
+                        .unwrap());
                 } else {
                     return Err(ValueError::new(format!(
-                        "Attempting a single length slice within a templated section! {:?} within {:?}.",
-                        template_slice,
-                        ts_start_subsliced_file
+                        "Attempting a single length slice within a templated section! {:?} within \
+                         {:?}.",
+                        template_slice, ts_start_subsliced_file
                     )));
                 }
             }
@@ -393,9 +385,7 @@ impl TemplatedFile {
             insertion_point
         } else if start_slices[0].slice_type == "literal" {
             let offset = template_slice.start - start_slices[0].templated_slice.start;
-            (start_slices[0].source_slice.start + offset)
-                .try_into()
-                .unwrap()
+            (start_slices[0].source_slice.start + offset).try_into().unwrap()
         } else {
             (start_slices[0].source_slice.start).try_into().unwrap()
         };
@@ -515,13 +505,7 @@ impl RawFileSlice {
         slice_subtype: Option<RawFileSliceType>,
         block_idx: Option<usize>,
     ) -> Self {
-        Self {
-            raw,
-            slice_type,
-            source_idx,
-            slice_subtype,
-            block_idx: block_idx.unwrap_or(0),
-        }
+        Self { raw, slice_type, source_idx, slice_subtype, block_idx: block_idx.unwrap_or(0) }
     }
 }
 
@@ -541,7 +525,8 @@ impl RawFileSlice {
     /// There are *also* some which are source only because they render
     /// to an empty string.
     fn is_source_only_slice(&self) -> bool {
-        // TODO: should any new logic go here?. Slice Type could probably go from String To Enum
+        // TODO: should any new logic go here?. Slice Type could probably go from String
+        // To Enum
         match self.slice_type.as_str() {
             "comment" => true,
             "block_end" => true,
@@ -640,10 +625,7 @@ mod tests {
         ]
         .into_iter()
         .for_each(|(in_str, expected)| {
-            assert_eq!(
-                expected,
-                iter_indices_of_newlines(in_str).collect::<Vec<usize>>()
-            )
+            assert_eq!(expected, iter_indices_of_newlines(in_str).collect::<Vec<usize>>())
         });
     }
 
@@ -715,27 +697,9 @@ mod tests {
 
     fn complex_raw_sliced_file() -> Vec<RawFileSlice> {
         vec![
-            RawFileSlice::new(
-                "x".repeat(13).to_string(),
-                "literal".to_string(),
-                0,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(16).to_string(),
-                "comment".to_string(),
-                13,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(15).to_string(),
-                "literal".to_string(),
-                29,
-                None,
-                None,
-            ),
+            RawFileSlice::new("x".repeat(13).to_string(), "literal".to_string(), 0, None, None),
+            RawFileSlice::new("x".repeat(16).to_string(), "comment".to_string(), 13, None, None),
+            RawFileSlice::new("x".repeat(15).to_string(), "literal".to_string(), 29, None, None),
             RawFileSlice::new(
                 "x".repeat(24).to_string(),
                 "block_start".to_string(),
@@ -743,55 +707,13 @@ mod tests {
                 None,
                 None,
             ),
-            RawFileSlice::new(
-                "x".repeat(13).to_string(),
-                "literal".to_string(),
-                68,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(5).to_string(),
-                "templated".to_string(),
-                81,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(24).to_string(),
-                "literal".to_string(),
-                86,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(13).to_string(),
-                "templated".to_string(),
-                110,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(9).to_string(),
-                "literal".to_string(),
-                123,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(12).to_string(),
-                "block_end".to_string(),
-                132,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(11).to_string(),
-                "literal".to_string(),
-                144,
-                None,
-                None,
-            ),
+            RawFileSlice::new("x".repeat(13).to_string(), "literal".to_string(), 68, None, None),
+            RawFileSlice::new("x".repeat(5).to_string(), "templated".to_string(), 81, None, None),
+            RawFileSlice::new("x".repeat(24).to_string(), "literal".to_string(), 86, None, None),
+            RawFileSlice::new("x".repeat(13).to_string(), "templated".to_string(), 110, None, None),
+            RawFileSlice::new("x".repeat(9).to_string(), "literal".to_string(), 123, None, None),
+            RawFileSlice::new("x".repeat(12).to_string(), "block_end".to_string(), 132, None, None),
+            RawFileSlice::new("x".repeat(11).to_string(), "literal".to_string(), 144, None, None),
             RawFileSlice::new(
                 "x".repeat(24).to_string(),
                 "block_start".to_string(),
@@ -799,41 +721,11 @@ mod tests {
                 None,
                 None,
             ),
-            RawFileSlice::new(
-                "x".repeat(10).to_string(),
-                "literal".to_string(),
-                179,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(5).to_string(),
-                "templated".to_string(),
-                189,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(9).to_string(),
-                "literal".to_string(),
-                194,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(12).to_string(),
-                "block_end".to_string(),
-                203,
-                None,
-                None,
-            ),
-            RawFileSlice::new(
-                "x".repeat(15).to_string(),
-                "literal".to_string(),
-                215,
-                None,
-                None,
-            ),
+            RawFileSlice::new("x".repeat(10).to_string(), "literal".to_string(), 179, None, None),
+            RawFileSlice::new("x".repeat(5).to_string(), "templated".to_string(), 189, None, None),
+            RawFileSlice::new("x".repeat(9).to_string(), "literal".to_string(), 194, None, None),
+            RawFileSlice::new("x".repeat(12).to_string(), "block_end".to_string(), 203, None, None),
+            RawFileSlice::new("x".repeat(15).to_string(), "literal".to_string(), 215, None, None),
         ]
     }
 
@@ -858,9 +750,7 @@ mod tests {
     fn complex_file_kwargs() -> FileKwargs {
         FileKwargs {
             f_name: "test.sql".to_string(),
-            source_str: complex_raw_sliced_file()
-                .iter()
-                .fold(String::new(), |acc, x| acc + &x.raw),
+            source_str: complex_raw_sliced_file().iter().fold(String::new(), |acc, x| acc + &x.raw),
             templated_str: None,
             sliced_file: complex_sliced_file().to_vec(),
             raw_sliced_file: complex_raw_sliced_file().to_vec(),
@@ -922,9 +812,8 @@ mod tests {
             )
             .unwrap();
 
-            let (res_start, res_stop) = file
-                .find_slice_indices_of_templated_pos(test.0, None, Some(test.1))
-                .unwrap();
+            let (res_start, res_stop) =
+                file.find_slice_indices_of_templated_pos(test.0, None, Some(test.1)).unwrap();
 
             assert_eq!(res_start, test.3);
             assert_eq!(res_stop, test.4);

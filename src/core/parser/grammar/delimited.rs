@@ -1,24 +1,16 @@
-use std::{
-    collections::HashSet,
-    ops::{Deref, DerefMut},
-};
+use std::collections::HashSet;
+use std::ops::{Deref, DerefMut};
 
-use crate::{
-    core::{
-        errors::SQLParseError,
-        parser::{
-            context::ParseContext, helpers::trim_non_code_segments, match_result::MatchResult,
-            matchable::Matchable, segments::base::Segment,
-        },
-    },
-    helpers::ToMatchable,
-};
-
-use super::{
-    anyof::{one_of, AnyNumberOf},
-    base::{longest_trimmed_match, Ref},
-    noncode::NonCodeMatcher,
-};
+use super::anyof::{one_of, AnyNumberOf};
+use super::base::{longest_trimmed_match, Ref};
+use super::noncode::NonCodeMatcher;
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
+use crate::core::parser::helpers::trim_non_code_segments;
+use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::matchable::Matchable;
+use crate::core::parser::segments::base::Segment;
+use crate::helpers::ToMatchable;
 
 /// Match an arbitrary number of elements separated by a delimiter.
 ///
@@ -77,8 +69,9 @@ impl Matchable for Delimited {
 
     /// Match an arbitrary number of elements separated by a delimiter.
     ///
-    /// Note that if there are multiple elements passed in that they will be treated
-    /// as different options of what can be delimited, rather than a sequence.
+    /// Note that if there are multiple elements passed in that they will be
+    /// treated as different options of what can be delimited, rather than a
+    /// sequence.
     fn match_segments(
         &self,
         segments: Vec<Box<dyn Segment>>,
@@ -151,11 +144,7 @@ impl Matchable for Delimited {
             let (match_result, _) = parse_context.deeper_match(
                 "Delimited",
                 false,
-                if seeking_delimiter {
-                    &[]
-                } else {
-                    &delimiter_matchers
-                },
+                if seeking_delimiter { &[] } else { &delimiter_matchers },
                 None,
                 |this| {
                     longest_trimmed_match(
@@ -166,7 +155,7 @@ impl Matchable for Delimited {
                             self.elements.clone()
                         },
                         this,
-                        /*We've already trimmed*/ false,
+                        /* We've already trimmed */ false,
                     )
                 },
             )?;
@@ -205,12 +194,8 @@ impl Matchable for Delimited {
                 break;
             }
 
-            matched_segments.extend(
-                pre_non_code
-                    .iter()
-                    .cloned()
-                    .chain(match_result.matched_segments),
-            );
+            matched_segments
+                .extend(pre_non_code.iter().cloned().chain(match_result.matched_segments));
             seeking_delimiter = !seeking_delimiter;
         }
 
@@ -223,10 +208,7 @@ impl Matchable for Delimited {
 
         if terminated {
             return Ok(if has_matched_segs {
-                MatchResult {
-                    matched_segments,
-                    unmatched_segments,
-                }
+                MatchResult { matched_segments, unmatched_segments }
             } else {
                 let mut segments = matched_segments;
                 segments.extend(unmatched_segments);
@@ -257,10 +239,7 @@ impl Matchable for Delimited {
             return Ok(MatchResult::from_matched(matched_segments));
         }
 
-        Ok(MatchResult {
-            matched_segments,
-            unmatched_segments,
-        })
+        Ok(MatchResult { matched_segments, unmatched_segments })
     }
 
     fn cache_key(&self) -> String {
@@ -284,72 +263,31 @@ impl DerefMut for Delimited {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        core::parser::{
-            context::ParseContext,
-            matchable::Matchable,
-            parsers::StringParser,
-            segments::{
-                base::{Segment, SymbolSegment, SymbolSegmentNewArgs},
-                keyword::KeywordSegment,
-                test_functions::{fresh_ansi_dialect, generate_test_segments_func},
-            },
-        },
-        helpers::{Boxed, ToMatchable},
-    };
-
     use super::Delimited;
+    use crate::core::parser::context::ParseContext;
+    use crate::core::parser::matchable::Matchable;
+    use crate::core::parser::parsers::StringParser;
+    use crate::core::parser::segments::base::{Segment, SymbolSegment, SymbolSegmentNewArgs};
+    use crate::core::parser::segments::keyword::KeywordSegment;
+    use crate::core::parser::segments::test_functions::{
+        fresh_ansi_dialect, generate_test_segments_func,
+    };
+    use crate::helpers::{Boxed, ToMatchable};
 
     #[test]
     fn test__parser__grammar_delimited() {
         let cases = [
             // Basic testing
-            (
-                None,
-                true,
-                false,
-                vec!["bar", " \t ", ".", "    ", "bar"],
-                5,
-            ),
-            (
-                None,
-                true,
-                false,
-                vec!["bar", " \t ", ".", "    ", "bar", "    "],
-                6,
-            ),
+            (None, true, false, vec!["bar", " \t ", ".", "    ", "bar"], 5),
+            (None, true, false, vec!["bar", " \t ", ".", "    ", "bar", "    "], 6),
             // Testing allow_trailing
             (None, true, false, vec!["bar", " \t ", ".", "   "], 0),
             (None, true, true, vec!["bar", " \t ", ".", "   "], 4),
             // Testing the implications of allow_gaps
-            (
-                0.into(),
-                true,
-                false,
-                vec!["bar", " \t ", ".", "    ", "bar"],
-                5,
-            ),
-            (
-                0.into(),
-                false,
-                false,
-                vec!["bar", " \t ", ".", "    ", "bar"],
-                1,
-            ),
-            (
-                1.into(),
-                true,
-                false,
-                vec!["bar", " \t ", ".", "    ", "bar"],
-                5,
-            ),
-            (
-                1.into(),
-                false,
-                false,
-                vec!["bar", " \t ", ".", "    ", "bar"],
-                0,
-            ),
+            (0.into(), true, false, vec!["bar", " \t ", ".", "    ", "bar"], 5),
+            (0.into(), false, false, vec!["bar", " \t ", ".", "    ", "bar"], 1),
+            (1.into(), true, false, vec!["bar", " \t ", ".", "    ", "bar"], 5),
+            (1.into(), false, false, vec!["bar", " \t ", ".", "    ", "bar"], 0),
             // Check we still succeed with something trailing right on the end.
             (1.into(), false, false, vec!["bar", ".", "bar", "foo"], 3),
             // Check min_delimiters. There's a delimiter here, but not enough to match.
@@ -360,20 +298,22 @@ mod tests {
 
         for (min_delimiters, allow_gaps, allow_trailing, token_list, match_len) in cases {
             let test_segments = generate_test_segments_func(token_list);
-            let mut g = Delimited::new(vec![StringParser::new(
-                "bar",
-                |segment| {
-                    KeywordSegment::new(
-                        segment.get_raw().unwrap(),
-                        segment.get_position_marker().unwrap(),
-                    )
-                    .boxed()
-                },
-                None,
-                false,
-                None,
-            )
-            .boxed()]);
+            let mut g = Delimited::new(vec![
+                StringParser::new(
+                    "bar",
+                    |segment| {
+                        KeywordSegment::new(
+                            segment.get_raw().unwrap(),
+                            segment.get_position_marker().unwrap(),
+                        )
+                        .boxed()
+                    },
+                    None,
+                    false,
+                    None,
+                )
+                .boxed(),
+            ]);
 
             let symbol_factory = |segment: &dyn Segment| {
                 SymbolSegment::new(

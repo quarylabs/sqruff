@@ -1,8 +1,8 @@
-use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
-use crate::core::errors::SQLFluffUserError;
 use std::collections::{HashMap, HashSet};
 
 use super::dialects::base::Dialect;
+use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
+use crate::core::errors::SQLFluffUserError;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
@@ -90,13 +90,10 @@ pub fn removed_configs() -> [RemovedConfig<'static>; 12] {
     ]
 }
 
-/// split_comma_separated_string takes a string and splits it on commas and trims and filters out empty strings.
+/// split_comma_separated_string takes a string and splits it on commas and
+/// trims and filters out empty strings.
 pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
-    raw_str
-        .split(",")
-        .map(|x| x.trim().to_string())
-        .filter(|x| x != "")
-        .collect()
+    raw_str.split(",").map(|x| x.trim().to_string()).filter(|x| x != "").collect()
 }
 
 /// The class that actually gets passed around as a config object.
@@ -149,12 +146,7 @@ impl FluffConfig {
         _ignore_local_config: bool,
         _overrides: Option<HashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
-        Ok(FluffConfig::new(
-            Some(HashSet::new()),
-            extra_config_path,
-            None,
-            None,
-        ))
+        Ok(FluffConfig::new(Some(HashSet::new()), extra_config_path, None, None))
     }
 
     pub fn from_kwargs(
@@ -163,7 +155,10 @@ impl FluffConfig {
         rules: Option<Vec<String>>,
     ) -> Self {
         if (dialect.is_some() || rules.is_some()) && config.is_some() {
-            panic!("Cannot specify `config` with `dialect` or `rules`. Any config object specifies its own dialect and rules.")
+            panic!(
+                "Cannot specify `config` with `dialect` or `rules`. Any config object specifies \
+                 its own dialect and rules."
+            )
         } else {
             return config.unwrap();
         }
@@ -221,8 +216,6 @@ pub struct FluffConfigIndentation {
 
 impl Default for FluffConfigIndentation {
     fn default() -> Self {
-        Self {
-            template_blocks_indent: true,
-        }
+        Self { template_blocks_indent: true }
     }
 }

@@ -1,3 +1,13 @@
+use std::collections::{HashMap, HashSet};
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::{Component, Path, PathBuf};
+use std::time::Instant;
+
+use itertools::Itertools;
+use regex::Regex;
+use walkdir::WalkDir;
+
 use super::linted_dir::LintedDir;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
@@ -9,14 +19,6 @@ use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
-use itertools::Itertools;
-use regex::Regex;
-use std::collections::{HashMap, HashSet};
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::{Component, Path};
-use std::{path::PathBuf, time::Instant};
-use walkdir::WalkDir;
 
 pub struct Linter {
     config: FluffConfig,
@@ -31,16 +33,8 @@ impl Linter {
         templater: Option<Box<dyn Templater>>,
     ) -> Linter {
         match templater {
-            Some(templater) => Linter {
-                config,
-                formatter,
-                templater,
-            },
-            None => Linter {
-                config,
-                formatter,
-                templater: Box::new(RawTemplater::default()),
-            },
+            Some(templater) => Linter { config, formatter, templater },
+            None => Linter { config, formatter, templater: Box::new(RawTemplater::default()) },
         }
     }
 
@@ -170,9 +164,11 @@ impl Linter {
         // TODO Implement linter warning
         // if config.get("templater_obj") != self.templater {
         //     linter_logger::warning(format!(
-        //         "Attempt to set templater to {} failed. Using {} templater. Templater cannot be set in a .sqlfluff file in a subdirectory of the current working directory. It can be set in a .sqlfluff in the current working directory. See Nesting section of the docs for more details.",
-        //         config.get("templater_obj").name,
-        //         self.templater.name,
+        //         "Attempt to set templater to {} failed. Using {} templater. Templater
+        // cannot be set in a .sqlfluff file in a subdirectory of the current working
+        // directory. It can be set in a .sqlfluff in the current working directory. See
+        // Nesting section of the docs for more details.",         config.get("
+        // templater_obj").name,         self.templater.name,
         //     ));
         // }
 
@@ -263,7 +259,8 @@ impl Linter {
             parsed = None;
         };
 
-        // TODO Time_Dict should be a structure, it should also probably replace f64 with Duration type
+        // TODO Time_Dict should be a structure, it should also probably replace f64
+        // with Duration type
         let mut time_dict = rendered.time_dict.clone();
         time_dict.insert("lexing".to_string(), (t1 - t0).as_secs_f64());
         time_dict.insert("parsing".to_string(), (Instant::now() - t1).as_secs_f64());
@@ -361,10 +358,7 @@ impl Linter {
             if ignore_non_existent_files {
                 return Vec::new();
             } else {
-                panic!(
-                    "Specified path does not exist. Check it/they exist(s): {:?}",
-                    path
-                );
+                panic!("Specified path does not exist. Check it/they exist(s): {:?}", path);
             }
         };
 
@@ -403,21 +397,12 @@ impl Linter {
                 let ignore_file_path = Path::new(ignore_file_path);
 
                 // Extracting the directory name from the ignore file path
-                let dir_name = ignore_file_path
-                    .parent()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
+                let dir_name = ignore_file_path.parent().unwrap().to_str().unwrap().to_string();
 
                 // Only one possible file, since we only
                 // have one "ignore file name"
-                let file_name = vec![ignore_file_path
-                    .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string()];
+                let file_name =
+                    vec![ignore_file_path.file_name().unwrap().to_str().unwrap().to_string()];
 
                 (dir_name, None, file_name)
             })
@@ -477,8 +462,9 @@ fn normalize(p: &Path) -> PathBuf {
     let mut stack: Vec<Component> = vec![];
 
     // We assume .components() removes redundant consecutive path separators.
-    // Note that .components() also does some normalization of '.' on its own anyways.
-    // This '.' normalization happens to be compatible with the approach below.
+    // Note that .components() also does some normalization of '.' on its own
+    // anyways. This '.' normalization happens to be compatible with the
+    // approach below.
     for component in p.components() {
         match component {
             // Drop CurDir components, do not even push onto the stack.
@@ -501,13 +487,15 @@ fn normalize(p: &Path) -> PathBuf {
                             // The parent of a RootDir is itself, so drop the ParentDir (no-op).
                             Component::RootDir => {}
 
-                            // A CurDir should never be found on the stack, since they are dropped when seen.
+                            // A CurDir should never be found on the stack, since they are dropped
+                            // when seen.
                             Component::CurDir => {
                                 unreachable!();
                             }
 
-                            // If a ParentDir is found, it must be due to it piling up at the start of a path.
-                            // Push the new ParentDir onto the stack.
+                            // If a ParentDir is found, it must be due to it piling up at the start
+                            // of a path. Push the new ParentDir onto
+                            // the stack.
                             Component::ParentDir => {
                                 stack.push(component);
                             }
@@ -549,13 +537,11 @@ fn normalize(p: &Path) -> PathBuf {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{config::FluffConfig, linter::linter::Linter};
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::linter::Linter;
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
-        paths
-            .into_iter()
-            .map(|path| path.replace("/", ".").replace("\\", "."))
-            .collect()
+        paths.into_iter().map(|path| path.replace("/", ".").replace("\\", ".")).collect()
     }
 
     #[test]
@@ -589,7 +575,8 @@ mod tests {
 
     #[test]
     fn test_linter_path_from_paths_exts() {
-        // Assuming Linter is initialized with a configuration similar to Python's FluffConfig
+        // Assuming Linter is initialized with a configuration similar to Python's
+        // FluffConfig
         let config =
             FluffConfig::new(None, None, None, None).with_sql_file_exts(vec![".txt".into()]);
         let lntr = Linter::new(config, None, None); // Assuming Linter has a new() method for initialization
@@ -618,10 +605,7 @@ mod tests {
             None,
         );
 
-        assert_eq!(
-            normalise_paths(paths),
-            &["test.fixtures.linter.indentation_errors.sql"]
-        );
+        assert_eq!(normalise_paths(paths), &["test.fixtures.linter.indentation_errors.sql"]);
     }
 
     // test__linter__skip_large_bytes
@@ -644,9 +628,7 @@ mod tests {
     #[test]
     fn test__linter__empty_file() {
         let linter = Linter::new(FluffConfig::new(None, None, None, None), None, None);
-        let parsed = linter
-            .parse_string("".into(), None, None, None, None)
-            .unwrap();
+        let parsed = linter.parse_string("".into(), None, None, None, None).unwrap();
 
         assert!(parsed.violations.is_empty());
     }

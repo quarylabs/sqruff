@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::core::{
-    config::FluffConfig, dialects::base::Dialect, parser::segments::base::Segment,
-    templaters::base::TemplatedFile,
-};
+use crate::core::config::FluffConfig;
+use crate::core::dialects::base::Dialect;
+use crate::core::parser::segments::base::Segment;
+use crate::core::templaters::base::TemplatedFile;
 
 /// Struct for holding the context passed to rule eval function
 pub struct RuleContext {

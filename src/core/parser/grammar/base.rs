@@ -3,18 +3,16 @@ use std::collections::HashSet;
 use itertools::enumerate;
 use uuid::Uuid;
 
-use crate::{
-    core::{
-        dialects::base::Dialect,
-        errors::SQLParseError,
-        parser::{
-            context::ParseContext, helpers::trim_non_code_segments,
-            match_algorithms::prune_options, match_result::MatchResult, matchable::Matchable,
-            segments::base::Segment, types::ParseMode,
-        },
-    },
-    helpers::{capitalize, ToMatchable},
-};
+use crate::core::dialects::base::Dialect;
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
+use crate::core::parser::helpers::trim_non_code_segments;
+use crate::core::parser::match_algorithms::prune_options;
+use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::matchable::Matchable;
+use crate::core::parser::segments::base::Segment;
+use crate::core::parser::types::ParseMode;
+use crate::helpers::{capitalize, ToMatchable};
 
 #[derive(Clone, Debug)]
 pub struct BaseGrammar {
@@ -111,12 +109,7 @@ pub struct Ref {
 
 impl std::fmt::Debug for Ref {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "<Ref: {}{}>",
-            self.reference,
-            if self.is_optional() { " [opt]" } else { "" }
-        )
+        write!(f, "<Ref: {}{}>", self.reference, if self.is_optional() { " [opt]" } else { "" })
     }
 }
 
@@ -188,8 +181,7 @@ impl Matchable for Ref {
         let mut new_crumbs = crumbs.unwrap_or_default();
         new_crumbs.push(&self.reference);
 
-        self._get_elem(parse_context.dialect())
-            .simple(parse_context, Some(new_crumbs))
+        self._get_elem(parse_context.dialect()).simple(parse_context, Some(new_crumbs))
     }
 
     fn match_segments(
@@ -334,13 +326,7 @@ pub fn longest_trimmed_match(
             let mut unmatched_segments = match_result.unmatched_segments;
             unmatched_segments.extend(post_nc.iter().cloned());
 
-            Ok((
-                MatchResult {
-                    matched_segments,
-                    unmatched_segments,
-                },
-                matchable.into(),
-            ))
+            Ok((MatchResult { matched_segments, unmatched_segments }, matchable.into()))
         } else {
             Ok((match_result, matchable.into()))
         };
@@ -352,24 +338,17 @@ pub fn longest_trimmed_match(
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        core::parser::{
-            grammar::{anyof::one_of, sequence::Sequence},
-            parsers::StringParser,
-            segments::{
-                keyword::KeywordSegment,
-                test_functions::{
-                    fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
-                    test_segments,
-                },
-            },
-        },
-        helpers::{Boxed, ToMatchable},
-    };
-
     use pretty_assertions::assert_eq;
 
-    use super::*; // Import necessary items from the parent module
+    use super::*;
+    use crate::core::parser::grammar::anyof::one_of;
+    use crate::core::parser::grammar::sequence::Sequence;
+    use crate::core::parser::parsers::StringParser;
+    use crate::core::parser::segments::keyword::KeywordSegment;
+    use crate::core::parser::segments::test_functions::{
+        fresh_ansi_dialect, generate_test_segments_func, make_result_tuple, test_segments,
+    };
+    use crate::helpers::{Boxed, ToMatchable}; // Import necessary items from the parent module
 
     #[test]
     fn test__parser__grammar__ref_eq() {
@@ -389,10 +368,7 @@ mod tests {
         assert!(check_list.contains(&r1));
 
         // Finding the index of an item in a Vec
-        let index = check_list
-            .iter()
-            .position(|x| *x == r1)
-            .expect("Item not found");
+        let index = check_list.iter().position(|x| *x == r1).expect("Item not found");
         assert_eq!(index, 0);
 
         // Removing an item from a Vec
@@ -415,34 +391,33 @@ mod tests {
         // Assuming 'Ref' and 'NakedIdentifierSegment' are defined elsewhere
         let ni = Ref::new("NakedIdentifierSegment".to_string()).exclude(Ref::keyword("ABS"));
 
-        // Assuming 'generate_test_segments' and 'fresh_ansi_dialect' are implemented elsewhere
+        // Assuming 'generate_test_segments' and 'fresh_ansi_dialect' are implemented
+        // elsewhere
         let ts = generate_test_segments_func(vec!["ABS", "ABSOLUTE"]);
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         // Assert ABS does not match, due to the exclude
-        assert!(ni
-            .match_segments(vec![ts[0].clone()], &mut ctx)
-            .unwrap()
-            .matched_segments
-            .is_empty());
+        assert!(
+            ni.match_segments(vec![ts[0].clone()], &mut ctx).unwrap().matched_segments.is_empty()
+        );
 
         // Assert ABSOLUTE does match
-        assert!(!ni
-            .match_segments(vec![ts[1].clone()], &mut ctx)
-            .unwrap()
-            .matched_segments
-            .is_empty());
+        assert!(
+            !ni.match_segments(vec![ts[1].clone()], &mut ctx).unwrap().matched_segments.is_empty()
+        );
     }
 
     #[test]
     fn test_parser_grammar_nothing() {
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
-        assert!(Nothing::new()
-            .match_segments(test_segments(), &mut ctx)
-            .unwrap()
-            .matched_segments
-            .is_empty());
+        assert!(
+            Nothing::new()
+                .match_segments(test_segments(), &mut ctx)
+                .unwrap()
+                .matched_segments
+                .is_empty()
+        );
     }
 
     #[test]
@@ -461,20 +436,22 @@ mod tests {
 
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
         for (segments_slice, matcher_keyword, trim_noncode, result_slice) in cases {
-            let matchers = vec![StringParser::new(
-                matcher_keyword,
-                |segment| {
-                    KeywordSegment::new(
-                        segment.get_raw().unwrap(),
-                        segment.get_position_marker().unwrap(),
-                    )
-                    .boxed()
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()];
+            let matchers = vec![
+                StringParser::new(
+                    matcher_keyword,
+                    |segment| {
+                        KeywordSegment::new(
+                            segment.get_raw().unwrap(),
+                            segment.get_position_marker().unwrap(),
+                        )
+                        .boxed()
+                    },
+                    None,
+                    false,
+                    None,
+                )
+                .to_matchable(),
+            ];
 
             let (m, _) = longest_trimmed_match(
                 &test_segments[segments_slice],

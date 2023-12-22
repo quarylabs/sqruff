@@ -1,8 +1,7 @@
 use super::matchable::Matchable;
-use crate::core::{
-    config::FluffConfig,
-    dialects::{base::Dialect, init::dialect_selector},
-};
+use crate::core::config::FluffConfig;
+use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::dialect_selector;
 
 #[derive(Debug)]
 pub struct ParseContext {
@@ -43,10 +42,7 @@ impl ParseContext {
     }
 
     pub fn progress_bar<T>(&mut self, mut f: impl FnMut(&mut Self) -> T) -> T {
-        assert!(
-            self.tqdm.is_none(),
-            "Attempted to re-initialise progressbar."
-        );
+        assert!(self.tqdm.is_none(), "Attempted to re-initialise progressbar.");
 
         // TODO:
         self.tqdm = Some(());
@@ -79,10 +75,7 @@ impl ParseContext {
         match track_progress {
             Some(true) => {
                 // # We can't go from False to True. Raise an issue if not.
-                assert!(
-                    self.track_progress,
-                    "Cannot set tracking from False to True"
-                )
+                assert!(self.track_progress, "Cannot set tracking from False to True")
             }
             Some(false) => self.track_progress = false,
             None => {}
@@ -107,22 +100,14 @@ impl ParseContext {
         push_terminators: &[Box<dyn Matchable>],
     ) {
         if clear_terminators && !self.terminators.is_empty() {
-            self.terminators = if !push_terminators.is_empty() {
-                push_terminators.to_vec()
-            } else {
-                Vec::new()
-            }
+            self.terminators =
+                if !push_terminators.is_empty() { push_terminators.to_vec() } else { Vec::new() }
         } else if !push_terminators.is_empty() {
             for terminator in push_terminators {
                 let terminator_owned = terminator.clone();
                 let terminator = &*terminator_owned;
 
-                if self
-                    .terminators
-                    .iter()
-                    .find(|item| item.dyn_eq(terminator))
-                    .is_none()
-                {
+                if self.terminators.iter().find(|item| item.dyn_eq(terminator)).is_none() {
                     self.terminators.push(terminator_owned);
                 }
             }

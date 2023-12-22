@@ -1,12 +1,15 @@
-use std::{any::Any, collections::HashSet, fmt::Debug};
+use std::any::Any;
+use std::collections::HashSet;
+use std::fmt::Debug;
 
 use dyn_clone::DynClone;
 use dyn_ord::DynEq;
 use itertools::Itertools;
 
+use super::context::ParseContext;
+use super::match_result::MatchResult;
+use super::segments::base::Segment;
 use crate::core::errors::SQLParseError;
-
-use super::{context::ParseContext, match_result::MatchResult, segments::base::Segment};
 
 // Define a trait to represent the Matchable interface.
 // This trait is similar to the abstract base class in Python.
@@ -48,10 +51,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let Some(match_grammar) = self.match_grammar() else {
-            unimplemented!(
-                "{} has no match function implemented",
-                std::any::type_name::<Self>()
-            )
+            unimplemented!("{} has no match function implemented", std::any::type_name::<Self>())
         };
 
         let match_result = match_grammar.match_segments(segments.clone(), parse_context)?;

@@ -40,7 +40,8 @@ fn position_metas(
     metas: &[Indent],              // Assuming Indent is a struct or type alias
     non_code: &[Box<dyn Segment>], // Assuming BaseSegment is a struct or type alias
 ) -> Vec<Box<dyn Segment>> {
-    // Assuming BaseSegment can be cloned, or you have a way to handle ownership transfer
+    // Assuming BaseSegment can be cloned, or you have a way to handle ownership
+    // transfer
 
     // Check if all metas have a non-negative indent value
     if metas.iter().all(|m| m.indent_val >= 0) {
@@ -70,25 +71,21 @@ fn position_metas(
     }
 }
 
-use std::{collections::HashSet, iter::zip};
+use std::collections::HashSet;
+use std::iter::zip;
 
 use itertools::{chain, enumerate, Itertools};
 
-use crate::{
-    core::{
-        errors::SQLParseError,
-        parser::{
-            context::ParseContext,
-            helpers::trim_non_code_segments,
-            match_algorithms::{bracket_sensitive_look_ahead_match, greedy_match},
-            match_result::MatchResult,
-            matchable::Matchable,
-            segments::{base::Segment, meta::Indent},
-            types::ParseMode,
-        },
-    },
-    helpers::Boxed,
-};
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
+use crate::core::parser::helpers::trim_non_code_segments;
+use crate::core::parser::match_algorithms::{bracket_sensitive_look_ahead_match, greedy_match};
+use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::matchable::Matchable;
+use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::types::ParseMode;
+use crate::helpers::Boxed;
 
 #[derive(Debug, Clone)]
 pub struct Sequence {
@@ -274,11 +271,8 @@ impl Matchable for Sequence {
         // we should do that first, then add any unmatched noncode back onto the
         // unmatched sequence.
         if !meta_buffer.is_empty() {
-            matched_segments.extend(
-                meta_buffer
-                    .into_iter()
-                    .map(|it| it.boxed() as Box<dyn Segment>),
-            );
+            matched_segments
+                .extend(meta_buffer.into_iter().map(|it| it.boxed() as Box<dyn Segment>));
         }
 
         if !non_code_buffer.is_empty() {
@@ -289,10 +283,7 @@ impl Matchable for Sequence {
         // Return successfully.
         unmatched_segments.extend(tail);
 
-        Ok(MatchResult {
-            matched_segments,
-            unmatched_segments,
-        })
+        Ok(MatchResult { matched_segments, unmatched_segments })
     }
 
     fn cache_key(&self) -> String {
@@ -412,10 +403,7 @@ impl Matchable for Bracketed {
         let start_bracket = start_bracket;
         let end_bracket = end_bracket;
 
-        if seg_buff
-            .last()
-            .map_or(false, |seg| seg.is_type("bracketed"))
-        {
+        if seg_buff.last().map_or(false, |seg| seg.is_type("bracketed")) {
             unimplemented!()
         } else {
             // Look for the first bracket
@@ -489,22 +477,15 @@ impl Matchable for Bracketed {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        core::parser::{
-            context::ParseContext,
-            markers::PositionMarker,
-            matchable::Matchable,
-            parsers::StringParser,
-            segments::{
-                keyword::KeywordSegment,
-                meta::Indent,
-                test_functions::{fresh_ansi_dialect, test_segments},
-            },
-        },
-        helpers::{Boxed, ToMatchable},
-    };
-
     use super::Sequence;
+    use crate::core::parser::context::ParseContext;
+    use crate::core::parser::markers::PositionMarker;
+    use crate::core::parser::matchable::Matchable;
+    use crate::core::parser::parsers::StringParser;
+    use crate::core::parser::segments::keyword::KeywordSegment;
+    use crate::core::parser::segments::meta::Indent;
+    use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, test_segments};
+    use crate::helpers::{Boxed, ToMatchable};
 
     #[test]
     fn test__parser__grammar_sequence() {
@@ -553,15 +534,9 @@ mod tests {
         assert_eq!(match_result.matched_segments[2].get_raw().unwrap(), "foo");
         assert_eq!(match_result.len(), 3);
 
-        assert!(!gc
-            .match_segments(test_segments(), &mut ctx)
-            .unwrap()
-            .has_match());
+        assert!(!gc.match_segments(test_segments(), &mut ctx).unwrap().has_match());
 
-        assert!(!g
-            .match_segments(test_segments()[1..].to_vec(), &mut ctx)
-            .unwrap()
-            .has_match());
+        assert!(!g.match_segments(test_segments()[1..].to_vec(), &mut ctx).unwrap().has_match());
     }
 
     #[test]
@@ -616,21 +591,13 @@ mod tests {
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         assert!(
-            !g.match_segments(test_segments()[..2].to_vec(), &mut ctx)
-                .unwrap()
-                .has_match(),
+            !g.match_segments(test_segments()[..2].to_vec(), &mut ctx).unwrap().has_match(),
             "Expected no match, but a match was found."
         );
 
-        let segments = g
-            .match_segments(test_segments(), &mut ctx)
-            .unwrap()
-            .matched_segments;
+        let segments = g.match_segments(test_segments(), &mut ctx).unwrap().matched_segments;
         assert_eq!(segments[0].get_raw().unwrap(), "bar");
-        assert_eq!(
-            segments[1].get_raw().unwrap(),
-            test_segments()[1].get_raw().unwrap()
-        );
+        assert_eq!(segments[1].get_raw().unwrap(), test_segments()[1].get_raw().unwrap());
         assert_eq!(segments[2].get_raw().unwrap(), "foo");
         assert_eq!(segments[3].get_raw().unwrap(), "baar");
         assert_eq!(segments.len(), 4);
@@ -668,16 +635,9 @@ mod tests {
         )
         .boxed();
 
-        let g = Sequence::new(vec![
-            Indent::new(PositionMarker::default()).to_matchable(),
-            bs,
-            fs,
-        ]);
+        let g = Sequence::new(vec![Indent::new(PositionMarker::default()).to_matchable(), bs, fs]);
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
-        let segments = g
-            .match_segments(test_segments(), &mut ctx)
-            .unwrap()
-            .matched_segments;
+        let segments = g.match_segments(test_segments(), &mut ctx).unwrap().matched_segments;
 
         assert_eq!(segments[0].get_type(), "indent");
         assert_eq!(segments[1].get_type(), "kw");

@@ -1,4 +1,5 @@
-use super::{matchable::Matchable, segments::generator::SegmentGenerator};
+use super::matchable::Matchable;
+use super::segments::generator::SegmentGenerator;
 
 #[derive(Debug, Clone)]
 pub enum DialectElementType {
@@ -42,8 +43,8 @@ pub enum ParseMode {
     /// Note: This replicates the `GreedyUntil` semantics.
     Greedy,
 
-    /// A variant of "GREEDY" mode. This mode behaves like "STRICT" if nothing matches,
-    /// but behaves like "GREEDY" once something has matched.
+    /// A variant of "GREEDY" mode. This mode behaves like "STRICT" if nothing
+    /// matches, but behaves like "GREEDY" once something has matched.
     ///
     /// Note: This replicates the `StartsWith` semantics.
     GreedyOnceStarted,

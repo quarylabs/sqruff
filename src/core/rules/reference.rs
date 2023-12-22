@@ -33,16 +33,8 @@ mod tests {
             // Empty list of references is always true
             (vec![], vec![vec!["abc".to_string()]], true),
             // Simple cases: one reference, one target
-            (
-                vec![vec!["agent1".to_string()]],
-                vec![vec!["agent1".to_string()]],
-                true,
-            ),
-            (
-                vec![vec!["agent1".to_string()]],
-                vec![vec!["customer".to_string()]],
-                false,
-            ),
+            (vec![vec!["agent1".to_string()]], vec![vec!["agent1".to_string()]], true),
+            (vec![vec!["agent1".to_string()]], vec![vec!["customer".to_string()]], false),
             // Multiple references. If any match, good.
             (
                 vec![vec!["bar".to_string()], vec!["user_id".to_string()]],

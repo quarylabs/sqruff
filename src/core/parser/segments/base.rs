@@ -1,13 +1,15 @@
+use std::collections::{HashMap, HashSet};
+use std::fmt::Debug;
+
+use dyn_clone::DynClone;
+use itertools::Itertools;
+use uuid::Uuid;
+
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::LintFix;
 use crate::core::templaters::base::TemplatedFile;
-use dyn_clone::DynClone;
-use itertools::Itertools;
-use std::collections::{HashMap, HashSet};
-use std::fmt::Debug;
-use uuid::Uuid;
 
 /// An element of the response to BaseSegment.path_to().
 ///     Attributes:
@@ -31,11 +33,7 @@ pub trait Segment: DynClone + Debug {
     }
 
     fn get_raw(&self) -> Option<String> {
-        self.get_segments()
-            .iter()
-            .filter_map(|segment| segment.get_raw())
-            .join("")
-            .into()
+        self.get_segments().iter().filter_map(|segment| segment.get_raw()).join("").into()
     }
 
     fn get_raw_upper(&self) -> Option<String> {
@@ -83,7 +81,8 @@ pub trait Segment: DynClone + Debug {
         unimplemented!()
     }
 
-    // get_segments is the way the segment returns its children 'self.segments' in Python.
+    // get_segments is the way the segment returns its children 'self.segments' in
+    // Python.
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -101,12 +100,14 @@ pub trait Segment: DynClone + Debug {
         false
     }
 
-    /// Can we allow it to be empty? Usually used in combination with the can_start_end_non_code.
+    /// Can we allow it to be empty? Usually used in combination with the
+    /// can_start_end_non_code.
     fn get_allow_empty(&self) -> bool {
         false
     }
 
-    /// get_file_path returns the file path of the segment if it is a file segment.
+    /// get_file_path returns the file path of the segment if it is a file
+    /// segment.
     fn get_file_path(&self) -> Option<String> {
         None
     }
@@ -280,14 +281,16 @@ impl Segment for CodeSegment {
         vec![Box::new(self.clone())]
     }
 
-    /// Create a new segment, with exactly the same position but different content.
+    /// Create a new segment, with exactly the same position but different
+    /// content.
     ///
     ///         Returns:
     ///             A copy of this object with new contents.
     ///
     ///         Used mostly by fixes.
     ///
-    ///         NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+    ///         NOTE: This *doesn't* copy the uuid. The edited segment is a new
+    /// segment.
     ///
     /// From RawSegment implementation
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
@@ -382,9 +385,7 @@ impl NewlineSegment {
         _position_maker: &PositionMarker,
         _args: NewlineSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        Box::new(NewlineSegment {
-            raw: raw.to_string(),
-        })
+        Box::new(NewlineSegment { raw: raw.to_string() })
     }
 }
 
@@ -517,9 +518,7 @@ impl UnlexableSegment {
         _position_maker: &PositionMarker,
         args: UnlexableSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        Box::new(UnlexableSegment {
-            expected: args.expected.unwrap_or("".to_string()),
-        })
+        Box::new(UnlexableSegment { expected: args.expected.unwrap_or("".to_string()) })
     }
 }
 
@@ -624,10 +623,7 @@ impl SymbolSegment {
         position_maker: &PositionMarker,
         _args: SymbolSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        Box::new(SymbolSegment {
-            raw: raw.to_string(),
-            position_maker: position_maker.clone(),
-        })
+        Box::new(SymbolSegment { raw: raw.to_string(), position_maker: position_maker.clone() })
     }
 }
 
@@ -646,13 +642,7 @@ mod tests {
         let template = TemplatedFile::from_string("foobar".to_string());
         let rs1 = Box::new(RawSegment::new(
             Some("foobar".to_string()),
-            Some(PositionMarker::new(
-                0..6,
-                0..6,
-                template.clone(),
-                None,
-                None,
-            )),
+            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
             None,
             None,
             None,
@@ -662,13 +652,7 @@ mod tests {
         )) as Box<dyn Segment>;
         let rs2 = Box::new(RawSegment::new(
             Some("foobar".to_string()),
-            Some(PositionMarker::new(
-                0..6,
-                0..6,
-                template.clone(),
-                None,
-                None,
-            )),
+            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
             None,
             None,
             None,
@@ -723,9 +707,7 @@ mod tests {
             vec![&raw_segs[0].get_uuid().unwrap()]
         );
 
-        let anchor_info = anchor_edit_info
-            .get(&raw_segs[0].get_uuid().unwrap())
-            .unwrap();
+        let anchor_info = anchor_edit_info.get(&raw_segs[0].get_uuid().unwrap()).unwrap();
 
         // Check that the duplicate as been deduplicated i.e. this isn't 3.
         assert_eq!(anchor_info.replace, 2);

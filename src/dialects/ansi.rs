@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::vec;
 
+use itertools::Itertools;
+
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLParseError;
@@ -21,7 +23,6 @@ use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
-use itertools::Itertools;
 
 macro_rules! from_segments {
     ($self:expr, $segments:expr) => {{
@@ -58,9 +59,7 @@ pub fn ansi_dialect() -> Dialect {
         "YEAR",
     ]);
 
-    ansi_dialect
-        .sets_mut("date_part_function_name")
-        .extend(["DATEADD"]);
+    ansi_dialect.sets_mut("date_part_function_name").extend(["DATEADD"]);
 
     // Set Keywords
     ansi_dialect
@@ -77,12 +76,7 @@ pub fn ansi_dialect() -> Dialect {
     ansi_dialect.update_bracket_sets(
         "bracket_pairs",
         vec![
-            (
-                "round".into(),
-                "StartBracketSegment".into(),
-                "EndBracketSegment".into(),
-                true,
-            ),
+            ("round".into(), "StartBracketSegment".into(), "EndBracketSegment".into(), true),
             (
                 "square".into(),
                 "StartSquareBracketSegment".into(),
@@ -99,11 +93,11 @@ pub fn ansi_dialect() -> Dialect {
     );
 
     // Set the value table functions. These are functions that, if they appear as
-    // an item in "FROM", are treated as returning a COLUMN, not a TABLE. Apparently,
-    // among dialects supported by SQLFluff, only BigQuery has this concept, but this
-    // set is defined in the ANSI dialect because:
-    // - It impacts core linter rules (see AL04 and several other rules that subclass
-    //   from it) and how they interpret the contents of table_expressions
+    // an item in "FROM", are treated as returning a COLUMN, not a TABLE.
+    // Apparently, among dialects supported by SQLFluff, only BigQuery has this
+    // concept, but this set is defined in the ANSI dialect because:
+    // - It impacts core linter rules (see AL04 and several other rules that
+    //   subclass from it) and how they interpret the contents of table_expressions
     // - At least one other database (DB2) has the same value table function,
     //   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
     ansi_dialect.sets_mut("value_table_functions");
@@ -119,9 +113,7 @@ pub fn ansi_dialect() -> Dialect {
     ansi_dialect.extend([
         (
             "FunctionNameIdentifierSegment".into(),
-            TypedParser::new("word", |_| unimplemented!(), None, false, None)
-                .to_matchable()
-                .into(),
+            TypedParser::new("word", |_| unimplemented!(), None, false, None).to_matchable().into(),
         ),
         (
             "NumericLiteralSegment".into(),
@@ -129,81 +121,54 @@ pub fn ansi_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
-        (
-            "DelimiterGrammar".into(),
-            Ref::new("SemicolonSegment").to_matchable().into(),
-        ),
+        ("DelimiterGrammar".into(), Ref::new("SemicolonSegment").to_matchable().into()),
         (
             "SemicolonSegment".into(),
-            StringParser::new(";", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new(";", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "StartBracketSegment".into(),
-            StringParser::new("(", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("(", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "EndBracketSegment".into(),
-            StringParser::new(")", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new(")", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "StartSquareBracketSegment".into(),
-            StringParser::new("[", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("[", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "EndSquareBracketSegment".into(),
-            StringParser::new("]", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("]", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "StartCurlyBracketSegment".into(),
-            StringParser::new("{", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("{", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "EndCurlyBracketSegment".into(),
-            StringParser::new("}", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("}", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "CommaSegment".into(),
-            StringParser::new(",", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new(",", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "CastOperatorSegment".into(),
-            StringParser::new("::", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("::", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "StarSegment".into(),
-            StringParser::new("*", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("*", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "PositiveSegment".into(),
-            StringParser::new("+", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("+", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "NegativeSegment".into(),
-            StringParser::new("-", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new("-", symbol_factory, None, false, None).to_matchable().into(),
         ),
         (
             "NakedIdentifierSegment".into(),
@@ -269,19 +234,13 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "SelectClauseTerminatorGrammar".into(),
-            one_of(vec![Ref::keyword("FROM").boxed()])
-                .to_matchable()
-                .into(),
+            one_of(vec![Ref::keyword("FROM").boxed()]).to_matchable().into(),
         ),
         (
             "BareFunctionSegment".into(),
             SegmentGenerator::new(|dialect| {
                 MultiStringParser::new(
-                    dialect
-                        .sets("bare_functions")
-                        .into_iter()
-                        .map(Into::into)
-                        .collect_vec(),
+                    dialect.sets("bare_functions").into_iter().map(Into::into).collect_vec(),
                     |segment| {
                         CodeSegment::new(
                             &segment.get_raw().unwrap(),
@@ -299,14 +258,9 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "SingleIdentifierGrammar".into(),
-            one_of(vec![Ref::new("NakedIdentifierSegment").boxed()])
-                .to_matchable()
-                .into(),
+            one_of(vec![Ref::new("NakedIdentifierSegment").boxed()]).to_matchable().into(),
         ),
-        (
-            "TableReferenceSegment".into(),
-            Ref::new("SingleIdentifierGrammar").to_matchable().into(),
-        ),
+        ("TableReferenceSegment".into(), Ref::new("SingleIdentifierGrammar").to_matchable().into()),
         (
             "LiteralGrammar".into(),
             one_of(vec![
@@ -340,67 +294,33 @@ pub fn ansi_dialect() -> Dialect {
     ansi_dialect.extend([
         (
             "QualifiedNumericLiteralSegment".into(),
-            QualifiedNumericLiteralSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            QualifiedNumericLiteralSegment { segments: Vec::new() }.to_matchable().into(),
         ),
-        (
-            "FunctionSegment".into(),
-            FunctionSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
-        ),
+        ("FunctionSegment".into(), FunctionSegment { segments: Vec::new() }.to_matchable().into()),
         (
             "FunctionNameSegment".into(),
-            FunctionNameSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            FunctionNameSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "StatementSegment".into(),
-            StatementSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            StatementSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "SelectClauseSegment".into(),
-            SelectClauseSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            SelectClauseSegment { segments: Vec::new() }.to_matchable().into(),
         ),
-        (
-            "SetExpressionSegment".into(),
-            SetExpressionSegment {}.to_matchable().into(),
-        ),
+        ("SetExpressionSegment".into(), SetExpressionSegment {}.to_matchable().into()),
         (
             "UnorderedSelectStatementSegment".into(),
             UnorderedSelectStatementSegment {}.to_matchable().into(),
         ),
         (
             "FromClauseSegment".into(),
-            FromClauseSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            FromClauseSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "SelectStatementSegment".into(),
-            SelectStatementSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            SelectStatementSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "SelectClauseModifierSegment".into(),
@@ -408,113 +328,58 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "SelectClauseElementSegment".into(),
-            SelectClauseElementSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            SelectClauseElementSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "WildcardExpressionSegment".into(),
-            WildcardExpressionSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            WildcardExpressionSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "WildcardIdentifierSegment".into(),
-            WildcardIdentifierSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            WildcardIdentifierSegment { segments: Vec::new() }.to_matchable().into(),
         ),
-        (
-            "OrderByClauseSegment".into(),
-            OrderByClauseSegment {}.to_matchable().into(),
-        ),
+        ("OrderByClauseSegment".into(), OrderByClauseSegment {}.to_matchable().into()),
         (
             "TruncateStatementSegment".into(),
-            TruncateStatementSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            TruncateStatementSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "ExpressionSegment".into(),
-            ExpressionSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            ExpressionSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "ShorthandCastSegment".into(),
-            ShorthandCastSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            ShorthandCastSegment { segments: Vec::new() }.to_matchable().into(),
         ),
-        (
-            "DatatypeSegment".into(),
-            DatatypeSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
-        ),
+        ("DatatypeSegment".into(), DatatypeSegment { segments: Vec::new() }.to_matchable().into()),
         (
             "AliasExpressionSegment".into(),
-            AliasExpressionSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            AliasExpressionSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "FromExpressionSegment".into(),
-            FromExpressionSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            FromExpressionSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "ColumnReferenceSegment".into(),
-            ObjectReferenceSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            ObjectReferenceSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "ObjectReferenceSegment".into(),
-            ObjectReferenceSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            ObjectReferenceSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "SignedSegmentGrammar".into(),
-            one_of(vec![
-                Ref::new("PositiveSegment").boxed(),
-                Ref::new("NegativeSegment").boxed(),
-            ])
-            .to_matchable()
-            .into(),
+            one_of(vec![Ref::new("PositiveSegment").boxed(), Ref::new("NegativeSegment").boxed()])
+                .to_matchable()
+                .into(),
         ),
     ]);
 
     ansi_dialect.extend([
         (
             "SelectableGrammar".into(),
-            one_of(vec![Ref::new("NonWithSelectableGrammar").boxed()])
-                .to_matchable()
-                .into(),
+            one_of(vec![Ref::new("NonWithSelectableGrammar").boxed()]).to_matchable().into(),
         ),
         (
             "NonWithSelectableGrammar".into(),
@@ -525,33 +390,19 @@ pub fn ansi_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        (
-            "NonWithNonSelectableGrammar".into(),
-            one_of(vec![]).to_matchable().into(),
-        ),
-        (
-            "NonSetSelectableGrammar".into(),
-            one_of(vec![]).to_matchable().into(),
-        ),
+        ("NonWithNonSelectableGrammar".into(), one_of(vec![]).to_matchable().into()),
+        ("NonSetSelectableGrammar".into(), one_of(vec![]).to_matchable().into()),
         (
             "ArrayAccessorSegment".into(),
-            ArrayAccessorSegment { segments: vec![] }
-                .to_matchable()
-                .into(),
+            ArrayAccessorSegment { segments: vec![] }.to_matchable().into(),
         ),
         (
             "FromExpressionElementSegment".into(),
-            FromExpressionElementSegment {
-                segments: Vec::new(),
-            }
-            .to_matchable()
-            .into(),
+            FromExpressionElementSegment { segments: Vec::new() }.to_matchable().into(),
         ),
         (
             "IsClauseGrammar".into(),
-            one_of(vec![Ref::new("NullLiteralSegment").boxed()])
-                .to_matchable()
-                .into(),
+            one_of(vec![Ref::new("NullLiteralSegment").boxed()]).to_matchable().into(),
         ),
     ]);
 
@@ -559,9 +410,7 @@ pub fn ansi_dialect() -> Dialect {
         (
             "Tail_Recurse_Expression_A_Grammar".into(),
             Sequence::new(vec![
-                Ref::new("Expression_A_Unary_Operator_Grammar")
-                    .optional()
-                    .boxed(),
+                Ref::new("Expression_A_Unary_Operator_Grammar").optional().boxed(),
                 Ref::new("Expression_C_Grammar").boxed(),
             ])
             .to_matchable()
@@ -569,51 +418,42 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "Expression_A_Unary_Operator_Grammar".into(),
-            one_of(vec![Ref::new("SignedSegmentGrammar").boxed()])
-                .to_matchable()
-                .into(),
+            one_of(vec![Ref::new("SignedSegmentGrammar").boxed()]).to_matchable().into(),
         ),
         (
             "Expression_A_Grammar".into(),
             Sequence::new(vec![
                 Ref::new("Tail_Recurse_Expression_A_Grammar").boxed(),
-                AnyNumberOf::new(vec![one_of(vec![
-                    Sequence::new(vec![
-                        Ref::new("BinaryOperatorGrammar").boxed(),
-                        Ref::new("Tail_Recurse_Expression_A_Grammar").boxed(),
-                    ])
-                    .boxed(),
-                    Sequence::new(vec![
-                        Ref::keyword("IS").boxed(),
-                        Ref::keyword("NOT").optional().boxed(),
-                        Ref::new("IsClauseGrammar").boxed(),
+                AnyNumberOf::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("BinaryOperatorGrammar").boxed(),
+                            Ref::new("Tail_Recurse_Expression_A_Grammar").boxed(),
+                        ])
+                        .boxed(),
+                        Sequence::new(vec![
+                            Ref::keyword("IS").boxed(),
+                            Ref::keyword("NOT").optional().boxed(),
+                            Ref::new("IsClauseGrammar").boxed(),
+                        ])
+                        .boxed(),
                     ])
                     .boxed(),
                 ])
-                .boxed()])
                 .boxed(),
             ])
             .to_matchable()
             .into(),
         ),
-        (
-            "AccessorGrammar".into(),
-            Ref::new("ArrayAccessorSegment")
-                .boxed()
-                .to_matchable()
-                .into(),
-        ),
+        ("AccessorGrammar".into(), Ref::new("ArrayAccessorSegment").boxed().to_matchable().into()),
     ]);
 
     ansi_dialect.extend([
         (
             "BaseExpressionElementGrammar".into(),
-            one_of(vec![
-                Ref::new("LiteralGrammar").boxed(),
-                Ref::new("ExpressionSegment").boxed(),
-            ])
-            .to_matchable()
-            .into(),
+            one_of(vec![Ref::new("LiteralGrammar").boxed(), Ref::new("ExpressionSegment").boxed()])
+                .to_matchable()
+                .into(),
         ),
         (
             "Expression_C_Grammar".into(),
@@ -679,10 +519,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 "block_comment",
                 r"\/\*([^\*]|\*(?!\/))*\*\/",
                 &CommentSegment::new as SegmentConstructorFn<CommentSegmentNewArgs>,
-                CommentSegmentNewArgs {
-                    r#type: "block_comment",
-                    trim_start: None,
-                },
+                CommentSegmentNewArgs { r#type: "block_comment", trim_start: None },
                 Some(Box::new(
                     RegexLexer::new(
                         "newline",
@@ -778,8 +615,8 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             .unwrap(),
         ),
         //
-        // NOTE: Instead of using a created LiteralSegment and ComparisonOperatorSegment in the next two,
-        // in Rust we just use a CodeSegment
+        // NOTE: Instead of using a created LiteralSegment and ComparisonOperatorSegment in the
+        // next two, in Rust we just use a CodeSegment
         Box::new(
             RegexLexer::new(
                 "numeric_literal",
@@ -799,10 +636,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 "like_operator",
                 r"!?~~?\*?",
                 &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs {
-                    code_type: "like_operator",
-                    ..CodeSegmentNewArgs::default()
-                },
+                CodeSegmentNewArgs { code_type: "like_operator", ..CodeSegmentNewArgs::default() },
                 None,
                 None,
             )
@@ -1204,22 +1038,16 @@ impl FileSegment {
         _f_name: Option<String>,
     ) -> Result<Box<dyn Segment>, SQLParseError> {
         // Trim the start
-        let start_idx = segments
-            .iter()
-            .position(|segment| segment.is_code())
-            .unwrap_or(0);
+        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0);
 
         // Trim the end
-        // Note: The '+ 1' in the end is to include the segment at 'end_idx' in the slice.
-        let end_idx = segments
-            .iter()
-            .rposition(|segment| segment.is_code())
-            .map_or(start_idx, |idx| idx + 1);
+        // Note: The '+ 1' in the end is to include the segment at 'end_idx' in the
+        // slice.
+        let end_idx =
+            segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
 
         if start_idx == end_idx {
-            return Ok(Box::new(FileSegment {
-                segments: segments.to_vec(),
-            }));
+            return Ok(Box::new(FileSegment { segments: segments.to_vec() }));
         }
 
         let final_seg = segments.last().unwrap();
@@ -1235,11 +1063,7 @@ impl FileSegment {
                 .match_segments(segments[start_idx..end_idx].to_vec(), this)
         })?;
 
-        let content = if !match_result.has_match() {
-            unimplemented!()
-        } else {
-            unreachable!()
-        };
+        let content = if !match_result.has_match() { unimplemented!() } else { unreachable!() };
     }
 }
 
@@ -1354,9 +1178,7 @@ pub struct SetExpressionSegment {}
 
 impl Segment for SetExpressionSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![Ref::new("NonSetSelectableGrammar").boxed()])
-            .to_matchable()
-            .into()
+        Sequence::new(vec![Ref::new("NonSetSelectableGrammar").boxed()]).to_matchable().into()
     }
 }
 
@@ -1369,12 +1191,9 @@ pub struct FromClauseSegment {
 
 impl Segment for FromClauseSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![
-            Ref::keyword("FROM").boxed(),
-            Ref::new("FromExpressionSegment").boxed(),
-        ])
-        .to_matchable()
-        .into()
+        Sequence::new(vec![Ref::keyword("FROM").boxed(), Ref::new("FromExpressionSegment").boxed()])
+            .to_matchable()
+            .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1422,12 +1241,9 @@ pub struct SelectClauseModifierSegment {}
 
 impl Segment for SelectClauseModifierSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        one_of(vec![
-            Ref::keyword("DISTINCT").boxed(),
-            Ref::keyword("ALL").boxed(),
-        ])
-        .to_matchable()
-        .into()
+        one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()])
+            .to_matchable()
+            .into()
     }
 }
 
@@ -1471,9 +1287,7 @@ pub struct WildcardExpressionSegment {
 
 impl Segment for WildcardExpressionSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![Ref::new("WildcardIdentifierSegment").boxed()])
-            .to_matchable()
-            .into()
+        Sequence::new(vec![Ref::new("WildcardIdentifierSegment").boxed()]).to_matchable().into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1498,10 +1312,7 @@ impl Segment for WildcardIdentifierSegment {
     }
 
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![Ref::new("StarSegment").boxed()])
-            .allow_gaps(false)
-            .to_matchable()
-            .into()
+        Sequence::new(vec![Ref::new("StarSegment").boxed()]).allow_gaps(false).to_matchable().into()
     }
 }
 
@@ -1520,11 +1331,8 @@ impl Segment for OrderByClauseSegment {
             Ref::keyword("ORDER").boxed(),
             Ref::keyword("BY").boxed(),
             // Indent::default().boxed(),
-            Delimited::new(vec![one_of(
-                vec![Ref::new("NumericLiteralSegment").boxed()],
-            )
-            .boxed()])
-            .boxed(),
+            Delimited::new(vec![one_of(vec![Ref::new("NumericLiteralSegment").boxed()]).boxed()])
+                .boxed(),
         ])
         .to_matchable()
         .into()
@@ -1590,11 +1398,13 @@ impl Segment for ShorthandCastSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             one_of(vec![Ref::new("Expression_D_Grammar").boxed()]).boxed(),
-            AnyNumberOf::new(vec![Sequence::new(vec![
-                Ref::new("CastOperatorSegment").boxed(),
-                Ref::new("DatatypeSegment").boxed(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::new("CastOperatorSegment").boxed(),
+                    Ref::new("DatatypeSegment").boxed(),
+                ])
+                .boxed(),
             ])
-            .boxed()])
             .config(|this| this.max_times(1))
             .boxed(),
         ])
@@ -1620,13 +1430,17 @@ pub struct DatatypeSegment {
 
 impl Segment for DatatypeSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        one_of(vec![Sequence::new(vec![one_of(vec![Sequence::new(
-            vec![Ref::new("DatatypeIdentifierSegment").boxed()],
-        )
-        .allow_gaps(true)
-        .boxed()])
-        .boxed()])
-        .boxed()])
+        one_of(vec![
+            Sequence::new(vec![
+                one_of(vec![
+                    Sequence::new(vec![Ref::new("DatatypeIdentifierSegment").boxed()])
+                        .allow_gaps(true)
+                        .boxed(),
+                ])
+                .boxed(),
+            ])
+            .boxed(),
+        ])
         .to_matchable()
         .into()
     }
@@ -1651,12 +1465,8 @@ impl Segment for AliasExpressionSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             Ref::keyword("AS").optional().boxed(),
-            one_of(vec![Sequence::new(vec![Ref::new(
-                "SingleIdentifierGrammar",
-            )
-            .boxed()])
-            .boxed()])
-            .boxed(),
+            one_of(vec![Sequence::new(vec![Ref::new("SingleIdentifierGrammar").boxed()]).boxed()])
+                .boxed(),
         ])
         .to_matchable()
         .into()
@@ -1680,12 +1490,12 @@ pub struct FromExpressionSegment {
 
 impl Segment for FromExpressionSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        optionally_bracketed(vec![Sequence::new(vec![one_of(vec![Ref::new(
-            "FromExpressionElementSegment",
-        )
-        .boxed()])
-        .boxed()])
-        .boxed()])
+        optionally_bracketed(vec![
+            Sequence::new(vec![
+                one_of(vec![Ref::new("FromExpressionElementSegment").boxed()]).boxed(),
+            ])
+            .boxed(),
+        ])
         .to_matchable()
         .into()
     }
@@ -1708,9 +1518,7 @@ pub struct FromExpressionElementSegment {
 
 impl Segment for FromExpressionElementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![Ref::new("AliasExpressionSegment").boxed()])
-            .to_matchable()
-            .into()
+        Sequence::new(vec![Ref::new("AliasExpressionSegment").boxed()]).to_matchable().into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1731,9 +1539,7 @@ pub struct ObjectReferenceSegment {
 
 impl Segment for ObjectReferenceSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
-            .to_matchable()
-            .into()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()]).to_matchable().into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1755,13 +1561,17 @@ pub struct ArrayAccessorSegment {
 
 impl Segment for ArrayAccessorSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Bracketed::new(vec![Delimited::new(vec![one_of(vec![
-            Ref::new("NumericLiteralSegment").boxed(),
-            Ref::new("ExpressionSegment").boxed(),
+        Bracketed::new(vec![
+            Delimited::new(vec![
+                one_of(vec![
+                    Ref::new("NumericLiteralSegment").boxed(),
+                    Ref::new("ExpressionSegment").boxed(),
+                ])
+                .boxed(),
+            ])
+            .config(|this| this.delimiter(Ref::new("SliceSegment")))
+            .boxed(),
         ])
-        .boxed()])
-        .config(|this| this.delimiter(Ref::new("SliceSegment")))
-        .boxed()])
         .bracket_type("square")
         .to_matchable()
         .into()
@@ -1781,12 +1591,16 @@ pub struct FunctionSegment {
 
 impl Segment for FunctionSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        one_of(vec![Sequence::new(vec![Sequence::new(vec![
-            Ref::new("FunctionNameSegment").boxed(),
-            Bracketed::new(vec![Ref::new("FunctionContentsGrammar").boxed()]).boxed(),
+        one_of(vec![
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::new("FunctionNameSegment").boxed(),
+                    Bracketed::new(vec![Ref::new("FunctionContentsGrammar").boxed()]).boxed(),
+                ])
+                .boxed(),
+            ])
+            .boxed(),
         ])
-        .boxed()])
-        .boxed()])
         .to_matchable()
         .into()
     }
@@ -1809,14 +1623,10 @@ pub struct FunctionNameSegment {
 
 impl Segment for FunctionNameSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![one_of(vec![Ref::new(
-            "FunctionNameIdentifierSegment",
-        )
-        .boxed()])
-        .boxed()])
-        .allow_gaps(false)
-        .to_matchable()
-        .into()
+        Sequence::new(vec![one_of(vec![Ref::new("FunctionNameIdentifierSegment").boxed()]).boxed()])
+            .allow_gaps(false)
+            .to_matchable()
+            .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1870,10 +1680,7 @@ mod tests {
         let test_cases = vec![
             ("a b", vec!["a", " ", "b", ""]),
             ("b.c", vec!["b", ".", "c", ""]),
-            (
-                "abc \n \t def  ;blah",
-                vec!["abc", " ", "\n", " \t ", "def", "  ", ";", "blah", ""],
-            ),
+            ("abc \n \t def  ;blah", vec!["abc", " ", "\n", " \t ", "def", "  ", ";", "blah", ""]),
         ];
 
         for (raw, res) in test_cases {
@@ -1892,22 +1699,15 @@ mod tests {
             assert_eq!(errors.len(), 0, "Lexing failed for input: {}", raw);
 
             // Check if the raw components of the tokens match the expected result
-            let raw_list: Vec<String> = tokens
-                .iter()
-                .map(|token| token.get_raw().unwrap())
-                .collect();
+            let raw_list: Vec<String> =
+                tokens.iter().map(|token| token.get_raw().unwrap()).collect();
             assert_eq!(raw_list, res, "Mismatch for input: {:?}", raw);
 
-            // Check if the concatenated raw components of the tokens match the original raw string
-            let concatenated: String = tokens
-                .iter()
-                .map(|token| token.get_raw().unwrap())
-                .collect();
-            assert_eq!(
-                concatenated, raw,
-                "Concatenation mismatch for input: {}",
-                raw
-            );
+            // Check if the concatenated raw components of the tokens match the original raw
+            // string
+            let concatenated: String =
+                tokens.iter().map(|token| token.get_raw().unwrap()).collect();
+            assert_eq!(concatenated, raw, "Concatenation mismatch for input: {}", raw);
         }
     }
 
@@ -1928,8 +1728,8 @@ mod tests {
             //     // Nested Case Expressions
             //     (
             //        "ExpressionSegment",
-            //            "CASE WHEN id = 1 THEN CASE WHEN true THEN 'something' ELSE 'nothing' END ELSE 'test' END"
-            //     ),
+            //            "CASE WHEN id = 1 THEN CASE WHEN true THEN 'something' ELSE 'nothing' END
+            // ELSE 'test' END"     ),
             //     // Casting expressions
             //     ("ExpressionSegment", "CAST(ROUND(online_sales / 1000.0) AS varchar)"),
             //     // Like expressions
@@ -1956,8 +1756,8 @@ mod tests {
             // ("ExpressionSegment", "count_18_24 * bits[OFFSET(0)] + count_25_34"),
             // (
             //     "SelectClauseElementSegment",
-            //         "(count_18_24 * bits[OFFSET(0)] + count_25_34) / audience_size AS relative_abundance"
-            // ),
+            //         "(count_18_24 * bits[OFFSET(0)] + count_25_34) / audience_size AS
+            // relative_abundance" ),
             // // Dense math expressions
             // ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
             // ("SelectClauseElementSegment", "t.val/t.id"),
@@ -1977,8 +1777,8 @@ mod tests {
             // // Complex Functions
             // (
             //     "ExpressionSegment",
-            //     "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')"
-            // ),
+            //     "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)),
+            // 10), '|', '00000000')" ),
             // // Notnull and Isnull
             // ("ExpressionSegment", "c is null"),
             // ("ExpressionSegment", "c is not null"),
@@ -2048,16 +1848,11 @@ mod tests {
 
         for (raw, err_locations) in tests {
             let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
-            let parsed = lnt
-                .parse_string(raw.to_string(), None, None, None, None)
-                .unwrap();
+            let parsed = lnt.parse_string(raw.to_string(), None, None, None, None).unwrap();
             assert!(!parsed.violations.is_empty());
 
-            let locs: Vec<(usize, usize)> = parsed
-                .violations
-                .iter()
-                .map(|v| (v.line_no, v.line_pos))
-                .collect();
+            let locs: Vec<(usize, usize)> =
+                parsed.violations.iter().map(|v| (v.line_no, v.line_pos)).collect();
             assert_eq!(locs, err_locations);
         }
     }
@@ -2070,9 +1865,7 @@ mod tests {
             std::fs::read_to_string("test/fixtures/dialects/ansi/select_in_multiline_comment.sql")
                 .expect("Unable to read file");
 
-        let parsed = lnt
-            .parse_string(file_content, None, None, None, None)
-            .unwrap();
+        let parsed = lnt.parse_string(file_content, None, None, None, None).unwrap();
 
         for _raw_seg in parsed.tree.unwrap().get_raw_segments().unwrap() {
             unimplemented!()
@@ -2089,9 +1882,7 @@ mod tests {
         let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
 
         for (sql_string,) in cases {
-            let parsed = lnt
-                .parse_string(sql_string.to_string(), None, None, None, None)
-                .unwrap();
+            let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
         }
     }
 }

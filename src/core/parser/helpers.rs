@@ -1,11 +1,7 @@
 use crate::core::parser::segments::base::Segment;
 
 pub fn join_segments_raw(segments: &[Box<dyn Segment>]) -> String {
-    segments
-        .iter()
-        .filter_map(|s| s.get_raw())
-        .collect::<Vec<_>>()
-        .concat()
+    segments.iter().filter_map(|s| s.get_raw()).collect::<Vec<_>>().concat()
 }
 
 pub fn check_still_complete(
@@ -23,11 +19,7 @@ pub fn check_still_complete(
 /// Take segments and split off surrounding non-code segments as appropriate.
 pub fn trim_non_code_segments(
     segments: &[Box<dyn Segment>],
-) -> (
-    &[Box<dyn Segment>],
-    &[Box<dyn Segment>],
-    &[Box<dyn Segment>],
-) {
+) -> (&[Box<dyn Segment>], &[Box<dyn Segment>], &[Box<dyn Segment>]) {
     let seg_len = segments.len();
     let mut pre_idx = 0;
     let mut post_idx = seg_len;
@@ -44,30 +36,20 @@ pub fn trim_non_code_segments(
         }
     }
 
-    (
-        &segments[..pre_idx],
-        &segments[pre_idx..post_idx],
-        &segments[post_idx..],
-    )
+    (&segments[..pre_idx], &segments[pre_idx..post_idx], &segments[post_idx..])
 }
 
 #[cfg(test)]
 mod test {
-    use crate::core::parser::{
-        helpers::trim_non_code_segments, segments::test_functions::generate_test_segments_func,
-    };
+    use crate::core::parser::helpers::trim_non_code_segments;
+    use crate::core::parser::segments::test_functions::generate_test_segments_func;
 
     #[test]
     fn test__parser__helper_trim_non_code_segments() {
         let test_cases = vec![
             (vec!["bar", ".", "bar"], 0, 3, 0),
             (vec![], 0, 0, 0),
-            (
-                vec!["  ", "\n", "\t", "bar", ".", "bar", "  ", "\n", "\t"],
-                3,
-                3,
-                3,
-            ),
+            (vec!["  ", "\n", "\t", "bar", ".", "bar", "  ", "\n", "\t"], 3, 3, 3),
         ];
 
         for (token_list, pre_len, mid_len, post_len) in test_cases {
@@ -75,19 +57,13 @@ mod test {
             let (pre, mid, post) = trim_non_code_segments(&seg_list);
 
             // Assert lengths
-            assert_eq!(
-                (pre.len(), mid.len(), post.len()),
-                (pre_len, mid_len, post_len)
-            );
+            assert_eq!((pre.len(), mid.len(), post.len()), (pre_len, mid_len, post_len));
 
             // Assert content
             let pre_raw: Vec<_> = pre.iter().map(|s| s.get_raw()).collect();
             assert_eq!(
                 pre_raw,
-                seg_list[..pre_len]
-                    .iter()
-                    .map(|s| s.get_raw())
-                    .collect::<Vec<_>>()
+                seg_list[..pre_len].iter().map(|s| s.get_raw()).collect::<Vec<_>>()
             );
 
             let mid_raw: Vec<_> = mid.iter().map(|s| s.get_raw()).collect();

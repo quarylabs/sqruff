@@ -1,17 +1,16 @@
+use std::borrow::Cow;
+use std::collections::hash_map::Entry;
+use std::collections::{HashMap, HashSet};
+use std::fmt::Debug;
+
 use itertools::Itertools;
 
-use crate::{
-    core::parser::{
-        lexer::Matcher, matchable::Matchable, parsers::StringParser,
-        segments::keyword::KeywordSegment, types::DialectElementType,
-    },
-    helpers::capitalize,
-};
-use std::{
-    borrow::Cow,
-    collections::{hash_map::Entry, HashMap, HashSet},
-    fmt::Debug,
-};
+use crate::core::parser::lexer::Matcher;
+use crate::core::parser::matchable::Matchable;
+use crate::core::parser::parsers::StringParser;
+use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::types::DialectElementType;
+use crate::helpers::capitalize;
 
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
@@ -89,10 +88,7 @@ impl Dialect {
             "Invalid bracket set. Consider using another identifier instead."
         );
 
-        self.bracket_collections
-            .get(label)
-            .cloned()
-            .unwrap_or_default()
+        self.bracket_collections.get(label).cloned().unwrap_or_default()
     }
 
     pub fn bracket_sets_mut(&mut self, label: &str) -> &mut HashSet<BracketPair> {
@@ -101,9 +97,7 @@ impl Dialect {
             "Invalid bracket set. Consider using another identifier instead."
         );
 
-        self.bracket_collections
-            .entry(label.to_string())
-            .or_default()
+        self.bracket_collections.entry(label.to_string()).or_default()
     }
 
     pub fn update_bracket_sets(&mut self, label: &str, pairs: Vec<BracketPair>) {
@@ -134,7 +128,8 @@ impl Dialect {
                         keyword and/or dialect updates:\n\
                         https://github.com/quarylabs/sqruff";
                     panic!(
-                        "Grammar refers to the '{keyword}' keyword which was not found in the dialect.{keyword_tip}",
+                        "Grammar refers to the '{keyword}' keyword which was not found in the \
+                         dialect.{keyword_tip}",
                     );
                 } else {
                     panic!("Grammar refers to '{name}' which was not found in the dialect.",);
@@ -144,7 +139,8 @@ impl Dialect {
     }
 
     pub fn expand(&mut self) {
-        // Temporarily take ownership of 'library' from 'self' to avoid borrow checker errors during mutation.
+        // Temporarily take ownership of 'library' from 'self' to avoid borrow checker
+        // errors during mutation.
         let mut library = std::mem::take(&mut self.library);
         for element in library.values_mut() {
             if let DialectElementType::SegmentGenerator(generator) = element {
@@ -192,16 +188,9 @@ fn check_unique_names(dialect: &Dialect, xs: &[(Cow<'static, str>, DialectElemen
     let mut names = HashSet::new();
 
     for (name, _) in xs {
-        assert!(
-            names.insert(name),
-            "ERROR: the name {name} is already registered."
-        );
+        assert!(names.insert(name), "ERROR: the name {name} is already registered.");
 
-        assert!(
-            !dialect.library.contains_key(name),
-            "ERROR: the name '{}' is repeated.",
-            name
-        );
+        assert!(!dialect.library.contains_key(name), "ERROR: the name '{}' is repeated.", name);
     }
 }
 

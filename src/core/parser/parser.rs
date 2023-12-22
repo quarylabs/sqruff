@@ -1,9 +1,9 @@
-use crate::{
-    core::{config::FluffConfig, errors::SQLParseError},
-    dialects::ansi::FileSegment,
-};
-
-use super::{context::ParseContext, helpers::check_still_complete, segments::base::Segment};
+use super::context::ParseContext;
+use super::helpers::check_still_complete;
+use super::segments::base::Segment;
+use crate::core::config::FluffConfig;
+use crate::core::errors::SQLParseError;
+use crate::dialects::ansi::FileSegment;
 
 /// Instantiates parsed queries from a sequence of lexed raw segments.
 pub struct Parser {
@@ -17,10 +17,7 @@ impl Parser {
         // let config = FluffConfig::from_kwargs(config, dialect, None);
         let config = FluffConfig::new(None, None, None, None);
 
-        Self {
-            config,
-            root_segment: FileSegment::default(),
-        }
+        Self { config, root_segment: FileSegment::default() }
     }
 
     pub fn parse(
@@ -43,9 +40,7 @@ impl Parser {
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
-        let root = self
-            .root_segment
-            .root_parse(segments, &mut parse_cx, f_name.into())?;
+        let root = self.root_segment.root_parse(segments, &mut parse_cx, f_name.into())?;
 
         // Basic Validation, that we haven't dropped anything.
         check_still_complete(segments, &[root.clone()]);
@@ -60,7 +55,8 @@ impl Parser {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{config::FluffConfig, linter::linter::Linter};
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::linter::Linter;
 
     #[test]
     #[ignore]

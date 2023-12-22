@@ -1,6 +1,7 @@
+use std::collections::{HashMap, HashSet};
+
 use crate::core::config::FluffConfig;
 use crate::utils::reflow::depth_map::DepthInfo;
-use std::collections::{HashMap, HashSet};
 type ConfigElementType = HashMap<String, String>;
 type ConfigDictType = HashMap<String, ConfigElementType>;
 
@@ -42,9 +43,8 @@ impl BlockConfig {
             .or(config.get("spacing_after").map(|s| s.as_str()))
             .unwrap_or(&self.spacing_after)
             .to_string();
-        self.spacing_within = within
-            .or(config.get("spacing_within").map(|s| s.as_str()))
-            .map(|s| s.to_string());
+        self.spacing_within =
+            within.or(config.get("spacing_within").map(|s| s.as_str())).map(|s| s.to_string());
         self.line_position = line_position
             .or(config.get("line_position").map(|s| s.as_str()))
             .map(|s| s.to_string());

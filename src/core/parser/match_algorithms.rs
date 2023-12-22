@@ -2,15 +2,14 @@ use std::collections::HashSet;
 
 use itertools::{chain, enumerate, multiunzip, Itertools};
 
-use crate::{core::errors::SQLParseError, helpers::Boxed};
-
-use super::{
-    context::ParseContext,
-    helpers::trim_non_code_segments,
-    match_result::MatchResult,
-    matchable::Matchable,
-    segments::{base::Segment, bracketed::BracketedSegment},
-};
+use super::context::ParseContext;
+use super::helpers::trim_non_code_segments;
+use super::match_result::MatchResult;
+use super::matchable::Matchable;
+use super::segments::base::Segment;
+use super::segments::bracketed::BracketedSegment;
+use crate::core::errors::SQLParseError;
+use crate::helpers::Boxed;
 
 pub fn first_trimmed_raw(seg: &dyn Segment) -> String {
     seg.get_raw_upper()
@@ -95,12 +94,7 @@ pub fn prune_options(
             matched = true;
         }
 
-        if !matched
-            && !first_types
-                .intersection(&simple_types)
-                .collect_vec()
-                .is_empty()
-        {
+        if !matched && !first_types.intersection(&simple_types).collect_vec().is_empty() {
             available_options.push(opt.clone());
             matched = true;
         }
@@ -114,25 +108,18 @@ pub fn prune_options(
 }
 
 // Look ahead for matches beyond the first element of the segments list.
-// This function also contains the performance improved hash-matching approach to
-// searching for matches, which should significantly improve performance.
-// Prioritise the first match, and if multiple match at the same point the longest.
-// If two matches of the same length match at the same time, then it's the first in
-// the iterable of matchers.
+// This function also contains the performance improved hash-matching approach
+// to searching for matches, which should significantly improve performance.
+// Prioritise the first match, and if multiple match at the same point the
+// longest. If two matches of the same length match at the same time, then it's
+// the first in the iterable of matchers.
 // Returns:
 //  `tuple` of (unmatched_segments, match_object, matcher).
 pub fn look_ahead_match(
     segments: &[Box<dyn Segment>],
     matchers: Vec<Box<dyn Matchable>>,
     parse_context: &mut ParseContext,
-) -> Result<
-    (
-        Vec<Box<dyn Segment>>,
-        MatchResult,
-        Option<Box<dyn Matchable>>,
-    ),
-    SQLParseError,
-> {
+) -> Result<(Vec<Box<dyn Segment>>, MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
     // Have we been passed an empty tuple?
     if segments.is_empty() {
         return Ok((Vec::new(), MatchResult::from_empty(), None));
@@ -152,9 +139,10 @@ pub fn look_ahead_match(
             let Some((simple_raws, simple_types)) = matcher.simple(parse_context, None) else {
                 panic!(
                     "All matchers passed to `look_ahead_match()` are assumed to have a \
-                    functioning `simple()` option. In a future release it will be compulsory for \
-                    _all_ matchables to implement `simple()`. Please report this as a bug on GitHub \
-                    along with your current query and dialect.\nProblematic matcher: {matcher:?}"  
+                     functioning `simple()` option. In a future release it will be compulsory for \
+                     _all_ matchables to implement `simple()`. Please report this as a bug on \
+                     GitHub along with your current query and dialect.\nProblematic matcher: \
+                     {matcher:?}"
                 );
             };
 
@@ -188,12 +176,8 @@ pub fn look_ahead_match(
                 continue;
             }
 
-            best_simple_match = (
-                segments[..idx].to_vec(),
-                match_result,
-                Some(simple_match.clone()),
-            )
-                .into();
+            best_simple_match =
+                (segments[..idx].to_vec(), match_result, Some(simple_match.clone())).into();
             // Stop looking through matchers
             break;
         }
@@ -207,11 +191,7 @@ pub fn look_ahead_match(
     Ok(if let Some(best_simple_match) = best_simple_match {
         best_simple_match
     } else {
-        (
-            Vec::new(),
-            MatchResult::from_unmatched(segments.to_vec()),
-            None,
-        )
+        (Vec::new(), MatchResult::from_unmatched(segments.to_vec()), None)
     })
 }
 
@@ -230,14 +210,7 @@ pub fn bracket_sensitive_look_ahead_match(
     start_bracket: Option<Box<dyn Matchable>>,
     end_bracket: Option<Box<dyn Matchable>>,
     bracket_pairs_set: Option<&'static str>,
-) -> Result<
-    (
-        Vec<Box<dyn Segment>>,
-        MatchResult,
-        Option<Box<dyn Matchable>>,
-    ),
-    SQLParseError,
-> {
+) -> Result<(Vec<Box<dyn Segment>>, MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
     let bracket_pairs_set = bracket_pairs_set.unwrap_or("bracket_pairs");
 
     // Have we been passed an empty tuple?
@@ -331,10 +304,12 @@ pub fn bracket_sensitive_look_ahead_match(
                                 let persist_bracket = persists
                                     [end_brackets.iter().position(|x| x.dyn_eq(matcher)).unwrap()];
                                 let new_segments = if persist_bracket {
-                                    vec![last_bracket
-                                        .to_segment(match_result.matched_segments)
-                                        .boxed()
-                                        as Box<dyn Segment>]
+                                    vec![
+                                        last_bracket
+                                            .to_segment(match_result.matched_segments)
+                                            .boxed()
+                                            as Box<dyn Segment>,
+                                    ]
                                 // Assuming to_segment returns a segment
                                 } else {
                                     last_bracket.segments.clone()
@@ -357,8 +332,11 @@ pub fn bracket_sensitive_look_ahead_match(
 
                         // The types don't match. Error.
                         return Err(SQLParseError {
-                          description:  format!("Found unexpected end bracket!, was expecting {end_type:?}, but got {matcher:?}"),
-                          segment: None
+                            description: format!(
+                                "Found unexpected end bracket!, was expecting {end_type:?}, but \
+                                 got {matcher:?}"
+                            ),
+                            segment: None,
                         });
                     }
                 } else {
@@ -418,8 +396,9 @@ pub fn bracket_sensitive_look_ahead_match(
                         continue;
                     } else if has_matching_end_bracket {
                         // We've found an unexpected end bracket! This is likely
-                        // because we're matching a section which should have ended.
-                        // If we had a match, it would have matched by now, so this
+                        // because we're matching a section which should have
+                        // ended. If we had a match, it
+                        // would have matched by now, so this
                         // means no match.
                         // From here we'll drop out to the happy unmatched exit.
                     } else {
@@ -495,30 +474,20 @@ mod tests {
     use itertools::Itertools;
 
     use super::{bracket_sensitive_look_ahead_match, look_ahead_match};
-    use crate::{
-        core::parser::{
-            context::ParseContext,
-            matchable::Matchable,
-            parsers::StringParser,
-            segments::{
-                base::Segment,
-                keyword::KeywordSegment,
-                test_functions::{
-                    fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
-                    test_segments,
-                },
-            },
-        },
-        helpers::Boxed,
+    use crate::core::parser::context::ParseContext;
+    use crate::core::parser::matchable::Matchable;
+    use crate::core::parser::parsers::StringParser;
+    use crate::core::parser::segments::base::Segment;
+    use crate::core::parser::segments::keyword::KeywordSegment;
+    use crate::core::parser::segments::test_functions::{
+        fresh_ansi_dialect, generate_test_segments_func, make_result_tuple, test_segments,
     };
+    use crate::helpers::Boxed;
 
     #[test]
     fn test__parser__algorithms__look_ahead_match() {
         let test_segments = test_segments();
-        let cases = [
-            (["bar", "foo"].as_slice(), 0..1, "bar"),
-            (["foo"].as_slice(), 2..3, "foo"),
-        ];
+        let cases = [(["bar", "foo"].as_slice(), 0..1, "bar"), (["foo"].as_slice(), 2..3, "foo")];
 
         for (matcher_keywords, result_slice, winning_matcher) in cases {
             let matchers = matcher_keywords
@@ -541,10 +510,8 @@ mod tests {
                 })
                 .collect_vec();
 
-            let winning_matcher: &dyn Matchable = &*matchers[matcher_keywords
-                .iter()
-                .position(|&it| it == winning_matcher)
-                .unwrap()]
+            let winning_matcher: &dyn Matchable = &*matchers
+                [matcher_keywords.iter().position(|&it| it == winning_matcher).unwrap()]
             .clone();
 
             let mut cx = ParseContext::new(fresh_ansi_dialect());
@@ -631,8 +598,8 @@ mod tests {
         )
         .unwrap();
 
-        // NB: The bracket segments will have been mutated, so we can't directly compare.
-        // Make sure we've got a bracketed section in there.
+        // NB: The bracket segments will have been mutated, so we can't directly
+        // compare. Make sure we've got a bracketed section in there.
         assert_eq!(pre_section.len(), 5);
         assert!(pre_section[2].is_type("BracketedSegment"));
         assert!(pre_section[2].is_type("BracketedSegment"));
@@ -669,18 +636,21 @@ mod tests {
 
         assert!(result.matches("Found unexpected end bracket!"));
 
-        // Asserting that the result is an error and matches the expected error pattern
+        // Asserting that the result is an error and matches the expected error
+        // pattern
     }
 
     #[test]
     fn test__parser__algorithms__bracket_fail_with_unexpected_end_bracket() {
-        // Assuming 'StringParser', 'KeywordSegment', 'ParseContext', and other necessary types are defined elsewhere
+        // Assuming 'StringParser', 'KeywordSegment', 'ParseContext', and other
+        // necessary types are defined elsewhere
         let fs = StringParser::new("foo", |_| unimplemented!(), None, false, None).boxed();
 
         // Creating a ParseContext with a dialect
         let mut ctx = ParseContext::new(fresh_ansi_dialect()); // Placeholder for dialect
 
-        // Assuming the function 'bracket_sensitive_look_ahead_match' returns a Result with a tuple
+        // Assuming the function 'bracket_sensitive_look_ahead_match' returns a Result
+        // with a tuple
         let result = bracket_sensitive_look_ahead_match(
             generate_test_segments_func(vec![
                 "bar", "(", // This bracket pair should be mutated

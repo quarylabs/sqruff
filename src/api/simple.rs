@@ -1,8 +1,9 @@
+use std::collections::HashMap;
+
 use crate::core::config::FluffConfig;
 use crate::core::dialects::init::dialect_selector;
 use crate::core::errors::SQLFluffUserError;
 use crate::core::linter::linter::Linter;
-use std::collections::HashMap;
 
 pub fn get_simple_config(
     dialect: Option<String>,

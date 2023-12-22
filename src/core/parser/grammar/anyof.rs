@@ -2,22 +2,16 @@ use std::collections::HashSet;
 
 use itertools::{chain, Itertools};
 
-use crate::{
-    core::parser::matchable::Matchable,
-    core::{
-        errors::SQLParseError,
-        parser::{
-            context::ParseContext, helpers::trim_non_code_segments, match_result::MatchResult,
-            segments::base::Segment, types::ParseMode,
-        },
-    },
-    helpers::ToMatchable,
-};
-
-use super::{
-    base::longest_trimmed_match,
-    sequence::{Bracketed, Sequence},
-};
+use super::base::longest_trimmed_match;
+use super::sequence::{Bracketed, Sequence};
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
+use crate::core::parser::helpers::trim_non_code_segments;
+use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::matchable::Matchable;
+use crate::core::parser::segments::base::Segment;
+use crate::core::parser::types::ParseMode;
+use crate::helpers::ToMatchable;
 
 fn parse_mode_match_result(
     matched_segments: Vec<Box<dyn Segment>>,
@@ -37,10 +31,7 @@ fn parse_mode_match_result(
         return MatchResult::new(matched_segments, unmatched);
     }
 
-    let trim_idx = unmatched_segments
-        .iter()
-        .position(|s| s.is_code())
-        .unwrap_or(0);
+    let trim_idx = unmatched_segments.iter().position(|s| s.is_code()).unwrap_or(0);
 
     // Create an unmatched segment
     let expected = if let Some(first_tail_segment) = tail.get(0) {
@@ -50,7 +41,8 @@ fn parse_mode_match_result(
     };
 
     let unmatched_seg = unimplemented!();
-    // let unmatched_seg = UnparsableSegment::new(&unmatched_segments[trim_idx..], expected);
+    // let unmatched_seg = UnparsableSegment::new(&unmatched_segments[trim_idx..],
+    // expected);
     let mut matched = matched_segments;
     matched.extend_from_slice(&unmatched_segments[..trim_idx]);
     matched.push(unmatched_seg);
@@ -63,10 +55,8 @@ pub fn simple(
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
 ) -> Option<(HashSet<String>, HashSet<String>)> {
-    let option_simples: Vec<Option<(HashSet<String>, HashSet<String>)>> = elements
-        .iter()
-        .map(|opt| opt.simple(parse_context, crumbs.clone()))
-        .collect();
+    let option_simples: Vec<Option<(HashSet<String>, HashSet<String>)>> =
+        elements.iter().map(|opt| opt.simple(parse_context, crumbs.clone())).collect();
 
     if option_simples.iter().any(Option::is_none) {
         return None;
@@ -75,17 +65,11 @@ pub fn simple(
     let simple_buff: Vec<(HashSet<String>, HashSet<String>)> =
         option_simples.into_iter().flatten().collect();
 
-    let simple_raws: HashSet<String> = simple_buff
-        .iter()
-        .flat_map(|(raws, _)| raws)
-        .cloned()
-        .collect();
+    let simple_raws: HashSet<String> =
+        simple_buff.iter().flat_map(|(raws, _)| raws).cloned().collect();
 
-    let simple_types: HashSet<String> = simple_buff
-        .iter()
-        .flat_map(|(_, types)| types)
-        .cloned()
-        .collect();
+    let simple_types: HashSet<String> =
+        simple_buff.iter().flat_map(|(_, types)| types).cloned().collect();
 
     Some((simple_raws, simple_types))
 }
@@ -106,12 +90,7 @@ impl PartialEq for AnyNumberOf {
 
 impl AnyNumberOf {
     pub fn new(elements: Vec<Box<dyn Matchable>>) -> Self {
-        Self {
-            elements,
-            max_times: None,
-            min_times: 0,
-            allow_gaps: true,
-        }
+        Self { elements, max_times: None, min_times: 0, allow_gaps: true }
     }
 
     pub fn allow_gaps(&mut self, allow_gaps: bool) {
@@ -276,20 +255,15 @@ pub fn optionally_bracketed(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
 mod tests {
     use itertools::Itertools;
 
-    use crate::{
-        core::parser::{
-            context::ParseContext,
-            matchable::Matchable,
-            parsers::StringParser,
-            segments::{
-                keyword::KeywordSegment,
-                test_functions::{fresh_ansi_dialect, generate_test_segments_func, test_segments},
-            },
-        },
-        helpers::{Boxed, ToMatchable},
-    };
-
     use super::{one_of, AnyNumberOf};
+    use crate::core::parser::context::ParseContext;
+    use crate::core::parser::matchable::Matchable;
+    use crate::core::parser::parsers::StringParser;
+    use crate::core::parser::segments::keyword::KeywordSegment;
+    use crate::core::parser::segments::test_functions::{
+        fresh_ansi_dialect, generate_test_segments_func, test_segments,
+    };
+    use crate::helpers::{Boxed, ToMatchable};
 
     #[test]
     fn test__parser__grammar_oneof() {
@@ -339,16 +313,12 @@ mod tests {
             let mut segments = g.match_segments(test_segments(), &mut ctx).unwrap();
 
             assert_eq!(segments.len(), 1);
-            assert_eq!(
-                segments.matched_segments.pop().unwrap().get_raw().unwrap(),
-                "bar"
-            );
+            assert_eq!(segments.matched_segments.pop().unwrap().get_raw().unwrap(), "bar");
 
             // Check with a bit of whitespace
-            assert!(!g
-                .match_segments(test_segments()[1..].to_vec(), &mut ctx)
-                .unwrap()
-                .has_match());
+            assert!(
+                !g.match_segments(test_segments()[1..].to_vec(), &mut ctx).unwrap().has_match()
+            );
         }
     }
 
@@ -388,10 +358,7 @@ mod tests {
 
         let g = one_of(vec![bs, fs]);
 
-        assert!(!g
-            .match_segments(test_segments()[5..].to_vec(), &mut ctx)
-            .unwrap()
-            .has_match());
+        assert!(!g.match_segments(test_segments()[5..].to_vec(), &mut ctx).unwrap().has_match());
     }
 
     #[test]
@@ -399,10 +366,7 @@ mod tests {
         let cases: [(&[_], &[_]); 3] = [
             (&["a"], &[("a", "kw")]),
             (&["b"], &[]),
-            (
-                &["b", "a"],
-                &[("a", "kw"), (" ", "whitespace"), ("b", "kw")],
-            ),
+            (&["b", "a"], &[("a", "kw"), (" ", "whitespace"), ("b", "kw")]),
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);

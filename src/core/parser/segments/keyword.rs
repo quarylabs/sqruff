@@ -1,6 +1,5 @@
-use crate::core::parser::markers::PositionMarker;
-
 use super::base::Segment;
+use crate::core::parser::markers::PositionMarker;
 
 #[derive(Debug, Clone, Default)]
 pub struct KeywordSegment {
@@ -11,11 +10,7 @@ pub struct KeywordSegment {
 
 impl KeywordSegment {
     pub fn new(raw: String, position_marker: PositionMarker) -> Self {
-        Self {
-            raw,
-            uuid: uuid::Uuid::new_v4(),
-            position_marker,
-        }
+        Self { raw, uuid: uuid::Uuid::new_v4(), position_marker }
     }
 }
 

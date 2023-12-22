@@ -1,6 +1,7 @@
+use std::fmt;
+
 use crate::core::parser::helpers::{join_segments_raw, trim_non_code_segments};
 use crate::core::parser::segments::base::Segment;
-use std::fmt;
 
 #[derive(Clone)]
 /// This should be the default response from any `match` method.
@@ -21,10 +22,7 @@ impl MatchResult {
         matched_segments: Vec<Box<dyn Segment>>,
         unmatched_segments: Vec<Box<dyn Segment>>,
     ) -> Self {
-        MatchResult {
-            matched_segments,
-            unmatched_segments,
-        }
+        MatchResult { matched_segments, unmatched_segments }
     }
 
     /// Construct an empty `MatchResult`.
@@ -38,10 +36,7 @@ impl MatchResult {
     }
 
     pub fn from_matched(matched: Vec<Box<dyn Segment>>) -> MatchResult {
-        MatchResult {
-            unmatched_segments: vec![],
-            matched_segments: matched,
-        }
+        MatchResult { unmatched_segments: vec![], matched_segments: matched }
     }
 
     /// Return the length of the match in characters, trimming whitespace.
@@ -103,9 +98,6 @@ impl std::ops::Add for MatchResult {
     fn add(self, other: Self) -> Self {
         let mut matched_segments = self.matched_segments;
         matched_segments.extend(other.matched_segments);
-        MatchResult {
-            matched_segments,
-            unmatched_segments: self.unmatched_segments,
-        }
+        MatchResult { matched_segments, unmatched_segments: self.unmatched_segments }
     }
 }

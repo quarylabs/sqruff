@@ -7,10 +7,7 @@ pub struct LintedDir {
 
 impl LintedDir {
     pub fn new(path: String) -> Self {
-        LintedDir {
-            files: vec![],
-            path,
-        }
+        LintedDir { files: vec![], path }
     }
 
     pub fn add(&mut self, file: LintedFile) {

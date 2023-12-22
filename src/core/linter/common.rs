@@ -1,8 +1,9 @@
+use std::collections::HashMap;
+
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLBaseError, SQLTemplaterError};
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::TemplatedFile;
-use std::collections::HashMap;
 
 /// Rule Tuple object for describing rules.
 #[derive(Debug, PartialEq, Clone)]
@@ -46,9 +47,11 @@ pub struct ParsedString {
     pub tree: Option<Box<dyn Segment + 'static>>,
     pub violations: Vec<SQLBaseError>,
     // TODO Implement time dict
-    /// `time_dict` is a :obj:`dict` containing timings for how long each step took in the process.
+    /// `time_dict` is a :obj:`dict` containing timings for how long each step
+    /// took in the process.
     pub time_dict: HashMap<String, f64>,
-    /// `templated_file` is a :obj:`TemplatedFile` containing the details of the templated file.
+    /// `templated_file` is a :obj:`TemplatedFile` containing the details of the
+    /// templated file.
     pub templated_file: TemplatedFile,
     pub config: FluffConfig,
     pub f_name: String,

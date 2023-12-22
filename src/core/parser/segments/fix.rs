@@ -1,5 +1,6 @@
-use crate::core::rules::base::{EditType, LintFix};
 use std::ops::Range;
+
+use crate::core::rules::base::{EditType, LintFix};
 
 /// A stored reference to a fix in the non-templated file.
 #[derive(Debug, Clone, PartialEq)]
@@ -16,11 +17,7 @@ pub struct SourceFix {
 
 impl SourceFix {
     pub fn new(edit: String, source_slice: Range<usize>, templated_slice: Range<usize>) -> Self {
-        SourceFix {
-            edit,
-            source_slice,
-            templated_slice,
-        }
+        SourceFix { edit, source_slice, templated_slice }
     }
 }
 
@@ -120,8 +117,8 @@ impl AnchorEditInfo {
 
     /// Adds the fix and updates stats.
     ///
-    /// We also allow potentially multiple source fixes on the same anchor by condensing them
-    /// together here.
+    /// We also allow potentially multiple source fixes on the same anchor by
+    /// condensing them together here.
     pub fn add(&mut self, fix: LintFix) {
         if self.fixes.contains(&fix) {
             // Deduplicate fixes in case it's already in there.
@@ -137,20 +134,22 @@ impl AnchorEditInfo {
                 //
                 //     // is there already a replace?
                 //     if self.first_replace_fix.is_some() {
-                //         assert!(self.first_replace_fix.unwrap().edit.is_some());
-                //         // is_just_source_edit confirms there will be a list
-                //         // and that's the only way to get into _first_replace
+                //         assert!(self.first_replace_fix.unwrap().edit.
+                // is_some());         // is_just_source_edit
+                // confirms there will be a list         // and
+                // that's the only way to get into _first_replace
                 //         // if it's populated so we can hint that to mypy.
                 //         // TODO Implement this
                 //         //                 linter_logger.info(
-                //         //                     "Multiple edits detected, condensing %s onto %s",
-                //         //                     fix,
-                //         //                     self._first_replace,
-                //         //                 )
-                //         self._first_replace.edit[0] = self._first_replace.edit[0].edit(&self.source_fixes.clone());
+                //         //                     "Multiple edits detected,
+                // condensing %s onto %s",         //
+                // fix,         //
+                // self._first_replace,         //
+                // )         self._first_replace.edit[0] =
+                // self._first_replace.edit[0].edit(&self.source_fixes.clone());
                 //         // TODO
-                //         //                 linter_logger.info("Condensed fix: %s", self._first_replace)
-                //         return;
+                //         //                 linter_logger.info("Condensed fix:
+                // %s", self._first_replace)         return;
                 //     }
                 // } else {
                 //     panic!("Fix has no edit: {:?}", fix)

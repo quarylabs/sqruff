@@ -1,4 +1,5 @@
-use crate::core::{dialects::base::Dialect, parser::matchable::Matchable};
+use crate::core::dialects::base::Dialect;
+use crate::core::parser::matchable::Matchable;
 
 type Generator = fn(&Dialect) -> Box<dyn Matchable>;
 

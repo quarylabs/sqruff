@@ -60,25 +60,23 @@ impl TemplatedFile {
                 None => {
                     if templated_str != source_str {
                         panic!("Cannot instantiate a templated file unsliced!")
+                    } else if input_raw_sliced.is_some() {
+                        panic!("Templated file was not sliced, but not has raw slices.")
                     } else {
-                        if input_raw_sliced.is_some() {
-                            panic!("Templated file was not sliced, but not has raw slices.")
-                        } else {
-                            (
-                                vec![TemplatedFileSlice::new(
-                                    "literal",
-                                    0..source_str.len(),
-                                    0..source_str.len(),
-                                )],
-                                vec![RawFileSlice::new(
-                                    source_str.clone(),
-                                    "literal".to_string(),
-                                    0,
-                                    None,
-                                    None,
-                                )],
-                            )
-                        }
+                        (
+                            vec![TemplatedFileSlice::new(
+                                "literal",
+                                0..source_str.len(),
+                                0..source_str.len(),
+                            )],
+                            vec![RawFileSlice::new(
+                                source_str.clone(),
+                                "literal".to_string(),
+                                0,
+                                None,
+                                None,
+                            )],
+                        )
                     }
                 }
                 Some(sliced_file) => {
@@ -323,22 +321,20 @@ impl TemplatedFile {
             if insertion_point >= 0 {
                 return Ok(zero_slice(insertion_point.try_into().unwrap()));
                 // It's within a segment.
+            } else if !ts_start_subsliced_file.is_empty()
+                && ts_start_subsliced_file[0].slice_type == "literal"
+            {
+                let offset =
+                    template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
+                return Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset)
+                    .try_into()
+                    .unwrap());
             } else {
-                if !ts_start_subsliced_file.is_empty()
-                    && ts_start_subsliced_file[0].slice_type == "literal"
-                {
-                    let offset =
-                        template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
-                    return Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset)
-                        .try_into()
-                        .unwrap());
-                } else {
-                    return Err(ValueError::new(format!(
-                        "Attempting a single length slice within a templated section! {:?} within \
-                         {:?}.",
-                        template_slice, ts_start_subsliced_file
-                    )));
-                }
+                return Err(ValueError::new(format!(
+                    "Attempting a single length slice within a templated section! {:?} within \
+                     {:?}.",
+                    template_slice, ts_start_subsliced_file
+                )));
             }
         }
 
@@ -640,8 +636,8 @@ mod tests {
         assert_eq!(outstr.templated_str, Some(in_str.to_string()));
     }
 
-    const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";
-    const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarfss";
+    // const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";
+    // const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarfss";
 
     fn simple_sliced_file() -> Vec<TemplatedFileSlice> {
         vec![

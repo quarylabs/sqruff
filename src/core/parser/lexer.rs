@@ -59,6 +59,7 @@ pub struct LexMatch {
     pub elements: Vec<LexedElement>,
 }
 
+#[allow(clippy::needless_arbitrary_self_type)]
 impl LexMatch {
     /// A LexMatch is truthy if it contains a non-zero number of matched
     /// elements.
@@ -67,6 +68,7 @@ impl LexMatch {
     }
 }
 
+#[allow(clippy::needless_arbitrary_self_type)]
 pub trait Matcher: Debug + DynClone {
     /// The name of the matcher.
     fn get_name(self: &Self) -> String;
@@ -210,7 +212,7 @@ impl<SegmentArgs: Clone + Debug> StringLexer<SegmentArgs> {
     }
 
     /// The private match function. Just look for a literal string.
-    fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
+    fn _match(&self, forward_string: &str) -> Option<LexedElement> {
         if forward_string.starts_with(self.template) {
             Some(LexedElement { raw: self.template.to_string(), matcher: Box::new(self.clone()) })
         } else {
@@ -219,12 +221,12 @@ impl<SegmentArgs: Clone + Debug> StringLexer<SegmentArgs> {
     }
 
     /// Given a string, trim if we are allowed to.
-    fn _trim_match(self: &Self, _matched_string: String) -> Vec<LexedElement> {
+    fn _trim_match(&self, _matched_string: String) -> Vec<LexedElement> {
         panic!("Not implemented")
     }
 
     /// Given a string, subdivide if we area allowed to.
-    fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
+    fn _subdivide(&self, matched: LexedElement) -> Vec<LexedElement> {
         if let Some(sub_divider) = &self.sub_divider {
             let mut elem_buff: Vec<LexedElement> = vec![];
 
@@ -269,12 +271,12 @@ impl<SegmentArgs: Clone + Debug> Display for StringLexer<SegmentArgs> {
 }
 
 impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
-    fn get_name(self: &Self) -> String {
+    fn get_name(&self) -> String {
         self.template.to_string()
     }
 
     /// Given a string, match what we can and return the rest.
-    fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError> {
+    fn match_(&self, forward_string: String) -> Result<LexMatch, ValueError> {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
@@ -292,7 +294,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
         }
     }
 
-    fn search(self: &Self, forward_string: &str) -> Option<Range<usize>> {
+    fn search(&self, forward_string: &str) -> Option<Range<usize>> {
         let start = forward_string.find(&self.template);
         if start.is_some() {
             Some(start.unwrap()..start.unwrap() + self.template.len())
@@ -301,11 +303,11 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
         }
     }
 
-    fn get_sub_divider(self: &Self) -> Option<Box<dyn Matcher>> {
+    fn get_sub_divider(&self) -> Option<Box<dyn Matcher>> {
         self.sub_divider.clone()
     }
 
-    fn get_trim_post_subdivide(self: &Self) -> Option<Box<dyn Matcher>> {
+    fn get_trim_post_subdivide(&self) -> Option<Box<dyn Matcher>> {
         self.trim_post_subdivide.clone()
     }
 
@@ -345,7 +347,7 @@ impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
     }
 
     /// Use regexes to match chunks.
-    pub fn _match(self: &Self, forward_string: &str) -> Option<LexedElement> {
+    pub fn _match(&self, forward_string: &str) -> Option<LexedElement> {
         if let Ok(Some(matched)) = self.template.find(forward_string) {
             if matched.start() == 0 {
                 return Some(LexedElement {
@@ -371,12 +373,12 @@ impl<SegmentArgs: Clone + Debug> Display for RegexLexer<SegmentArgs> {
 }
 
 impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
-    fn get_name(self: &Self) -> String {
+    fn get_name(&self) -> String {
         self.template.as_str().to_string()
     }
 
     /// Given a string, match what we can and return the rest.
-    fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError> {
+    fn match_(&self, forward_string: String) -> Result<LexMatch, ValueError> {
         if forward_string.len() == 0 {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
@@ -396,7 +398,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
     }
 
     /// Use regex to find a substring.
-    fn search(self: &Self, forward_string: &str) -> Option<Range<usize>> {
+    fn search(&self, forward_string: &str) -> Option<Range<usize>> {
         if let Ok(Some(matched)) = self.template.find(forward_string) {
             let match_str = matched.as_str();
             if !match_str.is_empty() {
@@ -411,11 +413,11 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
         None
     }
 
-    fn get_sub_divider(self: &Self) -> Option<Box<dyn Matcher>> {
+    fn get_sub_divider(&self) -> Option<Box<dyn Matcher>> {
         self.sub_divider.clone()
     }
 
-    fn get_trim_post_subdivide(self: &Self) -> Option<Box<dyn Matcher>> {
+    fn get_trim_post_subdivide(&self) -> Option<Box<dyn Matcher>> {
         self.trim_post_subdivide.clone()
     }
 

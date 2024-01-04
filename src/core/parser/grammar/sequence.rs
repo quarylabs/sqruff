@@ -73,6 +73,7 @@ fn position_metas(
 
 use std::collections::HashSet;
 use std::iter::zip;
+use std::ops::{Deref, DerefMut};
 
 use itertools::{chain, enumerate, Itertools};
 
@@ -83,6 +84,7 @@ use crate::core::parser::match_algorithms::{bracket_sensitive_look_ahead_match, 
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::Boxed;
@@ -107,14 +109,17 @@ impl Sequence {
         }
     }
 
+    pub fn optional(&mut self) {
+        self.is_optional = true;
+    }
+
     pub fn terminators(mut self, terminators: Vec<Box<dyn Matchable>>) -> Self {
         self.terminators = terminators;
         self
     }
 
-    pub fn parse_mode(mut self, mode: ParseMode) -> Self {
+    pub fn parse_mode(&mut self, mode: ParseMode) {
         self.parse_mode = mode;
-        self
     }
 
     pub fn allow_gaps(mut self, allow_gaps: bool) -> Self {
@@ -149,9 +154,7 @@ impl Matchable for Sequence {
         let mut simple_types = HashSet::new();
 
         for opt in &self.elements {
-            let Some((raws, types)) = opt.simple(parse_context, crumbs.clone()) else {
-                return None;
-            };
+            let (raws, types) = opt.simple(parse_context, crumbs.clone())?;
 
             simple_raws.extend(raws);
             simple_types.extend(types);
@@ -181,6 +184,8 @@ impl Matchable for Sequence {
         let mut non_code_buffer = Vec::new();
 
         for (idx, elem) in enumerate(&self.elements) {
+            // println!("{elem:?}");
+
             // 1. Handle any metas or conditionals.
             // We do this first so that it's the same whether we've run
             // out of segments or not.
@@ -222,6 +227,7 @@ impl Matchable for Sequence {
                 |this| elem.match_segments(unmatched_segments.clone(), this),
             )?;
 
+            // Did we fail to match? (totally or un-cleanly)
             if !elem_match.has_match() {
                 // If we can't match an element, we should ascertain whether it's
                 // required. If so then fine, move on, but otherwise we should
@@ -236,6 +242,11 @@ impl Matchable for Sequence {
                     // we don't match anything.
                     return Ok(MatchResult::from_unmatched(segments));
                 }
+
+                return Ok(MatchResult {
+                    matched_segments: Vec::new(),
+                    unmatched_segments: Vec::new(),
+                });
             }
 
             // 5. Successful match: Update the buffers.
@@ -264,6 +275,18 @@ impl Matchable for Sequence {
                 )?;
 
                 first_match = false;
+            }
+        }
+
+        // TODO: After the main loop is when we would loop for terminators if
+        // we are going to be greedy but only _after_ matching content.
+        // Finally if we're in one of the greedy modes, and there's anything
+        // left as unclaimed, mark it as unparsable.
+        if matches!(self.parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted) {
+            let (_pre, unmatched_mid, _post) = trim_non_code_segments(&unmatched_segments);
+
+            if !unmatched_mid.is_empty() {
+                panic!("{:?}", unmatched_mid.first());
             }
         }
 
@@ -321,7 +344,7 @@ pub struct Bracketed {
     bracket_pairs_set: &'static str,
     allow_gaps: bool,
 
-    this: Sequence,
+    pub this: Sequence,
 }
 
 impl Bracketed {
@@ -336,9 +359,8 @@ impl Bracketed {
 }
 
 impl Bracketed {
-    pub fn bracket_type(mut self, bracket_type: &'static str) -> Self {
+    pub fn bracket_type(&mut self, bracket_type: &'static str) {
         self.bracket_type = bracket_type;
-        self
     }
 
     fn get_bracket_from_dialect(
@@ -360,6 +382,20 @@ impl Bracketed {
             self.bracket_type,
             parse_context.dialect()
         ))
+    }
+}
+
+impl Deref for Bracketed {
+    type Target = Sequence;
+
+    fn deref(&self) -> &Self::Target {
+        &self.this
+    }
+}
+
+impl DerefMut for Bracketed {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.this
     }
 }
 
@@ -396,15 +432,36 @@ impl Matchable for Bracketed {
 
         // Rehydrate the bracket segments in question.
         // bracket_persists controls whether we make a BracketedSegment or not.
-        let (start_bracket, end_bracket, bracket_persists) =
+        let (start_bracket, end_bracket, _bracket_persists) =
             self.get_bracket_from_dialect(parse_context).unwrap();
 
         // Allow optional override for special bracket-like things
         let start_bracket = start_bracket;
         let end_bracket = end_bracket;
 
-        if seg_buff.last().map_or(false, |seg| seg.is_type("bracketed")) {
-            unimplemented!()
+        let bracket_segment;
+        let content_segs;
+        let trailing_segments;
+
+        if let Some(bracketed) =
+            seg_buff.first().and_then(|seg| seg.as_any().downcast_ref::<BracketedSegment>())
+        {
+            bracket_segment = bracketed.clone();
+
+            if !start_bracket
+                .match_segments(bracket_segment.start_bracket.clone(), parse_context)?
+                .has_match()
+            {
+                return Ok(MatchResult::from_unmatched(segments));
+            }
+
+            let start_len = bracket_segment.start_bracket.len();
+            let end_len = bracket_segment.end_bracket.len();
+
+            content_segs = bracket_segment.segments
+                [start_len..bracket_segment.segments.len() - end_len]
+                .to_vec();
+            trailing_segments = seg_buff[1..].to_vec();
         } else {
             // Look for the first bracket
             let status = parse_context.deeper_match("Bracketed-First", false, &[], None, |this| {
@@ -415,7 +472,7 @@ impl Matchable for Bracketed {
                         let unmatched_segments = start_match.unmatched_segments.clone();
                         Status::Matched(start_match, unmatched_segments)
                     }
-                    Ok(_) => Status::EarlyReturn(MatchResult::from_unmatched(segments)),
+                    Ok(_) => Status::EarlyReturn(MatchResult::from_unmatched(segments.clone())),
                     Err(err) => Status::Fail(err),
                 }
             });
@@ -429,7 +486,7 @@ impl Matchable for Bracketed {
                 Status::Fail(error) => return Err(error),
             };
 
-            let (content_segs, end_match) =
+            let (segs, end_match) =
                 parse_context.deeper_match("Bracketed-End", true, &[], None, |this| {
                     let (content_segs, end_match, _) = bracket_sensitive_look_ahead_match(
                         seg_buff,
@@ -443,40 +500,69 @@ impl Matchable for Bracketed {
                     Ok((content_segs, end_match))
                 })?;
 
+            content_segs = segs;
+
             if !end_match.has_match() {
                 panic!("Couldn't find closing bracket for opening bracket.")
             }
 
-            // Then trim whitespace and deal with the case of non-code content e.g. "(   )"
-            let (pre_segs, content_segs, post_segs) = if self.allow_gaps {
-                trim_non_code_segments(&content_segs)
-            } else {
-                (&[][..], &[][..], &[][..])
-            };
-
-            let content_match =
-                parse_context.deeper_match("Bracketed", true, &[], None, |this| {
-                    self.this.match_segments(content_segs.to_vec(), this)
-                })?;
-
-            if !content_match.has_match() {
-                panic!()
-            }
-
-            let segments = {
-                let mut this = start_match.matched_segments;
-                this.extend(pre_segs.to_vec());
-                this.extend(end_match.matched_segments);
-                this
-            };
-
-            unimplemented!()
+            bracket_segment = BracketedSegment::new(
+                chain!(
+                    start_match.matched_segments.clone(),
+                    content_segs.clone(),
+                    end_match.matched_segments.clone()
+                )
+                .collect_vec(),
+                start_match.matched_segments,
+                end_match.matched_segments,
+            );
+            trailing_segments = end_match.unmatched_segments;
         }
+
+        // Then trim whitespace and deal with the case of non-code content e.g. "(   )"
+        let (pre_segs, content_segs, post_segs) = if self.allow_gaps {
+            trim_non_code_segments(&content_segs)
+        } else {
+            (&[][..], &[][..], &[][..])
+        };
+
+        // If we've got a case of empty brackets check whether that is allowed.
+        if content_segs.is_empty() {
+            return Ok(
+                if self.this.elements.is_empty()
+                    || (self.this.elements.iter().all(|e| e.is_optional())
+                        && (self.allow_gaps || (pre_segs.is_empty() && post_segs.is_empty())))
+                {
+                    MatchResult {
+                        matched_segments: bracket_segment.segments,
+                        unmatched_segments: trailing_segments,
+                    }
+                } else {
+                    MatchResult::from_unmatched(segments)
+                },
+            );
+        }
+
+        // Match the content using super. Sequence will interpret the content of the
+        // elements. Within the brackets, clear any inherited terminators.
+        let content_match = parse_context.deeper_match("Bracketed", true, &[], None, |this| {
+            self.this.match_segments(content_segs.to_vec(), this)
+        })?;
+
+        // We require a complete match for the content (hopefully for obvious reasons)
+        if !content_match.is_complete() {
+            // No complete match. Fail.
+            return Ok(MatchResult::from_unmatched(segments));
+        }
+
+        Ok(MatchResult::from_matched(segments))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use itertools::Itertools as _;
+
     use super::Sequence;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::markers::PositionMarker;
@@ -484,7 +570,10 @@ mod tests {
     use crate::core::parser::parsers::StringParser;
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::meta::Indent;
-    use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, test_segments};
+    use crate::core::parser::segments::test_functions::{
+        fresh_ansi_dialect, generate_test_segments_func, test_segments,
+    };
+    use crate::core::parser::types::ParseMode;
     use crate::helpers::{Boxed, ToMatchable};
 
     #[test]
@@ -641,5 +730,62 @@ mod tests {
 
         assert_eq!(segments[0].get_type(), "indent");
         assert_eq!(segments[1].get_type(), "kw");
+    }
+
+    #[test]
+    fn test__parser__grammar_sequence_modes() {
+        let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
+        let cases: [(_, &[_], &[_], _, &[_]); 6] = [
+            (ParseMode::Strict, &["a"], &[], 0..2, &[("kw", "a")]),
+            (ParseMode::Strict, &["a", "b"], &[], 0..2, &[]),
+            (ParseMode::Strict, &["b"], &[], 0..2, &[]),
+            (ParseMode::Strict, &["a"], &[], 0..5, &[("kw", "a")]),
+            (ParseMode::Strict, &["a", "c"], &[], 0..5, &[("kw", "a")]),
+            (ParseMode::Strict, &["a", "x"], &["c"], 0..5, &[]),
+        ];
+
+        for (parse_mode, sequence, terminators, input_slice, output_tuple) in cases {
+            let mut parse_context = ParseContext::new(fresh_ansi_dialect());
+
+            let elements = sequence
+                .iter()
+                .map(|it| {
+                    StringParser::new(
+                        it,
+                        |it| {
+                            KeywordSegment::new(
+                                it.get_raw().unwrap(),
+                                it.get_position_marker().unwrap(),
+                            )
+                            .boxed()
+                        },
+                        None,
+                        false,
+                        None,
+                    )
+                    .to_matchable()
+                })
+                .collect_vec();
+
+            let seq = Sequence::new(elements);
+
+            let match_result =
+                seq.match_segments(segments[input_slice].to_vec(), &mut parse_context).unwrap();
+
+            let result = match_result
+                .matched_segments
+                .clone()
+                .into_iter()
+                .map(|segment| (segment.get_type(), segment.get_raw().unwrap()))
+                .collect_vec();
+
+            let are_equal = result
+                .iter()
+                .map(|(s, str_ref)| (s, str_ref.as_str()))
+                .zip(output_tuple.iter())
+                .all(|((s1, str_ref1), (s2, str_ref2))| s1 == s2 && str_ref1 == *str_ref2);
+
+            assert!(are_equal);
+        }
     }
 }

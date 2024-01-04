@@ -1,7 +1,7 @@
 use super::base::Segment;
 use crate::core::parser::markers::PositionMarker;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct KeywordSegment {
     raw: String,
     uuid: uuid::Uuid,

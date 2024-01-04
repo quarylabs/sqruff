@@ -237,7 +237,7 @@ impl Segment for Anything {}
 impl Matchable for Anything {}
 
 #[derive(Clone, Debug, PartialEq)]
-struct Nothing {}
+pub struct Nothing {}
 
 impl Nothing {
     pub fn new() -> Self {
@@ -273,7 +273,6 @@ pub fn longest_trimmed_match(
     }
 
     let available_options = prune_options(&matchers, segments, parse_context);
-
     if available_options.is_empty() {
         return Ok((MatchResult::from_unmatched(segments.to_vec()), None));
     }
@@ -348,7 +347,7 @@ mod tests {
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, make_result_tuple, test_segments,
     };
-    use crate::helpers::{Boxed, ToMatchable}; // Import necessary items from the parent module
+    use crate::helpers::{Boxed, ToMatchable};
 
     #[test]
     fn test__parser__grammar__ref_eq() {

@@ -4,7 +4,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RawSegment {
     raw: Option<String>,
     position_marker: Option<PositionMarker>,

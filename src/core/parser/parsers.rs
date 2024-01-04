@@ -400,7 +400,7 @@ impl Matchable for MultiStringParser {
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        todo!()
+        (self._simple.clone(), <_>::default()).into()
     }
 
     fn match_segments(
@@ -450,7 +450,7 @@ mod tests {
 
         assert_eq!(
             parser.simple(&parse_cx, None),
-            ((HashSet::new(), HashSet::from(["single_quote".into()]))).into()
+            (HashSet::new(), HashSet::from(["single_quote".into()])).into()
         );
     }
 

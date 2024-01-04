@@ -46,8 +46,8 @@ impl BracketInfo {
 
         BracketedSegment::new(
             self.segments.clone(),
-            self.bracket.clone(),
-            end_bracket[0].clone(), // Assuming BaseSegment implements Clone
+            vec![self.bracket.clone()],
+            vec![end_bracket[0].clone()], // Assuming BaseSegment implements Clone
         )
     }
 }
@@ -280,7 +280,20 @@ pub fn bracket_sensitive_look_ahead_match(
                         end_brackets.iter().any(|item| item.dyn_eq(matcher));
 
                     if has_matching_start_bracket && !has_matching_end_bracket {
-                        unimplemented!()
+                        // Add any segments leading up to this to the previous
+                        // bracket.
+                        bracket_stack.last_mut().unwrap().segments.extend(pre);
+                        // Add a bracket to the stack and add the matches from
+                        // the segment.
+                        let bracket_type_idx =
+                            start_brackets.iter().position(|item| item.dyn_eq(matcher)).unwrap();
+                        bracket_stack.push(BracketInfo {
+                            bracket: match_result.matched_segments[0].clone(),
+                            segments: match_result.matched_segments,
+                            bracket_type: bracket_types[bracket_type_idx].clone(),
+                        });
+                        seg_buff = match_result.unmatched_segments;
+                        continue;
                     } else if has_matching_end_bracket {
                         // Found an end bracket. Does its type match that of
                         // the innermost start bracket? E.g. ")" matches "(",
@@ -303,6 +316,7 @@ pub fn bracket_sensitive_look_ahead_match(
                                 // Construct a bracketed segment (as a tuple) if allowed.
                                 let persist_bracket = persists
                                     [end_brackets.iter().position(|x| x.dyn_eq(matcher)).unwrap()];
+
                                 let new_segments = if persist_bracket {
                                     vec![
                                         last_bracket

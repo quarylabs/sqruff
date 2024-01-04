@@ -1,7 +1,9 @@
+use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 
 use dyn_clone::DynClone;
+use dyn_ord::DynEq;
 use itertools::Itertools;
 use uuid::Uuid;
 
@@ -10,6 +12,7 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::LintFix;
 use crate::core::templaters::base::TemplatedFile;
+use crate::helpers::Boxed;
 
 /// An element of the response to BaseSegment.path_to().
 ///     Attributes:
@@ -26,7 +29,7 @@ pub struct PathStep<S: Segment> {
 pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
-pub trait Segment: DynClone + Debug {
+pub trait Segment: Any + DynEq + DynClone + Debug {
     // TODO: remove &self?
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         None
@@ -203,7 +206,7 @@ impl PartialEq for Box<dyn Segment> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CodeSegment {
     raw: String,
     position_marker: Option<PositionMarker>,
@@ -248,6 +251,10 @@ impl CodeSegment {
 }
 
 impl Segment for CodeSegment {
+    fn class_types(&self) -> HashSet<String> {
+        Some(self.get_type().to_owned()).into_iter().collect()
+    }
+
     fn get_raw(&self) -> Option<String> {
         Some(self.raw.clone())
     }
@@ -309,13 +316,13 @@ impl Segment for CodeSegment {
 }
 
 /// Segment containing a comment.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CommentSegment {
     r#type: &'static str,
     trim_start: Vec<&'static str>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CommentSegmentNewArgs {
     pub r#type: &'static str,
     pub trim_start: Option<Vec<&'static str>>,
@@ -371,7 +378,7 @@ impl Segment for CommentSegment {
 }
 
 // Segment containing a newline.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NewlineSegment {
     raw: String,
 }
@@ -432,14 +439,14 @@ impl Segment for NewlineSegment {
 }
 
 /// Segment containing whitespace.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct WhitespaceSegment {
     raw: String,
     position_marker: PositionMarker,
     uuid: Uuid,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct WhitespaceSegmentNewArgs;
 
 impl WhitespaceSegment {
@@ -502,12 +509,12 @@ impl Segment for WhitespaceSegment {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnlexableSegment {
     expected: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnlexableSegmentNewArgs {
     pub(crate) expected: Option<String>,
 }
@@ -566,7 +573,7 @@ impl Segment for UnlexableSegment {
 ///     We rename the segment class here so that descendants of
 ///     _ProtoKeywordSegment can use the same functionality
 ///     but don't end up being labelled as a `keyword` later.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SymbolSegment {
     raw: String,
     position_maker: PositionMarker,
@@ -577,8 +584,12 @@ impl Segment for SymbolSegment {
         self.raw.clone().into()
     }
 
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone().boxed()]
+    }
+
     fn get_type(&self) -> &'static str {
-        return "symbol";
+        "symbol"
     }
 
     fn is_code(&self) -> bool {

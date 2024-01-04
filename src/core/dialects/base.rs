@@ -29,7 +29,7 @@ impl Dialect {
         this
     }
 
-    pub fn extend(
+    pub fn add(
         &mut self,
         iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)> + Clone,
     ) {

@@ -80,6 +80,7 @@ pub struct AnyNumberOf {
     pub max_times: Option<usize>,
     pub min_times: usize,
     pub allow_gaps: bool,
+    pub optional: bool,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -90,11 +91,15 @@ impl PartialEq for AnyNumberOf {
 
 impl AnyNumberOf {
     pub fn new(elements: Vec<Box<dyn Matchable>>) -> Self {
-        Self { elements, max_times: None, min_times: 0, allow_gaps: true }
+        Self { elements, max_times: None, min_times: 0, allow_gaps: true, optional: false }
     }
 
-    pub fn allow_gaps(&mut self, allow_gaps: bool) {
-        self.allow_gaps = allow_gaps;
+    pub fn optional(&mut self) {
+        self.optional = true;
+    }
+
+    pub fn disallow_gaps(&mut self) {
+        self.allow_gaps = false;
     }
 
     pub fn max_times(&mut self, max_times: usize) {
@@ -125,7 +130,7 @@ impl Segment for AnyNumberOf {}
 
 impl Matchable for AnyNumberOf {
     fn is_optional(&self) -> bool {
-        self.min_times == 0
+        self.optional || self.min_times == 0
     }
 
     fn simple(
@@ -149,7 +154,7 @@ impl Matchable for AnyNumberOf {
         let mut n_matches = 0;
         // let option_counter = {elem.cache_key(): 0 for elem in self._elements}
         loop {
-            if Some(n_matches) >= self.max_times {
+            if self.max_times.is_some() && Some(n_matches) >= self.max_times {
                 // We've matched as many times as we can
                 return Ok(parse_mode_match_result(
                     matched_segments.matched_segments,
@@ -305,7 +310,10 @@ mod tests {
             .boxed();
 
             let mut g = one_of(vec![fs, bs]);
-            g.allow_gaps(allow_gaps);
+
+            if allow_gaps {
+                g.disallow_gaps();
+            }
 
             let mut ctx = ParseContext::new(fresh_ansi_dialect());
 

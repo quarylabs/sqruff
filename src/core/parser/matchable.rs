@@ -4,7 +4,6 @@ use std::fmt::Debug;
 
 use dyn_clone::DynClone;
 use dyn_ord::DynEq;
-use itertools::Itertools;
 
 use super::context::ParseContext;
 use super::match_result::MatchResult;
@@ -36,9 +35,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        let Some(match_grammar) = self.match_grammar() else {
-            return None;
-        };
+        let match_grammar = self.match_grammar()?;
 
         match_grammar.simple(parse_context, crumbs)
     }

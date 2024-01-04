@@ -36,8 +36,8 @@ impl Delimited {
         }
     }
 
-    pub fn allow_trailing(&mut self, allow_trailing: bool) {
-        self.allow_trailing = allow_trailing;
+    pub fn allow_trailing(&mut self) {
+        self.allow_trailing = true;
     }
 
     pub fn delimiter(&mut self, delimiter: impl ToMatchable) {
@@ -106,14 +106,15 @@ impl Matchable for Delimited {
             terminator_matchers.push(NonCodeMatcher.to_matchable());
         }
 
-        let mut tmp_sg = Vec::new();
         loop {
             if seg_buff.is_empty() {
                 break;
             }
 
-            tmp_sg = seg_buff.clone();
-            let (pre_non_code, seg_content, post_non_code) = trim_non_code_segments(&tmp_sg);
+            let (pre_non_code, seg_content, post_non_code) = trim_non_code_segments(&seg_buff);
+
+            let pre_non_code = pre_non_code.to_vec();
+            let post_non_code = post_non_code.to_vec();
 
             if !self.allow_gaps && pre_non_code.iter().any(|seg| seg.is_whitespace()) {
                 unmatched_segments = seg_buff;
@@ -121,7 +122,7 @@ impl Matchable for Delimited {
             }
 
             if seg_content.is_empty() {
-                matched_segments.extend(pre_non_code.iter().cloned());
+                matched_segments.extend(pre_non_code.clone());
             }
 
             // Check whether there is a terminator before checking for content
@@ -133,7 +134,7 @@ impl Matchable for Delimited {
             if match_result.has_match() {
                 terminated = true;
                 unmatched_segments = {
-                    let mut segments = pre_non_code.to_vec();
+                    let mut segments = pre_non_code.clone();
                     segments.extend(match_result.all_segments());
                     segments.extend(post_non_code.to_vec());
                     segments
@@ -155,7 +156,8 @@ impl Matchable for Delimited {
                             self.elements.clone()
                         },
                         this,
-                        /* We've already trimmed */ false,
+                        // We've already trimmed
+                        false,
                     )
                 },
             )?;
@@ -180,7 +182,6 @@ impl Matchable for Delimited {
             }
 
             has_matched_segs = true;
-
             seg_buff = {
                 let mut segments = match_result.unmatched_segments.clone();
                 segments.extend(post_non_code.to_vec());
@@ -191,6 +192,7 @@ impl Matchable for Delimited {
                 matched_segments.extend(pre_non_code.to_vec());
                 matched_segments.extend(match_result.matched_segments);
                 matched_segments.extend(post_non_code.to_vec());
+
                 break;
             }
 
@@ -324,11 +326,16 @@ mod tests {
             };
 
             g.delimiter = StringParser::new(".", symbol_factory, None, false, None).to_matchable();
-            g.allow_gaps(allow_gaps);
-            g.allow_trailing(allow_trailing);
+            if !allow_gaps {
+                g.disallow_gaps();
+            }
+            if allow_trailing {
+                g.allow_trailing();
+            }
             g.min_delimiters = min_delimiters;
 
             let match_result = g.match_segments(test_segments.clone(), &mut ctx).unwrap();
+
             assert_eq!(match_result.len(), match_len);
         }
     }

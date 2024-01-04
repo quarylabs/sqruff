@@ -8,7 +8,7 @@ use crate::core::parser::segments::fix::SourceFix;
 ///     This is also the default "root" segment of the dialect,
 ///     and so is usually instantiated directly. It therefore
 ///     has no match_grammar.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 struct BaseFileSegment {
     pub f_name: Option<String>,
 }

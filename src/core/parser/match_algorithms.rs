@@ -65,10 +65,7 @@ pub fn prune_options(
     let mut prune_buff = vec![];
 
     // Find the first code element to match against.
-    let Some((first_raw, first_types)) = first_non_whitespace(segments) else {
-        // return options.to_vec();
-        unimplemented!()
-    };
+    let Some((first_raw, first_types)) = first_non_whitespace(segments) else { todo!() };
 
     for opt in options {
         let Some(simple) = opt.simple(parse_context, None) else {
@@ -594,7 +591,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(pre_section, Vec::new());
-        matcher.unwrap().dyn_eq(&*fs as &dyn Matchable);
+        matcher.unwrap().dyn_eq(&*fs);
 
         // NB the middle element is a match object
         assert_eq!(match_result.matched_segments[0].get_raw().unwrap(), "bar");

@@ -93,7 +93,7 @@ pub fn removed_configs() -> [RemovedConfig<'static>; 12] {
 /// split_comma_separated_string takes a string and splits it on commas and
 /// trims and filters out empty strings.
 pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
-    raw_str.split(",").map(|x| x.trim().to_string()).filter(|x| x != "").collect()
+    raw_str.split(',').map(|x| x.trim().to_string()).filter(|x| !x.is_empty()).collect()
 }
 
 /// The class that actually gets passed around as a config object.
@@ -129,7 +129,7 @@ impl FluffConfig {
             dialect: dialect.to_string(),
             extra_config_path,
             _configs: HashMap::new(),
-            indentation: indentation.unwrap_or(FluffConfigIndentation::default()),
+            indentation: indentation.unwrap_or_default(),
             sql_file_exts: vec![".sql".into()],
         }
     }
@@ -166,9 +166,9 @@ impl FluffConfig {
     }
 
     /// Process a full raw file for inline config and update self.
-    pub fn process_raw_file_for_config(&mut self, raw_str: &String) {
+    pub fn process_raw_file_for_config(&mut self, raw_str: &str) {
         // Scan the raw file for config commands
-        for raw_line in raw_str.clone().lines() {
+        for raw_line in raw_str.lines() {
             if raw_line.to_string().starts_with("-- sqlfluff") {
                 // Found a in-file config command
                 self.process_inline_config(raw_line)

@@ -40,7 +40,7 @@ impl Parser {
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
-        let root = self.root_segment.root_parse(segments, &mut parse_cx, f_name.into())?;
+        let root = self.root_segment.root_parse(segments, &mut parse_cx, f_name)?;
 
         // Basic Validation, that we haven't dropped anything.
         check_still_complete(segments, &[root.clone()]);

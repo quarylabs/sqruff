@@ -89,7 +89,7 @@ use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::Boxed;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct Sequence {
     elements: Vec<Box<dyn Matchable>>,
     parse_mode: ParseMode,
@@ -130,7 +130,7 @@ impl Sequence {
 
 impl PartialEq for Sequence {
     fn eq(&self, other: &Self) -> bool {
-        zip(&self.elements, &other.elements).all(|(a, b)| a.dyn_eq(&*b.clone()))
+        zip(&self.elements, &other.elements).all(|(a, b)| a.dyn_eq(&**b))
     }
 }
 
@@ -284,10 +284,6 @@ impl Matchable for Sequence {
         // left as unclaimed, mark it as unparsable.
         if matches!(self.parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted) {
             let (_pre, unmatched_mid, _post) = trim_non_code_segments(&unmatched_segments);
-
-            if !unmatched_mid.is_empty() {
-                panic!("{:?}", unmatched_mid.first());
-            }
         }
 
         // If we finished on an optional, and so still have some unflushed metas,
@@ -338,7 +334,7 @@ impl Matchable for Sequence {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Bracketed {
     bracket_type: &'static str,
     bracket_pairs_set: &'static str,
@@ -523,7 +519,7 @@ impl Matchable for Bracketed {
         let (pre_segs, content_segs, post_segs) = if self.allow_gaps {
             trim_non_code_segments(&content_segs)
         } else {
-            (&[][..], &[][..], &[][..])
+            (&[][..], &content_segs[..], &[][..])
         };
 
         // If we've got a case of empty brackets check whether that is allowed.

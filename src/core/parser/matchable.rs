@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use std::fmt::Debug;
 
 use dyn_clone::DynClone;
+use dyn_hash::DynHash;
 use dyn_ord::DynEq;
 
 use super::context::ParseContext;
@@ -12,7 +13,7 @@ use crate::core::errors::SQLParseError;
 
 // Define a trait to represent the Matchable interface.
 // This trait is similar to the abstract base class in Python.
-pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
+pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
     fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
@@ -79,3 +80,4 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
 }
 
 dyn_clone::clone_trait_object!(Matchable);
+dyn_hash::hash_trait_object!(Matchable);

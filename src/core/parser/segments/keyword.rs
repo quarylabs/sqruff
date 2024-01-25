@@ -1,7 +1,9 @@
-use super::base::Segment;
+use super::base::{apply_fixes, Segment};
+use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
+use crate::helpers::Boxed;
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Hash, Debug, Clone, Default, PartialEq)]
 pub struct KeywordSegment {
     raw: String,
     uuid: uuid::Uuid,
@@ -15,6 +17,18 @@ impl KeywordSegment {
 }
 
 impl Segment for KeywordSegment {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).boxed()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        Vec::new()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone().boxed()]
+    }
+
     fn get_raw(&self) -> Option<String> {
         self.raw.clone().into()
     }
@@ -47,11 +61,27 @@ impl Segment for KeywordSegment {
         self.uuid.into()
     }
 
+    fn apply_fixes(
+        &self,
+        dialect: crate::core::dialects::base::Dialect,
+        fixes: std::collections::HashMap<uuid::Uuid, super::fix::AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn get_source_fixes(&self) -> Vec<SourceFix> {
+        Vec::new()
+    }
+
     fn edit(
         &self,
         _raw: Option<String>,
-        _source_fixes: Option<Vec<super::fix::SourceFix>>,
+        _source_fixes: Option<Vec<SourceFix>>,
     ) -> Box<dyn Segment> {
         todo!()
+    }
+
+    fn class_types(&self) -> std::collections::HashSet<String> {
+        ["keyword", "word"].map(ToOwned::to_owned).into_iter().collect()
     }
 }

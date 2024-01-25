@@ -3,6 +3,7 @@
 use fancy_regex::Regex;
 
 use super::parser::segments::base::Segment;
+use super::rules::base::{ErasedRule, LintFix};
 use crate::core::parser::markers::PositionMarker;
 
 type CheckTuple = (String, usize, usize);
@@ -156,13 +157,20 @@ impl SqlError for SQLBaseError {
 //     }
 // }
 //
-// #[derive(Debug)]
-// struct SQLLintError {
-//     segment: BaseSegment,
-//     rule: Rule,
-//     fixes: Vec<Fix>,
-//     description: String,
-// }
+#[derive(Debug)]
+pub struct SQLLintError {
+    // segment: Box<dyn Segment>,
+    // rule: ErasedRule,
+    // fixes: Vec<LintFix>,
+    pub description: String,
+}
+
+impl From<SQLLintError> for SQLBaseError {
+    fn from(value: SQLLintError) -> Self {
+        Self { fatal: false, ignore: false, warning: true, line_no: todo!(), line_pos: todo!() }
+    }
+}
+
 //
 // impl Error for SQLLintError {}
 //

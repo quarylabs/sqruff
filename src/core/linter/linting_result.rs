@@ -2,8 +2,9 @@ use std::time::Instant;
 
 use crate::core::linter::linted_dir::LintedDir;
 
+#[derive(Debug)]
 pub struct LintingResult {
-    paths: Vec<LintedDir>,
+    pub paths: Vec<LintedDir>,
     start_time: Instant,
     total_time: f64,
 }

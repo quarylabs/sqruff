@@ -4,7 +4,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct RawSegment {
     raw: Option<String>,
     position_marker: Option<PositionMarker>,
@@ -56,8 +56,8 @@ impl Segment for RawSegment {
         self.position_marker.clone()
     }
 
-    fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
-        Some(vec![Box::new(self.clone())])
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![Box::new(self.clone())]
     }
 
     fn get_uuid(&self) -> Option<Uuid> {

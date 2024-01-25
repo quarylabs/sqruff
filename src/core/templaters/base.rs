@@ -6,7 +6,7 @@ use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError, ValueError};
 use crate::core::slice_helpers::zero_slice;
 
 /// A slice referring to a templated file.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TemplatedFileSlice {
     pub slice_type: String,
     pub source_slice: Range<usize>,
@@ -28,7 +28,7 @@ impl TemplatedFileSlice {
 /// This is the response of a `templater`'s `.process()` method
 /// and contains both references to the original file and also
 /// the capability to split up that file when lexing.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub struct TemplatedFile {
     pub source_str: String,
     f_name: String,
@@ -217,7 +217,7 @@ impl TemplatedFile {
     /// templated file.
     ///
     ///         The results are NECESSARILY sorted.
-    fn source_only_slices(&self) -> Vec<RawFileSlice> {
+    pub fn source_only_slices(&self) -> Vec<RawFileSlice> {
         let mut ret_buff = vec![];
         for element in &self.raw_sliced {
             if element.is_source_only_slice() {
@@ -326,9 +326,7 @@ impl TemplatedFile {
             {
                 let offset =
                     template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
-                return Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset)
-                    .try_into()
-                    .unwrap());
+                return Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset));
             } else {
                 return Err(ValueError::new(format!(
                     "Attempting a single length slice within a templated section! {:?} within \
@@ -433,7 +431,7 @@ impl TemplatedFile {
                 is_literal = false;
             };
         }
-        return is_literal;
+        is_literal
     }
 
     /// Return a list of the raw slices spanning a set of indices.
@@ -472,7 +470,7 @@ pub fn iter_indices_of_newlines(raw_str: &str) -> impl Iterator<Item = usize> + 
     raw_str.match_indices('\n').map(|(idx, _)| idx)
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum RawFileSliceType {
     Comment,
     BlockEnd,
@@ -481,7 +479,7 @@ pub enum RawFileSliceType {
 }
 
 /// A slice referring to a raw file.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub struct RawFileSlice {
     /// Source string
     raw: String,
@@ -508,7 +506,7 @@ impl RawFileSlice {
 impl RawFileSlice {
     /// Return the closing index of this slice.
     fn end_source_idx(&self) -> usize {
-        return self.source_idx + self.raw.len();
+        self.source_idx + self.raw.len()
     }
 
     /// Return the a slice object for this slice.

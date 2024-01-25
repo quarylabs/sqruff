@@ -39,3 +39,34 @@ pub trait Config: Sized {
 }
 
 impl<T> Config for T {}
+
+#[derive(Clone, Debug)]
+pub struct HashableFancyRegex(pub fancy_regex::Regex);
+
+impl std::ops::DerefMut for HashableFancyRegex {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl std::ops::Deref for HashableFancyRegex {
+    type Target = fancy_regex::Regex;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Eq for HashableFancyRegex {}
+
+impl PartialEq for HashableFancyRegex {
+    fn eq(&self, other: &HashableFancyRegex) -> bool {
+        self.0.as_str() == other.0.as_str()
+    }
+}
+
+impl std::hash::Hash for HashableFancyRegex {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.as_str().hash(state);
+    }
+}

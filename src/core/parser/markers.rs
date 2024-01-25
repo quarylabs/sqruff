@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::ops::Range;
 
 use crate::core::slice_helpers::zero_slice;
@@ -17,7 +18,7 @@ use crate::core::templaters::base::TemplatedFile;
 /// - Positions within the fixed file are identified with a line number and line
 ///   position, which identify a point.
 /// - Arithmetic comparisons are on the location in the fixed file.
-#[derive(Debug, Clone, Eq)]
+#[derive(Debug, Clone, Eq, Hash)]
 pub struct PositionMarker {
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
@@ -67,6 +68,35 @@ impl PositionMarker {
                 working_line_no: working_line_no.unwrap(),
                 working_line_pos: working_line_pos.unwrap(),
             }
+        }
+    }
+
+    pub fn from_child_markers(markers: Vec<PositionMarker>) -> PositionMarker {
+        let mut source_start = usize::MAX;
+        let mut source_end = usize::MIN;
+        let mut template_start = usize::MAX;
+        let mut template_end = usize::MIN;
+        let mut templated_files = HashSet::new();
+
+        for marker in markers {
+            source_start = source_start.min(marker.source_slice.start);
+            source_end = source_end.max(marker.source_slice.end);
+            template_start = template_start.min(marker.templated_slice.start);
+            template_end = template_end.max(marker.templated_slice.end);
+            templated_files.insert(marker.templated_file);
+        }
+
+        // if templated_files.len() != 1 {
+        //     panic!("Attempted to make a parent marker from multiple files.");
+        // }
+
+        let templated_file = templated_files.into_iter().next().unwrap();
+        PositionMarker {
+            source_slice: source_start..source_end,
+            templated_slice: template_start..template_end,
+            templated_file,
+            working_line_no: 0,
+            working_line_pos: 0,
         }
     }
 

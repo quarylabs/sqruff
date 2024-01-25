@@ -1,16 +1,19 @@
 use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
+use std::hash::Hash;
 
 use dyn_clone::DynClone;
+use dyn_hash::DynHash;
 use dyn_ord::DynEq;
 use itertools::Itertools;
 use uuid::Uuid;
 
+use crate::core::dialects::base::Dialect;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
-use crate::core::rules::base::LintFix;
+use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
 use crate::helpers::Boxed;
 
@@ -20,8 +23,8 @@ use crate::helpers::Boxed;
 ///         idx (int): The index of the target within its `segment`.
 ///         len (int): The number of children `segment` has.
 #[derive(Debug, Clone)]
-pub struct PathStep<S: Segment> {
-    pub segment: S,
+pub struct PathStep {
+    pub segment: Box<dyn Segment>,
     pub idx: usize,
     pub len: usize,
 }
@@ -29,7 +32,113 @@ pub struct PathStep<S: Segment> {
 pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
-pub trait Segment: Any + DynEq + DynClone + Debug {
+pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn get_parent(&self) -> Option<Box<dyn Segment>> {
+        None
+    }
+
+    fn path_to(&self, other: &Box<dyn Segment>) -> Vec<PathStep> {
+        if self.dyn_eq(other) {
+            return Vec::new();
+        }
+
+        if self.get_segments().is_empty() {
+            return Vec::new();
+        }
+
+        let mut midpoint = other.clone();
+        let mut lower_path = Vec::new();
+
+        while let Some(_higher) = midpoint.get_parent() {
+            assert!(
+                _higher.get_position_marker().is_some(),
+                "`path_to()` found segment {_higher:?} without position. This shouldn't happen \
+                 post-parse."
+            );
+            lower_path.push(PathStep {
+                segment: _higher.clone(),
+                idx: _higher.get_segments().iter().position(|seg| seg.dyn_eq(&*_higher)).unwrap(),
+                len: _higher.get_segments().len(),
+            });
+            midpoint = _higher.clone();
+            if self.dyn_eq(&midpoint) {
+                break;
+            }
+        }
+
+        lower_path.reverse();
+
+        if self.dyn_eq(&midpoint) {
+            return lower_path;
+        } else if midpoint.is_type("file") {
+            return Vec::new();
+        }
+
+        // else if !(self.get_start_loc() <= midpoint.get_start_loc()
+        //     && midpoint.get_start_loc() <= self.get_end_loc())
+        // {
+        //     return Vec::new();
+        // }
+
+        for (idx, seg) in self.get_segments().iter().enumerate() {
+            // seg.set_parent(self); // Requires mutable reference to self or change in
+            // design
+
+            // FIXME: seg.clone() => self
+            let step = PathStep { segment: seg.clone(), idx, len: self.get_segments().len() };
+            if seg.dyn_eq(&midpoint) {
+                let mut result = vec![step];
+                result.extend(lower_path);
+                return result;
+            }
+            let res = seg.path_to(&midpoint);
+            if !res.is_empty() {
+                let mut result = vec![step];
+                result.extend(res);
+                result.extend(lower_path);
+                return result;
+            }
+        }
+
+        Vec::new()
+    }
+
+    fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
+        let mut acc = Vec::new();
+
+        if self.get_position_marker().unwrap().is_literal() {
+            acc.extend(self.iter_source_fix_patches(templated_file));
+            acc.push(FixPatch::new(
+                self.get_position_marker().unwrap().templated_slice,
+                self.get_raw().unwrap(),
+                "literal".into(),
+                self.get_position_marker().unwrap().source_slice,
+                templated_file.templated_str.as_ref().unwrap()
+                    [self.get_position_marker().unwrap().templated_slice]
+                    .to_string(),
+                templated_file.source_str[self.get_position_marker().unwrap().source_slice]
+                    .to_string(),
+            ));
+        }
+
+        acc
+    }
+
+    fn descendant_type_set(&self) -> HashSet<String> {
+        let mut result_set = HashSet::new();
+
+        for seg in &self.get_segments() {
+            // Combine descendant_type_set and class_types of each segment
+            result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
+        }
+
+        result_set
+    }
+
     // TODO: remove &self?
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         None
@@ -45,13 +154,14 @@ pub trait Segment: Any + DynEq + DynClone + Debug {
 
     // Assuming `raw_segments` is a field that holds a collection of segments
     fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
-        for seg in &self.get_segments() {
+        for seg in self.get_raw_segments() {
             // Assuming `raw_upper` is a method or field that returns a String
             if !seg.get_raw_upper().unwrap().trim().is_empty() {
                 // Return Some(String) if the condition is met
                 return Some(seg.get_raw_upper().unwrap());
             }
         }
+        dbg!(self);
         // Return None if no non-whitespace segment is found
         None
     }
@@ -77,11 +187,19 @@ pub trait Segment: Any + DynEq + DynClone + Debug {
     fn get_default_raw(&self) -> Option<&'static str> {
         None
     }
+
+    #[track_caller]
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        unimplemented!()
+        let markers: Vec<_> =
+            self.get_segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();
+
+        let pos = PositionMarker::from_child_markers(markers);
+
+        Some(pos)
     }
+
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        unimplemented!()
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 
     // get_segments is the way the segment returns its children 'self.segments' in
@@ -118,8 +236,8 @@ pub trait Segment: Any + DynEq + DynClone + Debug {
     /// Iterate raw segments, mostly for searching.
     ///
     /// In sqlfluff only implemented for RawSegments and up
-    fn get_raw_segments(&self) -> Option<Vec<Box<dyn Segment>>> {
-        None
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.get_segments().into_iter().flat_map(|item| item.get_raw_segments()).collect_vec()
     }
 
     /// Yield any source patches as fixes now.
@@ -144,7 +262,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        unimplemented!()
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 
     fn indent_val(&self) -> usize {
@@ -153,11 +271,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug {
 
     /// Return any source fixes as list.
     fn get_source_fixes(&self) -> Vec<SourceFix> {
-        self.get_raw_segments()
-            .unwrap_or(vec![])
-            .iter()
-            .flat_map(|seg| seg.get_source_fixes())
-            .collect()
+        self.get_segments().iter().flat_map(|seg| seg.get_source_fixes()).collect()
     }
 
     /// Stub.
@@ -177,12 +291,90 @@ pub trait Segment: Any + DynEq + DynClone + Debug {
         anchor_info
     }
 
+    fn instance_types(&self) -> HashSet<String> {
+        HashSet::new()
+    }
+
+    fn combined_types(&self) -> HashSet<String> {
+        let mut combined = self.instance_types();
+        combined.extend(self.class_types());
+        combined
+    }
+
     fn class_types(&self) -> HashSet<String> {
         HashSet::new()
     }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        unimplemented!("{}", std::any::type_name::<Self>())
+    }
+}
+
+pub fn apply_fixes(
+    this: &dyn Segment,
+    dialect: Dialect,
+    mut fixes: HashMap<Uuid, AnchorEditInfo>,
+) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+    let mut seg_buffer = Vec::new();
+    let mut fixes_applied = Vec::new();
+    let mut requires_validate = false;
+
+    for seg in this.get_segments() {
+        // Look for uuid match.
+        // This handles potential positioning ambiguity.
+
+        let Some(anchor_info) = fixes.remove(&seg.get_uuid().unwrap()) else {
+            seg_buffer.push(seg);
+            continue;
+        };
+
+        for f in &anchor_info.fixes {
+            // assert f.anchor.uuid == seg.uuid
+            fixes_applied.push(f.clone());
+
+            // Deletes are easy.
+            if f.edit_type == EditType::Delete {
+                // We're just getting rid of this segment.
+                requires_validate = true;
+                // NOTE: We don't add the segment in this case.
+                continue;
+            }
+
+            if f.edit_type == EditType::CreateAfter && anchor_info.fixes.len() == 1 {
+                // In the case of a creation after that is not part
+                // of a create_before/create_after pair, also add
+                // this segment before the edit.
+                seg_buffer.push(seg.clone());
+            }
+
+            for s in f.edit.as_ref().unwrap() {
+                seg_buffer.push(s.clone());
+            }
+        }
+    }
+
+    let seg_queue = seg_buffer.clone();
+    let mut seg_buffer = Vec::new();
+    for seg in seg_queue {
+        let (s, pre, post, validated) = seg.apply_fixes(dialect.clone(), fixes.clone());
+        seg_buffer.extend(pre);
+        seg_buffer.push(s);
+        seg_buffer.extend(post);
+
+        if !validated {
+            requires_validate = true;
+        }
+    }
+
+    (this.new(seg_buffer), Vec::new(), Vec::new(), false)
 }
 
 dyn_clone::clone_trait_object!(Segment);
+dyn_hash::hash_trait_object!(Segment);
 
 impl PartialEq for Box<dyn Segment> {
     fn eq(&self, other: &Self) -> bool {
@@ -194,6 +386,7 @@ impl PartialEq for Box<dyn Segment> {
             }
             _ => (),
         };
+
         let pos_self = self.get_position_marker();
         let pos_other = other.get_position_marker();
         if let (Some(pos_self), Some(pos_other)) = (pos_self, pos_other) {
@@ -206,7 +399,7 @@ impl PartialEq for Box<dyn Segment> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CodeSegment {
     raw: String,
     position_marker: Option<PositionMarker>,
@@ -281,11 +474,15 @@ impl Segment for CodeSegment {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        Some(self.uuid.clone())
+        self.uuid.into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![Box::new(self.clone())]
+        vec![]
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone().boxed()]
     }
 
     /// Create a new segment, with exactly the same position but different
@@ -316,8 +513,9 @@ impl Segment for CodeSegment {
 }
 
 /// Segment containing a comment.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CommentSegment {
+    raw: String,
     r#type: &'static str,
     trim_start: Vec<&'static str>,
 }
@@ -330,11 +528,16 @@ pub struct CommentSegmentNewArgs {
 
 impl CommentSegment {
     pub fn new(
-        _raw: &str,
+        raw: &str,
         _position_maker: &PositionMarker,
-        _args: CommentSegmentNewArgs,
+        args: CommentSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        panic!("Not implemented yet")
+        Self {
+            raw: raw.to_string(),
+            r#type: args.r#type,
+            trim_start: args.trim_start.unwrap_or_default(),
+        }
+        .boxed()
     }
 }
 
@@ -356,6 +559,14 @@ impl Segment for CommentSegment {
         todo!()
     }
 
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        Vec::new()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone().boxed()]
+    }
+
     fn get_position_marker(&self) -> Option<PositionMarker> {
         todo!()
     }
@@ -373,14 +584,15 @@ impl Segment for CommentSegment {
     }
 
     fn get_raw(&self) -> Option<String> {
-        todo!()
+        self.raw.clone().into()
     }
 }
 
 // Segment containing a newline.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct NewlineSegment {
     raw: String,
+    position_maker: PositionMarker,
 }
 
 #[derive(Debug, Clone)]
@@ -389,14 +601,18 @@ pub struct NewlineSegmentNewArgs {}
 impl NewlineSegment {
     pub fn new(
         raw: &str,
-        _position_maker: &PositionMarker,
+        position_maker: &PositionMarker,
         _args: NewlineSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        Box::new(NewlineSegment { raw: raw.to_string() })
+        Box::new(NewlineSegment { raw: raw.to_string(), position_maker: position_maker.clone() })
     }
 }
 
 impl Segment for NewlineSegment {
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        Vec::new()
+    }
+
     fn get_type(&self) -> &'static str {
         "newline"
     }
@@ -414,7 +630,7 @@ impl Segment for NewlineSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        todo!()
+        self.position_maker.clone().into()
     }
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
@@ -439,7 +655,7 @@ impl Segment for NewlineSegment {
 }
 
 /// Segment containing whitespace.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct WhitespaceSegment {
     raw: String,
     position_marker: PositionMarker,
@@ -464,8 +680,21 @@ impl WhitespaceSegment {
 }
 
 impl Segment for WhitespaceSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self {
+            raw: self.get_raw().unwrap(),
+            position_marker: self.position_marker.clone(),
+            uuid: self.uuid.clone(),
+        }
+        .boxed()
+    }
+
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         Vec::new()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone().boxed()]
     }
 
     fn get_raw(&self) -> Option<String> {
@@ -500,16 +729,24 @@ impl Segment for WhitespaceSegment {
         self.uuid.into()
     }
 
-    fn edit(
+    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+        Self::new(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
+    }
+
+    fn apply_fixes(
         &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
-        todo!()
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn get_source_fixes(&self) -> Vec<SourceFix> {
+        Vec::new()
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct UnlexableSegment {
     expected: String,
 }
@@ -573,18 +810,34 @@ impl Segment for UnlexableSegment {
 ///     We rename the segment class here so that descendants of
 ///     _ProtoKeywordSegment can use the same functionality
 ///     but don't end up being labelled as a `keyword` later.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SymbolSegment {
     raw: String,
     position_maker: PositionMarker,
+    uuid: Uuid,
+    type_: &'static str,
 }
 
 impl Segment for SymbolSegment {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self {
+            raw: self.raw.clone(),
+            position_maker: self.position_maker.clone(),
+            uuid: self.uuid,
+            type_: self.type_,
+        }
+        .boxed()
+    }
+
     fn get_raw(&self) -> Option<String> {
         self.raw.clone().into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        Vec::new()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         vec![self.clone().boxed()]
     }
 
@@ -604,6 +857,10 @@ impl Segment for SymbolSegment {
         false
     }
 
+    fn instance_types(&self) -> HashSet<String> {
+        HashSet::from([self.type_.to_string()])
+    }
+
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_maker.clone().into()
     }
@@ -613,7 +870,19 @@ impl Segment for SymbolSegment {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn get_source_fixes(&self) -> Vec<SourceFix> {
+        Vec::new()
     }
 
     fn edit(
@@ -626,15 +895,22 @@ impl Segment for SymbolSegment {
 }
 
 #[derive(Debug, Clone)]
-pub struct SymbolSegmentNewArgs {}
+pub struct SymbolSegmentNewArgs {
+    pub r#type: &'static str,
+}
 
 impl SymbolSegment {
     pub fn new(
         raw: &str,
         position_maker: &PositionMarker,
-        _args: SymbolSegmentNewArgs,
+        args: SymbolSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        Box::new(SymbolSegment { raw: raw.to_string(), position_maker: position_maker.clone() })
+        Box::new(SymbolSegment {
+            raw: raw.to_string(),
+            position_maker: position_maker.clone(),
+            uuid: Uuid::new_v4(),
+            type_: args.r#type,
+        })
     }
 }
 
@@ -687,6 +963,8 @@ mod tests {
     #[test]
     /// Test BaseSegment.compute_anchor_edit_info().
     fn test__parser_base_segments_compute_anchor_edit_info() {
+        unsafe { backtrace_on_stack_overflow::enable() };
+
         let raw_segs = raw_segments();
 
         // Construct a fix buffer, intentionally with:

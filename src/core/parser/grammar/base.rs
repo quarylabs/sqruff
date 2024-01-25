@@ -14,7 +14,7 @@ use crate::core::parser::segments::base::Segment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{capitalize, ToMatchable};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash)]
 pub struct BaseGrammar {
     elements: Vec<Box<dyn Matchable>>,
     allow_gaps: bool,
@@ -97,7 +97,7 @@ impl Matchable for BaseGrammar {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Hash)]
 pub struct Ref {
     reference: String,
     exclude: Option<Box<dyn Matchable>>,
@@ -229,14 +229,14 @@ impl Matchable for Ref {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 struct Anything {}
 
 impl Segment for Anything {}
 
 impl Matchable for Anything {}
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub struct Nothing {}
 
 impl Nothing {

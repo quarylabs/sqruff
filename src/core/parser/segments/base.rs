@@ -444,6 +444,10 @@ impl CodeSegment {
 }
 
 impl Segment for CodeSegment {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        self.clone().boxed()
+    }
+
     fn class_types(&self) -> HashSet<String> {
         Some(self.get_type().to_owned()).into_iter().collect()
     }
@@ -483,6 +487,14 @@ impl Segment for CodeSegment {
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         vec![self.clone().boxed()]
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
     }
 
     /// Create a new segment, with exactly the same position but different
@@ -593,6 +605,7 @@ impl Segment for CommentSegment {
 pub struct NewlineSegment {
     raw: String,
     position_maker: PositionMarker,
+    uuid: Uuid,
 }
 
 #[derive(Debug, Clone)]
@@ -604,11 +617,27 @@ impl NewlineSegment {
         position_maker: &PositionMarker,
         _args: NewlineSegmentNewArgs,
     ) -> Box<dyn Segment> {
-        Box::new(NewlineSegment { raw: raw.to_string(), position_maker: position_maker.clone() })
+        Box::new(NewlineSegment {
+            raw: raw.to_string(),
+            position_maker: position_maker.clone(),
+            uuid: Uuid::new_v4(),
+        })
     }
 }
 
 impl Segment for NewlineSegment {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        self.clone().boxed()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         Vec::new()
     }
@@ -646,7 +675,7 @@ impl Segment for NewlineSegment {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
+        self.uuid.into()
     }
 
     fn get_raw(&self) -> Option<String> {
@@ -865,8 +894,9 @@ impl Segment for SymbolSegment {
         self.position_maker.clone().into()
     }
 
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        let Some(position_marker) = position_marker else { return };
+        self.position_maker = position_marker;
     }
 
     fn get_uuid(&self) -> Option<Uuid> {

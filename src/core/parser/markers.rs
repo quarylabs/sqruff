@@ -86,6 +86,7 @@ impl PositionMarker {
             templated_files.insert(marker.templated_file);
         }
 
+        // FIXME:
         // if templated_files.len() != 1 {
         //     panic!("Attempted to make a parent marker from multiple files.");
         // }

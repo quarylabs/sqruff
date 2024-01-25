@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{BaseCrawler, SegmentSeekerCrawler};
@@ -49,7 +50,15 @@ impl Rule for RuleCv02 {
         }
 
         // Create fix to replace "IFNULL" or "NVL" with "COALESCE".
-        let fix = LintFix::replace(context.segment.clone(), vec![], None);
+        let fix = LintFix::replace(
+            context.segment.clone(),
+            vec![SymbolSegment::new(
+                "COALESCE",
+                &<_>::default(),
+                SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+            )],
+            None,
+        );
         vec![LintResult::new(
             context.segment.clone().into(),
             vec![fix],
@@ -109,18 +118,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_fail_ifnull() {
         let sql = "SELECT ifnull(foo, 0) AS bar,\nFROM baz;";
         let result = fix(sql.to_string(), vec![RuleCv02::default().erased()]);
-        dbg!(result);
+        assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 
     #[test]
-    #[ignore]
     fn test_fail_nvl() {
         let sql = "SELECT nvl(foo, 0) AS bar,\nFROM baz;";
         let result = fix(sql.to_string(), vec![RuleCv02::default().erased()]);
-        dbg!(result);
+        assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 }

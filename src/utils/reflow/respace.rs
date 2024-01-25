@@ -174,6 +174,14 @@ pub fn handle_respace_inline_without_space(
     mut existing_results: Vec<LintResult>,
     anchor_on: &str,
 ) -> (Vec<Box<dyn Segment>>, Vec<LintResult>, bool) {
+    let constraints = ["touch", "any"];
+
+    if constraints.contains(&pre_constraint.as_str())
+        || constraints.contains(&post_constraint.as_str())
+    {
+        return (segment_buffer, existing_results, false);
+    }
+
     let added_whitespace =
         WhitespaceSegment::new(" ", &PositionMarker::default(), WhitespaceSegmentNewArgs {});
 

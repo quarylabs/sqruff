@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use itertools::Itertools;
+use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
@@ -12,10 +15,12 @@ use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
-    NewlineSegmentNewArgs, Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs,
-    WhitespaceSegment, WhitespaceSegmentNewArgs,
+    apply_fixes, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
+    NewlineSegment, NewlineSegmentNewArgs, Segment, SegmentConstructorFn, SymbolSegment,
+    SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
+use crate::core::parser::segments::common::LiteralSegment;
+use crate::core::parser::segments::fix::AnchorEditInfo;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::parser::types::ParseMode;
@@ -26,6 +31,12 @@ macro_rules! from_segments {
         let mut new_object = $self.clone();
         new_object.segments = $segments;
         new_object.to_matchable()
+    }};
+}
+
+macro_rules! vec_of_erased {
+    ($($elem:expr),*) => {{
+        vec![$(Box::new($elem)),*]
     }};
 }
 
@@ -103,7 +114,7 @@ pub fn ansi_dialect() -> Dialect {
         SymbolSegment::new(
             &segment.get_raw().unwrap(),
             &segment.get_position_marker().unwrap(),
-            SymbolSegmentNewArgs {},
+            SymbolSegmentNewArgs { r#type: "remove me" },
         )
     };
 
@@ -158,7 +169,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "CommaSegment".into(),
-            StringParser::new(",", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ",",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "comma" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "DotSegment".into(),
@@ -404,9 +429,22 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "NumericLiteralSegment".into(),
-            TypedParser::new("numeric_literal", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                "numeric_literal",
+                |seg| {
+                    LiteralSegment {
+                        raw: seg.get_raw().unwrap(),
+                        position_maker: seg.get_position_marker().unwrap(),
+                        uuid: seg.get_uuid().unwrap(),
+                    }
+                    .boxed()
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         // NullSegment is defined separately to the keyword, so we can give it a different
         // type
@@ -429,17 +467,16 @@ pub fn ansi_dialect() -> Dialect {
         // We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
         (
             "SingleIdentifierGrammar".into(),
-            one_of(vec![
-                Ref::new("NakedIdentifierSegment").boxed(),
-                Ref::new("QuotedIdentifierSegment").boxed(),
-                // terminators=[Ref("DotSegment")],
+            one_of(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),
+                Ref::new("QuotedIdentifierSegment") // terminators=[Ref("DotSegment")],
             ])
             .to_matchable()
             .into(),
         ),
         (
             "BooleanLiteralGrammar".into(),
-            one_of(vec![Ref::new("TrueSegment").boxed(), Ref::new("TrueSegment").boxed()])
+            one_of(vec_of_erased![Ref::new("TrueSegment"), Ref::new("TrueSegment")])
                 .to_matchable()
                 .into(),
         ),
@@ -447,24 +484,24 @@ pub fn ansi_dialect() -> Dialect {
         // override this if some dialects have different available operators
         (
             "ArithmeticBinaryOperatorGrammar".into(),
-            one_of(vec![
-                Ref::new("PlusSegment").boxed(),
-                Ref::new("MinusSegment").boxed(),
-                Ref::new("DivideSegment").boxed(),
-                Ref::new("MultiplySegment").boxed(),
-                Ref::new("ModuloSegment").boxed(),
-                Ref::new("BitwiseAndSegment").boxed(),
-                Ref::new("BitwiseOrSegment").boxed(),
-                Ref::new("BitwiseXorSegment").boxed(),
-                Ref::new("BitwiseLShiftSegment").boxed(),
-                Ref::new("BitwiseRShiftSegment").boxed(),
+            one_of(vec_of_erased![
+                Ref::new("PlusSegment"),
+                Ref::new("MinusSegment"),
+                Ref::new("DivideSegment"),
+                Ref::new("MultiplySegment"),
+                Ref::new("ModuloSegment"),
+                Ref::new("BitwiseAndSegment"),
+                Ref::new("BitwiseOrSegment"),
+                Ref::new("BitwiseXorSegment"),
+                Ref::new("BitwiseLShiftSegment"),
+                Ref::new("BitwiseRShiftSegment")
             ])
             .to_matchable()
             .into(),
         ),
         (
             "SignedSegmentGrammar".into(),
-            one_of(vec![Ref::new("PositiveSegment").boxed(), Ref::new("NegativeSegment").boxed()])
+            one_of(vec_of_erased![Ref::new("PositiveSegment"), Ref::new("NegativeSegment")])
                 .to_matchable()
                 .into(),
         ),
@@ -483,27 +520,25 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "ComparisonOperatorGrammar".into(),
-            one_of(vec![
-                Ref::new("EqualsSegment").boxed(),
-                Ref::new("GreaterThanSegment").boxed(),
-                Ref::new("LessThanSegment").boxed(),
-                Ref::new("GreaterThanOrEqualToSegment").boxed(),
-                Ref::new("LessThanOrEqualToSegment").boxed(),
-                Ref::new("NotEqualToSegment").boxed(),
-                Ref::new("LikeOperatorSegment").boxed(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").boxed(),
-                    Ref::keyword("DISTINCT").boxed(),
-                    Ref::keyword("FROM").boxed(),
+            one_of(vec_of_erased![
+                Ref::new("EqualsSegment"),
+                Ref::new("GreaterThanSegment"),
+                Ref::new("LessThanSegment"),
+                Ref::new("GreaterThanOrEqualToSegment"),
+                Ref::new("LessThanOrEqualToSegment"),
+                Ref::new("NotEqualToSegment"),
+                Ref::new("LikeOperatorSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("IS"),
+                    Ref::keyword("DISTINCT"),
+                    Ref::keyword("FROM")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("IS"),
+                    Ref::keyword("NOT"),
+                    Ref::keyword("DISTINCT"),
+                    Ref::keyword("FROM")
                 ])
-                .boxed(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").boxed(),
-                    Ref::keyword("NOT").boxed(),
-                    Ref::keyword("DISTINCT").boxed(),
-                    Ref::keyword("FROM").boxed(),
-                ])
-                .boxed(),
             ])
             .to_matchable()
             .into(),
@@ -514,15 +549,14 @@ pub fn ansi_dialect() -> Dialect {
         // should not be changed by rules (e.g. rule CV10)
         (
             "DateTimeLiteralGrammar".into(),
-            Sequence::new(vec![
-                one_of(vec![
-                    Ref::keyword("DATE").boxed(),
-                    Ref::keyword("TIME").boxed(),
-                    Ref::keyword("TIMESTAMP").boxed(),
-                    Ref::keyword("INTERVAL").boxed(),
-                ])
-                .boxed(),
-                TypedParser::new("single_quote", |_| unimplemented!(), None, false, None).boxed(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DATE"),
+                    Ref::keyword("TIME"),
+                    Ref::keyword("TIMESTAMP"),
+                    Ref::keyword("INTERVAL")
+                ]),
+                TypedParser::new("single_quote", |_| unimplemented!(), None, false, None)
             ])
             .to_matchable()
             .into(),
@@ -537,18 +571,18 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "LiteralGrammar".into(),
-            one_of(vec![
-                Ref::new("QuotedLiteralSegment").boxed(),
-                Ref::new("NumericLiteralSegment").boxed(),
-                Ref::new("BooleanLiteralGrammar").boxed(),
-                Ref::new("QualifiedNumericLiteralSegment").boxed(),
+            one_of(vec_of_erased![
+                Ref::new("QuotedLiteralSegment"),
+                Ref::new("NumericLiteralSegment"),
+                Ref::new("BooleanLiteralGrammar"),
+                Ref::new("QualifiedNumericLiteralSegment"),
                 // NB: Null is included in the literals, because it is a keyword which
                 // can otherwise be easily mistaken for an identifier.
-                Ref::new("NullLiteralSegment").boxed(),
-                Ref::new("DateTimeLiteralGrammar").boxed(),
-                Ref::new("ArrayLiteralSegment").boxed(),
-                Ref::new("TypedArrayLiteralSegment").boxed(),
-                Ref::new("ObjectLiteralSegment").boxed(),
+                Ref::new("NullLiteralSegment"),
+                Ref::new("DateTimeLiteralGrammar"),
+                Ref::new("ArrayLiteralSegment"),
+                Ref::new("TypedArrayLiteralSegment"),
+                Ref::new("ObjectLiteralSegment")
             ])
             .to_matchable()
             .into(),
@@ -572,11 +606,11 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "BinaryOperatorGrammar".into(),
-            one_of(vec![
-                Ref::new("ArithmeticBinaryOperatorGrammar").boxed(),
-                Ref::new("StringBinaryOperatorGrammar").boxed(),
-                Ref::new("BooleanBinaryOperatorGrammar").boxed(),
-                Ref::new("ComparisonOperatorGrammar").boxed(),
+            one_of(vec_of_erased![
+                Ref::new("ArithmeticBinaryOperatorGrammar"),
+                Ref::new("StringBinaryOperatorGrammar"),
+                Ref::new("BooleanBinaryOperatorGrammar"),
+                Ref::new("ComparisonOperatorGrammar")
             ])
             .to_matchable()
             .into(),
@@ -617,29 +651,29 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "IfNotExistsGrammar".into(),
-            Sequence::new(vec![
-                Ref::keyword("IF").boxed(),
-                Ref::keyword("NOT").boxed(),
-                Ref::keyword("EXISTS").boxed(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IF"),
+                Ref::keyword("NOT"),
+                Ref::keyword("EXISTS")
             ])
             .to_matchable()
             .into(),
         ),
         (
             "LikeGrammar".into(),
-            one_of(vec![
-                Ref::keyword("LIKE").boxed(),
-                Ref::keyword("RLIKE").boxed(),
-                Ref::keyword("ILIKE").boxed(),
+            one_of(vec_of_erased![
+                Ref::keyword("LIKE"),
+                Ref::keyword("RLIKE"),
+                Ref::keyword("ILIKE")
             ])
             .to_matchable()
             .into(),
         ),
         (
             "UnionGrammar".into(),
-            Sequence::new(vec![
-                Ref::keyword("UNION").boxed(),
-                one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()]).boxed(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("UNION"),
+                one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()])
             ])
             .to_matchable()
             .into(),
@@ -687,8 +721,8 @@ pub fn ansi_dialect() -> Dialect {
                 Ref::keyword("QUALIFY").boxed(),
                 Ref::keyword("WINDOW").boxed(),
                 Ref::new("SetOperatorSegment").boxed(),
-                Ref::new("WithNoSchemaBindingClauseSegment").boxed(),
-                Ref::new("WithDataClauseSegment").boxed(),
+                // Ref::new("WithNoSchemaBindingClauseSegment").boxed(),
+                // Ref::new("WithDataClauseSegment").boxed(),
                 Ref::keyword("FETCH").boxed(),
             ])
             .to_matchable()
@@ -1537,35 +1571,61 @@ pub fn ansi_dialect() -> Dialect {
 
     #[rustfmt::skip]
     add_segments!(
-        ansi_dialect, ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, 
-        LessThanSegment, GreaterThanOrEqualToSegment, LessThanOrEqualToSegment, NotEqualToSegment, 
-        BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment, 
-        BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment, 
-        ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments, 
-        FromExpressionElementSegment, TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar, 
-        SetOperatorSegment, WhereClauseSegment, ElseClauseSegment, IntervalExpressionSegment, 
-        QualifiedNumericLiteralSegment, FunctionSegment, FunctionNameSegment, TypedArrayLiteralSegment, 
-        StatementSegment, SelectClauseSegment, SetExpressionSegment, UnorderedSelectStatementSegment, 
-        FromClauseSegment, SelectStatementSegment, SelectClauseModifierSegment, SelectClauseElementSegment, 
-        WildcardExpressionSegment, WildcardIdentifierSegment, OrderByClauseSegment, TruncateStatementSegment, 
-        ExpressionSegment, ShorthandCastSegment, DatatypeSegment, AliasExpressionSegment, 
+        ansi_dialect, JoinOnConditionSegment, JoinClauseSegment, TableExpressionSegment, ConcatSegment, EmptyStructLiteralSegment,
+        ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment, LessThanOrEqualToSegment, NotEqualToSegment,
+        BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment,
+        BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment,
+        ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments,
+        FromExpressionElementSegment, TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar,
+        SetOperatorSegment, WhereClauseSegment, ElseClauseSegment, IntervalExpressionSegment,
+        QualifiedNumericLiteralSegment, FunctionSegment, FunctionNameSegment, TypedArrayLiteralSegment,
+        FromClauseSegment, SelectStatementSegment, SelectClauseModifierSegment, WildcardExpressionSegment,
+        WildcardIdentifierSegment, OrderByClauseSegment, TruncateStatementSegment,
+        ExpressionSegment, ShorthandCastSegment, DatatypeSegment, AliasExpressionSegment,
         FromExpressionSegment, // ColumnReferenceSegment,
-        ObjectReferenceSegment, ObjectLiteralSegment, ArrayExpressionSegment, LocalAliasSegment, 
-        MergeStatementSegment, InsertStatementSegment, TransactionStatementSegment, DropTableStatementSegment, 
-        DropViewStatementSegment, CreateUserStatementSegment, DropUserStatementSegment, AccessStatementSegment, 
-        CreateTableStatementSegment, CreateRoleStatementSegment, DropRoleStatementSegment, AlterTableStatementSegment, 
-        CreateSchemaStatementSegment, SetSchemaStatementSegment, DropSchemaStatementSegment, DropTypeStatementSegment, 
-        CreateDatabaseStatementSegment, DropDatabaseStatementSegment, CreateIndexStatementSegment, 
-        DropIndexStatementSegment, CreateViewStatementSegment, DeleteStatementSegment, UpdateStatementSegment, 
-        CreateCastStatementSegment, DropCastStatementSegment, CreateFunctionStatementSegment, DropFunctionStatementSegment, 
+        ObjectReferenceSegment, ObjectLiteralSegment, ArrayExpressionSegment, LocalAliasSegment,
+        MergeStatementSegment, InsertStatementSegment, TransactionStatementSegment, DropTableStatementSegment,
+        DropViewStatementSegment, CreateUserStatementSegment, DropUserStatementSegment, AccessStatementSegment,
+        CreateTableStatementSegment, CreateRoleStatementSegment, DropRoleStatementSegment, AlterTableStatementSegment,
+        CreateSchemaStatementSegment, SetSchemaStatementSegment, DropSchemaStatementSegment, DropTypeStatementSegment,
+        CreateDatabaseStatementSegment, DropDatabaseStatementSegment, CreateIndexStatementSegment,
+        DropIndexStatementSegment, CreateViewStatementSegment, DeleteStatementSegment, UpdateStatementSegment,
+        CreateCastStatementSegment, DropCastStatementSegment, CreateFunctionStatementSegment, DropFunctionStatementSegment,
         CreateModelStatementSegment, DropModelStatementSegment, DescribeStatementSegment, UseStatementSegment, ExplainStatementSegment,
         CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment, CreateTriggerStatementSegment, DropTriggerStatementSegment
     );
 
-    ansi_dialect.add([(
-        "ColumnReferenceSegment".into(),
-        Ref::new("ObjectReferenceSegment").to_matchable().into(),
-    )]);
+    ansi_dialect.add([
+        ("ColumnReferenceSegment".into(), Ref::new("ObjectReferenceSegment").to_matchable().into()),
+        (
+            "StatementSegment".into(),
+            StatementSegment { uuid: Uuid::new_v4(), segments: Vec::new() }.to_matchable().into(),
+        ),
+        (
+            "SetExpressionSegment".into(),
+            SetExpressionSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "UnorderedSelectStatementSegment".into(),
+            UnorderedSelectStatementSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "SelectClauseSegment".into(),
+            SelectClauseSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "SelectClauseElementSegment".into(),
+            SelectClauseElementSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
+                .to_matchable()
+                .into(),
+        ),
+    ]);
 
     ansi_dialect.expand();
     ansi_dialect
@@ -2116,7 +2176,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
 /// This is also the default "root" segment of the dialect,
 /// and so is usually instantiated directly. It therefore
 /// has no match_grammar.
-#[derive(Default, Debug, Clone, PartialEq)]
+#[derive(Hash, Default, Debug, Clone, PartialEq)]
 pub struct FileSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2156,13 +2216,17 @@ impl FileSegment {
 
         if !match_result.has_match() {
             unimplemented!()
-        } else {
-            unreachable!()
         };
+
+        Ok(Self { segments: match_result.matched_segments }.boxed())
     }
 }
 
 impl Segment for FileSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        FileSegment { segments }.to_matchable()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Delimited::new(vec![Ref::new("StatementSegment").boxed()])
             .config(|this| {
@@ -2179,10 +2243,28 @@ impl Segment for FileSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn class_types(&self) -> std::collections::HashSet<String> {
+        ["file"].map(ToOwned::to_owned).into_iter().collect()
+    }
+}
+
+impl Matchable for FileSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
 }
 
 /// An interval expression segment.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct IntervalExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2223,7 +2305,7 @@ impl Matchable for IntervalExpressionSegment {
 
 /// Prefix for array literals specifying the type.
 /// Often "ARRAY" or "ARRAY<type>"
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayTypeSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2245,7 +2327,7 @@ impl Matchable for ArrayTypeSegment {
 }
 
 /// Array type with a size.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SizedArrayTypeSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2271,12 +2353,17 @@ impl Matchable for SizedArrayTypeSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct UnorderedSelectStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for UnorderedSelectStatementSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             Ref::new("SelectClauseSegment").boxed(),
@@ -2290,6 +2377,22 @@ impl Segment for UnorderedSelectStatementSegment {
         .to_matchable()
         .into()
     }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for UnorderedSelectStatementSegment {
@@ -2298,12 +2401,17 @@ impl Matchable for UnorderedSelectStatementSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SelectClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SelectClauseSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             Ref::keyword("SELECT").boxed(),
@@ -2323,6 +2431,22 @@ impl Segment for SelectClauseSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn class_types(&self) -> std::collections::HashSet<String> {
+        ["select_clause"].map(ToOwned::to_owned).into_iter().collect()
+    }
 }
 
 impl Matchable for SelectClauseSegment {
@@ -2332,12 +2456,17 @@ impl Matchable for SelectClauseSegment {
 }
 
 /// Represents a generic segment, to any of its child subsegments.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct StatementSegment {
+    uuid: Uuid,
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for StatementSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { uuid: self.uuid, segments }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         one_of(vec![
             Ref::new("SelectableGrammar").boxed(),
@@ -2388,6 +2517,22 @@ impl Segment for StatementSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn class_types(&self) -> std::collections::HashSet<String> {
+        ["statement"].map(ToOwned::to_owned).into_iter().collect()
+    }
 }
 
 impl Matchable for StatementSegment {
@@ -2396,14 +2541,35 @@ impl Matchable for StatementSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SetExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SetExpressionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![Ref::new("NonSetSelectableGrammar").boxed()]).to_matchable().into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 }
 
@@ -2413,16 +2579,19 @@ impl Matchable for SetExpressionSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FromClauseSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for FromClauseSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![Ref::keyword("FROM").boxed(), Ref::new("FromExpressionSegment").boxed()])
-            .to_matchable()
-            .into()
+        Sequence::new(vec![
+            Ref::keyword("FROM").boxed(),
+            Delimited::new(vec![Ref::new("FromExpressionSegment").boxed()]).boxed(),
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -2436,14 +2605,14 @@ impl Matchable for FromClauseSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SelectStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for SelectStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        UnorderedSelectStatementSegment { segments: Vec::new() }
+        UnorderedSelectStatementSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
             .match_grammar()
             .unwrap()
             .copy(
@@ -2465,7 +2634,7 @@ impl Matchable for SelectStatementSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SelectClauseModifierSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2484,12 +2653,17 @@ impl Matchable for SelectClauseModifierSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SelectClauseElementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SelectClauseElementSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
@@ -2507,6 +2681,18 @@ impl Segment for SelectClauseElementSegment {
         .to_matchable()
         .into()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for SelectClauseElementSegment {
@@ -2519,7 +2705,7 @@ impl Matchable for SelectClauseElementSegment {
 /// This is separate from the identifier to allow for
 /// some dialects which extend this logic to allow
 /// REPLACE, EXCEPT or similar clauses e.g. BigQuery.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct WildcardExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2548,7 +2734,7 @@ impl Matchable for WildcardExpressionSegment {
 /// Any identifier of the form a.b.*.
 /// This inherits iter_raw_references from the
 /// ObjectReferenceSegment.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct WildcardIdentifierSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2582,7 +2768,7 @@ impl Matchable for WildcardIdentifierSegment {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct OrderByClauseSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2612,7 +2798,7 @@ impl Matchable for OrderByClauseSegment {
 }
 
 /// `TRUNCATE TABLE` statement.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct TruncateStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2649,7 +2835,7 @@ impl Matchable for TruncateStatementSegment {
 /// level. Trying to bound the ExpressionSegment itself
 /// has been too unstable and not resilient enough to
 /// other bugs.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct ExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2670,7 +2856,7 @@ impl Matchable for ExpressionSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FromExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2680,6 +2866,18 @@ impl Segment for FromExpressionSegment {
         optionally_bracketed(vec![
             Sequence::new(vec![
                 one_of(vec![Ref::new("FromExpressionElementSegment").boxed()]).boxed(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::new("JoinClauseSegment").boxed(),
+                            Ref::new("JoinLikeClauseGrammar").boxed(),
+                        ])
+                        .config(|this| this.optional())
+                        .boxed(),
+                    ])
+                    .boxed(),
+                ])
+                .boxed(),
             ])
             .boxed(),
         ])
@@ -2698,14 +2896,22 @@ impl Matchable for FromExpressionSegment {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Hash, Clone, PartialEq, Debug)]
 pub struct FromExpressionElementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for FromExpressionElementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![Ref::new("AliasExpressionSegment").boxed()]).to_matchable().into()
+        Sequence::new(vec![
+            optionally_bracketed(vec![Ref::new("TableExpressionSegment").boxed()]).boxed(),
+            Ref::new("AliasExpressionSegment")
+                .exclude(one_of(vec![Ref::new("FromClauseTerminatorGrammar").boxed()]))
+                .optional()
+                .boxed(),
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -2719,7 +2925,7 @@ impl Matchable for FromExpressionElementSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ObjectReferenceSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2744,7 +2950,7 @@ impl Matchable for ObjectReferenceSegment {
 }
 
 /// An array accessor e.g. [3:4].
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayAccessorSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2783,7 +2989,7 @@ impl Matchable for ArrayAccessorSegment {
 /// Represents an array literal segment.
 ///
 /// An unqualified array literal, e.g. [1, 2, 3]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2818,7 +3024,7 @@ impl Matchable for ArrayLiteralSegment {
 }
 
 /// Represents a typed array literal segment.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TypedArrayLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2845,7 +3051,7 @@ impl Matchable for TypedArrayLiteralSegment {
 }
 
 /// Represents a struct type segment (used in some SQL dialects like BigQuery).
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct StructTypeSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2868,7 +3074,7 @@ impl Matchable for StructTypeSegment {
 
 /// Represents a struct literal segment.
 /// Example: (1, 2 as foo, 3)
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct StructLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2894,7 +3100,7 @@ impl Segment for StructLiteralSegment {
     }
 }
 /// Represents a typed struct literal segment.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TypedStructLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2923,7 +3129,7 @@ impl Matchable for TypedStructLiteralSegment {
 /// Represents an empty struct literal segment - `()`.
 /// NOTE: This is only to set the right type so spacing rules are applied
 /// correctly.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct EmptyStructLiteralBracketsSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2939,7 +3145,7 @@ impl Segment for EmptyStructLiteralBracketsSegment {
 }
 
 /// Represents an empty array literal segment - `STRUCT()`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct EmptyStructLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2966,7 +3172,7 @@ impl Matchable for EmptyStructLiteralSegment {
 }
 
 /// Represents an object literal segment.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ObjectLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -2999,7 +3205,7 @@ impl Matchable for ObjectLiteralSegment {
 }
 
 /// Represents an object literal element segment.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ObjectLiteralElementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3021,7 +3227,7 @@ impl Segment for ObjectLiteralElementSegment {
 }
 
 /// Represents a time zone grammar segment.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TimeZoneGrammar {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3053,7 +3259,7 @@ impl Matchable for TimeZoneGrammar {
 }
 
 /// Represents a series of bracketed arguments.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BracketedArguments {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3083,7 +3289,7 @@ impl Matchable for BracketedArguments {
 }
 
 /// Represents a data type segment.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DatatypeSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3171,7 +3377,7 @@ impl Matchable for DatatypeSegment {
 
 /// A reference to an object with an `AS` clause.
 /// The optional AS keyword allows both implicit and explicit aliasing.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AliasExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3199,7 +3405,7 @@ impl Matchable for AliasExpressionSegment {
 }
 
 /// A casting operation using '::'.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ShorthandCastSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3238,7 +3444,7 @@ impl Matchable for ShorthandCastSegment {
 /// literal and a plus/minus sign. We do it this way rather
 /// than at the lexing step because the lexer doesn't deal
 /// well with ambiguity.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct QualifiedNumericLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3266,7 +3472,7 @@ impl Matchable for QualifiedNumericLiteralSegment {
 
 /// Represents an order by clause for an aggregate function.
 /// Defined as a class to allow a specific type for rule AM06.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AggregateOrderByClause {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3287,7 +3493,7 @@ impl Matchable for AggregateOrderByClause {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FunctionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3320,7 +3526,7 @@ impl Matchable for FunctionSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FunctionNameSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3344,7 +3550,7 @@ impl Matchable for FunctionNameSegment {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct CaseExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3376,7 +3582,7 @@ impl Matchable for CaseExpressionSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct WhenClauseSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3404,7 +3610,7 @@ impl Matchable for WhenClauseSegment {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Hash, Debug, PartialEq, Clone)]
 pub struct ElseClauseSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3428,7 +3634,7 @@ impl Matchable for ElseClauseSegment {
 }
 
 /// A `WHERE` clause like in `SELECT` or `INSERT`.
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Hash, PartialEq, Clone, Debug)]
 pub struct WhereClauseSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3461,7 +3667,7 @@ impl Matchable for WhereClauseSegment {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Hash, Clone, PartialEq, Debug)]
 pub struct SetOperatorSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3494,7 +3700,7 @@ impl Matchable for SetOperatorSegment {
 }
 
 /// Represents a `VALUES` clause like in `INSERT`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ValuesClauseSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3537,7 +3743,7 @@ impl Matchable for ValuesClauseSegment {
 }
 
 /// Represents a column definition for CREATE INDEX.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct IndexColumnDefinitionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3566,7 +3772,7 @@ impl Matchable for IndexColumnDefinitionSegment {
 }
 
 /// Represents a bitwise and operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseAndSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3588,7 +3794,7 @@ impl Matchable for BitwiseAndSegment {
 }
 
 /// Represents a bitwise or operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseOrSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3610,7 +3816,7 @@ impl Matchable for BitwiseOrSegment {
 }
 
 /// Represents a bitwise left-shift operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseLShiftSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3638,7 +3844,7 @@ impl Matchable for BitwiseLShiftSegment {
 }
 
 /// Represents a bitwise right-shift operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseRShiftSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3665,7 +3871,7 @@ impl Matchable for BitwiseRShiftSegment {
     }
 }
 /// Represents a less than operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LessThanSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3677,7 +3883,7 @@ impl Segment for LessThanSegment {
 }
 
 /// Represents a greater than or equal to operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct GreaterThanOrEqualToSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3695,7 +3901,7 @@ impl Segment for GreaterThanOrEqualToSegment {
 }
 
 /// Represents a less than or equal to operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LessThanOrEqualToSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3713,7 +3919,7 @@ impl Segment for LessThanOrEqualToSegment {
 }
 
 /// Represents a not equal to operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct NotEqualToSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3740,7 +3946,7 @@ impl Segment for NotEqualToSegment {
 }
 
 /// Represents a concat operator.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ConcatSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3787,7 +3993,7 @@ impl Matchable for ConcatSegment {
 /// Represents an expression to construct an ARRAY from a subquery.
 /// This differs from an array literal in that it takes the form of an
 /// expression.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3810,7 +4016,7 @@ impl Matchable for ArrayExpressionSegment {
 
 /// Represents the `LOCAL.ALIAS` syntax, which allows using an alias name of a
 /// column within clauses. A hookpoint for other dialects, e.g., Exasol.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LocalAliasSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3832,7 +4038,7 @@ impl Matchable for LocalAliasSegment {
 }
 
 /// Represents a `MERGE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct MergeStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -3882,37 +4088,34 @@ impl Matchable for MergeStatementSegment {
 }
 
 /// An `INSERT` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct InsertStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for InsertStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Some(
-            Sequence::new(vec![
-                Ref::keyword("INSERT").boxed(),
-                // Maybe OVERWRITE is just snowflake?
-                // (It's also Hive but that has full insert grammar implementation)
-                Ref::keyword("OVERWRITE").optional().boxed(),
-                Ref::keyword("INTO").boxed(),
-                Ref::new("TableReferenceSegment").boxed(),
-                one_of(vec![
-                    // As SelectableGrammar can be bracketed too, the parse gets confused,
-                    // so we need slightly odd syntax here to allow those to parse (rather
-                    // than just add optional=True to BracketedColumnReferenceListGrammar).
-                    Ref::new("SelectableGrammar").boxed(),
-                    Sequence::new(vec![
-                        Ref::new("BracketedColumnReferenceListGrammar").boxed(),
-                        Ref::new("SelectableGrammar").boxed(),
-                    ])
-                    .boxed(),
-                    Ref::new("DefaultValuesGrammar").boxed(),
-                ])
-                .boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("INSERT"),
+            // Maybe OVERWRITE is just snowflake?
+            // (It's also Hive but that has full insert grammar implementation)
+            Ref::keyword("OVERWRITE").optional(),
+            Ref::keyword("INTO"),
+            Ref::new("TableReferenceSegment"),
+            one_of(vec_of_erased![
+                // As SelectableGrammar can be bracketed too, the parse gets confused,
+                // so we need slightly odd syntax here to allow those to parse (rather
+                // than just add optional=True to BracketedColumnReferenceListGrammar).
+                Ref::new("SelectableGrammar"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("BracketedColumnReferenceListGrammar"),
+                    Ref::new("SelectableGrammar")
+                ]),
+                Ref::new("DefaultValuesGrammar")
             ])
-            .to_matchable(),
-        )
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -3927,38 +4130,34 @@ impl Matchable for InsertStatementSegment {
 }
 
 /// Represents a `COMMIT`, `ROLLBACK`, or `TRANSACTION` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TransactionStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for TransactionStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![
-            one_of(vec![
-                Ref::keyword("START").boxed(),
-                Ref::keyword("BEGIN").boxed(),
-                Ref::keyword("COMMIT").boxed(),
-                Ref::keyword("ROLLBACK").boxed(),
-                Ref::keyword("END").boxed(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::keyword("START"),
+                Ref::keyword("BEGIN"),
+                Ref::keyword("COMMIT"),
+                Ref::keyword("ROLLBACK"),
+                Ref::keyword("END")
+            ]),
+            one_of(vec_of_erased![Ref::keyword("TRANSACTION"), Ref::keyword("WORK")])
+                .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NAME"),
+                Ref::new("SingleIdentifierGrammar")
             ])
-            .boxed(),
-            one_of(vec![Ref::keyword("TRANSACTION").boxed(), Ref::keyword("WORK").boxed()])
-                .config(|this| this.optional())
-                .boxed(),
-            Sequence::new(vec![
-                Ref::keyword("NAME").boxed(),
-                Ref::new("SingleIdentifierGrammar").boxed(),
-            ])
-            .config(|this| this.optional())
-            .boxed(),
-            Sequence::new(vec![
-                Ref::keyword("AND").boxed(),
-                Ref::keyword("NO").optional().boxed(),
-                Ref::keyword("CHAIN").boxed(),
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("AND"),
+                Ref::keyword("NO").optional(),
+                Ref::keyword("CHAIN")
             ])
             .config(|this| this.optional())
-            .boxed(),
         ])
         .to_matchable()
         .into()
@@ -3976,24 +4175,23 @@ impl Matchable for TransactionStatementSegment {
 }
 
 /// Represents a `DROP TABLE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropTableStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for DropTableStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Some(
-            Sequence::new(vec![
-                Ref::keyword("DROP").boxed(),
-                Ref::new("TemporaryGrammar").optional().boxed(),
-                Ref::keyword("TABLE").boxed(),
-                Ref::new("IfExistsGrammar").optional().boxed(),
-                Delimited::new(vec![Ref::new("TableReferenceSegment").boxed()]).boxed(),
-                Ref::new("DropBehaviorGrammar").optional().boxed(),
-            ])
-            .to_matchable(),
-        )
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::new("TemporaryGrammar").optional(),
+            Ref::keyword("TABLE"),
+            Ref::new("IfExistsGrammar").optional(),
+            Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")]),
+            Ref::new("DropBehaviorGrammar").optional()
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -4008,23 +4206,22 @@ impl Matchable for DropTableStatementSegment {
 }
 
 /// Represents a `DROP VIEW` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropViewStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for DropViewStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Some(
-            Sequence::new(vec![
-                Ref::keyword("DROP").boxed(),
-                Ref::keyword("VIEW").boxed(),
-                Ref::new("IfExistsGrammar").optional().boxed(),
-                Ref::new("TableReferenceSegment").boxed(),
-                Ref::new("DropBehaviorGrammar").optional().boxed(),
-            ])
-            .to_matchable(),
-        )
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("VIEW"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("DropBehaviorGrammar").optional()
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -4040,7 +4237,7 @@ impl Matchable for DropViewStatementSegment {
 
 /// Represents a `CREATE USER` statement.
 /// A very simple create user syntax which can be extended by other dialects.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateUserStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4048,10 +4245,10 @@ pub struct CreateUserStatementSegment {
 impl Segment for CreateUserStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Some(
-            Sequence::new(vec![
-                Ref::keyword("CREATE").boxed(),
-                Ref::keyword("USER").boxed(),
-                Ref::new("RoleReferenceSegment").boxed(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::keyword("USER"),
+                Ref::new("RoleReferenceSegment")
             ])
             .to_matchable(),
         )
@@ -4069,18 +4266,18 @@ impl Matchable for CreateUserStatementSegment {
 }
 
 /// Represents a `DROP USER` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropUserStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for DropUserStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![
-            Ref::keyword("DROP").boxed(),
-            Ref::keyword("USER").boxed(),
-            Ref::new("IfExistsGrammar").optional().boxed(),
-            Ref::new("RoleReferenceSegment").boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("USER"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("RoleReferenceSegment")
         ])
         .to_matchable()
         .into()
@@ -4098,32 +4295,19 @@ impl Matchable for DropUserStatementSegment {
 }
 
 /// Represents a `GRANT` or `REVOKE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AccessStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for AccessStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        // Simplified implementation. Add the full implementation based on the grammar
-        // definition.
-        Some(
-            one_of(vec![
-                Sequence::new(vec![
-                    Ref::keyword("GRANT").boxed(),
-                    // Include additional sequences and Refs as per the full grammar definition.
-                    // ...
-                ])
-                .boxed(),
-                Sequence::new(vec![
-                    Ref::keyword("REVOKE").boxed(),
-                    // Include additional sequences and Refs as per the full grammar definition.
-                    // ...
-                ])
-                .boxed(),
-            ])
-            .to_matchable(),
-        )
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![Ref::keyword("GRANT")]),
+            Sequence::new(vec_of_erased![Ref::keyword("REVOKE")])
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -4138,53 +4322,43 @@ impl Matchable for AccessStatementSegment {
 }
 
 /// Represents a `CREATE TABLE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateTableStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for CreateTableStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Some(
-            Sequence::new(vec![
-                Ref::keyword("CREATE").boxed(),
-                Ref::new("OrReplaceGrammar").optional().boxed(),
-                Ref::new("TemporaryTransientGrammar").optional().boxed(),
-                Ref::keyword("TABLE").boxed(),
-                Ref::new("IfNotExistsGrammar").optional().boxed(),
-                Ref::new("TableReferenceSegment").boxed(),
-                one_of(vec![
-                    Sequence::new(vec![
-                        Bracketed::new(vec![
-                            Delimited::new(vec![
-                                one_of(vec![
-                                    Ref::new("TableConstraintSegment").boxed(),
-                                    Ref::new("ColumnDefinitionSegment").boxed(),
-                                ])
-                                .boxed(),
-                            ])
-                            .boxed(),
-                        ])
-                        .boxed(),
-                        Ref::new("CommentClauseSegment").optional().boxed(),
-                    ])
-                    .boxed(),
-                    Sequence::new(vec![
-                        Ref::keyword("AS").boxed(),
-                        optionally_bracketed(vec![Ref::new("SelectableGrammar").boxed()]).boxed(),
-                    ])
-                    .boxed(),
-                    Sequence::new(vec![
-                        Ref::keyword("LIKE").boxed(),
-                        Ref::new("TableReferenceSegment").boxed(),
-                    ])
-                    .boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("OrReplaceGrammar").optional(),
+            Ref::new("TemporaryTransientGrammar").optional(),
+            Ref::keyword("TABLE"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            Ref::new("TableConstraintSegment"),
+                            Ref::new("ColumnDefinitionSegment")
+                        ]
+                    )])]),
+                    Ref::new("CommentClauseSegment").optional()
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS"),
+                    optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LIKE"),
+                    Ref::new("TableReferenceSegment")
                 ])
-                .boxed(),
-                Ref::new("TableEndClauseSegment").optional().boxed(),
-            ])
-            .to_matchable(),
-        )
+            ]),
+            Ref::new("TableEndClauseSegment").optional()
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -4200,7 +4374,7 @@ impl Matchable for CreateTableStatementSegment {
 
 /// Represents a `CREATE ROLE` statement.
 /// A very simple create role syntax which can be extended by other dialects.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateRoleStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4229,22 +4403,21 @@ impl Matchable for CreateRoleStatementSegment {
 }
 
 /// Represents a `DROP ROLE` statement with CASCADE option.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropRoleStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for DropRoleStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Some(
-            Sequence::new(vec![
-                Ref::keyword("DROP").boxed(),
-                Ref::keyword("ROLE").boxed(),
-                Ref::new("IfExistsGrammar").optional().boxed(),
-                Ref::new("SingleIdentifierGrammar").boxed(),
-            ])
-            .to_matchable(),
-        )
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("ROLE"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("SingleIdentifierGrammar")
+        ])
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -4261,7 +4434,7 @@ impl Matchable for DropRoleStatementSegment {
 /// Represents an `ALTER TABLE` statement.
 /// Based loosely on MySQL's ALTER TABLE syntax.
 /// TODO: Flesh this out with more detail.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AlterTableStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4291,7 +4464,7 @@ impl Matchable for AlterTableStatementSegment {
 }
 
 /// Represents a `CREATE SCHEMA` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateSchemaStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4320,7 +4493,7 @@ impl Matchable for CreateSchemaStatementSegment {
 }
 
 /// Represents a `SET SCHEMA` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SetSchemaStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4349,7 +4522,7 @@ impl Matchable for SetSchemaStatementSegment {
 }
 
 /// Represents a `DROP SCHEMA` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropSchemaStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4379,7 +4552,7 @@ impl Matchable for DropSchemaStatementSegment {
 }
 
 /// Represents a `DROP TYPE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropTypeStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4409,7 +4582,7 @@ impl Matchable for DropTypeStatementSegment {
 }
 
 /// Represents a `CREATE DATABASE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateDatabaseStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4438,7 +4611,7 @@ impl Matchable for CreateDatabaseStatementSegment {
 }
 
 /// Represents a `DROP DATABASE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropDatabaseStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4468,7 +4641,7 @@ impl Matchable for DropDatabaseStatementSegment {
 }
 
 /// Represents a `CREATE INDEX` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateIndexStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4508,7 +4681,7 @@ impl Matchable for CreateIndexStatementSegment {
 }
 
 /// Represents a `DROP INDEX` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropIndexStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4538,23 +4711,23 @@ impl Matchable for DropIndexStatementSegment {
 }
 
 /// Represents a `CREATE VIEW` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateViewStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for CreateViewStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![
-            Ref::keyword("CREATE").boxed(),
-            Ref::new("OrReplaceGrammar").optional().boxed(),
-            Ref::keyword("VIEW").boxed(),
-            Ref::new("IfNotExistsGrammar").optional().boxed(),
-            Ref::new("TableReferenceSegment").boxed(),
-            Ref::new("BracketedColumnReferenceListGrammar").optional().boxed(),
-            Ref::keyword("AS").boxed(),
-            optionally_bracketed(vec![Ref::new("SelectableGrammar").boxed()]).boxed(),
-            Ref::new("WithNoSchemaBindingClauseSegment").optional().boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("OrReplaceGrammar").optional(),
+            Ref::keyword("VIEW"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("BracketedColumnReferenceListGrammar").optional(),
+            Ref::keyword("AS"),
+            optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+            // Ref::new("WithNoSchemaBindingClauseSegment").optional().boxed(),
         ])
         .to_matchable()
         .into()
@@ -4573,17 +4746,17 @@ impl Matchable for CreateViewStatementSegment {
 
 /// Represents a `DELETE` statement.
 /// DELETE FROM <table name> [ WHERE <search condition> ]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DeleteStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
 
 impl Segment for DeleteStatementSegment {
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![
-            Ref::keyword("DELETE").boxed(),
-            Ref::new("FromClauseSegment").boxed(),
-            Ref::new("WhereClauseSegment").optional().boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DELETE"),
+            Ref::new("FromClauseSegment"),
+            Ref::new("WhereClauseSegment").optional()
         ])
         .to_matchable()
         .into()
@@ -4602,7 +4775,7 @@ impl Matchable for DeleteStatementSegment {
 
 /// Represents an `Update` statement.
 /// UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct UpdateStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4634,7 +4807,7 @@ impl Matchable for UpdateStatementSegment {
 
 /// Represents a `CREATE CAST` statement.
 /// Reference: https://jakewheat.github.io/sql-overview/sql-2016-foundation-grammar.html#_11_63_user_defined_cast_definition
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateCastStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4697,7 +4870,7 @@ impl Matchable for CreateCastStatementSegment {
 
 /// Represents a `DROP CAST` statement.
 /// Reference: https://jakewheat.github.io/sql-overview/sql-2016-foundation-grammar.html#_11_64_drop_user_defined_cast_statement
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropCastStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4737,7 +4910,7 @@ impl Matchable for DropCastStatementSegment {
 /// - PostgreSQL: https://www.postgresql.org/docs/9.1/sql-createfunction.html
 /// - Snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
 /// - BigQuery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateFunctionStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4776,7 +4949,7 @@ impl Matchable for CreateFunctionStatementSegment {
 }
 
 /// Represents a `DROP FUNCTION` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropFunctionStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4806,7 +4979,7 @@ impl Matchable for DropFunctionStatementSegment {
 
 /// Represents a BigQuery `CREATE MODEL` statement.
 /// Reference: https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-create
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateModelStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4868,7 +5041,7 @@ impl Matchable for CreateModelStatementSegment {
 
 /// Represents a `DROP MODEL` statement.
 /// Reference: https://cloud.google.com/bigquery-ml/docs/reference/standard-sql/bigqueryml-syntax-drop-model
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropModelStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4898,7 +5071,7 @@ impl Matchable for DropModelStatementSegment {
 
 /// Represents a `Describe` statement.
 /// DESCRIBE <object type> <object name>
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DescribeStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4926,7 +5099,7 @@ impl Matchable for DescribeStatementSegment {
 }
 
 /// Represents a `USE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct UseStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4954,7 +5127,7 @@ impl Matchable for UseStatementSegment {
 
 /// Represents an `Explain` statement.
 /// EXPLAIN explainable_stmt
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ExplainStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -4987,7 +5160,7 @@ impl Matchable for ExplainStatementSegment {
 }
 
 /// Represents a `CREATE SEQUENCE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateSequenceStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -5018,7 +5191,7 @@ impl Matchable for CreateSequenceStatementSegment {
 }
 
 /// Represents an `ALTER SEQUENCE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AlterSequenceStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -5047,7 +5220,7 @@ impl Matchable for AlterSequenceStatementSegment {
 }
 
 /// Represents a `DROP SEQUENCE` statement.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropSequenceStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -5076,7 +5249,7 @@ impl Matchable for DropSequenceStatementSegment {
 
 /// Represents a `CREATE TRIGGER` statement.
 /// Reference: https://www.postgresql.org/docs/14/sql-createtrigger.html
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateTriggerStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -5145,7 +5318,7 @@ impl Matchable for CreateTriggerStatementSegment {
 
 /// Represents a `DROP TRIGGER` statement.
 /// Reference: https://www.postgresql.org/docs/14/sql-droptrigger.html
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropTriggerStatementSegment {
     segments: Vec<Box<dyn Segment>>,
 }
@@ -5168,6 +5341,95 @@ impl Segment for DropTriggerStatementSegment {
 }
 
 impl Matchable for DropTriggerStatementSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Hash, Debug, Clone, PartialEq)]
+pub struct TableExpressionSegment {
+    segments: Vec<Box<dyn Segment>>,
+}
+
+impl Segment for TableExpressionSegment {
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        one_of(vec![
+            Ref::new("ValuesClauseSegment").boxed(),
+            Ref::new("BareFunctionSegment").boxed(),
+            Ref::new("FunctionSegment").boxed(),
+            Ref::new("TableReferenceSegment").boxed(),
+            // Nested Selects
+            Bracketed::new(vec![Ref::new("SelectableGrammar").boxed()]).boxed(),
+            Bracketed::new(vec![Ref::new("MergeStatementSegment").boxed()]).boxed(),
+        ])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+}
+
+impl Matchable for TableExpressionSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Hash, Debug, Clone, PartialEq)]
+pub struct JoinClauseSegment {
+    segments: Vec<Box<dyn Segment>>,
+}
+
+impl Segment for JoinClauseSegment {
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        one_of(vec_of_erased![Sequence::new(vec_of_erased![
+            Ref::new("JoinTypeKeywordsGrammar").optional(),
+            Ref::new("JoinKeywordsGrammar"),
+            Ref::new("FromExpressionElementSegment"),
+            AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+            Sequence::new(vec_of_erased![one_of(vec_of_erased![Ref::new(
+                "JoinOnConditionSegment"
+            )])])
+            .config(|this| this.optional())
+        ])])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+}
+
+impl Matchable for JoinClauseSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct JoinOnConditionSegment {
+    segments: Vec<Box<dyn Segment>>,
+}
+
+impl Segment for JoinOnConditionSegment {
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ON"),
+            optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")])
+        ])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+}
+
+impl Matchable for JoinOnConditionSegment {
     fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
         from_segments!(self, segments)
     }
@@ -5261,6 +5523,7 @@ mod tests {
             ),
             // Dense math expressions
             ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
+            ("SelectStatementSegment", "SELECT foo FROM bar INNER JOIN baz"),
             ("SelectClauseElementSegment", "t.val/t.id"),
             // Issue with casting raise as part of PR #177
             ("SelectClauseElementSegment", "CAST(num AS INT64)"),
@@ -5368,7 +5631,7 @@ mod tests {
         let parsed = lnt.parse_string(file_content, None, None, None, None).unwrap();
 
         #[allow(clippy::never_loop)]
-        for _raw_seg in parsed.tree.unwrap().get_raw_segments().unwrap() {
+        for _raw_seg in parsed.tree.unwrap().get_raw_segments() {
             unimplemented!()
             // if raw_seg.is_type("whitespace", "newline") {
             //     assert!(raw_seg.is_whitespace());
@@ -5377,13 +5640,13 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "WIP"]
     fn test__dialect__ansi_parse_indented_joins() {
         let cases = [("select field_1 from my_table as alias_1",)];
         let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
 
         for (sql_string,) in cases {
-            let _parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
+            let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
+            dbg!(parsed.tree.unwrap().get_raw().unwrap());
         }
     }
 }

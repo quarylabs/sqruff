@@ -1,13 +1,74 @@
+use std::collections::HashMap;
+use std::fmt::{self, Debug};
+use std::ops::Deref;
+use std::rc::Rc;
+
+use super::context::RuleContext;
+use super::crawlers::BaseCrawler;
+use crate::core::dialects::base::Dialect;
+use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::Segment;
 
-#[derive(Debug, Clone)]
+// Assuming BaseSegment, LintFix, and SQLLintError are defined elsewhere.
+
 pub struct LintResult {
-    pub fix: Vec<LintFix>,
+    anchor: Option<Box<dyn Segment>>,
+    fixes: Vec<LintFix>,
+    memory: Option<HashMap<String, String>>, // Adjust type as needed
+    description: Option<String>,
+    source: String,
 }
 
-impl Default for LintResult {
-    fn default() -> Self {
-        Self { fix: Vec::new() }
+impl LintResult {
+    pub fn new(
+        anchor: Option<Box<dyn Segment>>,
+        fixes: Vec<LintFix>,
+        memory: Option<HashMap<String, String>>, // Adjust type as needed
+        description: Option<String>,
+        source: Option<String>,
+    ) -> Self {
+        // let fixes = fixes.into_iter().filter(|f| !f.is_trivial()).collect();
+
+        LintResult { anchor, fixes, memory, description, source: source.unwrap_or_default() }
+    }
+
+    pub fn to_linting_error(&self, rule_description: &'static str) -> Option<SQLLintError> {
+        let _anchor = self.anchor.as_ref()?;
+
+        SQLLintError {
+            description: self.description.clone().unwrap_or(rule_description.to_string()),
+        }
+        .into()
+    }
+}
+
+impl Debug for LintResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.anchor {
+            None => write!(f, "LintResult(<empty>)"),
+            Some(anchor) => {
+                let fix_coda = if !self.fixes.is_empty() {
+                    format!("+{}F", self.fixes.len())
+                } else {
+                    "".to_string()
+                };
+
+                match &self.description {
+                    Some(desc) => {
+                        if !self.source.is_empty() {
+                            write!(
+                                f,
+                                "LintResult({} [{}]: {:?}{})",
+                                desc, self.source, anchor, fix_coda
+                            )
+                        } else {
+                            write!(f, "LintResult({}: {:?}{})", desc, anchor, fix_coda)
+                        }
+                    }
+                    None => write!(f, "LintResult({:?}{})", anchor, fix_coda),
+                }
+            }
+        }
     }
 }
 
@@ -44,7 +105,7 @@ pub struct LintFix {
     pub edit_type: EditType,
     pub anchor: Box<dyn Segment>,
     pub edit: Option<Vec<Box<dyn Segment>>>,
-    source: Vec<Box<dyn Segment>>,
+    pub source: Vec<Box<dyn Segment>>,
 }
 
 impl LintFix {
@@ -87,6 +148,10 @@ impl LintFix {
         source: Option<Vec<Box<dyn Segment>>>,
     ) -> Self {
         Self::new(EditType::Replace, anchor_segment, Some(edit_segments), source)
+    }
+
+    pub fn delete(anchor_segment: Box<dyn Segment>) -> Self {
+        Self::new(EditType::Delete, anchor_segment, None, None)
     }
 
     /// Return whether this a valid source only edit.
@@ -141,5 +206,99 @@ impl PartialEq for LintFix {
         }
         // If none of the above conditions were met, objects are equal
         true
+    }
+}
+
+pub trait Rule: Debug + 'static {
+    fn lint_phase(&self) -> &'static str {
+        "main"
+    }
+
+    fn description(&self) -> &'static str {
+        "write description"
+    }
+
+    fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult>;
+
+    fn is_fix_compatible(&self) -> bool {
+        false
+    }
+
+    fn crawl_behaviour(&self) -> Box<dyn BaseCrawler>;
+
+    fn crawl(
+        &self,
+        dialect: Dialect,
+        fix: bool,
+        tree: Box<dyn Segment>,
+    ) -> (Vec<SQLLintError>, Vec<LintFix>) {
+        let root_context = RuleContext { dialect, fix, segment: tree, ..<_>::default() };
+        let mut vs = Vec::new();
+        let mut fixes = Vec::new();
+
+        for context in self.crawl_behaviour().crawl(root_context) {
+            let resp = self.eval(context);
+
+            let mut new_lerrs = Vec::new();
+            let mut new_fixes = Vec::new();
+
+            if resp.is_empty() {
+                // Assume this means no problems (also means no memory)
+            } else {
+                for elem in resp {
+                    self.process_lint_result(elem, &mut new_lerrs, &mut new_fixes);
+                }
+            }
+
+            // Consume the new results
+            vs.extend(new_lerrs);
+            fixes.extend(new_fixes);
+        }
+
+        (vs, fixes)
+    }
+
+    fn process_lint_result(
+        &self,
+        res: LintResult,
+        new_lerrs: &mut Vec<SQLLintError>,
+        new_fixes: &mut Vec<LintFix>,
+    ) {
+        let ignored = false;
+
+        if let Some(lerr) = res.to_linting_error(self.description()) {
+            new_lerrs.push(lerr);
+        }
+
+        if !ignored {
+            new_fixes.extend(res.fixes);
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ErasedRule {
+    erased: Rc<dyn Rule>,
+}
+
+impl Deref for ErasedRule {
+    type Target = dyn Rule;
+
+    fn deref(&self) -> &Self::Target {
+        self.erased.as_ref()
+    }
+}
+
+pub trait Erased {
+    type Erased;
+
+    fn erased(self) -> Self::Erased;
+}
+
+impl<T: Rule> Erased for T {
+    type Erased = ErasedRule;
+
+    fn erased(self) -> Self::Erased {
+        ErasedRule { erased: Rc::new(self) }
     }
 }

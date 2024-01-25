@@ -16,7 +16,7 @@ use crate::helpers::ToMatchable;
 ///
 /// Note that if there are multiple elements passed in that they will be treated
 /// as different options of what can be delimited, rather than a sequence.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash)]
 pub struct Delimited {
     base: AnyNumberOf,
     allow_trailing: bool,
@@ -321,7 +321,7 @@ mod tests {
                 SymbolSegment::new(
                     &segment.get_raw().unwrap(),
                     &segment.get_position_marker().unwrap(),
-                    SymbolSegmentNewArgs {},
+                    SymbolSegmentNewArgs { r#type: "remove me" },
                 )
             };
 

@@ -6,18 +6,22 @@ use std::time::Instant;
 
 use itertools::Itertools;
 use regex::Regex;
+use uuid::Uuid;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
 use crate::cli::formatters::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLParseError, SqlError};
+use crate::core::dialects::init::dialect_selector;
+use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::fix::AnchorEditInfo;
+use crate::core::rules::base::{ErasedRule, LintFix};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 
 pub struct Linter {
@@ -34,7 +38,7 @@ impl Linter {
     ) -> Linter {
         match templater {
             Some(templater) => Linter { config, formatter, templater },
-            None => Linter { config, formatter, templater: Box::new(RawTemplater::default()) },
+            None => Linter { config, formatter, templater: Box::<RawTemplater>::default() },
         }
     }
 
@@ -44,11 +48,20 @@ impl Linter {
         sql: String,
         f_name: Option<String>,
         fix: Option<bool>,
+        rules: Vec<ErasedRule>,
     ) -> LintingResult {
         let f_name = f_name.unwrap_or_else(|| "<string input>".into());
 
         let mut linted_path = LintedDir::new(f_name.clone());
-        linted_path.add(self.lint_string(Some(sql), Some(f_name), fix, None, None));
+        linted_path.add(self.lint_string(
+            Some(sql),
+            Some(f_name),
+            fix,
+            None,
+            None,
+            rules,
+            fix.unwrap_or_default(),
+        ));
 
         let mut result = LintingResult::new();
         result.add(linted_path);
@@ -98,7 +111,8 @@ impl Linter {
         if let Some(formatter) = &self.formatter {
             formatter.dispatch_parse_header(f_name.clone());
         }
-        return Ok(Self::parse_rendered(rendered, parse_statistics));
+
+        Ok(Self::parse_rendered(rendered, parse_statistics))
     }
 
     /// Lint a string.
@@ -109,28 +123,123 @@ impl Linter {
         _fix: Option<bool>,
         config: Option<&FluffConfig>,
         _encoding: Option<String>,
+        rules: Vec<ErasedRule>,
+        fix: bool,
     ) -> LintedFile {
         // Sort out config, defaulting to the built in config if no override
         let defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
-        let _parsed = self.parse_string(
-            in_str.unwrap_or("".to_string()),
-            f_name,
-            Some(defaulted_config),
-            None,
-            None,
-        );
-        panic!("Not implemented")
-        // # Get rules as appropriate
-        // rule_pack = self.get_rulepack(config=config)
-        // # Lint the file and return the LintedFile
-        // return self.lint_parsed(
-        //     parsed,
-        //     rule_pack,
-        //     fix=fix,
-        //     formatter=self.formatter,
-        //     encoding=encoding,
-        // )
+        let parsed = self
+            .parse_string(
+                in_str.unwrap_or("".to_string()),
+                f_name,
+                Some(defaulted_config),
+                None,
+                None,
+            )
+            .unwrap();
+
+        // Lint the file and return the LintedFile
+        self.lint_parsed(parsed, rules, fix)
+    }
+
+    pub fn lint_parsed(
+        &self,
+        parsed_string: ParsedString,
+        rules: Vec<ErasedRule>,
+        fix: bool,
+    ) -> LintedFile {
+        let violations = parsed_string.violations;
+        assert!(violations.is_empty());
+
+        let (tree, initial_linting_errors) = if let Some(tree) = parsed_string.tree {
+            self.lint_fix_parsed(tree, rules, fix)
+        } else {
+            unimplemented!()
+        };
+
+        LintedFile {
+            tree,
+            templated_file: parsed_string.templated_file,
+            violations: initial_linting_errors,
+        }
+    }
+
+    pub fn lint_fix_parsed(
+        &self,
+        mut tree: Box<dyn Segment>,
+        rules: Vec<ErasedRule>,
+        fix: bool,
+    ) -> (Box<dyn Segment>, Vec<SQLLintError>) {
+        let mut tmp;
+
+        let mut initial_linting_errors = Vec::new();
+        let phases: &[_] = if fix { &["main", "post"] } else { &["main"] };
+        let dialect = dialect_selector("ansi").unwrap();
+
+        for &phase in phases {
+            let rules_this_phase = if phases.len() > 1 {
+                tmp = rules
+                    .clone()
+                    .into_iter()
+                    .filter(|rule| rule.lint_phase() == phase)
+                    .collect_vec();
+
+                &tmp
+            } else {
+                &rules
+            };
+
+            for loop_ in 0..(if phase == "main" { 10 } else { 2 }) {
+                let is_first_linter_pass = phase == phases[0] && loop_ == 0;
+                let changed = false;
+
+                if is_first_linter_pass {
+                    // TODO:
+                    // rules_this_phase = rule_pack.rules
+                }
+
+                for rule in rules_this_phase {
+                    // Performance: After first loop pass, skip rules that don't do fixes. Any
+                    // results returned won't be seen by the user anyway (linting errors ADDED by
+                    // rules changing SQL, are not reported back to the user - only initial linting
+                    // errors), so there's absolutely no reason to run them.
+                    if fix && !is_first_linter_pass && !rule.is_fix_compatible() {
+                        continue;
+                    }
+
+                    let (linting_errors, fixes) = rule.crawl(dialect.clone(), fix, tree.clone());
+                    let anchor_info = compute_anchor_edit_info(fixes.clone());
+
+                    if is_first_linter_pass {
+                        initial_linting_errors.extend(linting_errors);
+                    }
+
+                    if fix && !fixes.is_empty() {
+                        // Do some sanity checks on the fixes before applying.
+                        // let anchor_info = BaseSegment.compute_anchor_edit_info(fixes);
+
+                        // This is the happy path. We have fixes, now we want to apply them.
+                        let last_fixes = fixes;
+
+                        let (new_tree, _, _, valid) =
+                            tree.apply_fixes(dialect_selector("ansi").unwrap(), anchor_info);
+
+                        if !true {
+                            println!(
+                                "Fixes for {rule:?} not applied, as it would result in an \
+                                 unparsable file. Please report this as a bug with a minimal \
+                                 query which demonstrates this warning.",
+                            );
+                        }
+
+                        tree = new_tree;
+                    }
+                }
+            }
+        }
+
+        (tree, initial_linting_errors)
     }
 
     /// Template the file.
@@ -422,7 +531,7 @@ impl Linter {
                 if ignore_files && fname == ignore_file_name {
                     let file = File::open(&fpath).unwrap();
                     let lines = BufReader::new(file).lines();
-                    let spec = lines.filter_map(|line| line.ok()); // Simple placeholder for pathspec logic
+                    let spec = lines.map_while(Result::ok); // Simple placeholder for pathspec logic
                     ignores.insert(dirpath.clone(), spec.collect::<Vec<String>>());
 
                     // We don't need to process the ignore file any further
@@ -535,13 +644,25 @@ fn normalize(p: &Path) -> PathBuf {
     norm_path
 }
 
+fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo> {
+    let mut anchor_info = HashMap::new();
+
+    for fix in fixes {
+        let anchor_id = fix.anchor.get_uuid().unwrap();
+
+        anchor_info.entry(anchor_id).or_insert_with(AnchorEditInfo::default).add(fix);
+    }
+
+    anchor_info
+}
+
 #[cfg(test)]
 mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
-        paths.into_iter().map(|path| path.replace("/", ".").replace("\\", ".")).collect()
+        paths.into_iter().map(|path| path.replace(['/', '\\'], ".")).collect()
     }
 
     #[test]

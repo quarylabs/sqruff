@@ -1,5 +1,6 @@
 use crate::core::linter::linted_file::LintedFile;
 
+#[derive(Debug)]
 pub struct LintedDir {
     pub files: Vec<LintedFile>,
     pub path: String,

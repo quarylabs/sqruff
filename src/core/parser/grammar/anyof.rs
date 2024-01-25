@@ -74,7 +74,7 @@ pub fn simple(
     Some((simple_raws, simple_types))
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash)]
 pub struct AnyNumberOf {
     pub elements: Vec<Box<dyn Matchable>>,
     pub max_times: Option<usize>,
@@ -84,8 +84,8 @@ pub struct AnyNumberOf {
 }
 
 impl PartialEq for AnyNumberOf {
-    fn eq(&self, _other: &Self) -> bool {
-        unimplemented!()
+    fn eq(&self, other: &Self) -> bool {
+        self.elements.iter().zip(&other.elements).all(|(lhs, rhs)| lhs.dyn_eq(&**rhs))
     }
 }
 
@@ -247,10 +247,10 @@ pub fn one_of(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
 pub fn optionally_bracketed(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
     let mut args = vec![Bracketed::new(elements.clone()).to_matchable()];
 
-    if elements.len() > 1 {
-        args.push(Sequence::new(elements).to_matchable());
-    } else {
+    if elements.len() == 1 {
         args.extend(elements);
+    } else {
+        args.push(Sequence::new(elements).to_matchable());
     }
 
     one_of(args)

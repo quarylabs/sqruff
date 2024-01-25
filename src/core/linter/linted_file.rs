@@ -1,9 +1,17 @@
+use std::collections::HashSet;
 use std::ops::Range;
 
+use crate::core::errors::SQLLintError;
+use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::FixPatch;
-use crate::core::templaters::base::RawFileSlice;
+use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 
-pub struct LintedFile;
+#[derive(Debug)]
+pub struct LintedFile {
+    pub tree: Box<dyn Segment>,
+    pub templated_file: TemplatedFile,
+    pub violations: Vec<SQLLintError>,
+}
 
 impl LintedFile {
     ///  Use patches and raw file to fix the source file.
@@ -38,6 +46,66 @@ impl LintedFile {
             }
         }
         str_buff
+    }
+
+    pub fn fix_string(&self) -> String {
+        // Generate patches from the fixed tree. In the process we sort
+        // and deduplicate them so that the resultant list is in the
+        // the right order for the source file without any duplicates.
+        let filtered_source_patches =
+            Self::generate_source_patches(self.tree.clone(), &self.templated_file);
+
+        // Any Template tags in the source file are off limits, unless we're explicitly
+        // fixing the source file.
+        let source_only_slices = self.templated_file.source_only_slices();
+
+        // We now slice up the file using the patches and any source only slices.
+        // This gives us regions to apply changes to.
+        let slice_buff = Self::slice_source_file_using_patches(
+            filtered_source_patches.clone(),
+            source_only_slices,
+            &self.templated_file.source_str,
+        );
+
+        Self::build_up_fixed_source_string(
+            &slice_buff,
+            &filtered_source_patches,
+            &self.templated_file.source_str,
+        )
+    }
+
+    fn generate_source_patches(
+        tree: Box<dyn Segment>,
+        templated_file: &TemplatedFile,
+    ) -> Vec<FixPatch> {
+        // Placeholder for logger setup or integration
+        let mut filtered_source_patches = Vec::new();
+        let mut dedupe_buffer = HashSet::new();
+
+        for (idx, patch) in tree.iter_patches(templated_file).into_iter().enumerate() {
+            // Log patch details
+            // Logger::debug(format!("{} Yielded patch: {:?}", idx, patch));
+
+            // Check for duplicates
+            if dedupe_buffer.contains(&patch.dedupe_tuple()) {
+                // Logger::info(format!("Skipping. Source space Duplicate: {:?}",
+                // patch.dedupe_tuple()));
+                continue;
+            }
+
+            // Implement logic to process patches
+            // This involves translating the logic from Python to Rust, considering how
+            // patches are evaluated, and how they interact with templated
+            // sections.
+
+            // Add valid patch to filtered list and dedupe buffer
+            filtered_source_patches.push(patch.clone());
+            dedupe_buffer.insert(patch.dedupe_tuple());
+        }
+
+        // Sort patches before returning
+        filtered_source_patches.sort_by_key(|x| x.source_slice.start);
+        filtered_source_patches
     }
 
     ///  Use patches to safely slice up the file before fixing.

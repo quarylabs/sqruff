@@ -25,7 +25,7 @@ impl From<SegmentGenerator> for DialectElementType {
 /// The default behavior is to only claim what they can match. However,
 /// occasionally allowing more eager matching (e.g., in the content of
 /// bracketed expressions) can provide more helpful feedback to the user.
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum ParseMode {
     /// Strict mode only returns a match if the full content matches.
     /// In this mode, if a match is not successful, then no match is returned,

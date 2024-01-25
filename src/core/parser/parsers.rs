@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use fancy_regex::Regex;
 
@@ -7,11 +7,12 @@ use super::match_result::MatchResult;
 use super::matchable::Matchable;
 use super::segments::base::Segment;
 use crate::core::errors::SQLParseError;
+use crate::helpers::HashableFancyRegex;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TypedParser {
     template: String,
-    target_types: HashSet<String>,
+    target_types: BTreeSet<String>,
     instance_types: Vec<String>,
     /* raw_class: RawSegment, // Type for raw_class */
     optional: bool,
@@ -87,7 +88,7 @@ impl Matchable for TypedParser {
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         let _ = (parse_context, crumbs);
-        (HashSet::new(), self.target_types.clone()).into()
+        (HashSet::new(), self.target_types.clone().into_iter().collect()).into()
     }
 
     fn match_segments(
@@ -107,10 +108,10 @@ impl Matchable for TypedParser {
 }
 
 // Assuming RawSegment and BaseSegment are defined elsewhere in your Rust code.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Hash, Clone, Debug, PartialEq)]
 pub struct StringParser {
     template: String,
-    simple: HashSet<String>,
+    simple: BTreeSet<String>,
     factory: fn(&dyn Segment) -> Box<dyn Segment>,
     type_: Option<String>, /* Renamed `type` to `type_` because `type` is a reserved keyword in
                             * Rust */
@@ -142,7 +143,7 @@ impl StringParser {
     pub fn simple(&self, _parse_cx: &ParseContext) -> (HashSet<String>, HashSet<String>) {
         // Assuming SimpleHintType is a type alias for (&HashSet<String>,
         // HashSet<String>)
-        (self.simple.clone(), HashSet::new())
+        (self.simple.clone().into_iter().collect(), HashSet::new())
     }
 
     pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
@@ -183,7 +184,7 @@ impl Matchable for StringParser {
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        (self.simple.clone(), <_>::default()).into()
+        (self.simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
     fn match_segments(
@@ -206,12 +207,12 @@ impl Matchable for StringParser {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Hash, Debug, Clone)]
 pub struct RegexParser {
     template: String,
     anti_template: Option<String>,
-    _template: Regex,
-    _anti_template: Regex,
+    _template: HashableFancyRegex,
+    _anti_template: HashableFancyRegex,
     factory: fn(&dyn Segment) -> Box<dyn Segment>,
     // Add other fields as needed
 }
@@ -242,8 +243,8 @@ impl RegexParser {
         Self {
             template: template.to_string(),
             anti_template,
-            _template: template_pattern,
-            _anti_template: anti_template_pattern,
+            _template: HashableFancyRegex(template_pattern),
+            _anti_template: HashableFancyRegex(anti_template_pattern),
             factory, // Initialize other fields here
         }
     }
@@ -324,10 +325,10 @@ impl Matchable for RegexParser {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Hash, Clone, Debug, PartialEq)]
 pub struct MultiStringParser {
-    templates: HashSet<String>,
-    _simple: HashSet<String>,
+    templates: BTreeSet<String>,
+    _simple: BTreeSet<String>,
     factory: fn(&dyn Segment) -> Box<dyn Segment>,
     // Add other fields as needed
 }
@@ -347,8 +348,8 @@ impl MultiStringParser {
         let _simple = templates.clone();
 
         Self {
-            templates,
-            _simple,
+            templates: templates.into_iter().collect(),
+            _simple: _simple.into_iter().collect(),
             factory,
             // Initialize other fields here
         }
@@ -360,7 +361,7 @@ impl MultiStringParser {
         _crumbs: Option<Vec<String>>,
     ) -> (HashSet<String>, HashSet<String>) {
         // Return the simple options (templates) and an empty set of hints
-        (self._simple.clone(), HashSet::new())
+        (self._simple.clone().into_iter().collect(), HashSet::new())
     }
 
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
@@ -400,7 +401,7 @@ impl Matchable for MultiStringParser {
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
-        (self._simple.clone(), <_>::default()).into()
+        (self._simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
     fn match_segments(

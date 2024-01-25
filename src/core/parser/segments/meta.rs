@@ -17,7 +17,7 @@ use crate::core::parser::segments::fix::SourceFix;
 /// linting     and reconstruction. Even if there is an *actual indent* that
 /// occurs     in the same place this intentionally *won't* capture it, they
 /// will just     be compared later.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct Indent {
     pub indent_val: usize,
 }
@@ -111,7 +111,7 @@ impl Indent {
 /// linting and reconstruction. Even if there is an *actual dedent* that
 /// occurs in the same place this intentionally *won't* capture it, they
 /// will just be compared later.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq)]
 pub struct Dedent {}
 
 pub struct DedentNewArgs {}
@@ -164,7 +164,7 @@ impl Dedent {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Hash, Clone, Debug, PartialEq)]
 pub struct EndOfFile {
     position_maker: PositionMarker,
 }

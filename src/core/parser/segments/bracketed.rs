@@ -1,7 +1,7 @@
 use super::base::Segment;
 use crate::core::parser::markers::PositionMarker;
 
-#[derive(Debug, Clone)]
+#[derive(Hash, Debug, Clone)]
 pub struct BracketedSegment {
     pub segments: Vec<Box<dyn Segment>>,
     pub start_bracket: Vec<Box<dyn Segment>>,

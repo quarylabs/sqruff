@@ -54,4 +54,24 @@ mod tests {
         let sql = fix("SELECT 1, 4".into(), vec![RuleL001::default().erased()]);
         assert_eq!(sql, "SELECT 1, 4");
     }
+
+    #[test]
+    fn test_fail_multiple_whitespace_after_comma() {
+        let sql = fix("SELECT 1,   4".into(), vec![RuleL001::default().erased()]);
+        assert_eq!(sql, "SELECT 1, 4");
+    }
+
+    #[test]
+    fn test_fail_no_whitespace_after_comma() {
+        let sql = fix("SELECT 1,4".into(), vec![RuleL001::default().erased()]);
+        assert_eq!(sql, "SELECT 1, 4");
+    }
+
+    #[test]
+    fn test_pass_bigquery_trailing_comma() {
+        let sql =
+            fix("SELECT * FROM(SELECT 1 AS C1)AS T1;".into(), vec![RuleL001::default().erased()]);
+        // FIXME: ` ;` -> `;`
+        assert_eq!(sql, "SELECT * FROM (SELECT 1 AS C1) AS T1 ;");
+    }
 }

@@ -1563,7 +1563,7 @@ pub fn ansi_dialect() -> Dialect {
             $(
                 $dialect.add([(
                     stringify!($segment).into(),
-                    $segment { segments: Vec::new() }.to_matchable().into(),
+                    $segment { segments: Vec::new(), uuid: Uuid::new_v4() }.to_matchable().into(),
                 )]);
             )*
         }
@@ -1571,18 +1571,19 @@ pub fn ansi_dialect() -> Dialect {
 
     #[rustfmt::skip]
     add_segments!(
-        ansi_dialect, JoinOnConditionSegment, JoinClauseSegment, TableExpressionSegment, ConcatSegment, EmptyStructLiteralSegment,
-        ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment, LessThanOrEqualToSegment, NotEqualToSegment,
+        ansi_dialect, FromExpressionElementSegment, SelectClauseElementSegment, FromExpressionSegment, FromClauseSegment, WildcardIdentifierSegment,
+        WildcardExpressionSegment, SelectStatementSegment, StatementSegment, SetExpressionSegment,
+        UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment, TableExpressionSegment, 
+        ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment, 
+        LessThanOrEqualToSegment, NotEqualToSegment,
         BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment,
         BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment,
         ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments,
-        FromExpressionElementSegment, TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar,
+        TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar,
         SetOperatorSegment, WhereClauseSegment, ElseClauseSegment, IntervalExpressionSegment,
         QualifiedNumericLiteralSegment, FunctionSegment, FunctionNameSegment, TypedArrayLiteralSegment,
-        FromClauseSegment, SelectStatementSegment, SelectClauseModifierSegment, WildcardExpressionSegment,
-        WildcardIdentifierSegment, OrderByClauseSegment, TruncateStatementSegment,
-        ExpressionSegment, ShorthandCastSegment, DatatypeSegment, AliasExpressionSegment,
-        FromExpressionSegment, // ColumnReferenceSegment,
+        SelectClauseModifierSegment, OrderByClauseSegment,
+        TruncateStatementSegment, ExpressionSegment, ShorthandCastSegment, DatatypeSegment, AliasExpressionSegment,
         ObjectReferenceSegment, ObjectLiteralSegment, ArrayExpressionSegment, LocalAliasSegment,
         MergeStatementSegment, InsertStatementSegment, TransactionStatementSegment, DropTableStatementSegment,
         DropViewStatementSegment, CreateUserStatementSegment, DropUserStatementSegment, AccessStatementSegment,
@@ -1595,37 +1596,10 @@ pub fn ansi_dialect() -> Dialect {
         CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment, CreateTriggerStatementSegment, DropTriggerStatementSegment
     );
 
-    ansi_dialect.add([
-        ("ColumnReferenceSegment".into(), Ref::new("ObjectReferenceSegment").to_matchable().into()),
-        (
-            "StatementSegment".into(),
-            StatementSegment { uuid: Uuid::new_v4(), segments: Vec::new() }.to_matchable().into(),
-        ),
-        (
-            "SetExpressionSegment".into(),
-            SetExpressionSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
-                .to_matchable()
-                .into(),
-        ),
-        (
-            "UnorderedSelectStatementSegment".into(),
-            UnorderedSelectStatementSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
-                .to_matchable()
-                .into(),
-        ),
-        (
-            "SelectClauseSegment".into(),
-            SelectClauseSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
-                .to_matchable()
-                .into(),
-        ),
-        (
-            "SelectClauseElementSegment".into(),
-            SelectClauseElementSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
-                .to_matchable()
-                .into(),
-        ),
-    ]);
+    ansi_dialect.add([(
+        "ColumnReferenceSegment".into(),
+        Ref::new("ObjectReferenceSegment").to_matchable().into(),
+    )]);
 
     ansi_dialect.expand();
     ansi_dialect
@@ -2179,6 +2153,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
 #[derive(Hash, Default, Debug, Clone, PartialEq)]
 pub struct FileSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl FileSegment {
@@ -2198,7 +2173,7 @@ impl FileSegment {
             segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
 
         if start_idx == end_idx {
-            return Ok(Box::new(FileSegment { segments: segments.to_vec() }));
+            return Ok(Box::new(FileSegment { segments: segments.to_vec(), uuid: Uuid::new_v4() }));
         }
 
         let final_seg = segments.last().unwrap();
@@ -2218,13 +2193,13 @@ impl FileSegment {
             unimplemented!()
         };
 
-        Ok(Self { segments: match_result.matched_segments }.boxed())
+        Ok(Self { segments: match_result.matched_segments, uuid: Uuid::new_v4() }.boxed())
     }
 }
 
 impl Segment for FileSegment {
     fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
-        FileSegment { segments }.to_matchable()
+        FileSegment { segments, uuid: self.uuid }.to_matchable()
     }
 
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
@@ -2267,6 +2242,7 @@ impl Matchable for FileSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct IntervalExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for IntervalExpressionSegment {
@@ -2308,6 +2284,7 @@ impl Matchable for IntervalExpressionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayTypeSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ArrayTypeSegment {
@@ -2330,6 +2307,7 @@ impl Matchable for ArrayTypeSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SizedArrayTypeSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SizedArrayTypeSegment {
@@ -2582,9 +2560,14 @@ impl Matchable for SetExpressionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FromClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for FromClauseSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             Ref::keyword("FROM").boxed(),
@@ -2597,6 +2580,18 @@ impl Segment for FromClauseSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for FromClauseSegment {
@@ -2608,9 +2603,14 @@ impl Matchable for FromClauseSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SelectStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SelectStatementSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        SelectStatementSegment { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         UnorderedSelectStatementSegment { segments: Vec::new(), uuid: Uuid::new_v4() }
             .match_grammar()
@@ -2626,6 +2626,18 @@ impl Segment for SelectStatementSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for SelectStatementSegment {
@@ -2637,6 +2649,7 @@ impl Matchable for SelectStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SelectClauseModifierSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SelectClauseModifierSegment {
@@ -2708,9 +2721,14 @@ impl Matchable for SelectClauseElementSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct WildcardExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for WildcardExpressionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             // *, blah.*, blah.blah.*, etc.
@@ -2722,6 +2740,18 @@ impl Segment for WildcardExpressionSegment {
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
     }
 }
 
@@ -2737,9 +2767,14 @@ impl Matchable for WildcardExpressionSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct WildcardIdentifierSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for WildcardIdentifierSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
@@ -2760,6 +2795,18 @@ impl Segment for WildcardIdentifierSegment {
         .to_matchable()
         .into()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for WildcardIdentifierSegment {
@@ -2771,6 +2818,7 @@ impl Matchable for WildcardIdentifierSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct OrderByClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for OrderByClauseSegment {
@@ -2801,6 +2849,7 @@ impl Matchable for OrderByClauseSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct TruncateStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for TruncateStatementSegment {
@@ -2838,6 +2887,7 @@ impl Matchable for TruncateStatementSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct ExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ExpressionSegment {
@@ -2859,9 +2909,14 @@ impl Matchable for ExpressionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FromExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for FromExpressionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         optionally_bracketed(vec![
             Sequence::new(vec![
@@ -2888,6 +2943,18 @@ impl Segment for FromExpressionSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for FromExpressionSegment {
@@ -2899,9 +2966,14 @@ impl Matchable for FromExpressionSegment {
 #[derive(Hash, Clone, PartialEq, Debug)]
 pub struct FromExpressionElementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for FromExpressionElementSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             optionally_bracketed(vec![Ref::new("TableExpressionSegment").boxed()]).boxed(),
@@ -2917,6 +2989,18 @@ impl Segment for FromExpressionElementSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for FromExpressionElementSegment {
@@ -2928,6 +3012,7 @@ impl Matchable for FromExpressionElementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ObjectReferenceSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ObjectReferenceSegment {
@@ -2953,6 +3038,7 @@ impl Matchable for ObjectReferenceSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayAccessorSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ArrayAccessorSegment {
@@ -2992,6 +3078,7 @@ impl Matchable for ArrayAccessorSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ArrayLiteralSegment {
@@ -3027,6 +3114,7 @@ impl Matchable for ArrayLiteralSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TypedArrayLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for TypedArrayLiteralSegment {
@@ -3054,6 +3142,7 @@ impl Matchable for TypedArrayLiteralSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct StructTypeSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for StructTypeSegment {
@@ -3077,6 +3166,7 @@ impl Matchable for StructTypeSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct StructLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for StructLiteralSegment {
@@ -3103,6 +3193,7 @@ impl Segment for StructLiteralSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TypedStructLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for TypedStructLiteralSegment {
@@ -3132,6 +3223,7 @@ impl Matchable for TypedStructLiteralSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct EmptyStructLiteralBracketsSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for EmptyStructLiteralBracketsSegment {
@@ -3148,6 +3240,7 @@ impl Segment for EmptyStructLiteralBracketsSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct EmptyStructLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for EmptyStructLiteralSegment {
@@ -3175,6 +3268,7 @@ impl Matchable for EmptyStructLiteralSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ObjectLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ObjectLiteralSegment {
@@ -3208,6 +3302,7 @@ impl Matchable for ObjectLiteralSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ObjectLiteralElementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ObjectLiteralElementSegment {
@@ -3230,6 +3325,7 @@ impl Segment for ObjectLiteralElementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TimeZoneGrammar {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for TimeZoneGrammar {
@@ -3262,6 +3358,7 @@ impl Matchable for TimeZoneGrammar {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BracketedArguments {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for BracketedArguments {
@@ -3292,6 +3389,7 @@ impl Matchable for BracketedArguments {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DatatypeSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DatatypeSegment {
@@ -3380,6 +3478,7 @@ impl Matchable for DatatypeSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AliasExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for AliasExpressionSegment {
@@ -3408,6 +3507,7 @@ impl Matchable for AliasExpressionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ShorthandCastSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ShorthandCastSegment {
@@ -3447,6 +3547,7 @@ impl Matchable for ShorthandCastSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct QualifiedNumericLiteralSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for QualifiedNumericLiteralSegment {
@@ -3475,6 +3576,7 @@ impl Matchable for QualifiedNumericLiteralSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AggregateOrderByClause {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for AggregateOrderByClause {
@@ -3496,9 +3598,14 @@ impl Matchable for AggregateOrderByClause {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FunctionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for FunctionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         one_of(vec![
             Sequence::new(vec![
@@ -3518,6 +3625,18 @@ impl Segment for FunctionSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for FunctionSegment {
@@ -3529,9 +3648,14 @@ impl Matchable for FunctionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct FunctionNameSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for FunctionNameSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![one_of(vec![Ref::new("FunctionNameIdentifierSegment").boxed()]).boxed()])
             .allow_gaps(false)
@@ -3541,6 +3665,18 @@ impl Segment for FunctionNameSegment {
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
     }
 }
 
@@ -3553,6 +3689,7 @@ impl Matchable for FunctionNameSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct CaseExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CaseExpressionSegment {
@@ -3585,6 +3722,7 @@ impl Matchable for CaseExpressionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct WhenClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for WhenClauseSegment {
@@ -3613,6 +3751,7 @@ impl Matchable for WhenClauseSegment {
 #[derive(Hash, Debug, PartialEq, Clone)]
 pub struct ElseClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ElseClauseSegment {
@@ -3637,6 +3776,7 @@ impl Matchable for ElseClauseSegment {
 #[derive(Hash, PartialEq, Clone, Debug)]
 pub struct WhereClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for WhereClauseSegment {
@@ -3670,6 +3810,7 @@ impl Matchable for WhereClauseSegment {
 #[derive(Hash, Clone, PartialEq, Debug)]
 pub struct SetOperatorSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SetOperatorSegment {
@@ -3703,6 +3844,7 @@ impl Matchable for SetOperatorSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ValuesClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ValuesClauseSegment {
@@ -3746,6 +3888,7 @@ impl Matchable for ValuesClauseSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct IndexColumnDefinitionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for IndexColumnDefinitionSegment {
@@ -3775,6 +3918,7 @@ impl Matchable for IndexColumnDefinitionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseAndSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for BitwiseAndSegment {
@@ -3797,6 +3941,7 @@ impl Matchable for BitwiseAndSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseOrSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for BitwiseOrSegment {
@@ -3819,6 +3964,7 @@ impl Matchable for BitwiseOrSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseLShiftSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for BitwiseLShiftSegment {
@@ -3847,6 +3993,7 @@ impl Matchable for BitwiseLShiftSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct BitwiseRShiftSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for BitwiseRShiftSegment {
@@ -3874,6 +4021,7 @@ impl Matchable for BitwiseRShiftSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LessThanSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for LessThanSegment {
@@ -3886,6 +4034,7 @@ impl Segment for LessThanSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct GreaterThanOrEqualToSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for GreaterThanOrEqualToSegment {
@@ -3904,6 +4053,7 @@ impl Segment for GreaterThanOrEqualToSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LessThanOrEqualToSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for LessThanOrEqualToSegment {
@@ -3922,6 +4072,7 @@ impl Segment for LessThanOrEqualToSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct NotEqualToSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for NotEqualToSegment {
@@ -3949,6 +4100,7 @@ impl Segment for NotEqualToSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ConcatSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ConcatSegment {
@@ -3996,6 +4148,7 @@ impl Matchable for ConcatSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ArrayExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ArrayExpressionSegment {
@@ -4019,6 +4172,7 @@ impl Matchable for ArrayExpressionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LocalAliasSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for LocalAliasSegment {
@@ -4041,6 +4195,7 @@ impl Matchable for LocalAliasSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct MergeStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for MergeStatementSegment {
@@ -4091,6 +4246,7 @@ impl Matchable for MergeStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct InsertStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for InsertStatementSegment {
@@ -4133,6 +4289,7 @@ impl Matchable for InsertStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TransactionStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for TransactionStatementSegment {
@@ -4178,6 +4335,7 @@ impl Matchable for TransactionStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropTableStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropTableStatementSegment {
@@ -4209,6 +4367,7 @@ impl Matchable for DropTableStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropViewStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropViewStatementSegment {
@@ -4240,6 +4399,7 @@ impl Matchable for DropViewStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateUserStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateUserStatementSegment {
@@ -4269,6 +4429,7 @@ impl Matchable for CreateUserStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropUserStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropUserStatementSegment {
@@ -4298,6 +4459,7 @@ impl Matchable for DropUserStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AccessStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for AccessStatementSegment {
@@ -4325,6 +4487,7 @@ impl Matchable for AccessStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateTableStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateTableStatementSegment {
@@ -4377,6 +4540,7 @@ impl Matchable for CreateTableStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateRoleStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateRoleStatementSegment {
@@ -4406,6 +4570,7 @@ impl Matchable for CreateRoleStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropRoleStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropRoleStatementSegment {
@@ -4437,6 +4602,7 @@ impl Matchable for DropRoleStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AlterTableStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for AlterTableStatementSegment {
@@ -4467,6 +4633,7 @@ impl Matchable for AlterTableStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateSchemaStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateSchemaStatementSegment {
@@ -4496,6 +4663,7 @@ impl Matchable for CreateSchemaStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SetSchemaStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for SetSchemaStatementSegment {
@@ -4525,6 +4693,7 @@ impl Matchable for SetSchemaStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropSchemaStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropSchemaStatementSegment {
@@ -4555,6 +4724,7 @@ impl Matchable for DropSchemaStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropTypeStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropTypeStatementSegment {
@@ -4585,6 +4755,7 @@ impl Matchable for DropTypeStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateDatabaseStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateDatabaseStatementSegment {
@@ -4614,6 +4785,7 @@ impl Matchable for CreateDatabaseStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropDatabaseStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropDatabaseStatementSegment {
@@ -4644,6 +4816,7 @@ impl Matchable for DropDatabaseStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateIndexStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateIndexStatementSegment {
@@ -4684,6 +4857,7 @@ impl Matchable for CreateIndexStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropIndexStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropIndexStatementSegment {
@@ -4714,6 +4888,7 @@ impl Matchable for DropIndexStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateViewStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateViewStatementSegment {
@@ -4749,6 +4924,7 @@ impl Matchable for CreateViewStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DeleteStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DeleteStatementSegment {
@@ -4778,6 +4954,7 @@ impl Matchable for DeleteStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct UpdateStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for UpdateStatementSegment {
@@ -4810,6 +4987,7 @@ impl Matchable for UpdateStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateCastStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateCastStatementSegment {
@@ -4873,6 +5051,7 @@ impl Matchable for CreateCastStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropCastStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropCastStatementSegment {
@@ -4913,6 +5092,7 @@ impl Matchable for DropCastStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateFunctionStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateFunctionStatementSegment {
@@ -4952,6 +5132,7 @@ impl Matchable for CreateFunctionStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropFunctionStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropFunctionStatementSegment {
@@ -4982,6 +5163,7 @@ impl Matchable for DropFunctionStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateModelStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateModelStatementSegment {
@@ -5044,6 +5226,7 @@ impl Matchable for CreateModelStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropModelStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropModelStatementSegment {
@@ -5074,6 +5257,7 @@ impl Matchable for DropModelStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DescribeStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DescribeStatementSegment {
@@ -5102,6 +5286,7 @@ impl Matchable for DescribeStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct UseStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for UseStatementSegment {
@@ -5130,6 +5315,7 @@ impl Matchable for UseStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct ExplainStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for ExplainStatementSegment {
@@ -5163,6 +5349,7 @@ impl Matchable for ExplainStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateSequenceStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateSequenceStatementSegment {
@@ -5194,6 +5381,7 @@ impl Matchable for CreateSequenceStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct AlterSequenceStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for AlterSequenceStatementSegment {
@@ -5223,6 +5411,7 @@ impl Matchable for AlterSequenceStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropSequenceStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropSequenceStatementSegment {
@@ -5252,6 +5441,7 @@ impl Matchable for DropSequenceStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CreateTriggerStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for CreateTriggerStatementSegment {
@@ -5321,6 +5511,7 @@ impl Matchable for CreateTriggerStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct DropTriggerStatementSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for DropTriggerStatementSegment {
@@ -5349,9 +5540,14 @@ impl Matchable for DropTriggerStatementSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TableExpressionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for TableExpressionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: Uuid::new_v4() }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         one_of(vec![
             Ref::new("ValuesClauseSegment").boxed(),
@@ -5369,6 +5565,18 @@ impl Segment for TableExpressionSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
 }
 
 impl Matchable for TableExpressionSegment {
@@ -5380,6 +5588,7 @@ impl Matchable for TableExpressionSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct JoinClauseSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for JoinClauseSegment {
@@ -5412,6 +5621,7 @@ impl Matchable for JoinClauseSegment {
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct JoinOnConditionSegment {
     segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
 }
 
 impl Segment for JoinOnConditionSegment {

@@ -18,6 +18,13 @@ pub struct RuleAL01 {
     aliasing: Aliasing,
 }
 
+impl RuleAL01 {
+    pub fn aliasing(mut self, aliasing: Aliasing) -> Self {
+        self.aliasing = aliasing;
+        self
+    }
+}
+
 impl Default for RuleAL01 {
     fn default() -> Self {
         Self { aliasing: Aliasing::Explicit }
@@ -37,7 +44,23 @@ impl Rule for RuleAL01 {
                 .find(|seg| seg.get_raw_upper() == Some("AS".into()))
                 .cloned();
 
-            if let Some(_as_keyword) = as_keyword {
+            if let Some(as_keyword) = as_keyword
+                && self.aliasing == Aliasing::Implicit
+            {
+                return vec![LintResult::new(
+                    as_keyword.clone().into(),
+                    ReflowSequence::from_around_target(
+                        as_keyword.clone(),
+                        rule_cx.parent_stack[0].clone(),
+                        "both",
+                    )
+                    .without(&as_keyword)
+                    .respace()
+                    .fixes(),
+                    None,
+                    None,
+                    None,
+                )];
             } else if self.aliasing != Aliasing::Implicit {
                 let identifier = rule_cx
                     .segment
@@ -80,7 +103,7 @@ impl Rule for RuleAL01 {
 mod tests {
     use crate::api::simple::fix;
     use crate::core::rules::base::Erased;
-    use crate::rules::aliasing::AL01::RuleAL01;
+    use crate::rules::aliasing::AL01::{Aliasing, RuleAL01};
 
     #[test]
     fn test_fail_default_explicit() {
@@ -88,5 +111,14 @@ mod tests {
         let result = fix(sql.to_string(), vec![RuleAL01::default().erased()]);
 
         assert_eq!(result, "select foo.bar from table1 AS foo");
+    }
+
+    #[test]
+    fn test_fail_implicit() {
+        let sql = "select foo.bar from table1 AS foo";
+        let result =
+            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
+
+        assert_eq!(result, "select foo.bar from table1 foo");
     }
 }

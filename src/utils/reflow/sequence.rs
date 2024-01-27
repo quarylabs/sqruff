@@ -157,6 +157,41 @@ impl ReflowSequence {
             .unwrap_or_else(|| panic!("Target [{:?}] not found in ReflowSequence.", target))
     }
 
+    pub fn without(self, target: &Box<dyn Segment>) -> ReflowSequence {
+        let removal_idx = self.find_element_idx_with(target);
+        if removal_idx == 0 || removal_idx == self.elements.len() - 1 {
+            panic!("Unexpected removal at one end of a ReflowSequence.");
+        }
+        match &self.elements[removal_idx] {
+            ReflowElement::Point(_) => {
+                panic!("Not expected removal of whitespace in ReflowSequence.");
+            }
+            _ => {}
+        }
+        let merged_point = ReflowPoint {
+            segments: [
+                self.elements[removal_idx - 1].segments(),
+                self.elements[removal_idx + 1].segments(),
+            ]
+            .concat(),
+        };
+        let mut new_elements = self.elements[..removal_idx - 1].to_vec();
+        new_elements.push(ReflowElement::Point(merged_point));
+        new_elements.extend_from_slice(&self.elements[removal_idx + 2..]);
+
+        ReflowSequence {
+            elements: new_elements,
+            root_segment: self.root_segment.clone(),
+            lint_results: vec![LintResult::new(
+                target.clone().into(),
+                vec![LintFix::delete(target.clone())],
+                None,
+                None,
+                None,
+            )],
+        }
+    }
+
     pub fn respace(mut self) -> Self {
         let mut lint_results = take(&mut self.lint_results);
         let mut new_elements = Vec::new();

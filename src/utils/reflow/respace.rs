@@ -39,25 +39,40 @@ pub fn process_spacing(
     segment_buffer: Vec<Box<dyn Segment>>,
     strip_newlines: bool,
 ) -> (Vec<Box<dyn Segment>>, Option<Box<dyn Segment>>, Vec<LintResult>) {
-    let removal_buffer = Vec::new();
-    let result_buffer = Vec::new();
+    let mut removal_buffer = Vec::new();
+    let mut result_buffer = Vec::new();
     let mut last_whitespace = Vec::new();
+
+    let mut last_iter_seg = None;
 
     // Loop through the existing segments looking for spacing.
     for seg in &segment_buffer {
         // If it's whitespace, store it.
         if seg.is_type("whitespace") {
-            last_whitespace.push(seg);
+            last_whitespace.push(seg.clone());
         }
         // If it's a newline, react accordingly.
         // NOTE: This should only trigger on literal newlines.
         else if matches!(seg.get_type(), "newline" | "end_of_file") {
             unimplemented!()
         }
+
+        last_iter_seg = seg.into();
     }
 
     if last_whitespace.len() >= 2 {
-        unimplemented!()
+        let seg = last_iter_seg.unwrap().clone();
+
+        for ws in last_whitespace.iter().skip(1).cloned() {
+            removal_buffer.push(ws.clone());
+            result_buffer.push(LintResult::new(
+                seg.clone().into(),
+                vec![LintFix::delete(ws)],
+                None,
+                "Unnecessary trailing whitespace.".to_owned().into(),
+                None,
+            ));
+        }
     }
 
     // Turn the removal buffer updated segment buffer, last whitespace and

@@ -992,8 +992,6 @@ mod tests {
     #[test]
     /// Test BaseSegment.compute_anchor_edit_info().
     fn test__parser_base_segments_compute_anchor_edit_info() {
-        unsafe { backtrace_on_stack_overflow::enable() };
-
         let raw_segs = raw_segments();
 
         // Construct a fix buffer, intentionally with:

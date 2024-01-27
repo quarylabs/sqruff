@@ -50,7 +50,7 @@ impl Rule for RuleAL01 {
                 return vec![LintResult::new(
                     as_keyword.clone().into(),
                     ReflowSequence::from_around_target(
-                        as_keyword.clone(),
+                        &as_keyword,
                         rule_cx.parent_stack[0].clone(),
                         "both",
                     )
@@ -73,7 +73,7 @@ impl Rule for RuleAL01 {
                 return vec![LintResult::new(
                     rule_cx.segment.clone().into(),
                     ReflowSequence::from_around_target(
-                        identifier.clone(),
+                        &identifier,
                         rule_cx.parent_stack[0].clone(),
                         "before",
                     )

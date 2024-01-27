@@ -1,6 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::iter::zip;
 
+use itertools::{chain, Itertools};
+
 use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
@@ -10,7 +12,7 @@ use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct ReflowPoint {
     pub segments: Vec<Box<dyn Segment>>,
 }
@@ -20,7 +22,9 @@ impl ReflowPoint {
         &self,
         prev_block: Option<&ReflowBlock>,
         next_block: Option<&ReflowBlock>,
+        lint_results: Vec<LintResult>,
     ) -> (Vec<LintResult>, ReflowPoint) {
+        let mut existing_results = lint_results;
         let (pre_constraint, post_constraint, strip_newlines) =
             determine_constraints(prev_block, next_block, false);
 
@@ -51,16 +55,18 @@ impl ReflowPoint {
                 prev_block,
                 next_block,
                 segment_buffer,
-                new_results,
+                chain(existing_results, new_results).collect_vec(),
                 "before",
             );
 
+            existing_results = Vec::new();
             new_results = results;
 
             segment_buffer
         };
 
-        (new_results, ReflowPoint { segments: segment_buffer })
+        existing_results.extend(new_results);
+        (existing_results, ReflowPoint { segments: segment_buffer })
     }
 }
 
@@ -115,10 +121,19 @@ impl From<ReflowPoint> for ReflowElement {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ReflowElement {
     Block(ReflowBlock),
     Point(ReflowPoint),
+}
+
+impl ReflowElement {
+    pub fn segments(&self) -> &[Box<dyn Segment>] {
+        match self {
+            ReflowElement::Block(block) => &block.segments,
+            ReflowElement::Point(point) => &point.segments,
+        }
+    }
 }
 
 impl ReflowElement {

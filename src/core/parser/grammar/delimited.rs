@@ -306,7 +306,7 @@ mod tests {
                     |segment| {
                         KeywordSegment::new(
                             segment.get_raw().unwrap(),
-                            segment.get_position_marker().unwrap(),
+                            segment.get_position_marker().unwrap().into(),
                         )
                         .boxed()
                     },

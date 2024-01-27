@@ -7,11 +7,11 @@ use crate::helpers::Boxed;
 pub struct KeywordSegment {
     raw: String,
     uuid: uuid::Uuid,
-    position_marker: PositionMarker,
+    position_marker: Option<PositionMarker>,
 }
 
 impl KeywordSegment {
-    pub fn new(raw: String, position_marker: PositionMarker) -> Self {
+    pub fn new(raw: String, position_marker: Option<PositionMarker>) -> Self {
         Self { raw, uuid: uuid::Uuid::new_v4(), position_marker }
     }
 }
@@ -53,8 +53,8 @@ impl Segment for KeywordSegment {
         self.position_marker.clone().into()
     }
 
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker;
     }
 
     fn get_uuid(&self) -> Option<uuid::Uuid> {

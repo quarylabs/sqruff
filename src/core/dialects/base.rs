@@ -159,7 +159,7 @@ impl Dialect {
                             |segment| {
                                 Box::new(KeywordSegment::new(
                                     segment.get_raw().unwrap().clone(),
-                                    segment.get_position_marker().unwrap(),
+                                    segment.get_position_marker().unwrap().into(),
                                 ))
                             },
                             None,

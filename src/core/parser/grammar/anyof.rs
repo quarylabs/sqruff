@@ -284,7 +284,7 @@ mod tests {
                 |segment| {
                     KeywordSegment::new(
                         segment.get_raw().unwrap(),
-                        segment.get_position_marker().unwrap(),
+                        segment.get_position_marker().unwrap().into(),
                     )
                     .boxed()
                 },
@@ -299,7 +299,7 @@ mod tests {
                 |segment| {
                     KeywordSegment::new(
                         segment.get_raw().unwrap(),
-                        segment.get_position_marker().unwrap(),
+                        segment.get_position_marker().unwrap().into(),
                     )
                     .boxed()
                 },
@@ -339,7 +339,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -354,7 +354,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -389,7 +389,7 @@ mod tests {
                         |it| {
                             KeywordSegment::new(
                                 it.get_raw().unwrap(),
-                                it.get_position_marker().unwrap(),
+                                it.get_position_marker().unwrap().into(),
                             )
                             .boxed()
                         },

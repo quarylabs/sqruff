@@ -161,7 +161,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
                 return Some(seg.get_raw_upper().unwrap());
             }
         }
-        dbg!(self);
         // Return None if no non-whitespace segment is found
         None
     }

@@ -18,7 +18,15 @@ impl Rule for RuleAL08 {
         for clause_element in context.segment.children(&["select_clause_element"]) {
             let mut column_alias = None;
 
-            if let Some(_alias_expression) = clause_element.child(&["alias_expression"]) {
+            if let Some(alias_expression) = clause_element.child(&["alias_expression"]) {
+                for it in alias_expression.get_segments() {
+                    if !it.is_code() || it.get_raw_upper().unwrap() == "AS" {
+                        continue;
+                    }
+
+                    column_alias = it.into();
+                    break;
+                }
             } else {
                 if let Some(column_reference) = clause_element.child(&["column_reference"]) {
                     column_alias = column_reference.get_segments().pop();
@@ -40,7 +48,7 @@ impl Rule for RuleAL08 {
                         column_alias.clone().into(),
                         vec![],
                         None,
-                        format!("Reuse of column alias {alias} from line {line_no}.").into(),
+                        format!("Reuse of column alias '{alias}' from line {line_no}.").into(),
                         None,
                     ))
                 }
@@ -72,7 +80,102 @@ mod tests {
 
         assert_eq!(
             result,
-            vec![SQLLintError { description: "Reuse of column alias foo from line 1.".into() }]
+            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() }]
+        );
+    }
+
+    #[test]
+    fn test_fail_aliases() {
+        let sql = "select a as foo, b as foo";
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
+                .unwrap();
+
+        assert_eq!(
+            result,
+            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() }]
+        );
+    }
+
+    #[test]
+    fn test_fail_alias_refs() {
+        let sql = "select foo, b as foo";
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
+                .unwrap();
+
+        assert_eq!(
+            result,
+            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },]
+        );
+    }
+
+    #[test]
+    fn test_fail_locs() {
+        let sql = "select foo, b as foo, c as bar, bar, d foo";
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
+                .unwrap();
+
+        assert_eq!(
+            result,
+            vec![
+                SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },
+                SQLLintError { description: "Reuse of column alias 'bar' from line 1.".into() },
+                SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },
+            ]
         )
+    }
+
+    #[test]
+    #[ignore = "snowflake"]
+    fn test_fail_alias_quoted() {
+        let sql = "select foo, b as \"foo\"";
+        let result = lint(
+            sql.to_string(),
+            "the snowflake dialect is not implemented".into(),
+            vec![RuleAL08::default().erased()],
+            None,
+            None,
+        )
+        .unwrap();
+
+        dbg!(result);
+    }
+
+    #[test]
+    fn test_fail_alias_case() {
+        let sql = "select foo, b as FOO";
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
+                .unwrap();
+
+        assert_eq!(
+            result,
+            vec![SQLLintError { description: "Reuse of column alias 'FOO' from line 1.".into() },]
+        )
+    }
+
+    #[test]
+    fn test_fail_qualified() {
+        let sql = "select a.foo, b as foo from a";
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
+                .unwrap();
+
+        assert_eq!(
+            result,
+            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },]
+        );
+    }
+
+    #[test]
+    fn test_pass_table_names() {
+        let sql = "select a.b, b.c, c.d from a, b, c";
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
+                .unwrap();
+
+        dbg!(result);
     }
 }

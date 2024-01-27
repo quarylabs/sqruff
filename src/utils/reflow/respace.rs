@@ -1,4 +1,4 @@
-use itertools::Itertools;
+use itertools::{enumerate, Itertools};
 
 use super::elements::ReflowBlock;
 use crate::core::parser::markers::PositionMarker;
@@ -192,6 +192,57 @@ pub fn handle_respace_inline_without_space(
     // So special handling here. If segments either side already exist then we don't
     // care which we anchor on but if one is already an insertion (as shown by a
     // lack) of pos_marker, then we should piggy back on that pre-existing fix.
+    let mut existing_fix = None;
+    let mut insertion = None;
+
+    if let Some(block) = prev_block {
+        if let Some(last_segment) = block.segments.last() {
+            if last_segment.get_position_marker().is_none() {
+                existing_fix = Some("after");
+                insertion = Some(last_segment);
+            }
+        }
+    } else if let Some(block) = next_block {
+        if let Some(first_segment) = block.segments.first() {
+            if first_segment.get_position_marker().is_none() {
+                existing_fix = Some("before");
+                insertion = Some(first_segment);
+            }
+        }
+    }
+
+    if let Some(existing_fix) = existing_fix {
+        let mut res_found = None;
+        let mut fix_found = None;
+
+        'outer: for (result_idx, res) in enumerate(&existing_results) {
+            for (fix_idx, fix) in enumerate(&res.fixes) {
+                if let Some(edits) = &fix.edit {
+                    if edits
+                        .iter()
+                        .any(|e| e.get_uuid().unwrap() == insertion.unwrap().get_uuid().unwrap())
+                    {
+                        res_found = Some(result_idx);
+                        fix_found = Some(fix_idx);
+                        break 'outer;
+                    }
+                }
+            }
+        }
+
+        let res = res_found.unwrap();
+        let fix = fix_found.unwrap();
+
+        let fix = &mut existing_results[res].fixes[fix];
+
+        if existing_fix == "before" {
+            unimplemented!()
+        } else if existing_fix == "after" {
+            fix.edit.as_mut().unwrap().push(added_whitespace);
+        }
+
+        return (segment_buffer, existing_results, true);
+    }
 
     let new_result = if let Some(prev_block) = prev_block
         && anchor_on != "after"

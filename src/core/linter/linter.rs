@@ -220,7 +220,7 @@ impl Linter {
                         // let anchor_info = BaseSegment.compute_anchor_edit_info(fixes);
 
                         // This is the happy path. We have fixes, now we want to apply them.
-                        let last_fixes = fixes;
+                        let _last_fixes = fixes;
 
                         let (new_tree, _, _, valid) =
                             tree.apply_fixes(dialect_selector("ansi").unwrap(), anchor_info);

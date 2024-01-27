@@ -5,9 +5,10 @@ use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use crate::core::config::FluffConfig;
 use crate::core::parser::segments::base::Segment;
-use crate::core::rules::base::LintResult;
+use crate::core::rules::base::{LintFix, LintResult};
 
 pub struct ReflowSequence {
+    root_segment: Box<dyn Segment>,
     elements: ReflowSequenceType,
     lint_results: Vec<LintResult>,
 }
@@ -15,6 +16,10 @@ pub struct ReflowSequence {
 impl ReflowSequence {
     pub fn results(self) -> Vec<LintResult> {
         self.lint_results
+    }
+
+    pub fn fixes(self) -> Vec<LintFix> {
+        self.results().into_iter().flat_map(|result| result.fixes).collect()
     }
 
     pub fn from_root(root_segment: Box<dyn Segment>, _config: FluffConfig) -> Self {
@@ -25,10 +30,10 @@ impl ReflowSequence {
         segments: Vec<Box<dyn Segment>>,
         root_segment: Box<dyn Segment>,
     ) -> Self {
-        let depth_map = DepthMap::from_raws_and_root(segments.clone(), root_segment);
+        let depth_map = DepthMap::from_raws_and_root(segments.clone(), root_segment.clone());
         let elements = Self::elements_from_raw_segments(segments, depth_map);
 
-        Self { elements, lint_results: Vec::new() }
+        Self { root_segment, elements, lint_results: Vec::new() }
     }
 
     fn elements_from_raw_segments(
@@ -67,14 +72,99 @@ impl ReflowSequence {
         elem_buff
     }
 
+    pub fn from_around_target(
+        target_segment: Box<dyn Segment>,
+        root_segment: Box<dyn Segment>,
+        sides: &str,
+    ) -> ReflowSequence {
+        let all_raws = root_segment.get_raw_segments();
+        let target_raws = target_segment.get_raw_segments();
+
+        assert!(!target_raws.is_empty());
+
+        let pre_idx = all_raws.iter().position(|x| x == &target_raws[0]).unwrap();
+        let post_idx =
+            all_raws.iter().position(|x| x == &target_raws[target_raws.len() - 1]).unwrap() + 1;
+
+        let initial_idx = (pre_idx, post_idx);
+
+        let mut pre_idx = pre_idx;
+        let mut post_idx = post_idx;
+
+        if sides == "both" || sides == "before" {
+            pre_idx -= 1;
+            for i in (0..pre_idx).rev() {
+                if all_raws[i].is_code() {
+                    pre_idx = i;
+                    break;
+                }
+            }
+        }
+
+        if sides == "both" || sides == "after" {
+            for i in post_idx..all_raws.len() {
+                if all_raws[i].is_code() {
+                    post_idx = i;
+                    break;
+                }
+            }
+            post_idx += 1;
+        }
+
+        let segments = &all_raws[pre_idx..post_idx];
+        ReflowSequence::from_raw_segments(segments.to_vec(), root_segment)
+    }
+
+    pub fn insert(
+        self,
+        insertion: Box<dyn Segment>,
+        target: Box<dyn Segment>,
+        pos: &'static str,
+    ) -> Self {
+        let target_idx = self.find_element_idx_with(&target);
+
+        let new_block =
+            ReflowBlock::from_config(vec![insertion.clone()], <_>::default(), <_>::default());
+
+        if pos == "before" {
+            let mut new_elements = self.elements[..target_idx].to_vec();
+            new_elements.push(new_block.into());
+            new_elements.push(ReflowPoint::default().into());
+            new_elements.extend_from_slice(&self.elements[target_idx..]);
+
+            let new_lint_result = LintResult::new(
+                target.clone().into(),
+                vec![LintFix::create_before(target, vec![insertion])],
+                None,
+                None,
+                None,
+            );
+
+            return ReflowSequence {
+                root_segment: self.root_segment,
+                elements: new_elements,
+                lint_results: vec![new_lint_result],
+            };
+        }
+
+        self
+    }
+
+    fn find_element_idx_with(&self, target: &Box<dyn Segment>) -> usize {
+        self.elements
+            .iter()
+            .position(|elem| elem.segments().contains(target))
+            .unwrap_or_else(|| panic!("Target [{:?}] not found in ReflowSequence.", target))
+    }
+
     pub fn respace(mut self) -> Self {
         let mut lint_results = take(&mut self.lint_results);
         let mut new_elements = Vec::new();
 
         for (point, pre, post) in self.iter_points_with_constraints() {
-            let (new_lint_results, new_point) = point.respace_point(pre, post);
+            let (new_lint_results, new_point) = point.respace_point(pre, post, lint_results);
 
-            lint_results.extend(new_lint_results);
+            lint_results = new_lint_results;
 
             if let Some(pre_value) = pre {
                 if new_elements.is_empty() || new_elements.last().unwrap() != pre_value {
@@ -91,6 +181,7 @@ impl ReflowSequence {
 
         self.elements = new_elements;
         self.lint_results = lint_results;
+
         self
     }
 

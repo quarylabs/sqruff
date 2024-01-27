@@ -11,9 +11,10 @@ use crate::core::parser::segments::base::Segment;
 
 // Assuming BaseSegment, LintFix, and SQLLintError are defined elsewhere.
 
+#[derive(Clone)]
 pub struct LintResult {
     anchor: Option<Box<dyn Segment>>,
-    fixes: Vec<LintFix>,
+    pub fixes: Vec<LintFix>,
     memory: Option<HashMap<String, String>>, // Adjust type as needed
     description: Option<String>,
     source: String,
@@ -140,6 +141,10 @@ impl LintFix {
         });
 
         LintFix { edit_type, anchor, edit: clean_edit, source: clean_source }
+    }
+
+    pub fn create_before(anchor: Box<dyn Segment>, edit_segments: Vec<Box<dyn Segment>>) -> Self {
+        Self::new(EditType::CreateBefore, anchor, edit_segments.into(), None)
     }
 
     pub fn replace(

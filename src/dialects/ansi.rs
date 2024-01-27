@@ -307,7 +307,7 @@ pub fn ansi_dialect() -> Dialect {
                     |segment| {
                         Box::new(KeywordSegment::new(
                             segment.get_raw().unwrap(),
-                            segment.get_position_marker().unwrap(),
+                            segment.get_position_marker().unwrap().into(),
                         ))
                     },
                     None,
@@ -2974,6 +2974,10 @@ impl Segment for FromExpressionElementSegment {
         Self { segments, uuid: self.uuid }.boxed()
     }
 
+    fn get_type(&self) -> &'static str {
+        "from_expression_element"
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             optionally_bracketed(vec![Ref::new("TableExpressionSegment").boxed()]).boxed(),
@@ -3016,6 +3020,10 @@ pub struct ObjectReferenceSegment {
 }
 
 impl Segment for ObjectReferenceSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
@@ -3025,6 +3033,18 @@ impl Segment for ObjectReferenceSegment {
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
     }
 }
 
@@ -3482,6 +3502,10 @@ pub struct AliasExpressionSegment {
 }
 
 impl Segment for AliasExpressionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             Ref::keyword("AS").optional().boxed(),
@@ -3490,6 +3514,22 @@ impl Segment for AliasExpressionSegment {
         ])
         .to_matchable()
         .into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "alias_expression"
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {

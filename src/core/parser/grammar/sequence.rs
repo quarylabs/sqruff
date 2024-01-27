@@ -184,8 +184,6 @@ impl Matchable for Sequence {
         let mut non_code_buffer = Vec::new();
 
         for (idx, elem) in enumerate(&self.elements) {
-            // println!("{elem:?}");
-
             // 1. Handle any metas or conditionals.
             // We do this first so that it's the same whether we've run
             // out of segments or not.
@@ -579,7 +577,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -594,7 +592,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -631,7 +629,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -646,7 +644,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -661,7 +659,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -695,7 +693,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -710,7 +708,7 @@ mod tests {
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
-                    segment.get_position_marker().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
                 )
                 .boxed()
             },
@@ -751,7 +749,7 @@ mod tests {
                         |it| {
                             KeywordSegment::new(
                                 it.get_raw().unwrap(),
-                                it.get_position_marker().unwrap(),
+                                it.get_position_marker().unwrap().into(),
                             )
                             .boxed()
                         },

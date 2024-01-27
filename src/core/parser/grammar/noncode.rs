@@ -12,11 +12,10 @@ pub struct NonCodeMatcher;
 impl Segment for NonCodeMatcher {}
 
 impl Matchable for NonCodeMatcher {
-    // Implement the simple method
     fn simple(
         &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, HashSet<String>)> {
         None
     }

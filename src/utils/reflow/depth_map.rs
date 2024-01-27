@@ -73,7 +73,7 @@ impl DepthMap {
 }
 
 /// An object to hold the depth information for a specific raw segment.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Default)]
 pub struct DepthInfo {
     pub stack_depth: usize,
     pub stack_hashes: Vec<u64>,

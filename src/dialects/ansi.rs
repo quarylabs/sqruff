@@ -1571,10 +1571,10 @@ pub fn ansi_dialect() -> Dialect {
 
     #[rustfmt::skip]
     add_segments!(
-        ansi_dialect, FromExpressionElementSegment, SelectClauseElementSegment, FromExpressionSegment, FromClauseSegment, WildcardIdentifierSegment,
-        WildcardExpressionSegment, SelectStatementSegment, StatementSegment, SetExpressionSegment,
-        UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment, TableExpressionSegment, 
-        ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment, 
+        ansi_dialect, FromExpressionElementSegment, SelectClauseElementSegment, FromExpressionSegment, FromClauseSegment,
+        WildcardIdentifierSegment, ColumnReferenceSegment, WildcardExpressionSegment, SelectStatementSegment, StatementSegment,
+        SetExpressionSegment, UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment, TableExpressionSegment,
+        ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment,
         LessThanOrEqualToSegment, NotEqualToSegment,
         BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment,
         BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment,
@@ -1595,11 +1595,6 @@ pub fn ansi_dialect() -> Dialect {
         CreateModelStatementSegment, DropModelStatementSegment, DescribeStatementSegment, UseStatementSegment, ExplainStatementSegment,
         CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment, CreateTriggerStatementSegment, DropTriggerStatementSegment
     );
-
-    ansi_dialect.add([(
-        "ColumnReferenceSegment".into(),
-        Ref::new("ObjectReferenceSegment").to_matchable().into(),
-    )]);
 
     ansi_dialect.expand();
     ansi_dialect
@@ -2390,6 +2385,10 @@ impl Segment for SelectClauseSegment {
         Self { segments, uuid: self.uuid }.boxed()
     }
 
+    fn get_type(&self) -> &'static str {
+        "select_clause"
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Sequence::new(vec![
             Ref::keyword("SELECT").boxed(),
@@ -2675,6 +2674,10 @@ pub struct SelectClauseElementSegment {
 impl Segment for SelectClauseElementSegment {
     fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "select_clause_element"
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -3008,6 +3011,51 @@ impl Segment for FromExpressionElementSegment {
 }
 
 impl Matchable for FromExpressionElementSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Hash, Debug, Clone, PartialEq)]
+pub struct ColumnReferenceSegment {
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for ColumnReferenceSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "column_reference"
+    }
+
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
+            .to_matchable()
+            .into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: Dialect,
+        fixes: HashMap<Uuid, AnchorEditInfo>,
+    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        apply_fixes(self, dialect, fixes)
+    }
+}
+
+impl Matchable for ColumnReferenceSegment {
     fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
         from_segments!(self, segments)
     }

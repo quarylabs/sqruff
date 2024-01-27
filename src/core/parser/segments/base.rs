@@ -41,6 +41,25 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
         None
     }
 
+    fn child(&self, seg_types: &[&str]) -> Option<Box<dyn Segment>> {
+        for seg in self.get_segments() {
+            if seg_types.iter().any(|ty| seg.is_type(ty)) {
+                return Some(seg);
+            }
+        }
+        None
+    }
+
+    fn children(&self, seg_types: &[&str]) -> Vec<Box<dyn Segment>> {
+        let mut buff = Vec::new();
+        for seg in self.get_segments() {
+            if seg_types.iter().any(|ty| seg.is_type(ty)) {
+                buff.push(seg);
+            }
+        }
+        buff
+    }
+
     fn path_to(&self, other: &Box<dyn Segment>) -> Vec<PathStep> {
         if self.dyn_eq(other) {
             return Vec::new();

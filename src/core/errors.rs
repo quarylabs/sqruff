@@ -157,7 +157,7 @@ impl SqlError for SQLBaseError {
 //     }
 // }
 //
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct SQLLintError {
     // segment: Box<dyn Segment>,
     // rule: ErasedRule,

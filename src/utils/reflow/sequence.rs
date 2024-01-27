@@ -73,7 +73,7 @@ impl ReflowSequence {
     }
 
     pub fn from_around_target(
-        target_segment: Box<dyn Segment>,
+        target_segment: &Box<dyn Segment>,
         root_segment: Box<dyn Segment>,
         sides: &str,
     ) -> ReflowSequence {

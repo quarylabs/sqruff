@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 use itertools::Itertools;
 use uuid::Uuid;
@@ -15,12 +15,11 @@ use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    apply_fixes, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-    NewlineSegment, NewlineSegmentNewArgs, Segment, SegmentConstructorFn, SymbolSegment,
-    SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
+    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
+    NewlineSegmentNewArgs, Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs,
+    WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::LiteralSegment;
-use crate::core::parser::segments::fix::AnchorEditInfo;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::parser::types::ParseMode;
@@ -145,11 +144,39 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "StartBracketSegment".into(),
-            StringParser::new("(", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "(",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "start_bracket" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "EndBracketSegment".into(),
-            StringParser::new(")", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ")",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "end_bracket" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "StartSquareBracketSegment".into(),
@@ -330,7 +357,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "FunctionNameIdentifierSegment".into(),
-            TypedParser::new("word", symbol_factory, None, false, None).to_matchable().into(),
+            TypedParser::new(
+                "word",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "FunctionNameIdentifierSegment" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         // Maybe data types should be more restrictive?
         (
@@ -2214,15 +2255,7 @@ impl Segment for FileSegment {
         self.segments.clone()
     }
 
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
-
-    fn class_types(&self) -> std::collections::HashSet<String> {
+    fn class_types(&self) -> HashSet<String> {
         ["file"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
@@ -2358,14 +2391,6 @@ impl Segment for UnorderedSelectStatementSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
 }
 
 impl Matchable for UnorderedSelectStatementSegment {
@@ -2413,15 +2438,7 @@ impl Segment for SelectClauseSegment {
         self.uuid.into()
     }
 
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
-
-    fn class_types(&self) -> std::collections::HashSet<String> {
+    fn class_types(&self) -> HashSet<String> {
         ["select_clause"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
@@ -2499,15 +2516,7 @@ impl Segment for StatementSegment {
         self.uuid.into()
     }
 
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
-
-    fn class_types(&self) -> std::collections::HashSet<String> {
+    fn class_types(&self) -> HashSet<String> {
         ["statement"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
@@ -2535,14 +2544,6 @@ impl Segment for SetExpressionSegment {
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
@@ -2583,14 +2584,6 @@ impl Segment for FromClauseSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
 }
 
 impl Matchable for FromClauseSegment {
@@ -2628,14 +2621,6 @@ impl Segment for SelectStatementSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 }
 
@@ -2701,14 +2686,6 @@ impl Segment for SelectClauseElementSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
 }
 
 impl Matchable for SelectClauseElementSegment {
@@ -2747,14 +2724,6 @@ impl Segment for WildcardExpressionSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 }
 
@@ -2801,14 +2770,6 @@ impl Segment for WildcardIdentifierSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 }
 
@@ -2894,12 +2855,20 @@ pub struct ExpressionSegment {
 }
 
 impl Segment for ExpressionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Ref::new("Expression_A_Grammar").to_matchable().into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 }
 
@@ -2950,14 +2919,6 @@ impl Segment for FromExpressionSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
 }
 
 impl Matchable for FromExpressionSegment {
@@ -3000,14 +2961,6 @@ impl Segment for FromExpressionElementSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
 }
 
 impl Matchable for FromExpressionElementSegment {
@@ -3045,14 +2998,6 @@ impl Segment for ColumnReferenceSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
 }
 
 impl Matchable for ColumnReferenceSegment {
@@ -3085,14 +3030,6 @@ impl Segment for ObjectReferenceSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 }
 
@@ -3564,14 +3501,6 @@ impl Segment for AliasExpressionSegment {
         .into()
     }
 
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
-
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
@@ -3717,14 +3646,6 @@ impl Segment for FunctionSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
 }
 
 impl Matchable for FunctionSegment {
@@ -3759,12 +3680,8 @@ impl Segment for FunctionNameSegment {
         self.uuid.into()
     }
 
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
+    fn class_types(&self) -> HashSet<String> {
+        HashSet::from(["function_name".into()])
     }
 }
 
@@ -5656,14 +5573,6 @@ impl Segment for TableExpressionSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 }
 

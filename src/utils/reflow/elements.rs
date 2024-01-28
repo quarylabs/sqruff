@@ -83,8 +83,12 @@ impl ReflowBlock {
         config: ReflowConfig,
         depth_info: DepthInfo,
     ) -> Self {
+        println!("START {}", segments[0].get_raw().unwrap());
+
         let block_config =
             config.get_block_config(ReflowElement::class_types(&segments), Some(&depth_info));
+
+        println!("END {}", segments[0].get_raw().unwrap());
 
         let mut stack_spacing_configs = HashMap::new();
         let mut line_position_configs = HashMap::new();

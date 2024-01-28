@@ -23,14 +23,19 @@ impl ReflowSequence {
     }
 
     pub fn from_root(root_segment: Box<dyn Segment>, _config: FluffConfig) -> Self {
-        Self::from_raw_segments(root_segment.get_raw_segments(), root_segment)
+        let depth_map = DepthMap::from_parent(&*root_segment).into();
+
+        Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, depth_map)
     }
 
     pub fn from_raw_segments(
         segments: Vec<Box<dyn Segment>>,
         root_segment: Box<dyn Segment>,
+        depth_map: Option<DepthMap>,
     ) -> Self {
-        let depth_map = DepthMap::from_raws_and_root(segments.clone(), root_segment.clone());
+        let depth_map = depth_map.unwrap_or_else(|| {
+            DepthMap::from_raws_and_root(segments.clone(), root_segment.clone())
+        });
         let elements = Self::elements_from_raw_segments(segments, depth_map);
 
         Self { root_segment, elements, lint_results: Vec::new() }
@@ -112,7 +117,7 @@ impl ReflowSequence {
         }
 
         let segments = &all_raws[pre_idx..post_idx];
-        ReflowSequence::from_raw_segments(segments.to_vec(), root_segment)
+        ReflowSequence::from_raw_segments(segments.to_vec(), root_segment, None)
     }
 
     pub fn insert(

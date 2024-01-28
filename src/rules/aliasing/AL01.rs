@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{BaseCrawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::Boxed;
 use crate::utils::reflow::sequence::ReflowSequence;
 
@@ -94,7 +94,7 @@ impl Rule for RuleAL01 {
         Vec::new()
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn BaseCrawler> {
+    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
         SegmentSeekerCrawler::new(HashSet::from(["alias_expression"])).boxed()
     }
 }

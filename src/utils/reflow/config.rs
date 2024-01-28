@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
+use itertools::Itertools;
+
 use crate::core::config::FluffConfig;
 use crate::utils::reflow::depth_map::DepthInfo;
 
@@ -116,11 +118,60 @@ impl ReflowConfig {
 
         let mut block_config = BlockConfig::new();
 
-        #[allow(unused_variables)]
         if let Some(depth_info) = depth_info {
-            let (parent_start, parent_end) = (true, true);
+            let (mut parent_start, mut parent_end) = (true, true);
 
-            for (idx, key) in depth_info.stack_hashes.iter().rev().enumerate() {}
+            for (idx, key) in depth_info.stack_hashes.iter().rev().enumerate() {
+                let stack_position = &depth_info.stack_positions[key];
+
+                if !["solo", "start"].contains(&stack_position.type_.as_str()) {
+                    parent_start = false;
+                }
+
+                if !["solo", "end"].contains(&stack_position.type_.as_str()) {
+                    parent_end = false;
+                }
+
+                if !parent_start && !parent_end {
+                    break;
+                }
+
+                let parent_classes =
+                    &depth_info.stack_class_types[depth_info.stack_class_types.len() - 1 - idx];
+
+                let configured_parent_types =
+                    self.config_types.intersection(parent_classes).collect_vec();
+
+                if parent_start {
+                    for seg_type in &configured_parent_types {
+                        block_config.incorporate(
+                            self._config_dict
+                                .get(seg_type.as_str())
+                                .and_then(|conf| conf.get("spacing_before"))
+                                .copied(),
+                            None,
+                            None,
+                            None,
+                            None,
+                        );
+                    }
+                }
+
+                if parent_end {
+                    for seg_type in &configured_parent_types {
+                        block_config.incorporate(
+                            None,
+                            self._config_dict
+                                .get(seg_type.as_str())
+                                .and_then(|conf| conf.get("spacing_after"))
+                                .copied(),
+                            None,
+                            None,
+                            None,
+                        );
+                    }
+                }
+            }
         }
 
         for seg_type in configured_types {

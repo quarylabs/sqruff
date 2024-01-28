@@ -3,7 +3,6 @@
 use fancy_regex::Regex;
 
 use super::parser::segments::base::Segment;
-use super::rules::base::{ErasedRule, LintFix};
 use crate::core::parser::markers::PositionMarker;
 
 type CheckTuple = (String, usize, usize);

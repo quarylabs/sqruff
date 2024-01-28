@@ -5,7 +5,7 @@ use itertools::{chain, Itertools};
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::context::RuleContext;
 
-pub trait BaseCrawler {
+pub trait Crawler {
     fn works_on_unparsable(&self) -> bool {
         false
     }
@@ -24,7 +24,7 @@ pub trait BaseCrawler {
 #[derive(Debug, Default, Clone)]
 pub struct RootOnlyCrawler {}
 
-impl BaseCrawler for RootOnlyCrawler {
+impl Crawler for RootOnlyCrawler {
     fn crawl(&self, context: RuleContext) -> Vec<RuleContext> {
         if self.passes_filter(&*context.segment) { vec![context.clone()] } else { Vec::new() }
     }
@@ -46,7 +46,7 @@ impl SegmentSeekerCrawler {
     }
 }
 
-impl BaseCrawler for SegmentSeekerCrawler {
+impl Crawler for SegmentSeekerCrawler {
     fn crawl(&self, mut context: RuleContext) -> Vec<RuleContext> {
         let mut acc = Vec::new();
 

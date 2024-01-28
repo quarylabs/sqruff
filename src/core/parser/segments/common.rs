@@ -1,10 +1,7 @@
-use std::collections::HashMap;
-
 use uuid::Uuid;
 
-use super::base::{apply_fixes, Segment};
-use super::fix::{AnchorEditInfo, SourceFix};
-use crate::core::dialects::base::Dialect;
+use super::base::Segment;
+use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Boxed;
 
@@ -27,14 +24,6 @@ impl Segment for LiteralSegment {
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         Vec::new()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {

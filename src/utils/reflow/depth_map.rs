@@ -9,19 +9,21 @@ use crate::core::parser::segments::base::{PathStep, Segment};
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct StackPosition {
-    idx: usize,
-    len: usize,
-    type_: String,
+    pub idx: usize,
+    pub len: usize,
+    pub type_: String,
 }
 
 impl StackPosition {
     /// Interpret a path step for stack_positions.
     fn stack_pos_interpreter(path_step: &PathStep) -> String {
-        if path_step.idx == 0 && path_step.idx == path_step.len - 1 {
+        if path_step.code_idxs.is_empty() {
+            "".to_string()
+        } else if path_step.code_idxs.len() == 1 {
             "solo".to_string()
-        } else if path_step.idx == 0 {
+        } else if path_step.idx == *path_step.code_idxs.iter().min().unwrap() {
             "start".to_string()
-        } else if path_step.idx == path_step.len - 1 {
+        } else if path_step.idx == *path_step.code_idxs.iter().max().unwrap() {
             "end".to_string()
         } else {
             "".to_string()
@@ -55,6 +57,10 @@ impl DepthMap {
 
     pub fn get_depth_info(&self, seg: &Box<dyn Segment>) -> DepthInfo {
         self.depth_info[&seg.get_uuid().unwrap()].clone()
+    }
+
+    pub fn from_parent(parent: &dyn Segment) -> Self {
+        Self::new(parent.raw_segments_with_ancestors())
     }
 
     pub fn from_raws_and_root(

@@ -1,10 +1,6 @@
-use std::collections::HashMap;
-
 use uuid::Uuid;
 
-use super::base::{apply_fixes, Segment};
-use super::fix::AnchorEditInfo;
-use crate::core::dialects::base::Dialect;
+use super::base::Segment;
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Boxed;
 
@@ -52,13 +48,5 @@ impl Segment for BracketedSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 }

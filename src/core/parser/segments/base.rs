@@ -2,6 +2,7 @@ use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::hash::Hash;
+use std::mem::take;
 
 use dyn_clone::DynClone;
 use dyn_hash::DynHash;
@@ -27,14 +28,34 @@ pub struct PathStep {
     pub segment: Box<dyn Segment>,
     pub idx: usize,
     pub len: usize,
+    pub code_idxs: Vec<usize>,
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
     &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
 
-pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
+pub trait CloneSegment {
+    fn clone_box(&self) -> Box<dyn Segment>;
+}
+
+impl<T: Segment + DynClone> CloneSegment for T {
+    fn clone_box(&self) -> Box<dyn Segment> {
+        dyn_clone::clone(self).boxed()
+    }
+}
+
+pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn code_indices(&self) -> Vec<usize> {
+        self.get_segments()
+            .iter()
+            .enumerate()
+            .filter(|(_, seg)| seg.is_code())
+            .map(|(idx, _)| idx)
+            .collect()
     }
 
     fn get_parent(&self) -> Option<Box<dyn Segment>> {
@@ -72,18 +93,19 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
         let mut midpoint = other.clone();
         let mut lower_path = Vec::new();
 
-        while let Some(_higher) = midpoint.get_parent() {
+        while let Some(higher) = midpoint.get_parent() {
             assert!(
-                _higher.get_position_marker().is_some(),
-                "`path_to()` found segment {_higher:?} without position. This shouldn't happen \
+                higher.get_position_marker().is_some(),
+                "`path_to()` found segment {higher:?} without position. This shouldn't happen \
                  post-parse."
             );
             lower_path.push(PathStep {
-                segment: _higher.clone(),
-                idx: _higher.get_segments().iter().position(|seg| seg.dyn_eq(&*_higher)).unwrap(),
-                len: _higher.get_segments().len(),
+                segment: higher.clone(),
+                idx: higher.get_segments().iter().position(|seg| seg.dyn_eq(&*higher)).unwrap(),
+                len: higher.get_segments().len(),
+                code_idxs: higher.code_indices(),
             });
-            midpoint = _higher.clone();
+            midpoint = higher.clone();
             if self.dyn_eq(&midpoint) {
                 break;
             }
@@ -107,8 +129,12 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
             // seg.set_parent(self); // Requires mutable reference to self or change in
             // design
 
-            // FIXME: seg.clone() => self
-            let step = PathStep { segment: seg.clone(), idx, len: self.get_segments().len() };
+            let step = PathStep {
+                segment: self.clone_box(),
+                idx,
+                len: self.get_segments().len(),
+                code_idxs: self.code_indices(),
+            };
             if seg.dyn_eq(&midpoint) {
                 let mut result = vec![step];
                 result.extend(lower_path);
@@ -119,6 +145,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
                 let mut result = vec![step];
                 result.extend(res);
                 result.extend(lower_path);
+
                 return result;
             }
         }
@@ -323,72 +350,103 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug {
         HashSet::new()
     }
 
+    #[allow(unused_variables)]
     fn apply_fixes(
         &self,
         dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
+        mut fixes: HashMap<Uuid, AnchorEditInfo>,
     ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-}
+        let mut seg_buffer = Vec::new();
+        let mut fixes_applied = Vec::new();
+        let mut requires_validate = false;
 
-pub fn apply_fixes(
-    this: &dyn Segment,
-    dialect: Dialect,
-    mut fixes: HashMap<Uuid, AnchorEditInfo>,
-) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-    let mut seg_buffer = Vec::new();
-    let mut fixes_applied = Vec::new();
-    let mut requires_validate = false;
+        for seg in self.get_segments() {
+            // Look for uuid match.
+            // This handles potential positioning ambiguity.
 
-    for seg in this.get_segments() {
-        // Look for uuid match.
-        // This handles potential positioning ambiguity.
-
-        let Some(anchor_info) = fixes.remove(&seg.get_uuid().unwrap()) else {
-            seg_buffer.push(seg);
-            continue;
-        };
-
-        for f in &anchor_info.fixes {
-            // assert f.anchor.uuid == seg.uuid
-            fixes_applied.push(f.clone());
-
-            // Deletes are easy.
-            if f.edit_type == EditType::Delete {
-                // We're just getting rid of this segment.
-                requires_validate = true;
-                // NOTE: We don't add the segment in this case.
+            let Some(anchor_info) = fixes.remove(&seg.get_uuid().unwrap()) else {
+                seg_buffer.push(seg);
                 continue;
-            }
+            };
 
-            if f.edit_type == EditType::CreateAfter && anchor_info.fixes.len() == 1 {
-                // In the case of a creation after that is not part
-                // of a create_before/create_after pair, also add
-                // this segment before the edit.
-                seg_buffer.push(seg.clone());
-            }
+            for f in &anchor_info.fixes {
+                // assert f.anchor.uuid == seg.uuid
+                fixes_applied.push(f.clone());
 
-            for s in f.edit.as_ref().unwrap() {
-                seg_buffer.push(s.clone());
+                // Deletes are easy.
+                if f.edit_type == EditType::Delete {
+                    // We're just getting rid of this segment.
+                    requires_validate = true;
+                    // NOTE: We don't add the segment in this case.
+                    continue;
+                }
+
+                if f.edit_type == EditType::CreateAfter && anchor_info.fixes.len() == 1 {
+                    // In the case of a creation after that is not part
+                    // of a create_before/create_after pair, also add
+                    // this segment before the edit.
+                    seg_buffer.push(seg.clone());
+                }
+
+                for s in f.edit.as_ref().unwrap() {
+                    seg_buffer.push(s.clone());
+                }
             }
         }
-    }
 
-    let seg_queue = seg_buffer.clone();
-    let mut seg_buffer = Vec::new();
-    for seg in seg_queue {
-        let (s, pre, post, validated) = seg.apply_fixes(dialect.clone(), fixes.clone());
-        seg_buffer.extend(pre);
-        seg_buffer.push(s);
-        seg_buffer.extend(post);
+        let seg_queue = seg_buffer.clone();
+        let mut seg_buffer = Vec::new();
+        for seg in seg_queue {
+            let (s, pre, post, validated) = seg.apply_fixes(dialect.clone(), fixes.clone());
+            seg_buffer.extend(pre);
+            seg_buffer.push(s);
+            seg_buffer.extend(post);
 
-        if !validated {
-            requires_validate = true;
+            if !validated {
+                requires_validate = true;
+            }
         }
+
+        (self.new(seg_buffer), Vec::new(), Vec::new(), false)
     }
 
-    (this.new(seg_buffer), Vec::new(), Vec::new(), false)
+    fn raw_segments_with_ancestors(&self) -> Vec<(Box<dyn Segment>, Vec<PathStep>)> {
+        let mut buffer: Vec<(Box<dyn Segment>, Vec<PathStep>)> = Vec::new();
+        let code_idxs: Vec<usize> = self.code_indices();
+
+        for (idx, seg) in self.get_segments().iter().enumerate() {
+            println!("{} {}", seg.get_type(), seg.get_raw().unwrap());
+
+            let mut new_step = vec![PathStep {
+                segment: self.clone_box(),
+                idx,
+                len: self.get_segments().len(),
+                code_idxs: code_idxs.clone(),
+            }];
+
+            // Use seg.get_segments().is_empty() as a workaround to check if the segment is
+            // a "raw" type. In the original Python code, this was achieved
+            // using seg.is_type("raw"). Here, we assume that a "raw" segment is
+            // characterized by having no sub-segments.
+            if seg.get_segments().is_empty() {
+                buffer.push((seg.clone(), new_step));
+            } else {
+                let mut extended = seg
+                    .raw_segments_with_ancestors()
+                    .into_iter()
+                    .map(|(raw_seg, stack)| {
+                        let mut new_step = take(&mut new_step);
+                        new_step.extend(stack);
+                        (raw_seg, new_step)
+                    })
+                    .collect::<Vec<_>>();
+
+                buffer.append(&mut extended);
+            }
+        }
+
+        buffer
+    }
 }
 
 dyn_clone::clone_trait_object!(Segment);
@@ -505,14 +563,6 @@ impl Segment for CodeSegment {
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         vec![self.clone().boxed()]
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 
     /// Create a new segment, with exactly the same position but different
@@ -648,14 +698,6 @@ impl Segment for NewlineSegment {
         self.clone().boxed()
     }
 
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
-    }
-
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         Vec::new()
     }
@@ -778,14 +820,6 @@ impl Segment for WhitespaceSegment {
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
         Self::new(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -919,14 +953,6 @@ impl Segment for SymbolSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: Dialect,
-        fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {

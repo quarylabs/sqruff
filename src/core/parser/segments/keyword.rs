@@ -1,4 +1,4 @@
-use super::base::{apply_fixes, Segment};
+use super::base::Segment;
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Boxed;
@@ -59,14 +59,6 @@ impl Segment for KeywordSegment {
 
     fn get_uuid(&self) -> Option<uuid::Uuid> {
         self.uuid.into()
-    }
-
-    fn apply_fixes(
-        &self,
-        dialect: crate::core::dialects::base::Dialect,
-        fixes: std::collections::HashMap<uuid::Uuid, super::fix::AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        apply_fixes(self, dialect, fixes)
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {

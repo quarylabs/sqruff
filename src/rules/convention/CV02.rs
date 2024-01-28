@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{BaseCrawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::Boxed;
 
 /// Prefer using `COALESCE` over `IFNULL` or `NVL`.
@@ -71,7 +71,7 @@ impl Rule for RuleCv02 {
         )]
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn BaseCrawler> {
+    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
         SegmentSeekerCrawler::new(HashSet::from(["word", "symbol"])).boxed()
     }
 }

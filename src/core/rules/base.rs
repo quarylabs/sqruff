@@ -4,7 +4,7 @@ use std::ops::Deref;
 use std::rc::Rc;
 
 use super::context::RuleContext;
-use super::crawlers::BaseCrawler;
+use super::crawlers::Crawler;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::Segment;
@@ -229,7 +229,7 @@ pub trait Rule: Debug + 'static {
         false
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn BaseCrawler>;
+    fn crawl_behaviour(&self) -> Box<dyn Crawler>;
 
     fn crawl(
         &self,

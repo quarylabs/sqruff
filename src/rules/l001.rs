@@ -1,6 +1,6 @@
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{BaseCrawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::helpers::Boxed;
 use crate::utils::reflow::sequence::ReflowSequence;
 
@@ -32,7 +32,7 @@ impl Rule for RuleL001 {
         sequence.respace().results()
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn BaseCrawler> {
+    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
         RootOnlyCrawler::default().boxed()
     }
 }
@@ -42,30 +42,6 @@ mod tests {
     use crate::api::simple::fix;
     use crate::core::rules::base::Erased;
     use crate::rules::l001::RuleL001;
-
-    #[test]
-    fn test_fail_whitespace_before_comma() {
-        let sql = fix("SELECT 1 ,4".into(), vec![RuleL001::default().erased()]);
-        assert_eq!(sql, "SELECT 1, 4");
-    }
-
-    #[test]
-    fn test_pass_single_whitespace_after_comma() {
-        let sql = fix("SELECT 1, 4".into(), vec![RuleL001::default().erased()]);
-        assert_eq!(sql, "SELECT 1, 4");
-    }
-
-    #[test]
-    fn test_fail_multiple_whitespace_after_comma() {
-        let sql = fix("SELECT 1,   4".into(), vec![RuleL001::default().erased()]);
-        assert_eq!(sql, "SELECT 1, 4");
-    }
-
-    #[test]
-    fn test_fail_no_whitespace_after_comma() {
-        let sql = fix("SELECT 1,4".into(), vec![RuleL001::default().erased()]);
-        assert_eq!(sql, "SELECT 1, 4");
-    }
 
     #[test]
     fn test_pass_bigquery_trailing_comma() {

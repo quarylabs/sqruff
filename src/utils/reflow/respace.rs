@@ -5,8 +5,25 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{Segment, WhitespaceSegment, WhitespaceSegmentNewArgs};
 use crate::core::rules::base::{EditType, LintFix, LintResult};
 
-fn unpack_constraint(constraint: String, strip_newlines: bool) -> (String, bool) {
-    (constraint, strip_newlines)
+fn unpack_constraint(constraint: String, mut strip_newlines: bool) -> (String, bool) {
+    let (constraint, modifier) = if constraint.starts_with("align") {
+        (constraint.as_str(), "".into())
+    } else {
+        constraint
+            .split_once(':')
+            .map(|(left, right)| (left, Some(right)))
+            .unwrap_or((constraint.as_str(), None))
+    };
+
+    match modifier {
+        Some("inline") => {
+            strip_newlines = true;
+        }
+        Some(modifier) => panic!("Unexpected constraint modifier: {modifier:?}"),
+        None => {}
+    }
+
+    (constraint.into(), strip_newlines)
 }
 
 pub fn determine_constraints(
@@ -23,6 +40,7 @@ pub fn determine_constraints(
         },
         strip_newlines,
     );
+
     let (post_constraint, strip_newlines) = unpack_constraint(
         if let Some(next_block) = next_block {
             next_block.spacing_before.clone()

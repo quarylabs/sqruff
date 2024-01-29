@@ -426,7 +426,7 @@ impl Matchable for Bracketed {
 
         // Rehydrate the bracket segments in question.
         // bracket_persists controls whether we make a BracketedSegment or not.
-        let (start_bracket, end_bracket, _bracket_persists) =
+        let (start_bracket, end_bracket, bracket_persists) =
             self.get_bracket_from_dialect(parse_context).unwrap();
 
         // Allow optional override for special bracket-like things
@@ -549,7 +549,14 @@ impl Matchable for Bracketed {
             return Ok(MatchResult::from_unmatched(segments));
         }
 
-        Ok(MatchResult::from_matched(segments))
+        Ok(MatchResult {
+            matched_segments: if bracket_persists {
+                vec![bracket_segment.boxed()]
+            } else {
+                bracket_segment.segments
+            },
+            unmatched_segments: trailing_segments,
+        })
     }
 }
 

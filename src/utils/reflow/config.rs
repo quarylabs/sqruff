@@ -111,10 +111,10 @@ impl Default for ReflowConfig {
 impl ReflowConfig {
     pub fn get_block_config(
         &self,
-        block_class_types: HashSet<String>,
+        block_class_types: &HashSet<String>,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
-        let configured_types = self.config_types.intersection(&block_class_types);
+        let configured_types = self.config_types.intersection(block_class_types);
 
         let mut block_config = BlockConfig::new();
 

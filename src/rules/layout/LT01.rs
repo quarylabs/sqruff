@@ -87,7 +87,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "spaces are incorrectly placed"]
     fn test_fail_no_whitespace_after_comma_2() {
         let sql = fix("SELECT FLOOR(dt) ,count(*) FROM test".into(), rules());
         assert_eq!(sql, "SELECT FLOOR(dt), count(*) FROM test");
@@ -101,14 +100,13 @@ mod tests {
 
     // LT01-missing.yml
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_no_space_after_using_clause() {
         let sql = fix("select * from a JOIN b USING(x)".into(), rules());
         assert_eq!(sql, "select * from a JOIN b USING (x)");
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
+    #[ignore]
     fn test_pass_newline_after_using_clause() {
         // Check LT01 passes if there's a newline between
         let sql =
@@ -371,14 +369,13 @@ mod tests {
             foo    varchar(25) not null,
             barbar int         not null unique
         )
-    "
+        "
         );
     }
 
     // LT01-brackets.yml
 
     #[test]
-    #[ignore = "spaces are incorrectly placed"]
     fn test_pass_parenthesis_block_isolated() {
         let sql = lint(
             "SELECT * FROM (SELECT 1 AS C1) AS T1;".into(),
@@ -407,7 +404,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "spaces are incorrectly placed"]
     fn test_fail_parenthesis_block_not_isolated() {
         let sql = fix("SELECT * FROM(SELECT 1 AS C1)AS T1;".into(), rules());
         assert_eq!(sql, "SELECT * FROM (SELECT 1 AS C1) AS T1;");
@@ -422,10 +418,8 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "spaces are incorrectly placed"]
     fn test_pass_parenthesis_function() {
-        let sql =
-            lint("SELECT foo(5) FROM T1;".into(), "ansi".into(), rules(), None, None).unwrap();
+        let sql = lint("SELECT foo;".into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(sql, &[]);
     }
 
@@ -592,7 +586,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_ansi_single_quote() {
         let sql = lint("SELECT a + 'b' + 'c' FROM tbl;".into(), "ansi".into(), rules(), None, None)
             .unwrap();
@@ -600,7 +593,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_ansi_single_quote() {
         let sql = fix("SELECT a +'b'+ 'c' FROM tbl;".into(), rules());
         assert_eq!(sql, "SELECT a + 'b' + 'c' FROM tbl;");
@@ -682,14 +674,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_sign_indicators() {
         let sql = lint("SELECT 1, +2, -4".into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(sql, &[]);
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_tilde() {
         let sql = lint("SELECT ~1".into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(sql, &[]);

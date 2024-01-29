@@ -48,6 +48,6 @@ mod tests {
         let sql =
             fix("SELECT * FROM(SELECT 1 AS C1)AS T1;".into(), vec![RuleL001::default().erased()]);
         // FIXME: ` ;` -> `;`
-        assert_eq!(sql, "SELECT * FROM (SELECT 1 AS C1) AS T1 ;");
+        assert_eq!(sql, "SELECT * FROM (SELECT 1 AS C1) AS T1;");
     }
 }

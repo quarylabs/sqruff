@@ -126,4 +126,24 @@ impl DepthInfo {
             stack_positions,
         }
     }
+
+    pub fn common_with(&self, other: &DepthInfo) -> Vec<u64> {
+        // Get the common depth and hashes with the other.
+        // We use HashSet intersection because it's efficient and hashes should be
+        // unique.
+
+        let common_hashes: HashSet<_> = self
+            .stack_hash_set
+            .intersection(&other.stack_hashes.iter().copied().collect())
+            .cloned()
+            .collect();
+
+        // We should expect there to be _at least_ one common ancestor, because
+        // they should share the same file segment. If that's not the case we
+        // should error because it's likely a bug or programming error.
+        assert!(!common_hashes.is_empty(), "DepthInfo comparison shares no common ancestor!");
+
+        let common_depth = common_hashes.len();
+        self.stack_hashes.iter().take(common_depth).cloned().collect()
+    }
 }

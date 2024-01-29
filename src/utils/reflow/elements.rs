@@ -75,6 +75,8 @@ pub struct ReflowBlock {
     pub spacing_before: String,
     pub spacing_after: String,
     pub segments: Vec<Box<dyn Segment>>,
+    pub depth_info: DepthInfo,
+    pub stack_spacing_configs: HashMap<u64, String>,
 }
 
 impl ReflowBlock {
@@ -83,21 +85,17 @@ impl ReflowBlock {
         config: ReflowConfig,
         depth_info: DepthInfo,
     ) -> Self {
-        println!("START {}", segments[0].get_raw().unwrap());
-
         let block_config =
-            config.get_block_config(ReflowElement::class_types(&segments), Some(&depth_info));
-
-        println!("END {}", segments[0].get_raw().unwrap());
+            config.get_block_config(&ReflowElement::class_types(&segments), Some(&depth_info));
 
         let mut stack_spacing_configs = HashMap::new();
         let mut line_position_configs = HashMap::new();
 
-        for (hash, class_types) in zip(depth_info.stack_hashes, depth_info.stack_class_types) {
+        for (hash, class_types) in zip(&depth_info.stack_hashes, &depth_info.stack_class_types) {
             let cfg = config.get_block_config(class_types, None);
 
             if let Some(spacing_within) = cfg.spacing_within {
-                stack_spacing_configs.insert(hash, spacing_within);
+                stack_spacing_configs.insert(*hash, spacing_within);
             }
 
             if let Some(line_position) = cfg.line_position {
@@ -108,7 +106,9 @@ impl ReflowBlock {
         Self {
             spacing_before: block_config.spacing_before,
             spacing_after: block_config.spacing_after,
+            stack_spacing_configs,
             segments,
+            depth_info,
         }
     }
 }

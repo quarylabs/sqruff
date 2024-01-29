@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::hash::Hash;
 
 use itertools::Itertools;
 use uuid::Uuid;
@@ -122,7 +123,21 @@ pub fn ansi_dialect() -> Dialect {
         ("DelimiterGrammar".into(), Ref::new("SemicolonSegment").to_matchable().into()),
         (
             "SemicolonSegment".into(),
-            StringParser::new(";", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ";",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "statement_terminator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "ColonSegment".into(),
@@ -222,7 +237,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "TildeSegment".into(),
-            StringParser::new("~", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "~",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "tilde" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "ParameterSegment".into(),
@@ -234,7 +263,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "PlusSegment".into(),
-            StringParser::new("+", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "+",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "MinusSegment".into(),
@@ -242,11 +285,39 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "PositiveSegment".into(),
-            StringParser::new("+", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "+",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "sign_indicator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "NegativeSegment".into(),
-            StringParser::new("-", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "-",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "sign_indicator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "DivideSegment".into(),
@@ -270,7 +341,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "PipeSegment".into(),
-            StringParser::new("|", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "|",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "pipe" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "BitwiseXorSegment".into(),
@@ -1616,7 +1701,7 @@ pub fn ansi_dialect() -> Dialect {
         WildcardIdentifierSegment, ColumnReferenceSegment, WildcardExpressionSegment, SelectStatementSegment, StatementSegment,
         SetExpressionSegment, UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment, TableExpressionSegment,
         ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment,
-        LessThanOrEqualToSegment, NotEqualToSegment,
+        LessThanOrEqualToSegment, NotEqualToSegment, JoinOnConditionSegment,
         BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment,
         BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment,
         ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments,
@@ -4115,6 +4200,22 @@ impl Segment for ConcatSegment {
             .to_matchable()
             .into()
     }
+
+    fn get_type(&self) -> &'static str {
+        "binary_operator"
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn class_types(&self) -> HashSet<String> {
+        HashSet::from(["binary_operator".into()])
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
 }
 
 impl Matchable for LessThanSegment {
@@ -5589,19 +5690,33 @@ pub struct JoinClauseSegment {
 }
 
 impl Segment for JoinClauseSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         one_of(vec_of_erased![Sequence::new(vec_of_erased![
             Ref::new("JoinTypeKeywordsGrammar").optional(),
             Ref::new("JoinKeywordsGrammar"),
             Ref::new("FromExpressionElementSegment"),
             AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-            Sequence::new(vec_of_erased![one_of(vec_of_erased![Ref::new(
-                "JoinOnConditionSegment"
-            )])])
+            Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                Ref::new("JoinOnConditionSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("USING"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "SingleIdentifierGrammar"
+                    )])])
+                ])
+            ])])
             .config(|this| this.optional())
         ])])
         .to_matchable()
         .into()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {

@@ -50,6 +50,18 @@ pub fn determine_constraints(
         strip_newlines,
     );
 
+    // let within_spacing = "";
+    // if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
+    //     let common = prev_block.depth_info.common_with(&next_block.depth_info);
+    //     let last_common = common.last().unwrap();
+    //     let idx = prev_block.depth_info.stack_hashes.iter().position(|p| p ==
+    // last_common).unwrap();
+
+    //     dbg!(&prev_block.stack_spacing_configs);
+    //     let within_constraint = prev_block.stack_spacing_configs.get(&(idx as
+    // u64));     dbg!(within_constraint);
+    // }
+
     (pre_constraint, post_constraint, strip_newlines)
 }
 

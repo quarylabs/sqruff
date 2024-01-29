@@ -49,6 +49,21 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn print_tree(&self) {
+        let mut tree = String::new();
+
+        let mut display = |seg: &dyn Segment| {
+            tree.push_str(&format!("{} = {}", seg.get_type(), seg.get_raw().unwrap()))
+        };
+
+        display(&*self.clone_box());
+        for seg in self.get_segments() {
+            seg.print_tree();
+        }
+
+        println!("{tree}");
+    }
+
     fn code_indices(&self) -> Vec<usize> {
         self.get_segments()
             .iter()
@@ -415,8 +430,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.get_segments().iter().enumerate() {
-            println!("{} {}", seg.get_type(), seg.get_raw().unwrap());
-
             let mut new_step = vec![PathStep {
                 segment: self.clone_box(),
                 idx,

@@ -612,8 +612,8 @@ mod tests {
         // NB: The bracket segments will have been mutated, so we can't directly
         // compare. Make sure we've got a bracketed section in there.
         assert_eq!(pre_section.len(), 5);
-        assert!(pre_section[2].is_type("BracketedSegment"));
-        assert!(pre_section[2].is_type("BracketedSegment"));
+        assert!(pre_section[2].is_type("bracketed"));
+        assert!(pre_section[2].is_type("bracketed"));
         assert_eq!(pre_section[2].get_segments().len(), 4);
         assert!(matcher.unwrap().dyn_eq(&*fs));
 

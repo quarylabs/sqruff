@@ -13,6 +13,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT06 {}
 
 impl Rule for RuleLT06 {
+    fn description(&self) -> &'static str {
+        "Function name not immediately followed by parenthesis."
+    }
+
     fn crawl_behaviour(&self) -> Box<dyn Crawler> {
         SegmentSeekerCrawler::new(HashSet::from(["function".into()])).boxed()
     }
@@ -55,6 +59,7 @@ impl Rule for RuleLT06 {
 #[cfg(test)]
 mod tests {
     use crate::api::simple::{fix, lint};
+    use crate::core::errors::SQLLintError;
     use crate::core::rules::base::Erased;
     use crate::rules::layout::LT06::RuleLT06;
 
@@ -82,5 +87,40 @@ mod tests {
         let sql = "SELECT SUM (1)";
         let result = fix(sql.to_string(), vec![RuleLT06::default().erased()]);
         assert_eq!(result, "SELECT SUM(1)");
+    }
+
+    #[test]
+    fn complex_fail_1() {
+        let sql = "SELECT SUM /* SOMETHING */ (1)";
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
+                .unwrap();
+
+        assert_eq!(
+            result,
+            &[SQLLintError {
+                description: "Function name not immediately followed by parenthesis.".into()
+            }]
+        );
+    }
+
+    #[test]
+    fn complex_fail_2() {
+        let sql = "
+    SELECT
+      SUM
+      -- COMMENT
+      (1)";
+
+        let result =
+            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
+                .unwrap();
+
+        assert_eq!(
+            result,
+            &[SQLLintError {
+                description: "Function name not immediately followed by parenthesis.".into()
+            }]
+        );
     }
 }

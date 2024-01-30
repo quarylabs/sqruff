@@ -14,8 +14,10 @@ pub struct BracketedSegment {
 }
 
 impl PartialEq for BracketedSegment {
-    fn eq(&self, _other: &Self) -> bool {
-        unimplemented!()
+    fn eq(&self, other: &Self) -> bool {
+        self.segments.iter().zip(&other.segments).all(|(lhs, rhs)| lhs.dyn_eq(&**rhs))
+            && self.start_bracket == other.start_bracket
+            && self.end_bracket == other.end_bracket
     }
 }
 
@@ -48,5 +50,9 @@ impl Segment for BracketedSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "bracketed"
     }
 }

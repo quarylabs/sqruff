@@ -1697,15 +1697,15 @@ pub fn ansi_dialect() -> Dialect {
 
     #[rustfmt::skip]
     add_segments!(
-        ansi_dialect, FromExpressionElementSegment, SelectClauseElementSegment, FromExpressionSegment, FromClauseSegment,
-        WildcardIdentifierSegment, ColumnReferenceSegment, WildcardExpressionSegment, SelectStatementSegment, StatementSegment,
+        ansi_dialect, OverClauseSegment, FromExpressionElementSegment, SelectClauseElementSegment, FromExpressionSegment, FromClauseSegment,
+        WildcardIdentifierSegment, ColumnReferenceSegment, WildcardExpressionSegment, SelectStatementSegment, StatementSegment, WindowSpecificationSegment,
         SetExpressionSegment, UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment, TableExpressionSegment,
         ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment,
-        LessThanOrEqualToSegment, NotEqualToSegment, JoinOnConditionSegment,
+        LessThanOrEqualToSegment, NotEqualToSegment, JoinOnConditionSegment, PartitionClauseSegment,
         BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment,
         BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment,
         ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments,
-        TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar,
+        TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar, FrameClauseSegment,
         SetOperatorSegment, WhereClauseSegment, ElseClauseSegment, IntervalExpressionSegment,
         QualifiedNumericLiteralSegment, FunctionSegment, FunctionNameSegment, TypedArrayLiteralSegment,
         SelectClauseModifierSegment, OrderByClauseSegment,
@@ -3709,17 +3709,13 @@ impl Segment for FunctionSegment {
     }
 
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        one_of(vec![
-            Sequence::new(vec![
-                Sequence::new(vec![
-                    Ref::new("FunctionNameSegment").boxed(),
-                    Bracketed::new(vec![Ref::new("FunctionContentsGrammar").optional().boxed()])
-                        .boxed(),
-                ])
-                .boxed(),
-            ])
-            .boxed(),
-        ])
+        one_of(vec_of_erased![Sequence::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("FunctionNameSegment"),
+                Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
+            ]),
+            Ref::new("PostFunctionGrammar").optional()
+        ])])
         .to_matchable()
         .into()
     }
@@ -3730,6 +3726,10 @@ impl Segment for FunctionSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "function"
     }
 }
 
@@ -3748,6 +3748,10 @@ pub struct FunctionNameSegment {
 impl Segment for FunctionNameSegment {
     fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "function_name"
     }
 
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
@@ -5752,6 +5756,195 @@ impl Segment for JoinOnConditionSegment {
 }
 
 impl Matchable for JoinOnConditionSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Hash, Debug, Clone, PartialEq)]
+pub struct OverClauseSegment {
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for OverClauseSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "over_clause"
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Sequence::new(vec_of_erased![
+            Ref::new("IgnoreRespectNullsGrammar").optional(),
+            Ref::keyword("OVER"),
+            one_of(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Bracketed::new(vec_of_erased![Ref::new("WindowSpecificationSegment").optional()])
+            ])
+        ])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+}
+
+impl Matchable for OverClauseSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Hash, Debug, Clone, PartialEq)]
+pub struct WindowSpecificationSegment {
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for WindowSpecificationSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "window_specification"
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Sequence::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar").optional().exclude(Ref::keyword("PARTITION")),
+            Ref::new("PartitionClauseSegment").optional(),
+            Ref::new("OrderByClauseSegment").optional(),
+            Ref::new("FrameClauseSegment").optional()
+        ])
+        .config(|this| this.optional())
+        .to_matchable()
+        .into()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+}
+
+impl Matchable for WindowSpecificationSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Hash, Debug, Clone, PartialEq)]
+pub struct PartitionClauseSegment {
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for PartitionClauseSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "partitionby_clause"
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("PARTITION"),
+            Ref::keyword("BY"),
+            optionally_bracketed(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "ExpressionSegment"
+            )])])
+        ])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+}
+
+impl Matchable for PartitionClauseSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Hash, Debug, Clone, PartialEq)]
+pub struct FrameClauseSegment {
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for FrameClauseSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "frame_clause"
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        let frame_extent = one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW")]),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("NumericLiteralSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INTERVAL"),
+                        Ref::new("QuotedLiteralSegment")
+                    ]),
+                    Ref::keyword("UNBOUNDED")
+                ]),
+                one_of(vec_of_erased![Ref::keyword("PRECEDING"), Ref::keyword("FOLLOWING")])
+            ])
+        ]);
+
+        Sequence::new(vec_of_erased![
+            Ref::new("FrameClauseUnitGrammar"),
+            one_of(vec_of_erased![
+                frame_extent.clone(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("BETWEEN"),
+                    frame_extent.clone(),
+                    Ref::keyword("AND"),
+                    frame_extent
+                ])
+            ])
+        ])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+}
+
+impl Matchable for FrameClauseSegment {
     fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
         from_segments!(self, segments)
     }

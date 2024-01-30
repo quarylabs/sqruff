@@ -84,7 +84,27 @@ pub fn process_spacing(
         // If it's a newline, react accordingly.
         // NOTE: This should only trigger on literal newlines.
         else if matches!(seg.get_type(), "newline" | "end_of_file") {
-            unimplemented!()
+            if seg.get_position_marker().is_some_and(|pos_marker| pos_marker.is_literal()) {
+                last_whitespace = Vec::new();
+                continue;
+            }
+
+            if strip_newlines && seg.is_type("newline") {
+                unimplemented!()
+            }
+
+            if !last_whitespace.is_empty() {
+                for ws in last_whitespace.drain(..) {
+                    removal_buffer.push(ws.clone());
+                    result_buffer.push(LintResult::new(
+                        ws.clone().into(),
+                        vec![LintFix::delete(ws)],
+                        None,
+                        Some("Unnecessary trailing whitespace.".into()),
+                        None,
+                    ))
+                }
+            }
         }
 
         last_iter_seg = seg.into();

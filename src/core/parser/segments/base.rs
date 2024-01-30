@@ -715,6 +715,10 @@ impl Segment for NewlineSegment {
         Vec::new()
     }
 
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone_box()]
+    }
+
     fn get_type(&self) -> &'static str {
         "newline"
     }

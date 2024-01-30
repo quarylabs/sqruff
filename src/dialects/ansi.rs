@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::hash::Hash;
 
-use itertools::Itertools;
+use itertools::{chain, Itertools};
 use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
@@ -2310,11 +2310,23 @@ impl FileSegment {
                 .match_segments(segments[start_idx..end_idx].to_vec(), this)
         })?;
 
-        if !match_result.has_match() {
+        let has_match = match_result.has_match();
+        let unmatched = match_result.unmatched_segments;
+
+        let content: Vec<_> = if !has_match {
             unimplemented!()
+        } else if !unmatched.is_empty() {
+            unimplemented!()
+        } else {
+            chain(match_result.matched_segments, unmatched).collect()
         };
 
-        Ok(Self { segments: match_result.matched_segments, uuid: Uuid::new_v4() }.boxed())
+        let mut result = Vec::new();
+        result.extend_from_slice(&segments[..start_idx]);
+        result.extend(content);
+        result.extend_from_slice(&segments[end_idx..]);
+
+        Ok(Self { segments: result, uuid: Uuid::new_v4() }.boxed())
     }
 }
 

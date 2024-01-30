@@ -32,6 +32,15 @@ impl ReflowPoint {
         let (segment_buffer, last_whitespace, mut new_results) =
             process_spacing(self.segments.clone(), strip_newlines);
 
+        if segment_buffer.iter().any(|seg| seg.is_type("newline")) && !strip_newlines
+            || (next_block.is_some()
+                && next_block.unwrap().class_types().contains(&"end_of_file".to_string()))
+        {
+            existing_results.extend(new_results);
+
+            return (existing_results, ReflowPoint { segments: segment_buffer });
+        }
+
         // Do we at least have _some_ whitespace?
         let segment_buffer = if let Some(last_whitespace) = last_whitespace {
             // We do - is it the right size?
@@ -77,6 +86,12 @@ pub struct ReflowBlock {
     pub segments: Vec<Box<dyn Segment>>,
     pub depth_info: DepthInfo,
     pub stack_spacing_configs: HashMap<u64, String>,
+}
+
+impl ReflowBlock {
+    fn class_types(&self) -> HashSet<String> {
+        ReflowElement::class_types(&self.segments)
+    }
 }
 
 impl ReflowBlock {

@@ -9,6 +9,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
+use crate::helpers::Boxed;
 
 /// A segment which is empty but indicates where an indent should be.
 ///
@@ -166,18 +167,27 @@ impl Dedent {
 
 #[derive(Hash, Clone, Debug, PartialEq)]
 pub struct EndOfFile {
+    uuid: Uuid,
     position_maker: PositionMarker,
 }
 
 impl EndOfFile {
     pub fn new(position_maker: PositionMarker) -> Box<dyn Segment> {
-        Box::new(EndOfFile { position_maker })
+        Box::new(EndOfFile { position_maker, uuid: Uuid::new_v4() })
     }
 }
 
 impl Segment for EndOfFile {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { uuid: self.uuid, position_maker: self.position_maker.clone() }.boxed()
+    }
+
     fn get_raw(&self) -> Option<String> {
         Some(String::new())
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        Vec::new()
     }
 
     fn get_type(&self) -> &'static str {
@@ -205,7 +215,7 @@ impl Segment for EndOfFile {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
+        self.uuid.into()
     }
 
     fn edit(

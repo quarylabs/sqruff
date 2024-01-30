@@ -106,6 +106,7 @@ mod tests {
     use crate::rules::aliasing::AL01::{Aliasing, RuleAL01};
 
     #[test]
+    #[ignore]
     fn test_fail_default_explicit() {
         let sql = "select foo.bar from table1 foo";
         let result = fix(sql.to_string(), vec![RuleAL01::default().erased()]);

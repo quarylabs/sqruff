@@ -940,7 +940,7 @@ impl Segment for SymbolSegment {
     }
 
     fn get_type(&self) -> &'static str {
-        "symbol"
+        self.type_
     }
 
     fn is_code(&self) -> bool {

@@ -72,7 +72,7 @@ impl Rule for RuleCv02 {
     }
 
     fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from(["word", "symbol"])).boxed()
+        SegmentSeekerCrawler::new(HashSet::from(["function_name_identifier"])).boxed()
     }
 }
 

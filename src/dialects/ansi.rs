@@ -448,7 +448,7 @@ pub fn ansi_dialect() -> Dialect {
                     SymbolSegment::new(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
-                        SymbolSegmentNewArgs { r#type: "FunctionNameIdentifierSegment" },
+                        SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                     )
                 },
                 None,

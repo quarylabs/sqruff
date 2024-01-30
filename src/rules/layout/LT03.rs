@@ -10,11 +10,7 @@ pub struct RuleLT03 {}
 
 impl Rule for RuleLT03 {
     fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from([
-            "binary_operator".into(),
-            "comparison_operator".into(),
-        ]))
-        .boxed()
+        SegmentSeekerCrawler::new(HashSet::from(["binary_operator", "comparison_operator"])).boxed()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

@@ -3,6 +3,7 @@ use std::mem::take;
 use super::config::ReflowConfig;
 use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
+use super::rebreak::rebreak_sequence;
 use crate::core::config::FluffConfig;
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintFix, LintResult};
@@ -202,7 +203,7 @@ impl ReflowSequence {
         let mut new_elements = Vec::new();
 
         for (point, pre, post) in self.iter_points_with_constraints() {
-            let (new_lint_results, new_point) = point.respace_point(pre, post, lint_results);
+            let (new_lint_results, new_point) = point.respace_point(pre, post, lint_results, false);
 
             lint_results = new_lint_results;
 
@@ -223,6 +224,17 @@ impl ReflowSequence {
         self.lint_results = lint_results;
 
         self
+    }
+
+    pub fn rebreak(self) -> Self {
+        if !self.lint_results.is_empty() {
+            panic!("rebreak cannot currently handle pre-existing embodied fixes");
+        }
+
+        // Delegate to the rebreak algorithm
+        let (elem_buff, lint_results) = rebreak_sequence(self.elements, self.root_segment.clone());
+
+        ReflowSequence { root_segment: self.root_segment, elements: elem_buff, lint_results }
     }
 
     fn iter_points_with_constraints(

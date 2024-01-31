@@ -59,6 +59,7 @@ impl Rule for RuleCv02 {
             )],
             None,
         );
+
         vec![LintResult::new(
             context.segment.clone().into(),
             vec![fix],

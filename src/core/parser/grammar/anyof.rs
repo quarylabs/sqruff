@@ -85,7 +85,7 @@ pub struct AnyNumberOf {
 
 impl PartialEq for AnyNumberOf {
     fn eq(&self, other: &Self) -> bool {
-        self.elements.iter().zip(&other.elements).all(|(lhs, rhs)| lhs.dyn_eq(&**rhs))
+        self.elements.iter().zip(&other.elements).all(|(lhs, rhs)| lhs.dyn_eq(rhs.as_ref()))
     }
 }
 

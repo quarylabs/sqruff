@@ -15,7 +15,7 @@ pub struct BracketedSegment {
 
 impl PartialEq for BracketedSegment {
     fn eq(&self, other: &Self) -> bool {
-        self.segments.iter().zip(&other.segments).all(|(lhs, rhs)| lhs.dyn_eq(&**rhs))
+        self.segments.iter().zip(&other.segments).all(|(lhs, rhs)| lhs.dyn_eq(rhs.as_ref()))
             && self.start_bracket == other.start_bracket
             && self.end_bracket == other.end_bracket
     }

@@ -44,7 +44,7 @@ impl<T: Segment + DynClone> CloneSegment for T {
     }
 }
 
-pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
+pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment + Sync + Send {
     fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -689,7 +689,7 @@ pub struct NewlineSegment {
     uuid: Uuid,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct NewlineSegmentNewArgs {}
 
 impl NewlineSegment {
@@ -739,8 +739,12 @@ impl Segment for NewlineSegment {
         self.position_maker.clone().into()
     }
 
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        let Some(position_marker) = position_marker else {
+            return;
+        };
+
+        dbg!("self.position_marker = position_marker;");
     }
 
     fn edit(
@@ -757,6 +761,10 @@ impl Segment for NewlineSegment {
 
     fn get_raw(&self) -> Option<String> {
         Some(self.raw.clone())
+    }
+
+    fn class_types(&self) -> HashSet<String> {
+        HashSet::from(["newline".into()])
     }
 }
 
@@ -827,8 +835,12 @@ impl Segment for WhitespaceSegment {
         self.position_marker.clone().into()
     }
 
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        let Some(position_marker) = position_marker else {
+            return;
+        };
+
+        self.position_marker = position_marker;
     }
 
     fn get_uuid(&self) -> Option<Uuid> {

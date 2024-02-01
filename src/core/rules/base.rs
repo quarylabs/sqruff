@@ -147,6 +147,14 @@ impl LintFix {
         Self::new(EditType::CreateBefore, anchor, edit_segments.into(), None)
     }
 
+    pub fn create_after(
+        anchor: Box<dyn Segment>,
+        edit_segments: Vec<Box<dyn Segment>>,
+        source: Option<Vec<Box<dyn Segment>>>,
+    ) -> Self {
+        Self::new(EditType::CreateAfter, anchor, edit_segments.into(), source)
+    }
+
     pub fn replace(
         anchor_segment: Box<dyn Segment>,
         edit_segments: Vec<Box<dyn Segment>>,

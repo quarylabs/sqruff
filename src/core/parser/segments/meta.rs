@@ -191,7 +191,7 @@ impl Segment for EndOfFile {
     }
 
     fn get_type(&self) -> &'static str {
-        "EndOfFile"
+        "end_of_file"
     }
 
     fn is_code(&self) -> bool {
@@ -203,7 +203,7 @@ impl Segment for EndOfFile {
     }
 
     fn is_whitespace(&self) -> bool {
-        todo!()
+        false
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {

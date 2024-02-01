@@ -49,6 +49,24 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment + Syn
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn recursive_crawl_all(&self, reverse: bool) -> Vec<Box<dyn Segment>> {
+        let mut result = Vec::new();
+
+        if reverse {
+            for seg in self.get_segments().iter().rev() {
+                result.extend(seg.recursive_crawl_all(reverse));
+            }
+            result.push(self.clone_box());
+        } else {
+            result.push(self.clone_box());
+            for seg in self.get_segments() {
+                result.extend(seg.recursive_crawl_all(reverse));
+            }
+        }
+
+        result
+    }
+
     fn print_tree(&self) {
         let mut tree = String::new();
 
@@ -239,7 +257,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment + Syn
         unimplemented!("{}", std::any::type_name::<Self>())
     }
     fn is_whitespace(&self) -> bool {
-        unimplemented!("{}", std::any::type_name::<Self>())
+        false
     }
     fn is_meta(&self) -> bool {
         false

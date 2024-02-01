@@ -6090,7 +6090,7 @@ mod tests {
             let segment = dialect.r#ref(segment_ref);
             let mut segments = lex(sql_string);
 
-            if segments.last().unwrap().get_type() == "EndOfFile" {
+            if segments.last().unwrap().get_type() == "end_of_file" {
                 segments.pop();
             }
 

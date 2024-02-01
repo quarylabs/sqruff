@@ -1,0 +1,96 @@
+use std::collections::HashSet;
+
+use crate::core::parser::segments::base::WhitespaceSegment;
+use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::context::RuleContext;
+use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::helpers::Boxed;
+use crate::utils::functional::context::FunctionalContext;
+
+#[derive(Debug, Default)]
+pub struct RuleLT10 {}
+
+impl Rule for RuleLT10 {
+    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
+        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).boxed()
+    }
+
+    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+        // Get children of select_clause and the corresponding select keyword.
+        let child_segments = FunctionalContext::new(context.clone()).segment().children(None);
+        let select_keyword = child_segments.first().unwrap();
+
+        // See if we have a select_clause_modifier.
+        let select_clause_modifier_seg =
+            child_segments.find_first(Some(|sp| sp.is_type("select_clause_modifier")));
+
+        // Are there any newlines between the select keyword and the select clause
+        // modifier.
+        let leading_newline_segments = child_segments.select(
+            Some(|seg| seg.is_type("newline")),
+            Some(|seg| seg.is_whitespace() || seg.is_meta()),
+            select_keyword.into(),
+            None,
+        );
+
+        // Rule doesn't apply if select clause modifier is already on the same line as
+        // the select keyword.
+        if leading_newline_segments.is_empty() {
+            return Vec::new();
+        }
+
+        let select_clause_modifier = select_clause_modifier_seg.first().unwrap();
+
+        // We should check if there is whitespace before the select clause modifier and
+        // remove this during the lint fix.
+        let trailing_newline_segments = child_segments.select(
+            Some(|seg| seg.is_type("whitespace")),
+            Some(|seg| seg.is_whitespace() || seg.is_meta()),
+            select_keyword.into(),
+            None,
+        );
+
+        // We will insert these segments directly after the select keyword.
+        let mut edit_segments = vec![
+            WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+            select_clause_modifier.clone_box(),
+        ];
+        if trailing_newline_segments.is_empty() {
+            edit_segments.push(WhitespaceSegment::new(" ", &<_>::default(), <_>::default()));
+        }
+
+        let mut fixes = Vec::new();
+        // Move select clause modifier after select keyword.
+        fixes.push(LintFix::create_after(select_keyword.clone_box(), edit_segments, None));
+
+        vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::api::simple::{fix, lint};
+    use crate::core::rules::base::{Erased, ErasedRule};
+    use crate::rules::layout::LT10::RuleLT10;
+
+    fn rules() -> Vec<ErasedRule> {
+        vec![RuleLT10::default().erased()]
+    }
+
+    #[test]
+    fn test_fail_distinct_on_next_line_1() {
+        let fail_str = "
+SELECT
+    DISTINCT user_id,
+    list_id
+FROM
+    safe_user";
+
+        let fix_str = fix(fail_str.into(), rules());
+
+        assert_eq!(
+            fix_str,
+            "\nSELECT DISTINCT\n    DISTINCT user_id,\n    list_id\nFROM\n    safe_user"
+        );
+    }
+}

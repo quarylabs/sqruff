@@ -13,6 +13,7 @@ use crate::core::parser::grammar::base::{Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
+use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
@@ -2734,10 +2735,34 @@ pub struct SelectClauseModifierSegment {
 }
 
 impl Segment for SelectClauseModifierSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()])
             .to_matchable()
             .into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        let Some(position_marker) = position_marker else {
+            return;
+        };
+
+        dbg!("self.position_marker = position_marker");
+    }
+
+    fn get_type(&self) -> &'static str {
+        "select_clause_modifier"
     }
 }
 

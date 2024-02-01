@@ -106,7 +106,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_pass_newline_after_using_clause() {
         // Check LT01 passes if there's a newline between
         let sql =
@@ -147,7 +146,6 @@ mod tests {
 
     // configs: layout: type: alias_expression: spacing_before: single
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_excess_space_without_align_alias() {
         let sql = fix(
             "
@@ -601,7 +599,6 @@ mod tests {
     // LT01-operators.yml
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_brackets() {
         let sql = lint("SELECT COUNT(*) FROM tbl\n\n".into(), "ansi".into(), rules(), None, None)
             .unwrap();
@@ -609,7 +606,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_expression_operators() {
         let sql = lint(
             "
@@ -629,7 +625,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_expression_operators() {
         let sql = fix(
             "
@@ -653,21 +648,18 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_newline_1() {
         let sql = lint("SELECT 1\n\n+ 2".into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(sql, &[]);
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_newline_2() {
         let sql = lint("SELECT 1\n\t+ 2".into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(sql, &[]);
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_newline_3() {
         let sql = lint("SELECT 1\n    + 2".into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(sql, &[]);

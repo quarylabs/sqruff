@@ -816,7 +816,7 @@ pub struct WhitespaceSegment {
     uuid: Uuid,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct WhitespaceSegmentNewArgs;
 
 impl WhitespaceSegment {

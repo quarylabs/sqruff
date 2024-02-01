@@ -45,10 +45,6 @@ impl Segment for KeywordSegment {
         todo!()
     }
 
-    fn is_whitespace(&self) -> bool {
-        todo!()
-    }
-
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_marker.clone().into()
     }

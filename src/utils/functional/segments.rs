@@ -5,12 +5,17 @@ use crate::core::templaters::base::TemplatedFile;
 
 type PredicateType = Option<fn(&dyn Segment) -> bool>;
 
+#[derive(Debug)]
 pub struct Segments {
     base: Vec<Box<dyn Segment>>,
     templated_file: Option<TemplatedFile>,
 }
 
 impl Segments {
+    pub fn from_vec(base: Vec<Box<dyn Segment>>) -> Self {
+        Self { base, templated_file: None }
+    }
+
     pub fn first(&self) -> Option<&dyn Segment> {
         self.base.first().map(Box::as_ref)
     }
@@ -22,6 +27,10 @@ impl Segments {
 
     pub fn all(&self, predicate: PredicateType) -> bool {
         self.base.iter().all(|s| predicate.map_or(true, |pred| pred(s.as_ref())))
+    }
+
+    pub fn len(&self) -> usize {
+        self.base.len()
     }
 
     pub fn is_empty(&self) -> bool {
@@ -48,6 +57,26 @@ impl Segments {
         }
 
         Segments { base: child_segments, templated_file: self.templated_file.clone() }
+    }
+
+    pub fn find_last(&self, predicate: PredicateType) -> Segments {
+        self.base
+            .iter()
+            .rev()
+            .find_map(|s| {
+                if predicate.as_ref().map_or(true, |p| p(s.as_ref())) {
+                    Some(Segments {
+                        base: vec![s.clone()],
+                        templated_file: self.templated_file.clone(),
+                    })
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| Segments {
+                base: vec![],
+                templated_file: self.templated_file.clone(),
+            })
     }
 
     pub fn find_first(&self, predicate: PredicateType) -> Segments {

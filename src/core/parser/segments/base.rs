@@ -49,6 +49,28 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment + Syn
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn iter_segments(
+        &self,
+        expanding: Option<&[&str]>,
+        pass_through: bool,
+    ) -> Vec<Box<dyn Segment>> {
+        let mut result = Vec::new();
+        for s in self.get_segments() {
+            if let Some(expanding) = expanding {
+                if expanding.iter().any(|ty| s.is_type(ty)) {
+                    result.extend(
+                        s.iter_segments(if pass_through { Some(expanding) } else { None }, false),
+                    );
+                } else {
+                    result.push(s);
+                }
+            } else {
+                result.push(s);
+            }
+        }
+        result
+    }
+
     fn recursive_crawl_all(&self, reverse: bool) -> Vec<Box<dyn Segment>> {
         let mut result = Vec::new();
 

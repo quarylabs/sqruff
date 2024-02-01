@@ -242,8 +242,6 @@ pub fn rebreak_sequence(
                     true,
                 );
 
-                dbg!(&new_results);
-
                 // Update the points in the buffer
                 elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
                 elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();

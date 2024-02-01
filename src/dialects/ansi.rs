@@ -1643,8 +1643,8 @@ pub fn ansi_dialect() -> Dialect {
         (
             "SelectableGrammar".into(),
             one_of(vec![
-                // optionally_bracketed(vec![Ref::new("WithCompoundStatementSegment").boxed()])
-                //     .boxed(),
+                optionally_bracketed(vec![Ref::new("WithCompoundStatementSegment").boxed()])
+                    .boxed(),
                 Ref::new("NonWithSelectableGrammar").boxed(),
                 Bracketed::new(vec![Ref::new("SelectableGrammar").boxed()]).boxed(),
             ])
@@ -1702,13 +1702,13 @@ pub fn ansi_dialect() -> Dialect {
         SetExpressionSegment, UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment, TableExpressionSegment,
         ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment,
         LessThanOrEqualToSegment, NotEqualToSegment, JoinOnConditionSegment, PartitionClauseSegment,
-        BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment,
+        BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment, CTEDefinitionSegment,
         BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment,
-        ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments,
+        ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments, CTEColumnList,
         TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar, FrameClauseSegment,
         SetOperatorSegment, WhereClauseSegment, ElseClauseSegment, IntervalExpressionSegment,
         QualifiedNumericLiteralSegment, FunctionSegment, FunctionNameSegment, TypedArrayLiteralSegment,
-        SelectClauseModifierSegment, OrderByClauseSegment,
+        SelectClauseModifierSegment, OrderByClauseSegment, WithCompoundStatementSegment,
         TruncateStatementSegment, ExpressionSegment, ShorthandCastSegment, DatatypeSegment, AliasExpressionSegment,
         ObjectReferenceSegment, ObjectLiteralSegment, ArrayExpressionSegment, LocalAliasSegment,
         MergeStatementSegment, InsertStatementSegment, TransactionStatementSegment, DropTableStatementSegment,
@@ -5957,6 +5957,114 @@ impl Segment for FrameClauseSegment {
 }
 
 impl Matchable for FrameClauseSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct WithCompoundStatementSegment {
+    // Assuming other relevant fields based on your existing code
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for WithCompoundStatementSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WITH"),
+            Ref::keyword("RECURSIVE").optional(),
+            // Conditional::new(Indent::new(), "indented_ctes"),
+            Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")])
+                .config(|this| this.allow_trailing()),
+            // Conditional::new(Dedent::new(), "indented_ctes"),
+            one_of(vec_of_erased![
+                Ref::new("NonWithSelectableGrammar"),
+                Ref::new("NonWithNonSelectableGrammar")
+            ])
+        ])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+}
+
+impl Matchable for WithCompoundStatementSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        // Assuming you have a macro or function similar to `from_segments!` in your
+        // existing code
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct CTEDefinitionSegment {
+    // Other relevant fields based on your existing code
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for CTEDefinitionSegment {
+    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        Self { segments, uuid: self.uuid }.boxed()
+    }
+
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Sequence::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar"),
+            Ref::new("CTEColumnList").optional(),
+            Ref::keyword("AS").optional(),
+            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")])
+        ])
+        .to_matchable()
+        .into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+}
+
+impl Matchable for CTEDefinitionSegment {
+    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+        from_segments!(self, segments)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct CTEColumnList {
+    segments: Vec<Box<dyn Segment>>,
+    uuid: Uuid,
+}
+
+impl Segment for CTEColumnList {
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
+            .to_matchable()
+            .into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+}
+
+impl Matchable for CTEColumnList {
     fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
         from_segments!(self, segments)
     }

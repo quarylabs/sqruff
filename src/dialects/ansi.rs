@@ -5998,6 +5998,10 @@ impl Segment for WithCompoundStatementSegment {
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         self.segments.clone()
     }
+
+    fn get_type(&self) -> &'static str {
+        "with_compound_statement"
+    }
 }
 
 impl Matchable for WithCompoundStatementSegment {
@@ -6037,6 +6041,10 @@ impl Segment for CTEDefinitionSegment {
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "common_table_expression"
     }
 }
 

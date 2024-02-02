@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 
-use crate::core::parser::segments::base::WhitespaceSegment;
+use itertools::chain;
+
+use crate::core::parser::segments::base::{NewlineSegment, WhitespaceSegment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -43,10 +45,19 @@ impl Rule for RuleLT10 {
 
         // We should check if there is whitespace before the select clause modifier and
         // remove this during the lint fix.
-        let trailing_newline_segments = child_segments.select(
+        let leading_whitespace_segments = child_segments.select(
             Some(|seg| seg.is_type("whitespace")),
             Some(|seg| seg.is_whitespace() || seg.is_meta()),
             select_keyword.into(),
+            None,
+        );
+
+        // We should also check if the following select clause element
+        // is on the same line as the select clause modifier.
+        let trailing_newline_segments = child_segments.select(
+            Some(|seg| seg.is_type("newline")),
+            Some(|seg| seg.is_whitespace() || seg.is_meta()),
+            select_clause_modifier.into(),
             None,
         );
 
@@ -55,13 +66,39 @@ impl Rule for RuleLT10 {
             WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
             select_clause_modifier.clone_box(),
         ];
+
         if trailing_newline_segments.is_empty() {
-            edit_segments.push(WhitespaceSegment::new(" ", &<_>::default(), <_>::default()));
+            edit_segments.push(NewlineSegment::new("\n", &<_>::default(), <_>::default()));
         }
 
         let mut fixes = Vec::new();
         // Move select clause modifier after select keyword.
         fixes.push(LintFix::create_after(select_keyword.clone_box(), edit_segments, None));
+
+        if trailing_newline_segments.is_empty() {
+            fixes.extend(
+                leading_newline_segments.into_iter().map(|segment| LintFix::delete(segment)),
+            );
+        } else {
+            let segments = chain(leading_newline_segments, leading_whitespace_segments);
+            fixes.extend(segments.map(|segment| LintFix::delete(segment)));
+        }
+
+        let trailing_whitespace_segments = child_segments.select(
+            Some(|segment| segment.is_whitespace()),
+            Some(|seg| seg.is_whitespace() || seg.is_meta()),
+            select_clause_modifier.into(),
+            None,
+        );
+
+        if !trailing_whitespace_segments.is_empty() {
+            fixes.extend(
+                trailing_whitespace_segments.into_iter().map(|segment| LintFix::delete(segment)),
+            );
+        }
+
+        // Delete the original select clause modifier.
+        fixes.push(LintFix::delete(select_clause_modifier.clone_box()));
 
         vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
     }
@@ -87,10 +124,48 @@ FROM
     safe_user";
 
         let fix_str = fix(fail_str.into(), rules());
-
         assert_eq!(
             fix_str,
-            "\nSELECT DISTINCT\n    DISTINCT user_id,\n    list_id\nFROM\n    safe_user"
+            "
+SELECT DISTINCT
+    user_id,
+    list_id
+FROM
+    safe_user"
         );
+    }
+
+    #[test]
+    fn test_fail_distinct_on_next_line_2() {
+        let fail_str = "
+SELECT
+    -- The table contains duplicates, so we use DISTINCT.
+    DISTINCT user_id
+FROM
+    safe_user";
+
+        let fix_str = fix(fail_str.into(), rules());
+        assert_eq!(
+            fix_str,
+            "
+SELECT DISTINCT
+    -- The table contains duplicates, so we use DISTINCT.
+    user_id
+FROM
+    safe_user"
+        );
+    }
+
+    #[test]
+    fn test_fail_distinct_on_next_line_3() {
+        let fail_str = "
+select
+distinct
+    abc,
+    def
+from a;";
+
+        let fix_str = fix(fail_str.into(), rules());
+        println!("{}", &fix_str);
     }
 }

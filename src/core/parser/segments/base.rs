@@ -649,8 +649,10 @@ impl Segment for CodeSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CommentSegment {
     raw: String,
+    position_maker: PositionMarker,
     r#type: &'static str,
     trim_start: Vec<&'static str>,
+    uuid: Uuid,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -662,19 +664,25 @@ pub struct CommentSegmentNewArgs {
 impl CommentSegment {
     pub fn new(
         raw: &str,
-        _position_maker: &PositionMarker,
+        position_maker: &PositionMarker,
         args: CommentSegmentNewArgs,
     ) -> Box<dyn Segment> {
         Self {
             raw: raw.to_string(),
+            position_maker: position_maker.clone(),
             r#type: args.r#type,
             trim_start: args.trim_start.unwrap_or_default(),
+            uuid: Uuid::new_v4(),
         }
         .boxed()
     }
 }
 
 impl Segment for CommentSegment {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        self.clone_box()
+    }
+
     fn get_type(&self) -> &'static str {
         "comment"
     }
@@ -689,7 +697,7 @@ impl Segment for CommentSegment {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
+        self.uuid.into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -701,7 +709,7 @@ impl Segment for CommentSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        todo!()
+        self.position_maker.clone().into()
     }
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
@@ -757,6 +765,10 @@ impl Segment for NewlineSegment {
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         vec![self.clone_box()]
+    }
+
+    fn is_meta(&self) -> bool {
+        false
     }
 
     fn get_type(&self) -> &'static str {

@@ -3792,10 +3792,18 @@ impl Segment for FunctionNameSegment {
     }
 
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        Sequence::new(vec![one_of(vec![Ref::new("FunctionNameIdentifierSegment").boxed()]).boxed()])
-            .allow_gaps(false)
-            .to_matchable()
-            .into()
+        Sequence::new(vec_of_erased![
+            // Project name, schema identifier, etc.
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("DotSegment")
+            ])]),
+            // Base function name
+            one_of(vec_of_erased![Ref::new("FunctionNameIdentifierSegment")])
+        ])
+        .allow_gaps(false)
+        .to_matchable()
+        .into()
     }
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -6222,6 +6230,7 @@ mod tests {
             ("SelectClauseElementSegment", "NULL::INT AS user_id"),
             ("TruncateStatementSegment", "TRUNCATE TABLE test"),
             ("TruncateStatementSegment", "TRUNCATE test"),
+            ("FunctionNameSegment", "cte_1.foo"),
         ];
 
         for (segment_ref, sql_string) in cases {

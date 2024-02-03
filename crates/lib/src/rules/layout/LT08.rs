@@ -112,8 +112,6 @@ impl Rule for RuleLT08 {
             ));
         }
 
-        dbg!(&error_buffer);
-
         error_buffer
     }
 }

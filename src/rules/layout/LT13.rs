@@ -10,6 +10,10 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleLT13 {}
 
 impl Rule for RuleLT13 {
+    fn description(&self) -> &'static str {
+        "Files must not begin with newlines or whitespace."
+    }
+
     fn crawl_behaviour(&self) -> Box<dyn Crawler> {
         RootOnlyCrawler::default().boxed()
     }

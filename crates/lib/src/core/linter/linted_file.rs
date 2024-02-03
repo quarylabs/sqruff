@@ -33,8 +33,6 @@ impl LintedFile {
             let mut is_patched = false;
             for patch in source_patches.iter() {
                 if patch.source_slice == *source_slice {
-                    // Use the patched version
-                    // Note: Logging is omitted here, but you can use the `log` crate
                     str_buff.push_str(&patch.fixed_raw);
                     is_patched = true;
                     break;

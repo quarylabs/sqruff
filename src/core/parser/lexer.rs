@@ -14,6 +14,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
+use crate::helpers::Boxed;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -68,8 +69,18 @@ impl LexMatch {
     }
 }
 
+pub trait CloneMatcher {
+    fn clone_box(&self) -> Box<dyn Matcher>;
+}
+
+impl<T: Matcher + DynClone> CloneMatcher for T {
+    fn clone_box(&self) -> Box<dyn Matcher> {
+        dyn_clone::clone(self).boxed()
+    }
+}
+
 #[allow(clippy::needless_arbitrary_self_type)]
-pub trait Matcher: Debug + DynClone {
+pub trait Matcher: Debug + DynClone + CloneMatcher + 'static {
     /// The name of the matcher.
     fn get_name(self: &Self) -> String;
     /// Given a string, match what we can and return the rest.
@@ -156,7 +167,7 @@ pub trait Matcher: Debug + DynClone {
             if !content_buff.is_empty() || !str_buff.is_empty() {
                 elem_buff.push(LexedElement::new(
                     format!("{}{}", content_buff, str_buff),
-                    trim_post_subdivide.clone(),
+                    self.clone_box(),
                 ));
             }
         }

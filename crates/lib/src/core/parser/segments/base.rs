@@ -44,7 +44,7 @@ impl<T: Segment + DynClone> CloneSegment for T {
     }
 }
 
-pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment + Sync + Send {
+pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -290,12 +290,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment + Syn
 
     #[track_caller]
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        let markers: Vec<_> =
-            self.get_segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();
-
-        let pos = PositionMarker::from_child_markers(markers);
-
-        Some(pos)
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
@@ -1067,6 +1062,13 @@ impl SymbolSegment {
             type_: args.r#type,
         })
     }
+}
+
+pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
+    let markers: Vec<_> =
+        this.get_segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();
+
+    PositionMarker::from_child_markers(markers)
 }
 
 #[cfg(test)]

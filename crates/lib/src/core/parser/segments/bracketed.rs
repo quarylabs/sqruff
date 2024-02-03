@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use super::base::Segment;
+use super::base::{pos_marker, Segment};
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Boxed;
 
@@ -27,13 +27,15 @@ impl BracketedSegment {
         start_bracket: Vec<Box<dyn Segment>>,
         end_bracket: Vec<Box<dyn Segment>>,
     ) -> Self {
-        BracketedSegment {
+        let mut this = BracketedSegment {
             segments,
             start_bracket,
             end_bracket,
             pos_marker: None,
             uuid: Uuid::new_v4(),
-        }
+        };
+        this.pos_marker = pos_marker(&this).into();
+        this
     }
 }
 
@@ -54,5 +56,9 @@ impl Segment for BracketedSegment {
 
     fn get_type(&self) -> &'static str {
         "bracketed"
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.pos_marker.clone()
     }
 }

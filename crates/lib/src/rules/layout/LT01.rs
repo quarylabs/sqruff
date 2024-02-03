@@ -20,6 +20,8 @@ impl Rule for RuleLT01 {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
+
     use crate::api::simple::{fix, lint};
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT01::RuleLT01;
@@ -634,6 +636,7 @@ mod tests {
             .into(),
             rules(),
         );
+
         assert_eq!(
             sql,
             "

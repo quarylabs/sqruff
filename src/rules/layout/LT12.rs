@@ -51,7 +51,8 @@ impl Rule for RuleLT12 {
             return Vec::new();
         }
 
-        let trailing_newlines = Segments::from_vec(get_trailing_newlines(context.segment.as_ref()));
+        let trailing_newlines =
+            Segments::from_vec(get_trailing_newlines(context.segment.as_ref()), None);
         if trailing_newlines.is_empty() {
             let fix_anchor_segment = if parent_stack.len() == 1 {
                 segment.first().unwrap().clone_box()

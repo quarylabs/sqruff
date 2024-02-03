@@ -12,8 +12,8 @@ pub struct Segments {
 }
 
 impl Segments {
-    pub fn from_vec(base: Vec<Box<dyn Segment>>) -> Self {
-        Self { base, templated_file: None }
+    pub fn from_vec(base: Vec<Box<dyn Segment>>, templated_file: Option<TemplatedFile>) -> Self {
+        Self { base, templated_file }
     }
 
     pub fn first(&self) -> Option<&dyn Segment> {

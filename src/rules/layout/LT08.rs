@@ -118,6 +118,8 @@ impl Rule for RuleLT08 {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
+
     use crate::api::simple::{fix, lint};
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT08::RuleLT08;
@@ -174,7 +176,19 @@ other_cte as (
 
 select * from my_cte cross join other_cte";
 
-        let lints = fix(sql.into(), rules());
-        println!("{lints}");
+        let fixed = fix(sql.into(), rules());
+        assert_eq!(
+            fixed,
+            "
+with my_cte as (
+    select 1
+),
+
+other_cte as (
+    select 1
+)
+
+select * from my_cte cross join other_cte"
+        );
     }
 }

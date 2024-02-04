@@ -69,7 +69,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_pass_leading_whitespace_comment() {
         let lints = lint(
             "/*I am a comment*/\nSELECT foo FROM bar\n".into(),

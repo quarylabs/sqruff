@@ -1,8 +1,11 @@
 use std::collections::{HashMap, HashSet};
+use std::iter::repeat;
 
+use indexmap::IndexMap;
 use itertools::Itertools;
 
 use crate::core::parser::segments::base::NewlineSegment;
+use crate::core::parser::segments::fix;
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -28,39 +31,51 @@ impl Rule for RuleLT08 {
             .filter_map(|(idx, seg)| seg.is_type("bracketed").then_some(idx));
 
         for bracket_idx in bracket_indices {
+            dbg!(bracket_idx);
+
             let forward_slice = &expanded_segments[bracket_idx..];
-            let mut seg_idx: usize = 1;
+            let mut seg_idx = 1;
             let mut line_idx: usize = 0;
-            let mut comma_seg_idx: usize = 0;
-            let mut blank_lines: usize = 0;
-            let mut comma_line_idx: Option<usize> = None;
-            let mut line_blank: bool = false;
-            let comma_style: String;
-            let mut line_starts: HashMap<usize, usize> = HashMap::new();
-            let mut comment_lines: Vec<usize> = Vec::new();
+            let mut comma_seg_idx = 0;
+            let mut blank_lines = 0;
+            let mut comma_line_idx = None;
+            let mut line_blank = false;
+            let mut line_starts = IndexMap::new();
+            let mut comment_lines = Vec::new();
 
             while forward_slice[seg_idx].is_type("comma") || !forward_slice[seg_idx].is_code() {
                 if forward_slice[seg_idx].is_type("newline") {
                     if line_blank {
+                        // It's a blank line!
                         blank_lines += 1;
                     }
-
                     line_blank = true;
                     line_idx += 1;
                     line_starts.insert(line_idx, seg_idx + 1);
                 } else if forward_slice[seg_idx].is_type("comment") {
+                    // Lines with comments aren't blank
                     line_blank = false;
                     comment_lines.push(line_idx);
+                } else if forward_slice[seg_idx].is_type("comma") {
+                    // Keep track of where the comma is.
+                    // We'll evaluate it later.
+                    comma_line_idx = line_idx.into();
+                    comma_seg_idx = seg_idx;
                 }
+
                 seg_idx += 1;
             }
 
-            let comma_style = match comma_line_idx {
-                None => "final",
-                Some(idx) if idx == 0 => "oneline",
-                Some(0) => "trailing",
-                Some(idx) if idx == line_idx => "leading",
-                _ => "floating",
+            let comma_style = if comma_line_idx.is_none() {
+                "final"
+            } else if line_idx == 0 {
+                "oneline"
+            } else if let Some(0) = comma_line_idx {
+                "trailing"
+            } else if let Some(idx) = comma_line_idx {
+                if idx == line_idx { "leading" } else { "floating" }
+            } else {
+                "floating"
             };
 
             if blank_lines >= 1 {
@@ -70,10 +85,21 @@ impl Rule for RuleLT08 {
             let mut fix_type = EditType::CreateBefore;
             let mut fix_point = None;
 
-            if comma_style == "oneline" {
-                unimplemented!()
+            let num_newlines = if comma_style == "oneline" {
+                if global_comma_style == "trailing" {
+                    fix_point = forward_slice[comma_seg_idx + 1].clone().into();
+                    if forward_slice[comma_seg_idx + 1].is_type("whitespace") {
+                        fix_type = EditType::Replace;
+                    }
+                } else if global_comma_style == "leading" {
+                    fix_point = forward_slice[comma_seg_idx].clone().into();
+                } else {
+                    unimplemented!("Unexpected global comma style {global_comma_style:?}");
+                }
+
+                2
             } else {
-                if comment_lines.is_empty() || comment_lines.contains(&(line_idx - 1)) {
+                if comment_lines.is_empty() || !comment_lines.contains(&(line_idx - 1)) {
                     if matches!(comma_style, "trailing" | "final" | "floating") {
                         if forward_slice[seg_idx - 1].is_type("whitespace") {
                             fix_point = forward_slice[seg_idx - 1].clone().into();
@@ -86,16 +112,37 @@ impl Rule for RuleLT08 {
                 } else if comma_style == "leading" {
                     fix_point = forward_slice[comma_seg_idx].clone().into();
                 } else {
-                    unimplemented!()
-                }
-            }
+                    let mut offset = 1;
 
-            let num_newlines = 1;
+                    while line_idx
+                        .checked_sub(offset)
+                        .map_or(false, |idx| comment_lines.contains(&idx))
+                    {
+                        offset += 1;
+                    }
+
+                    let mut effective_line_idx = line_idx - (offset - 1);
+                    if effective_line_idx == 0 {
+                        effective_line_idx = line_idx;
+                    }
+
+                    let line_start_idx = if effective_line_idx < line_starts.len() {
+                        *line_starts.get(&effective_line_idx).unwrap()
+                    } else {
+                        let (_, line_start) = line_starts.last().unwrap_or((&0, &0));
+                        *line_start
+                    };
+
+                    fix_point = forward_slice[line_start_idx].clone().into();
+                }
+
+                1
+            };
 
             let fixes = vec![LintFix {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
-                edit: Some(NewlineSegment::new("\n", &<_>::default(), <_>::default()))
+                edit: repeat(NewlineSegment::new("\n", &<_>::default(), <_>::default()))
                     .into_iter()
                     .take(num_newlines)
                     .collect_vec()
@@ -190,5 +237,129 @@ other_cte as (
 
 select * from my_cte cross join other_cte"
         );
+    }
+
+    #[test]
+    fn test_fail_no_blank_line_after_cte_before_comment() {
+        let sql = "
+with my_cte as (
+    select 1
+),
+-- Comment
+other_cte as (
+    select 1
+)
+
+select * from my_cte cross join other_cte";
+
+        let fixed = fix(sql.into(), rules());
+
+        assert_eq!(
+            fixed,
+            "
+with my_cte as (
+    select 1
+),
+
+-- Comment
+other_cte as (
+    select 1
+)
+
+select * from my_cte cross join other_cte"
+        );
+    }
+
+    #[test]
+    fn test_fail_no_blank_line_after_cte_and_comment() {
+        let sql = "
+WITH mycte AS (
+  SELECT col
+  FROM
+    my_table
+)  /* cte comment */
+SELECT col
+FROM
+  mycte";
+        let fixed = fix(sql.into(), rules());
+
+        assert_eq!(
+            fixed,
+            "
+WITH mycte AS (
+  SELECT col
+  FROM
+    my_table
+)  /* cte comment */
+
+SELECT col
+FROM
+  mycte"
+        );
+    }
+
+    #[test]
+    fn test_fail_no_blank_line_after_last_cte_trailing_comma() {
+        let sql = "
+with my_cte as (
+    select 1
+),
+
+other_cte as (
+    select 1
+)
+select * from my_cte cross join other_cte";
+        let fixed = fix(sql.into(), rules());
+        assert_eq!(
+            fixed,
+            "
+with my_cte as (
+    select 1
+),
+
+other_cte as (
+    select 1
+)
+
+select * from my_cte cross join other_cte"
+        );
+    }
+
+    #[test]
+    fn test_fail_no_blank_line_after_last_cte_leading_comma() {
+        let fail_str = "
+with my_cte as (
+    select 1
+)
+
+, other_cte as (
+    select 1
+)
+select * from my_cte cross join other_cte";
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(
+            fixed,
+            "
+with my_cte as (
+    select 1
+)
+
+, other_cte as (
+    select 1
+)
+
+select * from my_cte cross join other_cte"
+        );
+    }
+
+    #[test]
+    fn test_fail_oneline_cte_leading_comma() {
+        let fail_str = "
+with my_cte as (select 1), other_cte as (select 1) select * from my_cte
+cross join other_cte";
+        let fixed = fix(fail_str.into(), rules());
+
+        println!("{fixed}");
     }
 }

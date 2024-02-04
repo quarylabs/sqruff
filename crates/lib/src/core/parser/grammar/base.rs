@@ -219,20 +219,13 @@ impl Matchable for Ref {
 
         // Match against that. NB We're not incrementing the match_depth here.
         // References shouldn't really count as a depth of match.
-        parse_context
-            .deeper_match(
-                &self.reference,
-                self.reset_terminators,
-                &self.terminators,
-                None,
-                |this| elem.match_segments(segments, this),
-            )
-            .map(|s| {
-                if s.has_match() {
-                    println!("{} {}", self.reference, s);
-                }
-                s
-            })
+        parse_context.deeper_match(
+            &self.reference,
+            self.reset_terminators,
+            &self.terminators,
+            None,
+            |this| elem.match_segments(segments, this),
+        )
     }
 }
 

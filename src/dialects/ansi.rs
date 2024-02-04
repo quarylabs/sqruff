@@ -4608,6 +4608,7 @@ mod tests {
             ("TruncateStatementSegment", "TRUNCATE TABLE test"),
             ("TruncateStatementSegment", "TRUNCATE test"),
             ("FunctionNameSegment", "cte_1.foo"),
+            ("SelectStatementSegment", "select * from my_cte cross join other_cte"),
         ];
 
         for (segment_ref, sql_string) in cases {

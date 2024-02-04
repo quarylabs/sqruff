@@ -431,6 +431,12 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                     continue;
                 }
 
+                // Otherwise it must be a replace or a create.
+                assert!(matches!(
+                    f.edit_type,
+                    EditType::Replace | EditType::CreateBefore | EditType::CreateAfter
+                ));
+
                 if f.edit_type == EditType::CreateAfter && anchor_info.fixes.len() == 1 {
                     // In the case of a creation after that is not part
                     // of a create_before/create_after pair, also add
@@ -440,6 +446,17 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
                 for s in f.edit.as_ref().unwrap() {
                     seg_buffer.push(s.clone());
+                }
+
+                if !(f.edit_type == EditType::Replace
+                    && f.edit.as_ref().map_or(false, |x| x.len() == 1)
+                    && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
+                {
+                    requires_validate = true;
+                }
+
+                if f.edit_type == EditType::CreateBefore {
+                    seg_buffer.push(seg.clone());
                 }
             }
         }

@@ -21,11 +21,12 @@ use crate::helpers::Boxed;
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct Indent {
     pub indent_val: usize,
+    pub is_implicit: bool,
 }
 
 impl Default for Indent {
     fn default() -> Self {
-        Self { indent_val: 1 }
+        Self { indent_val: 1, is_implicit: false }
     }
 }
 

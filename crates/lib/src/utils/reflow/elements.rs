@@ -7,6 +7,7 @@ use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
 use crate::core::parser::segments::base::{NewlineSegment, Segment};
+use crate::core::parser::segments::meta::Indent;
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
@@ -31,9 +32,41 @@ fn get_consumed_whitespace(segment: Option<&dyn Segment>) -> Option<String> {
 #[derive(Debug, Clone, Default)]
 pub struct ReflowPoint {
     pub segments: Vec<Box<dyn Segment>>,
+    pub stats: IndentStats,
 }
 
 impl ReflowPoint {
+    pub fn new(segments: Vec<Box<dyn Segment>>) -> Self {
+        let stats = Self::generate_indent_stats(&segments);
+        Self { segments, stats }
+    }
+
+    pub fn class_types(&self) -> HashSet<String> {
+        ReflowElement::class_types(&self.segments)
+    }
+
+    fn generate_indent_stats(segments: &[Box<dyn Segment>]) -> IndentStats {
+        let mut trough = 0;
+        let mut running_sum = 0;
+        let mut implicit_indents = Vec::new();
+
+        for seg in segments {
+            if let Some(indent) = seg.as_any().downcast_ref::<Indent>() {
+                running_sum += indent.indent_val;
+
+                if indent.is_implicit {
+                    implicit_indents.push(running_sum);
+                }
+            }
+
+            if running_sum < trough {
+                trough = running_sum
+            }
+        }
+
+        IndentStats { impulse: running_sum, trough, implicit_indents }
+    }
+
     pub fn get_indent_segment(&self) -> Option<Box<dyn Segment>> {
         let mut indent = None;
 
@@ -136,26 +169,24 @@ impl ReflowPoint {
                 };
 
                 let fix = LintFix::replace(ws_seg.clone(), new_segs.clone(), None);
-                let new_point = ReflowPoint {
-                    segments: {
-                        let mut new_segments = Vec::new();
+                let new_point = ReflowPoint::new({
+                    let mut new_segments = Vec::new();
 
-                        // Add elements before the specified index
-                        if idx > 0 {
-                            new_segments.extend_from_slice(&self.segments[..idx]);
-                        }
+                    // Add elements before the specified index
+                    if idx > 0 {
+                        new_segments.extend_from_slice(&self.segments[..idx]);
+                    }
 
-                        // Add new segments
-                        new_segments.extend(new_segs);
+                    // Add new segments
+                    new_segments.extend(new_segs);
 
-                        // Add remaining elements after the specified index
-                        if idx < self.segments.len() {
-                            new_segments.extend_from_slice(&self.segments[idx + 1..]);
-                        }
+                    // Add remaining elements after the specified index
+                    if idx < self.segments.len() {
+                        new_segments.extend_from_slice(&self.segments[idx + 1..]);
+                    }
 
-                        new_segments
-                    },
-                };
+                    new_segments
+                });
 
                 return (
                     vec![LintResult::new(
@@ -194,7 +225,7 @@ impl ReflowPoint {
         {
             existing_results.extend(new_results);
 
-            return (existing_results, ReflowPoint { segments: segment_buffer });
+            return (existing_results, ReflowPoint::new(segment_buffer));
         }
 
         // Do we at least have _some_ whitespace?
@@ -231,7 +262,11 @@ impl ReflowPoint {
         };
 
         existing_results.extend(new_results);
-        (existing_results, ReflowPoint { segments: segment_buffer })
+        (existing_results, ReflowPoint::new(segment_buffer))
+    }
+
+    pub fn indent_impulse(&self) -> IndentStats {
+        self.stats.clone()
     }
 }
 
@@ -248,6 +283,26 @@ fn indent_description(indent: &str) -> String {
             format!("indent of {} tabs", indent.len())
         }
         _ => panic!("Invalid indent construction: {:?}", indent),
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct IndentStats {
+    pub impulse: usize,
+    pub trough: usize,
+    pub implicit_indents: Vec<usize>,
+}
+
+impl IndentStats {
+    pub fn from_combination(first: Option<IndentStats>, second: IndentStats) -> Self {
+        match first {
+            Some(first_stats) => IndentStats {
+                impulse: first_stats.impulse + second.impulse,
+                trough: std::cmp::min(first_stats.trough, first_stats.impulse + second.trough),
+                implicit_indents: second.implicit_indents,
+            },
+            None => second.clone(),
+        }
     }
 }
 

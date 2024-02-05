@@ -1,11 +1,10 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::iter::repeat;
 
 use indexmap::IndexMap;
 use itertools::Itertools;
 
 use crate::core::parser::segments::base::NewlineSegment;
-use crate::core::parser::segments::fix;
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};

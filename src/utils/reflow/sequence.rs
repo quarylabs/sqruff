@@ -4,6 +4,7 @@ use super::config::ReflowConfig;
 use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::rebreak::rebreak_sequence;
+use super::reindent::{construct_single_indent, lint_indent_points};
 use crate::core::config::FluffConfig;
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintFix, LintResult};
@@ -61,7 +62,7 @@ impl ReflowSequence {
             } else if !elem_buff.is_empty() || !seg_buff.is_empty() {
                 // There are elements. The last will have been a block.
                 // Add a point before we add the block. NOTE: It may be empty.
-                elem_buff.push(ReflowElement::Point(ReflowPoint { segments: seg_buff.clone() }));
+                elem_buff.push(ReflowElement::Point(ReflowPoint::new(seg_buff.clone())));
             }
 
             let depth_info = depth_map.get_depth_info(&seg);
@@ -174,13 +175,10 @@ impl ReflowSequence {
             }
             _ => {}
         }
-        let merged_point = ReflowPoint {
-            segments: [
-                self.elements[removal_idx - 1].segments(),
-                self.elements[removal_idx + 1].segments(),
-            ]
-            .concat(),
-        };
+        let merged_point = ReflowPoint::new(
+            [self.elements[removal_idx - 1].segments(), self.elements[removal_idx + 1].segments()]
+                .concat(),
+        );
         let mut new_elements = self.elements[..removal_idx - 1].to_vec();
         new_elements.push(ReflowElement::Point(merged_point));
         new_elements.extend_from_slice(&self.elements[removal_idx + 2..]);
@@ -235,6 +233,19 @@ impl ReflowSequence {
         let (elem_buff, lint_results) = rebreak_sequence(self.elements, self.root_segment.clone());
 
         ReflowSequence { root_segment: self.root_segment, elements: elem_buff, lint_results }
+    }
+
+    pub fn reindent(self) -> Self {
+        if !self.lint_results.is_empty() {
+            panic!("reindent cannot currently handle pre-existing embodied fixes");
+        }
+
+        let single_indent = construct_single_indent("space", 4);
+
+        let (elements, indent_results) =
+            lint_indent_points(self.elements, &single_indent, <_>::default(), <_>::default());
+
+        Self { root_segment: self.root_segment, elements, lint_results: indent_results }
     }
 
     fn iter_points_with_constraints(

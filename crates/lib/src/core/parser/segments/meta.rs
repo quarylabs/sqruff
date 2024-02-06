@@ -179,8 +179,29 @@ impl Segment for Dedent {
     }
 }
 
+impl Matchable for Dedent {
+    fn simple(
+        &self,
+        parse_context: &ParseContext,
+        crumbs: Option<Vec<&str>>,
+    ) -> Option<(HashSet<String>, HashSet<String>)> {
+        None
+    }
+
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &mut ParseContext,
+    ) -> Result<MatchResult, SQLParseError> {
+        unimplemented!(
+            "{} has no match method, it should only be used in a Sequence!",
+            std::any::type_name::<Self>()
+        )
+    }
+}
+
 impl Dedent {
-    pub fn new(_position_maker: PositionMarker) -> Box<dyn Segment> {
+    pub fn new(_: PositionMarker) -> Box<dyn Segment> {
         Box::new(Dedent {})
     }
 }
@@ -208,6 +229,10 @@ impl Segment for EndOfFile {
 
     fn get_segments(&self) -> Vec<Box<dyn Segment>> {
         Vec::new()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone_box()]
     }
 
     fn get_type(&self) -> &'static str {

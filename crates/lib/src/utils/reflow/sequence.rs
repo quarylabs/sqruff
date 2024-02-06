@@ -77,6 +77,10 @@ impl ReflowSequence {
             seg_buff.clear();
         }
 
+        if !seg_buff.is_empty() {
+            elem_buff.push(ReflowPoint::new(seg_buff).into());
+        }
+
         elem_buff
     }
 

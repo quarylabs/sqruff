@@ -49,6 +49,14 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn is_templated(&self) -> bool {
+        if let Some(pos_marker) = self.get_position_marker() {
+            pos_marker.source_slice.start != pos_marker.source_slice.end && !pos_marker.is_literal()
+        } else {
+            panic!("PosMarker must be set");
+        }
+    }
+
     fn iter_segments(
         &self,
         expanding: Option<&[&str]>,

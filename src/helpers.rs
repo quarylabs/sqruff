@@ -70,3 +70,8 @@ impl std::hash::Hash for HashableFancyRegex {
         self.0.as_str().hash(state);
     }
 }
+
+pub fn skip_last<T>(mut iter: impl Iterator<Item = T>) -> impl Iterator<Item = T> {
+    let last = iter.next();
+    iter.scan(last, |state, item| std::mem::replace(state, Some(item)))
+}

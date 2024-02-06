@@ -19,7 +19,7 @@ impl Rule for RuleLT02 {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::simple::lint;
+    use crate::api::simple::{fix, lint};
     use crate::core::errors::SQLLintError;
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT02::RuleLT02;
@@ -29,7 +29,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_fail_reindent_first_line_1() {
         let fail_str = "     SELECT 1";
         let violations = lint(fail_str.into(), "ansi".into(), rules(), None, None).unwrap();
@@ -38,5 +37,76 @@ mod tests {
             violations,
             [SQLLintError { description: "First line should not be indented.".into() }]
         );
+    }
+
+    #[test]
+    fn test_fail_reindent_first_line_2() {
+        let fixed = fix("  select 1 from tbl;".into(), rules());
+        assert_eq!(fixed, "select 1 from tbl;");
+    }
+
+    #[test]
+    fn test_pass_indentation_of_comments_1() {
+        let sql = "
+SELECT
+    -- Compute the thing
+    (a + b) AS c
+FROM
+    acceptable_buckets"
+            .trim_start();
+
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_indentation_of_comments_2() {
+        let pass_str = "
+SELECT
+    user_id
+FROM
+    age_data
+JOIN
+    audience_size
+    USING (user_id, list_id)
+-- We LEFT JOIN because blah
+LEFT JOIN
+    verts
+    USING
+        (user_id)"
+            .trim_start();
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    #[ignore = "impl config"]
+    fn test_fail_tab_indentation() {}
+
+    #[test]
+    fn test_pass_indented_joins_default() {
+        let pass_str = "
+SELECT a, b, c
+FROM my_tbl
+LEFT JOIN another_tbl USING(a)"
+            .trim_start();
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    // LT02-tab-space.yml
+
+    #[test]
+    fn spaces_pass_default() {
+        let violations = lint("SELECT\n    1".into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn tabs_fail_default() {
+        let fixed = fix("SELECT\n\t\t1\n".into(), rules());
+        assert_eq!(fixed, "SELECT\n    1\n");
     }
 }

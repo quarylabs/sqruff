@@ -133,12 +133,42 @@ impl ReflowPoint {
         // Get the indent (or in the case of no newline, the last whitespace)
         let indent_seg = self.get_indent_segment();
 
-        if let Some(indent_seg) = indent_seg
+        if let Some(indent_seg) = &indent_seg
             && indent_seg.is_type("placeholder")
         {
             unimplemented!()
         } else if self.num_newlines() != 0 {
-            unimplemented!()
+            if let Some(indent_seg) = indent_seg {
+                if indent_seg.get_raw().unwrap() == desired_indent {
+                    unimplemented!()
+                } else if desired_indent.is_empty() {
+                    unimplemented!()
+                };
+
+                let new_indent = indent_seg.edit(desired_indent.to_owned().into(), None);
+                let idx =
+                    self.segments.iter().position(|it| it.dyn_eq(indent_seg.as_ref())).unwrap();
+
+                let description = format!("Expected {}.", indent_description(desired_indent));
+                let lint_result = LintResult::new(
+                    indent_seg.clone().into(),
+                    vec![LintFix::replace(indent_seg, vec![new_indent.clone()], None)],
+                    None,
+                    description.into(),
+                    None,
+                );
+
+                let mut new_segments = Vec::new();
+                new_segments.extend_from_slice(&self.segments[..idx]);
+                new_segments.push(new_indent);
+                new_segments.extend_from_slice(&self.segments[idx + 1..]);
+
+                let new_reflow_point = ReflowPoint::new(new_segments);
+
+                (vec![lint_result], new_reflow_point)
+            } else {
+                unimplemented!()
+            }
         } else {
             // There isn't currently a newline.
             let new_newline = NewlineSegment::new("\n", &<_>::default(), <_>::default());

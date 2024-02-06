@@ -30,8 +30,6 @@ impl Rule for RuleLT08 {
             .filter_map(|(idx, seg)| seg.is_type("bracketed").then_some(idx));
 
         for bracket_idx in bracket_indices {
-            dbg!(bracket_idx);
-
             let forward_slice = &expanded_segments[bracket_idx..];
             let mut seg_idx = 1;
             let mut line_idx: usize = 0;

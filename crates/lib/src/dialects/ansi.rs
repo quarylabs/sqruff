@@ -26,7 +26,7 @@ use crate::core::parser::segments::base::{
 use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::segments::meta::{Dedent, Indent};
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
 
@@ -2563,6 +2563,7 @@ impl NodeTrait for UnorderedSelectStatementSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("SelectClauseSegment").boxed(),
+            // Dedent {}.boxed(),
             Ref::new("FromClauseSegment").optional().boxed(),
             Ref::new("WhereClauseSegment").optional().boxed(),
         ])

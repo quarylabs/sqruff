@@ -26,6 +26,7 @@ use crate::core::parser::segments::base::{
 use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
 
@@ -2583,14 +2584,14 @@ impl NodeTrait for SelectClauseSegment {
     const TYPE: &'static str = "select_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("SELECT").boxed(),
-            Ref::new("SelectClauseModifierSegment").optional().boxed(),
-            Delimited::new(vec![Ref::new("SelectClauseElementSegment").boxed()])
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SELECT"),
+            Ref::new("SelectClauseModifierSegment").optional(),
+            Indent::default(),
+            Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
                 .config(|this| this.allow_trailing())
-                .boxed(),
         ])
-        .terminators(vec![Ref::new("SelectClauseTerminatorGrammar").boxed()])
+        .terminators(vec_of_erased![Ref::new("SelectClauseTerminatorGrammar")])
         .config(|this| {
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })
@@ -4696,7 +4697,7 @@ mod tests {
 
     #[test]
     fn test__dialect__ansi_parse_indented_joins() {
-        let cases = [("select field_1 from my_table as alias_1",)];
+        let cases = [("     SELECT 1",)];
         let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
 
         for (sql_string,) in cases {

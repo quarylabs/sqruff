@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 
-use itertools::enumerate;
+use itertools::{enumerate, Itertools};
 
 use super::elements::{ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::rebreak::RebreakSpan;
@@ -39,8 +39,20 @@ impl IndentPoint {
 
 #[derive(Debug, Clone)]
 struct IndentLine {
-    initial_indent_balance: i32,
+    initial_indent_balance: usize,
     indent_points: Vec<IndentPoint>,
+}
+
+impl IndentLine {
+    fn from_points(indent_points: Vec<IndentPoint>) -> Self {
+        let starting_balance = if indent_points.last().unwrap().last_line_break_idx.is_some() {
+            indent_points[0].closing_indent_balance()
+        } else {
+            0
+        };
+
+        IndentLine { initial_indent_balance: starting_balance, indent_points }
+    }
 }
 
 fn revise_templated_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) {}
@@ -114,7 +126,9 @@ fn crawl_indent_points(
 
             if !indent_stats.implicit_indents.is_empty() {}
 
-            if let Some(cached_indent_stats) = &cached_indent_stats {}
+            if let Some(cached_indent_stats) = &cached_indent_stats {
+                unimplemented!()
+            }
 
             let has_newline = has_untemplated_newline(elem)
                 && last_line_break_idx
@@ -159,7 +173,7 @@ fn crawl_indent_points(
 fn map_line_buffers(
     elements: &ReflowSequenceType,
     allow_implicit_indents: bool,
-) -> (Vec<IndentLine>, Vec<i32>) {
+) -> (Vec<IndentLine>, Vec<usize>) {
     let mut lines = Vec::new();
     let mut point_buffer = Vec::new();
     let mut previous_points = HashMap::new();
@@ -187,6 +201,10 @@ fn map_line_buffers(
         unimplemented!()
     }
 
+    if point_buffer.len() > 1 {
+        lines.push(IndentLine::from_points(point_buffer));
+    }
+
     (lines, imbalanced_locs)
 }
 
@@ -198,12 +216,40 @@ fn deduce_line_current_indent(
 }
 
 fn lint_line_starting_indent(
-    elements: Vec<ReflowElement>,
+    mut elements: &mut ReflowSequenceType,
     indent_line: IndentLine,
     single_indent: &str,
-    forced_indents: Vec<i32>,
+    forced_indents: &[usize],
 ) -> Vec<LintResult> {
-    unimplemented!()
+    let indent_points = indent_line.indent_points;
+    let initial_point_idx = indent_points[0].idx;
+    let initial_point = elements[initial_point_idx].as_point().unwrap();
+
+    let (new_results, new_point) = if indent_points[0].idx == 0 && !indent_points[0].is_line_break {
+        let init_seg = &elements[indent_points[0].idx].segments()[0];
+        let fixes = if init_seg.is_type("placeholder") {
+            unimplemented!()
+        } else {
+            initial_point.segments.clone().into_iter().map(|seg| LintFix::delete(seg)).collect_vec()
+        };
+
+        (
+            LintResult::new(
+                initial_point.segments[0].clone_box().into(),
+                fixes,
+                None,
+                Some("First line should not be indented.".into()),
+                None,
+            ),
+            ReflowPoint::new(Vec::new()),
+        )
+    } else {
+        unimplemented!()
+    };
+
+    elements[initial_point_idx] = new_point.into();
+
+    vec![new_results]
 }
 
 fn lint_line_untaken_positive_indents(
@@ -216,13 +262,17 @@ fn lint_line_untaken_positive_indents(
 }
 
 fn lint_line_buffer_indents(
-    elements: Vec<ReflowElement>,
+    elements: &mut ReflowSequenceType,
     indent_line: IndentLine,
     single_indent: &str,
-    forced_indents: Vec<i32>,
-    imbalanced_indent_locs: Vec<i32>,
+    forced_indents: &[usize],
+    imbalanced_indent_locs: &[usize],
 ) -> Vec<LintResult> {
-    unimplemented!()
+    let mut results = Vec::new();
+
+    results.extend(lint_line_starting_indent(elements, indent_line, single_indent, forced_indents));
+
+    results
 }
 
 pub fn lint_indent_points(
@@ -233,7 +283,21 @@ pub fn lint_indent_points(
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let (lines, imbalanced_indent_locs) = map_line_buffers(&elements, allow_implicit_indents);
 
-    unimplemented!()
+    let mut results = Vec::new();
+    let mut elem_buffer = elements.clone();
+    for line in lines {
+        let line_results = lint_line_buffer_indents(
+            &mut elem_buffer,
+            line,
+            single_indent,
+            &[],
+            &imbalanced_indent_locs,
+        );
+
+        results.extend(line_results);
+    }
+
+    (elem_buffer, results)
 }
 
 fn source_char_len(elements: Vec<ReflowElement>) -> usize {

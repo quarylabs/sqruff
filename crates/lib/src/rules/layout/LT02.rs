@@ -20,6 +20,7 @@ impl Rule for RuleLT02 {
 #[cfg(test)]
 mod tests {
     use crate::api::simple::lint;
+    use crate::core::errors::SQLLintError;
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT02::RuleLT02;
 
@@ -33,6 +34,9 @@ mod tests {
         let fail_str = "     SELECT 1";
         let violations = lint(fail_str.into(), "ansi".into(), rules(), None, None).unwrap();
 
-        dbg!(violations);
+        assert_eq!(
+            violations,
+            [SQLLintError { description: "First line should not be indented.".into() }]
+        );
     }
 }

@@ -83,7 +83,7 @@ use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_algorithms::{bracket_sensitive_look_ahead_match, greedy_match};
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{position_segments, Segment};
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
@@ -300,7 +300,10 @@ impl Matchable for Sequence {
         // Return successfully.
         unmatched_segments.extend(tail);
 
-        Ok(MatchResult { matched_segments, unmatched_segments })
+        Ok(MatchResult {
+            matched_segments: position_segments(&mut matched_segments, None, true),
+            unmatched_segments,
+        })
     }
 
     fn cache_key(&self) -> String {

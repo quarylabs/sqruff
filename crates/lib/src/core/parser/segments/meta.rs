@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use uuid::Uuid;
 
+use super::base::CloneSegment;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
@@ -22,11 +23,13 @@ use crate::helpers::Boxed;
 pub struct Indent {
     pub indent_val: usize,
     pub is_implicit: bool,
+    position_marker: Option<PositionMarker>,
+    uuid: Uuid,
 }
 
 impl Default for Indent {
     fn default() -> Self {
-        Self { indent_val: 1, is_implicit: false }
+        Self { indent_val: 1, is_implicit: false, position_marker: None, uuid: Uuid::new_v4() }
     }
 }
 
@@ -59,8 +62,24 @@ impl Matchable for Indent {
 }
 
 impl Segment for Indent {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        self.clone_box()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        Vec::new()
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone_box()]
+    }
+
     fn get_type(&self) -> &'static str {
         "indent"
+    }
+
+    fn is_meta(&self) -> bool {
+        true
     }
 
     fn is_code(&self) -> bool {
@@ -76,11 +95,11 @@ impl Segment for Indent {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        todo!()
+        self.position_marker.clone().into()
     }
 
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker;
     }
 
     fn edit(
@@ -92,11 +111,11 @@ impl Segment for Indent {
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
-        todo!()
+        self.uuid.into()
     }
 
     fn get_raw(&self) -> Option<String> {
-        todo!()
+        String::new().into()
     }
 }
 

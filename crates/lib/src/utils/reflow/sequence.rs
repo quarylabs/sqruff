@@ -72,6 +72,7 @@ impl ReflowSequence {
                 ReflowConfig::default(),
                 depth_info,
             )));
+
             // Empty the buffer
             seg_buff.clear();
         }

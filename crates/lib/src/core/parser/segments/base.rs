@@ -7,7 +7,7 @@ use std::mem::take;
 use dyn_clone::DynClone;
 use dyn_hash::DynHash;
 use dyn_ord::DynEq;
-use itertools::Itertools;
+use itertools::{enumerate, Itertools};
 use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;
@@ -538,6 +538,79 @@ impl PartialEq for Box<dyn Segment> {
             false
         }
     }
+}
+
+pub fn position_segments(
+    segments: &[Box<dyn Segment>],
+    parent_pos: Option<&PositionMarker>,
+    metas_only: bool,
+) -> Vec<Box<dyn Segment>> {
+    if segments.is_empty() {
+        return Vec::new();
+    }
+
+    let (mut line_no, mut line_pos) = match parent_pos {
+        Some(pos) => (pos.working_line_no, pos.working_line_pos),
+        None => {
+            // Infer from first segment with a position
+            segments
+                .iter()
+                .find_map(|seg| {
+                    seg.get_position_marker()
+                        .as_ref()
+                        .map(|pm| (pm.working_line_no, pm.working_line_pos))
+                })
+                .expect("Unable to find working position")
+        }
+    };
+
+    let mut segment_buffer = Vec::new();
+
+    for (idx, segment) in enumerate(segments) {
+        if metas_only && !segment.is_meta() {
+            segment_buffer.push(segment.clone());
+            (line_no, line_pos) =
+                PositionMarker::infer_next_position(&segment.get_raw().unwrap(), line_no, line_pos);
+            continue;
+        }
+
+        let old_position = segment.get_position_marker();
+        let new_position = segment.get_position_marker();
+
+        if old_position.is_none() {
+            let mut start_point = None;
+
+            if idx > 0 {
+                let prev_seg = segment_buffer[idx - 1].clone();
+                start_point = prev_seg.get_position_marker().unwrap().into();
+            } else if let Some(parent_pos) = parent_pos {
+                start_point = parent_pos.start_point_marker().into();
+            }
+
+            let end_point = segments.iter().skip(idx + 1).find_map(|fwd_seg| {
+                fwd_seg.get_position_marker().map(|_| {
+                    fwd_seg.get_raw_segments()[0]
+                        .get_position_marker()
+                        .unwrap()
+                        .start_point_marker()
+                })
+            });
+
+            let new_seg = if !segment.get_segments().is_empty() && old_position != new_position {
+                unimplemented!()
+            } else {
+                let mut new_seg = segment.clone();
+                new_seg.set_position_marker(new_position);
+                new_seg
+            };
+
+            segment_buffer.push(new_seg);
+        }
+    }
+
+    assert_eq!(segments.len(), segment_buffer.len());
+
+    segment_buffer
 }
 
 #[derive(Hash, Debug, Clone, PartialEq)]

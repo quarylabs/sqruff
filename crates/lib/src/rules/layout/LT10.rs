@@ -106,6 +106,8 @@ impl Rule for RuleLT10 {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
+
     use crate::api::simple::{fix, lint};
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT10::RuleLT10;

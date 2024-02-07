@@ -1,23 +1,2 @@
-[package]
-name = "sqlflufff"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-dyn-clone = "1"
-dyn_ord = "0.2.1"
-dyn-hash = "0.1.2"
-fancy-regex = "0.12"
-itertools = "0.12.0"
-regex = "1"
-walkdir = "2.4.0"
-indexmap = "2.2.2"
-
-[dev-dependencies]
-pretty_assertions = "1.4.0"
-
-[dependencies.uuid]
-version = "1"
-features = ["v4"]
+[workspace]
+members = ["crates/lib"]

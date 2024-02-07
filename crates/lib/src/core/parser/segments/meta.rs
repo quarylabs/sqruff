@@ -231,6 +231,10 @@ impl Segment for EndOfFile {
         Vec::new()
     }
 
+    fn class_types(&self) -> HashSet<String> {
+        HashSet::from(["end_of_file".into()])
+    }
+
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
         vec![self.clone_box()]
     }

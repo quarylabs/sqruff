@@ -4559,7 +4559,11 @@ mod tests {
             // Functions with a space
             ("SelectClauseElementSegment", "MIN (test.id) AS min_test_id"),
             // Interval literals
-            ("ExpressionSegment", "DATE_ADD(CURRENT_DATE('America/New_York'), INTERVAL 1 year)"),
+            (
+                "ExpressionSegment",
+                "DATE_ADD(CURRENT_DATE('America/New_York'), INTERVAL 1
+            year)",
+            ),
             // Array accessors
             ("ExpressionSegment", "my_array[1]"),
             ("ExpressionSegment", "my_array[OFFSET(1)]"),
@@ -4698,12 +4702,11 @@ mod tests {
 
     #[test]
     fn test__dialect__ansi_parse_indented_joins() {
-        let cases = [("     SELECT 1",)];
+        let cases = [("select field_1 from my_table as alias_1",)];
         let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
 
         for (sql_string,) in cases {
             let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
-            dbg!(parsed.tree.unwrap().get_raw().unwrap());
         }
     }
 }

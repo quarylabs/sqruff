@@ -227,7 +227,6 @@ mod tests {
 
     // configs: *align_alias
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_skip_alias_with_align_alias() {
         let sql = fix(
             "
@@ -481,7 +480,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_expression() {
         let sql =
             lint("SELECT ('foo' || 'bar') as buzz".into(), "ansi".into(), rules(), None, None)
@@ -496,14 +494,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_expression() {
         let sql = fix("SELECT ('foo'||'bar') as buzz".into(), rules());
         assert_eq!(sql, "SELECT ('foo' || 'bar') as buzz");
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_comma() {
         let sql = lint(
             "
@@ -702,14 +698,12 @@ mod tests {
     // LT01-trailing.yml
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_trailing_whitespace() {
         let sql = fix("SELECT 1     \n".into(), rules());
         assert_eq!(sql, "SELECT 1\n");
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_trailing_whitespace_on_initial_blank_line() {
         let sql = fix(" \nSELECT 1     \n".into(), rules());
         assert_eq!(sql, "\nSELECT 1\n");

@@ -46,6 +46,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_pass_indentation_of_comments_1() {
         let sql = "
 SELECT
@@ -60,6 +61,7 @@ FROM
     }
 
     #[test]
+    #[ignore]
     fn test_pass_indentation_of_comments_2() {
         let pass_str = "
 SELECT

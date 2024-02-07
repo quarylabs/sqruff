@@ -779,6 +779,11 @@ impl Segment for CommentSegment {
     fn get_type(&self) -> &'static str {
         "comment"
     }
+
+    fn class_types(&self) -> HashSet<String> {
+        HashSet::from(["comment".into()])
+    }
+
     fn is_code(&self) -> bool {
         false
     }

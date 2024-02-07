@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
+use std::mem::take;
 
 use itertools::{enumerate, Itertools};
 
@@ -98,6 +99,10 @@ impl IndentLine {
             self.indent_points[0].untaken_indents.len()
         };
 
+        // dbg!(self.initial_indent_balance);
+        // dbg!(relevant_untaken_indents);
+        // dbg!(forced_indents.len());
+
         self.initial_indent_balance - relevant_untaken_indents + forced_indents.len()
     }
 }
@@ -168,7 +173,7 @@ fn prune_untaken_indents(
 fn update_crawl_balances(
     untaken_indents: Vec<usize>,
     incoming_balance: usize,
-    indent_stats: IndentStats,
+    indent_stats: &IndentStats,
     has_newline: bool,
 ) -> (usize, Vec<usize>) {
     let new_untaken_indents =
@@ -192,17 +197,48 @@ fn crawl_indent_points(
 
     for (idx, elem) in enumerate(elements) {
         if let ReflowElement::Point(elem) = elem {
-            let indent_stats =
+            let mut indent_stats =
                 IndentStats::from_combination(cached_indent_stats.clone(), elem.indent_impulse());
 
-            if !indent_stats.implicit_indents.is_empty() {}
-
-            if let Some(cached_indent_stats) = &cached_indent_stats {
+            if !indent_stats.implicit_indents.is_empty() {
                 unimplemented!()
             }
 
+            // Was there a cache?
+            if cached_indent_stats.is_some() {
+                let cached_point: &IndentPoint = cached_point.as_ref().unwrap();
+
+                if cached_point.is_line_break {
+                    acc.push(IndentPoint {
+                        idx: cached_point.idx,
+                        indent_impulse: indent_stats.impulse,
+                        indent_trough: indent_stats.trough,
+                        initial_indent_balance: indent_balance,
+                        last_line_break_idx: cached_point.last_line_break_idx.into(),
+                        is_line_break: true,
+                        untaken_indents: take(&mut untaken_indents),
+                    });
+                    // Before zeroing, crystallise any effect on overall
+                    // balances.
+
+                    (indent_balance, untaken_indents) =
+                        update_crawl_balances(untaken_indents, indent_balance, &indent_stats, true);
+
+                    let implicit_indents = take(&mut indent_stats.implicit_indents);
+                    indent_stats = IndentStats { impulse: 0, trough: 0, implicit_indents };
+                } else {
+                    unimplemented!()
+                }
+            }
+
+            // Reset caches.
+            cached_indent_stats = None;
+            cached_point = None;
+
+            // Do we have a newline?
             let has_newline = has_untemplated_newline(elem) && Some(idx) != last_line_break_idx;
 
+            // Construct the point we may yield
             let indent_point = IndentPoint {
                 idx,
                 indent_impulse: indent_stats.impulse,
@@ -232,7 +268,7 @@ fn crawl_indent_points(
             }
 
             (indent_balance, untaken_indents) =
-                update_crawl_balances(untaken_indents, indent_balance, indent_stats, has_newline);
+                update_crawl_balances(untaken_indents, indent_balance, &indent_stats, has_newline);
         }
     }
 
@@ -294,7 +330,22 @@ fn deduce_line_current_indent(
             .get_position_marker()
             .map_or(false, |marker| marker.working_loc() == (1, 1))
     {
-        unimplemented!()
+        if elements[0].segments()[0].is_type("placeholder") {
+            unimplemented!()
+        } else {
+            for segment in elements[0].segments().iter().rev() {
+                if segment.is_type("whitespace") && !segment.is_templated() {
+                    indent_seg = Some(segment.clone());
+                    break;
+                }
+            }
+
+            if let Some(ref seg) = indent_seg {
+                if !seg.is_type("whitespace") {
+                    indent_seg = None;
+                }
+            }
+        }
     }
 
     let Some(indent_seg) = indent_seg else {
@@ -311,7 +362,7 @@ fn deduce_line_current_indent(
 }
 
 fn lint_line_starting_indent(
-    mut elements: &mut ReflowSequenceType,
+    elements: &mut ReflowSequenceType,
     indent_line: &IndentLine,
     single_indent: &str,
     forced_indents: &[usize],

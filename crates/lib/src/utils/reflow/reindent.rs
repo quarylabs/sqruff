@@ -99,10 +99,6 @@ impl IndentLine {
             self.indent_points[0].untaken_indents.len()
         };
 
-        // dbg!(self.initial_indent_balance);
-        // dbg!(relevant_untaken_indents);
-        // dbg!(forced_indents.len());
-
         self.initial_indent_balance - relevant_untaken_indents + forced_indents.len()
     }
 }

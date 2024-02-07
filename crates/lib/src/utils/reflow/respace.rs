@@ -5,14 +5,14 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{Segment, WhitespaceSegment, WhitespaceSegmentNewArgs};
 use crate::core::rules::base::{EditType, LintFix, LintResult};
 
-fn unpack_constraint(constraint: String, mut strip_newlines: bool) -> (String, bool) {
+fn unpack_constraint(constraint: &str, mut strip_newlines: bool) -> (String, bool) {
     let (constraint, modifier) = if constraint.starts_with("align") {
-        (constraint.as_str(), "".into())
+        (constraint, "".into())
     } else {
         constraint
             .split_once(':')
             .map(|(left, right)| (left, Some(right)))
-            .unwrap_or((constraint.as_str(), None))
+            .unwrap_or((constraint, None))
     };
 
     match modifier {
@@ -32,35 +32,63 @@ pub fn determine_constraints(
     strip_newlines: bool,
 ) -> (String, String, bool) {
     // Start with the defaults
-    let (pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block {
-            prev_block.spacing_after.clone()
-        } else {
-            "single".into()
-        },
+    let (mut pre_constraint, strip_newlines) = unpack_constraint(
+        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single".into() },
         strip_newlines,
     );
 
-    let (post_constraint, strip_newlines) = unpack_constraint(
+    let (mut post_constraint, mut strip_newlines) = unpack_constraint(
         if let Some(next_block) = next_block {
-            next_block.spacing_before.clone()
+            &next_block.spacing_before
         } else {
             "single".into()
         },
         strip_newlines,
     );
 
-    // let within_spacing = "";
-    // if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
-    //     let common = prev_block.depth_info.common_with(&next_block.depth_info);
-    //     let last_common = common.last().unwrap();
-    //     let idx = prev_block.depth_info.stack_hashes.iter().position(|p| p ==
-    // last_common).unwrap();
+    let mut within_spacing = String::new();
+    let mut idx = None;
 
-    //     dbg!(&prev_block.stack_spacing_configs);
-    //     let within_constraint = prev_block.stack_spacing_configs.get(&(idx as
-    // u64));     dbg!(within_constraint);
-    // }
+    if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
+        let common = prev_block.depth_info.common_with(&next_block.depth_info);
+        let last_common = common.last().unwrap();
+        idx = prev_block
+            .depth_info
+            .stack_hashes
+            .iter()
+            .position(|p| p == last_common)
+            .unwrap()
+            .into();
+
+        let within_constraint = prev_block.stack_spacing_configs.get(last_common);
+        if let Some(within_constraint) = within_constraint {
+            (within_spacing, strip_newlines) = unpack_constraint(within_constraint, strip_newlines);
+        }
+    }
+
+    match within_spacing.as_str() {
+        "touch" => {
+            if pre_constraint != "any" {
+                pre_constraint = "touch".to_string();
+            }
+            if post_constraint != "any" {
+                post_constraint = "touch".to_string();
+            }
+        }
+        "any" => {
+            pre_constraint = "any".to_string();
+            post_constraint = "any".to_string();
+        }
+        "single" => {}
+        _ if !within_spacing.is_empty() => {
+            panic!(
+                "Unexpected within constraint: '{}' for {:?}",
+                within_spacing,
+                prev_block.unwrap().depth_info.stack_class_types[idx.unwrap()]
+            );
+        }
+        _ => {}
+    }
 
     (pre_constraint, post_constraint, strip_newlines)
 }

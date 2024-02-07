@@ -98,18 +98,17 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     fn print_tree(&self) {
-        let mut tree = String::new();
+        fn print_tree(this: &dyn Segment, mut depth: usize) {
+            let spaces = "    ".repeat(depth);
+            println!("{spaces}{} = {:?}", this.get_type(), this.get_raw().unwrap());
 
-        let mut display = |seg: &dyn Segment| {
-            tree.push_str(&format!("{} = {}", seg.get_type(), seg.get_raw().unwrap()))
-        };
-
-        display(&*self.clone_box());
-        for seg in self.get_segments() {
-            seg.print_tree();
+            depth += 1;
+            for seg in this.get_segments() {
+                print_tree(seg.as_ref(), depth);
+            }
         }
 
-        println!("{tree}");
+        print_tree(self.clone_box().as_ref(), 0)
     }
 
     fn code_indices(&self) -> Vec<usize> {
@@ -145,71 +144,25 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     fn path_to(&self, other: &Box<dyn Segment>) -> Vec<PathStep> {
-        if self.dyn_eq(other) {
-            return Vec::new();
-        }
+        let midpoint = other;
 
-        if self.get_segments().is_empty() {
-            return Vec::new();
-        }
-
-        let mut midpoint = other.clone();
-        let mut lower_path = Vec::new();
-
-        while let Some(higher) = midpoint.get_parent() {
-            assert!(
-                higher.get_position_marker().is_some(),
-                "`path_to()` found segment {higher:?} without position. This shouldn't happen \
-                 post-parse."
-            );
-            lower_path.push(PathStep {
-                segment: higher.clone(),
-                idx: higher.get_segments().iter().position(|seg| seg.dyn_eq(&*higher)).unwrap(),
-                len: higher.get_segments().len(),
-                code_idxs: higher.code_indices(),
-            });
-            midpoint = higher.clone();
-            if self.dyn_eq(&midpoint) {
-                break;
-            }
-        }
-
-        lower_path.reverse();
-
-        if self.dyn_eq(&midpoint) {
-            return lower_path;
-        } else if midpoint.is_type("file") {
-            return Vec::new();
-        }
-
-        // else if !(self.get_start_loc() <= midpoint.get_start_loc()
-        //     && midpoint.get_start_loc() <= self.get_end_loc())
-        // {
-        //     return Vec::new();
-        // }
-
-        for (idx, seg) in self.get_segments().iter().enumerate() {
-            // seg.set_parent(self); // Requires mutable reference to self or change in
-            // design
-
-            let step = PathStep {
+        for (idx, seg) in enumerate(self.get_segments()) {
+            let mut steps = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
                 len: self.get_segments().len(),
                 code_idxs: self.code_indices(),
-            };
-            if seg.dyn_eq(&midpoint) {
-                let mut result = vec![step];
-                result.extend(lower_path);
-                return result;
-            }
-            let res = seg.path_to(&midpoint);
-            if !res.is_empty() {
-                let mut result = vec![step];
-                result.extend(res);
-                result.extend(lower_path);
+            }];
 
-                return result;
+            if seg.eq(&midpoint) {
+                return steps;
+            }
+
+            let res = seg.path_to(midpoint);
+
+            if !res.is_empty() {
+                steps.extend(res);
+                return steps;
             }
         }
 
@@ -501,6 +454,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             // a "raw" type. In the original Python code, this was achieved
             // using seg.is_type("raw"). Here, we assume that a "raw" segment is
             // characterized by having no sub-segments.
+
             if seg.get_segments().is_empty() {
                 buffer.push((seg.clone(), new_step));
             } else {

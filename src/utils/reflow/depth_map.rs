@@ -71,6 +71,7 @@ impl DepthMap {
 
         for raw in raw_segments {
             let stack = root_segment.path_to(&raw);
+            // dbg!(stack.iter().map(|s| s.segment.get_type()).collect_vec());
             buff.push((raw.clone(), stack));
         }
 

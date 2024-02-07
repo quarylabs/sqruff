@@ -42,7 +42,7 @@ impl Rule for RuleLT03 {
 }
 
 impl RuleLT03 {
-    fn check_trail_lead_shortcut(
+    pub(crate) fn check_trail_lead_shortcut(
         &self,
         segment: &dyn Segment,
         parent: &dyn Segment,

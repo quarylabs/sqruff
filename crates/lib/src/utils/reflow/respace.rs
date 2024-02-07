@@ -112,7 +112,7 @@ pub fn process_spacing(
         // If it's a newline, react accordingly.
         // NOTE: This should only trigger on literal newlines.
         else if matches!(seg.get_type(), "newline" | "end_of_file") {
-            if seg.get_position_marker().is_some_and(|pos_marker| pos_marker.is_literal()) {
+            if seg.get_position_marker().is_some_and(|pos_marker| !pos_marker.is_literal()) {
                 last_whitespace = Vec::new();
                 continue;
             }

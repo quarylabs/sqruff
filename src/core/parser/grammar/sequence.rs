@@ -436,7 +436,7 @@ impl Matchable for Bracketed {
         let start_bracket = start_bracket;
         let end_bracket = end_bracket;
 
-        let bracket_segment;
+        let mut bracket_segment;
         let content_segs;
         let trailing_segments;
 
@@ -551,6 +551,15 @@ impl Matchable for Bracketed {
             // No complete match. Fail.
             return Ok(MatchResult::from_unmatched(segments));
         }
+
+        bracket_segment.segments = chain!(
+            bracket_segment.start_bracket.clone(),
+            pre_segs.to_vec(),
+            content_match.all_segments(),
+            post_segs.to_vec(),
+            bracket_segment.end_bracket.clone()
+        )
+        .collect_vec();
 
         Ok(MatchResult {
             matched_segments: if bracket_persists {

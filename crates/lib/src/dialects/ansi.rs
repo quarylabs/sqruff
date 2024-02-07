@@ -2558,7 +2558,7 @@ impl NodeTrait for SizedArrayTypeSegment {
 pub struct UnorderedSelectStatementSegment;
 
 impl NodeTrait for UnorderedSelectStatementSegment {
-    const TYPE: &'static str = "unordered_select_statement";
+    const TYPE: &'static str = "select_statement";
 
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec![
@@ -3499,7 +3499,7 @@ impl NodeTrait for NotEqualToSegment {
 pub struct ConcatSegment;
 
 impl NodeTrait for ConcatSegment {
-    const TYPE: &'static str = "concat";
+    const TYPE: &'static str = "binary_operator";
 
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec![Ref::new("PipeSegment").boxed(), Ref::new("PipeSegment").boxed()])

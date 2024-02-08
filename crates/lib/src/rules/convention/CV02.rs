@@ -3,8 +3,7 @@ use std::collections::HashSet;
 use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{BaseCrawler, Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
+use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
 /// Prefer using `COALESCE` over `IFNULL` or `NVL`.
 ///

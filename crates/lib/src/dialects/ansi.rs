@@ -26,7 +26,7 @@ use crate::core::parser::segments::base::{
 use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::parser::segments::meta::{Dedent, Indent};
+use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
 

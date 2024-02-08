@@ -1,14 +1,11 @@
 use std::collections::HashSet;
-use std::iter::{empty, once};
 
-use itertools::Itertools;
+use itertools::{enumerate, Itertools};
 
 use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
-use crate::core::parser::segments::fix;
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -42,12 +39,12 @@ impl Rule for RuleLT09 {
         //     .children(sp.is_type("wildcard_expression"));
         let has_wildcard = false;
 
-        if select_targets_info.select_targets.len() == 1 && !has_wildcard
-            || self.wildcard_policy == "single"
+        if select_targets_info.select_targets.len() == 1
+            && (!has_wildcard || self.wildcard_policy == "single")
         {
             return self.eval_single_select_target_element(select_targets_info, context);
-        } else {
-            unimplemented!()
+        } else if !select_targets_info.select_targets.is_empty() {
+            return self.eval_multiple_select_target_elements(select_targets_info, context.segment);
         }
 
         unimplemented!()
@@ -135,6 +132,31 @@ impl RuleLT09 {
         }
     }
 
+    fn eval_multiple_select_target_elements(
+        &self,
+        select_targets_info: SelectTargetsInfo,
+        segment: Box<dyn Segment>,
+    ) -> Vec<LintResult> {
+        let fixes = Vec::new();
+
+        for (i, select_target) in enumerate(select_targets_info.select_targets.iter()) {
+            let base_segment = if i == 0 {
+                segment.clone()
+            } else {
+                select_targets_info.select_targets[i - 1].clone()
+            };
+
+            if let Some((a, b)) =
+                base_segment.get_position_marker().zip(select_target.get_position_marker())
+                && a.working_line_no == b.working_line_no
+            {}
+
+            if let Some(from_segment) = &select_targets_info.from_segment {}
+        }
+
+        fixes
+    }
+
     fn eval_single_select_target_element(
         &self,
         select_targets_info: SelectTargetsInfo,
@@ -177,7 +199,7 @@ impl RuleLT09 {
                 .unwrap();
             let after_select_clause_idx = select_clause_idx + 1;
 
-            let mut fixes_for_move_after_select_clause =
+            let fixes_for_move_after_select_clause =
                 |fixes: &mut Vec<LintFix>,
                  stop_seg: Box<dyn Segment>,
                  delete_segments: Option<Segments>,
@@ -335,5 +357,18 @@ from x"
 select a
 from x"
         );
+    }
+
+    #[test]
+    fn test_multiple_select_targets_on_newlines_and_newline_after_select() {
+        let pass_str = "
+select
+    a,
+    b,
+    c
+from x";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
     }
 }

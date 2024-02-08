@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 
-use crate::core::parser::segments::base::CloneSegment;
+use crate::core::parser::segments::base::{CloneSegment, Segment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -24,9 +24,11 @@ impl Rule for RuleLT06 {
         let segment = FunctionalContext::new(context).segment();
         let children = segment.children(None);
 
-        let function_name =
-            children.find_first(Some(|segment| segment.is_type("function_name"))).pop();
-        let start_bracket = children.find_first(Some(|segment| segment.is_type("bracketed"))).pop();
+        let function_name = children
+            .find_first(Some(|segment: &dyn Segment| segment.is_type("function_name")))
+            .pop();
+        let start_bracket =
+            children.find_first(Some(|segment: &dyn Segment| segment.is_type("bracketed"))).pop();
 
         let mut intermediate_segments = children.select(
             None,

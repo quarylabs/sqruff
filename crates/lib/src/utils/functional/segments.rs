@@ -16,6 +16,10 @@ impl Segments {
         Self { base, templated_file }
     }
 
+    pub fn get(&self, index: usize, default: Option<Box<dyn Segment>>) -> Option<Box<dyn Segment>> {
+        self.base.get(index).cloned().or(default)
+    }
+
     pub fn first(&self) -> Option<&dyn Segment> {
         self.base.first().map(Box::as_ref)
     }
@@ -79,9 +83,13 @@ impl Segments {
             })
     }
 
-    pub fn find_first(&self, predicate: PredicateType) -> Segments {
+    pub fn find(&self, value: &dyn Segment) -> Option<usize> {
+        self.index(value)
+    }
+
+    pub fn find_first<F: Fn(&dyn Segment) -> bool>(&self, predicate: Option<F>) -> Segments {
         for s in &self.base {
-            if predicate.map_or(true, |p| p(s.as_ref())) {
+            if predicate.as_ref().map_or(true, |p| p(s.as_ref())) {
                 return Segments {
                     base: vec![s.clone()],
                     templated_file: self.templated_file.clone(),
@@ -90,6 +98,10 @@ impl Segments {
         }
 
         Segments { base: vec![], templated_file: self.templated_file.clone() }
+    }
+
+    pub fn index(&self, value: &dyn Segment) -> Option<usize> {
+        self.base.iter().position(|it| it.dyn_eq(value))
     }
 
     pub fn select(
@@ -101,21 +113,22 @@ impl Segments {
     ) -> Segments {
         let start_index = start_seg
             .and_then(|seg| self.base.iter().position(|x| x.dyn_eq(seg)))
-            .unwrap_or_else(|| usize::MAX);
+            .map_or(0, |index| index + 1);
 
         let stop_index = stop_seg
             .and_then(|seg| self.base.iter().position(|x| x.dyn_eq(seg)))
-            .unwrap_or(self.base.len());
+            .unwrap_or_else(|| self.base.len());
 
         let mut buff = Vec::new();
-        for seg in self.base.iter().skip(start_index + 1).take(stop_index - start_index - 1) {
-            if let Some(loop_while_func) = loop_while {
-                if !loop_while_func(seg.as_ref()) {
+
+        for seg in self.base.iter().skip(start_index).take(stop_index) {
+            if let Some(loop_while) = &loop_while {
+                if !loop_while(seg.as_ref()) {
                     break;
                 }
             }
 
-            if select_if.map_or(true, |f| f(seg.as_ref())) {
+            if select_if.as_ref().map_or(true, |f| f(seg.as_ref())) {
                 buff.push(seg.clone());
             }
         }

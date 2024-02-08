@@ -34,7 +34,7 @@ impl Segment for KeywordSegment {
     }
 
     fn get_type(&self) -> &'static str {
-        "kw"
+        "keyword"
     }
 
     fn is_code(&self) -> bool {

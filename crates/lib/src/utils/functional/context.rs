@@ -23,9 +23,9 @@ impl FunctionalContext {
     //     Segments::from_slice(&self.context.siblings_pre,
     // self.context.templated_file) }
 
-    // pub fn siblings_post(&self) -> Segments {
-    //     Segments::from_slice(&self.context.siblings_post,
-    // self.context.templated_file) }
+    pub fn siblings_post(&self) -> Segments {
+        Segments::from_vec(self.context.siblings_post(), self.context.templated_file.clone())
+    }
 
     // pub fn raw_stack(&self) -> Segments {
     //     Segments::from_slice(&self.context.raw_stack,

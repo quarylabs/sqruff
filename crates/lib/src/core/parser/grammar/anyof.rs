@@ -372,9 +372,9 @@ mod tests {
     #[test]
     fn test__parser__grammar_anyof_modes() {
         let cases: [(&[_], &[_]); 3] = [
-            (&["a"], &[("a", "kw")]),
+            (&["a"], &[("a", "keyword")]),
             (&["b"], &[]),
-            (&["b", "a"], &[("a", "kw"), (" ", "whitespace"), ("b", "kw")]),
+            (&["b", "a"], &[("a", "keyword"), (" ", "whitespace"), ("b", "keyword")]),
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);

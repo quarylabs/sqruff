@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::chain;
 
-use crate::core::parser::segments::base::{NewlineSegment, WhitespaceSegment};
+use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -22,8 +22,8 @@ impl Rule for RuleLT10 {
         let select_keyword = child_segments.first().unwrap();
 
         // See if we have a select_clause_modifier.
-        let select_clause_modifier_seg =
-            child_segments.find_first(Some(|sp| sp.is_type("select_clause_modifier")));
+        let select_clause_modifier_seg = child_segments
+            .find_first(Some(|sp: &dyn Segment| sp.is_type("select_clause_modifier")));
 
         // Are there any newlines between the select keyword and the select clause
         // modifier.

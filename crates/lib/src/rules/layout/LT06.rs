@@ -6,7 +6,6 @@ use crate::core::parser::segments::base::CloneSegment;
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default)]
@@ -17,8 +16,8 @@ impl Rule for RuleLT06 {
         "Function name not immediately followed by parenthesis."
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from(["function".into()])).boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(HashSet::from(["function".into()])).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

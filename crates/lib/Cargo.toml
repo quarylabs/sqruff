@@ -15,6 +15,7 @@ regex = "1"
 walkdir = "2.4.0"
 uuid = { version = "1", features = ["v4"] }
 indexmap = "1.0"
+enum_dispatch = "0.3.12"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"

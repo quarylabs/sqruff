@@ -4,15 +4,14 @@ use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Debug, Default)]
 pub struct RuleLT03 {}
 
 impl Rule for RuleLT03 {
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from(["binary_operator", "comparison_operator"])).boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(HashSet::from(["binary_operator", "comparison_operator"])).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

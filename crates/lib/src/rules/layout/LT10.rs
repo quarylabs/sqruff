@@ -6,15 +6,14 @@ use crate::core::parser::segments::base::{NewlineSegment, WhitespaceSegment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default)]
 pub struct RuleLT10 {}
 
 impl Rule for RuleLT10 {
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

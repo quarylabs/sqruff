@@ -12,6 +12,10 @@ pub struct Segments {
 }
 
 impl Segments {
+    pub fn iter(&self) -> impl Iterator<Item = &Box<dyn Segment>> {
+        self.base.iter()
+    }
+
     pub fn from_vec(base: Vec<Box<dyn Segment>>, templated_file: Option<TemplatedFile>) -> Self {
         Self { base, templated_file }
     }

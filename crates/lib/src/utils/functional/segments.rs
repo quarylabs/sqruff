@@ -1,5 +1,3 @@
-use walkdir::IntoIter;
-
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::TemplatedFile;
 

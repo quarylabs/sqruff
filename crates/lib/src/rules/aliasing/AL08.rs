@@ -4,8 +4,7 @@ use std::collections::{HashMap, HashSet};
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{BaseCrawler, Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
+use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
 #[derive(Debug, Default)]
 pub struct RuleAL08 {}

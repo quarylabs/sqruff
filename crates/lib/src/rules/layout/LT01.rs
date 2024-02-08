@@ -1,7 +1,6 @@
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::helpers::Boxed;
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Default, Debug)]
@@ -13,8 +12,8 @@ impl Rule for RuleLT01 {
         sequence.respace().results()
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        RootOnlyCrawler::default().boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler::default().into()
     }
 }
 

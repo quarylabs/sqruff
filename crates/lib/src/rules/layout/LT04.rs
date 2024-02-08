@@ -5,7 +5,6 @@ use super::LT03::RuleLT03;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Debug, Default)]
@@ -14,8 +13,8 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from(["comma".into()])).boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(HashSet::from(["comma".into()])).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

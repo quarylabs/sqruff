@@ -8,14 +8,13 @@ use crate::core::parser::segments::base::NewlineSegment;
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
 
 #[derive(Debug, Default)]
 pub struct RuleLT08 {}
 
 impl Rule for RuleLT08 {
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

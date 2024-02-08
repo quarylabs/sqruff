@@ -59,6 +59,8 @@ impl Rule for RuleLT06 {
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
+
     use crate::api::simple::{fix, lint};
     use crate::core::errors::SQLLintError;
     use crate::core::rules::base::Erased;

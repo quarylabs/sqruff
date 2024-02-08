@@ -742,18 +742,18 @@ mod tests {
         let segments = g.match_segments(test_segments(), &mut ctx).unwrap().matched_segments;
 
         assert_eq!(segments[0].get_type(), "indent");
-        assert_eq!(segments[1].get_type(), "kw");
+        assert_eq!(segments[1].get_type(), "keyword");
     }
 
     #[test]
     fn test__parser__grammar_sequence_modes() {
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
         let cases: [(_, &[_], &[_], _, &[_]); 6] = [
-            (ParseMode::Strict, &["a"], &[], 0..2, &[("kw", "a")]),
+            (ParseMode::Strict, &["a"], &[], 0..2, &[("keyword", "a")]),
             (ParseMode::Strict, &["a", "b"], &[], 0..2, &[]),
             (ParseMode::Strict, &["b"], &[], 0..2, &[]),
-            (ParseMode::Strict, &["a"], &[], 0..5, &[("kw", "a")]),
-            (ParseMode::Strict, &["a", "c"], &[], 0..5, &[("kw", "a")]),
+            (ParseMode::Strict, &["a"], &[], 0..5, &[("keyword", "a")]),
+            (ParseMode::Strict, &["a", "c"], &[], 0..5, &[("keyword", "a")]),
             (ParseMode::Strict, &["a", "x"], &["c"], 0..5, &[]),
         ];
 

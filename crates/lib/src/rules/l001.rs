@@ -1,7 +1,6 @@
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{BaseCrawler, Crawler, RootOnlyCrawler};
-use crate::helpers::Boxed;
+use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
 
 /// Unnecessary trailing whitespace.

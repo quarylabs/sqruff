@@ -27,7 +27,7 @@ impl Rule for RuleLT11 {
 #[cfg(test)]
 mod tests {
     use super::RuleLT11;
-    use crate::api::simple::{fix, lint};
+    use crate::api::simple::fix;
     use crate::core::rules::base::{Erased, ErasedRule};
 
     fn rules() -> Vec<ErasedRule> {

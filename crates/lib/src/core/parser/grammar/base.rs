@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use itertools::{enumerate, Itertools};
+use itertools::enumerate;
 use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;

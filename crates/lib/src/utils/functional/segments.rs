@@ -5,7 +5,7 @@ use crate::core::templaters::base::TemplatedFile;
 
 type PredicateType = Option<fn(&dyn Segment) -> bool>;
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct Segments {
     base: Vec<Box<dyn Segment>>,
     templated_file: Option<TemplatedFile>,
@@ -16,12 +16,23 @@ impl Segments {
         Self { base, templated_file }
     }
 
+    pub fn reversed(&self) -> Self {
+        let mut base = self.base.clone();
+        base.reverse();
+
+        Self { base, templated_file: self.templated_file.clone() }
+    }
+
     pub fn get(&self, index: usize, default: Option<Box<dyn Segment>>) -> Option<Box<dyn Segment>> {
         self.base.get(index).cloned().or(default)
     }
 
     pub fn first(&self) -> Option<&dyn Segment> {
         self.base.first().map(Box::as_ref)
+    }
+
+    pub fn last(&self) -> Option<&dyn Segment> {
+        self.base.last().map(Box::as_ref)
     }
 
     #[track_caller]
@@ -121,7 +132,7 @@ impl Segments {
 
         let mut buff = Vec::new();
 
-        for seg in self.base.iter().skip(start_index).take(stop_index) {
+        for seg in self.base.iter().skip(start_index).take(stop_index - start_index) {
             if let Some(loop_while) = &loop_while {
                 if !loop_while(seg.as_ref()) {
                     break;
@@ -134,6 +145,14 @@ impl Segments {
         }
 
         Segments { base: buff, templated_file: self.templated_file.clone() }
+    }
+}
+
+impl<I: std::slice::SliceIndex<[Box<dyn Segment>]>> std::ops::Index<I> for Segments {
+    type Output = I::Output;
+
+    fn index(&self, index: I) -> &Self::Output {
+        &self.base[index]
     }
 }
 

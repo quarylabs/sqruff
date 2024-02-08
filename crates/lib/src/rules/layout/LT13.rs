@@ -3,7 +3,6 @@ use itertools::Itertools;
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::helpers::Boxed;
 use crate::utils::functional::segments::Segments;
 
 #[derive(Debug, Default)]
@@ -14,8 +13,8 @@ impl Rule for RuleLT13 {
         "Files must not begin with newlines or whitespace."
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        RootOnlyCrawler::default().boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler::default().into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

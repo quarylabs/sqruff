@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{BaseCrawler, Crawler, SegmentSeekerCrawler};
 use crate::helpers::Boxed;
 
 #[derive(Debug, Default)]
@@ -59,8 +59,8 @@ impl Rule for RuleAL08 {
         violations
     }
 
-    fn crawl_behaviour(&self) -> Box<dyn Crawler> {
-        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).boxed()
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
     }
 }
 

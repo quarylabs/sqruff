@@ -254,6 +254,14 @@ impl ReflowSequence {
         Self { root_segment: self.root_segment, elements, lint_results: indent_results }
     }
 
+    pub fn break_long_lines(self) -> Self {
+        if !self.lint_results.is_empty() {
+            panic!("break_long_lines cannot currently handle pre-existing embodied fixes");
+        }
+
+        unimplemented!()
+    }
+
     fn iter_points_with_constraints(
         &self,
     ) -> impl Iterator<Item = (&ReflowPoint, Option<&ReflowBlock>, Option<&ReflowBlock>)> + '_ {

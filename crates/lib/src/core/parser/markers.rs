@@ -92,13 +92,13 @@ impl PositionMarker {
         // }
 
         let templated_file = templated_files.into_iter().next().unwrap();
-        PositionMarker {
-            source_slice: source_start..source_end,
-            templated_slice: template_start..template_end,
+        PositionMarker::new(
+            source_start..source_end,
+            template_start..template_end,
             templated_file,
-            working_line_no: 0,
-            working_line_pos: 0,
-        }
+            None,
+            None,
+        )
     }
 
     /// Return the line and position of this marker in the source.

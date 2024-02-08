@@ -49,6 +49,40 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn select_children(
+        &self,
+        start_seg: Option<&Box<dyn Segment>>,
+        stop_seg: Option<&Box<dyn Segment>>,
+        select_if: Option<fn(&dyn Segment) -> bool>,
+        loop_while: Option<fn(&dyn Segment) -> bool>,
+    ) -> Vec<Box<dyn Segment>> {
+        let segments = self.get_segments();
+
+        let start_index = start_seg
+            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
+            .map_or(0, |index| index + 1);
+
+        let stop_index = stop_seg
+            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
+            .unwrap_or_else(|| segments.len());
+
+        let mut buff = Vec::new();
+
+        for seg in segments.iter().skip(start_index).take(stop_index - start_index) {
+            if let Some(loop_while) = &loop_while {
+                if !loop_while(seg.as_ref()) {
+                    break;
+                }
+            }
+
+            if select_if.as_ref().map_or(true, |f| f(seg.as_ref())) {
+                buff.push(seg.clone());
+            }
+        }
+
+        buff
+    }
+
     fn is_templated(&self) -> bool {
         if let Some(pos_marker) = self.get_position_marker() {
             pos_marker.source_slice.start != pos_marker.source_slice.end && !pos_marker.is_literal()
@@ -256,6 +290,10 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        unimplemented!()
     }
 
     // get_segments is the way the segment returns its children 'self.segments' in

@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use itertools::{enumerate, Itertools};
 
 use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
+use crate::core::parser::segments::fix;
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -137,7 +138,7 @@ impl RuleLT09 {
         select_targets_info: SelectTargetsInfo,
         segment: Box<dyn Segment>,
     ) -> Vec<LintResult> {
-        let fixes = Vec::new();
+        let mut fixes = Vec::new();
 
         for (i, select_target) in enumerate(select_targets_info.select_targets.iter()) {
             let base_segment = if i == 0 {
@@ -149,12 +150,41 @@ impl RuleLT09 {
             if let Some((a, b)) =
                 base_segment.get_position_marker().zip(select_target.get_position_marker())
                 && a.working_line_no == b.working_line_no
-            {}
+            {
+                let start_seg = select_targets_info.select_idx.unwrap();
+                let modifier = segment.child(&["select_clause_modifier"]);
 
-            if let Some(from_segment) = &select_targets_info.from_segment {}
+                if let Some(_modifier) = modifier {
+                    unimplemented!()
+                }
+
+                let segments = segment.get_segments();
+                let ws_to_delete = segment.select_children(
+                    if i == 0 {
+                        Some(&segments[start_seg])
+                    } else {
+                        Some(&select_targets_info.select_targets[i - 1])
+                    },
+                    None,
+                    Some(|seg| seg.is_type("whitespace")),
+                    Some(|seg| seg.is_type("whitespace") | seg.is_type("comma") | seg.is_meta()),
+                );
+
+                fixes.extend(ws_to_delete.into_iter().map(|seg| LintFix::delete(seg)));
+                fixes.push(LintFix::create_before(
+                    select_target.clone_box(),
+                    vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                ));
+            }
+
+            if let Some(_from_segment) = &select_targets_info.from_segment {}
         }
 
-        fixes
+        if !fixes.is_empty() {
+            return vec![LintResult::new(segment.into(), fixes, None, None, None)];
+        }
+
+        Vec::new()
     }
 
     fn eval_single_select_target_element(
@@ -226,6 +256,13 @@ impl RuleLT09 {
                         all_deletes.push(seg);
                     }
 
+                    let new_fixes = move_after_select_clause
+                        .iter()
+                        .filter(|it| !all_deletes.contains(it))
+                        .cloned()
+                        .map(|seg| LintFix::delete(seg));
+                    local_fixes.extend(new_fixes);
+
                     if !move_after_select_clause.is_empty() || add_newline {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone_box(),
@@ -274,7 +311,19 @@ impl RuleLT09 {
                     }
                 } else if select_stmt.get_segments()[after_select_clause_idx].is_type("whitespace")
                 {
-                    unimplemented!()
+                    fixes.push(LintFix::delete(
+                        select_stmt.get_segments()[after_select_clause_idx].clone_box(),
+                    ));
+
+                    let new_fixes = fixes_for_move_after_select_clause(
+                        &mut fixes,
+                        select_children[select_targets_info.first_select_target_idx.unwrap()]
+                            .clone_box(),
+                        None,
+                        true,
+                    );
+
+                    fixes.extend(new_fixes);
                 } else if select_stmt.get_segments()[after_select_clause_idx].is_type("dedent") {
                     unimplemented!()
                 } else {
@@ -370,5 +419,42 @@ from x";
 
         let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_single_wildcard_select_target_and_newline_before_select_target_1() {
+        let pass_str = "
+select *
+from x";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_2()
+     {
+        let fail_str = "
+select
+    * from x";
+
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(
+            fixed,
+            "
+select *
+    from x"
+        );
+    }
+
+    #[test]
+    fn test_multiple_select_targets_all_on_the_same_line() {
+        let fail_str = "
+select a, b, c
+from x";
+
+        let fixed = fix(fail_str.into(), rules());
+        println!("{fixed}");
+        // assert_eq!(fixed, "select\na,\nb,\nc\nfrom x\n");
     }
 }

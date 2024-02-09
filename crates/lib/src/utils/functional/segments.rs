@@ -1,3 +1,4 @@
+use crate::core::parser::segments;
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::TemplatedFile;
 
@@ -12,6 +13,18 @@ pub struct Segments {
 impl Segments {
     pub fn iter(&self) -> impl Iterator<Item = &Box<dyn Segment>> {
         self.base.iter()
+    }
+
+    pub fn iterate_segments(&self) -> impl Iterator<Item = Segments> + '_ {
+        let mut iter = self.base.iter();
+
+        std::iter::from_fn(move || {
+            let Some(segment) = iter.next() else {
+                return None;
+            };
+
+            Segments::new(segment.clone(), self.templated_file.clone()).into()
+        })
     }
 
     pub fn from_vec(base: Vec<Box<dyn Segment>>, templated_file: Option<TemplatedFile>) -> Self {

@@ -405,6 +405,10 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         dialect: Dialect,
         mut fixes: HashMap<Uuid, AnchorEditInfo>,
     ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+        if fixes.is_empty() || self.get_segments().is_empty() {
+            return (self.clone_box(), Vec::new(), Vec::new(), true);
+        }
+
         let mut seg_buffer = Vec::new();
         let mut fixes_applied = Vec::new();
         let mut requires_validate = false;

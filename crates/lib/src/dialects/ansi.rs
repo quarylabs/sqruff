@@ -30,14 +30,6 @@ use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
 
-macro_rules! from_segments {
-    ($self:expr, $segments:expr) => {{
-        let mut new_object = $self.clone();
-        new_object.segments = $segments;
-        new_object.to_matchable()
-    }};
-}
-
 macro_rules! vec_of_erased {
     ($($elem:expr),*) => {{
         vec![$(Box::new($elem)),*]
@@ -2341,9 +2333,11 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
 
 impl<T: 'static + NodeTrait> Matchable for Node<T> {
     fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
-        let mut segment = from_segments!(self, segments);
-        segment.set_position_marker(pos_marker(segment.as_ref()).into());
-        segment
+        let mut this = self.clone();
+        this.segments = segments;
+        this.uuid = Uuid::new_v4();
+        this.set_position_marker(pos_marker(&this).into());
+        this.boxed()
     }
 }
 
@@ -2493,7 +2487,9 @@ impl Segment for FileSegment {
 
 impl Matchable for FileSegment {
     fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
-        from_segments!(self, segments)
+        let mut new_object = self.clone();
+        new_object.segments = segments;
+        new_object.to_matchable()
     }
 }
 

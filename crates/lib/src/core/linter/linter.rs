@@ -649,7 +649,6 @@ fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo
 
     for fix in fixes {
         let anchor_id = fix.anchor.get_uuid().unwrap();
-
         anchor_info.entry(anchor_id).or_insert_with(AnchorEditInfo::default).add(fix);
     }
 

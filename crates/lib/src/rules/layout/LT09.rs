@@ -3,7 +3,6 @@ use std::collections::HashSet;
 use itertools::{enumerate, Itertools};
 
 use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
-use crate::core::parser::segments::fix;
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -27,6 +26,10 @@ pub struct RuleLT09 {
 }
 
 impl Rule for RuleLT09 {
+    fn description(&self) -> &'static str {
+        "Select targets should be on a new line unless there is only one select target."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["select_clause".into()])).into()
     }
@@ -82,6 +85,7 @@ impl RuleLT09 {
 
         let first_new_line_idx = (!newlines.is_empty())
             .then(|| children.find(newlines.get(0, None).unwrap().as_ref()).unwrap());
+        let mut comment_after_select_idx = None;
 
         if !newlines.is_empty() {
             let comment_after_select = children.select(
@@ -92,7 +96,9 @@ impl RuleLT09 {
             );
 
             if !comment_after_select.is_empty() {
-                unimplemented!()
+                comment_after_select_idx = (!comment_after_select.is_empty()).then(|| {
+                    children.find(comment_after_select.get(0, None).unwrap().as_ref()).unwrap()
+                });
             }
         }
 
@@ -105,8 +111,10 @@ impl RuleLT09 {
                 None,
             );
 
-            first_whitespace_idx =
-                children.find(segments_after_first_line.get(0, None).unwrap().as_ref());
+            if !segments_after_first_line.is_empty() {
+                first_whitespace_idx =
+                    children.find(segments_after_first_line.get(0, None).unwrap().as_ref());
+            }
         }
 
         let siblings_post = FunctionalContext::new(context).siblings_post();
@@ -126,7 +134,7 @@ impl RuleLT09 {
             first_new_line_idx,
             first_select_target_idx,
             first_whitespace_idx,
-            comment_after_select_idx: None,
+            comment_after_select_idx,
             select_targets,
             from_segment,
             pre_from_whitespace,
@@ -177,7 +185,25 @@ impl RuleLT09 {
                 ));
             }
 
-            if let Some(_from_segment) = &select_targets_info.from_segment {}
+            if let Some(from_segment) = &select_targets_info.from_segment {
+                if i + 1 == select_targets_info.select_targets.len()
+                    && select_target.get_position_marker().unwrap().working_line_no
+                        == from_segment.get_position_marker().unwrap().working_line_no
+                {
+                    fixes.extend(
+                        select_targets_info
+                            .pre_from_whitespace
+                            .clone()
+                            .into_iter()
+                            .map(|ws| LintFix::delete(ws)),
+                    );
+
+                    fixes.push(LintFix::create_before(
+                        from_segment.clone_box(),
+                        vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                    ));
+                }
+            }
         }
 
         if !fixes.is_empty() {
@@ -361,6 +387,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     use crate::api::simple::{fix, lint};
+    use crate::core::errors::SQLLintError;
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT09::RuleLT09;
 
@@ -449,12 +476,56 @@ select *
 
     #[test]
     fn test_multiple_select_targets_all_on_the_same_line() {
-        let fail_str = "
-select a, b, c
-from x";
-
+        let fail_str = "select a, b, c from x";
         let fixed = fix(fail_str.into(), rules());
-        println!("{fixed}");
-        // assert_eq!(fixed, "select\na,\nb,\nc\nfrom x\n");
+        assert_eq!(fixed, "select\na,\nb,\nc\nfrom x");
+    }
+
+    #[test]
+    fn test_multiple_select_targets_including_wildcard_all_on_the_same_line_plus_from_clause() {
+        let fail_str = "select *, b, c from x";
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(fixed, "select\n*,\nb,\nc\nfrom x");
+    }
+
+    #[test]
+    fn test_multiple_select_target_plus_from_clause_on_the_same_line() {
+        let fail_str = "
+select
+    a,
+    b,
+    c from x";
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(
+            fixed,
+            "
+select
+    a,
+    b,
+    c
+from x"
+        );
+    }
+
+    #[test]
+    fn test_multiple_select_targets_trailing_whitespace_after_select() {
+        let pass_str = "SELECT \n    a,\n    b\nFROM t\n";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_single_select_with_comment_after_select() {
+        let fail_str = "SELECT --some comment\na";
+        let violations = lint(fail_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(
+            violations,
+            [SQLLintError {
+                description: "Select targets should be on a new line unless there is only one \
+                              select target."
+                    .into()
+            }]
+        )
     }
 }

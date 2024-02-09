@@ -544,6 +544,8 @@ impl PartialEq for Box<dyn Segment> {
     }
 }
 
+impl Eq for Box<dyn Segment> {}
+
 pub fn position_segments(
     segments: &[Box<dyn Segment>],
     parent_pos: Option<&PositionMarker>,

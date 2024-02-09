@@ -71,6 +71,14 @@ impl PositionMarker {
         }
     }
 
+    pub fn line_no(&self) -> usize {
+        self.source_position().0
+    }
+
+    pub fn line_pos(&self) -> usize {
+        self.source_position().1
+    }
+
     pub fn from_child_markers(markers: Vec<PositionMarker>) -> PositionMarker {
         let mut source_start = usize::MAX;
         let mut source_end = usize::MIN;
@@ -102,7 +110,7 @@ impl PositionMarker {
     }
 
     /// Return the line and position of this marker in the source.
-    pub fn source_position(self) -> (usize, usize) {
+    pub fn source_position(&self) -> (usize, usize) {
         self.templated_file.get_line_pos_of_char_pos(self.templated_slice.start, true)
     }
 

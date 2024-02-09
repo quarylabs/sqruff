@@ -287,8 +287,6 @@ impl RuleLT09 {
                         select_children[select_targets_info.first_new_line_idx.unwrap()].clone()
                     };
 
-                    dbg!(&start_seg.get_raw());
-
                     let move_after_select_clause = select_children.select(
                         None,
                         None,

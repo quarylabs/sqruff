@@ -1,13 +1,12 @@
 on:
   pull_request:
   merge_group:
-name: ci
+name: PR Checks
 env:
   CARGO_INCREMENTAL: 0
   CARGO_NET_RETRY: 10
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: short
-
 jobs:
   compile:
     name: Compile

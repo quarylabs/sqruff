@@ -10,7 +10,3 @@ pub mod dialects;
 pub mod helpers;
 mod rules;
 mod utils;
-
-fn main() {
-    println!("Hello, world!");
-}

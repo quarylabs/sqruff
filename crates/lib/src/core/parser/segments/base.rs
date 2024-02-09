@@ -738,7 +738,7 @@ impl Segment for CodeSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CommentSegment {
     raw: String,
-    position_maker: PositionMarker,
+    position_maker: Option<PositionMarker>,
     r#type: &'static str,
     trim_start: Vec<&'static str>,
     uuid: Uuid,
@@ -758,7 +758,7 @@ impl CommentSegment {
     ) -> Box<dyn Segment> {
         Self {
             raw: raw.to_string(),
-            position_maker: position_maker.clone(),
+            position_maker: position_maker.clone().into(),
             r#type: args.r#type,
             trim_start: args.trim_start.unwrap_or_default(),
             uuid: Uuid::new_v4(),
@@ -803,11 +803,11 @@ impl Segment for CommentSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone().into()
+        self.position_maker.clone()
     }
 
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_maker = position_marker;
     }
 
     fn edit(

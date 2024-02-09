@@ -159,11 +159,12 @@ impl RuleLT09 {
                 base_segment.get_position_marker().zip(select_target.get_position_marker())
                 && a.working_line_no == b.working_line_no
             {
-                let start_seg = select_targets_info.select_idx.unwrap();
+                let mut start_seg = select_targets_info.select_idx.unwrap();
                 let modifier = segment.child(&["select_clause_modifier"]);
 
-                if let Some(_modifier) = modifier {
-                    unimplemented!()
+                if let Some(modifier) = modifier {
+                    start_seg =
+                        segment.get_segments().iter().position(|it| it == &modifier).unwrap();
                 }
 
                 let segments = segment.get_segments();
@@ -231,7 +232,7 @@ impl RuleLT09 {
         let modifier = select_children
             .find_first(Some(|seg: &dyn Segment| seg.is_type("select_clause_modifier")));
 
-        let insert_buff = vec![
+        let mut insert_buff = vec![
             WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
@@ -241,7 +242,27 @@ impl RuleLT09 {
         )];
 
         let start_idx = if !modifier.is_empty() {
-            unimplemented!()
+            let buff = std::mem::take(&mut insert_buff);
+
+            insert_buff = vec![
+                WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+                modifier[0].clone(),
+            ];
+
+            insert_buff.extend(buff);
+
+            let modifier_idx =
+                select_children.index(modifier.get(0, None).unwrap().as_ref()).unwrap();
+
+            if select_children.len() > modifier_idx + 1
+                && select_children[modifier_idx + 2].is_whitespace()
+            {
+                fixes.push(LintFix::delete(select_children[modifier_idx + 2].clone()));
+            }
+
+            fixes.push(LintFix::delete(modifier[0].clone_box()));
+
+            modifier_idx
         } else {
             select_targets_info.first_select_target_idx.unwrap()
         };
@@ -265,6 +286,9 @@ impl RuleLT09 {
                     } else {
                         select_children[select_targets_info.first_new_line_idx.unwrap()].clone()
                     };
+
+                    dbg!(&start_seg.get_raw());
+
                     let move_after_select_clause = select_children.select(
                         None,
                         None,
@@ -527,5 +551,325 @@ from x"
                     .into()
             }]
         )
+    }
+
+    #[test]
+    fn test_comment_between_select_and_single_select_target() {
+        let fail_str = "
+SELECT
+    -- This is the user's ID.
+    user_id
+FROM
+    safe_user";
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(
+            fixed,
+            "
+SELECT user_id
+    -- This is the user's ID.
+FROM
+    safe_user"
+        );
+    }
+
+    #[test]
+    fn test_multiple_select_targets_some_newlines_missing_1() {
+        let fail_str = "
+select
+  a, b, c,
+  d, e, f, g,
+  h
+from x";
+
+        let expected_fixed_str = "
+select
+  a,
+b,
+c,
+  d,
+e,
+f,
+g,
+  h
+from x";
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_multiple_select_targets_some_newlines_missing_2() {
+        let fail_str = "
+select a, b, c,
+  d, e, f, g,
+  h
+from x";
+
+        let expected_fixed_str = "
+select
+a,
+b,
+c,
+  d,
+e,
+f,
+g,
+  h
+from x";
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_cte() {
+        let fail_str = "
+WITH
+cte1 AS (
+    SELECT
+        c1 AS c
+    FROM
+        t
+)
+
+SELECT 1
+FROM cte1";
+
+        let expected_fixed_str = "
+WITH
+cte1 AS (
+    SELECT c1 AS c
+    FROM
+        t
+)
+
+SELECT 1
+FROM cte1";
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_single_newline_no_from() {
+        let fail_str = "
+SELECT
+id";
+        let expected_fixed_str = "
+SELECT id";
+        let fixed = fix(fail_str.into(), rules());
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_single_distinct_no_from() {
+        let fail_str = "
+SELECT
+DISTINCT id";
+
+        let expected_fixed_str = "
+SELECT DISTINCT id";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_distinct_many() {
+        let fail_str = "
+SELECT distinct a, b, c
+FROM my_table";
+
+        let expected_fixed_str = "
+SELECT distinct
+a,
+b,
+c
+FROM my_table";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_distinct_single_pass() {
+        let pass_str = "
+SELECT distinct a
+FROM my_table";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_distinct_single_fail_a() {
+        let fail_str = "
+SELECT distinct
+  a
+FROM my_table";
+
+        let expected_fixed_str = "
+SELECT distinct a
+FROM my_table";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_distinct_single_fail_b() {
+        let fail_str = "
+SELECT
+  distinct a
+FROM my_table";
+
+        let expected_fixed_str = "
+SELECT distinct a
+FROM my_table";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_single_select_with_no_from() {
+        let fail_str = "SELECT\n   10000000\n";
+        let expected_fixed_str = "SELECT 10000000\n";
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_single_select_with_no_from_previous_comment() {
+        let fail_str = "SELECT\n /* test */  10000000\n";
+
+        let expected_fixed_str = "SELECT 10000000 /* test */\n";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_single_select_with_comment_after_column() {
+        let fail_str = "
+SELECT
+  1 -- this is a comment
+FROM
+  my_table";
+
+        let expected_fixed_str = "
+SELECT 1
+  -- this is a comment
+FROM
+  my_table";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_single_select_with_comment_after_column_no_space() {
+        let fail_str = "
+SELECT
+  1-- this is a comment
+FROM
+  my_table";
+
+        let expected_fixed_str = "
+SELECT 1
+  -- this is a comment
+FROM
+  my_table";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_single_select_with_multiple_mixed_comments() {
+        let fail_str = "
+SELECT
+  -- previous comment
+  1 -- this is a comment
+FROM
+  my_table";
+
+        let expected_fixed_str = "
+SELECT 1
+  -- previous comment
+  -- this is a comment
+FROM
+  my_table";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_single_select_with_comment_before() {
+        let fail_str = "
+SELECT
+  /* comment before */ 1
+FROM
+  my_table";
+
+        let expected_fixed_str = "
+SELECT 1
+  /* comment before */
+FROM
+  my_table";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    fn test_create_view() {
+        let fail_str = "
+CREATE VIEW a
+AS
+SELECT
+    c
+FROM table1
+INNER JOIN table2 ON (table1.id = table2.id);";
+
+        let expected_fixed_str = "
+CREATE VIEW a
+AS
+SELECT c
+FROM table1
+INNER JOIN table2 ON (table1.id = table2.id);";
+
+        let fixed = fix(fail_str.into(), rules());
+
+        assert_eq!(fixed, expected_fixed_str);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_multiline_single() {
+        let pass_str = "
+SELECT
+    SUM(
+        1 + SUM(
+            2 + 3
+        )
+    ) AS col
+FROM test_table";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert!(violations.is_empty(), "Expected no linting violations, but found some.");
     }
 }

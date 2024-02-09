@@ -117,6 +117,7 @@ impl Segments {
         self.base.iter().position(|it| it.dyn_eq(value))
     }
 
+    #[track_caller]
     pub fn select(
         &self,
         select_if: PredicateType,

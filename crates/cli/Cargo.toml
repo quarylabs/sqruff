@@ -1,9 +1,11 @@
 [package]
-name = "sqruff-cli"
-version = "0.1.0"
+name = "sqruff"
+version = "0.0.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sqruff = { path = "../lib" }
+sqruff-lib = { path = "../lib" }
+clap = { version = "4", features = ["derive"] }
+glob = "0.3.1"

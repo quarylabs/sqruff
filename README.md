@@ -22,13 +22,19 @@ SQRUFF is an innovative SQL linter and formatter for modern development environm
 
 ## Getting Started
 
-Visit [sqruff's official site](https://www.quary.dev) to learn more about installation and usage.
+### Installation
+
+```
+rustup override set nightly
+cargo install sqruff
+sqruff --help
+```
 
 ## Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute.
 
-## Releasing
+### Releasing
 
 1. Bump the versions in `sqruff-lib/Cargo.toml` and `sqruff/Cargo.toml`.
 2. Commit the changes.
@@ -44,20 +50,6 @@ cargo publish -p sqruff-lib
 
 ```
 cargo publish -p sqruff
-```
-
-## Installation
-
-```
-rustup override set nightly
-```
-
-```
-cargo install sqruff
-```
-
-```
-sqruff --help
 ```
 
 ## Community

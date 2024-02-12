@@ -3,9 +3,14 @@ name = "sqruff"
 version = "0.0.1"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[test]]
+name = "ui"
+harness = false
 
 [dependencies]
 sqruff-lib = { path = "../lib" }
 clap = { version = "4", features = ["derive"] }
 glob = "0.3.1"
+
+[dev-dependencies]
+ui_test = "0.22"

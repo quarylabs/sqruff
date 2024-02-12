@@ -259,7 +259,7 @@ impl ReflowSequence {
             panic!("break_long_lines cannot currently handle pre-existing embodied fixes");
         }
 
-        unimplemented!()
+        self
     }
 
     fn iter_points_with_constraints(

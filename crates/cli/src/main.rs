@@ -3,6 +3,7 @@ use std::process::exit;
 use clap::Parser;
 use glob::{glob, Paths};
 use sqruff_lib::api::simple::lint;
+use sqruff_lib::rules::layout;
 
 use crate::commands::Cli;
 
@@ -24,6 +25,7 @@ fn main() {
 // TODO Handle the unwraps better
 fn main_wrapper() -> Result<String, String> {
     let cli = Cli::parse();
+    let mut has_errors = false;
 
     match cli.command {
         commands::Commands::Lint(lint_args) => {
@@ -38,22 +40,26 @@ fn main_wrapper() -> Result<String, String> {
                     contents,
                     // TODO Make this a pointer
                     DEFAULT_DIALECT.to_string(),
-                    vec![],
+                    layout::get_rules().into(),
                     None,
                     None,
                 )
                 .map_err(|e| format!("Error linting file '{}': {:?}", file, e))?;
                 if !linted.is_empty() {
-                    println!("Linting errors in file '{}': {:?}", file, linted);
+                    has_errors = true;
+                    for error in linted {
+                        println!("{}: {}", file, error.description);
+                    }
                 }
                 count += 1;
             }
-            unimplemented!();
         }
         commands::Commands::Fix(_) => {
             unimplemented!();
         }
-    }
+    };
+
+    if !has_errors { Ok(String::new()) } else { Err(String::new()) }
 }
 
 const DEFAULT_DIALECT: &str = "ansi";

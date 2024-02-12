@@ -197,11 +197,7 @@ pub fn handle_respace_inline_with_space(
         segment_buffer.remove(ws_idx);
 
         let description = if let Some(next_block) = next_block {
-            format!(
-                "Unexpected whitespace before {}.",
-                next_block.segments[0].get_raw().unwrap() /* Replace with appropriate function
-                                                           * to get segment name */
-            )
+            format!("Unexpected whitespace before {:?}.", next_block.segments[0].get_raw().unwrap())
         } else {
             "Unexpected whitespace".to_string()
         };
@@ -222,7 +218,7 @@ pub fn handle_respace_inline_with_space(
     if pre_constraint == "single" && post_constraint == "single" {
         let desc = if let Some(next_block) = next_block {
             format!(
-                "Expected only single space before `{}`. Found {:?}.",
+                "Expected only single space before {:?}. Found {:?}.",
                 &next_block.segments[0].get_raw().unwrap(),
                 last_whitespace.get_raw().unwrap()
             )
@@ -337,6 +333,16 @@ pub fn handle_respace_inline_without_space(
         return (segment_buffer, existing_results, true);
     }
 
+    let desc = if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
+        format!(
+            "Expected single whitespace between {:?} and {:?}.",
+            prev_block.segments.last().unwrap().get_raw().unwrap(),
+            next_block.segments[0].get_raw().unwrap()
+        )
+    } else {
+        format!("Expected single whitespace.")
+    };
+
     let new_result = if let Some(prev_block) = prev_block
         && anchor_on != "after"
     {
@@ -357,7 +363,7 @@ pub fn handle_respace_inline_without_space(
                 source: vec![],
             }],
             None,
-            Some("insert whitespace".into()),
+            desc.into(),
             None,
         )
     } else {

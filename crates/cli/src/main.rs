@@ -48,7 +48,7 @@ fn main_wrapper() -> Result<String, String> {
                 if !linted.is_empty() {
                     has_errors = true;
                     for error in linted {
-                        println!("{}: {}", file, error.description);
+                        eprintln!("{}: {}", file, error.description);
                     }
                 }
                 count += 1;

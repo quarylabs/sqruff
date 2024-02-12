@@ -14,7 +14,8 @@ fn main() -> Result<()> {
 
     std::mem::swap(&mut config.comment_defaults.base().edition, &mut <_>::default());
     config.comment_defaults.base().mode =
-        Spanned::dummy(Mode::Yolo { rustfix: RustfixMode::Disabled }).into();
+        Spanned::dummy(Mode::Fail { require_patterns: false, rustfix: RustfixMode::Disabled })
+            .into();
 
     let args = Args::test()?;
     config.with_args(&args);

@@ -1,4 +1,0 @@
-tests/ui/test_fail_whitespace_before_comma.sql: Unexpected whitespace before ,.
-tests/ui/test_fail_whitespace_before_comma.sql: insert whitespace
-tests/ui/test_fail_whitespace_before_comma.sql: Select targets should be on a new line unless there is only one select target.
-tests/ui/test_fail_whitespace_before_comma.sql: Files must end with a single trailing newline.

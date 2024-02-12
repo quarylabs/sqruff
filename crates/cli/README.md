@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://quary.dev">
+  <a href="https://quary.dev/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://utfs.io/f/30765a8e-3dd9-4dc3-b905-11de822e71e4-yajpew.png">
       <img src="https://utfs.io/f/30765a8e-3dd9-4dc3-b905-11de822e71e4-yajpew.png" height="128">

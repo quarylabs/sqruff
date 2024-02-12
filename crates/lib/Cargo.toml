@@ -1,7 +1,9 @@
 [package]
 name = "sqruff-lib"
-version = "0.1.0"
+description = "A high-speed SQL linter."
+version = "0.1.3"
 edition = "2021"
+license = "MIT" 
 
 [lib]
 doctest = false

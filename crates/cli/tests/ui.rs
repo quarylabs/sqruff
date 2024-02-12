@@ -10,6 +10,8 @@ fn main() -> Result<()> {
     config.program.out_dir_flag = None;
     config.program.args = vec!["lint".into()];
 
+    config.stderr_filter("Developer Note.*(?s)(?:\n|^)", "");
+
     std::mem::swap(&mut config.comment_defaults.base().edition, &mut <_>::default());
     config.comment_defaults.base().mode =
         Spanned::dummy(Mode::Yolo { rustfix: RustfixMode::Disabled }).into();
@@ -21,6 +23,6 @@ fn main() -> Result<()> {
         vec![config],
         |path, _args| path.extension().is_some_and(|extension| extension == "sql").into(),
         |_, _, _| {},
-        (Text::verbose(), status_emitter::Gha::<true> { name: "".into() }),
+        (Text::verbose(), status_emitter::Gha::<true> { name: "sqruff".into() }),
     )
 }

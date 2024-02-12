@@ -1,0 +1,2 @@
+tests/ui/LT01_LT012.sql: Expected only single space before `1`. Found "   ".
+tests/ui/LT01_LT012.sql: Files must end with a single trailing newline.

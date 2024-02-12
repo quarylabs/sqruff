@@ -5,8 +5,8 @@
 
 pub mod api;
 pub mod cli;
-mod core;
+pub mod core;
 pub mod dialects;
 pub mod helpers;
-mod rules;
-mod utils;
+pub mod rules;
+pub mod utils;

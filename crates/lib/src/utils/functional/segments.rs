@@ -1,4 +1,3 @@
-use crate::core::parser::segments;
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::TemplatedFile;
 
@@ -19,10 +18,7 @@ impl Segments {
         let mut iter = self.base.iter();
 
         std::iter::from_fn(move || {
-            let Some(segment) = iter.next() else {
-                return None;
-            };
-
+            let segment = iter.next()?;
             Segments::new(segment.clone(), self.templated_file.clone()).into()
         })
     }

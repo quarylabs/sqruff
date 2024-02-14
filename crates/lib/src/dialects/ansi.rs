@@ -4505,7 +4505,7 @@ mod tests {
 
         for (raw, res) in test_cases {
             // Assume FluffConfig and Lexer are defined somewhere in your codebase
-            let config = FluffConfig::new(None, None, None, Some("ansi"));
+            let config = FluffConfig::new(<_>::default(), None, None);
 
             let lexer = Lexer::new(config, None);
 
@@ -4640,7 +4640,7 @@ mod tests {
 
         let dialect = fresh_ansi_dialect();
         for (segment_ref, sql) in cases {
-            let config = FluffConfig::new(None, None, None, None);
+            let config = FluffConfig::new(<_>::default(), None, None);
             let segments = lex(sql);
 
             let mut parse_cx = ParseContext::from_config(config);
@@ -4667,7 +4667,7 @@ mod tests {
         ];
 
         for (raw, err_locations) in tests {
-            let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
+            let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
             let parsed = lnt.parse_string(raw.to_string(), None, None, None, None).unwrap();
             assert!(!parsed.violations.is_empty());
 
@@ -4680,7 +4680,7 @@ mod tests {
     #[test]
     #[ignore = "WIP"]
     fn test__dialect__ansi_is_whitespace() {
-        let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
+        let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let file_content =
             std::fs::read_to_string("test/fixtures/dialects/ansi/select_in_multiline_comment.sql")
                 .expect("Unable to read file");
@@ -4699,7 +4699,7 @@ mod tests {
     #[test]
     fn test__dialect__ansi_parse_indented_joins() {
         let cases = [("select field_1 from my_table as alias_1",)];
-        let lnt = Linter::new(FluffConfig::new(None, None, None, None), None, None);
+        let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
 
         for (sql_string,) in cases {
             let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();

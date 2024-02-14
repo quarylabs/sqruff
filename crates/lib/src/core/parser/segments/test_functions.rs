@@ -20,7 +20,7 @@ pub fn fresh_ansi_dialect() -> Dialect {
 }
 
 pub fn lex(string: &str) -> Vec<Box<dyn Segment>> {
-    let config = FluffConfig::new(None, None, None, None);
+    let config = FluffConfig::new(<_>::default(), None, None);
     let lexer = Lexer::new(config, None);
 
     let (segments, errors) = lexer.lex(StringOrTemplate::String(string.into())).unwrap();

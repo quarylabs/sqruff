@@ -19,6 +19,11 @@ walkdir = "2.4.0"
 uuid = { version = "1", features = ["v4"] }
 enum_dispatch = "0.3.12"
 indexmap = "2.2.2"
+common-path = "1.0.0"
+anymap = "0.12.1"
+configparser = "3.0.4"
+phf = { version = "0.11.2", features = ["macros", "unicase"] }
+unicase = "2.7.0"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"

@@ -3,6 +3,7 @@ use std::process::exit;
 use clap::Parser;
 use glob::{glob, Paths};
 use sqruff_lib::api::simple::lint;
+use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::rules::layout;
 
 use crate::commands::Cli;
@@ -26,6 +27,8 @@ fn main() {
 fn main_wrapper() -> Result<String, String> {
     let cli = Cli::parse();
     let mut has_errors = false;
+
+    let config = FluffConfig::from_root(None, false, None).unwrap();
 
     match cli.command {
         commands::Commands::Lint(lint_args) => {

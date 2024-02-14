@@ -15,7 +15,7 @@ impl Parser {
     pub fn new(_config: Option<FluffConfig>, _dialect: Option<String>) -> Self {
         // TODO:
         // let config = FluffConfig::from_kwargs(config, dialect, None);
-        let config = FluffConfig::new(None, None, None, None);
+        let config = FluffConfig::new(<_>::default(), None, None);
 
         Self { config, root_segment: FileSegment::default() }
     }
@@ -62,7 +62,7 @@ mod tests {
     #[ignore]
     fn test__parser__parse_error() {
         let in_str = "SELECT ;".to_string();
-        let config = FluffConfig::new(None, None, None, None);
+        let config = FluffConfig::new(<_>::default(), None, None);
         let linter = Linter::new(config, None, None);
 
         let _ = linter.parse_string(in_str, None, None, None, None);

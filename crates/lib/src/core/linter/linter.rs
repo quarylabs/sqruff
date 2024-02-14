@@ -556,7 +556,7 @@ impl Linter {
         for fpath in buffer {
             assert!(ignores.is_empty());
 
-            let npath = normalize(&fpath).to_str().unwrap().to_string();
+            let npath = crate::helpers::normalize(&fpath).to_str().unwrap().to_string();
             filtered_buffer.insert(npath);
         }
 
@@ -564,84 +564,6 @@ impl Linter {
         files.sort();
         files
     }
-}
-
-// https://github.com/rust-lang/rfcs/issues/2208#issuecomment-342679694
-fn normalize(p: &Path) -> PathBuf {
-    let mut stack: Vec<Component> = vec![];
-
-    // We assume .components() removes redundant consecutive path separators.
-    // Note that .components() also does some normalization of '.' on its own
-    // anyways. This '.' normalization happens to be compatible with the
-    // approach below.
-    for component in p.components() {
-        match component {
-            // Drop CurDir components, do not even push onto the stack.
-            Component::CurDir => {}
-
-            // For ParentDir components, we need to use the contents of the stack.
-            Component::ParentDir => {
-                // Look at the top element of stack, if any.
-                let top = stack.last().cloned();
-
-                match top {
-                    // A component is on the stack, need more pattern matching.
-                    Some(c) => {
-                        match c {
-                            // Push the ParentDir on the stack.
-                            Component::Prefix(_) => {
-                                stack.push(component);
-                            }
-
-                            // The parent of a RootDir is itself, so drop the ParentDir (no-op).
-                            Component::RootDir => {}
-
-                            // A CurDir should never be found on the stack, since they are dropped
-                            // when seen.
-                            Component::CurDir => {
-                                unreachable!();
-                            }
-
-                            // If a ParentDir is found, it must be due to it piling up at the start
-                            // of a path. Push the new ParentDir onto
-                            // the stack.
-                            Component::ParentDir => {
-                                stack.push(component);
-                            }
-
-                            // If a Normal is found, pop it off.
-                            Component::Normal(_) => {
-                                let _ = stack.pop();
-                            }
-                        }
-                    }
-
-                    // Stack is empty, so path is empty, just push.
-                    None => {
-                        stack.push(component);
-                    }
-                }
-            }
-
-            // All others, simply push onto the stack.
-            _ => {
-                stack.push(component);
-            }
-        }
-    }
-
-    // If an empty PathBuf would be return, instead return CurDir ('.').
-    if stack.is_empty() {
-        return PathBuf::from(".");
-    }
-
-    let mut norm_path = PathBuf::new();
-
-    for item in &stack {
-        norm_path.push(item);
-    }
-
-    norm_path
 }
 
 fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo> {
@@ -667,7 +589,7 @@ mod tests {
     #[test]
     fn test_linter_path_from_paths_dir() {
         // Test extracting paths from directories.
-        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None); // Assuming Linter has a new() method for initialization
         let paths = lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None);
         let expected = vec![
             "test.fixtures.lexer.basic.sql",
@@ -680,7 +602,7 @@ mod tests {
     #[test]
     fn test_linter_path_from_paths_default() {
         // Test .sql files are found by default.
-        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None); // Assuming Linter has a new() method for initialization
         let paths = normalise_paths(lntr.paths_from_path(
             "test/fixtures/linter".into(),
             None,
@@ -698,7 +620,7 @@ mod tests {
         // Assuming Linter is initialized with a configuration similar to Python's
         // FluffConfig
         let config =
-            FluffConfig::new(None, None, None, None).with_sql_file_exts(vec![".txt".into()]);
+            FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
         let lntr = Linter::new(config, None, None); // Assuming Linter has a new() method for initialization
 
         let paths = lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None);
@@ -716,7 +638,7 @@ mod tests {
 
     #[test]
     fn test__linter__path_from_paths__file() {
-        let lntr = Linter::new(FluffConfig::new(None, None, None, None), None, None); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None); // Assuming Linter has a new() method for initialization
         let paths = lntr.paths_from_path(
             "test/fixtures/linter/indentation_errors.sql".into(),
             None,
@@ -747,7 +669,7 @@ mod tests {
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
     fn test__linter__empty_file() {
-        let linter = Linter::new(FluffConfig::new(None, None, None, None), None, None);
+        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let parsed = linter.parse_string("".into(), None, None, None, None).unwrap();
 
         assert!(parsed.violations.is_empty());
@@ -773,7 +695,7 @@ mod tests {
         "
         .to_string();
 
-        let linter = Linter::new(FluffConfig::new(None, None, None, None), None, None);
+        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let _parsed = linter.parse_string(sql, None, None, None, None).unwrap();
     }
 

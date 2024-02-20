@@ -1,0 +1,8 @@
+file:
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - numeric_literal: '1'

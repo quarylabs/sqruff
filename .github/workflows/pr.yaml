@@ -13,27 +13,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
+      - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release --all-features
+
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
+      - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/cargo@v1
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
         with:
-          command: test
-          args: --all-features
+          tool: nextest
+      - name: Run tests
+        run: cargo nextest run
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -41,15 +41,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Checkout sources
         uses: actions/checkout@v4
-
-      - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@nightly
         with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt, clippy
-
+          components: rustfmt
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
         with:

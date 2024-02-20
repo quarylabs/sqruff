@@ -1693,29 +1693,31 @@ pub fn ansi_dialect() -> Dialect {
 
     #[rustfmt::skip]
     add_segments!(
-        ansi_dialect, OverClauseSegment, FromExpressionElementSegment, SelectClauseElementSegment, FromExpressionSegment, FromClauseSegment,
-        WildcardIdentifierSegment, ColumnReferenceSegment, WildcardExpressionSegment, SelectStatementSegment, StatementSegment, WindowSpecificationSegment,
-        SetExpressionSegment, UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment, TableExpressionSegment,
-        ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment, LessThanSegment, GreaterThanOrEqualToSegment,
-        LessThanOrEqualToSegment, NotEqualToSegment, JoinOnConditionSegment, PartitionClauseSegment,
-        BitwiseAndSegment, ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment, CTEDefinitionSegment,
-        BitwiseRShiftSegment, IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment,
-        ArrayAccessorSegment, CaseExpressionSegment, WhenClauseSegment, BracketedArguments, CTEColumnList,
-        TypedStructLiteralSegment, StructTypeSegment, TimeZoneGrammar, FrameClauseSegment,
-        SetOperatorSegment, WhereClauseSegment, ElseClauseSegment, IntervalExpressionSegment,
-        QualifiedNumericLiteralSegment, FunctionSegment, FunctionNameSegment, TypedArrayLiteralSegment,
-        SelectClauseModifierSegment, OrderByClauseSegment, WithCompoundStatementSegment,
-        TruncateStatementSegment, ExpressionSegment, ShorthandCastSegment, DatatypeSegment, AliasExpressionSegment,
-        ObjectReferenceSegment, ObjectLiteralSegment, ArrayExpressionSegment, LocalAliasSegment,
-        MergeStatementSegment, InsertStatementSegment, TransactionStatementSegment, DropTableStatementSegment,
-        DropViewStatementSegment, CreateUserStatementSegment, DropUserStatementSegment, AccessStatementSegment,
-        CreateTableStatementSegment, CreateRoleStatementSegment, DropRoleStatementSegment, AlterTableStatementSegment,
-        CreateSchemaStatementSegment, SetSchemaStatementSegment, DropSchemaStatementSegment, DropTypeStatementSegment,
-        CreateDatabaseStatementSegment, DropDatabaseStatementSegment, CreateIndexStatementSegment,
+        ansi_dialect, OverClauseSegment, FromExpressionElementSegment, SelectClauseElementSegment,
+        FromExpressionSegment, FromClauseSegment, WildcardIdentifierSegment, ColumnReferenceSegment,
+        WildcardExpressionSegment, SelectStatementSegment, StatementSegment, WindowSpecificationSegment,
+        SetExpressionSegment, UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment,
+        TableExpressionSegment, ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment,
+        LessThanSegment, GreaterThanOrEqualToSegment, LessThanOrEqualToSegment, NotEqualToSegment,
+        JoinOnConditionSegment, PartitionClauseSegment, SequenceReferenceSegment, BitwiseAndSegment,
+        ArrayTypeSegment, BitwiseOrSegment, BitwiseLShiftSegment, CTEDefinitionSegment, BitwiseRShiftSegment,
+        IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment, ArrayAccessorSegment,
+        CaseExpressionSegment, WhenClauseSegment, BracketedArguments, CTEColumnList, TypedStructLiteralSegment,
+        StructTypeSegment, TimeZoneGrammar, FrameClauseSegment, SetOperatorSegment, WhereClauseSegment,
+        ElseClauseSegment, IntervalExpressionSegment, QualifiedNumericLiteralSegment, FunctionSegment,
+        FunctionNameSegment, TypedArrayLiteralSegment, SelectClauseModifierSegment, OrderByClauseSegment,
+        WithCompoundStatementSegment, TruncateStatementSegment, ExpressionSegment, ShorthandCastSegment,
+        DatatypeSegment, AliasExpressionSegment, ObjectReferenceSegment, ObjectLiteralSegment, ArrayExpressionSegment,
+        LocalAliasSegment, MergeStatementSegment, InsertStatementSegment, TransactionStatementSegment,
+        DropTableStatementSegment, DropViewStatementSegment, CreateUserStatementSegment, DropUserStatementSegment,
+        AccessStatementSegment, CreateTableStatementSegment, CreateRoleStatementSegment, DropRoleStatementSegment,
+        AlterTableStatementSegment, CreateSchemaStatementSegment, SetSchemaStatementSegment, DropSchemaStatementSegment,
+        DropTypeStatementSegment, CreateDatabaseStatementSegment, DropDatabaseStatementSegment, CreateIndexStatementSegment,
         DropIndexStatementSegment, CreateViewStatementSegment, DeleteStatementSegment, UpdateStatementSegment,
         CreateCastStatementSegment, DropCastStatementSegment, CreateFunctionStatementSegment, DropFunctionStatementSegment,
-        CreateModelStatementSegment, DropModelStatementSegment, DescribeStatementSegment, UseStatementSegment, ExplainStatementSegment,
-        CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment, CreateTriggerStatementSegment, DropTriggerStatementSegment
+        CreateModelStatementSegment, DropModelStatementSegment, DescribeStatementSegment, UseStatementSegment,
+        ExplainStatementSegment, CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment,
+        CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment
     );
 
     ansi_dialect.expand();
@@ -2453,6 +2455,10 @@ impl Segment for FileSegment {
     fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         FileSegment { segments, uuid: self.uuid, pos_marker: self.pos_marker.clone() }
             .to_matchable()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "file"
     }
 
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
@@ -4486,12 +4492,65 @@ impl NodeTrait for CTEColumnList {
     }
 }
 
+pub struct SequenceReferenceSegment;
+
+impl NodeTrait for SequenceReferenceSegment {
+    const TYPE: &'static str = "column_reference";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        ObjectReferenceSegment::match_grammar()
+    }
+}
+
+pub struct AlterSequenceOptionsSegment;
+
+impl NodeTrait for AlterSequenceOptionsSegment {
+    const TYPE: &'static str = "alter_sequence_options_segment";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("INCREMENT"),
+                Ref::keyword("BY"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MINVALUE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MINVALUE")])
+            ]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MAXVALUE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MAXVALUE")])
+            ]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CACHE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Ref::keyword("NOCACHE")
+            ]),
+            one_of(vec_of_erased![Ref::keyword("CYCLE"), Ref::keyword("NOCYCLE")]),
+            one_of(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("NOORDER")])
+        ])
+        .to_matchable()
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use expect_test::expect_file;
+
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
+    use crate::core::parser::segments::base::Segment;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
 
     #[test]
@@ -4703,6 +4762,37 @@ mod tests {
 
         for (sql_string,) in cases {
             let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
+        }
+    }
+
+    fn parse_sql(sql: &str) -> Box<dyn Segment> {
+        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+        let parsed = linter.parse_string(sql.into(), None, None, None, None).unwrap();
+        parsed.tree.unwrap()
+    }
+
+    #[test]
+    fn base_parse_struct() {
+        let files = glob::glob("test/fixtures/dialects/ansi/*.sql").unwrap();
+
+        for file in files {
+            let file = file.unwrap();
+
+            let yaml = file.with_extension("yaml");
+            let yaml = yaml.canonicalize().unwrap_or_else(|error| {
+                panic!("Error calling canonicalize path `{}`: {error}", yaml.display())
+            });
+
+            let actual = {
+                let sql = std::fs::read_to_string(file).unwrap();
+                let tree = parse_sql(&sql);
+
+                let tree = tree.to_serialised(true, true, false);
+
+                serde_yaml::to_string(&tree).unwrap()
+            };
+
+            expect_file![yaml].assert_eq(&actual)
         }
     }
 }

@@ -1,12 +1,9 @@
-use std::any::Any;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use anymap::AnyMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
-use unicase::UniCase;
 
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};

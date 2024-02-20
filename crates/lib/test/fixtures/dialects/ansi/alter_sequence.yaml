@@ -1,0 +1,59 @@
+file:
+- statement:
+  - alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - column_reference:
+      - keyword: foo
+    - alter_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - column_reference:
+      - keyword: foo
+    - alter_sequence_options_segment:
+      - keyword: MAXVALUE
+      - numeric_literal: '7'
+    - alter_sequence_options_segment:
+      - keyword: NO
+      - keyword: minvalue
+- statement_terminator: ;
+- statement:
+  - alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - column_reference:
+      - keyword: foo
+    - alter_sequence_options_segment:
+      - keyword: NOCACHE
+    - alter_sequence_options_segment:
+      - keyword: CYCLE
+- statement_terminator: ;
+- statement:
+  - alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - column_reference:
+      - keyword: foo
+    - alter_sequence_options_segment:
+      - keyword: NOORDER
+    - alter_sequence_options_segment:
+      - keyword: CACHE
+      - numeric_literal: '5'
+    - alter_sequence_options_segment:
+      - keyword: NOCYCLE
+- statement_terminator: ;
+- statement:
+  - alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - column_reference:
+      - keyword: foo
+    - alter_sequence_options_segment:
+      - keyword: ORDER
+- statement_terminator: ;

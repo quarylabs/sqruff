@@ -193,6 +193,10 @@ pub fn handle_respace_inline_with_space(
     // Get some indices so that we can reference around them
     let ws_idx = segment_buffer.iter().position(|it| it.dyn_eq(&*last_whitespace)).unwrap();
 
+    if ["any"].contains(&pre_constraint.as_str()) || ["any"].contains(&post_constraint.as_str()) {
+        return (segment_buffer, vec![]);
+    }
+
     if [pre_constraint.as_str(), post_constraint.as_str()].contains(&"touch") {
         segment_buffer.remove(ws_idx);
 

@@ -10,7 +10,7 @@ name = "ui"
 harness = false
 
 [dependencies]
-sqruff-lib = "0.1.4"
+sqruff-lib = { version = "0.1.4", path = "../lib" }
 clap = { version = "4", features = ["derive"] }
 glob = "0.3.1"
 

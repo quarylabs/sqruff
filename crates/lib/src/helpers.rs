@@ -1,4 +1,3 @@
-use std::iter::once;
 use std::path::{Component, Path, PathBuf};
 
 use crate::core::parser::matchable::Matchable;

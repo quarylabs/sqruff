@@ -8,6 +8,8 @@ use dyn_clone::DynClone;
 use dyn_hash::DynHash;
 use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
+use serde::ser::SerializeMap;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;
@@ -44,9 +46,69 @@ impl<T: Segment + DynClone> CloneSegment for T {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum SerialisedSegmentValue {
+    Single(String),
+    Nested(Vec<TupleSerialisedSegment>),
+}
+
+#[derive(Deserialize)]
+pub struct TupleSerialisedSegment(String, SerialisedSegmentValue);
+
+impl Serialize for TupleSerialisedSegment {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut map = serializer.serialize_map(None).unwrap();
+        map.serialize_key(&self.0);
+        map.serialize_value(&self.1);
+        map.end()
+    }
+}
+
+impl TupleSerialisedSegment {
+    fn sinlge(key: String, value: String) -> Self {
+        Self(key, SerialisedSegmentValue::Single(value))
+    }
+
+    fn nested(key: String, segments: Vec<TupleSerialisedSegment>) -> Self {
+        Self(key, SerialisedSegmentValue::Nested(segments))
+    }
+}
+
 pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn to_serialised(
+        &self,
+        code_only: bool,
+        show_raw: bool,
+        include_meta: bool,
+    ) -> TupleSerialisedSegment {
+        if show_raw && self.get_segments().is_empty() {
+            TupleSerialisedSegment::sinlge(self.get_type().into(), self.get_raw().unwrap())
+        } else if code_only {
+            let segments = self
+                .get_segments()
+                .into_iter()
+                .filter(|seg| seg.is_code() && !seg.is_meta())
+                .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
+                .collect_vec();
+
+            TupleSerialisedSegment::nested(self.get_type().into(), segments)
+        } else {
+            let segments = self
+                .get_segments()
+                .into_iter()
+                .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
+                .collect_vec();
+
+            TupleSerialisedSegment::nested(self.get_type().into(), segments)
+        }
     }
 
     fn select_children(

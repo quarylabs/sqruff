@@ -6,7 +6,7 @@ use itertools::{chain, Itertools};
 use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{NewlineSegment, Segment};
+use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
 use crate::core::parser::segments::meta::Indent;
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{
@@ -167,7 +167,23 @@ impl ReflowPoint {
 
                 (vec![lint_result], new_reflow_point)
             } else {
-                unimplemented!()
+                if desired_indent.is_empty() {
+                    return (Vec::new(), self.clone());
+                }
+
+                let new_indent =
+                    WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
+
+                return (
+                    vec![LintResult::new(
+                        if let Some(before) = before { before.into() } else { unimplemented!() },
+                        vec![],
+                        None,
+                        format!("Expected").into(),
+                        None,
+                    )],
+                    ReflowPoint::new(vec![]),
+                );
             }
         } else {
             // There isn't currently a newline.

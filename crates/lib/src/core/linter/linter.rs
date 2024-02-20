@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::path::{Component, Path, PathBuf};
+use std::path::Path;
 use std::time::Instant;
 
 use itertools::Itertools;

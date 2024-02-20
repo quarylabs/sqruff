@@ -1717,7 +1717,7 @@ pub fn ansi_dialect() -> Dialect {
         CreateCastStatementSegment, DropCastStatementSegment, CreateFunctionStatementSegment, DropFunctionStatementSegment,
         CreateModelStatementSegment, DropModelStatementSegment, DescribeStatementSegment, UseStatementSegment,
         ExplainStatementSegment, CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment,
-        CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment
+        CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment, RoleReferenceSegment
     );
 
     ansi_dialect.expand();
@@ -4542,6 +4542,16 @@ impl NodeTrait for AlterSequenceOptionsSegment {
     }
 }
 
+pub struct RoleReferenceSegment;
+
+impl NodeTrait for RoleReferenceSegment {
+    const TYPE: &'static str = "role_reference";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Ref::new("SingleIdentifierGrammar").to_matchable()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use expect_test::expect_file;
@@ -4778,7 +4788,7 @@ mod tests {
         for file in files {
             let file = file.unwrap();
 
-            let yaml = file.with_extension("yaml");
+            let yaml = file.with_extension("yml");
             let yaml = yaml.canonicalize().unwrap_or_else(|error| {
                 panic!("Error calling canonicalize path `{}`: {error}", yaml.display())
             });

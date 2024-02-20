@@ -1,0 +1,7 @@
+file:
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+      - keyword: foo_role

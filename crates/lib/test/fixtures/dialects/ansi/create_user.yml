@@ -1,0 +1,7 @@
+file:
+- statement:
+  - create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - identifier: foo_user

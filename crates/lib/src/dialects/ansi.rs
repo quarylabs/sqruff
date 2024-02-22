@@ -20,12 +20,11 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     pos_marker, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-    NewlineSegment, NewlineSegmentNewArgs, Segment, SegmentConstructorFn, SymbolSegment,
-    SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
+    IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment, SegmentConstructorFn,
+    SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
-use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
@@ -413,10 +412,11 @@ pub fn ansi_dialect() -> Dialect {
                 RegexParser::new(
                     "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
                     |segment| {
-                        Box::new(KeywordSegment::new(
-                            segment.get_raw().unwrap(),
-                            segment.get_position_marker().unwrap().into(),
-                        ))
+                        IdentifierSegment::new(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            <_>::default(),
+                        )
                     },
                     None,
                     false,
@@ -1717,7 +1717,9 @@ pub fn ansi_dialect() -> Dialect {
         CreateCastStatementSegment, DropCastStatementSegment, CreateFunctionStatementSegment, DropFunctionStatementSegment,
         CreateModelStatementSegment, DropModelStatementSegment, DescribeStatementSegment, UseStatementSegment,
         ExplainStatementSegment, CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment,
-        CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment, RoleReferenceSegment
+        CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment, RoleReferenceSegment,
+        TriggerReferenceSegment, TableConstraintSegment, ColumnDefinitionSegment, TableEndClauseSegment, DatabaseReferenceSegment,
+        CreateSequenceOptionsSegment
     );
 
     ansi_dialect.expand();
@@ -3714,25 +3716,30 @@ impl NodeTrait for CreateTableStatementSegment {
             Ref::keyword("TABLE"),
             Ref::new("IfNotExistsGrammar").optional(),
             Ref::new("TableReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                        vec_of_erased![
-                            Ref::new("TableConstraintSegment"),
-                            Ref::new("ColumnDefinitionSegment")
-                        ]
-                    )])]),
-                    Ref::new("CommentClauseSegment").optional()
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("AS"),
-                    optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LIKE"),
-                    Ref::new("TableReferenceSegment")
-                ])
-            ]),
+            one_of(vec_of_erased![Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![one_of(vec_of_erased![Ref::new(
+                    "ColumnDefinitionSegment"
+                )])])
+            ])])]),
+            // one_of(vec_of_erased![
+            //     Sequence::new(vec_of_erased![
+            //         Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+            //             vec_of_erased![
+            //                 Ref::new("TableConstraintSegment"),
+            //                 Ref::new("ColumnDefinitionSegment")
+            //             ]
+            //         )])]),
+            //         Ref::new("CommentClauseSegment").optional()
+            //     ]),
+            //     Sequence::new(vec_of_erased![
+            //         Ref::keyword("AS"),
+            //         optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+            //     ]),
+            //     Sequence::new(vec_of_erased![
+            //         Ref::keyword("LIKE"),
+            //         Ref::new("TableReferenceSegment")
+            //     ])
+            // ]),
             Ref::new("TableEndClauseSegment").optional()
         ])
         .to_matchable()
@@ -4193,6 +4200,51 @@ impl NodeTrait for CreateSequenceStatementSegment {
     }
 }
 
+pub struct CreateSequenceOptionsSegment;
+
+impl NodeTrait for CreateSequenceOptionsSegment {
+    const TYPE: &'static str = "create_sequence_options_segment";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("INCREMENT"),
+                Ref::keyword("BY"),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("START"),
+                Ref::keyword("WITH").optional(),
+                Ref::new("NumericLiteralSegment")
+            ]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MINVALUE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MINVALUE")])
+            ]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("MAXVALUE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MAXVALUE")])
+            ]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CACHE"),
+                    Ref::new("NumericLiteralSegment")
+                ]),
+                Ref::keyword("NOCACHE")
+            ]),
+            one_of(vec_of_erased![Ref::keyword("CYCLE"), Ref::keyword("NOCYCLE")]),
+            one_of(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("NOORDER")])
+        ])
+        .to_matchable()
+    }
+}
+
 pub struct AlterSequenceStatementSegment;
 
 impl NodeTrait for AlterSequenceStatementSegment {
@@ -4355,6 +4407,16 @@ impl NodeTrait for JoinOnConditionSegment {
     }
 }
 
+pub struct DatabaseReferenceSegment;
+
+impl NodeTrait for DatabaseReferenceSegment {
+    const TYPE: &'static str = "database_reference";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        ObjectReferenceSegment::match_grammar()
+    }
+}
+
 pub struct OverClauseSegment;
 
 impl NodeTrait for OverClauseSegment {
@@ -4502,6 +4564,54 @@ impl NodeTrait for SequenceReferenceSegment {
     }
 }
 
+pub struct TriggerReferenceSegment;
+
+impl NodeTrait for TriggerReferenceSegment {
+    const TYPE: &'static str = "trigger_reference";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        ObjectReferenceSegment::match_grammar()
+    }
+}
+
+pub struct TableConstraintSegment;
+
+impl NodeTrait for TableConstraintSegment {
+    const TYPE: &'static str = "table_constraint";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                // Optional CONSTRAINT <Constraint name>
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("ObjectReferenceSegment")
+                    ]),
+                    Sequence::new(vec_of_erased![])
+                ]),
+                // UNIQUE ( column_name [, ... ] )
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UNIQUE"),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                ])
+            ]),
+            Sequence::new(vec_of_erased![
+                // PRIMARY KEY ( column_name [, ... ] )
+                Ref::new("PrimaryKeyGrammar"),
+                Ref::new("BracketedColumnReferenceListGrammar")
+            ]),
+            Sequence::new(vec_of_erased![
+                // FOREIGN KEY ( column_name [, ... ] )
+                Ref::new("ForeignKeyGrammar"),
+                Ref::new("BracketedColumnReferenceListGrammar"),
+                Ref::new("ReferenceDefinitionGrammar")
+            ])
+        ])
+        .to_matchable()
+    }
+}
+
 pub struct AlterSequenceOptionsSegment;
 
 impl NodeTrait for AlterSequenceOptionsSegment {
@@ -4552,6 +4662,30 @@ impl NodeTrait for RoleReferenceSegment {
     }
 }
 
+pub struct ColumnDefinitionSegment;
+
+impl NodeTrait for ColumnDefinitionSegment {
+    const TYPE: &'static str = "column_definition";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar"), // Column name
+            Ref::new("DatatypeSegment")          // Column type
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct TableEndClauseSegment;
+
+impl NodeTrait for TableEndClauseSegment {
+    const TYPE: &'static str = "table_end_clause_segment";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Nothing::new().to_matchable()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use expect_test::expect_file;
@@ -4562,6 +4696,7 @@ mod tests {
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
     use crate::core::parser::segments::base::Segment;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
+    use crate::helpers;
 
     #[test]
     fn test__dialect__ansi__file_lex() {
@@ -4787,6 +4922,8 @@ mod tests {
 
         for file in files {
             let file = file.unwrap();
+
+            let _panic = helpers::enter_panic(file.display().to_string());
 
             let yaml = file.with_extension("yml");
             let yaml = yaml.canonicalize().unwrap_or_else(|error| {

@@ -1,0 +1,92 @@
+file:
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+    - create_sequence_options_segment:
+      - keyword: MINVALUE
+      - numeric_literal: '5'
+    - create_sequence_options_segment:
+      - keyword: NO
+      - keyword: MAXVALUE
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+    - create_sequence_options_segment:
+      - keyword: NO
+      - keyword: MINVALUE
+    - create_sequence_options_segment:
+      - keyword: MAXVALUE
+      - numeric_literal: '12'
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '5'
+    - create_sequence_options_segment:
+      - keyword: START
+      - keyword: WITH
+      - numeric_literal: '8'
+    - create_sequence_options_segment:
+      - keyword: CACHE
+      - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+    - create_sequence_options_segment:
+      - keyword: NOCACHE
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+    - create_sequence_options_segment:
+      - keyword: NOCYCLE
+    - create_sequence_options_segment:
+      - keyword: ORDER
+- statement_terminator: ;
+- statement:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+    - create_sequence_options_segment:
+      - keyword: NOORDER
+- statement_terminator: ;

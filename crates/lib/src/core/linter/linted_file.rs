@@ -188,7 +188,7 @@ impl LintedFile {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::templaters::base::{TemplatedFile, TemplatedFileSlice};
+    use crate::core::templaters::base::TemplatedFileSlice;
 
     /// Test _build_up_fixed_source_string. This is part of fix_string().
     #[test]

@@ -1,0 +1,18 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: create
+    - keyword: table
+    - identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: c1
+        - datatype:
+          - '': SMALLINT
+      - comma: ','
+      - column_definition:
+        - identifier: c2
+        - datatype:
+          - '': DATE
+      - end_bracket: )

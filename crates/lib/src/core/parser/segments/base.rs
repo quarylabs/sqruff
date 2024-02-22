@@ -61,9 +61,9 @@ impl Serialize for TupleSerialisedSegment {
     where
         S: serde::Serializer,
     {
-        let mut map = serializer.serialize_map(None).unwrap();
-        map.serialize_key(&self.0);
-        map.serialize_value(&self.1);
+        let mut map = serializer.serialize_map(None)?;
+        map.serialize_key(&self.0)?;
+        map.serialize_value(&self.1)?;
         map.end()
     }
 }
@@ -715,7 +715,6 @@ impl CodeSegment {
             raw: raw.to_string(),
             position_marker: Some(position_maker.clone()),
             code_type: args.code_type,
-
             instance_types: vec![],
             trim_start: None,
             trim_chars: None,
@@ -789,6 +788,93 @@ impl Segment for CodeSegment {
             &self.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
                 code_type: self.code_type,
+                instance_types: vec![],
+                trim_start: None,
+                source_fixes,
+                trim_chars: None,
+            },
+        )
+    }
+}
+
+#[derive(Debug, Hash, Clone, PartialEq)]
+pub struct IdentifierSegment {
+    base: CodeSegment,
+}
+
+impl IdentifierSegment {
+    pub fn new(
+        raw: &str,
+        position_maker: &PositionMarker,
+        args: CodeSegmentNewArgs,
+    ) -> Box<dyn Segment> {
+        Box::new(IdentifierSegment {
+            base: CodeSegment {
+                raw: raw.to_string(),
+                position_marker: Some(position_maker.clone()),
+                code_type: args.code_type,
+                instance_types: vec![],
+                trim_start: None,
+                trim_chars: None,
+                source_fixes: None,
+                uuid: uuid::Uuid::new_v4(),
+            },
+        })
+    }
+}
+
+impl Segment for IdentifierSegment {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+        self.clone().boxed()
+    }
+
+    fn class_types(&self) -> HashSet<String> {
+        Some(self.get_type().to_owned()).into_iter().collect()
+    }
+
+    fn get_raw(&self) -> Option<String> {
+        Some(self.base.raw.clone())
+    }
+    fn get_type(&self) -> &'static str {
+        "identifier"
+    }
+    fn is_code(&self) -> bool {
+        true
+    }
+    fn is_comment(&self) -> bool {
+        false
+    }
+
+    fn is_whitespace(&self) -> bool {
+        false
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.base.position_marker.clone()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.base.position_marker = position_marker
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.base.uuid.into()
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![]
+    }
+
+    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+        vec![self.clone().boxed()]
+    }
+
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+        IdentifierSegment::new(
+            raw.unwrap_or(self.base.raw.clone()).as_str(),
+            &self.base.position_marker.clone().unwrap(),
+            CodeSegmentNewArgs {
+                code_type: self.base.code_type,
                 instance_types: vec![],
                 trim_start: None,
                 source_fixes,
@@ -1237,11 +1323,8 @@ pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::parser::markers::PositionMarker;
     use crate::core::parser::segments::raw::RawSegment;
     use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
-    use crate::core::rules::base::LintFix;
-    use crate::core::templaters::base::TemplatedFile;
 
     #[test]
     /// Test comparison of raw segments.

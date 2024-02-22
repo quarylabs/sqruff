@@ -1,0 +1,8 @@
+file:
+- statement:
+  - drop_trigger_statement:
+    - keyword: DROP
+    - keyword: TRIGGER
+    - trigger_reference:
+      - identifier: foo
+- statement_terminator: ;

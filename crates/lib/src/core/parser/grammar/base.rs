@@ -7,7 +7,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::helpers::trim_non_code_segments;
-use crate::core::parser::match_algorithms::prune_options;
+use crate::core::parser::match_algorithms::{greedy_match, prune_options};
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
@@ -230,11 +230,31 @@ impl Matchable for Ref {
 }
 
 #[derive(Clone, Debug, PartialEq, Hash)]
-struct Anything {}
+pub struct Anything {
+    terminators: Vec<()>,
+}
+
+impl Anything {
+    pub fn new() -> Self {
+        Self { terminators: Vec::new() }
+    }
+}
 
 impl Segment for Anything {}
 
-impl Matchable for Anything {}
+impl Matchable for Anything {
+    fn match_segments(
+        &self,
+        segments: Vec<Box<dyn Segment>>,
+        parse_context: &mut ParseContext,
+    ) -> Result<MatchResult, SQLParseError> {
+        if self.terminators.is_empty() {
+            return Ok(MatchResult::from_matched(segments));
+        }
+
+        greedy_match(segments, parse_context, Vec::new(), false)
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Hash)]
 pub struct Nothing {}
@@ -347,7 +367,7 @@ mod tests {
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, make_result_tuple, test_segments,
     };
-    use crate::helpers::{Boxed, ToMatchable};
+    use crate::helpers::Boxed;
 
     #[test]
     fn test__parser__grammar__ref_eq() {

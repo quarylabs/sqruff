@@ -1,0 +1,6 @@
+file:
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - identifier: a

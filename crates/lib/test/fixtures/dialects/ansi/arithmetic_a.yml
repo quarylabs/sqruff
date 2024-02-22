@@ -25,7 +25,7 @@ file:
             - numeric_literal: '13'
           - alias_expression:
             - keyword: as
-            - keyword: val
+            - identifier: val
 - statement_terminator: ;
 - statement:
   - set_expression:
@@ -56,7 +56,7 @@ file:
             - numeric_literal: '13'
           - alias_expression:
             - keyword: as
-            - keyword: val
+            - identifier: val
 - statement_terminator: ;
 - statement:
   - set_expression:
@@ -324,7 +324,7 @@ file:
         - select_clause_element:
           - expression:
             - column_reference:
-              - keyword: 'FALSE'
+              - identifier: 'FALSE'
             - remove me: AND
             - remove me: NOT
             - bracketed:
@@ -341,7 +341,7 @@ file:
         - select_clause_element:
           - expression:
             - column_reference:
-              - keyword: 'FALSE'
+              - identifier: 'FALSE'
             - remove me: AND
             - remove me: NOT
             - remove me: NOT
@@ -360,7 +360,7 @@ file:
         - select_clause_element:
           - expression:
             - column_reference:
-              - keyword: 'FALSE'
+              - identifier: 'FALSE'
             - remove me: AND
             - remove me: NOT
             - bracketed:
@@ -377,7 +377,7 @@ file:
         - select_clause_element:
           - expression:
             - column_reference:
-              - keyword: 'FALSE'
+              - identifier: 'FALSE'
             - remove me: AND
             - remove me: NOT
             - function:

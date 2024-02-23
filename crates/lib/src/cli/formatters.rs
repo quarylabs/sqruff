@@ -84,7 +84,7 @@ impl OutputStreamFormatter {
         let show = fails + warns > 0;
 
         if self.verbosity > 0 || show {
-            let text = self.format_filename(fname, fails == 0, "PASS");
+            let text = self.format_filename(fname, fails == 0);
             text_buffer.push_str(&text);
             text_buffer.push('\n');
         }
@@ -134,32 +134,18 @@ impl OutputStreamFormatter {
 
     fn cli_table(&self) {}
 
-    fn format_filename(
-        &self,
-        filename: &str,
-        success: impl Into<Success>,
-        success_text: &str,
-    ) -> String {
-        let success = success.into();
+    fn format_filename(&self, filename: &str, success: impl IntoStatus) -> String {
+        let status = success.into_status();
 
-        let mut status_string = match &success {
-            Success::String(value) => value,
-            Success::Bool(true) => success_text,
-            Success::Bool(false) => "PASS",
+        let color = match status {
+            Status::Pass | Status::Fixed => Color::Green,
+            Status::Fail | Status::Error => Color::Red,
         };
 
-        let buff;
-
-        if matches!(status_string, "PASS" | "FIXED") || status_string == success_text {
-            buff = self.colorize(status_string, Color::Green);
-            status_string = &buff;
-        } else if matches!(status_string, "FAIL" | "ERROR") {
-            buff = self.colorize(status_string, Color::Red);
-            status_string = &buff;
-        }
-
         let filename = self.colorize(filename, Color::BrightGreen);
-        format!("== [{filename}] {status_string}")
+        let status = self.colorize(status.as_str(), color);
+
+        format!("== [{filename}] {status}")
     }
 
     fn format_violation(&self, violation: SQLBaseError, max_line_length: usize) -> String {
@@ -167,14 +153,39 @@ impl OutputStreamFormatter {
     }
 }
 
-pub enum Success {
-    Bool(bool),
-    String(Box<str>),
+pub trait IntoStatus {
+    fn into_status(self) -> Status;
 }
 
-impl From<bool> for Success {
-    fn from(value: bool) -> Self {
-        Success::Bool(value)
+impl IntoStatus for bool {
+    fn into_status(self) -> Status {
+        if self { Status::Pass } else { Status::Fail }
+    }
+}
+
+impl IntoStatus for (Status, bool) {
+    fn into_status(self) -> Status {
+        let (if_ok, is_ok) = self;
+        if is_ok { if_ok } else { Status::Fail }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum Status {
+    Pass,
+    Fixed,
+    Fail,
+    Error,
+}
+
+impl Status {
+    fn as_str(self) -> &'static str {
+        match self {
+            Status::Pass => "PASS",
+            Status::Fixed => "FIXED",
+            Status::Fail => "FAIL",
+            Status::Error => "ERROR",
+        }
     }
 }
 
@@ -186,6 +197,7 @@ mod tests {
     use fancy_regex::Regex;
 
     use super::OutputStreamFormatter;
+    use crate::cli::formatters::Status;
     use crate::helpers::Boxed;
 
     fn escape_ansi(line: &str) -> String {
@@ -199,7 +211,7 @@ mod tests {
         let file = File::create(temp.path().join("out.txt")).unwrap().boxed();
 
         let formatter = OutputStreamFormatter::new(file);
-        let actual = formatter.format_filename("blahblah", true, "PASS");
+        let actual = formatter.format_filename("blahblah", true);
 
         assert_eq!(escape_ansi(&actual), "== [blahblah] PASS");
     }

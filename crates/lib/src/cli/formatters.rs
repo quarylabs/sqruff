@@ -28,6 +28,8 @@ pub struct OutputStreamFormatter {
 
 impl OutputStreamFormatter {
     pub fn new(output_stream: Box<dyn Write>) -> Self {
+        colored::control::set_override(true);
+
         Self {
             output_stream,
             plain_output: false,

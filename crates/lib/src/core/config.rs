@@ -114,6 +114,12 @@ pub struct FluffConfig {
     sql_file_exts: Vec<String>,
 }
 
+impl Default for FluffConfig {
+    fn default() -> Self {
+        Self::new(<_>::default(), None, None)
+    }
+}
+
 impl FluffConfig {
     // TODO This is not a translation that is particularly accurate.
     pub fn new(

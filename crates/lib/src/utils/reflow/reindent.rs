@@ -41,23 +41,23 @@ fn has_untemplated_newline(point: &ReflowPoint) -> bool {
 #[derive(Debug, Clone)]
 struct IndentPoint {
     idx: usize,
-    indent_impulse: usize,
-    indent_trough: usize,
-    initial_indent_balance: usize,
+    indent_impulse: isize,
+    indent_trough: isize,
+    initial_indent_balance: isize,
     last_line_break_idx: Option<usize>,
     is_line_break: bool,
-    untaken_indents: Vec<usize>,
+    untaken_indents: Vec<isize>,
 }
 
 impl IndentPoint {
-    fn closing_indent_balance(&self) -> usize {
+    fn closing_indent_balance(&self) -> isize {
         self.initial_indent_balance + self.indent_impulse
     }
 }
 
 #[derive(Debug, Clone)]
 struct IndentLine {
-    initial_indent_balance: usize,
+    initial_indent_balance: isize,
     indent_points: Vec<IndentPoint>,
 }
 
@@ -72,11 +72,11 @@ impl IndentLine {
         IndentLine { initial_indent_balance: starting_balance, indent_points }
     }
 
-    fn closing_balance(&self) -> usize {
+    fn closing_balance(&self) -> isize {
         self.indent_points.last().unwrap().closing_indent_balance()
     }
 
-    fn opening_balance(&self) -> usize {
+    fn opening_balance(&self) -> isize {
         if self.indent_points.last().unwrap().last_line_break_idx.is_none() {
             return 0;
         }
@@ -84,8 +84,8 @@ impl IndentLine {
         self.indent_points[0].closing_indent_balance()
     }
 
-    fn desired_indent_units(&self, forced_indents: &[usize]) -> usize {
-        let relevant_untaken_indents = if self.indent_points[0].indent_trough != 0 {
+    fn desired_indent_units(&self, forced_indents: &[usize]) -> isize {
+        let relevant_untaken_indents: usize = if self.indent_points[0].indent_trough != 0 {
             self.indent_points[0]
                 .untaken_indents
                 .iter()
@@ -99,7 +99,8 @@ impl IndentLine {
             self.indent_points[0].untaken_indents.len()
         };
 
-        self.initial_indent_balance - relevant_untaken_indents + forced_indents.len()
+        self.initial_indent_balance - relevant_untaken_indents as isize
+            + forced_indents.len() as isize
     }
 }
 
@@ -140,11 +141,11 @@ pub fn construct_single_indent(indent_unit: &str, tab_space_size: usize) -> Cow<
 }
 
 fn prune_untaken_indents(
-    untaken_indents: Vec<usize>,
+    untaken_indents: Vec<isize>,
     incoming_balance: usize,
     indent_stats: &IndentStats,
     has_newline: bool,
-) -> Vec<usize> {
+) -> Vec<isize> {
     let new_balance_threshold = if indent_stats.trough < indent_stats.impulse {
         incoming_balance + indent_stats.impulse + indent_stats.trough
     } else {
@@ -152,13 +153,13 @@ fn prune_untaken_indents(
     };
 
     let mut pruned_untaken_indents: Vec<_> =
-        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold).collect();
+        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold as isize).collect();
 
     if indent_stats.impulse > indent_stats.trough && !has_newline {
         for i in indent_stats.trough..indent_stats.impulse {
             let indent_val = incoming_balance + i + 1;
             if !indent_stats.implicit_indents.contains(&(indent_val - incoming_balance)) {
-                pruned_untaken_indents.push(indent_val);
+                pruned_untaken_indents.push(indent_val as isize);
             }
         }
     }
@@ -167,16 +168,18 @@ fn prune_untaken_indents(
 }
 
 fn update_crawl_balances(
-    untaken_indents: Vec<usize>,
-    incoming_balance: usize,
+    untaken_indents: Vec<isize>,
+    incoming_balance: isize,
     indent_stats: &IndentStats,
     has_newline: bool,
-) -> (usize, Vec<usize>) {
+) -> (isize, Vec<isize>) {
+    let incoming_balance: usize = incoming_balance.try_into().unwrap();
+
     let new_untaken_indents =
         prune_untaken_indents(untaken_indents, incoming_balance, &indent_stats, has_newline);
     let new_balance = incoming_balance + indent_stats.impulse;
 
-    (new_balance, new_untaken_indents)
+    (new_balance as isize, new_untaken_indents.into_iter().map(|it| it as isize).collect_vec())
 }
 
 fn crawl_indent_points(
@@ -207,8 +210,8 @@ fn crawl_indent_points(
                 if cached_point.is_line_break {
                     acc.push(IndentPoint {
                         idx: cached_point.idx,
-                        indent_impulse: indent_stats.impulse,
-                        indent_trough: indent_stats.trough,
+                        indent_impulse: indent_stats.impulse as isize,
+                        indent_trough: indent_stats.trough as isize,
                         initial_indent_balance: indent_balance,
                         last_line_break_idx: cached_point.last_line_break_idx.into(),
                         is_line_break: true,
@@ -237,8 +240,8 @@ fn crawl_indent_points(
             // Construct the point we may yield
             let indent_point = IndentPoint {
                 idx,
-                indent_impulse: indent_stats.impulse,
-                indent_trough: indent_stats.trough,
+                indent_impulse: indent_stats.impulse as isize,
+                indent_trough: indent_stats.trough as isize,
                 initial_indent_balance: indent_balance,
                 last_line_break_idx,
                 is_line_break: has_newline,
@@ -372,7 +375,7 @@ fn lint_line_starting_indent(
         deduce_line_current_indent(elements, indent_points.last().unwrap().last_line_break_idx);
     let initial_point = elements[initial_point_idx].as_point().unwrap();
     let desired_indent_units = indent_line.desired_indent_units(forced_indents);
-    let desired_starting_indent = single_indent.repeat(desired_indent_units);
+    let desired_starting_indent = single_indent.repeat(desired_indent_units as usize);
 
     if current_indent == desired_starting_indent {
         return Vec::new();
@@ -433,7 +436,7 @@ fn lint_line_untaken_negative_indents(
             continue;
         }
 
-        let covered_indents: HashSet<usize> =
+        let covered_indents: HashSet<isize> =
             (ip.initial_indent_balance..=ip.initial_indent_balance + ip.indent_trough).collect();
 
         let untaken_indents: HashSet<_> = ip
@@ -441,7 +444,7 @@ fn lint_line_untaken_negative_indents(
             .iter()
             .copied()
             .collect::<HashSet<_>>()
-            .difference(&forced_indents.iter().copied().collect())
+            .difference(&forced_indents.iter().map(|it| *it as isize).collect())
             .copied()
             .collect();
 
@@ -558,4 +561,160 @@ fn fix_long_line_with_integer_targets(
     outer_indent: &str,
 ) -> Vec<LintResult> {
     unimplemented!()
+}
+
+#[cfg(test)]
+mod tests {
+    use pretty_assertions::assert_eq;
+
+    use super::{IndentLine, IndentPoint};
+    use crate::core::linter::linter::Linter;
+    use crate::core::parser::segments::base::Segment;
+    use crate::utils::reflow::sequence::ReflowSequence;
+
+    fn parse_ansi_string(sql: &str) -> Box<dyn Segment> {
+        let linter = Linter::new(<_>::default(), None, None);
+        linter.parse_string(sql.into(), None, None, None, None).unwrap().tree.unwrap()
+    }
+
+    #[test]
+    fn test_reflow__point_get_indent() {
+        let cases = [
+            ("select 1", 1, None),
+            ("select\n  1", 1, "  ".into()),
+            ("select\n \n  \n   1", 1, "   ".into()),
+        ];
+
+        for (raw_sql_in, elem_idx, indent_out) in cases {
+            let root = parse_ansi_string(raw_sql_in);
+            let seq = ReflowSequence::from_root(root, <_>::default());
+            let elem = seq.elements()[elem_idx].as_point().unwrap();
+
+            assert_eq!(indent_out, elem.get_indent().as_deref());
+        }
+    }
+
+    #[test]
+    fn test_reflow__desired_indent_units() {
+        let cases: [(IndentLine, &[usize], isize); 7] = [
+            // Trivial case of a first line.
+            (
+                IndentLine {
+                    initial_indent_balance: 0,
+                    indent_points: vec![IndentPoint {
+                        idx: 0,
+                        indent_impulse: 0,
+                        indent_trough: 0,
+                        initial_indent_balance: 0,
+                        last_line_break_idx: None,
+                        is_line_break: false,
+                        untaken_indents: Vec::new(),
+                    }],
+                },
+                &[],
+                0,
+            ),
+            // Simple cases of a normal lines.
+            (
+                IndentLine {
+                    initial_indent_balance: 3,
+                    indent_points: vec![IndentPoint {
+                        idx: 6,
+                        indent_impulse: 0,
+                        indent_trough: 0,
+                        initial_indent_balance: 3,
+                        last_line_break_idx: 1.into(),
+                        is_line_break: true,
+                        untaken_indents: Vec::new(),
+                    }],
+                },
+                &[],
+                3,
+            ),
+            (
+                IndentLine {
+                    initial_indent_balance: 3,
+                    indent_points: vec![IndentPoint {
+                        idx: 6,
+                        indent_impulse: 0,
+                        indent_trough: 0,
+                        initial_indent_balance: 3,
+                        last_line_break_idx: Some(1),
+                        is_line_break: true,
+                        untaken_indents: vec![1],
+                    }],
+                },
+                &[],
+                2,
+            ),
+            (
+                IndentLine {
+                    initial_indent_balance: 3,
+                    indent_points: vec![IndentPoint {
+                        idx: 6,
+                        indent_impulse: 0,
+                        indent_trough: 0,
+                        initial_indent_balance: 3,
+                        last_line_break_idx: Some(1),
+                        is_line_break: true,
+                        untaken_indents: vec![1, 2],
+                    }],
+                },
+                &[],
+                1,
+            ),
+            (
+                IndentLine {
+                    initial_indent_balance: 3,
+                    indent_points: vec![IndentPoint {
+                        idx: 6,
+                        indent_impulse: 0,
+                        indent_trough: 0,
+                        initial_indent_balance: 3,
+                        last_line_break_idx: Some(1),
+                        is_line_break: true,
+                        untaken_indents: vec![2],
+                    }],
+                },
+                &[2], // Forced indent takes us back up.
+                3,
+            ),
+            (
+                IndentLine {
+                    initial_indent_balance: 3,
+                    indent_points: vec![IndentPoint {
+                        idx: 6,
+                        indent_impulse: 0,
+                        indent_trough: 0,
+                        initial_indent_balance: 3,
+                        last_line_break_idx: Some(1),
+                        is_line_break: true,
+                        untaken_indents: vec![3],
+                    }],
+                },
+                &[],
+                2,
+            ),
+            (
+                IndentLine {
+                    initial_indent_balance: 3,
+                    indent_points: vec![IndentPoint {
+                        idx: 6,
+                        indent_impulse: 0,
+                        indent_trough: -1,
+                        initial_indent_balance: 3,
+                        last_line_break_idx: Some(1),
+                        is_line_break: true,
+                        untaken_indents: vec![3],
+                    }],
+                },
+                &[],
+                3,
+            ),
+        ];
+
+        for (indent_line, forced_indents, expected_units) in cases {
+            assert_eq!(indent_line.desired_indent_units(forced_indents), expected_units);
+        }
+    }
 }

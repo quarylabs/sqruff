@@ -317,4 +317,8 @@ pub enum Filter {
     All,
     Inline,
     Newline,
+
+    pub fn elements(&self) -> &[ReflowElement] {
+        &self.elements
+    }
 }

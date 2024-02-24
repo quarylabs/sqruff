@@ -1,64 +1,68 @@
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - "v*.*.*"
 
 jobs:
-    release:
-      name: Release ${{ matrix.target }}
-      runs-on: ubuntu-latest
-      strategy:
-        fail-fast: false
-        matrix:
-          include:
-            - target: x86_64-pc-windows-gnu
-              archive: zip
-            - target: x86_64-unknown-linux-musl
-              archive: tar.gz
-      steps:
-        - uses: actions/checkout@master
-        - name: Compile and release
-          uses: rust-build/rust-build.action@v1.4.4
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            SRC_DIR: crates/cli
-            RUSTTARGET: ${{ matrix.target }}
-            ARCHIVE_TYPES: ${{ matrix.archive }}
-    release_macOS_x86:
-      name: Release macOS x86 ${{ matrix.target }}
-      runs-on: macos-latest
-      strategy:
-        fail-fast: false
-        matrix:
-          include:
-            - target: x86_64-apple-darwin
-              archive: zip
-      steps:
-        - uses: actions/checkout@master
-        - name: Compile and release for macOS x86
-          uses: rust-build/rust-build.action@v1.4.4
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            SRC_DIR: crates/cli
-            RUSTTARGET: ${{ matrix.target }}
-            ARCHIVE_TYPES: ${{ matrix.archive }}
-    release_macOS_darwin:
-      name: Release macOS darwin ${{ matrix.target }}
-      runs-on: macos-latest
-      strategy:
-        fail-fast: false
-        matrix:
-          include:
-            - target: x86_64-apple-darwin
-              archive: zip
-      steps:
-        - uses: actions/checkout@master
-        - name: Compile and release for macOS darwin
-          uses: rust-build/rust-build.action@v1.4.4
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            SRC_DIR: crates/cli
-            RUSTTARGET: ${{ matrix.target }}
-            ARCHIVE_TYPES: ${{ matrix.archive }}
+  release:
+    name: Release ${{ matrix.platform.target }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: sqruff-linux-x86_64-musl.tar.gz
+            os: ubuntu-20.04
+            target: x86_64-unknown-linux-musl
+            bin: sqruff
+
+          - name: sqruff-windows-x86_64.zip
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: sqruff.exe
+
+          - name: sqruff-darwin-x86_64.tar.gz
+            os: macOS-latest
+            target: x86_64-apple-darwin
+            bin: sqruff
+
+          - name: sqruff-darwin-aarch64.tar.gz
+            os: macOS-latest
+            target: aarch64-apple-darwin
+            bin: sqruff
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install musl-tools on Linux
+        run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
+        if: contains(matrix.platform.name, 'musl')
+
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: build
+          target: ${{ matrix.platform.target }}
+          toolchain: nightly
+          args: --release
+          strip: true
+
+      - name: Package as archive
+        shell: bash
+        run: |
+          cd target/${{ matrix.platform.target }}/release
+          if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+            7z a ../../../${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          else
+            tar czvf ../../../${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          fi
+          cd -
+
+      - name: Generate SHA-256
+        run: shasum -a 256 ${{ matrix.platform.name }}
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: "sqruff-*"

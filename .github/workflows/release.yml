@@ -14,11 +14,47 @@ jobs:
               archive: zip
             - target: x86_64-unknown-linux-musl
               archive: tar.gz
-            # - target: x86_64-apple-darwin
-            #   archive: zip
       steps:
         - uses: actions/checkout@master
         - name: Compile and release
+          uses: rust-build/rust-build.action@v1.4.4
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            SRC_DIR: crates/cli
+            RUSTTARGET: ${{ matrix.target }}
+            ARCHIVE_TYPES: ${{ matrix.archive }}
+    release_macOS_x86:
+      name: Release macOS x86 ${{ matrix.target }}
+      runs-on: macos-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          include:
+            - target: x86_64-apple-darwin
+              archive: zip
+      steps:
+        - uses: actions/checkout@master
+        - name: Compile and release for macOS x86
+          uses: rust-build/rust-build.action@v1.4.4
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            SRC_DIR: crates/cli
+            RUSTTARGET: ${{ matrix.target }}
+            ARCHIVE_TYPES: ${{ matrix.archive }}
+    release_macOS_darwin:
+      name: Release macOS darwin ${{ matrix.target }}
+      runs-on: macos-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          include:
+            - target: x86_64-apple-darwin
+              archive: zip
+      steps:
+        - uses: actions/checkout@master
+        - name: Compile and release for macOS darwin
           uses: rust-build/rust-build.action@v1.4.4
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

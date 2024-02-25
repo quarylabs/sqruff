@@ -568,14 +568,8 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     use super::{IndentLine, IndentPoint};
-    use crate::core::linter::linter::Linter;
-    use crate::core::parser::segments::base::Segment;
+    use crate::core::parser::segments::test_functions::parse_ansi_string;
     use crate::utils::reflow::sequence::ReflowSequence;
-
-    fn parse_ansi_string(sql: &str) -> Box<dyn Segment> {
-        let linter = Linter::new(<_>::default(), None, None);
-        linter.parse_string(sql.into(), None, None, None, None).unwrap().tree.unwrap()
-    }
 
     #[test]
     fn test_reflow__point_get_indent() {

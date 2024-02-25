@@ -226,12 +226,6 @@ command. Available dialects: {}",
     }
 }
 
-impl Default for FluffConfig {
-    fn default() -> Self {
-        Self::new(<_>::default(), None, None)
-    }
-}
-
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfigIndentation {
     pub template_blocks_indent: bool,

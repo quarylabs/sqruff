@@ -44,7 +44,7 @@ jobs:
           command: build
           target: ${{ matrix.platform.target }}
           toolchain: nightly
-          args: --release
+          args: --locked --release
           strip: true
 
       - name: Package as archive

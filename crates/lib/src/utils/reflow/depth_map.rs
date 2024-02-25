@@ -148,3 +148,42 @@ impl DepthInfo {
         self.stack_hashes.iter().take(common_depth).cloned().collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use itertools::Itertools;
+    use pretty_assertions::assert_eq;
+
+    use super::DepthMap;
+    use crate::core::parser::segments::test_functions::parse_ansi_string;
+
+    #[test]
+    fn test_reflow_depthmap_from_parent() {
+        let sql = "SELECT 1";
+        let root = parse_ansi_string(sql);
+
+        let dm = DepthMap::from_parent(root.as_ref());
+
+        let stack = root
+            .get_raw_segments()
+            .iter()
+            .map(|it| dm.depth_info[&it.get_uuid().unwrap()].stack_depth)
+            .collect_vec();
+
+        dbg!(stack);
+    }
+
+    #[test]
+    fn test_reflow_depthmap_from_raws_and_root() {
+        let sql = "SELECT 1";
+        let root = parse_ansi_string(sql);
+
+        let dm_direct = DepthMap::from_parent(root.as_ref());
+        let dm_indirect = DepthMap::from_raws_and_root(root.get_raw_segments(), root);
+
+        assert_eq!(dm_direct.depth_info, dm_indirect.depth_info);
+    }
+
+    #[test]
+    fn test_reflow_depthmap_order_by() {}
+}

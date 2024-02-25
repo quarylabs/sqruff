@@ -118,7 +118,15 @@ pub fn process_spacing(
             }
 
             if strip_newlines && seg.is_type("newline") {
-                unimplemented!()
+                removal_buffer.push(seg.clone());
+                result_buffer.push(LintResult::new(
+                    seg.clone().into(),
+                    vec![LintFix::delete(seg.clone())],
+                    None,
+                    Some("Unexpected line break.".into()),
+                    None,
+                ));
+                continue;
             }
 
             if !last_whitespace.is_empty() {
@@ -376,4 +384,101 @@ pub fn handle_respace_inline_without_space(
 
     existing_results.push(new_result);
     (segment_buffer, existing_results, false)
+}
+
+#[cfg(test)]
+mod tests {
+    use itertools::Itertools;
+    use pretty_assertions::assert_eq;
+
+    use crate::core::parser::segments::test_functions::parse_ansi_string;
+    use crate::core::rules::base::EditType;
+    use crate::helpers::enter_panic;
+    use crate::utils::reflow::helpers::fixes_from_results;
+    use crate::utils::reflow::sequence::{Filter, ReflowSequence};
+
+    #[test]
+    fn test_reflow__sequence_respace() {
+        let cases = [
+            // Basic cases
+            ("select 1+2", (false, Filter::All), "select 1 + 2"),
+            ("select    1   +   2    ", (false, Filter::All), "select 1 + 2"),
+            // Check newline handling
+            ("select\n    1   +   2", (false, Filter::All), "select\n    1 + 2"),
+            ("select\n    1   +   2", (true, Filter::All), "select 1 + 2"),
+            // Check filtering
+            ("select  \n  1   +   2 \n ", (false, Filter::All), "select\n  1 + 2\n"),
+            ("select  \n  1   +   2 \n ", (false, Filter::Inline), "select  \n  1 + 2 \n "),
+            ("select  \n  1   +   2 \n ", (false, Filter::Newline), "select\n  1   +   2\n"),
+        ];
+
+        for (raw_sql_in, (strip_newlines, filter), raw_sql_out) in cases {
+            let root = parse_ansi_string(raw_sql_in);
+            let seq = ReflowSequence::from_root(root, <_>::default());
+
+            let new_seq = seq.respace(strip_newlines, filter);
+            assert_eq!(new_seq.raw(), raw_sql_out);
+        }
+    }
+
+    #[test]
+    fn test_reflow__point_respace_point() {
+        let cases = [
+            // Basic cases
+            ("select    1", 1, false, " ", vec![(EditType::Replace, "    ".to_owned())]),
+            ("select 1+2", 3, false, " ", vec![(EditType::CreateAfter, "1".to_owned())]),
+            ("select (1+2)", 3, false, "", vec![]),
+            ("select (  1+2)", 3, false, "", vec![(EditType::Delete, "  ".to_owned())]),
+            // Newline handling
+            ("select\n1", 1, false, "\n", vec![]),
+            ("select\n  1", 1, false, "\n  ", vec![]),
+            ("select  \n  1", 1, false, "\n  ", vec![(EditType::Delete, "  ".to_owned())]),
+            (
+                "select  \n 1",
+                1,
+                true,
+                " ",
+                vec![
+                    (EditType::Delete, "\n".to_owned()),
+                    (EditType::Delete, " ".to_owned()),
+                    (EditType::Replace, "  ".to_owned()),
+                ],
+            ),
+            (
+                "select ( \n  1)",
+                3,
+                true,
+                "",
+                vec![
+                    (EditType::Delete, "\n".to_owned()),
+                    (EditType::Delete, "  ".to_owned()),
+                    (EditType::Delete, " ".to_owned()),
+                ],
+            ),
+        ];
+
+        for (raw_sql_in, point_idx, strip_newlines, raw_point_sql_out, fixes_out) in cases {
+            let _panic = enter_panic(format!("{raw_sql_in:?}"));
+
+            let root = parse_ansi_string(raw_sql_in);
+            let seq = ReflowSequence::from_root(root, <_>::default());
+            let pnt = seq.elements()[point_idx].as_point().unwrap();
+
+            let (results, new_pnt) = pnt.respace_point(
+                seq.elements()[point_idx - 1].as_block(),
+                seq.elements()[point_idx + 1].as_block(),
+                Vec::new(),
+                strip_newlines,
+            );
+
+            assert_eq!(new_pnt.raw(), raw_point_sql_out);
+
+            let fixes = fixes_from_results(results.into_iter())
+                .into_iter()
+                .map(|fix| (fix.edit_type, fix.anchor.get_raw().unwrap()))
+                .collect_vec();
+
+            assert_eq!(fixes, fixes_out);
+        }
+    }
 }

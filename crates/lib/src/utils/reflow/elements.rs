@@ -41,6 +41,10 @@ impl ReflowPoint {
         Self { segments, stats }
     }
 
+    pub fn raw(&self) -> String {
+        self.segments.iter().map(|it| it.get_raw().unwrap()).join("")
+    }
+
     pub fn class_types(&self) -> HashSet<String> {
         ReflowElement::class_types(&self.segments)
     }
@@ -262,8 +266,25 @@ impl ReflowPoint {
             determine_constraints(prev_block, next_block, strip_newlines);
 
         // The buffer is used to create the new reflow point to return
-        let (segment_buffer, last_whitespace, mut new_results) =
+        let (mut segment_buffer, mut last_whitespace, mut new_results) =
             process_spacing(self.segments.clone(), strip_newlines);
+
+        if let Some((next_block, whitespace)) = next_block.zip(last_whitespace.clone())
+            && next_block.class_types().contains("end_of_file")
+        {
+            new_results.push(LintResult::new(
+                None,
+                vec![LintFix::delete(whitespace.clone())],
+                None,
+                Some("Unnecessary trailing whitespace at end of file.".into()),
+                None,
+            ));
+
+            let pos = segment_buffer.iter().position(|it| it == &whitespace).unwrap();
+            segment_buffer.remove(pos);
+
+            last_whitespace = None;
+        }
 
         if segment_buffer.iter().any(|seg| seg.is_type("newline")) && !strip_newlines
             || (next_block.is_some()
@@ -363,7 +384,7 @@ pub struct ReflowBlock {
 }
 
 impl ReflowBlock {
-    fn class_types(&self) -> HashSet<String> {
+    pub fn class_types(&self) -> HashSet<String> {
         ReflowElement::class_types(&self.segments)
     }
 }
@@ -422,6 +443,10 @@ pub enum ReflowElement {
 }
 
 impl ReflowElement {
+    pub fn raw(&self) -> String {
+        self.segments().iter().map(|it| it.get_raw().unwrap()).join("")
+    }
+
     pub fn segments(&self) -> &[Box<dyn Segment>] {
         match self {
             ReflowElement::Block(block) => &block.segments,

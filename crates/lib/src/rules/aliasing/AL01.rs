@@ -5,7 +5,7 @@ use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::Boxed;
-use crate::utils::reflow::sequence::ReflowSequence;
+use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Aliasing {
@@ -55,7 +55,7 @@ impl Rule for RuleAL01 {
                         "both",
                     )
                     .without(&as_keyword)
-                    .respace()
+                    .respace(false, Filter::All)
                     .fixes(),
                     None,
                     None,
@@ -82,7 +82,7 @@ impl Rule for RuleAL01 {
                         identifier.clone(),
                         "before",
                     )
-                    .respace()
+                    .respace(false, Filter::All)
                     .fixes(),
                     None,
                     None,

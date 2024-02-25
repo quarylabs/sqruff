@@ -104,7 +104,7 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 
 /// The class that actually gets passed around as a config object.
 // TODO This is not a translation that is particularly accurate.
-#[derive(Debug, PartialEq, Clone, Default)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
     pub indentation: FluffConfigIndentation,
     configs: HashMap<String, Value>,
@@ -217,6 +217,12 @@ command. Available dialects: {}",
 
     pub fn sql_file_exts(&self) -> &[String] {
         self.sql_file_exts.as_ref()
+    }
+}
+
+impl Default for FluffConfig {
+    fn default() -> Self {
+        Self::new(<_>::default(), None, None)
     }
 }
 

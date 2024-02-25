@@ -1,5 +1,7 @@
 use std::mem::take;
 
+use itertools::Itertools;
+
 use super::config::ReflowConfig;
 use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
@@ -16,6 +18,10 @@ pub struct ReflowSequence {
 }
 
 impl ReflowSequence {
+    pub fn raw(&self) -> String {
+        self.elements.iter().map(|it| it.raw()).join("")
+    }
+
     pub fn results(self) -> Vec<LintResult> {
         self.lint_results
     }
@@ -202,14 +208,27 @@ impl ReflowSequence {
         }
     }
 
-    pub fn respace(mut self) -> Self {
+    pub fn respace(mut self, strip_newlines: bool, filter: Filter) -> Self {
         let mut lint_results = take(&mut self.lint_results);
         let mut new_elements = Vec::new();
 
         for (point, pre, post) in self.iter_points_with_constraints() {
-            let (new_lint_results, new_point) = point.respace_point(pre, post, lint_results, false);
+            let (new_lint_results, mut new_point) =
+                point.respace_point(pre, post, lint_results.clone(), strip_newlines);
 
-            lint_results = new_lint_results;
+            let ignore = if new_point.segments.iter().any(|seg| seg.is_type("newline"))
+                || post.as_ref().map_or(false, |p| p.class_types().contains("end_of_file"))
+            {
+                filter == Filter::Inline
+            } else {
+                filter == Filter::Newline
+            };
+
+            if ignore {
+                new_point = point.clone();
+            } else {
+                lint_results = new_lint_results;
+            }
 
             if let Some(pre_value) = pre {
                 if new_elements.is_empty() || new_elements.last().unwrap() != pre_value {
@@ -290,4 +309,15 @@ impl ReflowSequence {
             }
         })
     }
+
+    pub fn elements(&self) -> &[ReflowElement] {
+        &self.elements
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Filter {
+    All,
+    Inline,
+    Newline,
 }

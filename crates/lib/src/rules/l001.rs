@@ -1,7 +1,7 @@
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::utils::reflow::sequence::ReflowSequence;
+use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
 /// Unnecessary trailing whitespace.
 ///
@@ -28,7 +28,7 @@ impl Rule for RuleL001 {
     // it was preceded by.
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment, context.config);
-        sequence.respace().results()
+        sequence.respace(false, Filter::All).results()
     }
 
     fn crawl_behaviour(&self) -> Crawler {

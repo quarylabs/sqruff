@@ -1,7 +1,7 @@
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::utils::reflow::sequence::ReflowSequence;
+use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
 #[derive(Default, Debug)]
 pub struct RuleLT01 {}
@@ -9,7 +9,7 @@ pub struct RuleLT01 {}
 impl Rule for RuleLT01 {
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment, context.config);
-        sequence.respace().results()
+        sequence.respace(false, Filter::All).results()
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -152,9 +152,8 @@ mod tests {
             a    AS first_column,
             b      AS second_column,
             (a + b) / 2 AS third_column
-        FROM foo
-    "
-            .into(),
+        FROM foo"
+                .into(),
             rules(),
         );
         assert_eq!(
@@ -164,8 +163,7 @@ mod tests {
             a AS first_column,
             b AS second_column,
             (a + b) / 2 AS third_column
-        FROM foo
-    "
+        FROM foo"
         );
     }
 
@@ -233,9 +231,8 @@ mod tests {
             a   ,
             b   ,
             (a   +   b) /   2
-        FROM foo
-    "
-            .into(),
+        FROM foo"
+                .into(),
             rules(),
         );
         assert_eq!(
@@ -245,8 +242,7 @@ mod tests {
             a,
             b,
             (a + b) / 2
-        FROM foo
-    "
+        FROM foo"
         );
     }
 
@@ -626,9 +622,8 @@ mod tests {
         select
             field,
             date(field_1)-date(field_2) as diff
-        from table
-    "
-            .into(),
+        from table"
+                .into(),
             rules(),
         );
 
@@ -638,8 +633,7 @@ mod tests {
         select
             field,
             date(field_1) - date(field_2) as diff
-        from table
-    "
+        from table"
         );
     }
 

@@ -4,6 +4,7 @@ use super::keyword::KeywordSegment;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;
+use crate::core::linter::linter::Linter;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{
@@ -17,6 +18,11 @@ use crate::helpers::Boxed;
 
 pub fn fresh_ansi_dialect() -> Dialect {
     dialect_selector("ansi").unwrap()
+}
+
+pub fn parse_ansi_string(sql: &str) -> Box<dyn Segment> {
+    let linter = Linter::new(<_>::default(), None, None);
+    linter.parse_string(sql.into(), None, None, None, None).unwrap().tree.unwrap()
 }
 
 pub fn lex(string: &str) -> Vec<Box<dyn Segment>> {

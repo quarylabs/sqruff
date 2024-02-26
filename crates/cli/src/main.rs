@@ -10,6 +10,10 @@ use crate::commands::Cli;
 
 mod commands;
 
+#[cfg(all(feature = "jemalloc", not(target_env = "msvc")))]
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 fn main() {
     match main_wrapper() {
         Ok(msg) => {

@@ -9,10 +9,16 @@ license = "MIT"
 name = "ui"
 harness = false
 
+[features]
+jemalloc = ["jemallocator"]
+
 [dependencies]
 sqruff-lib = { version = "0.1.4", path = "../lib" }
 clap = { version = "4", features = ["derive"] }
 glob = "0.3.1"
+
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+jemallocator = { version = "0.5", package = "tikv-jemallocator", optional = true }
 
 [dev-dependencies]
 ui_test = "0.22"

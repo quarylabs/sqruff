@@ -18,7 +18,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --release --locked --all-features
 
   test:
     name: Test
@@ -32,7 +32,7 @@ jobs:
         with:
           tool: nextest
       - name: Run tests
-        run: cargo nextest run
+        run: cargo nextest run --locked
 
   lint:
     name: Lint

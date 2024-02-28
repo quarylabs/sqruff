@@ -259,3 +259,60 @@ pub fn rebreak_sequence(
 
     (elem_buff, lint_results)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::core::parser::segments::test_functions::parse_ansi_string;
+    use crate::utils::reflow::sequence::ReflowSequence;
+
+    #[test]
+    fn test_reflow__sequence_rebreak_root() {
+        let cases = [
+            // Trivial Case
+            ("select 1", "select 1"),
+            // These rely on the default config being for leading operators
+            ("select 1\n+2", "select 1\n+2"),
+            //("select 1+\n2", "select 1\n+ 2") // NOTE: Implicit respace.
+            //("select\n  1 +\n  2", "select\n  1\n  + 2"),
+            //("select\n  1 +\n  -- comment\n  2", "select\n  1\n  -- comment\n  + 2"),
+            // These rely on the default config being for trailing commas
+            ("select a,b", "select a,b"),
+            //("select a\n,b", "select a,\nb"),
+            //("select\n  a\n  , b", "select\n  a,\n  b"),
+            //("select\n    a\n    , b", "select\n    a,\n    b"),
+            //("select\n  a\n    , b", "select\n  a,\n    b"),
+            //("select\n  a\n  -- comment\n  , b", "select\n  a,\n  -- comment\n  b"),
+        ];
+
+        for (raw_sql_in, raw_sql_out) in cases {
+            let root = parse_ansi_string(raw_sql_in);
+            let seq = ReflowSequence::from_root(root, <_>::default());
+            assert_eq!(seq.raw(), raw_sql_out);
+        }
+    }
+
+    #[test]
+    fn test_reflow__sequence_rebreak_target() {
+        let cases = [
+            ("select 1+\n(2+3)", 4, "1+\n(", "1\n+ ("),
+            ("select a,\n(b+c)", 4, "a,\n(", "a,\n("),
+            ("select a\n  , (b+c)", 6, "a\n  , (", "a,\n  ("),
+            // Here we don't have enough context to rebreak it so
+            // it should be left unaltered.
+            ("select a,\n(b+c)", 6, ",\n(b", ",\n(b"),
+            // This intentionally targets an incomplete span.
+            ("select a<=b", 4, "a<=", "a<="),
+        ];
+
+        for (raw_sql_in, target_idx, seq_sql_in, seq_sql_out) in cases {
+            let root = parse_ansi_string(raw_sql_in);
+            let target = &root.get_raw_segments()[target_idx];
+            let seq = ReflowSequence::from_around_target(target, root, "both");
+
+            assert_eq!(seq.raw(), seq_sql_in);
+
+            let new_seq = seq.rebreak();
+            assert_eq!(new_seq.raw(), seq_sql_out);
+        }
+    }
+}

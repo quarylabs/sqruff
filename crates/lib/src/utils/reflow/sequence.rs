@@ -105,14 +105,12 @@ impl ReflowSequence {
         let post_idx =
             all_raws.iter().position(|x| x == &target_raws[target_raws.len() - 1]).unwrap() + 1;
 
-        let initial_idx = (pre_idx, post_idx);
-
         let mut pre_idx = pre_idx;
         let mut post_idx = post_idx;
 
         if sides == "both" || sides == "before" {
             pre_idx -= 1;
-            for i in (0..pre_idx).rev() {
+            for i in (0..=pre_idx).rev() {
                 if all_raws[i].is_code() {
                     pre_idx = i;
                     break;

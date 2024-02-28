@@ -249,6 +249,33 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
+                let new_indent =
+                    WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
+
+                if before.is_none() && after.is_none() {
+                    unimplemented!(
+                        "Not set up to handle empty points in this scenario without provided \
+                         before/after anchor: {:?}",
+                        self.segments
+                    );
+                } else if let Some(before) = before {
+                    let fix = LintFix::create_before(
+                        before.clone(),
+                        vec![new_newline.clone(), new_indent.clone()],
+                    );
+
+                    return (
+                        vec![LintResult::new(
+                            before.into(),
+                            vec![fix],
+                            None,
+                            None,
+                            source.map(ToOwned::to_owned),
+                        )],
+                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
+                    );
+                }
+
                 unimplemented!()
             }
         }

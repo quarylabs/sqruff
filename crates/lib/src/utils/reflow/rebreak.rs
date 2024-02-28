@@ -1,7 +1,10 @@
+use itertools::Itertools;
+
 use super::elements::{ReflowElement, ReflowSequenceType};
 use crate::core::parser::segments::base::Segment;
-use crate::core::rules::base::LintResult;
+use crate::core::rules::base::{LintFix, LintResult};
 use crate::helpers::capitalize;
+use crate::utils::reflow::elements::ReflowPoint;
 
 #[derive(Debug)]
 pub struct RebreakSpan {
@@ -172,7 +175,7 @@ pub fn rebreak_sequence(
     root_segment: Box<dyn Segment>,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let mut lint_results = Vec::new();
-    // let fixes = Vec::new();
+    let mut fixes = Vec::new();
     let mut elem_buff = elements.clone();
 
     // Given a sequence we should identify the objects which
@@ -192,9 +195,9 @@ pub fn rebreak_sequence(
 
     // Handle each span:
     for loc in locations {
-        // if loc.has_inappropriate_newlines(&elements, loc.strict) {
-        //     continue;
-        // }
+        if loc.has_inappropriate_newlines(&elements, loc.strict) {
+            continue;
+        }
 
         // if loc.has_templated_newline(elem_buff) {
         //     continue;
@@ -249,7 +252,94 @@ pub fn rebreak_sequence(
 
                 new_results
             } else {
-                unimplemented!()
+                fixes.push(LintFix::delete(loc.target.clone()));
+
+                for seg in elem_buff[loc.prev.adj_pt_idx as usize].segments() {
+                    fixes.push(LintFix::delete(seg.clone()));
+                }
+
+                let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
+                    elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    Vec::new(),
+                    false,
+                );
+
+                let mut create_anchor = None;
+                for i in 1..=loc.next.pre_code_pt_idx {
+                    let idx = loc.next.pre_code_pt_idx - i;
+                    if let Some(elem) = elem_buff.get(idx as usize) {
+                        if let Some(segments) = elem.segments().last() {
+                            create_anchor = Some(segments.clone());
+                            break;
+                        }
+                    }
+                }
+                if create_anchor.is_none() {
+                    panic!("Could not find anchor for creation.");
+                }
+
+                rearrange_and_insert(&mut elem_buff, &loc, new_point);
+
+                new_results
+            }
+        } else if loc.line_position == "trailing" {
+            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0 {
+                continue;
+            }
+
+            let pretty_name = loc.pretty_target_name();
+            let desc = if loc.strict {
+                format!("{} should always be at the end of a line.", capitalize(&pretty_name))
+            } else {
+                format!("Found leading {}. Expected only trailing near line breaks.", pretty_name)
+            };
+
+            if loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
+                && elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() == 1
+            {
+                let (new_results, next_point) = next_point.indent_to(
+                    prev_point.get_indent().as_deref().unwrap_or_default(),
+                    Some(loc.target),
+                    None,
+                    None,
+                    None,
+                );
+
+                let (new_results, prev_point) = prev_point.respace_point(
+                    elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
+                    elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
+                    new_results,
+                    true,
+                );
+
+                // Update the points in the buffer
+                elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
+                elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();
+
+                new_results
+            } else {
+                fixes.push(LintFix::delete(loc.target.clone()));
+
+                for seg in elem_buff[loc.next.adj_pt_idx as usize].segments() {
+                    fixes.push(LintFix::delete(seg.clone()));
+                }
+
+                let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
+                    elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    Vec::new(),
+                    false,
+                );
+
+                fixes.push(LintFix::create_before(
+                    elem_buff[loc.prev.pre_code_pt_idx as usize].segments()[0].clone(),
+                    vec![loc.target.clone()],
+                ));
+
+                reorder_and_insert(&mut elem_buff, &loc, new_point);
+
+                new_results
             }
         } else {
             unimplemented!()
@@ -259,6 +349,77 @@ pub fn rebreak_sequence(
     }
 
     (elem_buff, lint_results)
+}
+
+fn rearrange_and_insert(
+    elem_buff: &mut Vec<ReflowElement>,
+    loc: &RebreakLocation,
+    new_point: ReflowPoint,
+) {
+    let mut new_buff = Vec::with_capacity(elem_buff.len() + 1);
+
+    // First segment: up to loc.prev.adj_pt_idx (exclusive)
+    new_buff.extend_from_slice(&elem_buff[..loc.prev.adj_pt_idx as usize]);
+
+    // Second segment: loc.next.adj_pt_idx to loc.next.pre_code_pt_idx (inclusive)
+    new_buff.extend_from_slice(
+        &elem_buff[loc.next.adj_pt_idx as usize..=loc.next.pre_code_pt_idx as usize],
+    );
+
+    // Third segment: loc.prev.adj_pt_idx + 1 to loc.next.adj_pt_idx (exclusive, the
+    // target)
+    if loc.prev.adj_pt_idx + 1 < loc.next.adj_pt_idx {
+        new_buff.extend_from_slice(
+            &elem_buff[loc.prev.adj_pt_idx as usize + 1..loc.next.adj_pt_idx as usize],
+        );
+    }
+
+    // Insert new_point here
+    new_buff.push(new_point.into());
+
+    // Last segment: after loc.next.pre_code_pt_idx
+    if loc.next.pre_code_pt_idx as usize + 1 < elem_buff.len() {
+        new_buff.extend_from_slice(&elem_buff[loc.next.pre_code_pt_idx as usize + 1..]);
+    }
+
+    // Replace old buffer with the new one
+    *elem_buff = new_buff;
+}
+
+fn reorder_and_insert(
+    elem_buff: &mut Vec<ReflowElement>,
+    loc: &RebreakLocation,
+    new_point: ReflowPoint,
+) {
+    let mut new_buff = Vec::with_capacity(elem_buff.len() + 1);
+
+    // First segment: up to loc.prev.pre_code_pt_idx (exclusive)
+    new_buff.extend_from_slice(&elem_buff[..loc.prev.pre_code_pt_idx as usize]);
+
+    // Insert new_point here
+    new_buff.push(new_point.into());
+
+    // Second segment: loc.prev.adj_pt_idx + 1 to loc.next.adj_pt_idx (exclusive,
+    // the target)
+    if loc.prev.adj_pt_idx + 1 < loc.next.adj_pt_idx {
+        new_buff.extend_from_slice(
+            &elem_buff[loc.prev.adj_pt_idx as usize + 1..loc.next.adj_pt_idx as usize],
+        );
+    }
+
+    // Third segment: loc.prev.pre_code_pt_idx to loc.prev.adj_pt_idx + 1
+    // (inclusive)
+    new_buff.extend_from_slice(
+        &elem_buff[loc.prev.pre_code_pt_idx as usize..=loc.prev.adj_pt_idx as usize],
+    );
+
+    // Last segment: after loc.next.adj_pt_idx
+    if loc.next.adj_pt_idx as usize + 1 < elem_buff.len() {
+        new_buff.extend_from_slice(&elem_buff[loc.next.adj_pt_idx as usize + 1..]);
+    }
+
+    // Replace old buffer with the new one
+    *elem_buff = new_buff;
 }
 
 #[cfg(test)]

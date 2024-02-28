@@ -274,9 +274,30 @@ impl ReflowPoint {
                         )],
                         ReflowPoint::new(vec![new_newline, new_indent]).into(),
                     );
-                }
+                } else {
+                    let after = after.unwrap();
+                    let fix = LintFix::create_after(
+                        after.clone(),
+                        vec![new_newline.clone(), new_indent.clone()],
+                        None,
+                    );
+                    let description = format!(
+                        "Expected line break and {} after {:?}.",
+                        indent_description(desired_indent),
+                        after.get_raw().unwrap()
+                    );
 
-                unimplemented!()
+                    return (
+                        vec![LintResult::new(
+                            before.into(),
+                            vec![fix],
+                            None,
+                            Some(description),
+                            source.map(ToOwned::to_owned),
+                        )],
+                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
+                    );
+                }
             }
         }
     }

@@ -566,7 +566,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                     .raw_segments_with_ancestors()
                     .into_iter()
                     .map(|(raw_seg, stack)| {
-                        let mut new_step = take(&mut new_step);
+                        let mut new_step = new_step.clone();
                         new_step.extend(stack);
                         (raw_seg, new_step)
                     })

@@ -31,8 +31,7 @@ impl ReflowSequence {
     }
 
     pub fn from_root(root_segment: Box<dyn Segment>, _config: FluffConfig) -> Self {
-        // let depth_map = DepthMap::from_parent(&*root_segment).into();
-        let depth_map = None;
+        let depth_map = DepthMap::from_parent(&*root_segment).into();
 
         Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, depth_map)
     }

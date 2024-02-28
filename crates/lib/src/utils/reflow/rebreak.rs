@@ -3,6 +3,7 @@ use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::LintResult;
 use crate::helpers::capitalize;
 
+#[derive(Debug)]
 pub struct RebreakSpan {
     target: Box<dyn Segment>,
     start_idx: usize,
@@ -227,7 +228,7 @@ pub fn rebreak_sequence(
 
                 let desired_indent = next_point.get_indent().unwrap_or_default();
 
-                let (new_results, next_point) = prev_point.indent_to(
+                let (new_results, prev_point) = prev_point.indent_to(
                     &desired_indent,
                     None,
                     loc.target.clone_box().into(),
@@ -235,7 +236,7 @@ pub fn rebreak_sequence(
                     None,
                 );
 
-                let (new_results, prev_point) = prev_point.respace_point(
+                let (new_results, next_point) = next_point.respace_point(
                     elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
                     elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
                     new_results,
@@ -263,6 +264,7 @@ pub fn rebreak_sequence(
 #[cfg(test)]
 mod tests {
     use crate::core::parser::segments::test_functions::parse_ansi_string;
+    use crate::helpers::enter_panic;
     use crate::utils::reflow::sequence::ReflowSequence;
 
     #[test]
@@ -272,22 +274,26 @@ mod tests {
             ("select 1", "select 1"),
             // These rely on the default config being for leading operators
             ("select 1\n+2", "select 1\n+2"),
-            //("select 1+\n2", "select 1\n+ 2") // NOTE: Implicit respace.
-            //("select\n  1 +\n  2", "select\n  1\n  + 2"),
-            //("select\n  1 +\n  -- comment\n  2", "select\n  1\n  -- comment\n  + 2"),
+            ("select 1+\n2", "select 1\n+ 2"), // NOTE: Implicit respace.
+            ("select\n  1 +\n  2", "select\n  1\n  + 2"),
+            ("select\n  1 +\n  -- comment\n  2", "select\n  1\n  -- comment\n  + 2"),
             // These rely on the default config being for trailing commas
             ("select a,b", "select a,b"),
-            //("select a\n,b", "select a,\nb"),
-            //("select\n  a\n  , b", "select\n  a,\n  b"),
-            //("select\n    a\n    , b", "select\n    a,\n    b"),
-            //("select\n  a\n    , b", "select\n  a,\n    b"),
-            //("select\n  a\n  -- comment\n  , b", "select\n  a,\n  -- comment\n  b"),
+            ("select a\n,b", "select a,\nb"),
+            ("select\n  a\n  , b", "select\n  a,\n  b"),
+            ("select\n    a\n    , b", "select\n    a,\n    b"),
+            ("select\n  a\n    , b", "select\n  a,\n    b"),
+            ("select\n  a\n  -- comment\n  , b", "select\n  a,\n  -- comment\n  b"),
         ];
 
         for (raw_sql_in, raw_sql_out) in cases {
+            let _panic = enter_panic(format!("{raw_sql_in:?}"));
+
             let root = parse_ansi_string(raw_sql_in);
             let seq = ReflowSequence::from_root(root, <_>::default());
-            assert_eq!(seq.raw(), raw_sql_out);
+            let new_seq = seq.rebreak();
+
+            assert_eq!(new_seq.raw(), raw_sql_out);
         }
     }
 

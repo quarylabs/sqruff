@@ -67,4 +67,3 @@ jobs:
           draft: true
           files: |
             sqruff-*
-            *.sha256

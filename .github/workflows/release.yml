@@ -58,11 +58,13 @@ jobs:
           fi
           cd -
 
-      - name: Generate SHA-256
-        run: shasum -a 256 ${{ matrix.platform.name }}
+      - name: Generate SHA-256 and Save to File
+        run: shasum -a 256 ${{ matrix.platform.name }} > ${{ matrix.platform.name }}.sha256
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
-          files: "sqruff-*"
+          files: |
+            sqruff-*
+            *.sha256

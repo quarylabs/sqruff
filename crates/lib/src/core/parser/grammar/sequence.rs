@@ -225,6 +225,22 @@ impl Matchable for Sequence {
                 |this| elem.match_segments(unmatched_segments.clone(), this),
             )?;
 
+            if unmatched_segments.is_empty() {
+                if elem.is_optional() {
+                    continue;
+                }
+
+                if self.parse_mode == ParseMode::Strict {
+                    return Ok(MatchResult::from_unmatched(segments));
+                }
+
+                if matched_segments.is_empty() {
+                    return Ok(MatchResult::from_unmatched(segments));
+                }
+
+                unimplemented!("UnparsableSegment")
+            }
+
             // Did we fail to match? (totally or un-cleanly)
             if !elem_match.has_match() {
                 // If we can't match an element, we should ascertain whether it's

@@ -547,7 +547,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.get_segments().iter().enumerate() {
-            let mut new_step = vec![PathStep {
+            let new_step = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
                 len: self.get_segments().len(),

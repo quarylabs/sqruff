@@ -1,6 +1,17 @@
 file:
 - statement:
-  - set_expression:
+  - bracketed:
+    - start_bracket: (
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - bracketed:
+    - start_bracket: (
     - bracketed:
       - start_bracket: (
       - select_statement:
@@ -9,9 +20,11 @@ file:
           - select_clause_element:
             - numeric_literal: '1'
       - end_bracket: )
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - set_expression:
+  - bracketed:
+    - start_bracket: (
     - bracketed:
       - start_bracket: (
       - bracketed:
@@ -23,21 +36,5 @@ file:
               - numeric_literal: '1'
         - end_bracket: )
       - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - bracketed:
-      - start_bracket: (
-      - bracketed:
-        - start_bracket: (
-        - bracketed:
-          - start_bracket: (
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - numeric_literal: '1'
-          - end_bracket: )
-        - end_bracket: )
-      - end_bracket: )
+    - end_bracket: )
 - statement_terminator: ;

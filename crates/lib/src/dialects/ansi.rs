@@ -1650,7 +1650,8 @@ pub fn ansi_dialect() -> Dialect {
         (
             "NonWithSelectableGrammar".into(),
             one_of(vec![
-                Ref::new("SetExpressionSegment").boxed(),
+                // FIXME:
+                // Ref::new("SetExpressionSegment").boxed(),
                 optionally_bracketed(vec![Ref::new("SelectStatementSegment").boxed()]).boxed(),
                 Ref::new("NonSetSelectableGrammar").boxed(),
             ])
@@ -2435,6 +2436,8 @@ impl FileSegment {
         let content: Vec<_> = if !has_match {
             unimplemented!()
         } else if !unmatched.is_empty() {
+            dbg!(unmatched.iter().map(|it| it.get_raw().unwrap()).collect_vec());
+
             unimplemented!()
         } else {
             chain(match_result.matched_segments, unmatched).collect()
@@ -2665,7 +2668,15 @@ impl NodeTrait for SetExpressionSegment {
     const TYPE: &'static str = "set_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![Ref::new("NonSetSelectableGrammar").boxed()]).to_matchable()
+        Sequence::new(vec_of_erased![
+            Ref::new("NonSetSelectableGrammar"),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("SetOperatorSegment"),
+                Ref::new("NonSetSelectableGrammar")
+            ])])
+            .config(|this| this.min_times(1))
+        ])
+        .to_matchable()
     }
 }
 
@@ -4914,6 +4925,22 @@ mod tests {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let parsed = linter.parse_string(sql.into(), None, None, None, None).unwrap();
         parsed.tree.unwrap()
+    }
+
+    #[test]
+    fn pg() {
+        let dialect = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(dialect.clone());
+
+        let segment = dialect.r#ref("NonWithSelectableGrammar");
+        let mut segments = lex("SELECT a, b");
+
+        if segments.last().unwrap().get_type() == "end_of_file" {
+            segments.pop();
+        }
+
+        let match_result = segment.match_segments(segments, &mut ctx).unwrap();
+        println!("{}", match_result);
     }
 
     #[test]

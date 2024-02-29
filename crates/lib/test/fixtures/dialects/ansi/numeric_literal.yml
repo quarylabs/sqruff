@@ -1,42 +1,41 @@
 file:
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - numeric_literal: '1'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1.2'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1.'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '.2'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1e3'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1E3'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1.2e+3'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1.2E+3'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1.e-3'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '1.E-3'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '.2e3'
-        - comma: ','
-        - select_clause_element:
-          - numeric_literal: '.2E3'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1.2'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1.'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '.2'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1e3'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1E3'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1.2e+3'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1.2E+3'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1.e-3'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1.E-3'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '.2e3'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '.2E3'
 - statement_terminator: ;

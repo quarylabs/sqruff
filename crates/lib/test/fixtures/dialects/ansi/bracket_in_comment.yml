@@ -1,15 +1,14 @@
 file:
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: select
-        - select_clause_element:
-          - column_reference:
-            - identifier: a
-      - from_clause:
-        - keyword: from
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - identifier: b
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - identifier: a
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - identifier: b

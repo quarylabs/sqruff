@@ -83,7 +83,9 @@ use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_algorithms::{bracket_sensitive_look_ahead_match, greedy_match};
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{position_segments, Segment};
+use crate::core::parser::segments::base::{
+    pos_marker, position_segments, Segment, UnparsableSegment,
+};
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
@@ -216,16 +218,10 @@ impl Matchable for Sequence {
                 }
             }
 
-            // 4. Match the current element against the current position.
-            let elem_match = parse_context.deeper_match(
-                format!("Sequence-@{idx}"),
-                false,
-                &[],
-                None,
-                |this| elem.match_segments(unmatched_segments.clone(), this),
-            )?;
-
+            // 3. Check we still have segments left to work on.
+            // Have we prematurely run out of segments?
             if unmatched_segments.is_empty() {
+                // If the current element is optional, carry on.
                 if elem.is_optional() {
                     continue;
                 }
@@ -240,6 +236,15 @@ impl Matchable for Sequence {
 
                 unimplemented!("UnparsableSegment")
             }
+
+            // 4. Match the current element against the current position.
+            let elem_match = parse_context.deeper_match(
+                format!("Sequence-@{idx}"),
+                false,
+                &[],
+                None,
+                |this| elem.match_segments(unmatched_segments.clone(), this),
+            )?;
 
             // Did we fail to match? (totally or un-cleanly)
             if !elem_match.has_match() {
@@ -297,7 +302,24 @@ impl Matchable for Sequence {
         // Finally if we're in one of the greedy modes, and there's anything
         // left as unclaimed, mark it as unparsable.
         if matches!(self.parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted) {
-            let (_pre, unmatched_mid, _post) = trim_non_code_segments(&unmatched_segments);
+            let (pre, unmatched_mid, post) = trim_non_code_segments(&unmatched_segments);
+
+            if !unmatched_mid.is_empty() {
+                let mut unparsable_seg = UnparsableSegment { segments, position_marker: None };
+                unparsable_seg.set_position_marker(pos_marker(&unparsable_seg).into());
+
+                let non_code = chain(non_code_buffer, pre.to_vec()).collect_vec();
+                matched_segments.extend(chain!(
+                    position_metas(&meta_buffer, &non_code),
+                    vec![unparsable_seg.boxed() as Box<dyn Segment>]
+                ));
+
+                tail = chain!(post.to_vec(), tail).collect_vec();
+
+                unmatched_segments = Vec::new();
+                meta_buffer = Vec::new();
+                non_code_buffer = Vec::new();
+            }
         }
 
         // If we finished on an optional, and so still have some unflushed metas,

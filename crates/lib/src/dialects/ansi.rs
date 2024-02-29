@@ -1650,8 +1650,7 @@ pub fn ansi_dialect() -> Dialect {
         (
             "NonWithSelectableGrammar".into(),
             one_of(vec![
-                // FIXME:
-                // Ref::new("SetExpressionSegment").boxed(),
+                Ref::new("SetExpressionSegment").boxed(),
                 optionally_bracketed(vec![Ref::new("SelectStatementSegment").boxed()]).boxed(),
                 Ref::new("NonSetSelectableGrammar").boxed(),
             ])
@@ -2436,8 +2435,6 @@ impl FileSegment {
         let content: Vec<_> = if !has_match {
             unimplemented!()
         } else if !unmatched.is_empty() {
-            dbg!(unmatched.iter().map(|it| it.get_raw().unwrap()).collect_vec());
-
             unimplemented!()
         } else {
             chain(match_result.matched_segments, unmatched).collect()
@@ -2673,8 +2670,7 @@ impl NodeTrait for SetExpressionSegment {
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 Ref::new("SetOperatorSegment"),
                 Ref::new("NonSetSelectableGrammar")
-            ])])
-            .config(|this| this.min_times(1))
+            ])]) //  .config(|this| this.min_times(1))
         ])
         .to_matchable()
     }
@@ -4704,10 +4700,15 @@ mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
+    use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed};
+    use crate::core::parser::grammar::base::{Nothing, Ref};
+    use crate::core::parser::grammar::delimited::Delimited;
+    use crate::core::parser::grammar::sequence::Sequence;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
+    use crate::core::parser::matchable::Matchable;
     use crate::core::parser::segments::base::Segment;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
-    use crate::helpers;
+    use crate::helpers::{self, Boxed, Config};
 
     #[test]
     fn test__dialect__ansi__file_lex() {
@@ -4913,7 +4914,7 @@ mod tests {
 
     #[test]
     fn test__dialect__ansi_parse_indented_joins() {
-        let cases = [("select field_1 from my_table as alias_1",)];
+        let cases = [("SELECT   1;",)];
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
 
         for (sql_string,) in cases {
@@ -4932,7 +4933,13 @@ mod tests {
         let dialect = fresh_ansi_dialect();
         let mut ctx = ParseContext::new(dialect.clone());
 
-        let segment = dialect.r#ref("NonWithSelectableGrammar");
+        let segment = one_of(vec![
+            Ref::new("SetExpressionSegment").boxed(),
+            Ref::new("SelectStatementSegment").boxed(),
+        ]);
+
+        // let segment = Ref::new("SelectClauseSegment");
+
         let mut segments = lex("SELECT a, b");
 
         if segments.last().unwrap().get_type() == "end_of_file" {

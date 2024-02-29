@@ -1320,6 +1320,26 @@ pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
     PositionMarker::from_child_markers(markers)
 }
 
+#[derive(Default, Debug, Hash, Clone, PartialEq)]
+pub struct UnparsableSegment {
+    pub(crate) segments: Vec<Box<dyn Segment>>,
+    pub(crate) position_marker: Option<PositionMarker>,
+}
+
+impl Segment for UnparsableSegment {
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.position_marker.clone()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker;
+    }
+
+    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments.clone()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

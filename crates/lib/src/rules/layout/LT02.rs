@@ -7,6 +7,10 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT02 {}
 
 impl Rule for RuleLT02 {
+    fn name(&self) -> &'static str {
+        "layout.indent"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler::default().into()
     }

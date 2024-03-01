@@ -13,6 +13,10 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleLT08 {}
 
 impl Rule for RuleLT08 {
+    fn name(&self) -> &'static str {
+        "layout.cte_newline"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).into()
     }

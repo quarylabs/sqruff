@@ -13,6 +13,10 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
+    fn name(&self) -> &'static str {
+        "layout.commas"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["comma".into()])).into()
     }

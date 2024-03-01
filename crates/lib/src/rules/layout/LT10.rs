@@ -12,6 +12,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT10 {}
 
 impl Rule for RuleLT10 {
+    fn name(&self) -> &'static str {
+        "layout.select_modifiers"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
     }

@@ -10,6 +10,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT07 {}
 
 impl Rule for RuleLT07 {
+    fn name(&self) -> &'static str {
+        "layout.cte_bracket"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).into()
     }

@@ -10,6 +10,10 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT03 {}
 
 impl Rule for RuleLT03 {
+    fn name(&self) -> &'static str {
+        "layout.operators"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["binary_operator", "comparison_operator"])).into()
     }

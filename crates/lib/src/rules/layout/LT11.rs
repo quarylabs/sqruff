@@ -9,6 +9,10 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT11;
 
 impl Rule for RuleLT11 {
+    fn name(&self) -> &'static str {
+        "layout.set_operators"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["set_operator"])).into()
     }

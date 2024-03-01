@@ -10,6 +10,10 @@ pub struct RuleLT05 {
 }
 
 impl Rule for RuleLT05 {
+    fn name(&self) -> &'static str {
+        "layout.long_lines"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler::default().into()
     }

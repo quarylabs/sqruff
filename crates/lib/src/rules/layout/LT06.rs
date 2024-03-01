@@ -12,6 +12,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT06 {}
 
 impl Rule for RuleLT06 {
+    fn name(&self) -> &'static str {
+        "layout.functions"
+    }
+
     fn description(&self) -> &'static str {
         "Function name not immediately followed by parenthesis."
     }

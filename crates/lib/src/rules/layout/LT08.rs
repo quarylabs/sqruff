@@ -9,7 +9,7 @@ use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleLT08 {}
 
 impl Rule for RuleLT08 {

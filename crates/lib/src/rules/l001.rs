@@ -18,7 +18,7 @@ use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 ///         SELECT
 ///             a
 ///         FROM foo
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct RuleL001 {}
 
 impl Rule for RuleL001 {

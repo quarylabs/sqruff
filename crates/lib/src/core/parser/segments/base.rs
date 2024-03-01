@@ -40,7 +40,7 @@ pub trait CloneSegment {
     fn clone_box(&self) -> Box<dyn Segment>;
 }
 
-impl<T: Segment + DynClone> CloneSegment for T {
+impl<T: Segment> CloneSegment for T {
     fn clone_box(&self) -> Box<dyn Segment> {
         dyn_clone::clone(self).boxed()
     }

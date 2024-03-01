@@ -5,7 +5,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleLT13 {}
 
 impl Rule for RuleLT13 {

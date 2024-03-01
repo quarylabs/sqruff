@@ -7,7 +7,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleLT04 {
     base: RuleLT03,
 }

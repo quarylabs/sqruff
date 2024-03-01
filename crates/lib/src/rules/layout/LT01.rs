@@ -7,6 +7,10 @@ use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 pub struct RuleLT01 {}
 
 impl Rule for RuleLT01 {
+    fn name(&self) -> &'static str {
+        "layout.spacing"
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment, context.config);
         sequence.respace(false, Filter::All).results()

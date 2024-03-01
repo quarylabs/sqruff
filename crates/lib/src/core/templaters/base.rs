@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::cli::formatters::Formatter;
+use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError, ValueError};
 use crate::core::slice_helpers::zero_slice;
@@ -556,7 +556,7 @@ impl Templater for RawTemplater {
         &self,
         f_names: Vec<String>,
         _: Option<&FluffConfig>,
-        _: Option<&dyn Formatter>,
+        _: Option<&OutputStreamFormatter>,
     ) -> Vec<String> {
         // Default is to process in the original order.
         f_names
@@ -567,7 +567,7 @@ impl Templater for RawTemplater {
         in_str: &str,
         f_name: &str,
         _config: Option<&FluffConfig>,
-        _formatter: Option<&dyn Formatter>,
+        _formatter: Option<&OutputStreamFormatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
         {
@@ -592,7 +592,7 @@ pub trait Templater {
         &self,
         f_names: Vec<String>,
         config: Option<&FluffConfig>,
-        formatter: Option<&dyn Formatter>,
+        formatter: Option<&OutputStreamFormatter>,
     ) -> Vec<String>;
 
     /// Process a string and return a TemplatedFile.
@@ -601,7 +601,7 @@ pub trait Templater {
         in_str: &str,
         f_name: &str,
         config: Option<&FluffConfig>,
-        formatter: Option<&dyn Formatter>,
+        formatter: Option<&OutputStreamFormatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError>;
 }
 

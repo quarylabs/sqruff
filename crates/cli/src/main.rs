@@ -2,7 +2,8 @@ use std::process::exit;
 
 use clap::Parser;
 use glob::{glob, Paths};
-use sqruff_lib::api::simple::lint;
+use sqruff_lib::api::simple::{lint, lint_with_formatter};
+use sqruff_lib::cli::formatters::OutputStreamFormatter;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::rules::layout;
 
@@ -40,23 +41,23 @@ fn main_wrapper() -> Result<String, String> {
 
             let mut count = 0;
             for file in files {
+                let formatter = OutputStreamFormatter::new(Box::new(std::io::stderr()), false);
+
                 let file = file.unwrap();
                 let file = file.to_str().unwrap();
                 let contents = std::fs::read_to_string(file).unwrap();
-                let linted = lint(
+                let linted = lint_with_formatter(
                     contents,
                     // TODO Make this a pointer
                     DEFAULT_DIALECT.to_string(),
                     layout::get_rules().into(),
                     None,
                     None,
+                    formatter.into(),
                 )
                 .map_err(|e| format!("Error linting file '{}': {:?}", file, e))?;
                 if !linted.is_empty() {
                     has_errors = true;
-                    for error in linted {
-                        eprintln!("{}: {}", file, error.description);
-                    }
                 }
                 count += 1;
             }

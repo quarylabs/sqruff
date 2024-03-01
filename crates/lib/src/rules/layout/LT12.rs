@@ -38,6 +38,10 @@ fn get_last_segment(mut segment: Segments) -> (Vec<Box<dyn Segment>>, Segments) 
 pub struct RuleLT12 {}
 
 impl Rule for RuleLT12 {
+    fn name(&self) -> &'static str {
+        "layout.end_of_file"
+    }
+
     fn description(&self) -> &'static str {
         "Files must end with a single trailing newline."
     }

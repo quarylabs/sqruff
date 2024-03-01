@@ -8,6 +8,7 @@ use super::crawlers::{BaseCrawler, Crawler};
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::Segment;
+use crate::helpers::Config;
 
 // Assuming BaseSegment, LintFix, and SQLLintError are defined elsewhere.
 
@@ -38,7 +39,9 @@ impl LintResult {
         let description =
             self.description.clone().unwrap_or_else(|| rule.description().to_string());
 
-        SQLLintError::new(description.as_str(), anchor).into()
+        SQLLintError::new(description.as_str(), anchor)
+            .config(|this| this.rule = rule.into())
+            .into()
     }
 }
 
@@ -237,7 +240,12 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
     }
 
     fn name(&self) -> &'static str {
-        ""
+        std::any::type_name::<Self>()
+    }
+
+    fn code(&self) -> &'static str {
+        let name = std::any::type_name::<Self>();
+        name.split("::").last().unwrap().strip_prefix("Rule").unwrap_or(name)
     }
 
     fn description(&self) -> &'static str {

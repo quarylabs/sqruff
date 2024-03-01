@@ -187,7 +187,7 @@ impl SqlError for SQLBaseError {
 //     }
 // }
 //
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SQLLintError {
     base: SQLBaseError,
 }
@@ -218,7 +218,11 @@ impl DerefMut for SQLLintError {
 }
 
 impl From<SQLLintError> for SQLBaseError {
-    fn from(value: SQLLintError) -> Self {
+    fn from(mut value: SQLLintError) -> Self {
+        if let Some(rule) = &value.rule {
+            value.base.rule_code = rule.code().into();
+        }
+
         value.base
     }
 }

@@ -20,7 +20,7 @@ struct SelectTargetsInfo {
     pre_from_whitespace: Segments,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RuleLT09 {
     wildcard_policy: &'static str,
 }
@@ -409,7 +409,6 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     use crate::api::simple::{fix, lint};
-    use crate::core::errors::SQLLintError;
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT09::RuleLT09;
 
@@ -541,14 +540,12 @@ from x"
     fn test_single_select_with_comment_after_select() {
         let fail_str = "SELECT --some comment\na";
         let violations = lint(fail_str.into(), "ansi".into(), rules(), None, None).unwrap();
+
         assert_eq!(
-            violations,
-            [SQLLintError {
-                description: "Select targets should be on a new line unless there is only one \
-                              select target."
-                    .into()
-            }]
-        )
+            violations[0].desc(),
+            "Select targets should be on a new line unless there is only one select target."
+        );
+        assert_eq!(violations.len(), 1);
     }
 
     #[test]

@@ -7,13 +7,13 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::Boxed;
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Aliasing {
     Explicit,
     Implicit,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RuleAL01 {
     aliasing: Aliasing,
 }

@@ -3,7 +3,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct RuleLT01 {}
 
 impl Rule for RuleLT01 {

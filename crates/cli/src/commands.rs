@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
@@ -18,8 +20,7 @@ pub enum Commands {
 
 #[derive(Debug, Parser)]
 pub struct LintArgs {
-    /// glob pattern to lint
-    pub file_path: String,
+    pub paths: Vec<PathBuf>,
 }
 
 #[derive(Debug, Parser)]

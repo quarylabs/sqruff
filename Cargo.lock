@@ -929,7 +929,6 @@ name = "sqruff"
 version = "0.1.4"
 dependencies = [
  "clap",
- "glob",
  "sqruff-lib",
  "ui_test",
 ]

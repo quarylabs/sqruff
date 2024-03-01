@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::cell::Cell;
 use std::io::{IsTerminal, Write};
 
 use anstyle::{AnsiColor, Effects, Style};
@@ -56,6 +57,7 @@ pub struct OutputStreamFormatter {
     filter_empty: bool,
     verbosity: i32,
     output_line_length: usize,
+    pub has_fail: Cell<bool>,
 }
 
 impl OutputStreamFormatter {
@@ -66,6 +68,7 @@ impl OutputStreamFormatter {
             filter_empty: true,
             verbosity: 0,
             output_line_length: 80,
+            has_fail: false.into(),
         }
     }
 
@@ -149,6 +152,7 @@ impl OutputStreamFormatter {
             fname,
             linted_file.get_violations(only_fixable.then_some(true)),
         );
+
         self.dispatch(&s);
     }
 
@@ -169,7 +173,10 @@ impl OutputStreamFormatter {
 
         let color = match status {
             Status::Pass | Status::Fixed => AnsiColor::Green,
-            Status::Fail | Status::Error => AnsiColor::Red,
+            Status::Fail | Status::Error => {
+                self.has_fail.set(true);
+                AnsiColor::Red
+            }
         }
         .on_default();
 

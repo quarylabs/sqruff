@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use itertools::Itertools;
@@ -10,6 +10,7 @@ use uuid::Uuid;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
+use super::runner::RunnerContext;
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::init::dialect_selector;
@@ -26,8 +27,9 @@ use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 
 pub struct Linter {
     config: FluffConfig,
-    pub(crate) formatter: Option<OutputStreamFormatter>,
+    pub formatter: Option<OutputStreamFormatter>,
     templater: Box<dyn Templater>,
+    rules: Vec<ErasedRule>,
 }
 
 impl Linter {
@@ -37,8 +39,15 @@ impl Linter {
         templater: Option<Box<dyn Templater>>,
     ) -> Linter {
         match templater {
-            Some(templater) => Linter { config, formatter, templater },
-            None => Linter { config, formatter, templater: Box::<RawTemplater>::default() },
+            Some(templater) => {
+                Linter { config, formatter, templater, rules: crate::rules::layout::get_rules() }
+            }
+            None => Linter {
+                config,
+                formatter,
+                templater: Box::<RawTemplater>::default(),
+                rules: crate::rules::layout::get_rules(),
+            },
         }
     }
 
@@ -141,6 +150,31 @@ impl Linter {
 
         // Lint the file and return the LintedFile
         self.lint_parsed(parsed, rules, fix)
+    }
+
+    pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>) {
+        if paths.is_empty() {
+            paths.push(std::env::current_dir().unwrap());
+        }
+
+        let mut expanded_paths = Vec::new();
+        for path in paths {
+            let paths = self.paths_from_path(path, None, None, None, None);
+            expanded_paths.extend(paths);
+        }
+
+        let mut runner = RunnerContext::sequential(self);
+        runner.run(expanded_paths);
+    }
+
+    pub fn render_file(&mut self, fname: String) -> RenderedFile {
+        let in_str = std::fs::read_to_string(&fname).unwrap();
+        self.render_string(in_str, fname, self.config.clone(), None).unwrap()
+    }
+
+    pub fn lint_rendered(&mut self, rendered: RenderedFile) {
+        let parsed = Self::parse_rendered(rendered, false);
+        self.lint_parsed(parsed, self.rules.clone(), false);
     }
 
     pub fn lint_parsed(
@@ -326,7 +360,7 @@ impl Linter {
             config,
             time_dict: HashMap::new(),
             f_name: f_name.to_owned(),
-            encoding: encoding.to_owned().unwrap(),
+            encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
         })
     }
@@ -457,7 +491,7 @@ impl Linter {
     // look for an ignore file in the direct parent of the file.
     fn paths_from_path(
         &self,
-        path: String,
+        path: PathBuf,
         ignore_file_name: Option<String>,
         ignore_non_existent_files: Option<bool>,
         ignore_files: Option<bool>,

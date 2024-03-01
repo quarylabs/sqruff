@@ -2,7 +2,7 @@ use std::process::exit;
 
 use clap::Parser;
 use glob::{glob, Paths};
-use sqruff_lib::api::simple::{lint, lint_with_formatter};
+use sqruff_lib::api::simple::lint_with_formatter;
 use sqruff_lib::cli::formatters::OutputStreamFormatter;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::rules::layout;

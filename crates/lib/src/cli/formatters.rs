@@ -1,12 +1,14 @@
 use std::borrow::Cow;
 use std::io::{IsTerminal, Write};
 
-use colored::{Color, Colorize};
+use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
 
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLBaseError;
 use crate::core::linter::linted_file::LintedFile;
+
+const LIGHT_GREY: Style = AnsiColor::Black.on_default().effects(Effects::BOLD);
 
 fn split_string_on_spaces(s: &str, line_length: usize) -> Vec<&str> {
     let mut lines = Vec::new();
@@ -58,8 +60,6 @@ pub struct OutputStreamFormatter {
 
 impl OutputStreamFormatter {
     pub fn new(output_stream: Box<dyn Write>, nocolor: bool) -> Self {
-        colored::control::set_override(true);
-
         Self {
             output_stream,
             plain_output: Self::should_produce_plain_output(nocolor),
@@ -152,12 +152,12 @@ impl OutputStreamFormatter {
         self.dispatch(&s);
     }
 
-    fn colorize<'a>(&self, s: &'a str, color: Color) -> Cow<'a, str> {
-        Self::colorize_helper(self.plain_output, s, color)
+    fn colorize<'a>(&self, s: &'a str, style: Style) -> Cow<'a, str> {
+        Self::colorize_helper(self.plain_output, s, style)
     }
 
-    fn colorize_helper(plain_output: bool, s: &str, color: Color) -> Cow<'_, str> {
-        if plain_output { s.into() } else { s.color(color).to_string().into() }
+    fn colorize_helper(plain_output: bool, s: &str, style: Style) -> Cow<'_, str> {
+        if plain_output { s.into() } else { format!("{style}{s}{style:#}").into() }
     }
 
     fn cli_table_row(&self) {}
@@ -168,11 +168,12 @@ impl OutputStreamFormatter {
         let status = success.into_status();
 
         let color = match status {
-            Status::Pass | Status::Fixed => Color::Green,
-            Status::Fail | Status::Error => Color::Red,
-        };
+            Status::Pass | Status::Fixed => AnsiColor::Green,
+            Status::Fail | Status::Error => AnsiColor::Red,
+        }
+        .on_default();
 
-        let filename = self.colorize(filename, Color::BrightGreen);
+        let filename = self.colorize(filename, LIGHT_GREY);
         let status = self.colorize(status.as_str(), color);
 
         format!("== [{filename}] {status}")
@@ -200,15 +201,18 @@ impl OutputStreamFormatter {
         let mut desc = format!("{severity}{desc}");
 
         if let Some(rule) = &violation.rule {
-            let text = self.colorize(rule.name(), Color::BrightGreen);
+            let text = self.colorize(rule.name(), LIGHT_GREY);
 
             let text = format!(" [{text}]");
             desc.push_str(&text);
         }
 
         let split_desc = split_string_on_spaces(&desc, max_line_length);
-        let mut section_color =
-            if violation.ignore || violation.warning { Color::BrightGreen } else { Color::Blue };
+        let mut section_color = if violation.ignore || violation.warning {
+            LIGHT_GREY
+        } else {
+            AnsiColor::Blue.on_default()
+        };
 
         let mut out_buff = String::new();
         for (idx, line) in enumerate(split_desc) {
@@ -216,7 +220,7 @@ impl OutputStreamFormatter {
                 let rule_code = format!("{:>4}", violation.rule_code());
 
                 if rule_code.contains("PRS") {
-                    section_color = Color::Red;
+                    section_color = AnsiColor::Red.on_default();
                 }
 
                 let section = format!("L:{line_elem} | P:{pos_elem} | {rule_code} | ");
@@ -276,7 +280,7 @@ impl Status {
 mod tests {
     use std::fs::File;
 
-    use colored::Color;
+    use anstyle::AnsiColor;
     use fancy_regex::Regex;
     use tempdir::TempDir;
 
@@ -385,7 +389,7 @@ mod tests {
         // Force color output for this test.
         formatter.plain_output = false;
 
-        let actual = formatter.colorize("foo", Color::Red);
+        let actual = formatter.colorize("foo", AnsiColor::Red.on_default());
         assert_eq!(actual, "\u{1b}[31mfoo\u{1b}[0m");
     }
 

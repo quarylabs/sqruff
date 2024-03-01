@@ -1,3 +1,4 @@
-tests/ui/LT01_LT012.sql: Expected only single space before "1". Found "   ".
-tests/ui/LT01_LT012.sql: Files must end with a single trailing newline.
+== [<string input>] FAIL
+L:   1 | P:   7 | LT01 | Expected only single space before "1". Found "   ". [layout.spacing]
+L:   1 | P:  11 | LT12 | Files must end with a single trailing newline. [layout.end_of_file]
 

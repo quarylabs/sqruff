@@ -10,7 +10,7 @@ use uuid::Uuid;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
-use crate::cli::formatters::Formatter;
+use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::init::dialect_selector;
 use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError};
@@ -26,14 +26,14 @@ use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 
 pub struct Linter {
     config: FluffConfig,
-    formatter: Option<Box<dyn Formatter>>,
+    pub(crate) formatter: Option<OutputStreamFormatter>,
     templater: Box<dyn Templater>,
 }
 
 impl Linter {
     pub fn new(
         config: FluffConfig,
-        formatter: Option<Box<dyn Formatter>>,
+        formatter: Option<OutputStreamFormatter>,
         templater: Option<Box<dyn Templater>>,
     ) -> Linter {
         match templater {
@@ -44,7 +44,7 @@ impl Linter {
 
     /// Lint strings directly.
     pub fn lint_string_wrapped(
-        &self,
+        &mut self,
         sql: String,
         f_name: Option<String>,
         fix: Option<bool>,
@@ -87,9 +87,9 @@ impl Linter {
         if let Some(formatter) = &self.formatter {
             if let Some(unwrapped_config) = config {
                 formatter.dispatch_template_header(
-                    f_name.clone(),
+                    /*f_name.clone(),
                     self.config.clone(),
-                    unwrapped_config.clone(),
+                    unwrapped_config.clone()*/
                 )
             } else {
                 panic!("config cannot be Option in this case")
@@ -109,7 +109,7 @@ impl Linter {
 
         // Dispatch the output for the parse header
         if let Some(formatter) = &self.formatter {
-            formatter.dispatch_parse_header(f_name.clone());
+            formatter.dispatch_parse_header(/*f_name.clone()*/);
         }
 
         Ok(Self::parse_rendered(rendered, parse_statistics))
@@ -117,7 +117,7 @@ impl Linter {
 
     /// Lint a string.
     pub fn lint_string(
-        &self,
+        &mut self,
         in_str: Option<String>,
         f_name: Option<String>,
         _fix: Option<bool>,
@@ -144,7 +144,7 @@ impl Linter {
     }
 
     pub fn lint_parsed(
-        &self,
+        &mut self,
         parsed_string: ParsedString,
         rules: Vec<ErasedRule>,
         fix: bool,
@@ -158,11 +158,17 @@ impl Linter {
             unimplemented!()
         };
 
-        LintedFile {
+        let linted_file = LintedFile {
             tree,
             templated_file: parsed_string.templated_file,
             violations: initial_linting_errors,
+        };
+
+        if let Some(formatter) = &mut self.formatter {
+            formatter.dispatch_file_violations(&parsed_string.f_name, &linted_file, false, false);
         }
+
+        linted_file
     }
 
     pub fn lint_fix_parsed(
@@ -287,7 +293,7 @@ impl Linter {
             in_str.as_str(),
             f_name.as_str(),
             Some(&config),
-            self.formatter.as_deref(),
+            self.formatter.as_ref(),
         ) {
             Ok(file) => {
                 templated_file = Some(file);

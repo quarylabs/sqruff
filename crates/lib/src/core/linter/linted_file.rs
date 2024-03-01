@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::ops::Range;
 
+use itertools::Itertools;
+
 use crate::core::errors::{SQLBaseError, SQLLintError};
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::FixPatch;
@@ -15,7 +17,7 @@ pub struct LintedFile {
 
 impl LintedFile {
     pub fn get_violations(&self, fixable: Option<bool>) -> Vec<SQLBaseError> {
-        unimplemented!()
+        self.violations.clone().into_iter().map(Into::into).collect_vec()
     }
 
     ///  Use patches and raw file to fix the source file.

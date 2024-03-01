@@ -26,6 +26,10 @@ pub struct RuleLT09 {
 }
 
 impl Rule for RuleLT09 {
+    fn name(&self) -> &'static str {
+        "layout.select_targets"
+    }
+
     fn description(&self) -> &'static str {
         "Select targets should be on a new line unless there is only one select target."
     }

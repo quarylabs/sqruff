@@ -93,9 +93,9 @@ impl OutputStreamFormatter {
 
     fn dispatch_path(&self) {}
 
-    fn dispatch_template_header(&self) {}
+    pub fn dispatch_template_header(&self) {}
 
-    fn dispatch_parse_header(&self) {}
+    pub fn dispatch_parse_header(&self) {}
 
     fn dispatch_lint_header(&self) {}
 
@@ -134,10 +134,10 @@ impl OutputStreamFormatter {
         text_buffer
     }
 
-    fn dispatch_file_violations(
+    pub fn dispatch_file_violations(
         &mut self,
         fname: &str,
-        linted_file: LintedFile,
+        linted_file: &LintedFile,
         only_fixable: bool,
         warn_unused_ignores: bool,
     ) {
@@ -223,7 +223,11 @@ impl OutputStreamFormatter {
                 let section = self.colorize(&section, section_color);
                 out_buff.push_str(&section);
             } else {
-                unimplemented!()
+                out_buff.push_str(&format!(
+                    "\n{}{}",
+                    " ".repeat(23),
+                    self.colorize("| ", section_color),
+                ));
             }
             out_buff.push_str(line);
         }
@@ -334,6 +338,10 @@ mod tests {
                 "some-name"
             }
 
+            fn code(&self) -> &'static str {
+                "A"
+            }
+
             fn eval(&self, _: RuleContext) -> Vec<LintResult> {
                 todo!()
             }
@@ -365,7 +373,6 @@ mod tests {
         let mut v = SQLLintError::new("DESC", s);
 
         v.rule = Some(RuleGhost.erased());
-        v.rule_code = "A".into();
 
         let f = formatter.format_violation(v, 90);
 

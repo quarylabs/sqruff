@@ -216,6 +216,25 @@ impl Matchable for Sequence {
                 }
             }
 
+            // 3. Check we still have segments left to work on.
+            // Have we prematurely run out of segments?
+            if unmatched_segments.is_empty() {
+                // If the current element is optional, carry on.
+                if elem.is_optional() {
+                    continue;
+                }
+
+                if self.parse_mode == ParseMode::Strict {
+                    return Ok(MatchResult::from_unmatched(segments));
+                }
+
+                if matched_segments.is_empty() {
+                    return Ok(MatchResult::from_unmatched(segments));
+                }
+
+                unimplemented!("UnparsableSegment")
+            }
+
             // 4. Match the current element against the current position.
             let elem_match = parse_context.deeper_match(
                 format!("Sequence-@{idx}"),

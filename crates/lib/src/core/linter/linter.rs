@@ -217,6 +217,10 @@ impl Linter {
         let phases: &[_] = if fix { &["main", "post"] } else { &["main"] };
         let dialect = dialect_selector("ansi").unwrap();
 
+        // If we are fixing then we want to loop up to the runaway_limit, otherwise just
+        // once for linting.
+        let loop_limit = if fix { 10 } else { 1 };
+
         for &phase in phases {
             let rules_this_phase = if phases.len() > 1 {
                 tmp = rules
@@ -230,9 +234,9 @@ impl Linter {
                 &rules
             };
 
-            for loop_ in 0..(if phase == "main" { 10 } else { 2 }) {
+            for loop_ in 0..(if phase == "main" { loop_limit } else { 2 }) {
                 let is_first_linter_pass = phase == phases[0] && loop_ == 0;
-                let changed = false;
+                let mut changed = false;
 
                 if is_first_linter_pass {
                     // TODO:
@@ -274,7 +278,12 @@ impl Linter {
                         }
 
                         tree = new_tree;
+                        changed = true;
                     }
+                }
+
+                if fix && !changed {
+                    break;
                 }
             }
         }

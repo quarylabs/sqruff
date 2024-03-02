@@ -614,7 +614,7 @@ mod tests {
         assert_eq!(pre_section.len(), 5);
         assert!(pre_section[2].is_type("bracketed"));
         assert!(pre_section[2].is_type("bracketed"));
-        assert_eq!(pre_section[2].get_segments().len(), 4);
+        assert_eq!(pre_section[2].segments().len(), 4);
         assert!(matcher.unwrap().dyn_eq(&*fs));
 
         // We shouldn't match the whitespace with the keyword
@@ -686,7 +686,7 @@ mod tests {
                 // Check the first bracket pair have been mutated
                 assert_eq!(segs[1].get_raw().unwrap(), "()");
                 // assert!(segs[1].is_bracketed());
-                assert_eq!(segs[1].get_segments().len(), 2);
+                assert_eq!(segs[1].segments().len(), 2);
 
                 // Check the trailing 'foo' hasn't been mutated
                 assert_eq!(segs[5].get_raw().unwrap(), "foo");

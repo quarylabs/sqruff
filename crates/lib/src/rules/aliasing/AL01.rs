@@ -39,7 +39,7 @@ impl Rule for RuleAL01 {
         if matches!(last_seg_ty, "from_expression_element" | "merge_statement") {
             let as_keyword = rule_cx
                 .segment
-                .get_segments()
+                .segments()
                 .iter()
                 .find(|seg| seg.get_raw_upper() == Some("AS".into()))
                 .cloned();

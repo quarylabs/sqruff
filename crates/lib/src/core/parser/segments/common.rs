@@ -22,8 +22,8 @@ impl Segment for LiteralSegment {
         self.raw.clone().into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {

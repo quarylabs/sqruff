@@ -71,7 +71,7 @@ impl Segments {
         let mut child_segments = Vec::new();
 
         for s in &self.base {
-            for child in s.get_segments() {
+            for child in s.gather_segments() {
                 if let Some(ref pred) = predicate {
                     if pred(child.as_ref()) {
                         child_segments.push(child);

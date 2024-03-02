@@ -31,7 +31,7 @@ pub struct RuleContext {
 impl RuleContext {
     pub fn siblings_post(&self) -> Vec<Box<dyn Segment>> {
         if !self.parent_stack.is_empty() {
-            self.parent_stack.last().unwrap().get_segments()[self.segment_idx + 1..].to_vec()
+            self.parent_stack.last().unwrap().segments()[self.segment_idx + 1..].to_vec()
         } else {
             Vec::new()
         }

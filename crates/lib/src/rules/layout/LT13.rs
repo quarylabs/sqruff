@@ -25,7 +25,7 @@ impl Rule for RuleLT13 {
         let mut raw_segments = Vec::new();
 
         for seg in context.segment.recursive_crawl_all(false) {
-            if !seg.get_segments().is_empty() {
+            if !seg.segments().is_empty() {
                 continue;
             }
 

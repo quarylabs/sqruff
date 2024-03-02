@@ -18,17 +18,17 @@ impl Rule for RuleAL08 {
             let mut column_alias = None;
 
             if let Some(alias_expression) = clause_element.child(&["alias_expression"]) {
-                for it in alias_expression.get_segments() {
+                for it in alias_expression.segments() {
                     if !it.is_code() || it.get_raw_upper().unwrap() == "AS" {
                         continue;
                     }
 
-                    column_alias = it.into();
+                    column_alias = it.clone().into();
                     break;
                 }
             } else {
                 if let Some(column_reference) = clause_element.child(&["column_reference"]) {
-                    column_alias = column_reference.get_segments().pop();
+                    column_alias = column_reference.segments().last().cloned();
                 }
             }
 

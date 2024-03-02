@@ -46,8 +46,8 @@ impl Segment for BracketedSegment {
         this.boxed()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.segments.clone()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
     }
 
     fn get_uuid(&self) -> Option<Uuid> {

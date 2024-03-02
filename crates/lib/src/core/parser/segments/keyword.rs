@@ -21,8 +21,8 @@ impl Segment for KeywordSegment {
         KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).boxed()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {

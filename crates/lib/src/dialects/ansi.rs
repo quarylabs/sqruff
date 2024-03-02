@@ -2306,8 +2306,8 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         .boxed()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.segments.clone()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -2476,8 +2476,8 @@ impl Segment for FileSegment {
             .into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.segments.clone()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {

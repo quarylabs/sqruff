@@ -51,27 +51,27 @@ impl RuleLT03 {
         parent: &dyn Segment,
         line_position: &str,
     ) -> bool {
-        let idx = parent.get_segments().iter().position(|it| it.dyn_eq(segment)).unwrap();
+        let idx = parent.segments().iter().position(|it| it.dyn_eq(segment)).unwrap();
 
         // Shortcut #1: Leading.
         if line_position == "leading" {
-            if self.seek_newline(&parent.get_segments(), idx, -1) {
+            if self.seek_newline(&parent.segments(), idx, -1) {
                 return true;
             }
             // If we didn't find a newline before, if there's _also_ not a newline
             // after, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(&parent.get_segments(), idx, 1) {
+            if !self.seek_newline(&parent.segments(), idx, 1) {
                 return true;
             }
         }
         // Shortcut #2: Trailing.
         else if line_position == "trailing" {
-            if self.seek_newline(&parent.get_segments(), idx, 1) {
+            if self.seek_newline(&parent.segments(), idx, 1) {
                 return true;
             }
             // If we didn't find a newline after, if there's _also_ not a newline
             // before, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(&parent.get_segments(), idx, -1) {
+            if !self.seek_newline(&parent.segments(), idx, -1) {
                 return true;
             }
         }

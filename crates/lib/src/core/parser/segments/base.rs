@@ -89,11 +89,11 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         show_raw: bool,
         include_meta: bool,
     ) -> TupleSerialisedSegment {
-        if show_raw && self.get_segments().is_empty() {
+        if show_raw && self.segments().is_empty() {
             TupleSerialisedSegment::sinlge(self.get_type().into(), self.get_raw().unwrap())
         } else if code_only {
             let segments = self
-                .get_segments()
+                .segments()
                 .into_iter()
                 .filter(|seg| seg.is_code() && !seg.is_meta())
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
@@ -102,7 +102,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             TupleSerialisedSegment::nested(self.get_type().into(), segments)
         } else {
             let segments = self
-                .get_segments()
+                .segments()
                 .into_iter()
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
                 .collect_vec();
@@ -118,7 +118,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         select_if: Option<fn(&dyn Segment) -> bool>,
         loop_while: Option<fn(&dyn Segment) -> bool>,
     ) -> Vec<Box<dyn Segment>> {
-        let segments = self.get_segments();
+        let segments = self.segments();
 
         let start_index = start_seg
             .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
@@ -159,7 +159,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         pass_through: bool,
     ) -> Vec<Box<dyn Segment>> {
         let mut result = Vec::new();
-        for s in self.get_segments() {
+        for s in self.gather_segments() {
             if let Some(expanding) = expanding {
                 if expanding.iter().any(|ty| s.is_type(ty)) {
                     result.extend(
@@ -179,13 +179,13 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let mut result = Vec::new();
 
         if reverse {
-            for seg in self.get_segments().iter().rev() {
+            for seg in self.segments().iter().rev() {
                 result.extend(seg.recursive_crawl_all(reverse));
             }
             result.push(self.clone_box());
         } else {
             result.push(self.clone_box());
-            for seg in self.get_segments() {
+            for seg in self.segments() {
                 result.extend(seg.recursive_crawl_all(reverse));
             }
         }
@@ -199,7 +199,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             println!("{spaces}{} = {:?}", this.get_type(), this.get_raw().unwrap());
 
             depth += 1;
-            for seg in this.get_segments() {
+            for seg in this.segments() {
                 print_tree(seg.as_ref(), depth);
             }
         }
@@ -208,7 +208,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     fn code_indices(&self) -> Vec<usize> {
-        self.get_segments()
+        self.segments()
             .iter()
             .enumerate()
             .filter(|(_, seg)| seg.is_code())
@@ -221,7 +221,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     fn child(&self, seg_types: &[&str]) -> Option<Box<dyn Segment>> {
-        for seg in self.get_segments() {
+        for seg in self.gather_segments() {
             if seg_types.iter().any(|ty| seg.is_type(ty)) {
                 return Some(seg);
             }
@@ -231,7 +231,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
     fn children(&self, seg_types: &[&str]) -> Vec<Box<dyn Segment>> {
         let mut buff = Vec::new();
-        for seg in self.get_segments() {
+        for seg in self.gather_segments() {
             if seg_types.iter().any(|ty| seg.is_type(ty)) {
                 buff.push(seg);
             }
@@ -242,11 +242,11 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     fn path_to(&self, other: &Box<dyn Segment>) -> Vec<PathStep> {
         let midpoint = other;
 
-        for (idx, seg) in enumerate(self.get_segments()) {
+        for (idx, seg) in enumerate(self.segments()) {
             let mut steps = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
-                len: self.get_segments().len(),
+                len: self.segments().len(),
                 code_idxs: self.code_indices(),
             }];
 
@@ -289,7 +289,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     fn descendant_type_set(&self) -> HashSet<String> {
         let mut result_set = HashSet::new();
 
-        for seg in &self.get_segments() {
+        for seg in self.segments() {
             // Combine descendant_type_set and class_types of each segment
             result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
         }
@@ -303,7 +303,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     fn get_raw(&self) -> Option<String> {
-        self.get_segments().iter().filter_map(|segment| segment.get_raw()).join("").into()
+        self.segments().iter().filter_map(|segment| segment.get_raw()).join("").into()
     }
 
     fn get_raw_upper(&self) -> Option<String> {
@@ -330,7 +330,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         self.get_type() == type_
     }
     fn is_code(&self) -> bool {
-        self.get_segments().iter().any(|s| s.is_code())
+        self.segments().iter().any(|s| s.is_code())
     }
     fn is_comment(&self) -> bool {
         unimplemented!("{}", std::any::type_name::<Self>())
@@ -360,8 +360,8 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
     // get_segments is the way the segment returns its children 'self.segments' in
     // Python.
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        unimplemented!("{}", std::any::type_name::<Self>())
+    fn gather_segments(&self) -> Vec<Box<dyn Segment>> {
+        self.segments().to_vec()
     }
 
     /// Return the length of the segment in characters.
@@ -393,7 +393,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     ///
     /// In sqlfluff only implemented for RawSegments and up
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.get_segments().into_iter().flat_map(|item| item.get_raw_segments()).collect_vec()
+        self.segments().into_iter().flat_map(|item| item.get_raw_segments()).collect_vec()
     }
 
     /// Yield any source patches as fixes now.
@@ -427,7 +427,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
     /// Return any source fixes as list.
     fn get_source_fixes(&self) -> Vec<SourceFix> {
-        self.get_segments().iter().flat_map(|seg| seg.get_source_fixes()).collect()
+        self.segments().iter().flat_map(|seg| seg.get_source_fixes()).collect()
     }
 
     /// Stub.
@@ -467,7 +467,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         dialect: Dialect,
         mut fixes: HashMap<Uuid, AnchorEditInfo>,
     ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
-        if fixes.is_empty() || self.get_segments().is_empty() {
+        if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone_box(), Vec::new(), Vec::new(), true);
         }
 
@@ -475,12 +475,12 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let mut fixes_applied = Vec::new();
         let mut requires_validate = false;
 
-        for seg in self.get_segments() {
+        for seg in self.gather_segments() {
             // Look for uuid match.
             // This handles potential positioning ambiguity.
 
             let Some(anchor_info) = fixes.remove(&seg.get_uuid().unwrap()) else {
-                seg_buffer.push(seg);
+                seg_buffer.push(seg.clone());
                 continue;
             };
 
@@ -546,11 +546,11 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let mut buffer: Vec<(Box<dyn Segment>, Vec<PathStep>)> = Vec::new();
         let code_idxs: Vec<usize> = self.code_indices();
 
-        for (idx, seg) in self.get_segments().iter().enumerate() {
+        for (idx, seg) in self.segments().iter().enumerate() {
             let mut new_step = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
-                len: self.get_segments().len(),
+                len: self.segments().len(),
                 code_idxs: code_idxs.clone(),
             }];
 
@@ -559,7 +559,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             // using seg.is_type("raw"). Here, we assume that a "raw" segment is
             // characterized by having no sub-segments.
 
-            if seg.get_segments().is_empty() {
+            if seg.segments().is_empty() {
                 buffer.push((seg.clone(), new_step));
             } else {
                 let mut extended = seg
@@ -664,7 +664,7 @@ pub fn position_segments(
                 })
             });
 
-            let new_seg = if !segment.get_segments().is_empty() && old_position != new_position {
+            let new_seg = if !segment.segments().is_empty() && old_position != new_position {
                 unimplemented!()
             } else {
                 let mut new_seg = segment.clone();
@@ -762,8 +762,8 @@ impl Segment for CodeSegment {
         self.uuid.into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![]
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -861,8 +861,8 @@ impl Segment for IdentifierSegment {
         self.base.uuid.into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![]
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -944,8 +944,8 @@ impl Segment for CommentSegment {
         self.uuid.into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1003,8 +1003,8 @@ impl Segment for NewlineSegment {
         self.clone().boxed()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1099,8 +1099,8 @@ impl Segment for WhitespaceSegment {
         .boxed()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1239,8 +1239,8 @@ impl Segment for SymbolSegment {
         self.raw.clone().into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -1315,7 +1315,7 @@ impl SymbolSegment {
 
 pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
     let markers: Vec<_> =
-        this.get_segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();
+        this.segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();
 
     PositionMarker::from_child_markers(markers)
 }

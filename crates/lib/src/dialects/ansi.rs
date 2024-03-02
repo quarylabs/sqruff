@@ -224,7 +224,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "DotSegment".into(),
-            StringParser::new(".", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ".",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "dot" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "StarSegment".into(),

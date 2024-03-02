@@ -50,6 +50,14 @@ mod tests {
     }
 
     #[test]
+    fn test_lint_drop_cast_no_errors() {
+        let sql =
+            lint("DROP CAST (sch.udt_1 AS sch.udt_2);".into(), "ansi".into(), rules(), None, None)
+                .unwrap();
+        assert_eq!(sql, &[]);
+    }
+
+    #[test]
     #[ignore = "parser needs further development"]
     fn test_pass_errors_only_in_templated_and_ignore() {
         // ignore_templated_areas: true

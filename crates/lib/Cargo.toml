@@ -27,6 +27,7 @@ unicase = "2.7.0"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_yaml = "0.9.32"
 anstyle = "1.0"
+tracing = "0.1.40"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"

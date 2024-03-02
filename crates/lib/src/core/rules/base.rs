@@ -125,12 +125,10 @@ impl LintFix {
             // We rely on realignment to make position markers later in the process.
             for seg in &mut edit {
                 if seg.get_position_marker().is_some() {
-                    // assuming `pos_marker` is a field of `BaseSegment`
-                    eprintln!(
+                    tracing::debug!(
                         "Developer Note: Edit segment found with preset position marker. These \
                          should be unset and calculated later."
                     );
-                    // assuming `pos_marker` is Option-like and can be set to None
                     seg.set_position_marker(None);
                 };
             }

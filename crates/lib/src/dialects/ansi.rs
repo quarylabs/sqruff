@@ -1664,7 +1664,8 @@ pub fn ansi_dialect() -> Dialect {
         (
             "NonWithSelectableGrammar".into(),
             one_of(vec![
-                Ref::new("SetExpressionSegment").boxed(),
+                // FIXME:
+                // Ref::new("SetExpressionSegment").boxed(),
                 optionally_bracketed(vec![Ref::new("SelectStatementSegment").boxed()]).boxed(),
                 Ref::new("NonSetSelectableGrammar").boxed(),
             ])

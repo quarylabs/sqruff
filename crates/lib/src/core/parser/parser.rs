@@ -43,7 +43,7 @@ impl Parser {
         let root = self.root_segment.root_parse(segments, &mut parse_cx, f_name)?;
 
         // Basic Validation, that we haven't dropped anything.
-        check_still_complete(segments, &[root.clone()]);
+        check_still_complete(segments, &[root.clone()], &[]);
 
         if parse_statistics {
             unimplemented!();

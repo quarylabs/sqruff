@@ -2484,7 +2484,7 @@ impl Segment for FileSegment {
                 this.allow_trailing();
                 this.delimiter(
                     AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").boxed()])
-                        .config(|config| config.max_times(1)),
+                        .config(|config| config.min_times(1)),
                 );
             })
             .to_matchable()
@@ -2680,7 +2680,15 @@ impl NodeTrait for SetExpressionSegment {
     const TYPE: &'static str = "set_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![Ref::new("NonSetSelectableGrammar").boxed()]).to_matchable()
+        Sequence::new(vec_of_erased![
+            Ref::new("NonSetSelectableGrammar"),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("SetOperatorSegment"),
+                Ref::new("NonSetSelectableGrammar")
+            ])])
+            .config(|this| this.min_times(1))
+        ])
+        .to_matchable()
     }
 }
 
@@ -3243,6 +3251,7 @@ impl NodeTrait for FunctionSegment {
             Sequence::new(vec_of_erased![
                 Ref::new("FunctionNameSegment"),
                 Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
             ]),
             Ref::new("PostFunctionGrammar").optional()
         ])])

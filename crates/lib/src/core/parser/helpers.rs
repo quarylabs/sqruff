@@ -7,9 +7,10 @@ pub fn join_segments_raw(segments: &[Box<dyn Segment>]) -> String {
 pub fn check_still_complete(
     segments_in: &[Box<dyn Segment>],
     matched_segments: &[Box<dyn Segment>],
+    unmatched_segments: &[Box<dyn Segment>],
 ) {
     let initial_str = join_segments_raw(segments_in);
-    let current_str = join_segments_raw(matched_segments);
+    let current_str = join_segments_raw(&[matched_segments, unmatched_segments].concat());
 
     if initial_str != current_str {
         panic!("Parse completeness check fail: {current_str:?} != {initial_str:?}")

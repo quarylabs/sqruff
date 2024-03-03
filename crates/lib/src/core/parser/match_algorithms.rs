@@ -65,7 +65,9 @@ pub fn prune_options(
     let mut prune_buff = vec![];
 
     // Find the first code element to match against.
-    let Some((first_raw, first_types)) = first_non_whitespace(segments) else { todo!() };
+    let Some((first_raw, first_types)) = first_non_whitespace(segments) else {
+        return options.to_vec();
+    };
 
     for opt in options {
         let Some(simple) = opt.simple(parse_context, None) else {

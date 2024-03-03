@@ -1,9 +1,37 @@
+use std::collections::HashSet;
+use std::iter::zip;
+use std::ops::{Deref, DerefMut};
+
+use itertools::{chain, enumerate, Itertools};
+
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
+use crate::core::parser::helpers::{check_still_complete, trim_non_code_segments};
+use crate::core::parser::match_algorithms::{
+    bracket_sensitive_look_ahead_match, greedy_match, prune_options,
+};
+use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::matchable::Matchable;
+use crate::core::parser::segments::base::{position_segments, Segment};
+use crate::core::parser::segments::bracketed::BracketedSegment;
+use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::types::ParseMode;
+use crate::helpers::Boxed;
+
 fn trim_to_terminator(
-    segments: Vec<Box<dyn Segment>>,
-    tail: Vec<Box<dyn Segment>>,
+    mut segments: Vec<Box<dyn Segment>>,
+    mut tail: Vec<Box<dyn Segment>>,
     terminators: Vec<Box<dyn Matchable>>,
     parse_context: &mut ParseContext,
 ) -> Result<(Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>), SQLParseError> {
+    let pruned_terms = prune_options(&terminators, &segments, parse_context);
+
+    for term in pruned_terms {
+        if term.match_segments(segments.clone(), parse_context)?.has_match() {
+            return Ok((Vec::new(), chain(segments, tail).collect_vec()));
+        }
+    }
+
     let term_match =
         parse_context.deeper_match("Sequence-GreedyB-@0", false, &[], false.into(), |this| {
             greedy_match(segments.clone(), this, terminators, false)
@@ -13,12 +41,12 @@ fn trim_to_terminator(
         // If we _do_ find a terminator, we separate off everything
         // beyond that terminator (and any preceding non-code) so that
         // it's not available to match against for the rest of this.
-        let tail = &term_match.unmatched_segments;
-        let segments = &term_match.matched_segments;
+        tail = term_match.unmatched_segments;
+        segments = term_match.matched_segments;
 
         for (idx, segment) in segments.iter().enumerate().rev() {
             if segment.is_code() {
-                return Ok(split_and_concatenate(segments, idx, tail));
+                return Ok(split_and_concatenate(&segments, idx, &tail));
             }
         }
     }
@@ -70,24 +98,6 @@ fn position_metas(
         result
     }
 }
-
-use std::collections::HashSet;
-use std::iter::zip;
-use std::ops::{Deref, DerefMut};
-
-use itertools::{chain, enumerate, Itertools};
-
-use crate::core::errors::SQLParseError;
-use crate::core::parser::context::ParseContext;
-use crate::core::parser::helpers::trim_non_code_segments;
-use crate::core::parser::match_algorithms::{bracket_sensitive_look_ahead_match, greedy_match};
-use crate::core::parser::match_result::MatchResult;
-use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{position_segments, Segment};
-use crate::core::parser::segments::bracketed::BracketedSegment;
-use crate::core::parser::segments::meta::Indent;
-use crate::core::parser::types::ParseMode;
-use crate::helpers::Boxed;
 
 #[derive(Debug, Clone, Hash)]
 pub struct Sequence {
@@ -179,6 +189,15 @@ impl Matchable for Sequence {
         let mut tail = Vec::new();
         let mut first_match = true;
 
+        if self.parse_mode == ParseMode::Greedy {
+            (unmatched_segments, tail) = trim_to_terminator(
+                segments.clone(),
+                tail.clone(),
+                self.terminators.clone(),
+                parse_context,
+            )?;
+        }
+
         // Buffers of segments, not yet added.
         let mut meta_buffer = Vec::new();
         let mut non_code_buffer = Vec::new();
@@ -260,10 +279,11 @@ impl Matchable for Sequence {
                     return Ok(MatchResult::from_unmatched(segments));
                 }
 
-                return Ok(MatchResult {
-                    matched_segments: Vec::new(),
-                    unmatched_segments: Vec::new(),
-                });
+                if self.parse_mode == ParseMode::GreedyOnceStarted && matched_segments.is_empty() {
+                    return Ok(MatchResult::from_unmatched(segments));
+                }
+
+                unimplemented!()
             }
 
             // 5. Successful match: Update the buffers.
@@ -301,6 +321,10 @@ impl Matchable for Sequence {
         // left as unclaimed, mark it as unparsable.
         if matches!(self.parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted) {
             let (_pre, unmatched_mid, _post) = trim_non_code_segments(&unmatched_segments);
+
+            if !unmatched_mid.is_empty() {
+                panic!("{:?}", unmatched_mid.iter().map(|it| it.get_raw().unwrap()).collect_vec());
+            }
         }
 
         // If we finished on an optional, and so still have some unflushed metas,
@@ -318,6 +342,9 @@ impl Matchable for Sequence {
         // If we get to here, we've matched all of the elements (or skipped them).
         // Return successfully.
         unmatched_segments.extend(tail);
+
+        #[cfg(debug_assertions)]
+        check_still_complete(&segments, &matched_segments, &unmatched_segments);
 
         Ok(MatchResult {
             matched_segments: position_segments(&mut matched_segments, None, true),

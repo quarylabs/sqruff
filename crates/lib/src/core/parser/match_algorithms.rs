@@ -466,7 +466,7 @@ pub fn greedy_match(
 
         if !mat.has_match() {
             // No terminator match? Return everything
-            return Ok(MatchResult::from_unmatched(segments));
+            return Ok(MatchResult::from_matched(segments));
         }
 
         // We can't claim any non-code segments, so we trim them off the end.

@@ -7,13 +7,13 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::Boxed;
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Aliasing {
     Explicit,
     Implicit,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RuleAL01 {
     aliasing: Aliasing,
 }
@@ -39,7 +39,7 @@ impl Rule for RuleAL01 {
         if matches!(last_seg_ty, "from_expression_element" | "merge_statement") {
             let as_keyword = rule_cx
                 .segment
-                .get_segments()
+                .segments()
                 .iter()
                 .find(|seg| seg.get_raw_upper() == Some("AS".into()))
                 .cloned();

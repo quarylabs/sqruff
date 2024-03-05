@@ -1,167 +1,236 @@
 file:
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - binary_operator: +
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '2'
-                - remove me: '*'
-                - numeric_literal: '3'
-              - end_bracket: )
-            - greater_than_or_equal_to:
-              - remove me: '>'
-              - remove me: =
-            - numeric_literal: '4'
-            - binary_operator: +
-            - numeric_literal: '6'
-            - binary_operator: +
-            - numeric_literal: '13'
-          - alias_expression:
-            - keyword: as
-            - identifier: val
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '2'
+              - remove me: '*'
+              - numeric_literal: '3'
+            - end_bracket: )
+          - greater_than_or_equal_to:
+            - remove me: '>'
+            - remove me: =
+          - numeric_literal: '4'
+          - binary_operator: +
+          - numeric_literal: '6'
+          - binary_operator: +
+          - numeric_literal: '13'
+        - alias_expression:
+          - keyword: as
+          - identifier: val
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - binary_operator: +
-            - tilde: '~'
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - tilde: '~'
-                - numeric_literal: '2'
-                - remove me: '*'
-                - numeric_literal: '3'
-              - end_bracket: )
-            - greater_than_or_equal_to:
-              - remove me: '>'
-              - remove me: =
-            - numeric_literal: '4'
-            - binary_operator: +
-            - tilde: '~'
-            - numeric_literal: '6'
-            - binary_operator: +
-            - numeric_literal: '13'
-          - alias_expression:
-            - keyword: as
-            - identifier: val
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - tilde: '~'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - tilde: '~'
+              - numeric_literal: '2'
+              - remove me: '*'
+              - numeric_literal: '3'
+            - end_bracket: )
+          - greater_than_or_equal_to:
+            - remove me: '>'
+            - remove me: =
+          - numeric_literal: '4'
+          - binary_operator: +
+          - tilde: '~'
+          - numeric_literal: '6'
+          - binary_operator: +
+          - numeric_literal: '13'
+        - alias_expression:
+          - keyword: as
+          - identifier: val
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - qualified_numeric_literal:
+          - sign_indicator: '-'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
           - qualified_numeric_literal:
             - sign_indicator: '-'
             - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - qualified_numeric_literal:
-              - sign_indicator: '-'
-              - numeric_literal: '1'
-            - binary_operator: +
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - tilde: '~'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - qualified_numeric_literal:
+            - sign_indicator: '-'
+            - numeric_literal: '1'
+          - binary_operator: +
+          - tilde: '~'
+          - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '4'
+          - bitwise_and:
+            - remove me: '&'
+          - tilde: '~'
+          - numeric_literal: '8'
+          - bitwise_or:
+            - pipe: '|'
+          - numeric_literal: '16'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '8'
+          - binary_operator: +
+          - tilde: '~'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '3'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '8'
+          - bitwise_or:
+            - pipe: '|'
+          - tilde: '~'
+          - tilde: '~'
+          - tilde: '~'
+          - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - sign_indicator: '-'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '5'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - qualified_numeric_literal:
+            - sign_indicator: '-'
             - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - tilde: '~'
-            - numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - qualified_numeric_literal:
-              - sign_indicator: '-'
-              - numeric_literal: '1'
-            - binary_operator: +
-            - tilde: '~'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - qualified_numeric_literal:
+            - sign_indicator: '-'
             - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '4'
-            - bitwise_and:
-              - remove me: '&'
-            - tilde: '~'
-            - numeric_literal: '8'
-            - bitwise_or:
-              - pipe: '|'
-            - numeric_literal: '16'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '5'
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '8'
-            - binary_operator: +
-            - tilde: '~'
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '3'
-              - end_bracket: )
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - sign_indicator: +
+          - sign_indicator: +
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '5'
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '8'
-            - bitwise_or:
-              - pipe: '|'
-            - tilde: '~'
-            - tilde: '~'
-            - tilde: '~'
-            - numeric_literal: '4'
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - sign_indicator: '-'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - sign_indicator: '-'
+          - function:
+            - function_name:
+              - function_name_identifier: func
             - bracketed:
               - start_bracket: (
               - expression:
@@ -169,45 +238,19 @@ file:
               - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - qualified_numeric_literal:
-              - sign_indicator: '-'
-              - numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - sign_indicator: '-'
-            - sign_indicator: '-'
-            - qualified_numeric_literal:
-              - sign_indicator: '-'
-              - numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - sign_indicator: '-'
-            - sign_indicator: '-'
-            - sign_indicator: '-'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - tilde: '~'
+          - tilde: '~'
+          - tilde: '~'
+          - function:
+            - function_name:
+              - function_name_identifier: func
             - bracketed:
               - start_bracket: (
               - expression:
@@ -215,204 +258,136 @@ file:
               - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - sign_indicator: +
-            - sign_indicator: +
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '5'
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - sign_indicator: '-'
-            - sign_indicator: '-'
-            - sign_indicator: '-'
-            - function:
-              - function_name:
-                - function_name_identifier: func
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '5'
-                - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - tilde: '~'
-            - tilde: '~'
-            - tilde: '~'
-            - function:
-              - function_name:
-                - function_name_identifier: func
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '5'
-                - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - sign_indicator: +
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - numeric_literal: '5'
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
-            - qualified_numeric_literal:
-              - sign_indicator: +
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - sign_indicator: +
+          - bracketed:
+            - start_bracket: (
+            - expression:
               - numeric_literal: '5'
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - numeric_literal: '1'
-            - remove me: '*'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - qualified_numeric_literal:
             - sign_indicator: +
-            - qualified_numeric_literal:
-              - sign_indicator: +
-              - numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - identifier: 'FALSE'
-            - remove me: AND
-            - remove me: NOT
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - remove me: 'TRUE'
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - identifier: 'FALSE'
-            - remove me: AND
-            - remove me: NOT
-            - remove me: NOT
-            - remove me: NOT
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - remove me: 'TRUE'
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - identifier: 'FALSE'
-            - remove me: AND
-            - remove me: NOT
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - remove me: 'TRUE'
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - column_reference:
-              - identifier: 'FALSE'
-            - remove me: AND
-            - remove me: NOT
-            - function:
-              - function_name:
-                - function_name_identifier: func
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - numeric_literal: '5'
-                - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - remove me: '''abc'''
-            - keyword: LIKE
-            - sign_indicator: '-'
-            - qualified_numeric_literal:
-              - sign_indicator: '-'
-              - numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-  - set_expression:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - expression:
-            - remove me: '''abc'''
-            - keyword: LIKE
-            - tilde: '~'
-            - tilde: '~'
             - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - remove me: '*'
+          - sign_indicator: +
+          - qualified_numeric_literal:
+            - sign_indicator: +
+            - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - identifier: 'FALSE'
+          - remove me: AND
+          - remove me: NOT
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - remove me: 'TRUE'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - identifier: 'FALSE'
+          - remove me: AND
+          - remove me: NOT
+          - remove me: NOT
+          - remove me: NOT
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - remove me: 'TRUE'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - identifier: 'FALSE'
+          - remove me: AND
+          - remove me: NOT
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - remove me: 'TRUE'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - identifier: 'FALSE'
+          - remove me: AND
+          - remove me: NOT
+          - function:
+            - function_name:
+              - function_name_identifier: func
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '5'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - remove me: '''abc'''
+          - keyword: LIKE
+          - sign_indicator: '-'
+          - qualified_numeric_literal:
+            - sign_indicator: '-'
+            - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - remove me: '''abc'''
+          - keyword: LIKE
+          - tilde: '~'
+          - tilde: '~'
+          - numeric_literal: '5'
 - statement_terminator: ;

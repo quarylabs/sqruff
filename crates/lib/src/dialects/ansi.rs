@@ -224,7 +224,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "DotSegment".into(),
-            StringParser::new(".", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ".",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "dot" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "StarSegment".into(),
@@ -1650,7 +1664,8 @@ pub fn ansi_dialect() -> Dialect {
         (
             "NonWithSelectableGrammar".into(),
             one_of(vec![
-                Ref::new("SetExpressionSegment").boxed(),
+                // FIXME:
+                // Ref::new("SetExpressionSegment").boxed(),
                 optionally_bracketed(vec![Ref::new("SelectStatementSegment").boxed()]).boxed(),
                 Ref::new("NonSetSelectableGrammar").boxed(),
             ])
@@ -2306,8 +2321,8 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         .boxed()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.segments.clone()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -2469,15 +2484,15 @@ impl Segment for FileSegment {
                 this.allow_trailing();
                 this.delimiter(
                     AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").boxed()])
-                        .config(|config| config.max_times(1)),
+                        .config(|config| config.min_times(1)),
                 );
             })
             .to_matchable()
             .into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.segments.clone()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -2665,7 +2680,15 @@ impl NodeTrait for SetExpressionSegment {
     const TYPE: &'static str = "set_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![Ref::new("NonSetSelectableGrammar").boxed()]).to_matchable()
+        Sequence::new(vec_of_erased![
+            Ref::new("NonSetSelectableGrammar"),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("SetOperatorSegment"),
+                Ref::new("NonSetSelectableGrammar")
+            ])])
+            .config(|this| this.min_times(1))
+        ])
+        .to_matchable()
     }
 }
 
@@ -3228,6 +3251,7 @@ impl NodeTrait for FunctionSegment {
             Sequence::new(vec_of_erased![
                 Ref::new("FunctionNameSegment"),
                 Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
             ]),
             Ref::new("PostFunctionGrammar").optional()
         ])])

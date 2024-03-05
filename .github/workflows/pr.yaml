@@ -13,12 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo build --locked --release --all-features
 
   test:
     name: Test
@@ -32,7 +29,7 @@ jobs:
         with:
           tool: nextest
       - name: Run tests
-        run: cargo nextest run
+        run: cargo nextest run --locked
 
   lint:
     name: Lint
@@ -45,7 +42,4 @@ jobs:
         with:
           components: rustfmt
       - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check

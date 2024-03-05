@@ -66,8 +66,8 @@ impl Segment for Indent {
         self.clone_box()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -227,8 +227,8 @@ impl Segment for EndOfFile {
         Some(String::new())
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn class_types(&self) -> HashSet<String> {

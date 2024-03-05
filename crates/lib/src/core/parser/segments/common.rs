@@ -22,8 +22,8 @@ impl Segment for LiteralSegment {
         self.raw.clone().into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        Vec::new()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &[]
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
@@ -64,16 +64,5 @@ impl Segment for LiteralSegment {
 
     fn class_types(&self) -> std::collections::HashSet<String> {
         ["numeric_literal"].map(ToOwned::to_owned).into_iter().collect()
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::core::parser::segments::base::Segment;
-    use crate::core::parser::segments::test_functions::generate_test_segments_func;
-
-    // NOTE: For legacy reasons we override this fixture for this module
-    fn raw_segments() -> Vec<Box<dyn Segment>> {
-        generate_test_segments_func(["bar", "foo", "bar"].to_vec())
     }
 }

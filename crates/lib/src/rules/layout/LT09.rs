@@ -20,12 +20,16 @@ struct SelectTargetsInfo {
     pre_from_whitespace: Segments,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RuleLT09 {
     wildcard_policy: &'static str,
 }
 
 impl Rule for RuleLT09 {
+    fn name(&self) -> &'static str {
+        "layout.select_targets"
+    }
+
     fn description(&self) -> &'static str {
         "Select targets should be on a new line unless there is only one select target."
     }
@@ -71,7 +75,7 @@ impl RuleLT09 {
         let selects = children.select(
             Some(|segment| {
                 segment.get_type() == "keyword"
-                    && segment.get_raw().unwrap().to_lowercase() == "select"
+                    && segment.get_raw().unwrap().eq_ignore_ascii_case("select")
             }),
             None,
             None,
@@ -163,11 +167,10 @@ impl RuleLT09 {
                 let modifier = segment.child(&["select_clause_modifier"]);
 
                 if let Some(modifier) = modifier {
-                    start_seg =
-                        segment.get_segments().iter().position(|it| it == &modifier).unwrap();
+                    start_seg = segment.segments().iter().position(|it| it == &modifier).unwrap();
                 }
 
-                let segments = segment.get_segments();
+                let segments = segment.segments();
                 let ws_to_delete = segment.select_children(
                     if i == 0 {
                         Some(&segments[start_seg])
@@ -270,7 +273,7 @@ impl RuleLT09 {
         if !parent_stack.is_empty() && parent_stack.last().unwrap().is_type("select_statement") {
             let select_stmt = parent_stack.last().unwrap();
             let select_clause_idx = select_stmt
-                .get_segments()
+                .segments()
                 .iter()
                 .position(|it| it.dyn_eq(select_clause.get(0, None).as_deref().unwrap()))
                 .unwrap();
@@ -329,8 +332,8 @@ impl RuleLT09 {
                     local_fixes
                 };
 
-            if select_stmt.get_segments().len() > after_select_clause_idx {
-                if select_stmt.get_segments()[after_select_clause_idx].is_type("newline") {
+            if select_stmt.segments().len() > after_select_clause_idx {
+                if select_stmt.segments()[after_select_clause_idx].is_type("newline") {
                     let to_delete = select_children.reversed().select(
                         None,
                         Some(|seg| seg.is_type("whitespace")),
@@ -344,7 +347,7 @@ impl RuleLT09 {
 
                         if delete_last_newline {
                             fixes.push(LintFix::delete(
-                                select_stmt.get_segments()[after_select_clause_idx].clone(),
+                                select_stmt.segments()[after_select_clause_idx].clone(),
                             ));
                         }
 
@@ -357,10 +360,9 @@ impl RuleLT09 {
 
                         fixes.extend(new_fixes);
                     }
-                } else if select_stmt.get_segments()[after_select_clause_idx].is_type("whitespace")
-                {
+                } else if select_stmt.segments()[after_select_clause_idx].is_type("whitespace") {
                     fixes.push(LintFix::delete(
-                        select_stmt.get_segments()[after_select_clause_idx].clone_box(),
+                        select_stmt.segments()[after_select_clause_idx].clone_box(),
                     ));
 
                     let new_fixes = fixes_for_move_after_select_clause(
@@ -372,7 +374,7 @@ impl RuleLT09 {
                     );
 
                     fixes.extend(new_fixes);
-                } else if select_stmt.get_segments()[after_select_clause_idx].is_type("dedent") {
+                } else if select_stmt.segments()[after_select_clause_idx].is_type("dedent") {
                     unimplemented!()
                 } else {
                     unimplemented!()
@@ -409,7 +411,6 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     use crate::api::simple::{fix, lint};
-    use crate::core::errors::SQLLintError;
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT09::RuleLT09;
 
@@ -541,14 +542,12 @@ from x"
     fn test_single_select_with_comment_after_select() {
         let fail_str = "SELECT --some comment\na";
         let violations = lint(fail_str.into(), "ansi".into(), rules(), None, None).unwrap();
+
         assert_eq!(
-            violations,
-            [SQLLintError {
-                description: "Select targets should be on a new line unless there is only one \
-                              select target."
-                    .into()
-            }]
-        )
+            violations[0].desc(),
+            "Select targets should be on a new line unless there is only one select target."
+        );
+        assert_eq!(violations.len(), 1);
     }
 
     #[test]

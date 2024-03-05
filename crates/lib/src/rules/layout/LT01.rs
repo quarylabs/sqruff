@@ -3,10 +3,14 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct RuleLT01 {}
 
 impl Rule for RuleLT01 {
+    fn name(&self) -> &'static str {
+        "layout.spacing"
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment, context.config);
         sequence.respace(false, Filter::All).results()
@@ -43,6 +47,14 @@ mod tests {
         let sql = lint("{{ 'SELECT 1 ,4' }}".into(), "ansi".into(), rules(), None, None).unwrap();
 
         dbg!(sql);
+    }
+
+    #[test]
+    fn test_lint_drop_cast_no_errors() {
+        let sql =
+            lint("DROP CAST (sch.udt_1 AS sch.udt_2);".into(), "ansi".into(), rules(), None, None)
+                .unwrap();
+        assert_eq!(sql, &[]);
     }
 
     #[test]

@@ -64,7 +64,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
             acc.push(context.clone());
         }
 
-        if !context.segment.get_segments().is_empty() && (self_match && !self.allow_recurse) {
+        if !context.segment.segments().is_empty() && (self_match && !self.allow_recurse) {
             if self.provide_raw_stack {
                 unimplemented!();
                 return acc;
@@ -77,7 +77,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
 
         let new_parent_stack =
             chain(context.parent_stack, Some(context.segment.clone())).collect_vec();
-        for (idx, child) in context.segment.get_segments().into_iter().enumerate() {
+        for (idx, child) in context.segment.gather_segments().into_iter().enumerate() {
             context.segment = child;
             context.parent_stack = new_parent_stack.clone();
             context.segment_idx = idx;

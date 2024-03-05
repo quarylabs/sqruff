@@ -24,6 +24,18 @@ SQRUFF is an innovative SQL linter and formatter for modern development environm
 
 ### Installation
 
+#### macOS
+
+You can use [brew](https://brew.sh/) to install sqruff easily on macOS. 
+
+```
+brew install quarylabs/quary/sqruff
+```
+
+#### For other platforms
+
+For other platforms, compilie sqruff with cargo with the following commands.
+
 ```
 rustup override set nightly
 cargo install sqruff

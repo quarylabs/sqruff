@@ -569,7 +569,7 @@ impl Linter {
         path_walk.extend(path_walk_ignore_file);
 
         let mut buffer = Vec::new();
-        let mut ignores = std::collections::HashMap::new();
+        let mut ignores = HashMap::new();
         let sql_file_exts = self.config.sql_file_exts(); // Replace with actual extensions
 
         for (dirpath, _, filenames) in path_walk {

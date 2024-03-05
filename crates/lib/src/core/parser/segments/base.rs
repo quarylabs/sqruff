@@ -719,7 +719,7 @@ impl CodeSegment {
             trim_start: None,
             trim_chars: None,
             source_fixes: None,
-            uuid: uuid::Uuid::new_v4(),
+            uuid: Uuid::new_v4(),
         })
     }
 }
@@ -817,7 +817,7 @@ impl IdentifierSegment {
                 trim_start: None,
                 trim_chars: None,
                 source_fixes: None,
-                uuid: uuid::Uuid::new_v4(),
+                uuid: Uuid::new_v4(),
             },
         })
     }

@@ -323,7 +323,7 @@ mod tests {
     }
 
     fn mk_formatter() -> (TempDir, OutputStreamFormatter) {
-        let temp = tempdir::TempDir::new(env!("CARGO_PKG_NAME")).unwrap();
+        let temp = TempDir::new(env!("CARGO_PKG_NAME")).unwrap();
         let file = File::create(temp.path().join("out.txt")).unwrap().boxed();
 
         (temp, OutputStreamFormatter::new(file, false))

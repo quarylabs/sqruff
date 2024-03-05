@@ -146,7 +146,7 @@ impl ReflowPoint {
                 if indent_seg.get_raw().unwrap() == desired_indent {
                     unimplemented!()
                 } else if desired_indent.is_empty() {
-                    unimplemented!()
+                    // unimplemented!()
                 };
 
                 let new_indent = indent_seg.edit(desired_indent.to_owned().into(), None);

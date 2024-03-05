@@ -173,6 +173,7 @@ impl Linter {
     }
 
     pub fn lint_rendered(&mut self, rendered: RenderedFile) {
+        dbg!(&rendered.f_name);
         let parsed = Self::parse_rendered(rendered, false);
         self.lint_parsed(parsed, self.rules.clone(), false);
     }

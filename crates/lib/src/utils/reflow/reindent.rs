@@ -226,7 +226,8 @@ fn crawl_indent_points(
                     let implicit_indents = take(&mut indent_stats.implicit_indents);
                     indent_stats = IndentStats { impulse: 0, trough: 0, implicit_indents };
                 } else {
-                    unimplemented!()
+                    // FIXME:
+                    // unimplemented!()
                 }
             }
 

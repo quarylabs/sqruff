@@ -25,7 +25,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
-use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
 
@@ -2607,7 +2607,7 @@ impl NodeTrait for SelectClauseSegment {
         Sequence::new(vec_of_erased![
             Ref::keyword("SELECT"),
             Ref::new("SelectClauseModifierSegment").optional(),
-            Indent::default(),
+            MetaSegment::indent(),
             Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
                 .config(|this| this.allow_trailing())
         ])
@@ -2802,11 +2802,13 @@ impl NodeTrait for OrderByClauseSegment {
     const TYPE: &'static str = "order_by_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("ORDER").boxed(),
-            Ref::keyword("BY").boxed(),
-            Delimited::new(vec![one_of(vec![Ref::new("NumericLiteralSegment").boxed()]).boxed()])
-                .boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ORDER"),
+            Ref::keyword("BY"),
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![one_of(vec_of_erased![Ref::new(
+                "NumericLiteralSegment"
+            )])])
         ])
         .to_matchable()
     }
@@ -2843,24 +2845,18 @@ impl NodeTrait for FromExpressionSegment {
     const TYPE: &'static str = "from_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        optionally_bracketed(vec![
-            Sequence::new(vec![
-                one_of(vec![Ref::new("FromExpressionElementSegment").boxed()]).boxed(),
-                AnyNumberOf::new(vec![
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::new("JoinClauseSegment").boxed(),
-                            Ref::new("JoinLikeClauseGrammar").boxed(),
-                        ])
-                        .config(|this| this.optional())
-                        .boxed(),
-                    ])
-                    .boxed(),
+        optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
+            one_of(vec_of_erased![Ref::new("FromExpressionElementSegment")]),
+            MetaSegment::dedent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("JoinClauseSegment"),
+                    Ref::new("JoinLikeClauseGrammar")
                 ])
-                .boxed(),
-            ])
-            .boxed(),
-        ])
+                .config(|this| this.optional())
+            ])])
+        ])])
         .to_matchable()
     }
 }
@@ -3186,10 +3182,13 @@ impl NodeTrait for AliasExpressionSegment {
     const TYPE: &'static str = "alias_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("AS").optional().boxed(),
-            one_of(vec![Sequence::new(vec![Ref::new("SingleIdentifierGrammar").boxed()]).boxed()])
-                .boxed(),
+        Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
+            Ref::keyword("AS").optional(),
+            one_of(vec_of_erased![Sequence::new(vec_of_erased![Ref::new(
+                "SingleIdentifierGrammar"
+            )])]),
+            MetaSegment::indent()
         ])
         .to_matchable()
     }
@@ -3568,12 +3567,15 @@ impl NodeTrait for MergeStatementSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("MergeIntoLiteralGrammar").boxed(),
+            MetaSegment::indent().boxed(),
             one_of(vec![
                 Ref::new("TableReferenceSegment").boxed(),
                 Ref::new("AliasedTableReferenceGrammar").boxed(),
             ])
             .boxed(),
+            MetaSegment::dedent().boxed(),
             Ref::keyword("USING").boxed(),
+            MetaSegment::indent().boxed(),
             one_of(vec![
                 Ref::new("TableReferenceSegment").boxed(),
                 Ref::new("AliasedTableReferenceGrammar").boxed(),
@@ -4400,12 +4402,14 @@ impl NodeTrait for JoinClauseSegment {
         one_of(vec_of_erased![Sequence::new(vec_of_erased![
             Ref::new("JoinTypeKeywordsGrammar").optional(),
             Ref::new("JoinKeywordsGrammar"),
+            MetaSegment::indent(),
             Ref::new("FromExpressionElementSegment"),
             AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
             Sequence::new(vec_of_erased![one_of(vec_of_erased![
                 Ref::new("JoinOnConditionSegment"),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("USING"),
+                    MetaSegment::indent(),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
                         "SingleIdentifierGrammar"
                     )])])
@@ -4448,12 +4452,14 @@ impl NodeTrait for OverClauseSegment {
 
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
             Ref::new("IgnoreRespectNullsGrammar").optional(),
             Ref::keyword("OVER"),
             one_of(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"),
                 Bracketed::new(vec_of_erased![Ref::new("WindowSpecificationSegment").optional()])
-            ])
+            ]),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -4485,9 +4491,11 @@ impl NodeTrait for PartitionClauseSegment {
         Sequence::new(vec_of_erased![
             Ref::keyword("PARTITION"),
             Ref::keyword("BY"),
+            MetaSegment::indent(),
             optionally_bracketed(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
                 "ExpressionSegment"
-            )])])
+            )])]),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }

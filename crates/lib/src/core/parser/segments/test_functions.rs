@@ -1,6 +1,7 @@
 use std::ops::Range;
 
 use super::keyword::KeywordSegment;
+use super::meta::Indent;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;
@@ -12,7 +13,6 @@ use crate::core::parser::segments::base::{
     NewlineSegmentNewArgs, Segment, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
     WhitespaceSegmentNewArgs,
 };
-use crate::core::parser::segments::meta::{Dedent, Indent};
 use crate::core::templaters::base::TemplatedFile;
 use crate::helpers::Boxed;
 
@@ -46,29 +46,14 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
 
     let templated_file = TemplatedFile::from_string(raw_file);
     let mut idx = 0;
-    let mut buff = Vec::new();
+    let mut buff: Vec<Box<dyn Segment>> = Vec::new();
 
     for elem in elems {
         if elem == "<indent>" {
-            buff.push(
-                Indent::new(PositionMarker::from_point(
-                    idx,
-                    idx,
-                    templated_file.clone(),
-                    None,
-                    None,
-                ))
-                .boxed() as Box<dyn Segment>,
-            );
+            buff.push(Indent::indent().boxed());
             continue;
         } else if elem == "<dedent>" {
-            buff.push(Dedent::new(PositionMarker::from_point(
-                idx,
-                idx,
-                templated_file.clone(),
-                None,
-                None,
-            )));
+            buff.push(Indent::dedent().boxed());
             continue;
         }
 

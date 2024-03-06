@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 use super::elements::{ReflowElement, ReflowSequenceType};
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintFix, LintResult};

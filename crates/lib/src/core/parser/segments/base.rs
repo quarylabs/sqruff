@@ -2,7 +2,6 @@ use std::any::Any;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::mem::take;
 
 use dyn_clone::DynClone;
 use dyn_hash::DynHash;
@@ -421,10 +420,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
-    fn indent_val(&self) -> usize {
-        panic!("Not implemented yet");
-    }
-
     /// Return any source fixes as list.
     fn get_source_fixes(&self) -> Vec<SourceFix> {
         self.segments().iter().flat_map(|seg| seg.get_source_fixes()).collect()
@@ -643,7 +638,7 @@ pub fn position_segments(
         }
 
         let old_position = segment.get_position_marker();
-        let new_position = segment.get_position_marker();
+        let mut new_position = segment.get_position_marker();
 
         if old_position.is_none() {
             let mut start_point = None;
@@ -664,19 +659,33 @@ pub fn position_segments(
                 })
             });
 
-            let new_seg = if !segment.segments().is_empty() && old_position != new_position {
-                unimplemented!()
+            if let Some((start_point, end_point)) = start_point.as_ref().zip(end_point.as_ref())
+                && start_point != end_point
+            {
+                new_position = PositionMarker::from_points(start_point, end_point).into();
+            } else if let Some(start_point) = start_point.as_ref() {
+                new_position = start_point.clone().into();
+            } else if let Some(end_point) = end_point.as_ref() {
+                new_position = end_point.clone().into();
             } else {
-                let mut new_seg = segment.clone();
-                new_seg.set_position_marker(new_position);
-                new_seg
-            };
+                unimplemented!("Unable to position new segment");
+            }
 
-            segment_buffer.push(new_seg);
+            assert_ne!(new_position, None);
         }
+
+        let new_seg = if !segment.segments().is_empty() && old_position != new_position {
+            unimplemented!()
+        } else {
+            let mut new_seg = segment.clone();
+            new_seg.set_position_marker(new_position);
+            new_seg
+        };
+
+        segment_buffer.push(new_seg);
     }
 
-    assert_eq!(segments.len(), segment_buffer.len());
+    pretty_assertions::assert_eq!(segments, segment_buffer);
 
     segment_buffer
 }

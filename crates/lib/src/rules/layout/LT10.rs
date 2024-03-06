@@ -29,6 +29,11 @@ impl Rule for RuleLT10 {
         let select_clause_modifier_seg = child_segments
             .find_first(Some(|sp: &dyn Segment| sp.is_type("select_clause_modifier")));
 
+        // Rule doesn't apply if there's no select clause modifier.
+        if select_clause_modifier_seg.is_empty() {
+            return Vec::new();
+        }
+
         // Are there any newlines between the select keyword and the select clause
         // modifier.
         let leading_newline_segments = child_segments.select(

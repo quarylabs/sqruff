@@ -142,7 +142,7 @@ pub fn construct_single_indent(indent_unit: &str, tab_space_size: usize) -> Cow<
 
 fn prune_untaken_indents(
     untaken_indents: Vec<isize>,
-    incoming_balance: usize,
+    incoming_balance: isize,
     indent_stats: &IndentStats,
     has_newline: bool,
 ) -> Vec<isize> {
@@ -173,8 +173,6 @@ fn update_crawl_balances(
     indent_stats: &IndentStats,
     has_newline: bool,
 ) -> (isize, Vec<isize>) {
-    let incoming_balance: usize = incoming_balance.try_into().unwrap();
-
     let new_untaken_indents =
         prune_untaken_indents(untaken_indents, incoming_balance, &indent_stats, has_newline);
     let new_balance = incoming_balance + indent_stats.impulse;

@@ -7,7 +7,7 @@ use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
 use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
-use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
@@ -56,9 +56,10 @@ impl ReflowPoint {
 
         for seg in segments {
             if let Some(indent) = seg.as_any().downcast_ref::<Indent>() {
-                running_sum += indent.indent_val;
+                running_sum += indent.indent_val() as isize;
 
-                if indent.is_implicit {
+                // FIXME:
+                if indent.is_implicit() {
                     implicit_indents.push(running_sum);
                 }
             }
@@ -403,9 +404,9 @@ fn indent_description(indent: &str) -> String {
 
 #[derive(Debug, Clone, Default)]
 pub struct IndentStats {
-    pub impulse: usize,
-    pub trough: usize,
-    pub implicit_indents: Vec<usize>,
+    pub impulse: isize,
+    pub trough: isize,
+    pub implicit_indents: Vec<isize>,
 }
 
 impl IndentStats {

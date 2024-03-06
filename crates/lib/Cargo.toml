@@ -28,9 +28,9 @@ serde = { version = "1.0.197", features = ["derive"] }
 serde_yaml = "0.9.32"
 anstyle = "1.0"
 tracing = "0.1.40"
+pretty_assertions = "1.4.0"
 
 [dev-dependencies]
-pretty_assertions = "1.4.0"
 expect-test = "1.4"
 glob = "0.3.1"
 tempdir = "0.3"

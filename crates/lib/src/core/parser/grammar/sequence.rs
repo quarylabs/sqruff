@@ -14,7 +14,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{position_segments, Segment};
 use crate::core::parser::segments::bracketed::BracketedSegment;
-use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::segments::meta::{Indent, IndentChange, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
 use crate::helpers::Boxed;
 
@@ -72,15 +72,16 @@ fn position_metas(
     // transfer
 
     // Check if all metas have a non-negative indent value
-    if metas.iter().all(|m| m.indent_val >= 0) {
+    if metas.iter().all(|m| m.indent_val() >= 0) {
         let mut result: Vec<Box<dyn Segment>> = Vec::new();
 
         // Append metas first, then non-code elements
         for meta in metas {
-            result.push(meta.clone().boxed()); // Assuming clone is possible or some equivalent
+            result.push(meta.clone().boxed());
         }
+
         for segment in non_code {
-            result.push(segment.clone()); // Assuming clone is possible or some equivalent
+            result.push(segment.clone());
         }
 
         result
@@ -89,10 +90,10 @@ fn position_metas(
 
         // Append non-code elements first, then metas
         for segment in non_code {
-            result.push(segment.clone()); // Assuming clone is possible or some equivalent
+            result.push(segment.clone());
         }
         for meta in metas {
-            result.push(meta.clone().boxed()); // Assuming clone is possible or some equivalent
+            result.push(meta.clone().boxed());
         }
 
         result
@@ -628,7 +629,7 @@ mod tests {
     use crate::core::parser::matchable::Matchable;
     use crate::core::parser::parsers::StringParser;
     use crate::core::parser::segments::keyword::KeywordSegment;
-    use crate::core::parser::segments::meta::Indent;
+    use crate::core::parser::segments::meta::{IndentChange, MetaSegment};
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
@@ -783,7 +784,7 @@ mod tests {
         )
         .boxed();
 
-        let g = Sequence::new(vec![Indent::new(PositionMarker::default()).to_matchable(), bs, fs]);
+        let g = Sequence::new(vec![MetaSegment::indent().boxed(), bs, fs]);
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
         let segments = g.match_segments(test_segments(), &mut ctx).unwrap().matched_segments;
 

@@ -252,7 +252,8 @@ impl Linter {
                         continue;
                     }
 
-                    let (linting_errors, fixes) = rule.crawl(dialect.clone(), fix, tree.clone());
+                    let (linting_errors, fixes) =
+                        rule.crawl(dialect.clone(), fix, tree.clone(), self.config.clone());
                     let anchor_info = compute_anchor_edit_info(fixes.clone());
 
                     if is_first_linter_pass {
@@ -603,8 +604,6 @@ impl Linter {
         let mut filtered_buffer = HashSet::new();
 
         for fpath in buffer {
-            assert!(ignores.is_empty());
-
             let npath = crate::helpers::normalize(&fpath).to_str().unwrap().to_string();
             filtered_buffer.insert(npath);
         }

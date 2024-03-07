@@ -16,7 +16,9 @@ impl Rule for RuleLT02 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        ReflowSequence::from_root(context.segment, context.config.clone()).reindent().results()
+        ReflowSequence::from_root(context.segment, context.config.clone().unwrap())
+            .reindent()
+            .results()
     }
 }
 

@@ -13,7 +13,7 @@ pub struct RuleContext {
     pub fix: bool,
     pub templated_file: Option<TemplatedFile>,
     pub path: Option<String>,
-    pub config: FluffConfig,
+    pub config: Option<FluffConfig>,
 
     // These change within a file.
     /// segment: The segment in question

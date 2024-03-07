@@ -122,6 +122,10 @@ impl Default for FluffConfig {
 }
 
 impl FluffConfig {
+    pub fn get(&self, key: &str, section: &str) -> &Value {
+        &self.raw[section][key]
+    }
+
     // TODO This is not a translation that is particularly accurate.
     #[track_caller]
     pub fn new(

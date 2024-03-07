@@ -13,8 +13,11 @@ mod commands;
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 fn main() {
-    let formatter = OutputStreamFormatter::new(Box::new(std::io::stderr()), false);
     let config = FluffConfig::default();
+    let formatter = OutputStreamFormatter::new(
+        Box::new(std::io::stderr()),
+        config.get("nocolor", "core").as_bool().unwrap_or_default(),
+    );
 
     let cli = Cli::parse();
     let mut linter = Linter::new(config, formatter.into(), None);

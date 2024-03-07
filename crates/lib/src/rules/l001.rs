@@ -27,7 +27,7 @@ impl Rule for RuleL001 {
     /// Look for newline segments, and then evaluate what
     // it was preceded by.
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let sequence = ReflowSequence::from_root(context.segment, context.config);
+        let sequence = ReflowSequence::from_root(context.segment, context.config.unwrap());
         sequence.respace(false, Filter::All).results()
     }
 

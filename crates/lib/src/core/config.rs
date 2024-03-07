@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::Index;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -106,8 +107,8 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 // TODO This is not a translation that is particularly accurate.
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
-    pub indentation: FluffConfigIndentation,
-    configs: HashMap<String, Value>,
+    pub(crate) indentation: FluffConfigIndentation,
+    pub(crate) raw: HashMap<String, Value>,
     extra_config_path: Option<String>,
     _configs: HashMap<String, HashMap<String, String>>,
     dialect: String,
@@ -122,8 +123,9 @@ impl Default for FluffConfig {
 
 impl FluffConfig {
     // TODO This is not a translation that is particularly accurate.
+    #[track_caller]
     pub fn new(
-        configs: HashMap<String, Value>,
+        mut configs: HashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
@@ -137,8 +139,13 @@ impl FluffConfig {
         }
         .to_string();
 
+        let values = ConfigLoader
+            .get_config_elems_from_file(None, include_str!("./default_config.cfg").into());
+
+        ConfigLoader.incorporate_vals(&mut configs, values);
+
         Self {
-            configs,
+            raw: configs,
             dialect,
             extra_config_path,
             _configs: HashMap::new(),
@@ -237,7 +244,7 @@ impl Default for FluffConfigIndentation {
     }
 }
 
-pub struct ConfigLoader {}
+pub struct ConfigLoader;
 
 impl ConfigLoader {
     fn iter_config_locations_up_to_path(
@@ -347,23 +354,33 @@ impl ConfigLoader {
     }
 
     pub fn load_config_file(&self, path: impl AsRef<Path>, configs: &mut HashMap<String, Value>) {
-        let elems = self.get_config_elems_from_file(path);
+        let elems = self.get_config_elems_from_file(path.as_ref().into(), None);
         self.incorporate_vals(configs, elems);
     }
 
-    fn get_config_elems_from_file(&self, path: impl AsRef<Path>) -> Vec<(Vec<String>, Value)> {
+    fn get_config_elems_from_file(
+        &self,
+        path: Option<&Path>,
+        config_string: Option<&str>,
+    ) -> Vec<(Vec<String>, Value)> {
         let mut buff = Vec::new();
-
         let mut config = Ini::new();
 
-        let content = std::fs::read_to_string(path).unwrap();
+        let content = match (path, config_string) {
+            (None, None) | (Some(_), Some(_)) => {
+                unimplemented!("One of fpath or config_string is required.")
+            }
+            (None, Some(text)) => text.to_owned(),
+            (Some(path), None) => std::fs::read_to_string(path).unwrap(),
+        };
+
         config.read(content).unwrap();
 
         for section in config.sections() {
             let mut key = if section == "sqlfluff" {
                 vec!["core".to_owned()]
             } else if let Some(key) = section.strip_prefix("sqlfluff:") {
-                vec![key.to_owned()]
+                key.split(':').map(ToOwned::to_owned).collect()
             } else {
                 continue;
             };
@@ -381,8 +398,9 @@ impl ConfigLoader {
                         unimplemented!()
                     }
 
+                    let mut key = key.clone();
                     key.push(name.clone());
-                    buff.push((key.clone(), value));
+                    buff.push((key, value));
                 }
             }
         }
@@ -392,21 +410,24 @@ impl ConfigLoader {
 
     fn incorporate_vals(
         &self,
-        configs: &mut HashMap<String, Value>,
+        ctx: &mut HashMap<String, Value>,
         values: Vec<(Vec<String>, Value)>,
     ) {
-        for (k, v) in values {
-            let n = k.last().unwrap().clone();
-            let (pth, _) = k.split_at(k.len() - 1);
-
-            for dp in pth {
-                if configs.contains_key(dp) {
-                    panic!("Overriding config value with section! [{k:?}]")
-                } else {
+        for (path, value) in values {
+            let mut current_map = &mut *ctx;
+            for key in path.iter().take(path.len() - 1) {
+                match current_map
+                    .entry(key.to_string())
+                    .or_insert_with(|| Value::Map(HashMap::new()))
+                    .as_map_mut()
+                {
+                    Some(slot) => current_map = slot,
+                    None => panic!("Overriding config value with section! [{path:?}]"),
                 }
             }
 
-            configs.insert(n, v);
+            let last_key = path.last().expect("Expected at least one element in path");
+            current_map.insert(last_key.to_string(), value);
         }
     }
 }
@@ -417,7 +438,41 @@ pub enum Value {
     Bool(bool),
     Float(f64),
     String(Box<str>),
+    Map(HashMap<String, Value>),
     None,
+}
+
+impl Index<&str> for Value {
+    type Output = Value;
+
+    fn index(&self, index: &str) -> &Self::Output {
+        match self {
+            Value::Map(map) => map.get(index).unwrap_or(&Value::None),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl Value {
+    pub fn as_map(&self) -> Option<&HashMap<String, Value>> {
+        if let Self::Map(map) = self { Some(map) } else { None }
+    }
+
+    pub fn as_map_mut(&mut self) -> Option<&mut HashMap<String, Value>> {
+        if let Self::Map(map) = self { Some(map) } else { None }
+    }
+
+    pub fn as_int(&self) -> Option<i32> {
+        if let Self::Int(v) = self { Some(*v) } else { None }
+    }
+
+    pub fn as_string(&self) -> Option<&str> {
+        if let Self::String(v) = self { Some(v) } else { None }
+    }
+
+    pub fn as_bool(&self) -> Option<bool> {
+        if let Self::Bool(v) = self { Some(*v) } else { None }
+    }
 }
 
 impl FromStr for Value {

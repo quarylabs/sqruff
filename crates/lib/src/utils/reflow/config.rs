@@ -2,11 +2,11 @@ use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
-use crate::core::config::FluffConfig;
+use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::DepthInfo;
 
-type ConfigElementType = HashMap<&'static str, &'static str>;
-type ConfigDictType = HashMap<&'static str, ConfigElementType>;
+type ConfigElementType = HashMap<String, String>;
+type ConfigDictType = HashMap<String, ConfigElementType>;
 
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -36,21 +36,26 @@ impl BlockConfig {
         line_position: Option<&str>,
         config: Option<&ConfigElementType>,
     ) {
-        let empty_config: ConfigElementType = HashMap::new();
-        let config = config.unwrap_or(&empty_config);
+        let empty = HashMap::new();
+        let config = config.unwrap_or(&empty);
+
         self.spacing_before = before
-            .or(config.get("spacing_before").copied())
-            .unwrap_or(&self.spacing_before)
+            .map(ToOwned::to_owned)
+            .or(config.get("spacing_before").cloned())
+            .unwrap_or(self.spacing_before.clone())
             .to_string();
+
         self.spacing_after = after
-            .or(config.get("spacing_after").copied())
-            .unwrap_or(&self.spacing_after)
+            .map(ToOwned::to_owned)
+            .or(config.get("spacing_after").cloned())
+            .unwrap_or(self.spacing_after.clone())
             .to_string();
-        self.spacing_within = within
-            .map(ToString::to_string)
-            .or(config.get("spacing_within").copied().map(ToString::to_string));
+
+        self.spacing_within =
+            within.map(ToOwned::to_owned).or(config.get("spacing_within").cloned());
+
         self.line_position =
-            line_position.or(config.get("line_position").copied()).map(|s| s.to_string());
+            line_position.map(ToOwned::to_owned).or(config.get("line_position").cloned());
     }
 }
 
@@ -61,7 +66,7 @@ impl BlockConfig {
 /// usage, and the configuration used during reflow operations.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
-    _config_dict: ConfigDictType,
+    configs: ConfigDictType,
     config_types: HashSet<String>,
     /// In production, these values are almost _always_ set because we
     /// use `.from_fluff_config`, but the defaults are here to aid in
@@ -73,39 +78,6 @@ pub struct ReflowConfig {
     skip_indentation_in: HashSet<String>,
     allow_implicit_indents: bool,
     trailing_comments: String,
-}
-
-impl Default for ReflowConfig {
-    fn default() -> Self {
-        #[rustfmt::skip]
-        let config_types = [
-            "path_segment", "colon", "start_bracket", "assignment_operator", 
-            "groupby_clause", "sql_conf_option", "pattern_expression", 
-            "statement_terminator", "set_operator", "array_type", "sqlcmd_operator", 
-            "comment", "comparison_operator", "sign_indicator", "orderby_clause", 
-            "start_angle_bracket", "comma", "struct_type", "array_accessor", 
-            "tilde", "select_clause", "having_clause", "object_reference", 
-            "where_clause", "slice", "typed_struct_literal", "typed_array_literal", 
-            "bracketed_arguments", "semi_structured_expression", 
-            "common_table_expression", "end_square_bracket", "numeric_literal", 
-            "dot", "limit_clause", "binary_operator", "template_loop", 
-            "colon_delimiter", "sized_array_type", "end_of_file", "casting_operator", 
-            "end_angle_bracket", "function_name", "join_clause", 
-            "start_square_bracket", "placeholder", "end_bracket", "from_clause"
-        ];
-
-        ReflowConfig {
-            _config_dict: create_formatting_rules(),
-            config_types: config_types.map(ToOwned::to_owned).into_iter().collect(),
-            tab_space_size: 4,
-            indent_unit: "    ".to_string(),
-            max_line_length: 80,
-            hanging_indents: false,
-            skip_indentation_in: HashSet::new(),
-            allow_implicit_indents: false,
-            trailing_comments: "before".to_string(),
-        }
-    }
 }
 
 impl ReflowConfig {
@@ -145,10 +117,10 @@ impl ReflowConfig {
                 if parent_start {
                     for seg_type in &configured_parent_types {
                         block_config.incorporate(
-                            self._config_dict
-                                .get(seg_type.as_str())
+                            self.configs
+                                .get(*seg_type)
                                 .and_then(|conf| conf.get("spacing_before"))
-                                .copied(),
+                                .map(|it| it.as_str()),
                             None,
                             None,
                             None,
@@ -161,10 +133,10 @@ impl ReflowConfig {
                     for seg_type in &configured_parent_types {
                         block_config.incorporate(
                             None,
-                            self._config_dict
-                                .get(seg_type.as_str())
+                            self.configs
+                                .get(*seg_type)
                                 .and_then(|conf| conf.get("spacing_after"))
-                                .copied(),
+                                .map(|it| it.as_str()),
                             None,
                             None,
                             None,
@@ -175,129 +147,63 @@ impl ReflowConfig {
         }
 
         for seg_type in configured_types {
-            block_config.incorporate(
-                None,
-                None,
-                None,
-                None,
-                self._config_dict.get(seg_type.as_str()),
-            );
+            block_config.incorporate(None, None, None, None, self.configs.get(seg_type.as_str()));
         }
 
         block_config
     }
 
-    pub fn from_fluff_config(_config: FluffConfig) -> ReflowConfig {
-        panic!("Not implemented yet");
+    pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
+        let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
+        let config_types: HashSet<_> = configs.keys().cloned().collect();
+
+        ReflowConfig {
+            configs: convert_to_config_dict(configs),
+            config_types,
+            tab_space_size: config.raw["indentation"]["tab_space_size"].as_int().unwrap() as usize,
+            indent_unit: config.raw["indentation"]["indent_unit"].as_string().unwrap().into(),
+            max_line_length: config.raw["indentation"]["tab_space_size"].as_int().unwrap() as usize,
+            hanging_indents: config.raw["indentation"]["hanging_indents"]
+                .as_bool()
+                .unwrap_or_default(),
+            skip_indentation_in: config.raw["indentation"]["indent_unit"]
+                .as_string()
+                .unwrap()
+                .split(",")
+                .map(ToOwned::to_owned)
+                .collect(),
+            allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]
+                .as_bool()
+                .unwrap(),
+            trailing_comments: config.raw["indentation"]["trailing_comments"]
+                .as_string()
+                .unwrap()
+                .into(),
+        }
     }
 }
 
-fn create_formatting_rules() -> HashMap<&'static str, HashMap<&'static str, &'static str>> {
-    let mut rules = HashMap::new();
+fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
+    let mut config_dict = ConfigDictType::new();
 
-    // Directly insert the tuples into the HashMaps for each key
-    rules.insert(
-        "comma",
-        [("spacing_before", "touch"), ("line_position", "trailing")].iter().cloned().collect(),
-    );
-    rules.insert(
-        "binary_operator",
-        [("spacing_within", "touch"), ("line_position", "leading")].iter().cloned().collect(),
-    );
-    rules.insert(
-        "statement_terminator",
-        [("spacing_before", "touch"), ("line_position", "trailing")].iter().cloned().collect(),
-    );
-    rules.insert("end_of_file", [("spacing_before", "touch")].iter().cloned().collect());
-    rules.insert("set_operator", [("line_position", "alone:strict")].iter().cloned().collect());
-    rules.insert("start_bracket", [("spacing_after", "touch")].iter().cloned().collect());
-    rules.insert("end_bracket", [("spacing_before", "touch")].iter().cloned().collect());
-    rules.insert("start_square_bracket", [("spacing_after", "touch")].iter().cloned().collect());
-    rules.insert("end_square_bracket", [("spacing_before", "touch")].iter().cloned().collect());
-    rules.insert("start_angle_bracket", [("spacing_after", "touch")].iter().cloned().collect());
-    rules.insert("end_angle_bracket", [("spacing_before", "touch")].iter().cloned().collect());
-    rules.insert(
-        "casting_operator",
-        [("spacing_before", "touch"), ("spacing_after", "touch:inline")].iter().cloned().collect(),
-    );
-    rules.insert(
-        "slice",
-        [("spacing_before", "touch"), ("spacing_after", "touch")].iter().cloned().collect(),
-    );
-    rules.insert(
-        "dot",
-        [("spacing_before", "touch"), ("spacing_after", "touch")].iter().cloned().collect(),
-    );
-    rules.insert(
-        "comparison_operator",
-        [("spacing_within", "touch"), ("line_position", "leading")].iter().cloned().collect(),
-    );
-    rules.insert(
-        "assignment_operator",
-        [("spacing_within", "touch"), ("line_position", "leading")].iter().cloned().collect(),
-    );
-    rules
-        .insert("object_reference", [("spacing_within", "touch:inline")].iter().cloned().collect());
-    rules.insert("numeric_literal", [("spacing_within", "touch:inline")].iter().cloned().collect());
-    rules.insert("sign_indicator", [("spacing_after", "touch:inline")].iter().cloned().collect());
-    rules.insert("tilde", [("spacing_after", "touch:inline")].iter().cloned().collect());
-    rules.insert(
-        "function_name",
-        [("spacing_within", "touch:inline"), ("spacing_after", "touch:inline")]
-            .iter()
-            .cloned()
-            .collect(),
-    );
-    rules.insert("array_type", [("spacing_within", "touch:inline")].iter().cloned().collect());
-    rules.insert("typed_array_literal", [("spacing_within", "touch")].iter().cloned().collect());
-    rules.insert("sized_array_type", [("spacing_within", "touch")].iter().cloned().collect());
-    rules.insert("struct_type", [("spacing_within", "touch:inline")].iter().cloned().collect());
-    rules.insert(
-        "bracketed_arguments",
-        [("spacing_before", "touch:inline")].iter().cloned().collect(),
-    );
-    rules.insert("typed_struct_literal", [("spacing_within", "touch")].iter().cloned().collect());
-    rules.insert(
-        "semi_structured_expression",
-        [("spacing_within", "touch:inline"), ("spacing_before", "touch:inline")]
-            .iter()
-            .cloned()
-            .collect(),
-    );
-    rules.insert("array_accessor", [("spacing_before", "touch:inline")].iter().cloned().collect());
-    rules.insert("colon", [("spacing_before", "touch")].iter().cloned().collect());
-    rules.insert(
-        "colon_delimiter",
-        [("spacing_before", "touch"), ("spacing_after", "touch")].iter().cloned().collect(),
-    );
-    rules.insert("path_segment", [("spacing_within", "touch")].iter().cloned().collect());
-    rules.insert("sql_conf_option", [("spacing_within", "touch")].iter().cloned().collect());
-    rules.insert("sqlcmd_operator", [("spacing_before", "touch")].iter().cloned().collect());
-    rules.insert(
-        "comment",
-        [("spacing_before", "any"), ("spacing_after", "any")].iter().cloned().collect(),
-    );
-    rules.insert("pattern_expression", [("spacing_within", "any")].iter().cloned().collect());
-    rules.insert(
-        "placeholder",
-        [("spacing_before", "any"), ("spacing_after", "any")].iter().cloned().collect(),
-    );
-    rules.insert(
-        "common_table_expression",
-        [("spacing_within", "single:inline")].iter().cloned().collect(),
-    );
-    rules.insert("select_clause", [("line_position", "alone")].iter().cloned().collect());
-    rules.insert("where_clause", [("line_position", "alone")].iter().cloned().collect());
-    rules.insert("from_clause", [("line_position", "alone")].iter().cloned().collect());
-    rules.insert("join_clause", [("line_position", "alone")].iter().cloned().collect());
-    rules.insert("groupby_clause", [("line_position", "alone")].iter().cloned().collect());
-    rules.insert("orderby_clause", [("line_position", "leading")].iter().cloned().collect());
-    rules.insert("having_clause", [("line_position", "alone")].iter().cloned().collect());
-    rules.insert("limit_clause", [("line_position", "alone")].iter().cloned().collect());
-    rules.insert(
-        "template_loop",
-        [("spacing_before", "any"), ("spacing_after", "any")].iter().cloned().collect(),
-    );
+    for (key, value) in input {
+        match value {
+            Value::Map(map_value) => {
+                let element = map_value
+                    .into_iter()
+                    .map(|(inner_key, inner_value)| {
+                        if let Value::String(value_str) = inner_value {
+                            (inner_key, value_str.into())
+                        } else {
+                            panic!("Expected a Value::String, found another variant.");
+                        }
+                    })
+                    .collect::<ConfigElementType>();
+                config_dict.insert(key, element);
+            }
+            _ => panic!("Expected a Value::Map, found another variant."),
+        }
+    }
 
-    rules
+    config_dict
 }

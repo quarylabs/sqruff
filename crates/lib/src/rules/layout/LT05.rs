@@ -19,8 +19,9 @@ impl Rule for RuleLT05 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let results =
-            ReflowSequence::from_root(context.segment, context.config).break_long_lines().results();
+        let results = ReflowSequence::from_root(context.segment, context.config.unwrap())
+            .break_long_lines()
+            .results();
 
         if self.ignore_comment_lines {
             unimplemented!()

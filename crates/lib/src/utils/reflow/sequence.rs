@@ -30,21 +30,23 @@ impl ReflowSequence {
         self.results().into_iter().flat_map(|result| result.fixes).collect()
     }
 
-    pub fn from_root(root_segment: Box<dyn Segment>, _config: FluffConfig) -> Self {
+    pub fn from_root(root_segment: Box<dyn Segment>, config: FluffConfig) -> Self {
         let depth_map = DepthMap::from_parent(&*root_segment).into();
 
-        Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, depth_map)
+        Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, config, depth_map)
     }
 
     pub fn from_raw_segments(
         segments: Vec<Box<dyn Segment>>,
         root_segment: Box<dyn Segment>,
+        config: FluffConfig,
         depth_map: Option<DepthMap>,
     ) -> Self {
+        let reflow_config = ReflowConfig::from_fluff_config(config);
         let depth_map = depth_map.unwrap_or_else(|| {
             DepthMap::from_raws_and_root(segments.clone(), root_segment.clone())
         });
-        let elements = Self::elements_from_raw_segments(segments, depth_map);
+        let elements = Self::elements_from_raw_segments(segments, depth_map, reflow_config);
 
         Self { root_segment, elements, lint_results: Vec::new() }
     }
@@ -52,6 +54,7 @@ impl ReflowSequence {
     fn elements_from_raw_segments(
         segments: Vec<Box<dyn Segment>>,
         depth_map: DepthMap,
+        reflow_config: ReflowConfig,
     ) -> Vec<ReflowElement> {
         let mut elem_buff = Vec::new();
         let mut seg_buff = Vec::new();
@@ -75,7 +78,7 @@ impl ReflowSequence {
             // Add the block, with config info.
             elem_buff.push(ReflowElement::Block(ReflowBlock::from_config(
                 vec![seg],
-                ReflowConfig::default(),
+                reflow_config.clone(),
                 depth_info,
             )));
 
@@ -128,7 +131,13 @@ impl ReflowSequence {
         }
 
         let segments = &all_raws[pre_idx..post_idx];
-        ReflowSequence::from_raw_segments(segments.to_vec(), root_segment, None)
+        ReflowSequence::from_raw_segments(
+            segments.to_vec(),
+            root_segment,
+            // FIXME:
+            FluffConfig::default(),
+            None,
+        )
     }
 
     pub fn insert(
@@ -139,8 +148,7 @@ impl ReflowSequence {
     ) -> Self {
         let target_idx = self.find_element_idx_with(&target);
 
-        let new_block =
-            ReflowBlock::from_config(vec![insertion.clone()], <_>::default(), <_>::default());
+        let new_block = ReflowBlock::from_config(vec![insertion.clone()], todo!(), <_>::default());
 
         if pos == "before" {
             let mut new_elements = self.elements[..target_idx].to_vec();

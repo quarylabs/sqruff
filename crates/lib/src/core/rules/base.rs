@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use super::context::RuleContext;
 use super::crawlers::{BaseCrawler, Crawler};
+use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::Segment;
@@ -263,8 +264,10 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
         dialect: Dialect,
         fix: bool,
         tree: Box<dyn Segment>,
+        config: FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
-        let root_context = RuleContext { dialect, fix, segment: tree, ..<_>::default() };
+        let root_context =
+            RuleContext { dialect, fix, config: config.into(), segment: tree, ..<_>::default() };
         let mut vs = Vec::new();
         let mut fixes = Vec::new();
 

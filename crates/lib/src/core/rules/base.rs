@@ -234,6 +234,13 @@ impl<T: Rule> CloneRule for T {
 }
 
 pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
+    fn from_config(_config: &FluffConfig) -> Self
+    where
+        Self: Default,
+    {
+        Self::default()
+    }
+
     fn lint_phase(&self) -> &'static str {
         "main"
     }

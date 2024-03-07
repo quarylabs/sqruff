@@ -14,7 +14,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{position_segments, Segment};
 use crate::core::parser::segments::bracketed::BracketedSegment;
-use crate::core::parser::segments::meta::{Indent, IndentChange, MetaSegmentKind};
+use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
 use crate::helpers::Boxed;
 
@@ -625,11 +625,10 @@ mod tests {
 
     use super::Sequence;
     use crate::core::parser::context::ParseContext;
-    use crate::core::parser::markers::PositionMarker;
     use crate::core::parser::matchable::Matchable;
     use crate::core::parser::parsers::StringParser;
     use crate::core::parser::segments::keyword::KeywordSegment;
-    use crate::core::parser::segments::meta::{IndentChange, MetaSegment};
+    use crate::core::parser::segments::meta::MetaSegment;
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };

@@ -12,21 +12,23 @@ pub mod LT11;
 pub mod LT12;
 pub mod LT13;
 
-pub fn get_rules() -> Vec<crate::core::rules::base::ErasedRule> {
-    use crate::core::rules::base::Erased as _;
+pub fn get_rules(
+    config: &crate::core::config::FluffConfig,
+) -> Vec<crate::core::rules::base::ErasedRule> {
+    use crate::core::rules::base::{Erased as _, Rule as _};
 
     vec![
-        LT01::RuleLT01::default().erased(),
-        LT02::RuleLT02::default().erased(),
-        LT03::RuleLT03::default().erased(),
-        LT04::RuleLT04::default().erased(),
-        LT05::RuleLT05::default().erased(),
-        LT06::RuleLT06::default().erased(),
-        LT07::RuleLT07::default().erased(),
-        LT08::RuleLT08::default().erased(),
-        LT09::RuleLT09::default().erased(),
-        LT10::RuleLT10::default().erased(),
-        LT11::RuleLT11::default().erased(),
-        LT12::RuleLT12::default().erased(),
+        LT01::RuleLT01::from_config(config).erased(),
+        LT02::RuleLT02::from_config(config).erased(),
+        LT03::RuleLT03::from_config(config).erased(),
+        LT04::RuleLT04::from_config(config).erased(),
+        LT05::RuleLT05::from_config(config).erased(),
+        LT06::RuleLT06::from_config(config).erased(),
+        LT07::RuleLT07::from_config(config).erased(),
+        LT08::RuleLT08::from_config(config).erased(),
+        LT09::RuleLT09::from_config(config).erased(),
+        LT10::RuleLT10::from_config(config).erased(),
+        LT11::RuleLT11::from_config(config).erased(),
+        LT12::RuleLT12::from_config(config).erased(),
     ]
 }

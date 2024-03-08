@@ -1322,6 +1322,32 @@ impl SymbolSegment {
     }
 }
 
+#[derive(Debug, Hash, Clone, PartialEq)]
+pub struct UnparsableSegment {
+    uuid: Uuid,
+    pub segments: Vec<Box<dyn Segment>>,
+}
+
+impl UnparsableSegment {
+    pub fn new(segments: Vec<Box<dyn Segment>>) -> Self {
+        Self { uuid: Uuid::new_v4(), segments }
+    }
+}
+
+impl Segment for UnparsableSegment {
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
+    }
+
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
+    }
+
+    fn get_type(&self) -> &'static str {
+        "unparsable"
+    }
+}
+
 pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
     let markers: Vec<_> =
         this.segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();

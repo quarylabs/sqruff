@@ -38,6 +38,16 @@ pub struct MetaSegment<M> {
     kind: M,
 }
 
+impl MetaSegment<TemplateSegment> {
+    pub fn template(pos_marker: PositionMarker, source_str: &str, block_type: &str) -> Self {
+        MetaSegment {
+            uuid: Uuid::new_v4(),
+            position_marker: pos_marker.into(),
+            kind: TemplateSegment::new(source_str.into(), block_type.into(), None, None),
+        }
+    }
+}
+
 impl Indent {
     fn from_kind(kind: IndentChange) -> Self {
         Self { kind, position_marker: None, uuid: Uuid::new_v4() }
@@ -207,5 +217,34 @@ impl Segment for EndOfFile {
         _source_fixes: Option<Vec<SourceFix>>,
     ) -> Box<dyn Segment> {
         todo!()
+    }
+}
+
+#[derive(PartialEq, Clone, Hash, Debug)]
+pub struct TemplateSegment {
+    source_str: String,
+    block_type: String,
+    source_fixes: Option<Vec<SourceFix>>,
+    block_uuid: Option<Uuid>,
+}
+
+impl TemplateSegment {
+    pub fn new(
+        source_str: String,
+        block_type: String,
+        source_fixes: Option<Vec<SourceFix>>,
+        block_uuid: Option<Uuid>,
+    ) -> Self {
+        if source_str.is_empty() {
+            panic!("Cannot instantiate TemplateSegment without a source_str.");
+        }
+
+        TemplateSegment { source_str, block_type, source_fixes, block_uuid }
+    }
+}
+
+impl MetaSegmentKind for TemplateSegment {
+    fn kind() -> &'static str {
+        "placeholder"
     }
 }

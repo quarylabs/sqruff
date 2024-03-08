@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use super::keyword::KeywordSegment;
-use super::meta::Indent;
+use super::meta::{Indent, MetaSegment, TemplateSegment};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;
@@ -18,6 +18,10 @@ use crate::helpers::Boxed;
 
 pub fn fresh_ansi_dialect() -> Dialect {
     dialect_selector("ansi").unwrap()
+}
+
+pub fn bracket_segments() -> Vec<Box<dyn Segment>> {
+    generate_test_segments_func(vec!["bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo"])
 }
 
 pub fn parse_ansi_string(sql: &str) -> Box<dyn Segment> {
@@ -132,7 +136,14 @@ pub fn raw_seg() -> Box<dyn Segment> {
 }
 
 pub fn test_segments() -> Vec<Box<dyn Segment>> {
-    generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "])
+    let mut main_list = generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "]);
+    let ts = MetaSegment::template(
+        main_list.last().unwrap().get_position_marker().unwrap().into(),
+        "{# comment #}".into(),
+        "comment".into(),
+    );
+    main_list.push(ts.boxed() as Box<dyn Segment>);
+    main_list
 }
 
 pub fn make_result_tuple(

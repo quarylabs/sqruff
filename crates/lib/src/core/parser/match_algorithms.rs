@@ -447,12 +447,11 @@ pub fn greedy_match(
     matchers: Vec<Box<dyn Matchable>>,
     _include_terminator: bool,
 ) -> Result<MatchResult, SQLParseError> {
-    let seg_buff = segments.clone();
-    let seg_bank = Vec::new();
+    let mut seg_buff = segments.clone();
+    let mut seg_bank = Vec::new();
 
-    #[allow(clippy::never_loop)]
     loop {
-        let (pre, mat, _matcher) =
+        let (pre, mat, matcher) =
             parse_context.deeper_match("Greedy", false, &[], None, |this| {
                 bracket_sensitive_look_ahead_match(
                     seg_buff.clone(),
@@ -468,6 +467,41 @@ pub fn greedy_match(
             // No terminator match? Return everything
             return Ok(MatchResult::from_matched(segments));
         }
+
+        let matcher = matcher.unwrap_or_else(|| panic!("Match without matcher: {mat}"));
+        let (strings, types) = matcher
+            .simple(parse_context, None)
+            .unwrap_or_else(|| panic!("Terminators require a simple method: {matcher:?}"));
+
+        if strings.iter().all(|s| s.chars().all(|c| c.is_alphabetic())) && types.is_empty() {
+            let mut allowable_match = false;
+
+            if pre.is_empty() {
+                allowable_match = true;
+            }
+
+            for element in pre.iter().rev() {
+                if element.is_meta() {
+                    continue;
+                } else if element.is_type("whitespace") || element.is_type("newline") {
+                    allowable_match = true;
+                    break;
+                } else {
+                    // Found something other than metas and whitespace/newline.
+                    break;
+                }
+            }
+
+            if !allowable_match {
+                seg_bank = chain!(seg_bank, pre, mat.matched_segments).collect_vec();
+                seg_buff = mat.unmatched_segments;
+                continue;
+            }
+        }
+
+        // if include_terminator {
+        //     return;
+        // }
 
         // We can't claim any non-code segments, so we trim them off the end.
         let buf = chain(seg_bank, pre).collect_vec();
@@ -493,7 +527,8 @@ mod tests {
     use crate::core::parser::segments::base::Segment;
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::test_functions::{
-        fresh_ansi_dialect, generate_test_segments_func, make_result_tuple, test_segments,
+        bracket_segments, fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
+        test_segments,
     };
     use crate::helpers::Boxed;
 
@@ -537,12 +572,6 @@ mod tests {
                 make_result_tuple((result_slice).into(), matcher_keywords, &test_segments);
             assert_eq!(result_match.matched_segments, expected_result);
         }
-    }
-
-    fn bracket_segments() -> Vec<Box<dyn Segment>> {
-        generate_test_segments_func(vec![
-            "bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo",
-        ])
     }
 
     // Test the bracket_sensitive_look_ahead_match method of the BaseGrammar.

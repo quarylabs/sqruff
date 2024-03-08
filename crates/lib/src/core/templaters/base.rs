@@ -342,7 +342,8 @@ impl TemplatedFile {
         let mut ts_start_sf_start = ts_start_sf_start;
         if insertion_point >= 0 {
             for elem in &sliced_file[ts_start_sf_start..] {
-                if elem.source_slice.start != insertion_point.try_into().unwrap() {
+                let insertion_point: usize = insertion_point.try_into().unwrap();
+                if elem.source_slice.start != insertion_point {
                     ts_start_sf_start += 1;
                 } else {
                     break;

@@ -33,4 +33,5 @@ pretty_assertions = "1.4.0"
 [dev-dependencies]
 expect-test = "1.4"
 glob = "0.3.1"
+serde_json = "1.0.114"
 tempdir = "0.3"

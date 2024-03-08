@@ -285,13 +285,13 @@ mod tests {
     use super::{one_of, AnyNumberOf};
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::matchable::Matchable;
-    use crate::core::parser::parsers::StringParser;
+    use crate::core::parser::parsers::{RegexParser, StringParser};
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
     use crate::core::parser::types::ParseMode;
-    use crate::helpers::{enter_panic, Boxed, ToMatchable};
+    use crate::helpers::{Boxed, ToMatchable};
 
     #[test]
     fn test__parser__grammar_oneof() {
@@ -490,6 +490,105 @@ mod tests {
 
             let input = serde_json::to_value(result).unwrap();
             assert_eq!(input, output);
+        }
+    }
+
+    #[test]
+    fn test__parser__grammar_anysetof() {
+        let token_list = vec!["bar", "  \t ", "foo", "  \t ", "bar"];
+        let segments = generate_test_segments_func(token_list);
+
+        let bar = StringParser::new(
+            "bar",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        );
+        let foo = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        );
+
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let g = AnyNumberOf::new(vec![bar.boxed(), foo.boxed()]);
+        let result = g.match_segments(segments, &mut ctx).unwrap().matched_segments;
+
+        assert_eq!(result[0].get_raw().unwrap(), "bar");
+        assert_eq!(result[1].get_raw().unwrap(), "  \t ");
+        assert_eq!(result[2].get_raw().unwrap(), "foo");
+    }
+
+    #[test]
+    fn test__parser__grammar_oneof_take_first() {
+        let segments = test_segments();
+
+        let foo_regex = RegexParser::new(
+            "fo{2}",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+            None,
+        );
+        let foo = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        );
+
+        let g1 = one_of(vec![foo_regex.clone().boxed(), foo.clone().boxed()]);
+        let g2 = one_of(vec![foo.boxed(), foo_regex.boxed()]);
+
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+
+        for segment in
+            g1.match_segments(segments.clone(), &mut ctx).unwrap().matched_segments.iter()
+        {
+            assert_eq!(segment.get_raw().unwrap(), "foo");
+            assert_eq!(
+                segment.get_position_marker().unwrap(),
+                segments[2].get_position_marker().unwrap()
+            );
+        }
+
+        for segment in
+            g2.match_segments(segments[2..].to_vec(), &mut ctx).unwrap().matched_segments.iter()
+        {
+            assert_eq!(segment.get_raw().unwrap(), "foo");
+            assert_eq!(
+                segment.get_position_marker().unwrap(),
+                segments[2].get_position_marker().unwrap()
+            );
         }
     }
 }

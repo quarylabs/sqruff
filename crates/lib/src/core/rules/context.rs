@@ -13,7 +13,7 @@ pub struct RuleContext {
     pub fix: bool,
     pub templated_file: Option<TemplatedFile>,
     pub path: Option<String>,
-    pub config: FluffConfig,
+    pub config: Option<FluffConfig>,
 
     // These change within a file.
     /// segment: The segment in question
@@ -31,7 +31,7 @@ pub struct RuleContext {
 impl RuleContext {
     pub fn siblings_post(&self) -> Vec<Box<dyn Segment>> {
         if !self.parent_stack.is_empty() {
-            self.parent_stack.last().unwrap().get_segments()[self.segment_idx + 1..].to_vec()
+            self.parent_stack.last().unwrap().segments()[self.segment_idx + 1..].to_vec()
         } else {
             Vec::new()
         }

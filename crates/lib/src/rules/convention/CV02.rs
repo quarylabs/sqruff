@@ -32,7 +32,7 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 /// SELECT coalesce(foo, 0) AS bar,
 /// FROM baz;
 /// ```
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleCv02 {}
 
 impl Rule for RuleCv02 {

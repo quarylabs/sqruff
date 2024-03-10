@@ -1,9 +1,37 @@
+use std::collections::HashSet;
+use std::iter::zip;
+use std::ops::{Deref, DerefMut};
+
+use itertools::{chain, enumerate, Itertools};
+
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
+use crate::core::parser::helpers::{check_still_complete, trim_non_code_segments};
+use crate::core::parser::match_algorithms::{
+    bracket_sensitive_look_ahead_match, greedy_match, prune_options,
+};
+use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::matchable::Matchable;
+use crate::core::parser::segments::base::{position_segments, Segment, UnparsableSegment};
+use crate::core::parser::segments::bracketed::BracketedSegment;
+use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
+use crate::core::parser::types::ParseMode;
+use crate::helpers::Boxed;
+
 fn trim_to_terminator(
-    segments: Vec<Box<dyn Segment>>,
-    tail: Vec<Box<dyn Segment>>,
+    mut segments: Vec<Box<dyn Segment>>,
+    mut tail: Vec<Box<dyn Segment>>,
     terminators: Vec<Box<dyn Matchable>>,
     parse_context: &mut ParseContext,
 ) -> Result<(Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>), SQLParseError> {
+    let pruned_terms = prune_options(&terminators, &segments, parse_context);
+
+    for term in pruned_terms {
+        if term.match_segments(segments.clone(), parse_context)?.has_match() {
+            return Ok((Vec::new(), chain(segments, tail).collect_vec()));
+        }
+    }
+
     let term_match =
         parse_context.deeper_match("Sequence-GreedyB-@0", false, &[], false.into(), |this| {
             greedy_match(segments.clone(), this, terminators, false)
@@ -13,12 +41,12 @@ fn trim_to_terminator(
         // If we _do_ find a terminator, we separate off everything
         // beyond that terminator (and any preceding non-code) so that
         // it's not available to match against for the rest of this.
-        let tail = &term_match.unmatched_segments;
-        let segments = &term_match.matched_segments;
+        tail = term_match.unmatched_segments;
+        segments = term_match.matched_segments;
 
         for (idx, segment) in segments.iter().enumerate().rev() {
             if segment.is_code() {
-                return Ok(split_and_concatenate(segments, idx, tail));
+                return Ok(split_and_concatenate(&segments, idx, &tail));
             }
         }
     }
@@ -44,15 +72,16 @@ fn position_metas(
     // transfer
 
     // Check if all metas have a non-negative indent value
-    if metas.iter().all(|m| m.indent_val >= 0) {
+    if metas.iter().all(|m| m.indent_val() >= 0) {
         let mut result: Vec<Box<dyn Segment>> = Vec::new();
 
         // Append metas first, then non-code elements
         for meta in metas {
-            result.push(meta.clone().boxed()); // Assuming clone is possible or some equivalent
+            result.push(meta.clone().boxed());
         }
+
         for segment in non_code {
-            result.push(segment.clone()); // Assuming clone is possible or some equivalent
+            result.push(segment.clone());
         }
 
         result
@@ -61,35 +90,15 @@ fn position_metas(
 
         // Append non-code elements first, then metas
         for segment in non_code {
-            result.push(segment.clone()); // Assuming clone is possible or some equivalent
+            result.push(segment.clone());
         }
         for meta in metas {
-            result.push(meta.clone().boxed()); // Assuming clone is possible or some equivalent
+            result.push(meta.clone().boxed());
         }
 
         result
     }
 }
-
-use std::collections::HashSet;
-use std::iter::zip;
-use std::ops::{Deref, DerefMut};
-
-use itertools::{chain, enumerate, Itertools};
-
-use crate::core::errors::SQLParseError;
-use crate::core::parser::context::ParseContext;
-use crate::core::parser::helpers::trim_non_code_segments;
-use crate::core::parser::match_algorithms::{bracket_sensitive_look_ahead_match, greedy_match};
-use crate::core::parser::match_result::MatchResult;
-use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{
-    pos_marker, position_segments, Segment, UnparsableSegment,
-};
-use crate::core::parser::segments::bracketed::BracketedSegment;
-use crate::core::parser::segments::meta::Indent;
-use crate::core::parser::types::ParseMode;
-use crate::helpers::Boxed;
 
 #[derive(Debug, Clone, Hash)]
 pub struct Sequence {
@@ -181,6 +190,15 @@ impl Matchable for Sequence {
         let mut tail = Vec::new();
         let mut first_match = true;
 
+        if self.parse_mode == ParseMode::Greedy {
+            (unmatched_segments, tail) = trim_to_terminator(
+                segments.clone(),
+                tail.clone(),
+                self.terminators.clone(),
+                parse_context,
+            )?;
+        }
+
         // Buffers of segments, not yet added.
         let mut meta_buffer = Vec::new();
         let mut non_code_buffer = Vec::new();
@@ -208,12 +226,23 @@ impl Matchable for Sequence {
                 // another element. This is as designed. It also won't
                 // happen at the *start* of a sequence either.
 
+                let mut idx_to_split = None;
                 for (idx, segment) in unmatched_segments.iter().enumerate() {
                     if segment.is_code() {
-                        non_code_buffer.extend_from_slice(&unmatched_segments[..idx]);
-                        unmatched_segments = unmatched_segments[idx..].to_vec();
-
+                        idx_to_split = Some(idx);
                         break;
+                    }
+                }
+
+                match idx_to_split {
+                    Some(idx) => {
+                        non_code_buffer.extend_from_slice(&unmatched_segments[..idx]);
+                        unmatched_segments = unmatched_segments.split_off(idx);
+                    }
+                    None => {
+                        // If _all_ of it is non-code then consume all of it.
+                        non_code_buffer.append(&mut unmatched_segments);
+                        unmatched_segments.clear();
                     }
                 }
             }
@@ -234,7 +263,13 @@ impl Matchable for Sequence {
                     return Ok(MatchResult::from_unmatched(segments));
                 }
 
-                unimplemented!("UnparsableSegment")
+                let matched =
+                    vec![UnparsableSegment::new(matched_segments).boxed() as Box<dyn Segment>];
+
+                return Ok(MatchResult {
+                    matched_segments: matched,
+                    unmatched_segments: chain(non_code_buffer, tail).collect(),
+                });
             }
 
             // 4. Match the current element against the current position.
@@ -262,10 +297,13 @@ impl Matchable for Sequence {
                     return Ok(MatchResult::from_unmatched(segments));
                 }
 
-                return Ok(MatchResult {
-                    matched_segments: Vec::new(),
-                    unmatched_segments: Vec::new(),
-                });
+                if self.parse_mode == ParseMode::GreedyOnceStarted && matched_segments.is_empty() {
+                    return Ok(MatchResult::from_unmatched(segments));
+                }
+
+                matched_segments.extend(non_code_buffer);
+                matched_segments.push(UnparsableSegment::new(unmatched_segments).boxed());
+                return Ok(MatchResult { matched_segments, unmatched_segments: tail });
             }
 
             // 5. Successful match: Update the buffers.
@@ -303,22 +341,22 @@ impl Matchable for Sequence {
         // left as unclaimed, mark it as unparsable.
         if matches!(self.parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted) {
             let (pre, unmatched_mid, post) = trim_non_code_segments(&unmatched_segments);
-
             if !unmatched_mid.is_empty() {
-                let mut unparsable_seg = UnparsableSegment { segments, position_marker: None };
-                unparsable_seg.set_position_marker(pos_marker(&unparsable_seg).into());
+                let unparsable_seg = UnparsableSegment::new(unmatched_mid.to_vec()).boxed();
 
-                let non_code = chain(non_code_buffer, pre.to_vec()).collect_vec();
-                matched_segments.extend(chain!(
-                    position_metas(&meta_buffer, &non_code),
-                    vec![unparsable_seg.boxed() as Box<dyn Segment>]
+                // Here, `_position_metas` presumably modifies `matched_segments` in place or
+                // returns a modified copy. Since Rust does not have tuple
+                // concatenation like Python, we need to explicitly extend `matched_segments`
+                // with the results of `_position_metas` and then push `unparsable_seg`.
+                matched_segments.extend(position_metas(
+                    &meta_buffer,
+                    &[&non_code_buffer[..], &pre[..]].concat(),
                 ));
-
-                tail = chain!(post.to_vec(), tail).collect_vec();
-
-                unmatched_segments = Vec::new();
-                meta_buffer = Vec::new();
-                non_code_buffer = Vec::new();
+                matched_segments.push(unparsable_seg);
+                meta_buffer.clear();
+                non_code_buffer.clear();
+                tail.extend(post.to_vec());
+                unmatched_segments = vec![];
             }
         }
 
@@ -337,6 +375,9 @@ impl Matchable for Sequence {
         // If we get to here, we've matched all of the elements (or skipped them).
         // Return successfully.
         unmatched_segments.extend(tail);
+
+        #[cfg(debug_assertions)]
+        check_still_complete(&segments, &matched_segments, &unmatched_segments);
 
         Ok(MatchResult {
             matched_segments: position_segments(&mut matched_segments, None, true),
@@ -612,15 +653,15 @@ impl Matchable for Bracketed {
 
 #[cfg(test)]
 mod tests {
-    use itertools::Itertools as _;
+    use itertools::Itertools;
+    use serde_json::{json, Value};
 
     use super::Sequence;
     use crate::core::parser::context::ParseContext;
-    use crate::core::parser::markers::PositionMarker;
     use crate::core::parser::matchable::Matchable;
     use crate::core::parser::parsers::StringParser;
     use crate::core::parser::segments::keyword::KeywordSegment;
-    use crate::core::parser::segments::meta::Indent;
+    use crate::core::parser::segments::meta::MetaSegment;
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
@@ -775,7 +816,7 @@ mod tests {
         )
         .boxed();
 
-        let g = Sequence::new(vec![Indent::new(PositionMarker::default()).to_matchable(), bs, fs]);
+        let g = Sequence::new(vec![MetaSegment::indent().boxed(), bs, fs]);
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
         let segments = g.match_segments(test_segments(), &mut ctx).unwrap().matched_segments;
 
@@ -786,16 +827,185 @@ mod tests {
     #[test]
     fn test__parser__grammar_sequence_modes() {
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
-        let cases: [(_, &[_], &[_], _, &[_]); 6] = [
-            (ParseMode::Strict, &["a"], &[], 0..2, &[("keyword", "a")]),
-            (ParseMode::Strict, &["a", "b"], &[], 0..2, &[]),
-            (ParseMode::Strict, &["b"], &[], 0..2, &[]),
-            (ParseMode::Strict, &["a"], &[], 0..5, &[("keyword", "a")]),
-            (ParseMode::Strict, &["a", "c"], &[], 0..5, &[("keyword", "a")]),
-            (ParseMode::Strict, &["a", "x"], &["c"], 0..5, &[]),
+        let cases: &[(_, &[&str], &[&str], _, Value)] = &[
+            // #####
+            // Test matches where we should get something, and that's
+            // the whole sequence.
+            // NOTE: Include a little whitespace in the slice (i.e. the first _two_
+            (ParseMode::Strict, &["a"], &[], 0..2, json!([{"keyword": "a"}])),
+            (ParseMode::Greedy, &["a"], &[], 0..2, json!([{"keyword": "a"}])),
+            (ParseMode::GreedyOnceStarted, &["a"], &[], 0..2, json!([{"keyword": "a"}])),
+            // #####
+            // Test matching on sequences where we run out of segments before matching
+            // the whole sequence.
+            // STRICT returns no match.
+            (ParseMode::Strict, &["a", "b"], &[], 0..2, json!([])),
+            // GREEDY & GREEDY_ONCE_STARTED returns the content as unparsable, and
+            // still don't include the trailing whitespace. The return value does
+            // however have the matched "a" as a keyword and not a raw.
+            (
+                ParseMode::Greedy,
+                &["a", "b"],
+                &[],
+                0..2,
+                json!([{
+                    "unparsable": [{"keyword": "a"}]
+                }]),
+            ),
+            (
+                ParseMode::GreedyOnceStarted,
+                &["a", "b"],
+                &[],
+                0..2,
+                json!([{
+                    "unparsable": [{"keyword": "a"}]
+                }]),
+            ),
+            // #####
+            // Test matching on sequences where we fail to match the first element.
+            // STRICT & GREEDY_ONCE_STARTED return no match.
+            (ParseMode::Strict, &["b"], &[], 0..2, json!([])),
+            (ParseMode::GreedyOnceStarted, &["b"], &[], 0..2, json!([])),
+            // GREEDY claims the remaining elements (unmutated) as unparsable, but
+            // does not claim any trailing whitespace.
+            (ParseMode::Greedy, &["b"], &[], 0..2, json!([{"unparsable": [{"": "a"}]}])),
+            // #####
+            // Test matches where we should match the sequence fully, but there's more
+            // to match.
+            // First without terminators...
+            // STRICT ignores the rest.
+            (ParseMode::Strict, &["a"], &[], 0..5, json!([{"keyword": "a"}])),
+            // The GREEDY modes claim the rest as unparsable.
+            // NOTE: the whitespace in between is _not_ unparsable.
+            (
+                ParseMode::Greedy,
+                &["a"],
+                &[],
+                0..5,
+                json!([
+                    {"keyword": "a"},
+                    {"whitespace": " "},
+                    {
+                        "unparsable": [
+                            {"": "b"},
+                            {"whitespace": " "},
+                            {"": "c"}
+                        ]
+                    }
+                ]),
+            ),
+            (
+                ParseMode::GreedyOnceStarted,
+                &["a"],
+                &[],
+                0..5,
+                json!([
+                    {"keyword": "a"},
+                    {"whitespace": " "},
+                    {
+                        "unparsable": [
+                            {"": "b"},
+                            {"whitespace": " "},
+                            {"": "c"}
+                        ]
+                    }
+                ]),
+            ),
+            // Second *with* terminators.
+            // NOTE: The whitespace before the terminator is not included.
+            (ParseMode::Strict, &["a"], &["c"], 0..5, json!([{"keyword": "a"}])),
+            (
+                ParseMode::Greedy,
+                &["a"],
+                &["c"],
+                0..5,
+                json!([
+                    {"keyword": "a"},
+                    {"whitespace": " "},
+                    {
+                        "unparsable": [
+                            {"": "b"}
+                        ]
+                    }
+                ]),
+            ),
+            (
+                ParseMode::GreedyOnceStarted,
+                &["a"],
+                &["c"],
+                0..5,
+                json!([
+                    {"keyword": "a"},
+                    {"whitespace": " "},
+                    {
+                        "unparsable": [
+                            {"": "b"}
+                        ]
+                    }
+                ]),
+            ),
+            // #####
+            // Test matches where we match the first element of a sequence but not the
+            // second (with terminators)
+            (ParseMode::Strict, &["a", "x"], &["c"], 0..5, json!([])),
+            // NOTE: For GREEDY modes, the matched portion is not included as an "unparsable"
+            // only the portion which failed to match. The terminator is not included and
+            // the matched portion is still mutated correctly.
+            (
+                ParseMode::Greedy,
+                &["a", "x"],
+                &["c"],
+                0..5,
+                json!([
+                    {"keyword": "a"},
+                    {"whitespace": " "},
+                    {
+                        "unparsable": [
+                            {"": "b"}
+                        ]
+                    }
+                ]),
+            ),
+            (
+                ParseMode::GreedyOnceStarted,
+                &["a", "x"],
+                &["c"],
+                0..5,
+                json!([
+                    {"keyword": "a"},
+                    {"whitespace": " "},
+                    {
+                        "unparsable": [
+                            {"": "b"}
+                        ]
+                    }
+                ]),
+            ),
+            // #####
+            // Test competition between sequence elements and terminators.
+            // In GREEDY_ONCE_STARTED, the first element is matched before any terminators.
+            (ParseMode::GreedyOnceStarted, &["a"], &["a"], 0..2, json!([{"keyword": "a"}])),
+            // In GREEDY, the terminator is matched first and so takes precedence.
+            (ParseMode::Greedy, &["a"], &["a"], 0..2, json!([])),
+            // NOTE: In these last two cases, the "b" isn't included because it acted as
+            // a terminator before being considered in the sequence.
+            (
+                ParseMode::GreedyOnceStarted,
+                &["a", "b"],
+                &["b"],
+                0..3,
+                json!([{"unparsable": [{"keyword": "a"}]}]),
+            ),
+            (
+                ParseMode::Greedy,
+                &["a", "b"],
+                &["b"],
+                0..3,
+                json!([{"unparsable": [{"keyword": "a"}]}]),
+            ),
         ];
 
-        for (parse_mode, sequence, terminators, input_slice, output_tuple) in cases {
+        for (parse_mode, sequence, terminators, input_slice, output) in cases {
             let mut parse_context = ParseContext::new(fresh_ansi_dialect());
 
             let elements = sequence
@@ -818,25 +1028,40 @@ mod tests {
                 })
                 .collect_vec();
 
-            let seq = Sequence::new(elements);
+            let mut seq = Sequence::new(elements);
+            seq.terminators = terminators
+                .into_iter()
+                .map(|it| {
+                    StringParser::new(
+                        it,
+                        |segment| {
+                            KeywordSegment::new(
+                                segment.get_raw().unwrap(),
+                                segment.get_position_marker().unwrap().into(),
+                            )
+                            .boxed()
+                        },
+                        None,
+                        false,
+                        None,
+                    )
+                    .boxed() as Box<dyn Matchable>
+                })
+                .collect();
+            seq.parse_mode = *parse_mode;
 
-            let match_result =
-                seq.match_segments(segments[input_slice].to_vec(), &mut parse_context).unwrap();
+            let match_result = seq
+                .match_segments(segments[input_slice.clone()].to_vec(), &mut parse_context)
+                .unwrap();
 
             let result = match_result
                 .matched_segments
-                .clone()
-                .into_iter()
-                .map(|segment| (segment.get_type(), segment.get_raw().unwrap()))
+                .iter()
+                .map(|it| it.to_serialised(false, true, false))
                 .collect_vec();
 
-            let are_equal = result
-                .iter()
-                .map(|(s, str_ref)| (s, str_ref.as_str()))
-                .zip(output_tuple.iter())
-                .all(|((s1, str_ref1), (s2, str_ref2))| s1 == s2 && str_ref1 == *str_ref2);
-
-            assert!(are_equal);
+            let input = serde_json::to_value(result).unwrap();
+            assert_eq!(&input, output);
         }
     }
 }

@@ -5,9 +5,11 @@ use std::rc::Rc;
 
 use super::context::RuleContext;
 use super::crawlers::{BaseCrawler, Crawler};
+use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::Segment;
+use crate::helpers::Config;
 
 // Assuming BaseSegment, LintFix, and SQLLintError are defined elsewhere.
 
@@ -33,13 +35,14 @@ impl LintResult {
         LintResult { anchor, fixes, memory, description, source: source.unwrap_or_default() }
     }
 
-    pub fn to_linting_error(&self, rule_description: &'static str) -> Option<SQLLintError> {
-        let _anchor = self.anchor.as_ref()?;
+    pub fn to_linting_error(&self, rule: ErasedRule) -> Option<SQLLintError> {
+        let anchor = self.anchor.clone()?;
+        let description =
+            self.description.clone().unwrap_or_else(|| rule.description().to_string());
 
-        SQLLintError {
-            description: self.description.clone().unwrap_or(rule_description.to_string()),
-        }
-        .into()
+        SQLLintError::new(description.as_str(), anchor)
+            .config(|this| this.rule = rule.into())
+            .into()
     }
 }
 
@@ -123,12 +126,10 @@ impl LintFix {
             // We rely on realignment to make position markers later in the process.
             for seg in &mut edit {
                 if seg.get_position_marker().is_some() {
-                    // assuming `pos_marker` is a field of `BaseSegment`
-                    eprintln!(
+                    tracing::debug!(
                         "Developer Note: Edit segment found with preset position marker. These \
                          should be unset and calculated later."
                     );
-                    // assuming `pos_marker` is Option-like and can be set to None
                     seg.set_position_marker(None);
                 };
             }
@@ -222,9 +223,35 @@ impl PartialEq for LintFix {
     }
 }
 
-pub trait Rule: Debug + 'static {
+pub trait CloneRule {
+    fn erased(&self) -> ErasedRule;
+}
+
+impl<T: Rule> CloneRule for T {
+    fn erased(&self) -> ErasedRule {
+        dyn_clone::clone(self).erased()
+    }
+}
+
+pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
+    fn from_config(_config: &FluffConfig) -> Self
+    where
+        Self: Default,
+    {
+        Self::default()
+    }
+
     fn lint_phase(&self) -> &'static str {
         "main"
+    }
+
+    fn name(&self) -> &'static str {
+        std::any::type_name::<Self>()
+    }
+
+    fn code(&self) -> &'static str {
+        let name = std::any::type_name::<Self>();
+        name.split("::").last().unwrap().strip_prefix("Rule").unwrap_or(name)
     }
 
     fn description(&self) -> &'static str {
@@ -244,8 +271,10 @@ pub trait Rule: Debug + 'static {
         dialect: Dialect,
         fix: bool,
         tree: Box<dyn Segment>,
+        config: FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
-        let root_context = RuleContext { dialect, fix, segment: tree, ..<_>::default() };
+        let root_context =
+            RuleContext { dialect, fix, config: config.into(), segment: tree, ..<_>::default() };
         let mut vs = Vec::new();
         let mut fixes = Vec::new();
 
@@ -279,7 +308,7 @@ pub trait Rule: Debug + 'static {
     ) {
         let ignored = false;
 
-        if let Some(lerr) = res.to_linting_error(self.description()) {
+        if let Some(lerr) = res.to_linting_error(self.erased()) {
             new_lerrs.push(lerr);
         }
 
@@ -289,9 +318,17 @@ pub trait Rule: Debug + 'static {
     }
 }
 
+dyn_clone::clone_trait_object!(Rule);
+
 #[derive(Debug, Clone)]
 pub struct ErasedRule {
     erased: Rc<dyn Rule>,
+}
+
+impl PartialEq for ErasedRule {
+    fn eq(&self, other: &Self) -> bool {
+        unimplemented!()
+    }
 }
 
 impl Deref for ErasedRule {

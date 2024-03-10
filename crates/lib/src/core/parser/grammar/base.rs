@@ -229,14 +229,25 @@ impl Matchable for Ref {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub struct Anything {
-    terminators: Vec<()>,
+    terminators: Vec<Box<dyn Matchable>>,
+}
+
+impl PartialEq for Anything {
+    fn eq(&self, other: &Self) -> bool {
+        unimplemented!()
+    }
 }
 
 impl Anything {
     pub fn new() -> Self {
         Self { terminators: Vec::new() }
+    }
+
+    pub fn terminators(mut self, terminators: Vec<Box<dyn Matchable>>) -> Self {
+        self.terminators = terminators;
+        self
     }
 }
 
@@ -252,7 +263,7 @@ impl Matchable for Anything {
             return Ok(MatchResult::from_matched(segments));
         }
 
-        greedy_match(segments, parse_context, Vec::new(), false)
+        greedy_match(segments, parse_context, self.terminators.clone(), false)
     }
 }
 

@@ -3,23 +3,28 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct RuleLT02 {}
 
 impl Rule for RuleLT02 {
+    fn name(&self) -> &'static str {
+        "layout.indent"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler::default().into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        ReflowSequence::from_root(context.segment, context.config.clone()).reindent().results()
+        ReflowSequence::from_root(context.segment, context.config.clone().unwrap())
+            .reindent()
+            .results()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::api::simple::{fix, lint};
-    use crate::core::errors::SQLLintError;
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::layout::LT02::RuleLT02;
 
@@ -32,10 +37,8 @@ mod tests {
         let fail_str = "     SELECT 1";
         let violations = lint(fail_str.into(), "ansi".into(), rules(), None, None).unwrap();
 
-        assert_eq!(
-            violations,
-            [SQLLintError { description: "First line should not be indented.".into() }]
-        );
+        assert_eq!(violations[0].desc(), "First line should not be indented.");
+        assert_eq!(violations.len(), 1);
     }
 
     #[test]

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::mem::take;
 
+use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::init::dialect_selector;
 use crate::core::errors::{SQLFluffUserError, SQLLintError};
@@ -35,7 +36,6 @@ pub fn get_simple_config(
     return out;
 }
 
-/// Lint a SQL string.
 pub fn lint(
     sql: String,
     dialect: String,
@@ -43,8 +43,23 @@ pub fn lint(
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
 ) -> Result<Vec<SQLLintError>, SQLFluffUserError> {
+    lint_with_formatter(sql, dialect, rules, exclude_rules, config_path, None)
+}
+
+/// Lint a SQL string.
+pub fn lint_with_formatter(
+    sql: String,
+    dialect: String,
+    rules: Vec<ErasedRule>,
+    exclude_rules: Option<Vec<String>>,
+    config_path: Option<String>,
+    formatter: Option<OutputStreamFormatter>,
+) -> Result<Vec<SQLLintError>, SQLFluffUserError> {
     let cfg = get_simple_config(dialect.into(), None, exclude_rules, config_path)?;
-    let linter = Linter::new(cfg, None, None);
+
+    let mut linter = Linter::new(cfg, None, None);
+    linter.formatter = formatter.into();
+
     let mut result = linter.lint_string_wrapped(sql, None, None, rules);
 
     Ok(take(&mut result.paths[0].files[0].violations))
@@ -52,7 +67,7 @@ pub fn lint(
 
 pub fn fix(sql: String, rules: Vec<ErasedRule>) -> String {
     let cfg = get_simple_config(Some("ansi".into()), None, None, None).unwrap();
-    let linter = Linter::new(cfg, None, None);
+    let mut linter = Linter::new(cfg, None, None);
     let result = linter.lint_string_wrapped(sql, None, Some(true), rules);
     result.paths[0].files[0].fix_string()
 }

@@ -1,6 +1,7 @@
 use std::ops::Range;
 
 use super::keyword::KeywordSegment;
+use super::meta::{Indent, MetaSegment, TemplateSegment};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;
@@ -12,12 +13,15 @@ use crate::core::parser::segments::base::{
     NewlineSegmentNewArgs, Segment, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
     WhitespaceSegmentNewArgs,
 };
-use crate::core::parser::segments::meta::{Dedent, Indent};
 use crate::core::templaters::base::TemplatedFile;
 use crate::helpers::Boxed;
 
 pub fn fresh_ansi_dialect() -> Dialect {
     dialect_selector("ansi").unwrap()
+}
+
+pub fn bracket_segments() -> Vec<Box<dyn Segment>> {
+    generate_test_segments_func(vec!["bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo"])
 }
 
 pub fn parse_ansi_string(sql: &str) -> Box<dyn Segment> {
@@ -46,29 +50,14 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<Box<dyn Segment>> {
 
     let templated_file = TemplatedFile::from_string(raw_file);
     let mut idx = 0;
-    let mut buff = Vec::new();
+    let mut buff: Vec<Box<dyn Segment>> = Vec::new();
 
     for elem in elems {
         if elem == "<indent>" {
-            buff.push(
-                Indent::new(PositionMarker::from_point(
-                    idx,
-                    idx,
-                    templated_file.clone(),
-                    None,
-                    None,
-                ))
-                .boxed() as Box<dyn Segment>,
-            );
+            buff.push(Indent::indent().boxed());
             continue;
         } else if elem == "<dedent>" {
-            buff.push(Dedent::new(PositionMarker::from_point(
-                idx,
-                idx,
-                templated_file.clone(),
-                None,
-                None,
-            )));
+            buff.push(Indent::dedent().boxed());
             continue;
         }
 
@@ -147,7 +136,14 @@ pub fn raw_seg() -> Box<dyn Segment> {
 }
 
 pub fn test_segments() -> Vec<Box<dyn Segment>> {
-    generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "])
+    let mut main_list = generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "]);
+    let ts = MetaSegment::template(
+        main_list.last().unwrap().get_position_marker().unwrap().into(),
+        "{# comment #}".into(),
+        "comment".into(),
+    );
+    main_list.push(ts.boxed() as Box<dyn Segment>);
+    main_list
 }
 
 pub fn make_result_tuple(

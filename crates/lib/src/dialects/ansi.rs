@@ -25,7 +25,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
-use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
 
@@ -224,7 +224,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "DotSegment".into(),
-            StringParser::new(".", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ".",
+                |segment: &dyn Segment| {
+                    SymbolSegment::new(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "dot" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "StarSegment".into(),
@@ -1650,7 +1664,8 @@ pub fn ansi_dialect() -> Dialect {
         (
             "NonWithSelectableGrammar".into(),
             one_of(vec![
-                Ref::new("SetExpressionSegment").boxed(),
+                // FIXME:
+                // Ref::new("SetExpressionSegment").boxed(),
                 optionally_bracketed(vec![Ref::new("SelectStatementSegment").boxed()]).boxed(),
                 Ref::new("NonSetSelectableGrammar").boxed(),
             ])
@@ -2306,8 +2321,8 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         .boxed()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.segments.clone()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -2469,15 +2484,15 @@ impl Segment for FileSegment {
                 this.allow_trailing();
                 this.delimiter(
                     AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").boxed()])
-                        .config(|config| config.max_times(1)),
+                        .config(|config| config.min_times(1)),
                 );
             })
             .to_matchable()
             .into()
     }
 
-    fn get_segments(&self) -> Vec<Box<dyn Segment>> {
-        self.segments.clone()
+    fn segments(&self) -> &[Box<dyn Segment>] {
+        &self.segments
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -2592,7 +2607,7 @@ impl NodeTrait for SelectClauseSegment {
         Sequence::new(vec_of_erased![
             Ref::keyword("SELECT"),
             Ref::new("SelectClauseModifierSegment").optional(),
-            Indent::default(),
+            MetaSegment::indent(),
             Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
                 .config(|this| this.allow_trailing())
         ])
@@ -2670,7 +2685,8 @@ impl NodeTrait for SetExpressionSegment {
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 Ref::new("SetOperatorSegment"),
                 Ref::new("NonSetSelectableGrammar")
-            ])]) //  .config(|this| this.min_times(1))
+            ])])
+            .config(|this| this.min_times(1))
         ])
         .to_matchable()
     }
@@ -2786,11 +2802,13 @@ impl NodeTrait for OrderByClauseSegment {
     const TYPE: &'static str = "order_by_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("ORDER").boxed(),
-            Ref::keyword("BY").boxed(),
-            Delimited::new(vec![one_of(vec![Ref::new("NumericLiteralSegment").boxed()]).boxed()])
-                .boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ORDER"),
+            Ref::keyword("BY"),
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![one_of(vec_of_erased![Ref::new(
+                "NumericLiteralSegment"
+            )])])
         ])
         .to_matchable()
     }
@@ -2827,24 +2845,18 @@ impl NodeTrait for FromExpressionSegment {
     const TYPE: &'static str = "from_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        optionally_bracketed(vec![
-            Sequence::new(vec![
-                one_of(vec![Ref::new("FromExpressionElementSegment").boxed()]).boxed(),
-                AnyNumberOf::new(vec![
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::new("JoinClauseSegment").boxed(),
-                            Ref::new("JoinLikeClauseGrammar").boxed(),
-                        ])
-                        .config(|this| this.optional())
-                        .boxed(),
-                    ])
-                    .boxed(),
+        optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
+            one_of(vec_of_erased![Ref::new("FromExpressionElementSegment")]),
+            MetaSegment::dedent(),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("JoinClauseSegment"),
+                    Ref::new("JoinLikeClauseGrammar")
                 ])
-                .boxed(),
-            ])
-            .boxed(),
-        ])
+                .config(|this| this.optional())
+            ])])
+        ])])
         .to_matchable()
     }
 }
@@ -3170,10 +3182,13 @@ impl NodeTrait for AliasExpressionSegment {
     const TYPE: &'static str = "alias_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("AS").optional().boxed(),
-            one_of(vec![Sequence::new(vec![Ref::new("SingleIdentifierGrammar").boxed()]).boxed()])
-                .boxed(),
+        Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
+            Ref::keyword("AS").optional(),
+            one_of(vec_of_erased![Sequence::new(vec_of_erased![Ref::new(
+                "SingleIdentifierGrammar"
+            )])]),
+            MetaSegment::indent()
         ])
         .to_matchable()
     }
@@ -3235,6 +3250,7 @@ impl NodeTrait for FunctionSegment {
             Sequence::new(vec_of_erased![
                 Ref::new("FunctionNameSegment"),
                 Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
             ]),
             Ref::new("PostFunctionGrammar").optional()
         ])])
@@ -3551,12 +3567,15 @@ impl NodeTrait for MergeStatementSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("MergeIntoLiteralGrammar").boxed(),
+            MetaSegment::indent().boxed(),
             one_of(vec![
                 Ref::new("TableReferenceSegment").boxed(),
                 Ref::new("AliasedTableReferenceGrammar").boxed(),
             ])
             .boxed(),
+            MetaSegment::dedent().boxed(),
             Ref::keyword("USING").boxed(),
+            MetaSegment::indent().boxed(),
             one_of(vec![
                 Ref::new("TableReferenceSegment").boxed(),
                 Ref::new("AliasedTableReferenceGrammar").boxed(),
@@ -4383,12 +4402,14 @@ impl NodeTrait for JoinClauseSegment {
         one_of(vec_of_erased![Sequence::new(vec_of_erased![
             Ref::new("JoinTypeKeywordsGrammar").optional(),
             Ref::new("JoinKeywordsGrammar"),
+            MetaSegment::indent(),
             Ref::new("FromExpressionElementSegment"),
             AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
             Sequence::new(vec_of_erased![one_of(vec_of_erased![
                 Ref::new("JoinOnConditionSegment"),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("USING"),
+                    MetaSegment::indent(),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
                         "SingleIdentifierGrammar"
                     )])])
@@ -4431,12 +4452,14 @@ impl NodeTrait for OverClauseSegment {
 
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
             Ref::new("IgnoreRespectNullsGrammar").optional(),
             Ref::keyword("OVER"),
             one_of(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"),
                 Bracketed::new(vec_of_erased![Ref::new("WindowSpecificationSegment").optional()])
-            ])
+            ]),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -4468,9 +4491,11 @@ impl NodeTrait for PartitionClauseSegment {
         Sequence::new(vec_of_erased![
             Ref::keyword("PARTITION"),
             Ref::keyword("BY"),
+            MetaSegment::indent(),
             optionally_bracketed(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
                 "ExpressionSegment"
-            )])])
+            )])]),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -4700,15 +4725,10 @@ mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
-    use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed};
-    use crate::core::parser::grammar::base::{Nothing, Ref};
-    use crate::core::parser::grammar::delimited::Delimited;
-    use crate::core::parser::grammar::sequence::Sequence;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
-    use crate::core::parser::matchable::Matchable;
     use crate::core::parser::segments::base::Segment;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
-    use crate::helpers::{self, Boxed, Config};
+    use crate::helpers;
 
     #[test]
     fn test__dialect__ansi__file_lex() {
@@ -4914,7 +4934,7 @@ mod tests {
 
     #[test]
     fn test__dialect__ansi_parse_indented_joins() {
-        let cases = [("SELECT   1;",)];
+        let cases = [("select field_1 from my_table as alias_1",)];
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
 
         for (sql_string,) in cases {
@@ -4926,28 +4946,6 @@ mod tests {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let parsed = linter.parse_string(sql.into(), None, None, None, None).unwrap();
         parsed.tree.unwrap()
-    }
-
-    #[test]
-    fn pg() {
-        let dialect = fresh_ansi_dialect();
-        let mut ctx = ParseContext::new(dialect.clone());
-
-        let segment = one_of(vec![
-            Ref::new("SetExpressionSegment").boxed(),
-            Ref::new("SelectStatementSegment").boxed(),
-        ]);
-
-        // let segment = Ref::new("SelectClauseSegment");
-
-        let mut segments = lex("SELECT a, b");
-
-        if segments.last().unwrap().get_type() == "end_of_file" {
-            segments.pop();
-        }
-
-        let match_result = segment.match_segments(segments, &mut ctx).unwrap();
-        println!("{}", match_result);
     }
 
     #[test]

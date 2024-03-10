@@ -6,7 +6,7 @@ use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleAL08 {}
 
 impl Rule for RuleAL08 {
@@ -18,17 +18,17 @@ impl Rule for RuleAL08 {
             let mut column_alias = None;
 
             if let Some(alias_expression) = clause_element.child(&["alias_expression"]) {
-                for it in alias_expression.get_segments() {
+                for it in alias_expression.segments() {
                     if !it.is_code() || it.get_raw_upper().unwrap() == "AS" {
                         continue;
                     }
 
-                    column_alias = it.into();
+                    column_alias = it.clone().into();
                     break;
                 }
             } else {
                 if let Some(column_reference) = clause_element.child(&["column_reference"]) {
-                    column_alias = column_reference.get_segments().pop();
+                    column_alias = column_reference.segments().last().cloned();
                 }
             }
 
@@ -66,7 +66,6 @@ impl Rule for RuleAL08 {
 #[cfg(test)]
 mod tests {
     use crate::api::simple::lint;
-    use crate::core::errors::SQLLintError;
     use crate::core::rules::base::Erased;
     use crate::rules::aliasing::AL08::RuleAL08;
 
@@ -77,10 +76,8 @@ mod tests {
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        assert_eq!(
-            result,
-            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() }]
-        );
+        assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
+        assert_eq!(result.len(), 1);
     }
 
     #[test]
@@ -90,10 +87,8 @@ mod tests {
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        assert_eq!(
-            result,
-            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() }]
-        );
+        assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
+        assert_eq!(result.len(), 1);
     }
 
     #[test]
@@ -103,10 +98,8 @@ mod tests {
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        assert_eq!(
-            result,
-            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },]
-        );
+        assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
+        assert_eq!(result.len(), 1);
     }
 
     #[test]
@@ -116,14 +109,10 @@ mod tests {
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        assert_eq!(
-            result,
-            vec![
-                SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },
-                SQLLintError { description: "Reuse of column alias 'bar' from line 1.".into() },
-                SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },
-            ]
-        )
+        assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
+        assert_eq!(result[1].desc(), "Reuse of column alias 'bar' from line 1.");
+        assert_eq!(result[2].desc(), "Reuse of column alias 'foo' from line 1.");
+        assert_eq!(result.len(), 3);
     }
 
     #[test]
@@ -149,10 +138,8 @@ mod tests {
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        assert_eq!(
-            result,
-            vec![SQLLintError { description: "Reuse of column alias 'FOO' from line 1.".into() },]
-        )
+        assert_eq!(result[0].desc(), "Reuse of column alias 'FOO' from line 1.");
+        assert_eq!(result.len(), 1);
     }
 
     #[test]
@@ -162,10 +149,8 @@ mod tests {
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        assert_eq!(
-            result,
-            vec![SQLLintError { description: "Reuse of column alias 'foo' from line 1.".into() },]
-        );
+        assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
+        assert_eq!(result.len(), 1);
     }
 
     #[test]

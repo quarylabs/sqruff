@@ -7,11 +7,12 @@ use super::sequence::{Bracketed, Sequence};
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::helpers::trim_non_code_segments;
+use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{Segment, UnparsableSegment};
 use crate::core::parser::types::ParseMode;
-use crate::helpers::ToMatchable;
+use crate::helpers::{Boxed, ToMatchable};
 
 fn parse_mode_match_result(
     matched_segments: Vec<Box<dyn Segment>>,
@@ -34,18 +35,16 @@ fn parse_mode_match_result(
     let trim_idx = unmatched_segments.iter().position(|s| s.is_code()).unwrap_or(0);
 
     // Create an unmatched segment
-    let expected = if let Some(first_tail_segment) = tail.get(0) {
+    let _expected = if let Some(first_tail_segment) = tail.get(0) {
         format!("Nothing else before {first_tail_segment:?}")
     } else {
         "Nothing else".to_string()
     };
 
-    let unmatched_seg = unimplemented!();
-    // let unmatched_seg = UnparsableSegment::new(&unmatched_segments[trim_idx..],
-    // expected);
+    let unmatched_seg = UnparsableSegment::new(unmatched_segments[trim_idx..].to_vec());
     let mut matched = matched_segments;
     matched.extend_from_slice(&unmatched_segments[..trim_idx]);
-    matched.push(unmatched_seg);
+    matched.push(unmatched_seg.boxed());
 
     MatchResult::new(matched, tail)
 }
@@ -77,10 +76,12 @@ pub fn simple(
 #[derive(Debug, Clone, Hash)]
 pub struct AnyNumberOf {
     pub elements: Vec<Box<dyn Matchable>>,
+    pub terminators: Vec<Box<dyn Matchable>>,
     pub max_times: Option<usize>,
     pub min_times: usize,
     pub allow_gaps: bool,
     pub optional: bool,
+    pub parse_mode: ParseMode,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -91,7 +92,15 @@ impl PartialEq for AnyNumberOf {
 
 impl AnyNumberOf {
     pub fn new(elements: Vec<Box<dyn Matchable>>) -> Self {
-        Self { elements, max_times: None, min_times: 0, allow_gaps: true, optional: false }
+        Self {
+            elements,
+            max_times: None,
+            min_times: 0,
+            allow_gaps: true,
+            optional: false,
+            parse_mode: ParseMode::Strict,
+            terminators: Vec::new(),
+        }
     }
 
     pub fn optional(&mut self) {
@@ -148,7 +157,18 @@ impl Matchable for AnyNumberOf {
     ) -> Result<MatchResult, SQLParseError> {
         let mut matched_segments = MatchResult::from_empty();
         let mut unmatched_segments = segments.clone();
-        let tail = Vec::new();
+        let mut tail = Vec::new();
+
+        if self.parse_mode == ParseMode::Greedy {
+            let mut terminators = self.terminators.clone();
+            terminators.extend(parse_context.terminators.clone());
+
+            let term_match = greedy_match(segments.clone(), parse_context, terminators, false)?;
+            if term_match.has_match() {
+                unmatched_segments = term_match.matched_segments;
+                tail = term_match.unmatched_segments;
+            }
+        }
 
         // Keep track of the number of times each option has been matched.
         let mut n_matches = 0;
@@ -160,7 +180,7 @@ impl Matchable for AnyNumberOf {
                     matched_segments.matched_segments,
                     unmatched_segments,
                     tail,
-                    ParseMode::Strict,
+                    self.parse_mode,
                 ));
             }
 
@@ -172,7 +192,7 @@ impl Matchable for AnyNumberOf {
                         matched_segments.matched_segments,
                         unmatched_segments,
                         tail,
-                        ParseMode::Strict,
+                        self.parse_mode,
                     ))
                 } else {
                     // We didn't meet the hurdle
@@ -215,7 +235,7 @@ impl Matchable for AnyNumberOf {
                         matched_segments.matched_segments,
                         chain(pre_seg, unmatched_segments).collect_vec(),
                         tail,
-                        ParseMode::Strict,
+                        self.parse_mode,
                     ))
                 } else {
                     // We didn't meet the hurdle
@@ -225,7 +245,7 @@ impl Matchable for AnyNumberOf {
                             .chain(unmatched_segments)
                             .collect_vec(),
                         tail,
-                        ParseMode::Strict,
+                        self.parse_mode,
                     ))
                 };
             }
@@ -259,15 +279,18 @@ pub fn optionally_bracketed(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
 #[cfg(test)]
 mod tests {
     use itertools::Itertools;
+    use pretty_assertions::assert_eq;
+    use serde_json::{json, Value};
 
     use super::{one_of, AnyNumberOf};
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::matchable::Matchable;
-    use crate::core::parser::parsers::StringParser;
+    use crate::core::parser::parsers::{RegexParser, StringParser};
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
+    use crate::core::parser::types::ParseMode;
     use crate::helpers::{Boxed, ToMatchable};
 
     #[test]
@@ -371,16 +394,45 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_anyof_modes() {
-        let cases: [(&[_], &[_]); 3] = [
-            (&["a"], &[("a", "keyword")]),
-            (&["b"], &[]),
-            (&["b", "a"], &[("a", "keyword"), (" ", "whitespace"), ("b", "keyword")]),
+        let cases: [(_, &[_], &[_], Value, Option<usize>); 7] = [
+            // #####
+            // Strict matches
+            // #####
+            // 1. Match once
+            (ParseMode::Strict, &["a"], &[], json!([{"keyword": "a"}]), None),
+            // 2. Match none
+            (ParseMode::Strict, &["b"], &[], json!([]), None),
+            // 3. Match twice
+            (
+                ParseMode::Strict,
+                &["b", "a"],
+                &[],
+                json!([{"keyword": "a"}, {"whitespace": " "},{"keyword": "b"}]),
+                None,
+            ),
+            // 4. Limited match
+            (ParseMode::Strict, &["b", "a"], &[], json!([{"keyword": "a"}]), 1.into()),
+            // #####
+            // Greedy matches
+            // #####
+            // 1. Terminated match
+            (ParseMode::Greedy, &["b", "a"], &["b"], json!([{"keyword": "a"}]), None),
+            // 2. Terminated, but not matching the first element.
+            (ParseMode::Greedy, &["b"], &["b"], json!([{"unparsable": [{"": "a"}]}]), None),
+            // 3. Terminated, but only a partial match.
+            (
+                ParseMode::Greedy,
+                &["a"],
+                &["c"],
+                json!([{"keyword": "a"}, {"whitespace": " "}, {"unparsable": [{"": "b"}]}]),
+                None,
+            ),
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
         let mut parse_cx = ParseContext::new(fresh_ansi_dialect());
 
-        for (sequence, output_tuple) in cases {
+        for (mode, sequence, terminators, output, max_times) in cases {
             let elements = sequence
                 .iter()
                 .map(|it| {
@@ -401,23 +453,142 @@ mod tests {
                 })
                 .collect_vec();
 
-            let seq = AnyNumberOf::new(elements);
-
-            let match_result = seq.match_segments(segments.clone(), &mut parse_cx).unwrap();
-            let matched_segments = match_result.matched_segments;
-
-            let result = matched_segments
-                .into_iter()
-                .map(|segment| (segment.get_raw().unwrap(), segment.get_type()))
+            let terms = terminators
+                .iter()
+                .map(|it| {
+                    StringParser::new(
+                        it,
+                        |segment| {
+                            KeywordSegment::new(
+                                segment.get_raw().unwrap(),
+                                segment.get_position_marker().unwrap().into(),
+                            )
+                            .boxed()
+                        },
+                        None,
+                        false,
+                        None,
+                    )
+                    .boxed() as Box<dyn Matchable>
+                })
                 .collect_vec();
 
-            let are_equal = result
-                .iter()
-                .map(|(s, str_ref)| (s.as_str(), str_ref))
-                .zip(output_tuple.iter())
-                .all(|((s1, str_ref1), (s2, str_ref2))| s1 == *s2 && str_ref1 == str_ref2);
+            let mut seq = AnyNumberOf::new(elements);
+            seq.parse_mode = mode;
+            seq.terminators = terms;
+            if let Some(max_times) = max_times {
+                seq.max_times(max_times);
+            }
 
-            assert!(are_equal);
+            let match_result = seq.match_segments(segments.clone(), &mut parse_cx).unwrap();
+
+            let result = match_result
+                .matched_segments
+                .iter()
+                .map(|it| it.to_serialised(false, true, false))
+                .collect_vec();
+
+            let input = serde_json::to_value(result).unwrap();
+            assert_eq!(input, output);
+        }
+    }
+
+    #[test]
+    fn test__parser__grammar_anysetof() {
+        let token_list = vec!["bar", "  \t ", "foo", "  \t ", "bar"];
+        let segments = generate_test_segments_func(token_list);
+
+        let bar = StringParser::new(
+            "bar",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        );
+        let foo = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        );
+
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let g = AnyNumberOf::new(vec![bar.boxed(), foo.boxed()]);
+        let result = g.match_segments(segments, &mut ctx).unwrap().matched_segments;
+
+        assert_eq!(result[0].get_raw().unwrap(), "bar");
+        assert_eq!(result[1].get_raw().unwrap(), "  \t ");
+        assert_eq!(result[2].get_raw().unwrap(), "foo");
+    }
+
+    #[test]
+    fn test__parser__grammar_oneof_take_first() {
+        let segments = test_segments();
+
+        let foo_regex = RegexParser::new(
+            "fo{2}",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+            None,
+        );
+        let foo = StringParser::new(
+            "foo",
+            |segment| {
+                KeywordSegment::new(
+                    segment.get_raw().unwrap(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .boxed()
+            },
+            None,
+            false,
+            None,
+        );
+
+        let g1 = one_of(vec![foo_regex.clone().boxed(), foo.clone().boxed()]);
+        let g2 = one_of(vec![foo.boxed(), foo_regex.boxed()]);
+
+        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+
+        for segment in
+            g1.match_segments(segments.clone(), &mut ctx).unwrap().matched_segments.iter()
+        {
+            assert_eq!(segment.get_raw().unwrap(), "foo");
+            assert_eq!(
+                segment.get_position_marker().unwrap(),
+                segments[2].get_position_marker().unwrap()
+            );
+        }
+
+        for segment in
+            g2.match_segments(segments[2..].to_vec(), &mut ctx).unwrap().matched_segments.iter()
+        {
+            assert_eq!(segment.get_raw().unwrap(), "foo");
+            assert_eq!(
+                segment.get_position_marker().unwrap(),
+                segments[2].get_position_marker().unwrap()
+            );
         }
     }
 }

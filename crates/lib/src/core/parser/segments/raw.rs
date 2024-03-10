@@ -27,7 +27,7 @@ impl RawSegment {
         _source_fixes: Option<Vec<SourceFix>>,
         _uuid: Option<String>,
     ) -> Self {
-        Self { position_marker, raw, uuid: uuid::Uuid::new_v4() }
+        Self { position_marker, raw, uuid: Uuid::new_v4() }
     }
 }
 

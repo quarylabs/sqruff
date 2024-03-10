@@ -196,6 +196,20 @@ impl PositionMarker {
     pub fn is_literal(&self) -> bool {
         self.templated_file.is_source_slice_literal(&self.source_slice)
     }
+
+    pub fn from_points(
+        start_point_marker: &PositionMarker,
+        end_point_marker: &PositionMarker,
+    ) -> PositionMarker {
+        Self {
+            source_slice: start_point_marker.source_slice.start..end_point_marker.source_slice.end,
+            templated_slice: start_point_marker.templated_slice.start
+                ..end_point_marker.templated_slice.end,
+            templated_file: start_point_marker.templated_file.clone(),
+            working_line_no: start_point_marker.working_line_no,
+            working_line_pos: start_point_marker.working_line_pos,
+        }
+    }
 }
 
 impl PartialEq for PositionMarker {

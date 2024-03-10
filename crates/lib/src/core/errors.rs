@@ -1,9 +1,13 @@
 // use super::pos::PosMarker;
 
+use std::ops::{Deref, DerefMut};
+
 use fancy_regex::Regex;
 
 use super::parser::segments::base::Segment;
+use super::rules::base::ErasedRule;
 use crate::core::parser::markers::PositionMarker;
+use crate::helpers::Config;
 
 type CheckTuple = (String, usize, usize);
 
@@ -22,11 +26,38 @@ pub struct SQLBaseError {
     pub warning: bool,
     pub line_no: usize,
     pub line_pos: usize,
+    pub description: String,
+    pub rule_code: String,
+    pub rule: Option<ErasedRule>,
 }
 
 impl SQLBaseError {
-    pub fn new(fatal: bool, ignore: bool, warning: bool, line_no: usize, line_pos: usize) -> Self {
-        Self { fatal, ignore, warning, line_no, line_pos }
+    pub fn new() -> Self {
+        Self {
+            description: String::new(),
+            fatal: false,
+            ignore: false,
+            warning: false,
+            line_no: 0,
+            line_pos: 0,
+            rule_code: "????".into(),
+            rule: None,
+        }
+    }
+
+    pub fn rule_code(&self) -> &str {
+        &self.rule_code
+    }
+
+    pub fn set_position_marker(&mut self, position_marker: PositionMarker) {
+        let (line_no, line_pos) = position_marker.source_position();
+
+        self.line_no = line_no;
+        self.line_pos = line_pos;
+    }
+
+    pub fn desc(&self) -> &str {
+        &self.description
     }
 }
 
@@ -156,17 +187,43 @@ impl SqlError for SQLBaseError {
 //     }
 // }
 //
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SQLLintError {
-    // segment: Box<dyn Segment>,
-    // rule: ErasedRule,
-    // fixes: Vec<LintFix>,
-    pub description: String,
+    base: SQLBaseError,
+}
+
+impl SQLLintError {
+    pub fn new(description: &str, segment: Box<dyn Segment>) -> Self {
+        Self {
+            base: SQLBaseError::new().config(|this| {
+                this.description = description.into();
+                this.set_position_marker(segment.get_position_marker().unwrap());
+            }),
+        }
+    }
+}
+
+impl Deref for SQLLintError {
+    type Target = SQLBaseError;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for SQLLintError {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
 }
 
 impl From<SQLLintError> for SQLBaseError {
-    fn from(value: SQLLintError) -> Self {
-        Self { fatal: false, ignore: false, warning: true, line_no: todo!(), line_pos: todo!() }
+    fn from(mut value: SQLLintError) -> Self {
+        if let Some(rule) = &value.rule {
+            value.base.rule_code = rule.code().into();
+        }
+
+        value.base
     }
 }
 
@@ -271,7 +328,11 @@ impl From<SQLParseError> for SQLBaseError {
             (line_no, line_pos) = pos_marker.source_position();
         }
 
-        Self { fatal: true, ignore: false, warning: false, line_no, line_pos }
+        Self::new().config(|this| {
+            this.fatal = true;
+            this.line_no = line_no;
+            this.line_pos = line_pos;
+        })
     }
 }
 

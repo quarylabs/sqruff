@@ -7,7 +7,7 @@ use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
 use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
-use crate::core::parser::segments::meta::Indent;
+use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
@@ -56,9 +56,10 @@ impl ReflowPoint {
 
         for seg in segments {
             if let Some(indent) = seg.as_any().downcast_ref::<Indent>() {
-                running_sum += indent.indent_val;
+                running_sum += indent.indent_val() as isize;
 
-                if indent.is_implicit {
+                // FIXME:
+                if indent.is_implicit() {
                     implicit_indents.push(running_sum);
                 }
             }
@@ -146,7 +147,7 @@ impl ReflowPoint {
                 if indent_seg.get_raw().unwrap() == desired_indent {
                     unimplemented!()
                 } else if desired_indent.is_empty() {
-                    unimplemented!()
+                    // unimplemented!()
                 };
 
                 let new_indent = indent_seg.edit(desired_indent.to_owned().into(), None);
@@ -249,7 +250,55 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                unimplemented!()
+                let new_indent =
+                    WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
+
+                if before.is_none() && after.is_none() {
+                    unimplemented!(
+                        "Not set up to handle empty points in this scenario without provided \
+                         before/after anchor: {:?}",
+                        self.segments
+                    );
+                } else if let Some(before) = before {
+                    let fix = LintFix::create_before(
+                        before.clone(),
+                        vec![new_newline.clone(), new_indent.clone()],
+                    );
+
+                    return (
+                        vec![LintResult::new(
+                            before.into(),
+                            vec![fix],
+                            None,
+                            None,
+                            source.map(ToOwned::to_owned),
+                        )],
+                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
+                    );
+                } else {
+                    let after = after.unwrap();
+                    let fix = LintFix::create_after(
+                        after.clone(),
+                        vec![new_newline.clone(), new_indent.clone()],
+                        None,
+                    );
+                    let description = format!(
+                        "Expected line break and {} after {:?}.",
+                        indent_description(desired_indent),
+                        after.get_raw().unwrap()
+                    );
+
+                    return (
+                        vec![LintResult::new(
+                            before.into(),
+                            vec![fix],
+                            None,
+                            Some(description),
+                            source.map(ToOwned::to_owned),
+                        )],
+                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
+                    );
+                }
             }
         }
     }
@@ -355,9 +404,9 @@ fn indent_description(indent: &str) -> String {
 
 #[derive(Debug, Clone, Default)]
 pub struct IndentStats {
-    pub impulse: usize,
-    pub trough: usize,
-    pub implicit_indents: Vec<usize>,
+    pub impulse: isize,
+    pub trough: isize,
+    pub implicit_indents: Vec<isize>,
 }
 
 impl IndentStats {

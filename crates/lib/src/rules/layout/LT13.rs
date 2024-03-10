@@ -5,10 +5,14 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleLT13 {}
 
 impl Rule for RuleLT13 {
+    fn name(&self) -> &'static str {
+        "layout.start_of_file"
+    }
+
     fn description(&self) -> &'static str {
         "Files must not begin with newlines or whitespace."
     }
@@ -21,7 +25,7 @@ impl Rule for RuleLT13 {
         let mut raw_segments = Vec::new();
 
         for seg in context.segment.recursive_crawl_all(false) {
-            if !seg.get_segments().is_empty() {
+            if !seg.segments().is_empty() {
                 continue;
             }
 

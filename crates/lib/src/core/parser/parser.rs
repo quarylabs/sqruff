@@ -12,11 +12,8 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(_config: Option<FluffConfig>, _dialect: Option<String>) -> Self {
-        // TODO:
-        // let config = FluffConfig::from_kwargs(config, dialect, None);
-        let config = FluffConfig::new(<_>::default(), None, None);
-
+    pub fn new(config: Option<FluffConfig>, _dialect: Option<String>) -> Self {
+        let config = config.unwrap_or_else(|| FluffConfig::new(<_>::default(), None, None));
         Self { config, root_segment: FileSegment::default() }
     }
 
@@ -43,7 +40,7 @@ impl Parser {
         let root = self.root_segment.root_parse(segments, &mut parse_cx, f_name)?;
 
         // Basic Validation, that we haven't dropped anything.
-        check_still_complete(segments, &[root.clone()]);
+        check_still_complete(segments, &[root.clone()], &[]);
 
         if parse_statistics {
             unimplemented!();

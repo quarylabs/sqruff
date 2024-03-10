@@ -6,10 +6,14 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleLT03 {}
 
 impl Rule for RuleLT03 {
+    fn name(&self) -> &'static str {
+        "layout.operators"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["binary_operator", "comparison_operator"])).into()
     }
@@ -47,27 +51,27 @@ impl RuleLT03 {
         parent: &dyn Segment,
         line_position: &str,
     ) -> bool {
-        let idx = parent.get_segments().iter().position(|it| it.dyn_eq(segment)).unwrap();
+        let idx = parent.segments().iter().position(|it| it.dyn_eq(segment)).unwrap();
 
         // Shortcut #1: Leading.
         if line_position == "leading" {
-            if self.seek_newline(&parent.get_segments(), idx, -1) {
+            if self.seek_newline(&parent.segments(), idx, -1) {
                 return true;
             }
             // If we didn't find a newline before, if there's _also_ not a newline
             // after, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(&parent.get_segments(), idx, 1) {
+            if !self.seek_newline(&parent.segments(), idx, 1) {
                 return true;
             }
         }
         // Shortcut #2: Trailing.
         else if line_position == "trailing" {
-            if self.seek_newline(&parent.get_segments(), idx, 1) {
+            if self.seek_newline(&parent.segments(), idx, 1) {
                 return true;
             }
             // If we didn't find a newline after, if there's _also_ not a newline
             // before, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(&parent.get_segments(), idx, -1) {
+            if !self.seek_newline(&parent.segments(), idx, -1) {
                 return true;
             }
         }

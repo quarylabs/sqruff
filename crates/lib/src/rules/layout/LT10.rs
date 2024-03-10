@@ -8,10 +8,14 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleLT10 {}
 
 impl Rule for RuleLT10 {
+    fn name(&self) -> &'static str {
+        "layout.select_modifiers"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
     }
@@ -24,6 +28,11 @@ impl Rule for RuleLT10 {
         // See if we have a select_clause_modifier.
         let select_clause_modifier_seg = child_segments
             .find_first(Some(|sp: &dyn Segment| sp.is_type("select_clause_modifier")));
+
+        // Rule doesn't apply if there's no select clause modifier.
+        if select_clause_modifier_seg.is_empty() {
+            return Vec::new();
+        }
 
         // Are there any newlines between the select keyword and the select clause
         // modifier.

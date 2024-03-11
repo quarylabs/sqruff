@@ -30,7 +30,7 @@ use crate::core::parser::types::ParseMode;
 use crate::helpers::{Boxed, Config, ToMatchable};
 
 macro_rules! vec_of_erased {
-    ($($elem:expr),*) => {{
+    ($($elem:expr),* $(,)?) => {{
         vec![$(Box::new($elem)),*]
     }};
 }
@@ -446,7 +446,21 @@ pub fn ansi_dialect() -> Dialect {
             SegmentGenerator::new(|_dialect| {
                 let pattern = r#"\"?[A-Z][A-Z0-9_]*\"?"#;
 
-                RegexParser::new(pattern, |_| todo!(), None, false, None, None).boxed()
+                RegexParser::new(
+                    pattern,
+                    |segment| {
+                        CodeSegment::new(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs::default(),
+                        )
+                    },
+                    None,
+                    false,
+                    None,
+                    None,
+                )
+                .boxed()
             })
             .into(),
         ),
@@ -1205,57 +1219,43 @@ pub fn ansi_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // (
-        //     "AlterTableOptionsGrammar".into(),
-        //     one_of(vec![
-        //         // Table options
-        //         Sequence::new(vec![
-        //             Ref::new("ParameterNameSegment").boxed(),
-        //             Ref::new("EqualsSegment").optional().boxed(),
-        //             one_of(vec![
-        //                 Ref::new("LiteralGrammar").boxed(),
-        //                 Ref::new("NakedIdentifierSegment").boxed(),
-        //             ])
-        //             .boxed(),
-        //         ])
-        //         .boxed(),
-        //         // Add things
-        //         Sequence::new(vec![
-        //             one_of(vec![Ref::keyword("ADD").boxed(), Ref::keyword("MODIFY").boxed()])
-        //                 .boxed(),
-        //             Ref::keyword("COLUMN").optional().boxed(),
-        //             Ref::new("ColumnDefinitionSegment").boxed(),
-        //             one_of(vec![
-        //                 Sequence::new(vec![
-        //                     one_of(vec![
-        //                         Ref::keyword("FIRST").boxed(),
-        //                         Ref::keyword("AFTER").boxed(),
-        //                     ])
-        //                     .boxed(),
-        //                     Ref::new("ColumnReferenceSegment").boxed(),
-        //                 ])
-        //                 .boxed(),
-        //                 // Bracketed Version of the same
-        //                 Ref::new("BracketedColumnReferenceListGrammar").boxed(),
-        //             ])
-        //             .optional()
-        //             .boxed(),
-        //         ])
-        //         .boxed(),
-        //         // Rename
-        //         Sequence::new(vec![
-        //             Ref::keyword("RENAME").boxed(),
-        //             one_of(vec![Ref::keyword("AS").boxed(), Ref::keyword("TO").boxed()])
-        //                 .optional()
-        //                 .boxed(),
-        //             Ref::new("TableReferenceSegment").boxed(),
-        //         ])
-        //         .boxed(),
-        //     ])
-        //     .to_matchable()
-        //     .into(),
-        // ),
-        // END
+        (
+            "AlterTableOptionsGrammar".into(),
+            one_of(vec_of_erased![
+                // Table options
+                Sequence::new(vec_of_erased![
+                    Ref::new("ParameterNameSegment"),
+                    Ref::new("EqualsSegment").optional(),
+                    one_of(vec_of_erased![
+                        Ref::new("LiteralGrammar"),
+                        Ref::new("NakedIdentifierSegment")
+                    ])
+                ]),
+                // Add things
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("ADD"), Ref::keyword("MODIFY")]),
+                    Ref::keyword("COLUMN").optional(),
+                    Ref::new("ColumnDefinitionSegment"),
+                    one_of(vec_of_erased![Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("FIRST"),
+                        Ref::keyword("AFTER"),
+                        Ref::new("ColumnReferenceSegment"),
+                        // Bracketed Version of the same
+                        Ref::new("BracketedColumnReferenceListGrammar")
+                    ])])])
+                    .config(|this| this.optional())
+                ]),
+                // Rename
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    one_of(vec_of_erased![Ref::keyword("AS"), Ref::keyword("TO")])
+                        .config(|this| this.optional()),
+                    Ref::new("TableReferenceSegment")
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
         ("TableReferenceSegment".into(), Ref::new("SingleIdentifierGrammar").to_matchable().into()),
     ]);
 
@@ -1734,7 +1734,8 @@ pub fn ansi_dialect() -> Dialect {
         ExplainStatementSegment, CreateSequenceStatementSegment, AlterSequenceStatementSegment, DropSequenceStatementSegment,
         CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment, RoleReferenceSegment,
         TriggerReferenceSegment, TableConstraintSegment, ColumnDefinitionSegment, TableEndClauseSegment, DatabaseReferenceSegment,
-        CreateSequenceOptionsSegment
+        CreateSequenceOptionsSegment, MergeMatchSegment, MergeMatchedClauseSegment, MergeNotMatchedClauseSegment, MergeInsertClauseSegment,
+        MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment
     );
 
     ansi_dialect.expand();
@@ -4718,6 +4719,151 @@ impl NodeTrait for TableEndClauseSegment {
     }
 }
 
+pub struct MergeMatchSegment;
+
+impl NodeTrait for MergeMatchSegment {
+    const TYPE: &'static str = "merge_match";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        AnyNumberOf::new(vec_of_erased![
+            Ref::new("MergeMatchedClauseSegment"),
+            Ref::new("MergeNotMatchedClauseSegment")
+        ])
+        .config(|this| this.min_times(1))
+        .to_matchable()
+    }
+}
+
+pub struct MergeMatchedClauseSegment;
+
+impl NodeTrait for MergeMatchedClauseSegment {
+    const TYPE: &'static str = "merge_when_matched_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WHEN"),
+            Ref::keyword("MATCHED"),
+            Sequence::new(vec_of_erased![Ref::keyword("AND"), Ref::new("ExpressionSegment")])
+                .config(|this| this.optional()),
+            Ref::keyword("THEN"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("MergeUpdateClauseSegment"),
+                Ref::new("MergeDeleteClauseSegment")
+            ]),
+            MetaSegment::dedent()
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeNotMatchedClauseSegment;
+
+impl NodeTrait for MergeNotMatchedClauseSegment {
+    const TYPE: &'static str = "merge_when_not_matched_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WHEN"),
+            Ref::keyword("NOT"),
+            Ref::keyword("MATCHED"),
+            Sequence::new(vec_of_erased![Ref::keyword("AND"), Ref::new("ExpressionSegment"),])
+                .config(|this| this.optional()),
+            Ref::keyword("THEN"),
+            MetaSegment::indent(),
+            Ref::new("MergeInsertClauseSegment"),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeInsertClauseSegment;
+
+impl NodeTrait for MergeInsertClauseSegment {
+    const TYPE: &'static str = "merge_insert_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("INSERT"),
+            MetaSegment::indent(),
+            Ref::new("BracketedColumnReferenceListGrammar").optional(),
+            MetaSegment::dedent(),
+            Ref::new("ValuesClauseSegment").optional()
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeUpdateClauseSegment;
+
+impl NodeTrait for MergeUpdateClauseSegment {
+    const TYPE: &'static str = "merge_update_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("UPDATE"),
+            MetaSegment::indent(),
+            Ref::new("SetClauseListSegment"),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeDeleteClauseSegment;
+
+impl NodeTrait for MergeDeleteClauseSegment {
+    const TYPE: &'static str = "merge_delete_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Ref::keyword("DELETE").to_matchable()
+    }
+}
+
+pub struct SetClauseListSegment;
+
+impl NodeTrait for SetClauseListSegment {
+    const TYPE: &'static str = "set_clause_list";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SET"),
+            MetaSegment::indent(),
+            Ref::new("SetClauseSegment"),
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("CommaSegment"),
+                Ref::new("SetClauseSegment"),
+            ],),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct SetClauseSegment;
+
+impl NodeTrait for SetClauseSegment {
+    const TYPE: &'static str = "set_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("ColumnReferenceSegment"),
+            Ref::new("EqualsSegment"),
+            one_of(vec_of_erased![
+                Ref::new("LiteralGrammar"),
+                Ref::new("BareFunctionSegment"),
+                Ref::new("FunctionSegment"),
+                Ref::new("ColumnReferenceSegment"),
+                Ref::new("ExpressionSegment"),
+                Ref::new("ValuesClauseSegment"),
+                Ref::keyword("DEFAULT"),
+            ]),
+        ])
+        .to_matchable()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use expect_test::expect_file;
@@ -4958,9 +5104,7 @@ mod tests {
             let _panic = helpers::enter_panic(file.display().to_string());
 
             let yaml = file.with_extension("yml");
-            let yaml = yaml.canonicalize().unwrap_or_else(|error| {
-                panic!("Error calling canonicalize path `{}`: {error}", yaml.display())
-            });
+            let yaml = std::path::absolute(yaml).unwrap();
 
             let actual = {
                 let sql = std::fs::read_to_string(file).unwrap();

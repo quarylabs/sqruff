@@ -1,6 +1,7 @@
 use crate::core::parser::segments::base::Segment;
 
 /// Details about a table alias.
+#[allow(dead_code)]
 pub struct AliasInfo {
     /// Name given to the alias
     ref_str: String,
@@ -13,6 +14,7 @@ pub struct AliasInfo {
 }
 
 /// Details about a column alias.
+#[allow(dead_code)]
 pub struct ColumnAliasInfo {
     alias_identifier_name: String,
     aliased_segment: Box<dyn Segment>,

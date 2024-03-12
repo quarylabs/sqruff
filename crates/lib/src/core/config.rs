@@ -13,9 +13,16 @@ use crate::helpers::Boxed;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
+    #[allow(dead_code)]
     old_path: Vec<&'static str>,
+
+    #[allow(dead_code)]
     warning: &'a str,
+
+    #[allow(dead_code)]
     new_path: Option<Vec<&'a str>>,
+    
+    #[allow(dead_code)]
     translation_func: Option<fn(&'a str) -> &'a str>,
 }
 

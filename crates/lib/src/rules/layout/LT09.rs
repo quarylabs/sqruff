@@ -13,6 +13,7 @@ struct SelectTargetsInfo {
     select_idx: Option<usize>,
     first_new_line_idx: Option<usize>,
     first_select_target_idx: Option<usize>,
+    #[allow(dead_code)]
     first_whitespace_idx: Option<usize>,
     comment_after_select_idx: Option<usize>,
     select_targets: Segments,
@@ -38,6 +39,7 @@ impl Rule for RuleLT09 {
         SegmentSeekerCrawler::new(HashSet::from(["select_clause".into()])).into()
     }
 
+    #[allow(unused_variables)]
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context.clone());
         let select_clause = FunctionalContext::new(context.clone());

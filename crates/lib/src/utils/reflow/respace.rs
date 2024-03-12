@@ -173,6 +173,7 @@ pub fn process_spacing(
     (filtered_segment_buffer, last_whitespace_option, result_buffer)
 }
 
+#[allow(unused_variables, dead_code)]
 fn determine_aligned_inline_spacing(
     root_segment: &dyn Segment,
     whitespace_seg: &dyn Segment,
@@ -185,10 +186,11 @@ fn determine_aligned_inline_spacing(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn extract_alignment_config(constraint: &str) -> (String, Option<String>, Option<String>) {
     unimplemented!()
 }
-
+#[allow(unused_variables)]
 pub fn handle_respace_inline_with_space(
     pre_constraint: String,
     post_constraint: String,

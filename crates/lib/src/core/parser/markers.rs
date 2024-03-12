@@ -166,6 +166,7 @@ impl PositionMarker {
         )
     }
 
+    #[allow(dead_code)]
     fn end_point_marker(&self) -> PositionMarker {
         // Assuming PositionMarker is a struct and from_point is an associated function
         PositionMarker::from_point(

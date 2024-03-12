@@ -82,30 +82,39 @@ impl OutputStreamFormatter {
         }
     }
 
+    #[allow(dead_code)]
     fn format_config(&self) -> String {
         unimplemented!()
     }
 
+    #[allow(dead_code)]
     fn dispatch_config(&mut self) {
         self.dispatch(&self.format_config())
     }
 
+    #[allow(dead_code)]
     fn dispatch_persist_filename(&self) {}
 
+    #[allow(dead_code)]
     fn format_path(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_path(&self) {}
 
     pub fn dispatch_template_header(&self) {}
 
     pub fn dispatch_parse_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_lint_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_compilation_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_processing_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_dialect_warning(&self) {}
 
     fn format_file_violations(&mut self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
@@ -137,6 +146,7 @@ impl OutputStreamFormatter {
         text_buffer
     }
 
+    #[allow(unused_variables)]
     pub fn dispatch_file_violations(
         &mut self,
         fname: &str,
@@ -164,8 +174,10 @@ impl OutputStreamFormatter {
         if plain_output { s.into() } else { format!("{style}{s}{style:#}").into() }
     }
 
+    #[allow(dead_code)]
     fn cli_table_row(&self) {}
 
+    #[allow(dead_code)]
     fn cli_table(&self) {}
 
     fn format_filename(&self, filename: &str, success: impl IntoStatus) -> String {

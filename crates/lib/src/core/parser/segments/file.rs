@@ -13,6 +13,7 @@ struct BaseFileSegment {
     pub f_name: Option<String>,
 }
 
+#[allow(unused_variables, dead_code)]
 struct BaseFileSegmentNewArgs {
     f_name: Option<String>,
 }
@@ -72,6 +73,7 @@ impl Segment for BaseFileSegment {
 }
 
 impl BaseFileSegment {
+    #[allow(unused_variables, dead_code)]
     pub fn new(
         _segments: Vec<Box<dyn Segment>>,
         _position_maker: Option<PositionMarker>,

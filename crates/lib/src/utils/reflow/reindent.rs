@@ -128,8 +128,10 @@ impl std::fmt::Display for IndentLine {
     }
 }
 
+#[allow(unused_variables, dead_code)]
 fn revise_templated_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) {}
 
+#[allow(unused_variables, dead_code)]
 fn revise_comment_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) {}
 
 pub fn construct_single_indent(indent_unit: &str, tab_space_size: usize) -> Cow<'static, str> {
@@ -180,6 +182,7 @@ fn update_crawl_balances(
     (new_balance as isize, new_untaken_indents.into_iter().map(|it| it as isize).collect_vec())
 }
 
+#[allow(unused_variables)]
 fn crawl_indent_points(
     elements: &ReflowSequenceType,
     allow_implicit_indents: bool,
@@ -273,6 +276,7 @@ fn crawl_indent_points(
     acc
 }
 
+#[allow(unused_variables)]
 fn map_line_buffers(
     elements: &ReflowSequenceType,
     allow_implicit_indents: bool,
@@ -407,6 +411,7 @@ fn lint_line_starting_indent(
     new_results
 }
 
+#[allow(unused_variables, dead_code)]
 fn lint_line_untaken_positive_indents(
     elements: Vec<ReflowElement>,
     indent_line: IndentLine,
@@ -416,6 +421,7 @@ fn lint_line_untaken_positive_indents(
     unimplemented!()
 }
 
+#[allow(unused_variables)]
 fn lint_line_untaken_negative_indents(
     elements: &mut ReflowSequenceType,
     indent_line: &IndentLine,
@@ -455,6 +461,7 @@ fn lint_line_untaken_negative_indents(
     Vec::new()
 }
 
+#[allow(unused_variables)]
 fn lint_line_buffer_indents(
     elements: &mut ReflowSequenceType,
     indent_line: IndentLine,
@@ -481,6 +488,7 @@ fn lint_line_buffer_indents(
     results
 }
 
+#[allow(unused_variables)]
 pub fn lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: &str,
@@ -506,16 +514,19 @@ pub fn lint_indent_points(
     (elem_buffer, results)
 }
 
+#[allow(unused_variables, dead_code)]
 fn source_char_len(elements: Vec<ReflowElement>) -> usize {
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn rebreak_priorities(spans: Vec<RebreakSpan>) -> HashMap<usize, usize> {
     unimplemented!()
 }
 
 type MatchedIndentsType = HashMap<f64, Vec<i32>>;
 
+#[allow(unused_variables, dead_code)]
 fn increment_balance(
     input_balance: i32,
     indent_stats: (),
@@ -524,6 +535,7 @@ fn increment_balance(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: HashMap<i32, i32>,
@@ -533,6 +545,7 @@ fn match_indents(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn fix_long_line_with_comment(
     line_buffer: ReflowSequenceType,
     elements: ReflowSequenceType,
@@ -544,6 +557,7 @@ fn fix_long_line_with_comment(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn fix_long_line_with_fractional_targets(
     elements: Vec<ReflowElement>,
     target_breaks: Vec<usize>,
@@ -552,6 +566,7 @@ fn fix_long_line_with_fractional_targets(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn fix_long_line_with_integer_targets(
     elements: Vec<ReflowElement>,
     target_breaks: Vec<usize>,

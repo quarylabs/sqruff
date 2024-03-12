@@ -14,7 +14,9 @@ pub struct RebreakSpan {
 }
 
 #[derive(Debug)]
+#[allow(unused_variables)]
 pub struct RebreakIndices {
+    #[allow(dead_code)]
     dir: i32,
     adj_pt_idx: isize,
     newline_pt_idx: isize,

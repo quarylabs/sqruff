@@ -73,6 +73,7 @@ impl Linter {
     }
 
     /// Parse a string.
+    #[allow(unused_variables)]
     pub fn parse_string(
         &self,
         in_str: String,
@@ -199,6 +200,7 @@ impl Linter {
         linted_file
     }
 
+    #[allow(unused_variables)]
     pub fn lint_fix_parsed(
         &self,
         mut tree: Box<dyn Segment>,
@@ -370,6 +372,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
+
     pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
         // panic!("Not implemented");
 

@@ -524,7 +524,7 @@ mod tests {
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::matchable::Matchable;
     use crate::core::parser::parsers::StringParser;
-    use crate::core::parser::segments::base::Segment;
+    // use crate::core::parser::segments::base::Segment;
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::test_functions::{
         bracket_segments, fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,

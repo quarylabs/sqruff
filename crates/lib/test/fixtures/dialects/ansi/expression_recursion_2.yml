@@ -1,0 +1,257 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - remove me: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b
+        - remove me: AND
+        - column_reference:
+          - identifier: a
+        - less_than:
+          - remove me: <
+        - column_reference:
+          - identifier: b

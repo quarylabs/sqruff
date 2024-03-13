@@ -1,0 +1,9 @@
+file:
+- statement:
+  - drop_view_statement:
+    - keyword: drop
+    - keyword: view
+    - table_reference:
+      - object_reference:
+        - identifier: a
+    - keyword: restrict

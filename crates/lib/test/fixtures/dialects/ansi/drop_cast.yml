@@ -1,0 +1,72 @@
+file:
+- statement:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - datatype:
+        - '': int
+      - keyword: AS
+      - datatype:
+        - '': bool
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - datatype:
+        - '': int
+      - keyword: AS
+      - datatype:
+        - '': bool
+      - end_bracket: )
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - datatype:
+        - '': int
+      - keyword: AS
+      - datatype:
+        - '': bool
+      - end_bracket: )
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - datatype:
+        - '': udt_1
+      - keyword: AS
+      - datatype:
+        - '': udt_2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - datatype:
+        - identifier: sch
+        - dot: .
+        - '': udt_1
+      - keyword: AS
+      - datatype:
+        - identifier: sch
+        - dot: .
+        - '': udt_2
+      - end_bracket: )
+- statement_terminator: ;

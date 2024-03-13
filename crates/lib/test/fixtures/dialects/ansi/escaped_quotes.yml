@@ -1,0 +1,34 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: case
+            - when_clause:
+              - keyword: when
+              - expression:
+                - column_reference:
+                  - remove me: '"Spec\"s 23"'
+                - keyword: like
+                - remove me: '''Spec\''s%'''
+              - keyword: then
+              - expression:
+                - remove me: '''boop'''
+            - keyword: end
+        - alias_expression:
+          - keyword: as
+          - identifier: field
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - remove me: '''This shouldn''''t fail'''
+        - alias_expression:
+          - keyword: as
+          - identifier: success
+- statement_terminator: ;

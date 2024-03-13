@@ -1,0 +1,53 @@
+file:
+- statement:
+  - create_model_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MODEL
+    - object_reference:
+      - identifier: model3
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - '': MODEL_TYPE
+      - remove me: =
+      - remove me: '''LOGISTIC_REG'''
+      - comma: ','
+      - '': AUTO_CLASS_WEIGHTS
+      - remove me: =
+      - remove me: 'TRUE'
+      - comma: ','
+      - '': INPUT_LABEL_COLS
+      - remove me: =
+      - array_literal:
+        - remove me: '['
+        - remove me: '''label_str'''
+        - remove me: ']'
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table1
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - identifier: training
+          - remove me: =
+          - numeric_literal: '1'

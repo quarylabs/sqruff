@@ -1326,11 +1326,15 @@ impl SymbolSegment {
 pub struct UnparsableSegment {
     uuid: Uuid,
     pub segments: Vec<Box<dyn Segment>>,
+    position_marker: Option<PositionMarker>,
 }
 
 impl UnparsableSegment {
     pub fn new(segments: Vec<Box<dyn Segment>>) -> Self {
-        Self { uuid: Uuid::new_v4(), segments }
+        let mut this = Self { uuid: Uuid::new_v4(), segments, position_marker: None };
+        this.uuid = Uuid::new_v4();
+        this.set_position_marker(pos_marker(&this).into());
+        this
     }
 }
 
@@ -1345,6 +1349,14 @@ impl Segment for UnparsableSegment {
 
     fn get_type(&self) -> &'static str {
         "unparsable"
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.position_marker.clone()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker;
     }
 }
 

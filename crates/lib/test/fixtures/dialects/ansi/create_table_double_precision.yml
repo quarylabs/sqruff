@@ -1,0 +1,17 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: test
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: angle
+        - datatype:
+          - keyword: double
+          - keyword: precision
+      - end_bracket: )
+- statement_terminator: ;

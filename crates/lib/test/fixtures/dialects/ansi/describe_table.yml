@@ -1,0 +1,8 @@
+file:
+- statement:
+  - describe_statement:
+    - keyword: describe
+    - identifier: table
+    - object_reference:
+      - remove me: '"my_table"'
+- statement_terminator: ;

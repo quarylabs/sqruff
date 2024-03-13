@@ -1733,7 +1733,9 @@ pub fn ansi_dialect() -> Dialect {
         CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment, RoleReferenceSegment,
         TriggerReferenceSegment, TableConstraintSegment, ColumnDefinitionSegment, TableEndClauseSegment, DatabaseReferenceSegment,
         CreateSequenceOptionsSegment, MergeMatchSegment, MergeMatchedClauseSegment, MergeNotMatchedClauseSegment, MergeInsertClauseSegment,
-        MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment, TableReferenceSegment
+        MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment, TableReferenceSegment, SchemaReferenceSegment,
+        IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
+        RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar
     );
 
     ansi_dialect.expand();
@@ -2583,6 +2585,7 @@ impl NodeTrait for UnorderedSelectStatementSegment {
             Ref::new("SelectClauseSegment"),
             Ref::new("FromClauseSegment").optional(),
             Ref::new("WhereClauseSegment").optional(),
+            Ref::new("GroupByClauseSegment").optional(),
         ])
         .terminators(vec_of_erased![Ref::new("OrderByClauseSegment")])
         .config(|this| {
@@ -2714,7 +2717,10 @@ impl NodeTrait for SelectStatementSegment {
             .match_grammar()
             .unwrap()
             .copy(
-                vec![Ref::new("OrderByClauseSegment").optional().to_matchable()].into(),
+                Some(vec_of_erased![
+                    Ref::new("OrderByClauseSegment").optional(),
+                    Ref::new("FetchClauseSegment").optional()
+                ]),
                 true,
                 Vec::new(),
             )
@@ -3920,6 +3926,20 @@ impl NodeTrait for DropDatabaseStatementSegment {
     }
 }
 
+pub struct FunctionParameterListGrammar;
+
+impl NodeTrait for FunctionParameterListGrammar {
+    const TYPE: &'static str = "function_parameter_list";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Bracketed::new(vec_of_erased![
+            Delimited::new(vec_of_erased![Ref::new("FunctionParameterGrammar")])
+                .config(|this| this.optional())
+        ])
+        .to_matchable()
+    }
+}
+
 pub struct CreateIndexStatementSegment;
 
 impl NodeTrait for CreateIndexStatementSegment {
@@ -4447,6 +4467,16 @@ impl NodeTrait for DatabaseReferenceSegment {
     }
 }
 
+pub struct IndexReferenceSegment;
+
+impl NodeTrait for IndexReferenceSegment {
+    const TYPE: &'static str = "database_reference";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        ObjectReferenceSegment::match_grammar()
+    }
+}
+
 pub struct OverClauseSegment;
 
 impl NodeTrait for OverClauseSegment {
@@ -4852,6 +4882,120 @@ impl NodeTrait for TableReferenceSegment {
     }
 }
 
+pub struct SchemaReferenceSegment;
+
+impl NodeTrait for SchemaReferenceSegment {
+    const TYPE: &'static str = "table_reference";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Ref::new("ObjectReferenceSegment").to_matchable()
+    }
+}
+
+pub struct SingleIdentifierListSegment;
+
+impl NodeTrait for SingleIdentifierListSegment {
+    const TYPE: &'static str = "identifier_list";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+            .config(|this| this.optional())
+            .to_matchable()
+    }
+}
+
+pub struct GroupByClauseSegment;
+
+impl NodeTrait for GroupByClauseSegment {
+    const TYPE: &'static str = "groupby_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("GROUP"),
+            Ref::keyword("BY"),
+            one_of(vec_of_erased![
+                Ref::new("CubeRollupClauseSegment"),
+                Sequence::new(vec_of_erased![
+                    // Indent::new(),
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("ExpressionSegment"),
+                    ]),])
+                    .config(|this| {
+                        this.terminators = vec![Ref::new("GroupByClauseTerminatorGrammar").boxed()];
+                    }),
+                    // Dedent::new(),
+                ])
+            ])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct CubeRollupClauseSegment;
+
+impl NodeTrait for CubeRollupClauseSegment {
+    const TYPE: &'static str = "cube_rollup_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("CubeFunctionNameSegment"),
+                Ref::new("RollupFunctionNameSegment"),
+            ]),
+            Bracketed::new(vec_of_erased![Ref::new("GroupingExpressionList"),]),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct RollupFunctionNameSegment;
+
+impl NodeTrait for RollupFunctionNameSegment {
+    const TYPE: &'static str = "function_name";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        StringParser::new(
+            "ROLLUP",
+            |segment| {
+                CodeSegment::new(
+                    &segment.get_raw().unwrap(),
+                    &segment.get_position_marker().unwrap(),
+                    CodeSegmentNewArgs::default(),
+                )
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed()
+    }
+}
+
+pub struct CubeFunctionNameSegment;
+
+impl NodeTrait for CubeFunctionNameSegment {
+    const TYPE: &'static str = "function_name";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        StringParser::new(
+            "CUBE",
+            |segment| {
+                CodeSegment::new(
+                    &segment.get_raw().unwrap(),
+                    &segment.get_position_marker().unwrap(),
+                    CodeSegmentNewArgs::default(),
+                )
+            },
+            None,
+            false,
+            None,
+        )
+        .boxed()
+    }
+}
+
 pub struct SetClauseSegment;
 
 impl NodeTrait for SetClauseSegment {
@@ -4875,9 +5019,47 @@ impl NodeTrait for SetClauseSegment {
     }
 }
 
+pub struct FetchClauseSegment;
+
+impl NodeTrait for FetchClauseSegment {
+    const TYPE: &'static str = "fetch_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("FETCH"),
+            one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("NEXT")]),
+            Ref::new("NumericLiteralSegment").optional(),
+            one_of(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("ROWS")]),
+            Ref::keyword("ONLY"),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct FunctionDefinitionGrammar;
+
+impl NodeTrait for FunctionDefinitionGrammar {
+    const TYPE: &'static str = "function_definition";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("AS"),
+            Ref::new("QuotedLiteralSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LANGUAGE"),
+                Ref::new("NakedIdentifierSegment")
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use expect_test::expect_file;
+    use itertools::Itertools;
+    use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
@@ -5004,6 +5186,7 @@ mod tests {
             ("TruncateStatementSegment", "TRUNCATE test"),
             ("FunctionNameSegment", "cte_1.foo"),
             ("SelectStatementSegment", "select * from my_cte cross join other_cte"),
+            ("GroupByClauseSegment", "GROUP BY status"),
         ];
 
         for (segment_ref, sql_string) in cases {
@@ -5107,11 +5290,10 @@ mod tests {
 
     #[test]
     fn base_parse_struct() {
-        let files = glob::glob("test/fixtures/dialects/ansi/*.sql").unwrap();
+        let files =
+            glob::glob("test/fixtures/dialects/ansi/*.sql").unwrap().flatten().collect_vec();
 
-        for file in files {
-            let file = file.unwrap();
-
+        files.par_iter().for_each(|file| {
             let _panic = helpers::enter_panic(file.display().to_string());
 
             let yaml = file.with_extension("yml");
@@ -5126,7 +5308,7 @@ mod tests {
                 serde_yaml::to_string(&tree).unwrap()
             };
 
-            expect_file![yaml].assert_eq(&actual)
-        }
+            expect_file![yaml].assert_eq(&actual);
+        });
     }
 }

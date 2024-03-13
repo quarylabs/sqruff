@@ -3,7 +3,9 @@ file:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
-    - identifier: a
+    - table_reference:
+      - object_reference:
+        - identifier: a
     - bracketed:
       - start_bracket: (
       - column_definition:

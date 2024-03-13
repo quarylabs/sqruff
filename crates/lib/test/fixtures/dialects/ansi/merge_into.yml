@@ -3,9 +3,13 @@ file:
   - merge_statement:
     - keyword: MERGE
     - keyword: INTO
-    - identifier: t
+    - table_reference:
+      - object_reference:
+        - identifier: t
     - keyword: USING
-    - identifier: u
+    - table_reference:
+      - object_reference:
+        - identifier: u
     - join_on_condition:
       - keyword: ON
       - bracketed:
@@ -57,7 +61,9 @@ file:
   - merge_statement:
     - keyword: MERGE
     - keyword: INTO
-    - identifier: t
+    - table_reference:
+      - object_reference:
+        - identifier: t
     - keyword: USING
     - bracketed:
       - start_bracket: (
@@ -73,7 +79,9 @@ file:
           - from_expression:
             - from_expression_element:
               - table_expression:
-                - identifier: u
+                - table_reference:
+                  - object_reference:
+                    - identifier: u
       - end_bracket: )
     - alias_expression:
       - keyword: AS
@@ -129,9 +137,13 @@ file:
   - merge_statement:
     - keyword: MERGE
     - keyword: INTO
-    - identifier: t
+    - table_reference:
+      - object_reference:
+        - identifier: t
     - keyword: USING
-    - identifier: u
+    - table_reference:
+      - object_reference:
+        - identifier: u
     - join_on_condition:
       - keyword: ON
       - bracketed:
@@ -169,9 +181,13 @@ file:
   - merge_statement:
     - keyword: MERGE
     - keyword: INTO
-    - identifier: t
+    - table_reference:
+      - object_reference:
+        - identifier: t
     - keyword: USING
-    - identifier: u
+    - table_reference:
+      - object_reference:
+        - identifier: u
     - join_on_condition:
       - keyword: ON
       - bracketed:

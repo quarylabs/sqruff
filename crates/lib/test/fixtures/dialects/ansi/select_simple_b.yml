@@ -12,4 +12,6 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - identifier: blah
+            - table_reference:
+              - object_reference:
+                - identifier: blah

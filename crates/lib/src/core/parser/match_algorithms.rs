@@ -445,7 +445,7 @@ pub fn greedy_match(
     segments: Vec<Box<dyn Segment>>,
     parse_context: &mut ParseContext,
     matchers: Vec<Box<dyn Matchable>>,
-    _include_terminator: bool,
+    include_terminator: bool,
 ) -> Result<MatchResult, SQLParseError> {
     let mut seg_buff = segments.clone();
     let mut seg_bank = Vec::new();
@@ -499,9 +499,17 @@ pub fn greedy_match(
             }
         }
 
-        // if include_terminator {
-        //     return;
-        // }
+        if include_terminator {
+            return Ok(MatchResult {
+                matched_segments: seg_bank
+                    .iter()
+                    .chain(pre.iter())
+                    .chain(mat.matched_segments.iter())
+                    .cloned()
+                    .collect(),
+                unmatched_segments: mat.unmatched_segments.clone(),
+            });
+        }
 
         // We can't claim any non-code segments, so we trim them off the end.
         let buf = chain(seg_bank, pre).collect_vec();
@@ -524,7 +532,6 @@ mod tests {
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::matchable::Matchable;
     use crate::core::parser::parsers::StringParser;
-    use crate::core::parser::segments::base::Segment;
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::test_functions::{
         bracket_segments, fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,

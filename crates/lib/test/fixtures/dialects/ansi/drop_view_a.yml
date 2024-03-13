@@ -3,4 +3,6 @@ file:
   - drop_view_statement:
     - keyword: drop
     - keyword: view
-    - identifier: a
+    - table_reference:
+      - object_reference:
+        - identifier: a

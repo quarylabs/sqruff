@@ -840,15 +840,14 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "SelectClauseTerminatorGrammar".into(),
-            one_of(vec![
-                Ref::keyword("FROM").boxed(),
-                Ref::keyword("WHERE").boxed(),
-                Sequence::new(vec![Ref::keyword("ORDER").boxed(), Ref::keyword("BY").boxed()])
-                    .boxed(),
-                Ref::keyword("LIMIT").boxed(),
-                Ref::keyword("OVERLAPS").boxed(),
-                Ref::new("SetOperatorSegment").boxed(),
-                Ref::keyword("FETCH").boxed(),
+            one_of(vec_of_erased![
+                Ref::keyword("FROM"),
+                Ref::keyword("WHERE"),
+                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                Ref::keyword("LIMIT"),
+                Ref::keyword("OVERLAPS"),
+                Ref::new("SetOperatorSegment"),
+                Ref::keyword("FETCH"),
             ])
             .to_matchable()
             .into(),
@@ -1256,7 +1255,6 @@ pub fn ansi_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        ("TableReferenceSegment".into(), Ref::new("SingleIdentifierGrammar").to_matchable().into()),
     ]);
 
     // hookpoint
@@ -1665,7 +1663,7 @@ pub fn ansi_dialect() -> Dialect {
             "NonWithSelectableGrammar".into(),
             one_of(vec![
                 // FIXME:
-                // Ref::new("SetExpressionSegment").boxed(),
+                Ref::new("SetExpressionSegment").boxed(),
                 optionally_bracketed(vec![Ref::new("SelectStatementSegment").boxed()]).boxed(),
                 Ref::new("NonSetSelectableGrammar").boxed(),
             ])
@@ -1735,7 +1733,7 @@ pub fn ansi_dialect() -> Dialect {
         CreateTriggerStatementSegment, DropTriggerStatementSegment, AlterSequenceOptionsSegment, RoleReferenceSegment,
         TriggerReferenceSegment, TableConstraintSegment, ColumnDefinitionSegment, TableEndClauseSegment, DatabaseReferenceSegment,
         CreateSequenceOptionsSegment, MergeMatchSegment, MergeMatchedClauseSegment, MergeNotMatchedClauseSegment, MergeInsertClauseSegment,
-        MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment
+        MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment, TableReferenceSegment
     );
 
     ansi_dialect.expand();
@@ -2581,13 +2579,12 @@ impl NodeTrait for UnorderedSelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::new("SelectClauseSegment").boxed(),
-            // Dedent {}.boxed(),
-            Ref::new("FromClauseSegment").optional().boxed(),
-            Ref::new("WhereClauseSegment").optional().boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::new("SelectClauseSegment"),
+            Ref::new("FromClauseSegment").optional(),
+            Ref::new("WhereClauseSegment").optional(),
         ])
-        .terminators(vec![Ref::new("OrderByClauseSegment").boxed()])
+        .terminators(vec_of_erased![Ref::new("OrderByClauseSegment")])
         .config(|this| {
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })
@@ -2699,9 +2696,9 @@ impl NodeTrait for FromClauseSegment {
     const TYPE: &'static str = "from_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("FROM").boxed(),
-            Delimited::new(vec![Ref::new("FromExpressionSegment").boxed()]).boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("FROM"),
+            Delimited::new(vec_of_erased![Ref::new("FromExpressionSegment")]),
         ])
         .to_matchable()
     }
@@ -2898,7 +2895,11 @@ impl NodeTrait for ObjectReferenceSegment {
 
     fn match_grammar() -> Box<dyn Matchable> {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
-            .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
             .to_matchable()
     }
 }
@@ -4838,6 +4839,16 @@ impl NodeTrait for SetClauseListSegment {
             MetaSegment::dedent(),
         ])
         .to_matchable()
+    }
+}
+
+pub struct TableReferenceSegment;
+
+impl NodeTrait for TableReferenceSegment {
+    const TYPE: &'static str = "table_reference";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Ref::new("ObjectReferenceSegment").to_matchable()
     }
 }
 

@@ -67,7 +67,7 @@ impl ParseContext {
         self.match_segment = name.to_string();
         self.match_depth += 1;
 
-        let terms = self.set_terminators(clear_terminators, push_terminators);
+        let (appended, terms) = self.set_terminators(clear_terminators, push_terminators);
 
         // _append, _terms = self._set_terminators(clear_terminators, push_terminators)
         let _track_progress = self.track_progress;
@@ -85,7 +85,7 @@ impl ParseContext {
         let ret = f(self);
 
         // finally
-        self.reset_terminators(terms, clear_terminators);
+        self.reset_terminators(appended, terms, clear_terminators);
         self.match_depth -= 1;
         // Reset back to old name
         self.match_segment = self.match_stack.pop().unwrap();
@@ -99,7 +99,8 @@ impl ParseContext {
         &mut self,
         clear_terminators: bool,
         push_terminators: &[Box<dyn Matchable>],
-    ) -> Vec<Box<dyn Matchable>> {
+    ) -> (usize, Vec<Box<dyn Matchable>>) {
+        let mut appended = 0;
         let terminators = self.terminators.clone();
 
         if clear_terminators && !self.terminators.is_empty() {
@@ -112,16 +113,25 @@ impl ParseContext {
 
                 if self.terminators.iter().find(|item| item.dyn_eq(terminator)).is_none() {
                     self.terminators.push(terminator_owned);
+                    appended += 1;
                 }
             }
         }
 
-        terminators
+        (appended, terminators)
     }
 
-    fn reset_terminators(&mut self, terminators: Vec<Box<dyn Matchable>>, clear_terminators: bool) {
+    fn reset_terminators(
+        &mut self,
+        appended: usize,
+        terminators: Vec<Box<dyn Matchable>>,
+        clear_terminators: bool,
+    ) {
         if clear_terminators {
             self.terminators = terminators;
+        } else {
+            let new_len = self.terminators.len().saturating_sub(appended);
+            self.terminators.truncate(new_len);
         }
     }
 }

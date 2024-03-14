@@ -1751,7 +1751,7 @@ pub fn ansi_dialect() -> Dialect {
         CreateSequenceOptionsSegment, MergeMatchSegment, MergeMatchedClauseSegment, MergeNotMatchedClauseSegment, MergeInsertClauseSegment,
         MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment, TableReferenceSegment, SchemaReferenceSegment,
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
-        RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment
+        RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment
     );
 
     ansi_dialect.expand();
@@ -2603,7 +2603,10 @@ impl NodeTrait for UnorderedSelectStatementSegment {
             Ref::new("WhereClauseSegment").optional(),
             Ref::new("GroupByClauseSegment").optional(),
         ])
-        .terminators(vec_of_erased![Ref::new("OrderByClauseSegment")])
+        .terminators(vec_of_erased![
+            Ref::new("OrderByClauseSegment"),
+            Ref::new("LimitClauseSegment")
+        ])
         .config(|this| {
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })
@@ -2703,7 +2706,10 @@ impl NodeTrait for SetExpressionSegment {
                 Ref::new("SetOperatorSegment"),
                 Ref::new("NonSetSelectableGrammar")
             ])])
-            .config(|this| this.min_times(1))
+            .config(|this| this.min_times(1)),
+            Ref::new("OrderByClauseSegment").optional(),
+            Ref::new("LimitClauseSegment").optional(),
+            Ref::new("NamedWindowSegment").optional(),
         ])
         .to_matchable()
     }
@@ -2735,7 +2741,8 @@ impl NodeTrait for SelectStatementSegment {
             .copy(
                 Some(vec_of_erased![
                     Ref::new("OrderByClauseSegment").optional(),
-                    Ref::new("FetchClauseSegment").optional()
+                    Ref::new("FetchClauseSegment").optional(),
+                    Ref::new("LimitClauseSegment").optional()
                 ]),
                 true,
                 Vec::new(),
@@ -5264,6 +5271,40 @@ impl NodeTrait for GroupByClauseSegment {
                     // Dedent::new(),
                 ])
             ])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct LimitClauseSegment;
+
+impl NodeTrait for LimitClauseSegment {
+    const TYPE: &'static str = "limit_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("LIMIT"),
+            // Indent::new(),
+            optionally_bracketed(vec_of_erased![one_of(vec_of_erased![
+                Ref::new("NumericLiteralSegment"),
+                Ref::new("ExpressionSegment"),
+                Ref::keyword("ALL"),
+            ])]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OFFSET"),
+                    one_of(vec_of_erased![
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("ExpressionSegment"),
+                    ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::new("CommaSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                ]),
+            ])
+            .config(|this| this.optional()),
+            // Dedent::new(),
         ])
         .to_matchable()
     }

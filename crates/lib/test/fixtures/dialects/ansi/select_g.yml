@@ -24,6 +24,6 @@ file:
         - alias_expression:
           - keyword: AS
           - identifier: is_paid
-    - unparsable:
+    - limit_clause:
       - keyword: LIMIT
       - numeric_literal: '0'

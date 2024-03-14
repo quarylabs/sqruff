@@ -1,0 +1,54 @@
+file:
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - identifier: mycte
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - identifier: foo
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - identifier: bar
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - identifier: mytable1
+        - end_bracket: )
+    - update_statement:
+      - keyword: UPDATE
+      - table_reference:
+        - object_reference:
+          - identifier: sometable
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
+          - column_reference:
+            - identifier: sometable
+            - dot: .
+            - identifier: baz
+          - remove me: =
+          - column_reference:
+            - identifier: mycte
+            - dot: .
+            - identifier: bar
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: mycte
+- statement_terminator: ;

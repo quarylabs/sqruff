@@ -1,0 +1,42 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: col_a
+        - alias_expression:
+          - keyword: as
+          - identifier: foo
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: some_table
+    - unparsable:
+      - word: UNION
+      - word: SELECT
+      - word: col_b
+      - word: as
+      - word: foo
+      - word: FROM
+      - word: another_table
+      - word: UNION
+      - word: ALL
+      - word: SELECT
+      - word: col_c
+      - word: as
+      - word: foo
+      - word: FROM
+      - word: this_other_table
+      - word: INTERSECT
+      - word: SELECT
+      - word: col_d
+      - word: as
+      - word: foo
+      - word: FROM
+      - word: the_last_table

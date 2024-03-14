@@ -1,0 +1,51 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1e-9'
+      - comma: ','
+      - select_clause_element:
+        - qualified_numeric_literal:
+          - sign_indicator: '-'
+          - numeric_literal: '12.345e12'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '.0123E-6'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '25'
+      - comma: ','
+      - select_clause_element:
+        - qualified_numeric_literal:
+          - sign_indicator: +
+          - numeric_literal: '6.34'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '0.5'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '25e-03'
+      - comma: ','
+      - select_clause_element:
+        - qualified_numeric_literal:
+          - sign_indicator: '-'
+          - numeric_literal: '1'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '25'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - sign_indicator: '-'
+          - column_reference:
+            - identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - sign_indicator: '-'
+          - sign_indicator: +
+          - sign_indicator: '-'
+          - column_reference:
+            - identifier: col2

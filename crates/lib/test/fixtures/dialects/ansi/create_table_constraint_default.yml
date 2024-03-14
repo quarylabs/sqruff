@@ -1,0 +1,35 @@
+file:
+- statement:
+  - transaction_statement:
+    - keyword: BEGIN
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - remove me: '"tbl"'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - remove me: '"col"'
+        - datatype:
+          - '': TIMESTAMP
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: DEFAULT
+          - shorthand_cast:
+            - '': CURRENT_TIMESTAMP
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: COMMIT
+- statement_terminator: ;

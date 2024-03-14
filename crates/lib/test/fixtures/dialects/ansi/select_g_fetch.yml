@@ -1,0 +1,32 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - shorthand_cast:
+            - remove me: 'NULL'
+            - remove me: '::'
+            - datatype:
+              - '': INT
+        - alias_expression:
+          - keyword: AS
+          - identifier: user_id
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - shorthand_cast:
+            - remove me: 'NULL'
+            - remove me: '::'
+            - datatype:
+              - '': INT
+        - alias_expression:
+          - keyword: AS
+          - identifier: is_paid
+    - fetch_clause:
+      - keyword: FETCH
+      - keyword: FIRST
+      - numeric_literal: '0'
+      - keyword: ROWS
+      - keyword: ONLY

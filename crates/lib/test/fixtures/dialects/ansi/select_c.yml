@@ -1,0 +1,65 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: col_a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: col_b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: date_col_a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: date_col_b
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - remove me: '"database"'
+                - dot: .
+                - remove me: '"sample_table"'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: date_col_b
+            - end_bracket: )
+        - greater_than_or_equal_to:
+          - remove me: '>'
+          - remove me: =
+        - '': current_date
+        - remove me: AND
+        - function:
+          - function_name:
+            - function_name_identifier: length
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: col_a
+            - end_bracket: )
+        - remove me: =
+        - numeric_literal: '4'
+    - unparsable:
+      - word: ORDER
+      - word: BY
+      - word: date_col_a
+      - word: DESC
+      - word: NULLS
+      - word: LAST

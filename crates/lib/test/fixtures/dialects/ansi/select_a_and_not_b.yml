@@ -1,0 +1,23 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - identifier: a
+          - remove me: AND
+          - remove me: NOT
+          - column_reference:
+            - identifier: i
+            - dot: .
+            - identifier: b
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: i

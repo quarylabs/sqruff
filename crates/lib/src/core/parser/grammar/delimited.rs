@@ -56,7 +56,7 @@ impl Segment for Delimited {}
 
 impl Matchable for Delimited {
     fn is_optional(&self) -> bool {
-        self.optional
+        self.optional || self.base.is_optional()
     }
 
     fn simple(

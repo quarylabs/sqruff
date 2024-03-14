@@ -1,0 +1,11 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '0'
+      - unparsable:
+        - word: UNION
+        - word: SELECT
+        - numeric_literal: '1'

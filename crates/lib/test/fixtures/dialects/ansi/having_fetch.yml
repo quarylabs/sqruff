@@ -1,0 +1,45 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: house_id
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: person_id
+            - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: persons
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - identifier: house_id
+    - unparsable:
+      - word: HAVING
+      - word: COUNT
+      - start_bracket: (
+      - word: person_id
+      - end_bracket: )
+      - greater_than: '>'
+      - numeric_literal: '10'
+      - word: FETCH
+      - word: FIRST
+      - numeric_literal: '30'
+      - word: ROWS
+      - word: ONLY

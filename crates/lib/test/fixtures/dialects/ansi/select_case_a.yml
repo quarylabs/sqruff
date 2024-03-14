@@ -1,0 +1,64 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - numeric_literal: '1'
+                - remove me: =
+                - numeric_literal: '2'
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '3'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - numeric_literal: '4'
+                - remove me: '>'
+                - numeric_literal: '3'
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '5'
+                - binary_operator: +
+                - numeric_literal: '2'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - identifier: some_var
+                - keyword: IN
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '3'
+                  - end_bracket: )
+              - keyword: then
+              - expression:
+                - column_reference:
+                  - remove me: '"nothing"'
+            - else_clause:
+              - keyword: ELSE
+              - expression:
+                - column_reference:
+                  - remove me: '"boo"'
+            - keyword: END
+        - alias_expression:
+          - keyword: as
+          - identifier: a_case_statement
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: boo

@@ -604,19 +604,23 @@ impl Matchable for Bracketed {
 
         // If we've got a case of empty brackets check whether that is allowed.
         if content_segs.is_empty() {
-            return Ok(
-                if self.this.elements.is_empty()
-                    || (self.this.elements.iter().all(|e| e.is_optional())
-                        && (self.allow_gaps || (pre_segs.is_empty() && post_segs.is_empty())))
-                {
-                    MatchResult {
-                        matched_segments: bracket_segment.segments,
-                        unmatched_segments: trailing_segments,
-                    }
-                } else {
-                    MatchResult::from_unmatched(segments)
-                },
-            );
+            let segment = if self.elements.is_empty()
+                || (self.elements.iter().all(|e| e.is_optional())
+                    && (self.allow_gaps || (pre_segs.is_empty() && post_segs.is_empty())))
+            {
+                MatchResult {
+                    matched_segments: if bracket_persists {
+                        vec![bracket_segment.boxed()]
+                    } else {
+                        bracket_segment.segments
+                    },
+                    unmatched_segments: trailing_segments,
+                }
+            } else {
+                MatchResult::from_unmatched(segments)
+            };
+
+            return Ok(segment);
         }
 
         // Match the content using super. Sequence will interpret the content of the

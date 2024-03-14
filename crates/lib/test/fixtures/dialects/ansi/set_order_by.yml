@@ -1,0 +1,21 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - keyword: AS
+          - identifier: a
+    - unparsable:
+      - set_operator:
+        - keyword: UNION
+        - keyword: ALL
+      - word: SELECT
+      - numeric_literal: '1'
+      - word: AS
+      - word: a
+      - word: ORDER
+      - word: BY
+      - word: a

@@ -1,0 +1,64 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: column1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: sch
+                - dot: .
+                - identifier: table1
+          - alias_expression:
+            - keyword: as
+            - identifier: t
+    - where_clause:
+      - keyword: where
+      - expression:
+        - column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: b_year
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - function:
+            - function_name:
+              - function_name_identifier: year
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: getdate
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+              - end_bracket: )
+          - comma: ','
+          - function:
+            - function_name:
+              - function_name_identifier: year
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: getdate
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+              - end_bracket: )
+          - remove me: '-'
+          - numeric_literal: '1'
+          - end_bracket: )
+- statement_terminator: ;

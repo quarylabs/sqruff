@@ -1,0 +1,47 @@
+file:
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: a
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - datatype:
+      - '': integer
+    - function_definition:
+      - keyword: AS
+      - remove me: |-
+          '
+              SELECT 1;
+          '
+      - keyword: LANGUAGE
+      - identifier: SQL
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: a
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - datatype:
+      - '': integer
+    - function_definition:
+      - keyword: AS
+      - remove me: |-
+          '
+              SELECT 1;
+          '
+      - keyword: LANGUAGE
+      - identifier: SQL
+- statement_terminator: ;

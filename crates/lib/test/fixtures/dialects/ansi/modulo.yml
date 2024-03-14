@@ -1,0 +1,62 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - identifier: year_number
+                    - remove me: '%'
+                    - numeric_literal: '400'
+                    - remove me: =
+                    - numeric_literal: '0'
+                  - end_bracket: )
+                - remove me: OR
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - identifier: year_number
+                    - remove me: '%'
+                    - numeric_literal: '4'
+                    - remove me: =
+                    - numeric_literal: '0'
+                    - remove me: AND
+                    - column_reference:
+                      - identifier: year_number
+                    - remove me: '%'
+                    - numeric_literal: '100'
+                    - not_equal_to:
+                      - remove me: '!'
+                      - remove me: =
+                    - numeric_literal: '0'
+                  - end_bracket: )
+              - keyword: THEN
+              - expression:
+                - remove me: 'TRUE'
+            - else_clause:
+              - keyword: ELSE
+              - expression:
+                - column_reference:
+                  - identifier: 'FALSE'
+            - keyword: END
+        - alias_expression:
+          - keyword: AS
+          - identifier: is_leap_year
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: mytable

@@ -1,0 +1,71 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - remove me: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: TABLE_1
+        - join_clause:
+          - keyword: FULL
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - wildcard_expression:
+                        - wildcard_identifier:
+                          - remove me: '*'
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - identifier: Table_B
+                  - where_clause:
+                    - keyword: WHERE
+                    - expression:
+                      - column_reference:
+                        - identifier: COL_2
+                      - remove me: =
+                      - remove me: '''B'''
+                  - unparsable:
+                    - word: UNION
+                    - word: ALL
+                    - word: SELECT
+                    - star: '*'
+                    - word: FROM
+                    - word: TABLE_C
+                    - word: WHERE
+                    - word: COL_1
+                    - equals: =
+                    - numeric_literal: '0'
+                - end_bracket: )
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - identifier: TABLE_1
+                - dot: .
+                - identifier: A
+              - remove me: =
+              - column_reference:
+                - identifier: TABLE_2
+                - dot: .
+                - identifier: A

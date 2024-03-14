@@ -1,0 +1,24 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: id
+        - datatype:
+          - '': VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )
+        - column_constraint_segment:
+          - comment_clause:
+            - keyword: COMMENT
+            - remove me: '''Column comment'''
+      - end_bracket: )

@@ -1,0 +1,138 @@
+file:
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - identifier: bar
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - identifier: args
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: on
+    - table_reference:
+      - object_reference:
+        - identifier: bar
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - identifier: args
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - identifier: foo
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+      - identifier: bar
+    - comma: ','
+    - column_reference:
+      - identifier: baz
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - identifier: bar
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - identifier: args
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - identifier: foo
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: DELETE
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - identifier: bar
+    - keyword: FROM
+    - table_reference:
+      - object_reference:
+        - identifier: baz
+    - keyword: DEFERRABLE
+    - keyword: INITIALLY
+    - keyword: IMMEDIATE
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - identifier: args
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - identifier: bar
+    - keyword: WHEN
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - identifier: a
+        - remove me: =
+        - column_reference:
+          - identifier: b
+      - end_bracket: )
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function_name_identifier: proc
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - identifier: args
+      - end_bracket: )
+- statement_terminator: ;

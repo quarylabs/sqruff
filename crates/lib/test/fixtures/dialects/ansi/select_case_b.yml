@@ -1,0 +1,29 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - unparsable:
+        - word: CASE
+        - word: some_var
+        - word: WHEN
+        - single_quote: '''hello'''
+        - word: THEN
+        - numeric_literal: '3'
+        - word: WHEN
+        - single_quote: '''hi'''
+        - word: THEN
+        - numeric_literal: '12'
+        - word: ELSE
+        - numeric_literal: '0'
+        - word: END
+        - word: as
+        - word: a_case_statement
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: boo

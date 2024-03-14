@@ -1,0 +1,51 @@
+file:
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - identifier: cte
+      - cte_column_list:
+        - bracketed:
+          - start_bracket: (
+          - identifier_list:
+            - identifier: a
+          - end_bracket: )
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+          - unparsable:
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - word: SELECT
+            - word: a
+            - plus: +
+            - numeric_literal: '1'
+            - word: FROM
+            - word: cte
+            - word: WHERE
+            - word: a
+            - less_than: <
+            - numeric_literal: '5'
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - identifier: a
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: cte
+- statement_terminator: ;

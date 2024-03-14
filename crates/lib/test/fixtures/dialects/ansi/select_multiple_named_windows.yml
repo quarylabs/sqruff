@@ -1,0 +1,82 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: item
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: purchases
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: category
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: LAST_VALUE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: item
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - identifier: d
+              - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - identifier: most_popular
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: Produce
+    - unparsable:
+      - word: WINDOW
+      - word: a
+      - word: AS
+      - start_bracket: (
+      - word: PARTITION
+      - word: BY
+      - word: category
+      - end_bracket: )
+      - comma: ','
+      - word: b
+      - word: AS
+      - start_bracket: (
+      - word: a
+      - word: ORDER
+      - word: BY
+      - word: purchases
+      - end_bracket: )
+      - comma: ','
+      - word: c
+      - word: AS
+      - start_bracket: (
+      - word: b
+      - word: ROWS
+      - word: BETWEEN
+      - numeric_literal: '2'
+      - word: PRECEDING
+      - word: AND
+      - numeric_literal: '2'
+      - word: FOLLOWING
+      - end_bracket: )
+      - comma: ','
+      - word: d
+      - word: AS
+      - start_bracket: (
+      - word: c
+      - end_bracket: )

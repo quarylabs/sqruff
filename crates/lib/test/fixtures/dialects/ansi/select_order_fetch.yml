@@ -1,0 +1,28 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: EMPLOYEE
+          - dot: .
+          - identifier: EMPNO
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: EMPLOYEE
+    - unparsable:
+      - word: ORDER
+      - word: BY
+      - word: SALARY
+      - word: DESC
+      - word: FETCH
+      - word: FIRST
+      - numeric_literal: '3'
+      - word: ROWS
+      - word: ONLY

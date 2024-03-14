@@ -1,0 +1,7 @@
+file:
+- statement:
+  - truncate_statement:
+    - keyword: truncate
+    - table_reference:
+      - object_reference:
+        - identifier: a

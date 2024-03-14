@@ -1,0 +1,24 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: ts
+        - datatype:
+          - '': TIMESTAMP
+        - column_constraint_segment:
+          - keyword: DEFAULT
+          - shorthand_cast:
+            - function:
+              - function_name:
+                - function_name_identifier: GETDATE
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+      - end_bracket: )

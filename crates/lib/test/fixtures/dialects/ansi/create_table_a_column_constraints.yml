@@ -1,0 +1,218 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - object_reference:
+        - identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: c1
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - identifier: c2
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: DEFAULT
+          - shorthand_cast:
+            - numeric_literal: '1'
+      - comma: ','
+      - column_definition:
+        - identifier: c3
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+        - identifier: c4
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: UNIQUE
+      - comma: ','
+      - column_definition:
+        - identifier: c5
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+      - comma: ','
+      - column_definition:
+        - identifier: c6
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - identifier: c6
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
+          - keyword: MATCH
+          - keyword: FULL
+      - comma: ','
+      - column_definition:
+        - identifier: c6
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
+          - keyword: MATCH
+          - keyword: PARTIAL
+      - comma: ','
+      - column_definition:
+        - identifier: c6
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
+          - keyword: MATCH
+          - keyword: SIMPLE
+      - comma: ','
+      - column_definition:
+        - identifier: c6
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
+          - keyword: ON
+          - keyword: DELETE
+          - keyword: NO
+          - keyword: ACTION
+      - comma: ','
+      - column_definition:
+        - identifier: c6
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
+          - keyword: ON
+          - keyword: UPDATE
+          - keyword: SET
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - identifier: c6
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
+          - keyword: ON
+          - keyword: DELETE
+          - keyword: RESTRICT
+          - keyword: ON
+          - keyword: UPDATE
+          - keyword: CASCADE
+      - comma: ','
+      - column_definition:
+        - identifier: c7
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: DEFAULT
+          - shorthand_cast:
+            - numeric_literal: '1'
+        - column_constraint_segment:
+          - keyword: UNIQUE
+        - column_constraint_segment:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - identifier: table3
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c7_other
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - identifier: c8
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: DEFAULT
+          - shorthand_cast:
+            - numeric_literal: '1'
+            - remove me: '::'
+            - datatype:
+              - '': INT
+      - end_bracket: )

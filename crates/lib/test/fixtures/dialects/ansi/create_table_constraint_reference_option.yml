@@ -1,0 +1,115 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: b
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: b
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - identifier: c
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - identifier: d
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - identifier: c_b
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - identifier: b
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - object_reference:
+            - identifier: a
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - identifier: b
+          - end_bracket: )
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: RESTRICT
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: NO
+        - keyword: ACTION
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - identifier: c_d
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - identifier: d
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - object_reference:
+            - identifier: a
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - identifier: d
+          - end_bracket: )
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: CASCADE
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: SET
+        - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - identifier: c_c
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - identifier: c
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - object_reference:
+            - identifier: a
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - identifier: c
+          - end_bracket: )
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: SET
+        - keyword: DEFAULT
+      - end_bracket: )

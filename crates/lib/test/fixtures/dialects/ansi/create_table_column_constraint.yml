@@ -1,0 +1,140 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: username
+        - datatype:
+          - '': TEXT
+      - comma: ','
+      - column_definition:
+        - identifier: age
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: age
+              - remove me: '>'
+              - numeric_literal: '18'
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: username
+        - datatype:
+          - '': TEXT
+      - comma: ','
+      - column_definition:
+        - identifier: age
+        - datatype:
+          - '': INT
+        - column_constraint_segment:
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: age
+              - keyword: IS
+              - keyword: NOT
+              - remove me: 'NULL'
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: Persons
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: ID
+        - datatype:
+          - '': int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - identifier: LastName
+        - datatype:
+          - '': varchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '255'
+              - end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - identifier: FirstName
+        - datatype:
+          - '': varchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '255'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - identifier: Age
+        - datatype:
+          - '': int
+      - comma: ','
+      - column_definition:
+        - identifier: City
+        - datatype:
+          - '': varchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '255'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - identifier: CONSTRAINT
+        - datatype:
+          - '': CHK_Person
+        - column_constraint_segment:
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: Age
+              - greater_than_or_equal_to:
+                - remove me: '>'
+                - remove me: =
+              - numeric_literal: '18'
+              - remove me: AND
+              - column_reference:
+                - identifier: City
+              - remove me: =
+              - remove me: '''Sandnes'''
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

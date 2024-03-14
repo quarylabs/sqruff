@@ -1,0 +1,367 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - identifier: orders
+          - dot: .
+          - identifier: order_id
+        - alias_expression:
+          - keyword: AS
+          - identifier: order_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: customers
+          - dot: .
+          - identifier: email
+        - alias_expression:
+          - keyword: AS
+          - identifier: email
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: orders
+        - join_clause:
+          - keyword: join
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: customers
+          - join_on_condition:
+            - keyword: on
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - identifier: customers
+                      - dot: .
+                      - identifier: customer_id
+                    - remove me: =
+                    - column_reference:
+                      - identifier: orders
+                      - dot: .
+                      - identifier: customer_id
+                  - end_bracket: )
+              - end_bracket: )
+    - where_clause:
+      - keyword: where
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - identifier: customers
+            - dot: .
+            - identifier: email
+          - remove me: =
+          - remove me: '''sample@gmail.com'''
+        - end_bracket: )
+    - groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+        - identifier: orders
+        - dot: .
+        - identifier: order_id
+      - comma: ','
+      - column_reference:
+        - identifier: customers
+        - dot: .
+        - identifier: email
+    - unparsable:
+      - word: order
+      - word: by
+      - word: orders
+      - dot: .
+      - word: order_id
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - identifier: orders
+          - dot: .
+          - identifier: order_id
+        - alias_expression:
+          - keyword: AS
+          - identifier: order_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: customers
+          - dot: .
+          - identifier: email
+        - alias_expression:
+          - keyword: AS
+          - identifier: email
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - bracketed:
+          - start_bracket: (
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: orders
+          - join_clause:
+            - keyword: join
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - identifier: customers
+            - join_on_condition:
+              - keyword: on
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - identifier: customers
+                        - dot: .
+                        - identifier: customer_id
+                      - remove me: =
+                      - column_reference:
+                        - identifier: orders
+                        - dot: .
+                        - identifier: customer_id
+                    - end_bracket: )
+                - end_bracket: )
+          - end_bracket: )
+    - where_clause:
+      - keyword: where
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - identifier: customers
+            - dot: .
+            - identifier: email
+          - remove me: =
+          - remove me: '''sample@gmail.com'''
+        - end_bracket: )
+    - groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+        - identifier: orders
+        - dot: .
+        - identifier: order_id
+      - comma: ','
+      - column_reference:
+        - identifier: customers
+        - dot: .
+        - identifier: email
+    - unparsable:
+      - word: order
+      - word: by
+      - word: orders
+      - dot: .
+      - word: order_id
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - identifier: orders
+          - dot: .
+          - identifier: order_id
+        - alias_expression:
+          - keyword: AS
+          - identifier: order_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: customers
+          - dot: .
+          - identifier: email
+        - alias_expression:
+          - keyword: AS
+          - identifier: email
+    - unparsable:
+      - keyword: from
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - word: orders
+          - word: join
+          - word: customers
+          - word: on
+          - bracketed:
+            - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - word: customers
+              - dot: .
+              - word: customer_id
+              - equals: =
+              - word: orders
+              - dot: .
+              - word: customer_id
+              - end_bracket: )
+            - end_bracket: )
+          - end_bracket: )
+        - word: join
+        - word: products
+        - word: on
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - word: products
+            - dot: .
+            - word: product_id
+            - equals: =
+            - word: orders
+            - dot: .
+            - word: product_id
+            - end_bracket: )
+          - end_bracket: )
+        - end_bracket: )
+      - word: where
+      - bracketed:
+        - start_bracket: (
+        - word: customers
+        - dot: .
+        - word: email
+        - equals: =
+        - single_quote: '''sample@gmail.com'''
+        - end_bracket: )
+      - word: group
+      - word: by
+      - word: orders
+      - dot: .
+      - word: order_id
+      - comma: ','
+      - word: customers
+      - dot: .
+      - word: email
+      - word: order
+      - word: by
+      - word: orders
+      - dot: .
+      - word: order_id
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - identifier: orders
+          - dot: .
+          - identifier: order_id
+        - alias_expression:
+          - keyword: AS
+          - identifier: order_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - identifier: customers
+          - dot: .
+          - identifier: email
+        - alias_expression:
+          - keyword: AS
+          - identifier: email
+    - unparsable:
+      - keyword: from
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - word: orders
+            - word: join
+            - word: customers
+            - word: on
+            - bracketed:
+              - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - word: customers
+                - dot: .
+                - word: customer_id
+                - equals: =
+                - word: orders
+                - dot: .
+                - word: customer_id
+                - end_bracket: )
+              - end_bracket: )
+            - end_bracket: )
+          - word: join
+          - word: products
+          - word: on
+          - bracketed:
+            - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - word: products
+              - dot: .
+              - word: product_id
+              - equals: =
+              - word: orders
+              - dot: .
+              - word: product_id
+              - end_bracket: )
+            - end_bracket: )
+          - end_bracket: )
+        - word: join
+        - word: random
+        - word: on
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - word: random
+            - dot: .
+            - word: product_id
+            - equals: =
+            - word: products
+            - dot: .
+            - word: product_id
+            - end_bracket: )
+          - end_bracket: )
+        - end_bracket: )
+      - word: where
+      - bracketed:
+        - start_bracket: (
+        - word: customers
+        - dot: .
+        - word: email
+        - equals: =
+        - single_quote: '''sample@gmail.com'''
+        - end_bracket: )
+      - word: group
+      - word: by
+      - word: orders
+      - dot: .
+      - word: order_id
+      - comma: ','
+      - word: customers
+      - dot: .
+      - word: email
+      - word: order
+      - word: by
+      - word: orders
+      - dot: .
+      - word: order_id
+- statement_terminator: ;

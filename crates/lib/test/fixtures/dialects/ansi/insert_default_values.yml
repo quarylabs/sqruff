@@ -1,0 +1,11 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - object_reference:
+        - identifier: mytable
+    - keyword: DEFAULT
+    - keyword: VALUES
+- statement_terminator: ;

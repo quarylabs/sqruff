@@ -15,8 +15,8 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: counter
-    - unparsable:
-      - word: LIMIT
+    - limit_clause:
+      - keyword: LIMIT
       - numeric_literal: '10'
-      - word: OFFSET
+      - keyword: OFFSET
       - numeric_literal: '10'

@@ -3870,7 +3870,17 @@ impl NodeTrait for AccessStatementSegment {
                     schema_object_types.clone(),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ALL"),
-                        // _schema_object_types_plural,
+                        one_of(vec_of_erased![
+                            Ref::keyword("TABLES"),
+                            Ref::keyword("VIEWS"),
+                            Ref::keyword("STAGES"),
+                            Ref::keyword("FUNCTIONS"),
+                            Ref::keyword("PROCEDURES"),
+                            Ref::keyword("ROUTINES"),
+                            Ref::keyword("SEQUENCES"),
+                            Ref::keyword("STREAMS"),
+                            Ref::keyword("TASKS"),
+                        ]),
                         Ref::keyword("IN"),
                         Ref::keyword("SCHEMA"),
                     ]),
@@ -3923,7 +3933,25 @@ impl NodeTrait for AccessStatementSegment {
                     Ref::new("RoleReferenceSegment"),
                     Ref::new("FunctionSegment"),
                     Ref::keyword("PUBLIC")
-                ])])
+                ])]),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("GRANT"),
+                        Ref::keyword("OPTION"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("ADMIN"),
+                        Ref::keyword("OPTION"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COPY"),
+                        Ref::keyword("CURRENT"),
+                        Ref::keyword("GRANTS"),
+                    ])
+                ])
+                .config(|this| this.optional())
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("REVOKE"),

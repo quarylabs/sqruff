@@ -6,7 +6,7 @@ use ui_test::*;
 fn main() -> Result<()> {
     let mut config = Config::rustc("tests/ui");
     config.host = Some("".into());
-    config.program.program = "../../target/debug/sqruff".into();
+    config.program.program = "../../target/release/sqruff".into();
     config.program.out_dir_flag = None;
     config.program.args = vec!["lint".into()];
 

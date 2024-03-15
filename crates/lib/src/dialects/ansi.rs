@@ -3336,23 +3336,43 @@ impl NodeTrait for FunctionNameSegment {
         HashSet::from(["function_name".into()])
     }
 }
-
 pub struct CaseExpressionSegment;
 
 impl NodeTrait for CaseExpressionSegment {
     const TYPE: &'static str = "case_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        one_of(vec![
-            Sequence::new(vec![
-                Ref::keyword("CASE").boxed(),
-                AnyNumberOf::new(vec![Ref::new("WhenClauseSegment").boxed()]).boxed(),
-                Ref::new("ElseClauseSegment").optional().boxed(),
-                Ref::keyword("END").boxed(),
-            ])
-            .boxed(),
-            Sequence::new(vec![]).boxed(),
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CASE"),
+                // ImplicitIndent::new(),
+                AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(|this| {
+                    this.terminators = vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
+                }),
+                Ref::new("ElseClauseSegment")
+                    .optional()
+                    .config(|_this| /*this = vec![Ref::keyword("END")]*/ ()),
+                // Dedent::new(),
+                Ref::keyword("END"),
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CASE"),
+                Ref::new("ExpressionSegment"),
+                // ImplicitIndent::new(),
+                AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],)
+                    .config(|this| this.terminators =
+                        vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")]),
+                Ref::new("ElseClauseSegment")
+                    .optional()
+                    .config(|_this|/*this = vec![Ref::keyword("END")]*/ ()),
+                // Dedent::new(),
+                Ref::keyword("END"),
+            ]),
         ])
+        .config(|this| {
+            this.terminators =
+                vec_of_erased![Ref::new("CommaSegment"), Ref::new("BinaryOperatorGrammar")]
+        })
         .to_matchable()
     }
 }

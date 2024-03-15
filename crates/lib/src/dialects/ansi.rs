@@ -2846,20 +2846,33 @@ impl NodeTrait for WildcardIdentifierSegment {
         .to_matchable()
     }
 }
-
 pub struct OrderByClauseSegment;
 
 impl NodeTrait for OrderByClauseSegment {
-    const TYPE: &'static str = "order_by_clause";
+    const TYPE: &'static str = "orderby_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("ORDER"),
             Ref::keyword("BY"),
-            MetaSegment::indent(),
-            Delimited::new(vec_of_erased![one_of(vec_of_erased![Ref::new(
-                "NumericLiteralSegment"
-            )])])
+            // Indent::new(),
+            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("ExpressionSegment"),
+                ]),
+                one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC"),])
+                    .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NULLS"),
+                    one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST"),]),
+                ])
+                .config(|this| this.optional()),
+            ])])
+            .config(|this| this.terminators =
+                vec_of_erased![Ref::keyword("LIMIT"), Ref::new("FrameClauseUnitGrammar")]),
+            // Dedent::new(),
         ])
         .to_matchable()
     }

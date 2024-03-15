@@ -16,13 +16,15 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: EMPLOYEE
-    - unparsable:
-      - word: ORDER
-      - word: BY
-      - word: SALARY
-      - word: DESC
-      - word: FETCH
-      - word: FIRST
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - identifier: SALARY
+      - keyword: DESC
+    - fetch_clause:
+      - keyword: FETCH
+      - keyword: FIRST
       - numeric_literal: '3'
-      - word: ROWS
-      - word: ONLY
+      - keyword: ROWS
+      - keyword: ONLY

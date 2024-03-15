@@ -78,12 +78,13 @@ file:
         - identifier: customers
         - dot: .
         - identifier: email
-    - unparsable:
-      - word: order
-      - word: by
-      - word: orders
-      - dot: .
-      - word: order_id
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - identifier: orders
+        - dot: .
+        - identifier: order_id
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -167,12 +168,13 @@ file:
         - identifier: customers
         - dot: .
         - identifier: email
-    - unparsable:
-      - word: order
-      - word: by
-      - word: orders
-      - dot: .
-      - word: order_id
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - identifier: orders
+        - dot: .
+        - identifier: order_id
 - statement_terminator: ;
 - statement:
   - select_statement:

@@ -19,7 +19,8 @@ file:
       - expression:
         - column_reference:
           - identifier: period1
-    - unparsable:
-      - word: OVERLAPS
-      - word: period2
+    - overlaps_clause:
+      - keyword: OVERLAPS
+      - column_reference:
+        - identifier: period2
 - statement_terminator: ;

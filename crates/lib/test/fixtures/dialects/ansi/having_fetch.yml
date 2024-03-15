@@ -30,16 +30,23 @@ file:
       - keyword: BY
       - column_reference:
         - identifier: house_id
-    - unparsable:
-      - word: HAVING
-      - word: COUNT
-      - start_bracket: (
-      - word: person_id
-      - end_bracket: )
-      - greater_than: '>'
-      - numeric_literal: '10'
-      - word: FETCH
-      - word: FIRST
+    - having_clause:
+      - keyword: HAVING
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - identifier: person_id
+            - end_bracket: )
+        - remove me: '>'
+        - numeric_literal: '10'
+    - fetch_clause:
+      - keyword: FETCH
+      - keyword: FIRST
       - numeric_literal: '30'
-      - word: ROWS
-      - word: ONLY
+      - keyword: ROWS
+      - keyword: ONLY

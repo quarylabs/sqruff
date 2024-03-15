@@ -28,8 +28,11 @@ file:
       - keyword: BY
       - column_reference:
         - identifier: id
-    - unparsable:
-      - word: HAVING
-      - word: id
-      - less_than: <
-      - numeric_literal: '5'
+    - having_clause:
+      - keyword: HAVING
+      - expression:
+        - column_reference:
+          - identifier: id
+        - less_than:
+          - remove me: <
+        - numeric_literal: '5'

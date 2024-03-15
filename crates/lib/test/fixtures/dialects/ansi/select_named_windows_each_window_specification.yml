@@ -43,32 +43,47 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: Produce
-    - unparsable:
-      - word: WINDOW
-      - word: a
-      - word: AS
-      - start_bracket: (
-      - word: PARTITION
-      - word: BY
-      - word: category
-      - end_bracket: )
+    - named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+        - identifier: a
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                - column_reference:
+                  - identifier: category
+          - end_bracket: )
       - comma: ','
-      - word: b
-      - word: AS
-      - start_bracket: (
-      - word: ORDER
-      - word: BY
-      - word: purchases
-      - end_bracket: )
+      - named_window_expression:
+        - identifier: b
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - identifier: purchases
+          - end_bracket: )
       - comma: ','
-      - word: c
-      - word: AS
-      - start_bracket: (
-      - word: ROWS
-      - word: BETWEEN
-      - numeric_literal: '2'
-      - word: PRECEDING
-      - word: AND
-      - numeric_literal: '2'
-      - word: FOLLOWING
-      - end_bracket: )
+      - named_window_expression:
+        - identifier: c
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - frame_clause:
+              - keyword: ROWS
+              - keyword: BETWEEN
+              - numeric_literal: '2'
+              - keyword: PRECEDING
+              - keyword: AND
+              - numeric_literal: '2'
+              - keyword: FOLLOWING
+          - end_bracket: )

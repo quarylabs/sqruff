@@ -3,22 +3,35 @@ file:
   - select_statement:
     - select_clause:
       - keyword: SELECT
-      - unparsable:
-        - word: CASE
-        - word: some_var
-        - word: WHEN
-        - single_quote: '''hello'''
-        - word: THEN
-        - numeric_literal: '3'
-        - word: WHEN
-        - single_quote: '''hi'''
-        - word: THEN
-        - numeric_literal: '12'
-        - word: ELSE
-        - numeric_literal: '0'
-        - word: END
-        - word: as
-        - word: a_case_statement
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: CASE
+            - expression:
+              - column_reference:
+                - identifier: some_var
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - remove me: '''hello'''
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '3'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - remove me: '''hi'''
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '12'
+            - else_clause:
+              - keyword: ELSE
+              - expression:
+                - numeric_literal: '0'
+            - keyword: END
+        - alias_expression:
+          - keyword: as
+          - identifier: a_case_statement
     - from_clause:
       - keyword: FROM
       - from_expression:

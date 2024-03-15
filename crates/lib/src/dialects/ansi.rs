@@ -4771,24 +4771,31 @@ impl NodeTrait for JoinClauseSegment {
     const TYPE: &'static str = "join_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        one_of(vec_of_erased![Sequence::new(vec_of_erased![
-            Ref::new("JoinTypeKeywordsGrammar").optional(),
-            Ref::new("JoinKeywordsGrammar"),
-            MetaSegment::indent(),
-            Ref::new("FromExpressionElementSegment"),
-            AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-            Sequence::new(vec_of_erased![one_of(vec_of_erased![
-                Ref::new("JoinOnConditionSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("USING"),
-                    MetaSegment::indent(),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "SingleIdentifierGrammar"
-                    )])])
-                ])
-            ])])
-            .config(|this| this.optional())
-        ])])
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("JoinTypeKeywordsGrammar").optional(),
+                Ref::new("JoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
+                Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                    Ref::new("JoinOnConditionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("USING"),
+                        MetaSegment::indent(),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "SingleIdentifierGrammar"
+                        )])])
+                    ])
+                ])])
+                .config(|this| this.optional())
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::new("NaturalJoinKeywordsGrammar"),
+                Ref::new("JoinKeywordsGrammar"),
+                Ref::new("FromExpressionElementSegment")
+            ])
+        ])
         .to_matchable()
     }
 }

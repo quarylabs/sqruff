@@ -15,10 +15,14 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -36,11 +40,15 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: INNER
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -58,11 +66,15 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: LEFT
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -80,12 +92,16 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: LEFT
-      - word: OUTER
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -103,11 +119,15 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: RIGHT
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: RIGHT
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -125,12 +145,16 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: RIGHT
-      - word: OUTER
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: RIGHT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -148,11 +172,15 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: FULL
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: FULL
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -170,10 +198,14 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table1
-    - unparsable:
-      - word: NATURAL
-      - word: FULL
-      - word: OUTER
-      - word: JOIN
-      - word: table2
+        - join_clause:
+          - keyword: NATURAL
+          - keyword: FULL
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - identifier: table2
 - statement_terminator: ;

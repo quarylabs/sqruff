@@ -22,11 +22,13 @@ file:
       - keyword: GROUP
       - keyword: BY
       - numeric_literal: '1'
-    - unparsable:
-      - word: ORDER
-      - word: BY
-      - word: b
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - identifier: b
       - comma: ','
       - numeric_literal: '1'
-      - word: LIMIT
+    - limit_clause:
+      - keyword: LIMIT
       - numeric_literal: '5'

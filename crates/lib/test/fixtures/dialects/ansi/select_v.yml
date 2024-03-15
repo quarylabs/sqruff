@@ -35,7 +35,7 @@ file:
                     - table_reference:
                       - object_reference:
                         - identifier: ladder
-            - order_by_clause:
+            - orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - numeric_literal: '1'

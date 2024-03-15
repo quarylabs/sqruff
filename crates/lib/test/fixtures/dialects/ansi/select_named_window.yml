@@ -28,12 +28,18 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: table
-    - unparsable:
-      - word: WINDOW
-      - word: win
-      - word: AS
-      - start_bracket: (
-      - word: PARTITION
-      - word: BY
-      - word: date
-      - end_bracket: )
+    - named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+        - identifier: win
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                - column_reference:
+                  - identifier: date
+          - end_bracket: )

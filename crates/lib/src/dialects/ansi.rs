@@ -1752,7 +1752,7 @@ pub fn ansi_dialect() -> Dialect {
         MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment, TableReferenceSegment, SchemaReferenceSegment,
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
-        HavingClauseSegment, OverlapsClauseSegment
+        HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment
     );
 
     ansi_dialect.expand();
@@ -2604,7 +2604,8 @@ impl NodeTrait for UnorderedSelectStatementSegment {
             Ref::new("WhereClauseSegment").optional(),
             Ref::new("GroupByClauseSegment").optional(),
             Ref::new("HavingClauseSegment").optional(),
-            Ref::new("OverlapsClauseSegment").optional()
+            Ref::new("OverlapsClauseSegment").optional(),
+            Ref::new("NamedWindowSegment").optional()
         ])
         .terminators(vec_of_erased![
             Ref::new("OrderByClauseSegment"),
@@ -2766,7 +2767,8 @@ impl NodeTrait for SelectStatementSegment {
                 Some(vec_of_erased![
                     Ref::new("OrderByClauseSegment").optional(),
                     Ref::new("FetchClauseSegment").optional(),
-                    Ref::new("LimitClauseSegment").optional()
+                    Ref::new("LimitClauseSegment").optional(),
+                    Ref::new("NamedWindowSegment").optional()
                 ]),
                 true,
                 Vec::new(),
@@ -2782,6 +2784,25 @@ impl NodeTrait for SelectClauseModifierSegment {
 
     fn match_grammar() -> Box<dyn Matchable> {
         one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()]).to_matchable()
+    }
+}
+
+pub struct NamedWindowExpressionSegment;
+
+impl NodeTrait for NamedWindowExpressionSegment {
+    const TYPE: &'static str = "named_window_expression";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar"),
+            Ref::keyword("AS"),
+            one_of(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Bracketed::new(vec_of_erased![Ref::new("WindowSpecificationSegment"),],)
+                    .config(|this| this.parse_mode(ParseMode::Greedy)),
+            ]),
+        ])
+        .to_matchable()
     }
 }
 
@@ -4849,6 +4870,22 @@ impl NodeTrait for OverClauseSegment {
                 Bracketed::new(vec_of_erased![Ref::new("WindowSpecificationSegment").optional()])
             ]),
             MetaSegment::dedent()
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct NamedWindowSegment;
+
+impl NodeTrait for NamedWindowSegment {
+    const TYPE: &'static str = "named_window";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WINDOW"),
+            // Indent::new(),
+            Delimited::new(vec_of_erased![Ref::new("NamedWindowExpressionSegment"),]),
+            // Dedent::new(),
         ])
         .to_matchable()
     }

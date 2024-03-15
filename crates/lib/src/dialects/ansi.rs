@@ -1751,7 +1751,8 @@ pub fn ansi_dialect() -> Dialect {
         CreateSequenceOptionsSegment, MergeMatchSegment, MergeMatchedClauseSegment, MergeNotMatchedClauseSegment, MergeInsertClauseSegment,
         MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment, TableReferenceSegment, SchemaReferenceSegment,
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
-        RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment
+        RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
+        HavingClauseSegment, OverlapsClauseSegment
     );
 
     ansi_dialect.expand();
@@ -2602,6 +2603,8 @@ impl NodeTrait for UnorderedSelectStatementSegment {
             Ref::new("FromClauseSegment").optional(),
             Ref::new("WhereClauseSegment").optional(),
             Ref::new("GroupByClauseSegment").optional(),
+            Ref::new("HavingClauseSegment").optional(),
+            Ref::new("OverlapsClauseSegment").optional()
         ])
         .terminators(vec_of_erased![
             Ref::new("OrderByClauseSegment"),
@@ -2615,6 +2618,27 @@ impl NodeTrait for UnorderedSelectStatementSegment {
 
     fn class_types() -> HashSet<String> {
         ["select_clause"].map(ToOwned::to_owned).into_iter().collect()
+    }
+}
+
+pub struct OverlapsClauseSegment;
+
+impl NodeTrait for OverlapsClauseSegment {
+    const TYPE: &'static str = "overlaps_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("OVERLAPS"),
+            one_of(vec_of_erased![
+                Bracketed::new(vec_of_erased![
+                    Ref::new("DateTimeLiteralGrammar"),
+                    Ref::new("CommaSegment"),
+                    Ref::new("DateTimeLiteralGrammar"),
+                ]),
+                Ref::new("ColumnReferenceSegment"),
+            ]),
+        ])
+        .to_matchable()
     }
 }
 
@@ -5427,6 +5451,22 @@ impl NodeTrait for FunctionDefinitionGrammar {
                 Ref::new("NakedIdentifierSegment")
             ])
             .config(|this| this.optional()),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct HavingClauseSegment;
+
+impl NodeTrait for HavingClauseSegment {
+    const TYPE: &'static str = "having_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("HAVING"),
+            // ImplicitIndent::new(),
+            optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment"),]),
+            // Dedent::new(),
         ])
         .to_matchable()
     }

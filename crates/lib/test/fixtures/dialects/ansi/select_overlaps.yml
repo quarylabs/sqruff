@@ -13,14 +13,14 @@ file:
             - keyword: DATE
             - numeric_literal: '''2001-12-21'''
             - end_bracket: )
-    - unparsable:
+    - overlaps_clause:
       - keyword: OVERLAPS
       - bracketed:
         - start_bracket: (
-        - word: DATE
-        - single_quote: '''2001-10-30'''
+        - keyword: DATE
+        - numeric_literal: '''2001-10-30'''
         - comma: ','
-        - word: DATE
-        - single_quote: '''2002-10-30'''
+        - keyword: DATE
+        - numeric_literal: '''2002-10-30'''
         - end_bracket: )
 - statement_terminator: ;

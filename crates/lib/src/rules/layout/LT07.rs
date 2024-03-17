@@ -54,7 +54,7 @@ impl Rule for RuleLT07 {
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
                     if elem.is_type("newline") {
                         break;
-                    } else if elem.is_type("indent") && elem.is_type("whitespace") {
+                    } else if !(elem.is_type("indent") || elem.is_type("whitespace")) {
                         contains_non_whitespace = true;
                         break;
                     }
@@ -131,7 +131,6 @@ with cte as (
     }
 
     #[test]
-    #[ignore = "parser bug"]
     fn test_move_parenthesis_to_next_line() {
         let sql = "
 with cte_1 as (
@@ -141,7 +140,36 @@ with cte_1 as (
 select cte_1.foo
 from cte_1";
 
-        let result = fix(sql.into(), rules());
-        dbg!(result);
+        let fixed = fix(sql.into(), rules());
+        assert_eq!(
+            fixed,
+            "
+with cte_1 as (
+    select foo
+    from tbl_1
+) -- Foobar
+    
+select cte_1.foo
+from cte_1"
+        );
+    }
+
+    #[test]
+    fn test_pass_cte_with_column_list() {
+        let violations = lint(
+            "
+with
+search_path (node_ids, total_time) as (
+    select 1
+)
+select * from search_path"
+                .into(),
+            "ansi".into(),
+            rules(),
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(violations, []);
     }
 }

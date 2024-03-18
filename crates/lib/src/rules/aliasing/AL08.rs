@@ -154,13 +154,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_table_names() {
         let sql = "select a.b, b.c, c.d from a, b, c";
         let result =
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        dbg!(result);
+        assert_eq!(result, []);
     }
 }

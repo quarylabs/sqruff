@@ -40,12 +40,13 @@ impl Rule for RuleLT09 {
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context.clone());
-        let select_clause = FunctionalContext::new(context.clone());
+        let select_clause = FunctionalContext::new(context.clone()).segment();
 
-        // let wildcards = select_clause
-        //     .children(sp.is_type("select_clause_element"))
-        //     .children(sp.is_type("wildcard_expression"));
-        let has_wildcard = false;
+        let wildcards = select_clause
+            .children(Some(|sp| sp.is_type("select_clause_element")))
+            .children(Some(|sp| sp.is_type("wildcard_expression")));
+
+        let has_wildcard = wildcards.is_empty();
 
         if select_targets_info.select_targets.len() == 1
             && (!has_wildcard || self.wildcard_policy == "single")
@@ -232,13 +233,27 @@ impl RuleLT09 {
         }
 
         let select_children = select_clause.children(None);
-        let modifier = select_children
+        let mut modifier = select_children
             .find_first(Some(|seg: &dyn Segment| seg.is_type("select_clause_modifier")));
+
+        if select_children[select_targets_info.first_select_target_idx.unwrap()]
+            .descendant_type_set()
+            .contains("newline")
+        {
+            return Vec::new();
+        }
 
         let mut insert_buff = vec![
             WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
+
+        if !modifier.is_empty()
+            && select_children.index(modifier.get(0, None).unwrap().as_ref())
+                < select_targets_info.first_new_line_idx
+        {
+            modifier = Segments::from_vec(Vec::new(), None);
+        }
 
         let mut fixes = vec![LintFix::delete(
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
@@ -357,7 +372,6 @@ impl RuleLT09 {
                             to_delete.into(),
                             true,
                         );
-
                         fixes.extend(new_fixes);
                     }
                 } else if select_stmt.segments()[after_select_clause_idx].is_type("whitespace") {
@@ -375,9 +389,38 @@ impl RuleLT09 {
 
                     fixes.extend(new_fixes);
                 } else if select_stmt.segments()[after_select_clause_idx].is_type("dedent") {
-                    unimplemented!()
+                    let start_seg = if select_clause_idx == 0 {
+                        select_children.last().unwrap()
+                    } else {
+                        select_children[select_clause_idx - 1].as_ref()
+                    };
+
+                    let to_delete = select_children.reversed().select(
+                        None,
+                        Some(|it| it.is_type("whitespace")),
+                        start_seg.into(),
+                        None,
+                    );
+
+                    if !to_delete.is_empty() {
+                        let add_newline = to_delete.iter().any(|it| it.is_type("newline"));
+                        let local_fixes = fixes_for_move_after_select_clause(
+                            &mut fixes,
+                            to_delete.last().unwrap().clone_box(),
+                            to_delete.into(),
+                            add_newline,
+                        );
+                        fixes.extend(local_fixes);
+                    }
                 } else {
-                    unimplemented!()
+                    let local_fixes = fixes_for_move_after_select_clause(
+                        &mut fixes,
+                        select_children[select_targets_info.first_select_target_idx.unwrap()]
+                            .clone_box(),
+                        None,
+                        true,
+                    );
+                    fixes.extend(local_fixes);
                 }
             }
         }
@@ -698,7 +741,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_distinct_single_fail_a() {
         let fail_str = "
 SELECT distinct
@@ -715,7 +757,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_distinct_single_fail_b() {
         let fail_str = "
 SELECT
@@ -732,7 +773,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_single_select_with_no_from() {
         let fail_str = "SELECT\n   10000000\n";
         let expected_fixed_str = "SELECT 10000000\n";
@@ -742,7 +782,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_single_select_with_no_from_previous_comment() {
         let fail_str = "SELECT\n /* test */  10000000\n";
 
@@ -773,7 +812,6 @@ FROM
     }
 
     #[test]
-    #[ignore]
     fn test_single_select_with_comment_after_column_no_space() {
         let fail_str = "
 SELECT
@@ -855,7 +893,6 @@ INNER JOIN table2 ON (table1.id = table2.id);";
     }
 
     #[test]
-    #[ignore]
     fn test_multiline_single() {
         let pass_str = "
 SELECT
@@ -867,6 +904,6 @@ SELECT
 FROM test_table";
 
         let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert!(violations.is_empty(), "Expected no linting violations, but found some.");
+        assert_eq!(violations, []);
     }
 }

@@ -954,6 +954,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38b58827f4464d87d377d175e90bf58eb00fd8716ff0a62f80356b5e61555d0d"
 
 [[package]]
+name = "slyce"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "046d1c67b37db818d93f1d04a924ddbd7396c96cf9cfaa593d038259ae484729"
+
+[[package]]
 name = "spanned"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -997,6 +1003,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_yaml",
+ "slyce",
  "tempdir",
  "tracing",
  "unicase",

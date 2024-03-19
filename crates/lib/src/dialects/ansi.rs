@@ -2600,6 +2600,7 @@ impl NodeTrait for UnorderedSelectStatementSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("SelectClauseSegment"),
+            MetaSegment::dedent(),
             Ref::new("FromClauseSegment").optional(),
             Ref::new("WhereClauseSegment").optional(),
             Ref::new("GroupByClauseSegment").optional(),

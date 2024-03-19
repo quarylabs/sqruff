@@ -18,7 +18,7 @@ use crate::helpers::Boxed;
 pub type Indent = MetaSegment<IndentChange>;
 
 pub trait MetaSegmentKind: Debug + Hash + Clone + PartialEq + 'static {
-    fn kind() -> &'static str {
+    fn kind(&self) -> &'static str {
         "meta"
     }
 
@@ -72,7 +72,7 @@ impl<M: MetaSegmentKind> Deref for MetaSegment<M> {
 
 impl<M: MetaSegmentKind> Segment for MetaSegment<M> {
     fn get_type(&self) -> &'static str {
-        M::kind()
+        self.kind.kind()
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
@@ -143,8 +143,11 @@ impl MetaSegmentKind for IndentChange {
         *self as i8
     }
 
-    fn kind() -> &'static str {
-        "indent"
+    fn kind(&self) -> &'static str {
+        match self {
+            IndentChange::Indent => "indent",
+            IndentChange::Dedent => "dedent",
+        }
     }
 }
 
@@ -244,7 +247,7 @@ impl TemplateSegment {
 }
 
 impl MetaSegmentKind for TemplateSegment {
-    fn kind() -> &'static str {
+    fn kind(&self) -> &'static str {
         "placeholder"
     }
 }

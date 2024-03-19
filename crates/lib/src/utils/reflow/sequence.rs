@@ -64,7 +64,7 @@ impl ReflowSequence {
             // This is to facilitate better evaluation of the ends of files.
             // NOTE: This also allows us to include literal placeholders for
             // whitespace only strings.
-            if matches!(seg.get_type(), "whitespace" | "newline" | "indent") {
+            if matches!(seg.get_type(), "whitespace" | "newline" | "indent" | "dedent") {
                 // Add to the buffer and move on.
                 seg_buff.push(seg);
                 continue;
@@ -74,8 +74,8 @@ impl ReflowSequence {
                 elem_buff.push(ReflowElement::Point(ReflowPoint::new(seg_buff.clone())));
             }
 
-            let depth_info = depth_map.get_depth_info(&seg);
             // Add the block, with config info.
+            let depth_info = depth_map.get_depth_info(&seg);
             elem_buff.push(ReflowElement::Block(ReflowBlock::from_config(
                 vec![seg],
                 reflow_config.clone(),

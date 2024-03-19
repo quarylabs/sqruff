@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use crate::core::parser::segments::base::Segment;
 use crate::core::templaters::base::TemplatedFile;
 
@@ -135,16 +137,16 @@ impl Segments {
         stop_seg: Option<&dyn Segment>,
     ) -> Segments {
         let start_index = start_seg
-            .and_then(|seg| self.base.iter().position(|x| x.dyn_eq(seg)))
-            .map_or(0, |index| index + 1);
+            .map(|seg| self.base.iter().position(|x| x.dyn_eq(seg)).unwrap() as isize)
+            .unwrap_or(-1);
 
         let stop_index = stop_seg
-            .and_then(|seg| self.base.iter().position(|x| x.dyn_eq(seg)))
-            .unwrap_or_else(|| self.base.len());
+            .map(|seg| self.base.iter().position(|x| x.dyn_eq(seg)).unwrap() as isize)
+            .unwrap_or_else(|| self.base.len() as isize);
 
         let mut buff = Vec::new();
 
-        for seg in self.base.iter().skip(start_index).take(stop_index - start_index) {
+        for seg in pyslice(&self.base, start_index + 1..stop_index) {
             if let Some(loop_while) = &loop_while {
                 if !loop_while(seg.as_ref()) {
                     break;
@@ -175,4 +177,9 @@ impl IntoIterator for Segments {
     fn into_iter(self) -> Self::IntoIter {
         self.base.into_iter()
     }
+}
+
+fn pyslice<T>(collection: &[T], Range { start, end }: Range<isize>) -> impl Iterator<Item = &T> {
+    let slice = slyce::Slice { start: start.into(), end: end.into(), step: None };
+    slice.apply(&collection)
 }

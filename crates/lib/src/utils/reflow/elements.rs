@@ -339,8 +339,44 @@ impl ReflowPoint {
             || (next_block.is_some()
                 && next_block.unwrap().class_types().contains(&"end_of_file".to_string()))
         {
-            existing_results.extend(new_results);
+            if let Some(last_whitespace) = last_whitespace {
+                let ws_idx = self.segments.iter().position(|it| it == &last_whitespace).unwrap();
+                if ws_idx > 0 {
+                    let segments_slice = &self.segments[..ws_idx];
 
+                    let prev_seg =
+                        segments_slice.iter().rev().find(|seg| !seg.is_type("indent")).unwrap();
+
+                    if prev_seg.is_type("newline")
+                        && prev_seg.get_end_loc() < last_whitespace.get_start_loc()
+                    {
+                        segment_buffer.remove(ws_idx);
+
+                        let temp_idx =
+                            last_whitespace.get_position_marker().unwrap().templated_slice.start;
+
+                        if let Some((index, _)) =
+                            existing_results.iter().enumerate().find(|(_, res)| {
+                                res.anchor
+                                    .as_ref()
+                                    .and_then(|a| a.get_position_marker())
+                                    .map_or(false, |pm| pm.templated_slice.end == temp_idx)
+                            })
+                        {
+                            let mut res = existing_results.remove(index);
+
+                            res.fixes.push(LintFix::delete(last_whitespace));
+                            let new_result =
+                                LintResult::new(res.anchor, res.fixes, None, None, None);
+                            new_results.push(new_result);
+                        } else {
+                            panic!("Could not find removal result.");
+                        }
+                    }
+                }
+            }
+
+            existing_results.extend(new_results);
             return (existing_results, ReflowPoint::new(segment_buffer));
         }
 

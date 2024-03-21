@@ -1,0 +1,89 @@
+use std::collections::HashSet;
+
+use crate::core::dialects::common::AliasInfo;
+use crate::core::rules::base::{LintResult, Rule};
+use crate::core::rules::context::RuleContext;
+use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::utils::analysis::select::get_select_statement_info;
+
+#[derive(Debug, Clone, Default)]
+pub struct RuleAL04 {}
+
+impl Rule for RuleAL04 {
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(HashSet::from(["select_statement"])).into()
+    }
+
+    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+        let Some(select_info) =
+            get_select_statement_info(&context.segment, (&context.dialect).into(), true)
+        else {
+            return Vec::new();
+        };
+
+        let _parent_select =
+            context.parent_stack.iter().rev().find(|seg| seg.is_type("select_statement"));
+
+        self.lint_references_and_aliases(select_info.table_aliases).unwrap_or_default()
+    }
+}
+
+impl RuleAL04 {
+    pub fn lint_references_and_aliases(
+        &self,
+        table_aliases: Vec<AliasInfo>,
+    ) -> Option<Vec<LintResult>> {
+        let mut duplicates: HashSet<AliasInfo> = HashSet::new();
+        let mut seen: HashSet<String> = HashSet::new();
+
+        for alias in table_aliases.iter() {
+            if seen.contains(&alias.ref_str) && !alias.ref_str.is_empty() {
+                duplicates.insert(alias.clone());
+            } else {
+                seen.insert(alias.ref_str.clone());
+            }
+        }
+
+        if duplicates.is_empty() {
+            None
+        } else {
+            Some(
+                duplicates
+                    .into_iter()
+                    .map(|alias| {
+                        LintResult::new(
+                            alias.segment,
+                            Vec::new(),
+                            None,
+                            format!(
+                                "Duplicate table alias '{}'. Table aliases should be unique.",
+                                alias.ref_str
+                            )
+                            .into(),
+                            None,
+                        )
+                    })
+                    .collect(),
+            )
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::api::simple::lint;
+    use crate::core::rules::base::{Erased, ErasedRule};
+    use crate::rules::aliasing::AL04::RuleAL04;
+
+    fn rules() -> Vec<ErasedRule> {
+        vec![RuleAL04::default().erased()]
+    }
+
+    #[test]
+    fn test_fail_exactly_once_duplicated_aliases() {
+        let sql = "select 1 from table_1 as a join table_2 as a using(pk)";
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+
+        dbg!(violations);
+    }
+}

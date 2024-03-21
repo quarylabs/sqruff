@@ -119,6 +119,10 @@ impl PositionMarker {
         self.templated_file.get_line_pos_of_char_pos(self.templated_slice.start, false)
     }
 
+    pub fn working_loc_after(&self, raw: &str) -> (usize, usize) {
+        Self::infer_next_position(raw, self.working_line_no, self.working_line_pos)
+    }
+
     /// Using the raw string provided to infer the position of the next.
     /// **Line position in 1-indexed.**
     pub fn infer_next_position(raw: &str, line_no: usize, line_pos: usize) -> (usize, usize) {

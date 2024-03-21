@@ -82,6 +82,22 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn get_start_loc(&self) -> (usize, usize) {
+        match self.get_position_marker() {
+            Some(pos_marker) => pos_marker.working_loc(),
+            None => unreachable!("{self:?} has no PositionMarker"),
+        }
+    }
+
+    fn get_end_loc(&self) -> (usize, usize) {
+        match self.get_position_marker() {
+            Some(pos_marker) => pos_marker.working_loc_after(&self.get_raw().unwrap()),
+            None => {
+                unreachable!("{self:?} has no PositionMarker")
+            }
+        }
+    }
+
     fn to_serialised(
         &self,
         code_only: bool,

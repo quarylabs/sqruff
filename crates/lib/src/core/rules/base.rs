@@ -15,7 +15,7 @@ use crate::helpers::Config;
 
 #[derive(Clone)]
 pub struct LintResult {
-    anchor: Option<Box<dyn Segment>>,
+    pub anchor: Option<Box<dyn Segment>>,
     pub fixes: Vec<LintFix>,
     memory: Option<HashMap<String, String>>, // Adjust type as needed
     description: Option<String>,

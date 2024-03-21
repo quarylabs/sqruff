@@ -1,3 +1,3 @@
 pub mod base;
-mod common;
+pub mod common;
 pub mod init;

@@ -8,6 +8,7 @@ use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
+use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
@@ -19,9 +20,10 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    pos_marker, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-    IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment, SegmentConstructorFn,
-    SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
+    pos_marker, CloneSegment, CodeSegment, CodeSegmentNewArgs, CommentSegment,
+    CommentSegmentNewArgs, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment,
+    SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
+    WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::generator::SegmentGenerator;
@@ -2755,6 +2757,52 @@ impl NodeTrait for FromClauseSegment {
     }
 }
 
+impl Node<FromClauseSegment> {
+    pub fn eventual_aliases(&self) -> Vec<(Box<dyn Segment>, AliasInfo)> {
+        let mut buff = Vec::new();
+        let mut direct_table_children = Vec::new();
+        let mut join_clauses = Vec::new();
+
+        for from_expression in self.children(&["from_expression"]) {
+            direct_table_children.extend(from_expression.children(&["from_expression_element"]));
+            join_clauses.extend(from_expression.children(&["join_clause"]));
+        }
+
+        for clause in &direct_table_children {
+            let tmp;
+
+            let alias = clause
+                .as_any()
+                .downcast_ref::<Node<FromExpressionElementSegment>>()
+                .unwrap()
+                .eventual_alias();
+
+            let table_expr = if direct_table_children.contains(&clause) {
+                clause
+            } else {
+                tmp = clause.child(&["from_expression_element"]).unwrap();
+                &tmp
+            };
+
+            buff.push((table_expr.clone(), alias));
+        }
+
+        for clause in join_clauses {
+            let aliases = clause
+                .as_any()
+                .downcast_ref::<Node<JoinClauseSegment>>()
+                .unwrap()
+                .eventual_aliases();
+
+            if !aliases.is_empty() {
+                buff.extend(aliases);
+            }
+        }
+
+        buff
+    }
+}
+
 pub struct SelectStatementSegment;
 
 impl NodeTrait for SelectStatementSegment {
@@ -2823,6 +2871,15 @@ impl NodeTrait for SelectClauseElementSegment {
             .boxed(),
         ])
         .to_matchable()
+    }
+}
+
+impl Node<SelectClauseElementSegment> {
+    pub fn alias(&self) -> Option<ColumnAliasInfo> {
+        let alias_expression_segment =
+            self.recursive_crawl("alias_expression", true, None, true).get(0)?.clone();
+
+        unimplemented!()
     }
 }
 
@@ -2961,6 +3018,58 @@ impl NodeTrait for FromExpressionElementSegment {
                 .boxed(),
         ])
         .to_matchable()
+    }
+}
+
+impl Node<FromExpressionElementSegment> {
+    pub fn eventual_alias(&self) -> AliasInfo {
+        let mut tbl_expression = self.child(&["table_expression"]).or_else(|| {
+            self.child(&["bracketed"]).and_then(|bracketed| bracketed.child(&["table_expression"]))
+        });
+
+        if let Some(tbl_expression_inner) = &tbl_expression
+            && tbl_expression_inner.child(&["object_reference"]).is_none()
+        {
+            let bracketed = tbl_expression_inner.child(&["bracketed"]);
+            if let Some(bracketed) = bracketed {
+                tbl_expression = bracketed.child(&["table_expression"]);
+            }
+        }
+
+        let reference =
+            tbl_expression.and_then(|tbl_expression| tbl_expression.child(&["object_reference"]));
+
+        let reference = reference.as_ref().map(|reference| {
+            reference.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap()
+        });
+
+        let alias_expression = self.child(&["alias_expression"]);
+        if let Some(alias_expression) = alias_expression {
+            let segment = alias_expression.child(&["identifier"]);
+            if let Some(segment) = segment {
+                return AliasInfo {
+                    ref_str: segment.get_raw().unwrap(),
+                    segment: segment.into(),
+                    aliased: true,
+                    from_expression_element: self.clone_box(),
+                    alias_expression: alias_expression.into(),
+                    object_reference: reference.map(|it| it.clone_box()),
+                };
+            }
+        }
+
+        if let Some(_reference) = reference {
+            unimplemented!()
+        }
+
+        AliasInfo {
+            ref_str: String::new(),
+            segment: None,
+            aliased: false,
+            from_expression_element: self.clone_box(),
+            alias_expression: None,
+            object_reference: reference.map(|it| it.clone_box()),
+        }
     }
 }
 
@@ -4819,6 +4928,41 @@ impl NodeTrait for JoinClauseSegment {
             ])
         ])
         .to_matchable()
+    }
+}
+
+impl Node<JoinClauseSegment> {
+    fn eventual_aliases(&self) -> Vec<(Box<dyn Segment>, AliasInfo)> {
+        let mut buff = Vec::new();
+
+        let from_expression = self.child(&["from_expression_element"]).unwrap();
+        let alias = from_expression
+            .as_any()
+            .downcast_ref::<Node<FromExpressionElementSegment>>()
+            .unwrap()
+            .eventual_alias();
+
+        buff.push((from_expression.clone_box(), alias));
+
+        for join_clause in
+            self.recursive_crawl("join_clause", true, "select_statement".into(), true)
+        {
+            if join_clause.get_uuid().unwrap() == join_clause.get_uuid().unwrap() {
+                continue;
+            }
+
+            let aliases = join_clause
+                .as_any()
+                .downcast_ref::<Node<JoinClauseSegment>>()
+                .unwrap()
+                .eventual_aliases();
+
+            if !aliases.is_empty() {
+                buff.extend(aliases);
+            }
+        }
+
+        buff
     }
 }
 

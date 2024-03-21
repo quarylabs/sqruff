@@ -208,6 +208,37 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         result
     }
 
+    fn recursive_crawl(
+        &self,
+        seg_type: &str,
+        recurse_into: bool,
+        no_recursive_seg_type: Option<&str>,
+        allow_self: bool,
+    ) -> Vec<Box<dyn Segment>> {
+        let mut acc = Vec::new();
+
+        let matches = allow_self && self.is_type(seg_type);
+        if matches {
+            acc.push(self.clone_box());
+        }
+
+        if !self.descendant_type_set().contains(seg_type) {
+            return acc;
+        }
+
+        if recurse_into || !matches {
+            for seg in self.segments() {
+                if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
+                    let segments =
+                        seg.recursive_crawl(seg_type, recurse_into, no_recursive_seg_type, true);
+                    acc.extend(segments);
+                }
+            }
+        }
+
+        acc
+    }
+
     fn print_tree(&self) {
         fn print_tree(this: &dyn Segment, mut depth: usize) {
             let spaces = "    ".repeat(depth);

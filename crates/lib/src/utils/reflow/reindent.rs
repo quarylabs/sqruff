@@ -155,13 +155,13 @@ fn prune_untaken_indents(
     };
 
     let mut pruned_untaken_indents: Vec<_> =
-        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold as isize).collect();
+        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold).collect();
 
     if indent_stats.impulse > indent_stats.trough && !has_newline {
         for i in indent_stats.trough..indent_stats.impulse {
             let indent_val = incoming_balance + i + 1;
             if !indent_stats.implicit_indents.contains(&(indent_val - incoming_balance)) {
-                pruned_untaken_indents.push(indent_val as isize);
+                pruned_untaken_indents.push(indent_val);
             }
         }
     }
@@ -176,10 +176,10 @@ fn update_crawl_balances(
     has_newline: bool,
 ) -> (isize, Vec<isize>) {
     let new_untaken_indents =
-        prune_untaken_indents(untaken_indents, incoming_balance, &indent_stats, has_newline);
+        prune_untaken_indents(untaken_indents, incoming_balance, indent_stats, has_newline);
     let new_balance = incoming_balance + indent_stats.impulse;
 
-    (new_balance as isize, new_untaken_indents.into_iter().map(|it| it as isize).collect_vec())
+    (new_balance, new_untaken_indents.into_iter().collect_vec())
 }
 
 #[allow(unused_variables)]
@@ -211,10 +211,10 @@ fn crawl_indent_points(
                 if cached_point.is_line_break {
                     acc.push(IndentPoint {
                         idx: cached_point.idx,
-                        indent_impulse: indent_stats.impulse as isize,
-                        indent_trough: indent_stats.trough as isize,
+                        indent_impulse: indent_stats.impulse,
+                        indent_trough: indent_stats.trough,
                         initial_indent_balance: indent_balance,
-                        last_line_break_idx: cached_point.last_line_break_idx.into(),
+                        last_line_break_idx: cached_point.last_line_break_idx,
                         is_line_break: true,
                         untaken_indents: take(&mut untaken_indents),
                     });
@@ -242,8 +242,8 @@ fn crawl_indent_points(
             // Construct the point we may yield
             let indent_point = IndentPoint {
                 idx,
-                indent_impulse: indent_stats.impulse as isize,
-                indent_trough: indent_stats.trough as isize,
+                indent_impulse: indent_stats.impulse,
+                indent_trough: indent_stats.trough,
                 initial_indent_balance: indent_balance,
                 last_line_break_idx,
                 is_line_break: has_newline,
@@ -294,7 +294,7 @@ fn map_line_buffers(
         if !indent_point.is_line_break {
             let indent_stats = elements[indent_point.idx].as_point().unwrap().indent_impulse();
             if indent_point.indent_impulse > indent_point.indent_trough
-                && !(allow_implicit_indents && !indent_stats.implicit_indents.is_empty())
+                && !allow_implicit_indents && !indent_stats.implicit_indents.is_empty()
             {
                 untaken_indent_locs.insert(
                     indent_point.initial_indent_balance + indent_point.indent_impulse,
@@ -389,7 +389,7 @@ fn lint_line_starting_indent(
         let fixes = if init_seg.is_type("placeholder") {
             unimplemented!()
         } else {
-            initial_point.segments.clone().into_iter().map(|seg| LintFix::delete(seg)).collect_vec()
+            initial_point.segments.clone().into_iter().map(LintFix::delete).collect_vec()
         };
 
         (

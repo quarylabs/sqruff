@@ -21,7 +21,7 @@ pub struct RemovedConfig<'a> {
 
     #[allow(dead_code)]
     new_path: Option<Vec<&'a str>>,
-    
+
     #[allow(dead_code)]
     translation_func: Option<fn(&'a str) -> &'a str>,
 }
@@ -388,7 +388,7 @@ impl ConfigLoader {
         config.read(content).unwrap();
 
         for section in config.sections() {
-            let mut key = if section == "sqlfluff" {
+            let key = if section == "sqlfluff" {
                 vec!["core".to_owned()]
             } else if let Some(key) = section.strip_prefix("sqlfluff:") {
                 key.split(':').map(ToOwned::to_owned).collect()

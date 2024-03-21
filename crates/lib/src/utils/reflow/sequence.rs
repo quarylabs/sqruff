@@ -76,11 +76,11 @@ impl ReflowSequence {
 
             let depth_info = depth_map.get_depth_info(&seg);
             // Add the block, with config info.
-            elem_buff.push(ReflowElement::Block(ReflowBlock::from_config(
+            elem_buff.push(ReflowElement::Block(Box::new(ReflowBlock::from_config(
                 vec![seg],
                 reflow_config.clone(),
                 depth_info,
-            )));
+            ))));
 
             // Empty the buffer
             seg_buff.clear();
@@ -121,7 +121,8 @@ impl ReflowSequence {
         }
 
         if sides == "both" || sides == "after" {
-            for i in post_idx..all_raws.len() {
+            // for i in post_idx..all_raws.len() {
+                for (i, item) in all_raws.iter().enumerate().skip(post_idx){
                 if all_raws[i].is_code() {
                     post_idx = i;
                     break;
@@ -140,6 +141,7 @@ impl ReflowSequence {
         )
     }
 
+    #[allow(unused_variables)]
     pub fn insert(
         self,
         insertion: Box<dyn Segment>,
@@ -148,6 +150,7 @@ impl ReflowSequence {
     ) -> Self {
         let target_idx = self.find_element_idx_with(&target);
 
+        
         let new_block = ReflowBlock::from_config(vec![insertion.clone()], todo!(), <_>::default());
 
         if pos == "before" {
@@ -186,11 +189,8 @@ impl ReflowSequence {
         if removal_idx == 0 || removal_idx == self.elements.len() - 1 {
             panic!("Unexpected removal at one end of a ReflowSequence.");
         }
-        match &self.elements[removal_idx] {
-            ReflowElement::Point(_) => {
-                panic!("Not expected removal of whitespace in ReflowSequence.");
-            }
-            _ => {}
+        if let ReflowElement::Point(_) = &self.elements[removal_idx] {
+            panic!("Not expected removal of whitespace in ReflowSequence.");
         }
         let merged_point = ReflowPoint::new(
             [self.elements[removal_idx - 1].segments(), self.elements[removal_idx + 1].segments()]

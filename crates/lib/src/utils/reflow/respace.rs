@@ -33,7 +33,7 @@ pub fn determine_constraints(
 ) -> (String, String, bool) {
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single".into() },
+        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single" },
         strip_newlines,
     );
 
@@ -41,7 +41,7 @@ pub fn determine_constraints(
         if let Some(next_block) = next_block {
             &next_block.spacing_before
         } else {
-            "single".into()
+            "single"
         },
         strip_newlines,
     );
@@ -354,7 +354,7 @@ pub fn handle_respace_inline_without_space(
             next_block.segments[0].get_raw().unwrap()
         )
     } else {
-        format!("Expected single whitespace.")
+       "Expected single whitespace.".to_owned()
     };
 
     let new_result = if let Some(prev_block) = prev_block

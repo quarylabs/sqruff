@@ -16,6 +16,7 @@ pub enum Aliasing {
 #[derive(Debug, Clone)]
 pub struct RuleAL01 {
     aliasing: Aliasing,
+    target_parent_types: &'static [&'static str],
 }
 
 impl RuleAL01 {
@@ -23,11 +24,19 @@ impl RuleAL01 {
         self.aliasing = aliasing;
         self
     }
+
+    pub fn target_parent_types(mut self, target_parent_types: &'static [&'static str]) -> Self {
+        self.target_parent_types = target_parent_types;
+        self
+    }
 }
 
 impl Default for RuleAL01 {
     fn default() -> Self {
-        Self { aliasing: Aliasing::Explicit }
+        Self {
+            aliasing: Aliasing::Explicit,
+            target_parent_types: &["from_expression_element", "merge_statement"],
+        }
     }
 }
 
@@ -36,7 +45,7 @@ impl Rule for RuleAL01 {
         let last_seg = rule_cx.parent_stack.last().unwrap();
         let last_seg_ty = last_seg.get_type();
 
-        if matches!(last_seg_ty, "from_expression_element" | "merge_statement") {
+        if self.target_parent_types.iter().any(|&it| last_seg_ty == it) {
             let as_keyword = rule_cx
                 .segment
                 .segments()

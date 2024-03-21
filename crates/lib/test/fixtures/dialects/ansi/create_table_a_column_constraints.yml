@@ -24,7 +24,7 @@ file:
           - keyword: 'NULL'
         - column_constraint_segment:
           - keyword: DEFAULT
-          - shorthand_cast:
+          - cast_expression:
             - numeric_literal: '1'
       - comma: ','
       - column_definition:
@@ -186,7 +186,7 @@ file:
           - keyword: 'NULL'
         - column_constraint_segment:
           - keyword: DEFAULT
-          - shorthand_cast:
+          - cast_expression:
             - numeric_literal: '1'
         - column_constraint_segment:
           - keyword: UNIQUE
@@ -210,7 +210,7 @@ file:
           - keyword: 'NULL'
         - column_constraint_segment:
           - keyword: DEFAULT
-          - shorthand_cast:
+          - cast_expression:
             - numeric_literal: '1'
             - remove me: '::'
             - datatype:

@@ -57,6 +57,10 @@ impl Segments {
         self.base.iter().all(|s| predicate.map_or(true, |pred| pred(s.as_ref())))
     }
 
+    pub fn any(&self, predicate: PredicateType) -> bool {
+        self.base.iter().any(|s| predicate.map_or(true, |pred| pred(s.as_ref())))
+    }
+
     pub fn len(&self) -> usize {
         self.base.len()
     }

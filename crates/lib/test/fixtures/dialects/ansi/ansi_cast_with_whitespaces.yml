@@ -5,7 +5,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -26,7 +26,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -47,7 +47,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -68,7 +68,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -89,7 +89,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -110,7 +110,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -131,7 +131,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -157,7 +157,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -178,7 +178,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: amount_of_honey
             - remove me: '::'
@@ -230,7 +230,7 @@ file:
           - join_on_condition:
             - keyword: ON
             - expression:
-              - shorthand_cast:
+              - cast_expression:
                 - column_reference:
                   - identifier: fc
                   - dot: .
@@ -244,7 +244,7 @@ file:
                       - numeric_literal: '512'
                       - end_bracket: )
               - remove me: =
-              - shorthand_cast:
+              - cast_expression:
                 - column_reference:
                   - identifier: bi
                   - dot: .

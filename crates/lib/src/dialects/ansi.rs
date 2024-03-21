@@ -3287,7 +3287,7 @@ impl NodeTrait for AliasExpressionSegment {
 pub struct ShorthandCastSegment;
 
 impl NodeTrait for ShorthandCastSegment {
-    const TYPE: &'static str = "shorthand_cast";
+    const TYPE: &'static str = "cast_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec![

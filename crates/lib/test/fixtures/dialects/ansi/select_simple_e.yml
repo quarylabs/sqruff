@@ -5,7 +5,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - column_reference:
               - identifier: my_var
             - remove me: '::'
@@ -17,7 +17,7 @@ file:
       - comma: ','
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - numeric_literal: '123'
             - remove me: '::'
             - datatype:

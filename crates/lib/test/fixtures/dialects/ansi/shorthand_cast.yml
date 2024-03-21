@@ -5,7 +5,7 @@ file:
       - keyword: select
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - remove me: '''1'''
             - remove me: '::'
             - datatype:
@@ -16,7 +16,7 @@ file:
       - comma: ','
       - select_clause_element:
         - expression:
-          - shorthand_cast:
+          - cast_expression:
             - remove me: '''2'''
             - remove me: '::'
             - datatype:

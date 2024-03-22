@@ -19,7 +19,7 @@ pub struct SelectStatementColumnsAndTables {
 
 pub fn get_object_references(segment: &dyn Segment) -> Vec<Node<ObjectReferenceSegment>> {
     segment
-        .recursive_crawl("object_reference", true, "select_statement".into(), true)
+        .recursive_crawl(&["object_reference"], true, "select_statement".into(), true)
         .into_iter()
         .map(|seg| seg.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap().clone())
         .collect()
@@ -61,7 +61,8 @@ pub fn get_select_statement_info(
     let fc = segment.child(&["from_clause"]);
 
     if let Some(fc) = fc {
-        for join_clause in fc.recursive_crawl("join_clause", true, "select_statement".into(), true)
+        for join_clause in
+            fc.recursive_crawl(&["join_clause"], true, "select_statement".into(), true)
         {
             let mut seen_using = false;
             let mut reference_buffer = Vec::new(); // Assuming the type for accumulation
@@ -133,7 +134,7 @@ fn has_value_table_function(table_expr: Box<dyn Segment>, dialect: Option<&Diale
         return false;
     };
 
-    for function_name in table_expr.recursive_crawl("function_name", true, None, true) {
+    for function_name in table_expr.recursive_crawl(&["function_name"], true, None, true) {
         if dialect.sets("value_table_functions").contains(function_name.get_raw().unwrap().trim()) {
             return true;
         }
@@ -147,14 +148,14 @@ fn get_pivot_table_columns(segment: &Box<dyn Segment>, dialect: Option<&Dialect>
         return Vec::new();
     };
 
-    let fc = segment.recursive_crawl("from_pivot_expression", true, None, true);
+    let fc = segment.recursive_crawl(&["from_pivot_expression"], true, None, true);
     if !fc.is_empty() {
         return Vec::new();
     }
 
     let mut pivot_table_column_aliases = Vec::new();
     for pivot_table_column_alias in
-        segment.recursive_crawl("pivot_column_reference", true, None, true)
+        segment.recursive_crawl(&["pivot_column_reference"], true, None, true)
     {
         let raw = pivot_table_column_alias.get_raw().unwrap();
         if !pivot_table_column_aliases.contains(&raw) {

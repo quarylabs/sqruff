@@ -2877,7 +2877,7 @@ impl NodeTrait for SelectClauseElementSegment {
 impl Node<SelectClauseElementSegment> {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
         let alias_expression_segment =
-            self.recursive_crawl("alias_expression", true, None, true).get(0)?.clone();
+            self.recursive_crawl(&["alias_expression"], true, None, true).get(0)?.clone();
 
         unimplemented!()
     }
@@ -4945,7 +4945,7 @@ impl Node<JoinClauseSegment> {
         buff.push((from_expression.clone_box(), alias));
 
         for join_clause in
-            self.recursive_crawl("join_clause", true, "select_statement".into(), true)
+            self.recursive_crawl(&["join_clause"], true, "select_statement".into(), true)
         {
             if join_clause.get_uuid().unwrap() == join_clause.get_uuid().unwrap() {
                 continue;

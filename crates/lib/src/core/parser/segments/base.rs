@@ -210,19 +210,20 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
     fn recursive_crawl(
         &self,
-        seg_type: &str,
+        seg_types: &[&str],
         recurse_into: bool,
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
     ) -> Vec<Box<dyn Segment>> {
         let mut acc = Vec::new();
+        let seg_types_set: HashSet<&str> = HashSet::from_iter(seg_types.iter().copied());
 
-        let matches = allow_self && self.is_type(seg_type);
+        let matches = allow_self && seg_types_set.contains(self.get_type());
         if matches {
             acc.push(self.clone_box());
         }
 
-        if !self.descendant_type_set().contains(seg_type) {
+        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty.as_str())) {
             return acc;
         }
 
@@ -230,7 +231,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             for seg in self.segments() {
                 if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
                     let segments =
-                        seg.recursive_crawl(seg_type, recurse_into, no_recursive_seg_type, true);
+                        seg.recursive_crawl(seg_types, recurse_into, no_recursive_seg_type, true);
                     acc.extend(segments);
                 }
             }

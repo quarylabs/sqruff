@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use indexmap::IndexSet;
+
 use crate::core::dialects::common::AliasInfo;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
@@ -33,7 +35,7 @@ impl RuleAL04 {
         &self,
         table_aliases: Vec<AliasInfo>,
     ) -> Option<Vec<LintResult>> {
-        let mut duplicates: HashSet<AliasInfo> = HashSet::new();
+        let mut duplicates = IndexSet::new();
         let mut seen: HashSet<String> = HashSet::new();
 
         for alias in table_aliases.iter() {
@@ -84,6 +86,85 @@ mod tests {
         let sql = "select 1 from table_1 as a join table_2 as a using(pk)";
         let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
 
-        dbg!(violations);
+        assert_eq!(
+            violations[0].desc(),
+            "Duplicate table alias 'a'. Table aliases should be unique."
+        );
+        assert_eq!(violations[0].line_no, 1);
+        assert_eq!(violations[0].line_pos, 44);
+        assert_eq!(violations.len(), 1);
+    }
+
+    #[test]
+    fn test_fail_two_duplicated_aliases() {
+        let sql = r#"
+        select 1
+        from table_1 as a
+        join table_2 as a on a.pk = b.pk
+        join table_3 as b on a.pk = b.pk
+        join table_4 as b on b.pk = b.pk
+    "#;
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+
+        assert_eq!(
+            violations[0].desc(),
+            "Duplicate table alias 'a'. Table aliases should be unique."
+        );
+        assert_eq!(violations[0].line_no, 4);
+        assert_eq!(violations[0].line_pos, 25);
+
+        assert_eq!(
+            violations[1].desc(),
+            "Duplicate table alias 'b'. Table aliases should be unique."
+        );
+        assert_eq!(violations[1].line_no, 6);
+        assert_eq!(violations[1].line_pos, 25);
+
+        assert_eq!(violations.len(), 2);
+    }
+
+    #[test]
+    fn test_fail_subquery() {
+        let sql = r#"
+        SELECT 1
+        FROM (
+            select 1
+            from table_1 as a
+            join table_2 as a on a.pk = b.pk
+            join table_3 as b on a.pk = b.pk
+            join table_4 as b on b.pk = b.pk
+        )
+    "#;
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(
+            violations[0].desc(),
+            "Duplicate table alias 'a'. Table aliases should be unique."
+        );
+        assert_eq!(violations[0].line_no, 6);
+        assert_eq!(violations[0].line_pos, 29);
+
+        assert_eq!(
+            violations[1].desc(),
+            "Duplicate table alias 'b'. Table aliases should be unique."
+        );
+        assert_eq!(violations[1].line_no, 8);
+        assert_eq!(violations[1].line_pos, 29);
+
+        assert_eq!(violations.len(), 2);
+    }
+
+    #[test]
+    fn test_pass_subquery() {
+        let sql = r#"
+        SELECT 1
+        FROM (
+            select 1
+            from table_1 as a
+            join table_2 as b on a.pk = b.pk
+        ) AS a
+    "#;
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+
+        assert_eq!(violations.len(), 0);
     }
 }

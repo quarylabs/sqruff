@@ -17,6 +17,9 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
+use crate::dialects::ansi::{
+    ColumnReferenceSegment, Node, ObjectReferenceSegment, WildcardIdentifierSegment,
+};
 use crate::helpers::Boxed;
 
 /// An element of the response to BaseSegment.path_to().
@@ -80,6 +83,30 @@ impl TupleSerialisedSegment {
 pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn as_object_reference(&self) -> Node<ObjectReferenceSegment> {
+        if let Some(value) = self.as_any().downcast_ref::<Node<ObjectReferenceSegment>>() {
+            return value.clone();
+        }
+
+        if let Some(value) = self.as_any().downcast_ref::<Node<WildcardIdentifierSegment>>() {
+            let mut node = Node::new();
+            node.uuid = value.uuid;
+            node.position_marker = value.position_marker.clone();
+            node.segments = value.segments.clone();
+            return node;
+        }
+
+        if let Some(value) = self.as_any().downcast_ref::<Node<ColumnReferenceSegment>>() {
+            let mut node = Node::new();
+            node.uuid = value.uuid;
+            node.position_marker = value.position_marker.clone();
+            node.segments = value.segments.clone();
+            return node;
+        }
+
+        unimplemented!("{} = {:?}", self.get_type(), self.get_raw())
     }
 
     fn get_start_loc(&self) -> (usize, usize) {
@@ -215,10 +242,13 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
     ) -> Vec<Box<dyn Segment>> {
+        let is_debug = seg_types == &["object_reference"];
+
         let mut acc = Vec::new();
         let seg_types_set: HashSet<&str> = HashSet::from_iter(seg_types.iter().copied());
 
-        let matches = allow_self && seg_types_set.contains(self.get_type());
+        let matches =
+            allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it.as_str()));
         if matches {
             acc.push(self.clone_box());
         }
@@ -337,7 +367,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let mut result_set = HashSet::new();
 
         for seg in self.segments() {
-            // Combine descendant_type_set and class_types of each segment
             result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
         }
 

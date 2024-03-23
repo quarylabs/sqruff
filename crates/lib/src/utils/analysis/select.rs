@@ -21,7 +21,7 @@ pub fn get_object_references(segment: &dyn Segment) -> Vec<Node<ObjectReferenceS
     segment
         .recursive_crawl(&["object_reference"], true, "select_statement".into(), true)
         .into_iter()
-        .map(|seg| seg.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap().clone())
+        .map(|seg| seg.as_object_reference())
         .collect()
 }
 
@@ -37,7 +37,7 @@ pub fn get_select_statement_info(
     }
 
     let sc = segment.child(&["select_clause"])?;
-    let reference_buffer = get_object_references(sc.as_ref());
+    let mut reference_buffer = get_object_references(sc.as_ref());
     for potential_clause in
         ["where_clause", "groupby_clause", "having_clause", "orderby_clause", "qualify_clause"]
     {
@@ -65,7 +65,6 @@ pub fn get_select_statement_info(
             fc.recursive_crawl(&["join_clause"], true, "select_statement".into(), true)
         {
             let mut seen_using = false;
-            let mut reference_buffer = Vec::new(); // Assuming the type for accumulation
 
             for seg in join_clause.segments() {
                 if seg.is_type("keyword") && seg.get_raw_upper().unwrap() == "USING" {
@@ -73,7 +72,6 @@ pub fn get_select_statement_info(
                 } else if seg.is_type("join_on_condition") {
                     for on_seg in seg.segments() {
                         if matches!(on_seg.get_type(), "bracketed" | "expression") {
-                            // Deal with expressions
                             reference_buffer.extend(get_object_references(seg.as_ref()));
                         }
                     }

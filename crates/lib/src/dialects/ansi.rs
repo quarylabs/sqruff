@@ -2314,9 +2314,9 @@ pub trait NodeTrait {
 
 pub struct Node<T> {
     marker: PhantomData<T>,
-    uuid: Uuid,
-    segments: Vec<Box<dyn Segment>>,
-    position_marker: Option<PositionMarker>,
+    pub uuid: Uuid,
+    pub(crate) segments: Vec<Box<dyn Segment>>,
+    pub position_marker: Option<PositionMarker>,
 }
 
 impl<T> Node<T> {
@@ -2924,7 +2924,12 @@ impl NodeTrait for WildcardIdentifierSegment {
         .allow_gaps(false)
         .to_matchable()
     }
+
+    fn class_types() -> HashSet<String> {
+        ["wildcard_identifier", "object_reference"].map(ToString::to_string).into_iter().collect()
+    }
 }
+
 pub struct OrderByClauseSegment;
 
 impl NodeTrait for OrderByClauseSegment {
@@ -3083,6 +3088,10 @@ impl NodeTrait for ColumnReferenceSegment {
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
             .to_matchable()
     }
+
+    fn class_types() -> HashSet<String> {
+        ["object_reference", "column_reference"].map(ToOwned::to_owned).into_iter().collect()
+    }
 }
 
 pub struct ObjectReferenceSegment;
@@ -3098,6 +3107,59 @@ impl NodeTrait for ObjectReferenceSegment {
                 this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
             })
             .to_matchable()
+    }
+}
+
+pub enum ObjectReferenceLevel {
+    Object = 1,
+    Table = 2,
+    Schema = 3,
+}
+
+#[derive(Clone, Debug)]
+pub struct ObjectReferencePart {
+    pub part: String,
+    pub segments: Vec<Box<dyn Segment>>,
+}
+
+impl Node<ObjectReferenceSegment> {
+    pub fn extract_possible_references(
+        &self,
+        level: ObjectReferenceLevel,
+    ) -> Vec<ObjectReferencePart> {
+        let level = level as usize;
+        let refs = self.iter_raw_references();
+
+        if refs.len() >= level {
+            let index = -(level as isize);
+            let slice = slyce::Slice { start: index.into(), end: <_>::default(), step: None };
+            slice.apply(&refs).cloned().collect()
+        } else {
+            refs
+        }
+    }
+
+    pub fn iter_raw_references(&self) -> Vec<ObjectReferencePart> {
+        let mut acc = Vec::new();
+
+        for elem in self.recursive_crawl(&["identifier"], true, None, true) {
+            acc.extend(self.iter_reference_parts(elem));
+        }
+
+        acc
+    }
+
+    fn iter_reference_parts(&self, elem: Box<dyn Segment>) -> Vec<ObjectReferencePart> {
+        let mut acc = Vec::new();
+
+        let raw = elem.get_raw().unwrap();
+        let parts = raw.split(".");
+
+        for part in parts {
+            acc.push(ObjectReferencePart { part: part.into(), segments: vec![elem.clone()] });
+        }
+
+        acc
     }
 }
 
@@ -4928,6 +4990,10 @@ impl NodeTrait for JoinClauseSegment {
             ])
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> HashSet<String> {
+        ["join_clause".into()].into_iter().collect()
     }
 }
 

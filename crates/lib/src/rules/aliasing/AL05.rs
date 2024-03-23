@@ -1,5 +1,6 @@
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
+use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -18,6 +19,10 @@ struct AL05Query {
 pub struct RuleAL05 {}
 
 impl Rule for RuleAL05 {
+    fn name(&self) -> &'static str {
+        "aliasing.unused"
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
@@ -39,10 +44,10 @@ impl Rule for RuleAL05 {
         self.analyze_table_aliases(&mut query, &context.dialect);
 
         for alias in query.payload.aliases {
-            // if alias.from_expression_element and self._is_alias_required(
-            //     alias.from_expression_element, context.dialect.name
-            // ):
-            //     continue
+            if Self::is_alias_required(&alias.from_expression_element) {
+                continue;
+            }
+
             if alias.aliased && !query.payload.tbl_refs.contains(&alias.ref_str) {
                 let violation = self.report_unused_alias(alias);
                 violations.push(violation);
@@ -84,6 +89,25 @@ impl RuleAL05 {
         }
     }
 
+    fn is_alias_required(from_expression_element: &Box<dyn Segment>) -> bool {
+        for segment in from_expression_element.iter_segments(Some(&["bracketed"]), false) {
+            if segment.is_type("table_expression") {
+                if segment.child(&["values_clause"]).is_some() {
+                    return false;
+                } else if segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
+                    ["select_statement", "set_expression", "with_compound_statement"]
+                        .iter()
+                        .any(|it| seg.is_type(it))
+                }) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        false
+    }
+
     fn report_unused_alias(&self, alias: AliasInfo) -> LintResult {
         let mut fixes = vec![LintFix::delete(alias.alias_expression.clone().unwrap())];
         let to_delete = Segments::from_vec(alias.from_expression_element.segments().to_vec(), None)
@@ -97,12 +121,20 @@ impl RuleAL05 {
 
         fixes.extend(to_delete.into_iter().map(|it| LintFix::delete(it)));
 
-        LintResult::new(alias.segment, fixes, None, None, None)
+        LintResult::new(
+            alias.segment,
+            fixes,
+            None,
+            format!("Alias '{}' is never used in SELECT statement.", alias.ref_str).into(),
+            None,
+        )
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use pretty_assertions::assert_eq;
+
     use crate::api::simple::{fix, lint};
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::aliasing::AL05::RuleAL05;
@@ -153,5 +185,116 @@ mod tests {
         )
         .unwrap();
         assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_unaliased_table_referenced() {
+        let violations = lint(
+            "select ps.*, pandgs.blah from ps join pandgs using(moo)".into(),
+            "ansi".into(),
+            rules(),
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_fail_table_alias_not_referenced_2() {
+        let fail_str = "SELECT * FROM my_tbl foo";
+        let fix_str = "SELECT * FROM my_tbl";
+
+        let result = fix(fail_str.into(), rules());
+        assert_eq!(fix_str, result);
+    }
+
+    #[test]
+    fn test_fail_table_alias_not_referenced_2_subquery() {
+        let fail_str = "SELECT * FROM (SELECT * FROM my_tbl foo)";
+        let fix_str = "SELECT * FROM (SELECT * FROM my_tbl)";
+
+        let result = fix(fail_str.into(), rules());
+        assert_eq!(fix_str, result);
+    }
+
+    #[test]
+    fn test_pass_subquery_alias_not_referenced() {
+        let violations = lint(
+            "select * from (select 1 as a) subquery".into(),
+            "ansi".into(),
+            rules(),
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_derived_query_requires_alias_1() {
+        let sql = r#"
+        SELECT * FROM (
+            SELECT 1
+        ) as a
+    "#;
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_derived_query_requires_alias_2() {
+        let sql = r#"
+        SELECT * FROM (
+            SELECT col FROM dbo.tab
+            UNION
+            SELECT -1 AS col
+        ) AS a
+    "#;
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_derived_query_requires_alias_3() {
+        let sql = r#"
+        SELECT * FROM (
+            WITH foo AS (
+                SELECT col FROM dbo.tab
+            )
+            SELECT * FROM foo
+        ) AS a
+    "#;
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_join_on_expression_in_parentheses() {
+        let sql = r#"
+        SELECT table1.c1
+        FROM
+            table1 AS tbl1
+        INNER JOIN table2 AS tbl2 ON (tbl2.col2 = tbl1.col2)
+        INNER JOIN table3 AS tbl3 ON (tbl3.col3 = tbl2.col3)
+    "#;
+        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_ansi_function_not_table_parameter() {
+        let fail_str = r#"
+            SELECT TO_JSON_STRING(t)
+            FROM my_table AS t
+        "#;
+
+        let fix_str = r#"
+            SELECT TO_JSON_STRING(t)
+            FROM my_table
+        "#;
+
+        let result = fix(fail_str.into(), rules());
+        assert_eq!(fix_str, result);
     }
 }

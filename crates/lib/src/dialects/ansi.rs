@@ -3135,7 +3135,7 @@ impl Node<ObjectReferenceSegment> {
             let slice = slyce::Slice { start: index.into(), end: <_>::default(), step: None };
             slice.apply(&refs).cloned().collect()
         } else {
-            refs
+            Vec::new()
         }
     }
 

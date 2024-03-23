@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::{Deref, DerefMut};
 
 use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
@@ -51,6 +52,20 @@ pub struct Query<'me, T> {
     pub cte_definition_segment: Option<Box<dyn Segment>>,
     pub cte_name_segment: Option<Box<dyn Segment>>,
     pub payload: T,
+}
+
+impl<'me, T> Deref for Query<'me, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.payload
+    }
+}
+
+impl<'me, T> DerefMut for Query<'me, T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.payload
+    }
 }
 
 impl<T: Default> Query<'_, T> {

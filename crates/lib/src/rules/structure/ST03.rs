@@ -51,7 +51,7 @@ mod tests {
         with cte as (
             select
                 a, b
-            from
+            from 
                 t
         )
         select * from cte"#;

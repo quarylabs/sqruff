@@ -125,10 +125,6 @@ impl<T: Default> Query<'_, T> {
                 selectables.push(Selectable { selectable: seg, dialect });
             }
 
-            dbg!(());
-            segment.print_tree();
-            dbg!(());
-            
             for seg in segment.recursive_crawl(
                 &["common_table_expression"],
                 false,
@@ -161,6 +157,17 @@ impl<T: Default> Query<'_, T> {
 
         let ctes = HashMap::new();
         for cte in cte_defs {
+            let name_seg = cte.segments()[0].clone_box();
+            let name = name_seg.get_raw_upper().unwrap();
+
+            let types = [SELECTABLE_TYPES, &["values_clause"], SUBSELECT_TYPES].concat();
+            dbg!(("START", cte.get_type()));
+            let inner_qry = cte.recursive_crawl(&types, true, None, true);
+
+            if inner_qry.is_empty() {
+                continue;
+            };
+
             unimplemented!();
         }
 

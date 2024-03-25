@@ -252,7 +252,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         }
 
         if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty.as_str())) {
-            dbg!("RETURN");
             return acc;
         }
 
@@ -366,6 +365,9 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let mut result_set = HashSet::new();
 
         for seg in self.segments() {
+            dbg!(seg.get_type());
+            dbg!(seg.class_types());
+
             result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
         }
 

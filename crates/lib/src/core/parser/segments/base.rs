@@ -242,18 +242,17 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
     ) -> Vec<Box<dyn Segment>> {
-        let is_debug = seg_types == &["object_reference"];
-
         let mut acc = Vec::new();
         let seg_types_set: HashSet<&str> = HashSet::from_iter(seg_types.iter().copied());
 
-        let matches =
-            allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it.as_str()));
+        let matches = allow_self && seg_types.iter().any(|&it| self.get_type() == it)
+            || self.class_types().iter().any(|it| seg_types_set.contains(it.as_str()));
         if matches {
             acc.push(self.clone_box());
         }
 
         if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty.as_str())) {
+            dbg!("RETURN");
             return acc;
         }
 

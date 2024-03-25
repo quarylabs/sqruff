@@ -1379,7 +1379,7 @@ impl Segment for SymbolSegment {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct SymbolSegmentNewArgs {
     pub r#type: &'static str,
 }

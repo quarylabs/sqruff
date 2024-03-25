@@ -94,6 +94,7 @@ impl<T: Default> Query<'_, T> {
         let selectable_segment =
             root_segment.recursive_crawl(SELECTABLE_TYPES, true, "merge_statement".into(), true)[0]
                 .clone();
+
         Query::from_segment(&selectable_segment, dialect, None)
     }
 

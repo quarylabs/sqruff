@@ -2826,7 +2826,7 @@ impl NodeTrait for SelectStatementSegment {
     }
 
     fn class_types() -> HashSet<String> {
-        [].into_iter().collect()
+        ["select_statement".into()].into_iter().collect()
     }
 }
 

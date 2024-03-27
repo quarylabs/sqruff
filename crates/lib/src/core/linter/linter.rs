@@ -327,7 +327,7 @@ impl Linter {
         //     ));
         // }
 
-        let mut templated_file = None;
+        let mut _templated_file = None;
         let templater_violations = vec![];
         match self.templater.process(
             in_str.as_str(),
@@ -383,7 +383,7 @@ impl Linter {
         }
 
         let mut violations = Vec::new();
-        let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
+        let mut _tokens: Option<Vec<Box<dyn Segment>>> = None;
 
         if rendered.templated_file.is_templated() {
             let (t, lvs, _config) =
@@ -507,7 +507,7 @@ impl Linter {
         let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
         let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
         let ignore_files = ignore_files.unwrap_or(true);
-        let working_path =
+        let _working_path =
             working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string());
 
         let Ok(metadata) = std::fs::metadata(&path) else {

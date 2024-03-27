@@ -285,7 +285,7 @@ fn map_line_buffers(
     let mut point_buffer = Vec::new();
     let mut previous_points = HashMap::new();
     let mut untaken_indent_locs = HashMap::new();
-    let mut imbalanced_locs = Vec::new();
+    let imbalanced_locs = Vec::new();
 
     for indent_point in crawl_indent_points(elements, allow_implicit_indents) {
         point_buffer.push(indent_point.clone());

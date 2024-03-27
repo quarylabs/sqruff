@@ -122,7 +122,7 @@ impl ReflowSequence {
 
         if sides == "both" || sides == "after" {
             // for i in post_idx..all_raws.len() {
-                for (i, item) in all_raws.iter().enumerate().skip(post_idx){
+                for (i, _item) in all_raws.iter().enumerate().skip(post_idx){
                 if all_raws[i].is_code() {
                     post_idx = i;
                     break;
@@ -151,7 +151,9 @@ impl ReflowSequence {
         let target_idx = self.find_element_idx_with(&target);
 
         
-        let new_block = ReflowBlock::from_config(vec![insertion.clone()], todo!(), <_>::default());
+        let default_value = Default::default();
+        let new_block = ReflowBlock::from_config(vec![insertion.clone()], default_value, <_>::default());
+        // let new_block = ReflowBlock::from_config(vec![insertion.clone()], todo!(), <_>::default());
 
         if pos == "before" {
             let mut new_elements = self.elements[..target_idx].to_vec();

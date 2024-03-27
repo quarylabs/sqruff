@@ -105,11 +105,11 @@ impl RebreakLocation {
 
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    root_segment: Box<dyn Segment>,
+    _root_segment: Box<dyn Segment>,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for (idx, item) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2){
+    for (idx, _item) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2){
         let elem = &element_buffer[idx];
 
         let ReflowElement::Block(block) = elem else {
@@ -216,7 +216,7 @@ pub fn rebreak_sequence(
 
             // Generate the text for any issues.
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let _desc = if loc.strict {
                 format!("{} should always start a new line.", capitalize(&pretty_name))
             } else {
                 format!("Found trailing {}. Expected only leading near line breaks.", pretty_name)
@@ -289,7 +289,7 @@ pub fn rebreak_sequence(
             }
 
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let _desc = if loc.strict {
                 format!("{} should always be at the end of a line.", capitalize(&pretty_name))
             } else {
                 format!("Found leading {}. Expected only trailing near line breaks.", pretty_name)

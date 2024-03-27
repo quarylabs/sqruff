@@ -97,7 +97,7 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 }
 
 impl DepthInfo {
-    fn from_raw_and_stack(raw: Box<dyn Segment>, stack: Vec<PathStep>) -> DepthInfo {
+    fn from_raw_and_stack(_raw: Box<dyn Segment>, stack: Vec<PathStep>) -> DepthInfo {
         let stack_hashes: Vec<u64> = stack
             .iter()
             .map(|ps| {

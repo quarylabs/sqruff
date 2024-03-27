@@ -349,6 +349,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    #[allow(unused_variables)]
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -426,6 +427,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     /// Stub.
+    #[allow(unused_variables)]
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
         unimplemented!()
     }
@@ -484,8 +486,10 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                 fixes_applied.push(f.clone());
 
                 // Deletes are easy.
+
                 if f.edit_type == EditType::Delete {
                     // We're just getting rid of this segment.
+                    
                     requires_validate = true;
                     // NOTE: We don't add the segment in this case.
                     continue;
@@ -529,8 +533,9 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             seg_buffer.push(s);
             seg_buffer.extend(post);
 
+            
             if !validated {
-                requires_validate = true;
+                _requires_validate = true;
             }
         }
 
@@ -542,7 +547,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.segments().iter().enumerate() {
-            let mut new_step = vec![PathStep {
+            let new_step = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
                 len: self.segments().len(),
@@ -1045,7 +1050,7 @@ impl Segment for NewlineSegment {
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        let Some(position_marker) = position_marker else {
+        let Some(_position_marker) = position_marker else {
             return;
         };
 
@@ -1099,7 +1104,7 @@ impl WhitespaceSegment {
 }
 
 impl Segment for WhitespaceSegment {
-    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
         Self {
             raw: self.get_raw().unwrap(),
             position_marker: self.position_marker.clone(),

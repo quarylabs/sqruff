@@ -131,7 +131,7 @@ impl ReflowPoint {
         desired_indent: &str,
         after: Option<Box<dyn Segment>>,
         before: Option<Box<dyn Segment>>,
-        description: Option<&str>,
+        _description: Option<&str>,
         source: Option<&str>,
     ) -> (Vec<LintResult>, ReflowPoint) {
         assert!(!desired_indent.contains('\n'), "Newline found in desired indent.");
@@ -176,7 +176,7 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent =
+                let _new_indent =
                     WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
 
                 return (
@@ -361,7 +361,7 @@ impl ReflowPoint {
         } else {
             // No. Should we insert some?
             // NOTE: This method operates on the existing fix buffer.
-            let (segment_buffer, results, edited) = handle_respace_inline_without_space(
+            let (segment_buffer, results, _edited) = handle_respace_inline_without_space(
                 pre_constraint,
                 post_constraint,
                 prev_block,

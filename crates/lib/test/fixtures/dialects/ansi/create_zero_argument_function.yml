@@ -12,7 +12,7 @@ file:
         - start_bracket: (
         - end_bracket: )
     - keyword: RETURNS
-    - datatype:
+    - data_type:
       - '': integer
     - function_definition:
       - keyword: AS
@@ -34,7 +34,7 @@ file:
         - start_bracket: (
         - end_bracket: )
     - keyword: RETURNS
-    - datatype:
+    - data_type:
       - '': integer
     - function_definition:
       - keyword: AS

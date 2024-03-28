@@ -18,15 +18,14 @@ file:
       - start_bracket: (
       - column_definition:
         - remove me: '"col"'
-        - datatype:
-          - '': TIMESTAMP
+        - data_type:
+          - keyword: TIMESTAMP
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
         - column_constraint_segment:
           - keyword: DEFAULT
-          - cast_expression:
-            - '': CURRENT_TIMESTAMP
+          - '': CURRENT_TIMESTAMP
       - end_bracket: )
 - statement_terminator: ;
 - statement:

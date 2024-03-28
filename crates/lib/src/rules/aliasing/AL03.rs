@@ -1,7 +1,5 @@
 use std::collections::HashSet;
 
-use itertools::Itertools;
-
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;

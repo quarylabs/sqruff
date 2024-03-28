@@ -8,14 +8,14 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - datatype:
+        - data_type:
           - '': integer
         - comma: ','
-        - datatype:
+        - data_type:
           - '': integer
         - end_bracket: )
     - keyword: RETURNS
-    - datatype:
+    - data_type:
       - '': integer
     - function_definition:
       - keyword: AS

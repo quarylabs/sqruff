@@ -10,7 +10,7 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: id
-        - datatype:
+        - data_type:
           - '': VARCHAR
           - bracketed_arguments:
             - bracketed:

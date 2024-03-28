@@ -12,7 +12,7 @@ file:
             - expression:
               - numeric_literal: '25.65'
             - keyword: AS
-            - datatype:
+            - data_type:
               - '': int
             - end_bracket: )
       - comma: ','
@@ -25,7 +25,7 @@ file:
             - expression:
               - remove me: 'NULL'
             - keyword: AS
-            - datatype:
+            - data_type:
               - '': STRING
             - end_bracket: )
         - alias_expression:

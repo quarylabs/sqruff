@@ -26,10 +26,9 @@ file:
                   - identifier: schema
                   - dot: .
                   - identifier: table
-            - alias_expression:
-              - identifier: with
-      - unparsable:
-        - word: no
-        - word: schema
-        - word: binding
+    - with_no_schema_binding_clause:
+      - keyword: with
+      - keyword: no
+      - keyword: schema
+      - keyword: binding
 - statement_terminator: ;

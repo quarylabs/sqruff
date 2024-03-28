@@ -19,9 +19,10 @@ file:
           - alias_expression:
             - keyword: AS
             - identifier: f
-    - unparsable:
-      - word: TABLESAMPLE
-      - word: BERNOULLI
-      - start_bracket: (
-      - numeric_literal: '10'
-      - end_bracket: )
+          - sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: BERNOULLI
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )

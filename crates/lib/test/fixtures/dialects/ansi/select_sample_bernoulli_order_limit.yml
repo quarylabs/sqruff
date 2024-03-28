@@ -18,15 +18,18 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: foo
-          - alias_expression:
-            - identifier: TABLESAMPLE
-    - unparsable:
-      - word: BERNOULLI
-      - start_bracket: (
-      - numeric_literal: '10'
-      - end_bracket: )
-      - word: ORDER
-      - word: BY
-      - word: col1
-      - word: LIMIT
+          - sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: BERNOULLI
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - identifier: col1
+    - limit_clause:
+      - keyword: LIMIT
       - numeric_literal: '100'

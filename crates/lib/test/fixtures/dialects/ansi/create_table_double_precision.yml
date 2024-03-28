@@ -10,7 +10,7 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: angle
-        - datatype:
+        - data_type:
           - keyword: double
           - keyword: precision
       - end_bracket: )

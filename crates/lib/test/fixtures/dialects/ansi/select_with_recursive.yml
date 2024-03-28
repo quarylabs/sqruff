@@ -14,25 +14,39 @@ file:
       - keyword: AS
       - bracketed:
         - start_bracket: (
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-          - unparsable:
-            - set_operator:
-              - keyword: UNION
-              - keyword: ALL
-            - word: SELECT
-            - word: a
-            - plus: +
-            - numeric_literal: '1'
-            - word: FROM
-            - word: cte
-            - word: WHERE
-            - word: a
-            - less_than: <
-            - numeric_literal: '5'
+        - set_expression:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - expression:
+                  - column_reference:
+                    - identifier: a
+                  - binary_operator: +
+                  - numeric_literal: '1'
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - identifier: cte
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - identifier: a
+                - less_than: <
+                - numeric_literal: '5'
         - end_bracket: )
     - select_statement:
       - select_clause:

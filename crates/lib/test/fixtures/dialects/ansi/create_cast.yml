@@ -5,10 +5,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -22,10 +22,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -41,10 +41,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -62,10 +62,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -75,7 +75,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - datatype:
+        - data_type:
           - '': bool
         - end_bracket: )
 - statement_terminator: ;
@@ -85,10 +85,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -100,10 +100,10 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - datatype:
+        - data_type:
           - '': int
         - comma: ','
-        - datatype:
+        - data_type:
           - '': bool
         - end_bracket: )
     - keyword: AS
@@ -115,10 +115,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': udt_1
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': udt_2
       - end_bracket: )
     - keyword: WITH
@@ -128,10 +128,10 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - datatype:
+        - data_type:
           - '': udt_1
         - comma: ','
-        - datatype:
+        - data_type:
           - '': udt_2
         - end_bracket: )
     - keyword: FOR
@@ -144,12 +144,12 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - identifier: sch
         - dot: .
         - '': udt_1
       - keyword: AS
-      - datatype:
+      - data_type:
         - identifier: sch
         - dot: .
         - '': udt_2
@@ -163,12 +163,12 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - datatype:
+        - data_type:
           - identifier: sch
           - dot: .
           - '': udt_1
         - comma: ','
-        - datatype:
+        - data_type:
           - identifier: sch
           - dot: .
           - '': udt_2
@@ -185,10 +185,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -206,10 +206,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -227,10 +227,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -248,10 +248,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -270,10 +270,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH
@@ -292,10 +292,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: WITH

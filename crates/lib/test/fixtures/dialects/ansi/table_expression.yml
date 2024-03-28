@@ -69,28 +69,41 @@ file:
                 - end_bracket: )
           - alias_expression:
             - identifier: id
-    - unparsable:
-      - word: WITH
-      - word: OFFSET
-      - word: pos1
+          - keyword: WITH
+          - keyword: OFFSET
+          - alias_expression:
+            - identifier: pos1
       - comma: ','
-      - word: UNNEST
-      - bracketed:
-        - start_bracket: (
-        - remove me: '['
-        - single_quote: '''a'''
-        - comma: ','
-        - single_quote: '''b'''
-        - comma: ','
-        - single_quote: '''c'''
-        - remove me: ']'
-        - end_bracket: )
-      - word: name
-      - word: WITH
-      - word: OFFSET
-      - word: pos2
-      - word: WHERE
-      - word: pos1
-      - equals: =
-      - word: pos2
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: UNNEST
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - array_literal:
+                    - remove me: '['
+                    - remove me: '''a'''
+                    - comma: ','
+                    - remove me: '''b'''
+                    - comma: ','
+                    - remove me: '''c'''
+                    - remove me: ']'
+                - end_bracket: )
+          - alias_expression:
+            - identifier: name
+          - keyword: WITH
+          - keyword: OFFSET
+          - alias_expression:
+            - identifier: pos2
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - identifier: pos1
+        - remove me: =
+        - column_reference:
+          - identifier: pos2
 - statement_terminator: ;

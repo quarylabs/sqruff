@@ -15,17 +15,18 @@ jobs:
             os: ubuntu-20.04
             target: x86_64-unknown-linux-musl
             bin: sqruff
-
+          - name: sqruff-linux-aarch64-musl.tar.gz
+            os: ubuntu-20.04
+            target: aarch64-unknown-linux-musl
+            bin: sqruff
           - name: sqruff-windows-x86_64.zip
             os: windows-latest
             target: x86_64-pc-windows-msvc
             bin: sqruff.exe
-
           - name: sqruff-darwin-x86_64.tar.gz
             os: macOS-latest
             target: x86_64-apple-darwin
             bin: sqruff
-
           - name: sqruff-darwin-aarch64.tar.gz
             os: macOS-latest
             target: aarch64-apple-darwin

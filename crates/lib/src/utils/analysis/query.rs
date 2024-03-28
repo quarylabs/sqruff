@@ -90,7 +90,13 @@ impl<T: Default> Query<'_, T> {
         acc
     }
 
-    fn from_root() {}
+    pub fn from_root<'a>(root_segment: Box<dyn Segment>, dialect: &'a Dialect) -> Query<'a, T> {
+        let selectable_segment =
+            root_segment.recursive_crawl(SELECTABLE_TYPES, true, "merge_statement".into(), true)[0]
+                .clone();
+
+        Query::from_segment(&selectable_segment, dialect, None)
+    }
 
     pub fn from_segment<'a>(
         segment: &Box<dyn Segment>,
@@ -109,14 +115,32 @@ impl<T: Default> Query<'_, T> {
         } else if segment.is_type("set_expression") {
             unimplemented!()
         } else {
-            unimplemented!()
+            query_type = QueryType::WithCompound;
+
+            for seg in segment.recursive_crawl(
+                &["select_statement"],
+                false,
+                "common_table_expression".into(),
+                true,
+            ) {
+                selectables.push(Selectable { selectable: seg, dialect });
+            }
+
+            for seg in segment.recursive_crawl(
+                &["common_table_expression"],
+                false,
+                "with_compound_statement".into(),
+                true,
+            ) {
+                cte_defs.push(seg);
+            }
         }
 
         for selectable in &selectables {
             subqueries.extend(Self::extract_subqueries(selectable, dialect));
         }
 
-        let outer_query = Query {
+        let mut outer_query = Query {
             query_type,
             dialect,
             selectables,
@@ -132,6 +156,23 @@ impl<T: Default> Query<'_, T> {
             return outer_query;
         }
 
+        let ctes = HashMap::new();
+        for cte in cte_defs {
+            let name_seg = cte.segments()[0].clone_box();
+            let name = name_seg.get_raw_upper().unwrap();
+
+            let types = [SELECTABLE_TYPES, &["values_clause"], SUBSELECT_TYPES].concat();
+            dbg!(("START", cte.get_type()));
+            let inner_qry = cte.recursive_crawl(&types, true, None, true);
+
+            if inner_qry.is_empty() {
+                continue;
+            };
+
+            unimplemented!();
+        }
+
+        outer_query.ctes = ctes;
         outer_query
     }
 }

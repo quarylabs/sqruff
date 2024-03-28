@@ -242,13 +242,11 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
     ) -> Vec<Box<dyn Segment>> {
-        let is_debug = seg_types == &["object_reference"];
-
         let mut acc = Vec::new();
         let seg_types_set: HashSet<&str> = HashSet::from_iter(seg_types.iter().copied());
 
-        let matches =
-            allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it.as_str()));
+        let matches = allow_self && seg_types.iter().any(|&it| self.get_type() == it)
+            || self.class_types().iter().any(|it| seg_types_set.contains(it.as_str()));
         if matches {
             acc.push(self.clone_box());
         }
@@ -365,10 +363,33 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
     fn descendant_type_set(&self) -> HashSet<String> {
         let mut result_set = HashSet::new();
+        let mut stack = Vec::new();
+        let mut cache: HashMap<&Box<dyn Segment>, HashSet<String>> = HashMap::new();
 
-        for seg in self.segments() {
-            result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
+        stack.extend(self.segments().iter());
+
+        while let Some(seg) = stack.pop() {
+            if let Some(cached_types) = cache.get(&seg) {
+                result_set.extend(cached_types.clone());
+                continue;
+            }
+
+            let mut seg_types = HashSet::new();
+            seg_types.extend(seg.class_types().iter().cloned());
+
+            for child_seg in seg.segments() {
+                if let Some(cached_types) = cache.get(&child_seg) {
+                    seg_types.extend(cached_types.clone());
+                } else {
+                    stack.push(child_seg);
+                }
+            }
+
+            cache.insert(seg, seg_types.clone());
+            result_set.extend(seg_types);
         }
+
+        dbg!(&result_set);
 
         result_set
     }

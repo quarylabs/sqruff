@@ -2870,6 +2870,10 @@ impl NodeTrait for SelectStatementSegment {
             )
             .into()
     }
+
+    fn class_types() -> HashSet<String> {
+        ["select_statement".into()].into_iter().collect()
+    }
 }
 
 pub struct SelectClauseModifierSegment;
@@ -5290,6 +5294,10 @@ impl NodeTrait for CTEDefinitionSegment {
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")])
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> HashSet<String> {
+        ["common_table_expression"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
 

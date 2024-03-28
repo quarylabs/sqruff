@@ -43,3 +43,21 @@ jobs:
           components: rustfmt
       - name: Run cargo fmt
         run: cargo fmt --all -- --check
+
+  check_static_linking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - name: Build binary
+        run: cargo build --release --locked
+      - name: Check static linking
+        run: |
+          binary_path="target//release/sqruff"
+          if ldd "$binary_path" 2>&1 | grep -q "not a dynamic executable"; then
+            echo "Binary is fully statically linked for target ${{ matrix.target }}"
+          else
+            echo "Binary is not fully statically linked for target ${{ matrix.target }}"
+            exit 1
+          fi

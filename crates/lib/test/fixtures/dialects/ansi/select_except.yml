@@ -1,26 +1,32 @@
 file:
 - statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - numeric_literal: '1'
-    - unparsable:
-      - set_operator:
-        - keyword: EXCEPT
-      - word: SELECT
-      - numeric_literal: '2'
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - set_operator:
+      - keyword: EXCEPT
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - numeric_literal: '1'
-    - unparsable:
-      - set_operator:
-        - keyword: EXCEPT
-        - keyword: ALL
-      - word: SELECT
-      - numeric_literal: '2'
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - set_operator:
+      - keyword: EXCEPT
+      - keyword: ALL
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '2'
 - statement_terminator: ;

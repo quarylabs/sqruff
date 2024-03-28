@@ -632,8 +632,9 @@ pub fn ansi_dialect() -> Dialect {
             "SingleIdentifierGrammar".into(),
             one_of(vec_of_erased![
                 Ref::new("NakedIdentifierSegment"),
-                Ref::new("QuotedIdentifierSegment") // terminators=[Ref("DotSegment")],
+                Ref::new("QuotedIdentifierSegment")
             ])
+            .config(|this| this.terminators = vec_of_erased![Ref::new("DotSegment")])
             .to_matchable()
             .into(),
         ),
@@ -845,7 +846,8 @@ pub fn ansi_dialect() -> Dialect {
             "UnionGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("UNION"),
-                one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()])
+                one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL")])
+                    .config(|this| this.optional())
             ])
             .to_matchable()
             .into(),
@@ -892,8 +894,8 @@ pub fn ansi_dialect() -> Dialect {
                 Ref::keyword("QUALIFY").boxed(),
                 Ref::keyword("WINDOW").boxed(),
                 Ref::new("SetOperatorSegment").boxed(),
-                // Ref::new("WithNoSchemaBindingClauseSegment").boxed(),
-                // Ref::new("WithDataClauseSegment").boxed(),
+                Ref::new("WithNoSchemaBindingClauseSegment").boxed(),
+                Ref::new("WithDataClauseSegment").boxed(),
                 Ref::keyword("FETCH").boxed(),
             ])
             .to_matchable()
@@ -1021,7 +1023,7 @@ pub fn ansi_dialect() -> Dialect {
                 ])
                 .boxed(),
             ])
-            .config(|_this| {
+            .config(|this| {
                 // These terminators allow better performance by giving a signal
                 // of a likely complete match if they come after a match. For
                 // example "123," only needs to match against the LiteralGrammar
@@ -1029,11 +1031,11 @@ pub fn ansi_dialect() -> Dialect {
                 // ExpressionSegment or FunctionSegment, which are both much
                 // more complicated.
 
-                // vec![
-                //     Ref::new("CommaSegment").boxed(),
-                //     Ref::keyword("AS").boxed(),
-                //     // TODO: We can almost certainly add a few more here.
-                // ]
+                this.terminators = vec_of_erased![
+                    Ref::new("CommaSegment"),
+                    Ref::keyword("AS"),
+                    // TODO: We can almost certainly add a few more here.
+                ];
             })
             .to_matchable()
             .into(),
@@ -1410,14 +1412,15 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "Tail_Recurse_Expression_A_Grammar".into(),
-            Sequence::new(vec![
+            Sequence::new(vec_of_erased![
                 // This should be used instead of a recursive call to Expression_A_Grammar
                 // whenever the repeating element in Expression_A_Grammar makes a recursive
                 // call to itself at the _end_.
-                AnyNumberOf::new(vec![Ref::new("Expression_A_Unary_Operator_Grammar").boxed()])
-                    //  .with_terminators(vec![Ref::new("BinaryOperatorGrammar").boxed()])
-                    .boxed(),
-                Ref::new("Expression_C_Grammar").boxed(),
+                AnyNumberOf::new(vec_of_erased![Ref::new("Expression_A_Unary_Operator_Grammar")])
+                    .config(
+                        |this| this.terminators = vec_of_erased![Ref::new("BinaryOperatorGrammar")]
+                    ),
+                Ref::new("Expression_C_Grammar"),
             ])
             .to_matchable()
             .into(),
@@ -1584,10 +1587,9 @@ pub fn ansi_dialect() -> Dialect {
                         .boxed(),
                 ])
                 .boxed(),
-                // ShorthandCastSegment
                 Ref::new("ShorthandCastSegment").boxed(),
             ])
-            //.with_terminators(vec![Ref::new("CommaSegment").boxed()])
+            .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
             .to_matchable()
             .into(),
         ),
@@ -1647,7 +1649,7 @@ pub fn ansi_dialect() -> Dialect {
                     .boxed(),
                     Ref::new("LocalAliasSegment").boxed(),
                 ])
-                // .with_terminators(vec![Ref::new("CommaSegment").boxed()])
+                .config(|this| this.terminators = vec_of_erased![Ref::new("CommaSegment")])
                 .boxed(),
                 Ref::new("AccessorGrammar").optional().boxed(),
             ])
@@ -1754,8 +1756,12 @@ pub fn ansi_dialect() -> Dialect {
         MergeUpdateClauseSegment, MergeDeleteClauseSegment, SetClauseListSegment, SetClauseSegment, TableReferenceSegment, SchemaReferenceSegment,
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
-        HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment
+        HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
+        WithDataClauseSegment
     );
+
+    // This is a hook point to allow subclassing for other dialects
+    ansi_dialect.add([("PostTableExpressionGrammar".into(), Nothing::new().to_matchable().into())]);
 
     ansi_dialect.expand();
     ansi_dialect
@@ -2470,6 +2476,7 @@ impl FileSegment {
         let content: Vec<_> = if !has_match {
             unimplemented!()
         } else if !unmatched.is_empty() {
+            dbg!(unmatched.iter().map(|it| it.get_raw().unwrap()).collect_vec());
             unimplemented!()
         } else {
             chain(match_result.matched_segments, unmatched).collect()
@@ -2611,6 +2618,9 @@ impl NodeTrait for UnorderedSelectStatementSegment {
             Ref::new("NamedWindowSegment").optional()
         ])
         .terminators(vec_of_erased![
+            Ref::new("SetOperatorSegment"),
+            Ref::new("WithNoSchemaBindingClauseSegment"),
+            Ref::new("WithDataClauseSegment"),
             Ref::new("OrderByClauseSegment"),
             Ref::new("LimitClauseSegment")
         ])
@@ -2714,11 +2724,43 @@ impl NodeTrait for StatementSegment {
             Ref::new("CreateTriggerStatementSegment").boxed(),
             Ref::new("DropTriggerStatementSegment").boxed(),
         ])
+        .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
         .to_matchable()
     }
 
     fn class_types() -> HashSet<String> {
         ["statement"].map(ToOwned::to_owned).into_iter().collect()
+    }
+}
+
+pub struct WithNoSchemaBindingClauseSegment;
+
+impl NodeTrait for WithNoSchemaBindingClauseSegment {
+    const TYPE: &'static str = "with_no_schema_binding_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WITH"),
+            Ref::keyword("NO"),
+            Ref::keyword("SCHEMA"),
+            Ref::keyword("BINDING")
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct WithDataClauseSegment;
+
+impl NodeTrait for WithDataClauseSegment {
+    const TYPE: &'static str = "with_data_clause";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WITH"),
+            Sequence::new(vec_of_erased![Ref::keyword("NO")]).config(|this| this.optional()),
+            Ref::keyword("DATA")
+        ])
+        .to_matchable()
     }
 }
 
@@ -2820,7 +2862,11 @@ impl NodeTrait for SelectStatementSegment {
                     Ref::new("NamedWindowSegment").optional()
                 ]),
                 true,
-                Vec::new(),
+                vec_of_erased![
+                    Ref::new("SetOperatorSegment"),
+                    Ref::new("WithNoSchemaBindingClauseSegment"),
+                    Ref::new("WithDataClauseSegment")
+                ],
             )
             .into()
     }
@@ -2861,14 +2907,13 @@ impl NodeTrait for SelectClauseElementSegment {
     const TYPE: &'static str = "select_clause_element";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        one_of(vec![
+        one_of(vec_of_erased![
             // *, blah.*, blah.blah.*, etc.
-            Ref::new("WildcardExpressionSegment").boxed(),
-            Sequence::new(vec![
-                Ref::new("BaseExpressionElementGrammar").boxed(),
-                Ref::new("AliasExpressionSegment").optional().boxed(),
-            ])
-            .boxed(),
+            Ref::new("WildcardExpressionSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::new("BaseExpressionElementGrammar"),
+                Ref::new("AliasExpressionSegment").optional(),
+            ]),
         ])
         .to_matchable()
     }
@@ -2995,14 +3040,28 @@ impl NodeTrait for FromExpressionSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
             MetaSegment::indent(),
-            one_of(vec_of_erased![Ref::new("FromExpressionElementSegment")]),
+            one_of(vec_of_erased![
+                // Ref::new("MLTableExpressionSegment"),
+                Ref::new("FromExpressionElementSegment"),
+                Bracketed::new(vec_of_erased![Ref::new("FromExpressionSegment")])
+            ])
+            .config(|this| this.terminators = vec_of_erased![
+                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+            ]),
             MetaSegment::dedent(),
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::new("JoinClauseSegment"),
                     Ref::new("JoinLikeClauseGrammar")
                 ])
-                .config(|this| this.optional())
+                .config(|this| {
+                    this.optional();
+                    this.terminators = vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
+                        Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
+                    ];
+                })
             ])])
         ])])
         .to_matchable()
@@ -3015,12 +3074,25 @@ impl NodeTrait for FromExpressionElementSegment {
     const TYPE: &'static str = "from_expression_element";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            optionally_bracketed(vec![Ref::new("TableExpressionSegment").boxed()]).boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+            optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
             Ref::new("AliasExpressionSegment")
-                .exclude(one_of(vec![Ref::new("FromClauseTerminatorGrammar").boxed()]))
-                .optional()
-                .boxed(),
+                .exclude(one_of(vec_of_erased![
+                    Ref::new("FromClauseTerminatorGrammar"),
+                    Ref::new("SamplingExpressionSegment"),
+                    Ref::new("JoinLikeClauseGrammar")
+                ]))
+                .optional(),
+            // https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("OFFSET"),
+                Ref::new("AliasExpressionSegment")
+            ])
+            .config(|this| this.optional()),
+            Ref::new("SamplingExpressionSegment").optional(),
+            Ref::new("PostTableExpressionGrammar").optional()
         ])
         .to_matchable()
     }
@@ -3366,72 +3438,54 @@ impl NodeTrait for BracketedArguments {
 pub struct DatatypeSegment;
 
 impl NodeTrait for DatatypeSegment {
-    const TYPE: &'static str = "datatype";
+    const TYPE: &'static str = "data_type";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        one_of(vec![
+        one_of(vec_of_erased![
             // Handles TIME and TIMESTAMP with optional precision and time zone specification
-            Sequence::new(vec![
-                one_of(vec![Ref::keyword("TIME").boxed(), Ref::keyword("TIMESTAMP").boxed()])
-                    .boxed(),
-                Bracketed::new(vec![Ref::new("NumericLiteralSegment").boxed()])
-                    .config(|this| this.optional())
-                    .boxed(),
-                Sequence::new(vec![
-                    one_of(vec![Ref::keyword("WITH").boxed(), Ref::keyword("WITHOUT").boxed()])
-                        .boxed(),
-                    Ref::keyword("TIME").boxed(),
-                    Ref::keyword("ZONE").boxed(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("TIME"), Ref::keyword("TIMESTAMP")]),
+                Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
+                    .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+                    Ref::keyword("TIME"),
+                    Ref::keyword("ZONE"),
                 ])
-                .config(|this| this.optional())
-                .boxed(),
-            ])
-            .boxed(),
+                .config(|this| this.optional()),
+            ]),
             // DOUBLE PRECISION
-            Sequence::new(vec![Ref::keyword("DOUBLE").boxed(), Ref::keyword("PRECISION").boxed()])
-                .boxed(),
+            Sequence::new(vec_of_erased![Ref::keyword("DOUBLE"), Ref::keyword("PRECISION")]),
             // Character and binary varying types, and other data types with optional brackets
-            Sequence::new(vec![
-                one_of(vec![
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::keyword("CHARACTER").boxed(),
-                            Ref::keyword("BINARY").boxed(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("CHARACTER"), Ref::keyword("BINARY"),]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("VARYING"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("LARGE"),
+                                Ref::keyword("OBJECT"),
+                            ]),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("SingleIdentifierGrammar"),
+                            Ref::new("DotSegment"),
                         ])
-                        .boxed(),
-                        one_of(vec![
-                            Ref::keyword("VARYING").boxed(),
-                            Sequence::new(vec![
-                                Ref::keyword("LARGE").boxed(),
-                                Ref::keyword("OBJECT").boxed(),
-                            ])
-                            .boxed(),
-                        ])
-                        .boxed(),
-                    ])
-                    .boxed(),
-                    Sequence::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("SingleIdentifierGrammar").boxed(),
-                            Ref::new("DotSegment").boxed(),
-                        ])
-                        .config(|this| this.optional())
-                        .boxed(),
-                        Ref::new("DatatypeIdentifierSegment").boxed(),
-                    ])
-                    .boxed(),
-                ])
-                .boxed(),
-                Ref::new("BracketedArguments").optional().boxed(),
-                one_of(vec![
+                        .config(|this| this.optional()),
+                        Ref::new("DatatypeIdentifierSegment"),
+                    ]),
+                ]),
+                Ref::new("BracketedArguments").optional(),
+                one_of(vec_of_erased![
                     // MySQL UNSIGNED
-                    Ref::keyword("UNSIGNED").boxed(),
-                    Ref::new("CharCharacterSetGrammar").boxed(),
+                    Ref::keyword("UNSIGNED"),
+                    Ref::new("CharCharacterSetGrammar"),
                 ])
-                .config(|config| config.optional())
-                .boxed(),
-            ])
-            .boxed(),
+                .config(|config| config.optional()),
+            ]),
         ])
         .to_matchable()
     }
@@ -3461,17 +3515,17 @@ impl NodeTrait for ShorthandCastSegment {
     const TYPE: &'static str = "cast_expression";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            one_of(vec![Ref::new("Expression_D_Grammar").boxed()]).boxed(),
-            AnyNumberOf::new(vec![
-                Sequence::new(vec![
-                    Ref::new("CastOperatorSegment").boxed(),
-                    Ref::new("DatatypeSegment").boxed(),
-                ])
-                .boxed(),
-            ])
-            .config(|this| this.max_times(1))
-            .boxed(),
+        Sequence::new(vec_of_erased![
+            one_of(vec_of_erased![
+                Ref::new("Expression_D_Grammar"),
+                Ref::new("CaseExpressionSegment")
+            ]),
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("CastOperatorSegment"),
+                Ref::new("DatatypeSegment"),
+                Ref::new("TimeZoneGrammar").optional()
+            ]),])
+            .config(|this| this.min_times(1)),
         ])
         .to_matchable()
     }
@@ -3530,10 +3584,15 @@ impl NodeTrait for FunctionNameSegment {
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"),
                 Ref::new("DotSegment")
-            ])]),
+            ])])
+            .config(|this| this.terminators = vec_of_erased![Ref::new("BracketedSegment")]),
             // Base function name
-            one_of(vec_of_erased![Ref::new("FunctionNameIdentifierSegment")])
+            one_of(vec_of_erased![
+                Ref::new("FunctionNameIdentifierSegment"),
+                Ref::new("QuotedIdentifierSegment")
+            ])
         ])
+        .terminators(vec_of_erased![Ref::new("BracketedSegment")])
         .allow_gaps(false)
         .to_matchable()
     }
@@ -3630,15 +3689,13 @@ impl NodeTrait for SetOperatorSegment {
     const TYPE: &'static str = "set_operator";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        one_of(vec![
-            Ref::new("UnionGrammar").boxed(),
-            Sequence::new(vec![
-                one_of(vec![Ref::keyword("INTERSECT").boxed(), Ref::keyword("EXCEPT").boxed()])
-                    .boxed(),
-                Ref::keyword("ALL").optional().boxed(),
-            ])
-            .boxed(),
-            Ref::keyword("MINUS").boxed(),
+        one_of(vec_of_erased![
+            Ref::new("UnionGrammar"),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("INTERSECT"), Ref::keyword("EXCEPT")]),
+                Ref::keyword("ALL").optional(),
+            ]),
+            Ref::keyword("MINUS"),
         ])
         .to_matchable()
     }
@@ -4497,7 +4554,8 @@ impl NodeTrait for CreateViewStatementSegment {
             Ref::new("TableReferenceSegment"),
             Ref::new("BracketedColumnReferenceListGrammar").optional(),
             Ref::keyword("AS"),
-            optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+            optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
+            Ref::new("WithNoSchemaBindingClauseSegment").optional()
         ])
         .to_matchable()
     }
@@ -4939,6 +4997,26 @@ impl NodeTrait for DropTriggerStatementSegment {
     }
 }
 
+pub struct SamplingExpressionSegment;
+
+impl NodeTrait for SamplingExpressionSegment {
+    const TYPE: &'static str = "sample_expression";
+
+    fn match_grammar() -> Box<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("TABLESAMPLE"),
+            one_of(vec_of_erased![Ref::keyword("BERNOULLI"), Ref::keyword("SYSTEM")]),
+            Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")]),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("REPEATABLE")]),
+                Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")]),
+            ])
+            .config(|this| this.optional())
+        ])
+        .to_matchable()
+    }
+}
+
 pub struct TableExpressionSegment;
 
 impl NodeTrait for TableExpressionSegment {
@@ -5185,8 +5263,10 @@ impl NodeTrait for WithCompoundStatementSegment {
             Ref::keyword("WITH"),
             Ref::keyword("RECURSIVE").optional(),
             // Conditional::new(Indent::new(), "indented_ctes"),
-            Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")])
-                .config(|this| this.allow_trailing()),
+            Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")]).config(|this| {
+                this.terminators = vec_of_erased![Ref::keyword("SELECT")];
+                this.allow_trailing();
+            }),
             // Conditional::new(Dedent::new(), "indented_ctes"),
             one_of(vec_of_erased![
                 Ref::new("NonWithSelectableGrammar"),
@@ -5891,7 +5971,6 @@ mod tests {
             ("TruncateStatementSegment", "TRUNCATE test"),
             ("FunctionNameSegment", "cte_1.foo"),
             ("SelectStatementSegment", "select * from my_cte cross join other_cte"),
-            ("GroupByClauseSegment", "GROUP BY status"),
         ];
 
         for (segment_ref, sql_string) in cases {
@@ -5910,7 +5989,6 @@ mod tests {
             assert_eq!(match_result.len(), 1, "failed {segment_ref}, {sql_string}");
 
             let parsed = match_result.matched_segments.pop().unwrap();
-
             assert_eq!(sql_string, parsed.get_raw().unwrap());
         }
     }

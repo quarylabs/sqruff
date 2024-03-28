@@ -231,15 +231,13 @@ file:
             - expression:
               - column_reference:
                 - identifier: a
-              - less_than:
-                - remove me: <
+              - less_than: <
               - column_reference:
                 - identifier: b
               - remove me: AND
               - column_reference:
                 - identifier: c
-              - less_than:
-                - remove me: <
+              - less_than: <
               - column_reference:
                 - identifier: d
             - end_bracket: )

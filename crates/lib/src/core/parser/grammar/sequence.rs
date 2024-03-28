@@ -478,6 +478,10 @@ impl DerefMut for Bracketed {
 impl Segment for Bracketed {}
 
 impl Matchable for Bracketed {
+    fn is_optional(&self) -> bool {
+        self.this.is_optional()
+    }
+
     fn simple(
         &self,
         parse_context: &ParseContext,

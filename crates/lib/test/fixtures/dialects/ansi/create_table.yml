@@ -10,7 +10,7 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: pk
-        - datatype:
+        - data_type:
           - '': int
         - column_constraint_segment:
           - keyword: PRIMARY
@@ -18,33 +18,33 @@ file:
       - comma: ','
       - column_definition:
         - identifier: quoted_name
-        - datatype:
+        - data_type:
           - remove me: '"custom udt"'
       - comma: ','
       - column_definition:
         - identifier: qualified_name
-        - datatype:
+        - data_type:
           - identifier: sch
           - dot: .
           - '': qualified
       - comma: ','
       - column_definition:
         - identifier: quoted_qualified
-        - datatype:
+        - data_type:
           - remove me: '"my schema"'
           - dot: .
           - '': qualified
       - comma: ','
       - column_definition:
         - identifier: more_quoted
-        - datatype:
+        - data_type:
           - remove me: '"my schema"'
           - dot: .
           - remove me: '"custom udt"'
       - comma: ','
       - column_definition:
         - identifier: quoted_udt
-        - datatype:
+        - data_type:
           - identifier: sch
           - dot: .
           - remove me: '"custom udt"'

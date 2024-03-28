@@ -10,7 +10,7 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: b
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: NOT
@@ -18,7 +18,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: NOT
@@ -26,7 +26,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: d
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: NOT

@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use super::keyword::KeywordSegment;
-use super::meta::{Indent, MetaSegment, TemplateSegment};
+use super::meta::{Indent, MetaSegment};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;

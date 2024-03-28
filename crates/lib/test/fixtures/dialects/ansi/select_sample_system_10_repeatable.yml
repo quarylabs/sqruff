@@ -15,14 +15,15 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: foo
-          - alias_expression:
-            - identifier: TABLESAMPLE
-    - unparsable:
-      - word: SYSTEM
-      - start_bracket: (
-      - numeric_literal: '10'
-      - end_bracket: )
-      - word: REPEATABLE
-      - start_bracket: (
-      - numeric_literal: '100'
-      - end_bracket: )
+          - sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: SYSTEM
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )
+            - keyword: REPEATABLE
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '100'
+              - end_bracket: )

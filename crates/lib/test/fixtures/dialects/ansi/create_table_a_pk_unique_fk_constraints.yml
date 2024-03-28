@@ -10,17 +10,17 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: c1
-        - datatype:
+        - data_type:
           - '': INT
       - comma: ','
       - column_definition:
         - identifier: c2
-        - datatype:
+        - data_type:
           - '': INT
       - comma: ','
       - column_definition:
         - identifier: c3
-        - datatype:
+        - data_type:
           - '': INT
       - comma: ','
       - table_constraint:

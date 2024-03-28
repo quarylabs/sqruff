@@ -8,7 +8,7 @@ file:
           - cast_expression:
             - remove me: 'NULL'
             - remove me: '::'
-            - datatype:
+            - data_type:
               - '': INT
         - alias_expression:
           - keyword: AS
@@ -19,7 +19,7 @@ file:
           - cast_expression:
             - remove me: 'NULL'
             - remove me: '::'
-            - datatype:
+            - data_type:
               - '': INT
         - alias_expression:
           - keyword: AS

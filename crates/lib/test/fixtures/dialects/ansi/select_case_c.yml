@@ -9,28 +9,30 @@ file:
       - comma: ','
       - select_clause_element:
         - expression:
-          - case_expression:
-            - keyword: case
-            - when_clause:
-              - keyword: when
-              - expression:
-                - column_reference:
-                  - identifier: col1
-              - keyword: then
-              - expression:
-                - column_reference:
-                  - identifier: col2
-            - else_clause:
-              - keyword: else
-              - expression:
-                - column_reference:
-                  - identifier: col3
-            - keyword: end
-      - unparsable:
-        - casting_operator: '::'
-        - word: text
-        - word: as
-        - word: mycol
+          - cast_expression:
+            - case_expression:
+              - keyword: case
+              - when_clause:
+                - keyword: when
+                - expression:
+                  - column_reference:
+                    - identifier: col1
+                - keyword: then
+                - expression:
+                  - column_reference:
+                    - identifier: col2
+              - else_clause:
+                - keyword: else
+                - expression:
+                  - column_reference:
+                    - identifier: col3
+              - keyword: end
+            - remove me: '::'
+            - data_type:
+              - '': text
+        - alias_expression:
+          - keyword: as
+          - identifier: mycol
     - from_clause:
       - keyword: from
       - from_expression:
@@ -50,30 +52,33 @@ file:
       - comma: ','
       - select_clause_element:
         - expression:
-          - case_expression:
-            - keyword: case
-            - when_clause:
-              - keyword: when
-              - expression:
-                - column_reference:
-                  - identifier: col1
-              - keyword: then
-              - expression:
-                - column_reference:
-                  - identifier: col2
-            - else_clause:
-              - keyword: else
-              - expression:
-                - column_reference:
-                  - identifier: col3
-            - keyword: end
-      - unparsable:
-        - casting_operator: '::'
-        - word: int
-        - casting_operator: '::'
-        - word: float
-        - word: as
-        - word: mycol
+          - cast_expression:
+            - case_expression:
+              - keyword: case
+              - when_clause:
+                - keyword: when
+                - expression:
+                  - column_reference:
+                    - identifier: col1
+                - keyword: then
+                - expression:
+                  - column_reference:
+                    - identifier: col2
+              - else_clause:
+                - keyword: else
+                - expression:
+                  - column_reference:
+                    - identifier: col3
+              - keyword: end
+            - remove me: '::'
+            - data_type:
+              - '': int
+            - remove me: '::'
+            - data_type:
+              - '': float
+        - alias_expression:
+          - keyword: as
+          - identifier: mycol
     - from_clause:
       - keyword: from
       - from_expression:
@@ -116,7 +121,7 @@ file:
                       - identifier: col3
                 - keyword: end
             - keyword: as
-            - datatype:
+            - data_type:
               - '': text
             - end_bracket: )
         - alias_expression:

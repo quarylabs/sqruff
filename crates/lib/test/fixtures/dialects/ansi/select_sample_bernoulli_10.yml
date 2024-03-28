@@ -15,10 +15,10 @@ file:
             - table_reference:
               - object_reference:
                 - identifier: foo
-          - alias_expression:
-            - identifier: TABLESAMPLE
-    - unparsable:
-      - word: BERNOULLI
-      - start_bracket: (
-      - numeric_literal: '10'
-      - end_bracket: )
+          - sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: BERNOULLI
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )

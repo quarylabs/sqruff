@@ -5,10 +5,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
 - statement_terminator: ;
@@ -18,10 +18,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: RESTRICT
@@ -32,10 +32,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': int
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': bool
       - end_bracket: )
     - keyword: CASCADE
@@ -46,10 +46,10 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - '': udt_1
       - keyword: AS
-      - datatype:
+      - data_type:
         - '': udt_2
       - end_bracket: )
 - statement_terminator: ;
@@ -59,12 +59,12 @@ file:
     - keyword: CAST
     - bracketed:
       - start_bracket: (
-      - datatype:
+      - data_type:
         - identifier: sch
         - dot: .
         - '': udt_1
       - keyword: AS
-      - datatype:
+      - data_type:
         - identifier: sch
         - dot: .
         - '': udt_2

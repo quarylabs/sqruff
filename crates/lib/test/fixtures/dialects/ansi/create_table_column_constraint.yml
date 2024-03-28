@@ -10,12 +10,12 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: username
-        - datatype:
+        - data_type:
           - '': TEXT
       - comma: ','
       - column_definition:
         - identifier: age
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: CHECK
@@ -40,12 +40,12 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: username
-        - datatype:
+        - data_type:
           - '': TEXT
       - comma: ','
       - column_definition:
         - identifier: age
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: CHECK
@@ -71,7 +71,7 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: ID
-        - datatype:
+        - data_type:
           - '': int
         - column_constraint_segment:
           - keyword: NOT
@@ -79,7 +79,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: LastName
-        - datatype:
+        - data_type:
           - '': varchar
           - bracketed_arguments:
             - bracketed:
@@ -92,7 +92,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: FirstName
-        - datatype:
+        - data_type:
           - '': varchar
           - bracketed_arguments:
             - bracketed:
@@ -102,12 +102,12 @@ file:
       - comma: ','
       - column_definition:
         - identifier: Age
-        - datatype:
+        - data_type:
           - '': int
       - comma: ','
       - column_definition:
         - identifier: City
-        - datatype:
+        - data_type:
           - '': varchar
           - bracketed_arguments:
             - bracketed:
@@ -117,7 +117,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: CONSTRAINT
-        - datatype:
+        - data_type:
           - '': CHK_Person
         - column_constraint_segment:
           - keyword: CHECK

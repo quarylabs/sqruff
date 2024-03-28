@@ -33,6 +33,5 @@ file:
       - expression:
         - column_reference:
           - identifier: id
-        - less_than:
-          - remove me: <
+        - less_than: <
         - numeric_literal: '5'

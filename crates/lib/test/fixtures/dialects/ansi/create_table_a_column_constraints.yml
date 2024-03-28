@@ -10,7 +10,7 @@ file:
       - start_bracket: (
       - column_definition:
         - identifier: c1
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: NOT
@@ -18,18 +18,17 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c2
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: 'NULL'
         - column_constraint_segment:
           - keyword: DEFAULT
-          - cast_expression:
-            - numeric_literal: '1'
+          - numeric_literal: '1'
       - comma: ','
       - column_definition:
         - identifier: c3
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: PRIMARY
@@ -37,14 +36,14 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c4
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: UNIQUE
       - comma: ','
       - column_definition:
         - identifier: c5
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -54,7 +53,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c6
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -69,7 +68,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c6
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -86,7 +85,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c6
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -103,7 +102,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c6
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -120,7 +119,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c6
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -139,7 +138,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c6
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -158,7 +157,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c6
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: REFERENCES
@@ -179,15 +178,14 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c7
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
         - column_constraint_segment:
           - keyword: DEFAULT
-          - cast_expression:
-            - numeric_literal: '1'
+          - numeric_literal: '1'
         - column_constraint_segment:
           - keyword: UNIQUE
         - column_constraint_segment:
@@ -203,7 +201,7 @@ file:
       - comma: ','
       - column_definition:
         - identifier: c8
-        - datatype:
+        - data_type:
           - '': INT
         - column_constraint_segment:
           - keyword: NOT
@@ -213,6 +211,6 @@ file:
           - cast_expression:
             - numeric_literal: '1'
             - remove me: '::'
-            - datatype:
+            - data_type:
               - '': INT
       - end_bracket: )

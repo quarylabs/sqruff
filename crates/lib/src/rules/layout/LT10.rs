@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use itertools::chain;
 
 use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
@@ -17,7 +15,7 @@ impl Rule for RuleLT10 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

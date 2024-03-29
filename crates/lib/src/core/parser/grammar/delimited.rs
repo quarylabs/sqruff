@@ -1,5 +1,6 @@
-use std::collections::HashSet;
 use std::ops::{Deref, DerefMut};
+
+use ahash::AHashSet;
 
 use super::anyof::{one_of, AnyNumberOf};
 use super::base::{longest_trimmed_match, Ref};
@@ -23,6 +24,7 @@ pub struct Delimited {
     delimiter: Box<dyn Matchable>,
     min_delimiters: Option<usize>,
     optional: bool,
+    cache_key: String,
 }
 
 impl Delimited {
@@ -33,6 +35,7 @@ impl Delimited {
             delimiter: Ref::new("CommaSegment").to_matchable(),
             min_delimiters: None,
             optional: false,
+            cache_key: uuid::Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -63,7 +66,7 @@ impl Matchable for Delimited {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         super::anyof::simple(&self.elements, parse_context, crumbs)
     }
 
@@ -245,7 +248,7 @@ impl Matchable for Delimited {
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 

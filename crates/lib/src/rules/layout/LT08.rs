@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::iter::repeat;
 
 use indexmap::IndexMap;
@@ -18,7 +17,7 @@ impl Rule for RuleLT08 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).into()
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

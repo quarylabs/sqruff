@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use itertools::enumerate;
 use uuid::Uuid;
 
@@ -78,7 +77,7 @@ impl Matchable for BaseGrammar {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         // Placeholder implementation
         None
     }
@@ -105,6 +104,7 @@ pub struct Ref {
     reset_terminators: bool,
     allow_gaps: bool,
     optional: bool,
+    cache_key: String,
 }
 
 impl std::fmt::Debug for Ref {
@@ -123,6 +123,7 @@ impl Ref {
             reset_terminators: false,
             allow_gaps: true,
             optional: false,
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -162,6 +163,10 @@ impl Eq for Ref {}
 impl Segment for Ref {}
 
 impl Matchable for Ref {
+    fn cache_key(&self) -> String {
+        self.cache_key.clone()
+    }
+
     fn is_optional(&self) -> bool {
         self.optional
     }
@@ -170,7 +175,7 @@ impl Matchable for Ref {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         if let Some(ref c) = crumbs {
             if c.contains(&self.reference.as_str()) {
                 let loop_string = c.join(" -> ");
@@ -315,11 +320,29 @@ pub fn longest_trimmed_match(
         (pre_nc, segments, post_nc) = trim_non_code_segments(segments);
     }
 
+    let loc_key = (
+        segments[0].get_raw().unwrap(),
+        segments[0].get_position_marker().unwrap().working_loc(),
+        segments[0].get_type(),
+        segments.len(),
+    );
+
     let mut best_match_length = 0;
     let mut best_match = None;
 
     for (_idx, matcher) in enumerate(available_options) {
-        let match_result = matcher.match_segments(segments.to_vec(), parse_context)?;
+        let matcher_key = matcher.cache_key();
+
+        let match_result = match parse_context
+            .check_parse_cache(loc_key.clone(), matcher_key.clone())
+        {
+            Some(match_result) => match_result,
+            None => {
+                let match_result = matcher.match_segments(segments.to_vec(), parse_context)?;
+                parse_context.put_parse_cache(loc_key.clone(), matcher_key, match_result.clone());
+                match_result
+            }
+        };
 
         // No match. Skip this one.
         if !match_result.has_match() {

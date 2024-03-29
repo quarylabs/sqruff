@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use itertools::{chain, enumerate, multiunzip, Itertools};
 
 use super::context::ParseContext;
@@ -20,7 +19,7 @@ pub fn first_trimmed_raw(seg: &dyn Segment) -> String {
         .unwrap_or_default()
 }
 
-pub fn first_non_whitespace(segments: &[Box<dyn Segment>]) -> Option<(String, HashSet<String>)> {
+pub fn first_non_whitespace(segments: &[Box<dyn Segment>]) -> Option<(String, AHashSet<String>)> {
     for segment in segments {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
@@ -156,7 +155,7 @@ pub fn look_ahead_match(
 
             if !simple_types.is_empty() && simple_match.is_none() {
                 unimplemented!()
-                // let intersection: HashSet<_> =
+                // let intersection: AHashSet<_> =
                 //     simple_types.intersection(&seg.class_types).collect();
                 // if !intersection.is_empty() {
                 //     simple_match = Some(matcher);

@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use ahash::AHashSet;
 
 use crate::core::parser::segments::base::{NewlineSegment, Segment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
@@ -15,7 +15,7 @@ impl Rule for RuleLT07 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).into()
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -23,7 +23,7 @@ impl Rule for RuleLT07 {
             .segment()
             .children(Some(|seg| seg.is_type("common_table_expression")));
 
-        let mut cte_end_brackets = HashSet::new();
+        let mut cte_end_brackets = AHashSet::new();
         for cte in segments.iterate_segments() {
             let cte_start_bracket = cte
                 .children(None)

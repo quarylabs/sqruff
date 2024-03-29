@@ -1,6 +1,8 @@
-use std::collections::{BTreeSet, HashSet};
+use std::collections::BTreeSet;
 
+use ahash::AHashSet;
 use fancy_regex::Regex;
+use uuid::Uuid;
 
 use super::context::ParseContext;
 use super::match_result::MatchResult;
@@ -86,9 +88,9 @@ impl Matchable for TypedParser {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         let _ = (parse_context, crumbs);
-        (HashSet::new(), self.target_types.clone().into_iter().collect()).into()
+        (AHashSet::new(), self.target_types.clone().into_iter().collect()).into()
     }
 
     fn match_segments(
@@ -117,6 +119,7 @@ pub struct StringParser {
                             * Rust */
     optional: bool,
     trim_chars: Option<Vec<char>>,
+    cache_key: String,
 }
 
 impl StringParser {
@@ -137,13 +140,14 @@ impl StringParser {
             type_,
             optional,
             trim_chars,
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
-    pub fn simple(&self, _parse_cx: &ParseContext) -> (HashSet<String>, HashSet<String>) {
-        // Assuming SimpleHintType is a type alias for (&HashSet<String>,
-        // HashSet<String>)
-        (self.simple.clone().into_iter().collect(), HashSet::new())
+    pub fn simple(&self, _parse_cx: &ParseContext) -> (AHashSet<String>, AHashSet<String>) {
+        // Assuming SimpleHintType is a type alias for (&AHashSet<String>,
+        // AHashSet<String>)
+        (self.simple.clone().into_iter().collect(), AHashSet::new())
     }
 
     pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
@@ -183,7 +187,7 @@ impl Matchable for StringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         (self.simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
@@ -203,7 +207,7 @@ impl Matchable for StringParser {
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 
@@ -214,7 +218,7 @@ pub struct RegexParser {
     _template: HashableFancyRegex,
     _anti_template: HashableFancyRegex,
     factory: fn(&dyn Segment) -> Box<dyn Segment>,
-    // Add other fields as needed
+    cache_key: String, // Add other fields as needed
 }
 
 impl PartialEq for RegexParser {
@@ -246,6 +250,7 @@ impl RegexParser {
             _template: HashableFancyRegex(template_pattern),
             _anti_template: HashableFancyRegex(anti_template_pattern),
             factory, // Initialize other fields here
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -299,7 +304,7 @@ impl Matchable for RegexParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
         None
@@ -321,7 +326,7 @@ impl Matchable for RegexParser {
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 
@@ -344,7 +349,7 @@ impl MultiStringParser {
         let templates = templates
             .iter()
             .map(|template| template.to_ascii_uppercase())
-            .collect::<HashSet<String>>();
+            .collect::<AHashSet<String>>();
         let _simple = templates.clone();
 
         Self {
@@ -359,9 +364,9 @@ impl MultiStringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<String>>,
-    ) -> (HashSet<String>, HashSet<String>) {
+    ) -> (AHashSet<String>, AHashSet<String>) {
         // Return the simple options (templates) and an empty set of hints
-        (self._simple.clone().into_iter().collect(), HashSet::new())
+        (self._simple.clone().into_iter().collect(), AHashSet::new())
     }
 
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
@@ -400,7 +405,7 @@ impl Matchable for MultiStringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         (self._simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
@@ -426,7 +431,7 @@ impl Matchable for MultiStringParser {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
+    use ahash::AHashSet;
 
     use super::TypedParser;
     use crate::core::dialects::init::dialect_selector;
@@ -451,7 +456,7 @@ mod tests {
 
         assert_eq!(
             parser.simple(&parse_cx, None),
-            (HashSet::new(), HashSet::from(["single_quote".into()])).into()
+            (AHashSet::new(), ["single_quote".into()].into()).into()
         );
     }
 
@@ -464,7 +469,7 @@ mod tests {
         let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap());
 
         // Perform the test
-        assert_eq!(parser.simple(&parse_cx), (HashSet::from(["FOO".to_string()]), HashSet::new()));
+        assert_eq!(parser.simple(&parse_cx), (["FOO".to_string()].into(), AHashSet::new()));
     }
 
     #[test]
@@ -514,9 +519,9 @@ mod tests {
 
     //     // Example implementations for these structs/functions will be needed
 
-    //     let pre_match_types: HashSet<&str> = ["single_quote", "raw",
+    //     let pre_match_types: AHashSet<&str> = ["single_quote", "raw",
     // "base"].iter().cloned().collect();     let mut post_match_types:
-    // HashSet<&str> = ["example", "single_quote", "raw",
+    // AHashSet<&str> = ["example", "single_quote", "raw",
     // "base"].iter().cloned().collect();
 
     //     let mut kwargs = HashMap::new();

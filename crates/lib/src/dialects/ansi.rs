@@ -1,8 +1,8 @@
-use std::collections::HashSet;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::marker::PhantomData;
 
+use ahash::AHashSet;
 use itertools::{chain, Itertools};
 use uuid::Uuid;
 
@@ -2313,7 +2313,7 @@ pub trait NodeTrait {
 
     fn match_grammar() -> Box<dyn Matchable>;
 
-    fn class_types() -> HashSet<String> {
+    fn class_types() -> AHashSet<String> {
         <_>::default()
     }
 }
@@ -2367,7 +2367,7 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         T::match_grammar().into()
     }
 
-    fn class_types(&self) -> HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         T::class_types()
     }
 
@@ -2526,7 +2526,7 @@ impl Segment for FileSegment {
         self.pos_marker.clone()
     }
 
-    fn class_types(&self) -> HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         ["file"].map(ToOwned::to_owned).into_iter().collect()
     }
 
@@ -2630,7 +2630,7 @@ impl NodeTrait for UnorderedSelectStatementSegment {
         .to_matchable()
     }
 
-    fn class_types() -> HashSet<String> {
+    fn class_types() -> AHashSet<String> {
         ["select_clause"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
@@ -2728,7 +2728,7 @@ impl NodeTrait for StatementSegment {
         .to_matchable()
     }
 
-    fn class_types() -> HashSet<String> {
+    fn class_types() -> AHashSet<String> {
         ["statement"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
@@ -2970,7 +2970,7 @@ impl NodeTrait for WildcardIdentifierSegment {
         .to_matchable()
     }
 
-    fn class_types() -> HashSet<String> {
+    fn class_types() -> AHashSet<String> {
         ["wildcard_identifier", "object_reference"].map(ToString::to_string).into_iter().collect()
     }
 }
@@ -3161,7 +3161,7 @@ impl NodeTrait for ColumnReferenceSegment {
             .to_matchable()
     }
 
-    fn class_types() -> HashSet<String> {
+    fn class_types() -> AHashSet<String> {
         ["object_reference", "column_reference"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
@@ -3597,8 +3597,8 @@ impl NodeTrait for FunctionNameSegment {
         .to_matchable()
     }
 
-    fn class_types() -> HashSet<String> {
-        HashSet::from(["function_name".into()])
+    fn class_types() -> AHashSet<String> {
+        ["function_name".into()].into()
     }
 }
 pub struct CaseExpressionSegment;
@@ -3872,8 +3872,8 @@ impl NodeTrait for ConcatSegment {
             .to_matchable()
     }
 
-    fn class_types() -> HashSet<String> {
-        HashSet::from(["binary_operator".into()])
+    fn class_types() -> AHashSet<String> {
+        ["binary_operator".into()].into()
     }
 }
 
@@ -5070,7 +5070,7 @@ impl NodeTrait for JoinClauseSegment {
         .to_matchable()
     }
 
-    fn class_types() -> HashSet<String> {
+    fn class_types() -> AHashSet<String> {
         ["join_clause".into()].into_iter().collect()
     }
 }
@@ -6083,9 +6083,8 @@ mod tests {
             let yaml = std::path::absolute(yaml).unwrap();
 
             let actual = {
-                let sql = std::fs::read_to_string(file).unwrap();
+                let sql = std::fs::read_to_string(&file).unwrap();
                 let tree = parse_sql(&sql);
-
                 let tree = tree.to_serialised(true, true, false);
 
                 serde_yaml::to_string(&tree).unwrap()

@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
 use itertools::{chain, Itertools};
 
@@ -39,13 +38,13 @@ impl BaseCrawler for RootOnlyCrawler {
 }
 
 pub struct SegmentSeekerCrawler {
-    types: HashSet<&'static str>,
+    types: AHashSet<&'static str>,
     provide_raw_stack: bool,
     allow_recurse: bool,
 }
 
 impl SegmentSeekerCrawler {
-    pub fn new(types: HashSet<&'static str>) -> Self {
+    pub fn new(types: AHashSet<&'static str>) -> Self {
         Self { types, provide_raw_stack: false, allow_recurse: true }
     }
 

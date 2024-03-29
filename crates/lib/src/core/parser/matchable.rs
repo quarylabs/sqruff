@@ -1,7 +1,7 @@
 use std::any::Any;
-use std::collections::HashSet;
 use std::fmt::Debug;
 
+use ahash::AHashSet;
 use dyn_clone::DynClone;
 use dyn_hash::DynHash;
 use dyn_ord::DynEq;
@@ -35,7 +35,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         let match_grammar = self.match_grammar()?;
 
         match_grammar.simple(parse_context, crumbs)
@@ -64,6 +64,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
         }
 
         let match_result = match_grammar.match_segments(segments.clone(), parse_context)?;
+
         if match_result.has_match() {
             Ok(MatchResult {
                 matched_segments: vec![self.from_segments(match_result.matched_segments)],
@@ -76,7 +77,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
 
     // A method to generate a unique cache key for the matchable object.
     fn cache_key(&self) -> String {
-        unimplemented!()
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 
     fn copy(

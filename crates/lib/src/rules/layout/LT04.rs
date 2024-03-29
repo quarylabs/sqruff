@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::ops::Deref;
 
 use super::LT03::RuleLT03;
@@ -18,7 +17,7 @@ impl Rule for RuleLT04 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["comma".into()])).into()
+        SegmentSeekerCrawler::new(["comma".into()].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use super::AL01::{Aliasing, RuleAL01};
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
@@ -26,7 +24,7 @@ impl RuleAL02 {
 
 impl Rule for RuleAL02 {
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["alias_expression"])).into()
+        SegmentSeekerCrawler::new(["alias_expression"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

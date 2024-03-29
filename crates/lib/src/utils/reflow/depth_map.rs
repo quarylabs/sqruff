@@ -1,7 +1,8 @@
 use std::collections::hash_map::DefaultHasher;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
+use ahash::AHashSet;
 use uuid::Uuid;
 
 use crate::core::parser::segments::base::{PathStep, Segment};
@@ -85,8 +86,8 @@ pub struct DepthInfo {
     pub stack_depth: usize,
     pub stack_hashes: Vec<u64>,
     /// This is a convenience cache to speed up operations.
-    pub stack_hash_set: HashSet<u64>,
-    pub stack_class_types: Vec<HashSet<String>>,
+    pub stack_hash_set: AHashSet<u64>,
+    pub stack_class_types: Vec<AHashSet<String>>,
     pub stack_positions: HashMap<u64, StackPosition>,
 }
 
@@ -106,9 +107,9 @@ impl DepthInfo {
             })
             .collect();
 
-        let stack_hash_set: HashSet<u64> = stack_hashes.iter().cloned().collect();
+        let stack_hash_set: AHashSet<u64> = stack_hashes.iter().cloned().collect();
 
-        let stack_class_types: Vec<HashSet<String>> =
+        let stack_class_types: Vec<AHashSet<String>> =
             stack.iter().map(|ps| ps.segment.class_types().iter().cloned().collect()).collect();
 
         let stack_positions: HashMap<u64, StackPosition> = stack
@@ -130,10 +131,10 @@ impl DepthInfo {
 
     pub fn common_with(&self, other: &DepthInfo) -> Vec<u64> {
         // Get the common depth and hashes with the other.
-        // We use HashSet intersection because it's efficient and hashes should be
+        // We use AHashSet intersection because it's efficient and hashes should be
         // unique.
 
-        let common_hashes: HashSet<_> = self
+        let common_hashes: AHashSet<_> = self
             .stack_hash_set
             .intersection(&other.stack_hashes.iter().copied().collect())
             .cloned()

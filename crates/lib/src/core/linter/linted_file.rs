@@ -1,6 +1,6 @@
-use std::collections::HashSet;
 use std::ops::Range;
 
+use ahash::AHashSet;
 use itertools::Itertools;
 
 use crate::core::errors::{SQLBaseError, SQLLintError};
@@ -84,7 +84,7 @@ impl LintedFile {
     ) -> Vec<FixPatch> {
         // Placeholder for logger setup or integration
         let mut filtered_source_patches = Vec::new();
-        let mut dedupe_buffer = HashSet::new();
+        let mut dedupe_buffer = AHashSet::new();
 
         for (idx, patch) in tree.iter_patches(templated_file).into_iter().enumerate() {
             // Log patch details

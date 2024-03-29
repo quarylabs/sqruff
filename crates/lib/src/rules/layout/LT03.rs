@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
@@ -15,7 +13,7 @@ impl Rule for RuleLT03 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["binary_operator", "comparison_operator"])).into()
+        SegmentSeekerCrawler::new(["binary_operator", "comparison_operator"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

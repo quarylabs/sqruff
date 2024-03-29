@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use itertools::Itertools;
 
 use crate::core::parser::segments::base::{CloneSegment, Segment};
@@ -21,7 +19,7 @@ impl Rule for RuleLT06 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["function".into()])).into()
+        SegmentSeekerCrawler::new(["function".into()].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

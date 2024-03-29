@@ -1,3 +1,4 @@
+use ahash::AHashSet;
 use uuid::Uuid;
 
 use super::base::Segment;
@@ -69,7 +70,7 @@ impl Segment for LiteralSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> std::collections::HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         ["numeric_literal"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
@@ -138,7 +139,7 @@ impl Segment for ComparisonOperatorSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> std::collections::HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         ["numeric_literal"].map(ToOwned::to_owned).into_iter().collect()
     }
 }

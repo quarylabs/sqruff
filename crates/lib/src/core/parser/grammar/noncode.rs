@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use ahash::AHashSet;
 
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
@@ -16,7 +16,7 @@ impl Matchable for NonCodeMatcher {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         None
     }
 

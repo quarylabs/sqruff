@@ -1,8 +1,8 @@
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 
+use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::parser::lexer::Matcher;
@@ -17,9 +17,9 @@ pub struct Dialect {
     root_segment_name: &'static str,
     lexer_matchers: Option<Vec<Box<dyn Matcher>>>,
     // TODO: Can we use PHF here? https://crates.io/crates/phf
-    library: HashMap<Cow<'static, str>, DialectElementType>,
-    sets: HashMap<&'static str, HashSet<&'static str>>,
-    bracket_collections: HashMap<String, HashSet<BracketPair>>,
+    library: AHashMap<Cow<'static, str>, DialectElementType>,
+    sets: AHashMap<&'static str, AHashSet<&'static str>>,
+    bracket_collections: AHashMap<String, AHashSet<BracketPair>>,
 }
 
 impl Dialect {
@@ -33,6 +33,7 @@ impl Dialect {
         &mut self,
         iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)> + Clone,
     ) {
+        #[cfg(debug_assertions)]
         check_unique_names(self, &iter.clone().into_iter().collect_vec());
 
         self.library.extend(iter);
@@ -49,7 +50,7 @@ impl Dialect {
         self.lexer_matchers = lexer_matchers.into();
     }
 
-    pub fn sets(&self, label: &str) -> HashSet<&'static str> {
+    pub fn sets(&self, label: &str) -> AHashSet<&'static str> {
         match label {
             "bracket_pairs" | "angle_bracket_pairs" => {
                 panic!("Use `bracket_sets` to retrieve {} set.", label);
@@ -60,7 +61,7 @@ impl Dialect {
         self.sets.get(label).cloned().unwrap_or_default()
     }
 
-    pub fn sets_mut(&mut self, label: &'static str) -> &mut HashSet<&'static str> {
+    pub fn sets_mut(&mut self, label: &'static str) -> &mut AHashSet<&'static str> {
         assert!(
             label != "bracket_pairs" && label != "angle_bracket_pairs",
             "Use `bracket_sets` to retrieve {} set.",
@@ -69,7 +70,7 @@ impl Dialect {
 
         match self.sets.entry(label) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => entry.insert(HashSet::new()),
+            Entry::Vacant(entry) => entry.insert(<_>::default()),
         }
     }
 
@@ -82,7 +83,7 @@ impl Dialect {
         self.sets_mut(set_label).extend(keywords);
     }
 
-    pub fn bracket_sets(&self, label: &str) -> HashSet<BracketPair> {
+    pub fn bracket_sets(&self, label: &str) -> AHashSet<BracketPair> {
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",
             "Invalid bracket set. Consider using another identifier instead."
@@ -91,7 +92,7 @@ impl Dialect {
         self.bracket_collections.get(label).cloned().unwrap_or_default()
     }
 
-    pub fn bracket_sets_mut(&mut self, label: &str) -> &mut HashSet<BracketPair> {
+    pub fn bracket_sets_mut(&mut self, label: &str) -> &mut AHashSet<BracketPair> {
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",
             "Invalid bracket set. Consider using another identifier instead."
@@ -185,7 +186,7 @@ impl Dialect {
 }
 
 fn check_unique_names(dialect: &Dialect, xs: &[(Cow<'static, str>, DialectElementType)]) {
-    let mut names = HashSet::new();
+    let mut names = AHashSet::new();
 
     for (name, _) in xs {
         assert!(names.insert(name), "ERROR: the name {name} is already registered.");

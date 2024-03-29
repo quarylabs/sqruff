@@ -1,3 +1,6 @@
+use ahash::AHashMap;
+
+use super::match_result::MatchResult;
 use super::matchable::Matchable;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
@@ -12,11 +15,7 @@ pub struct ParseContext {
     match_depth: usize,
     track_progress: bool,
     pub terminators: Vec<Box<dyn Matchable>>,
-    // recurse: bool,
-    // indentation_config: HashMap<String, bool>,
-    // denylist: ParseDenylist,
-    // logger: Logger,
-    // uuid: uuid::Uuid,
+    parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), String), MatchResult>,
 }
 
 impl ParseContext {
@@ -29,6 +28,7 @@ impl ParseContext {
             match_depth: 0,
             track_progress: true,
             terminators: Vec::new(),
+            parse_cache: AHashMap::new(),
         }
     }
 
@@ -133,5 +133,22 @@ impl ParseContext {
             let new_len = self.terminators.len().saturating_sub(appended);
             self.terminators.truncate(new_len);
         }
+    }
+
+    pub(crate) fn check_parse_cache(
+        &self,
+        loc_key: (String, (usize, usize), &'static str, usize),
+        matcher_key: String,
+    ) -> Option<MatchResult> {
+        self.parse_cache.get(&(loc_key, matcher_key)).cloned()
+    }
+
+    pub(crate) fn put_parse_cache(
+        &mut self,
+        loc_key: (String, (usize, usize), &'static str, usize),
+        matcher_key: String,
+        match_result: MatchResult,
+    ) {
+        self.parse_cache.insert((loc_key, matcher_key), match_result);
     }
 }

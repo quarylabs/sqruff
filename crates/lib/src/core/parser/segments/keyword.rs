@@ -1,3 +1,5 @@
+use ahash::AHashSet;
+
 use super::base::Segment;
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
@@ -69,7 +71,7 @@ impl Segment for KeywordSegment {
         todo!()
     }
 
-    fn class_types(&self) -> std::collections::HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         ["keyword", "word"].map(ToOwned::to_owned).into_iter().collect()
     }
 }

@@ -1,8 +1,9 @@
-use std::collections::HashSet;
 use std::iter::zip;
 use std::ops::{Deref, DerefMut};
 
+use ahash::AHashSet;
 use itertools::{chain, enumerate, Itertools};
+use uuid::Uuid;
 
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
@@ -107,6 +108,7 @@ pub struct Sequence {
     allow_gaps: bool,
     is_optional: bool,
     terminators: Vec<Box<dyn Matchable>>,
+    cache_key: String,
 }
 
 impl Sequence {
@@ -117,6 +119,7 @@ impl Sequence {
             is_optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -160,9 +163,9 @@ impl Matchable for Sequence {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
-        let mut simple_raws = HashSet::new();
-        let mut simple_types = HashSet::new();
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+        let mut simple_raws = AHashSet::new();
+        let mut simple_types = AHashSet::new();
 
         for opt in &self.elements {
             let (raws, types) = opt.simple(parse_context, crumbs.clone())?;
@@ -386,7 +389,7 @@ impl Matchable for Sequence {
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 
     fn copy(
@@ -486,7 +489,7 @@ impl Matchable for Bracketed {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         let (start_bracket, _, _) = self.get_bracket_from_dialect(parse_context).unwrap();
         start_bracket.simple(parse_context, crumbs)
     }
@@ -656,6 +659,10 @@ impl Matchable for Bracketed {
             },
             unmatched_segments: trailing_segments,
         })
+    }
+
+    fn cache_key(&self) -> String {
+        self.this.cache_key()
     }
 }
 

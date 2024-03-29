@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use itertools::{chain, Itertools};
+use uuid::Uuid;
 
 use super::base::longest_trimmed_match;
 use super::sequence::{Bracketed, Sequence};
@@ -53,21 +53,21 @@ pub fn simple(
     elements: &[Box<dyn Matchable>],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
-) -> Option<(HashSet<String>, HashSet<String>)> {
-    let option_simples: Vec<Option<(HashSet<String>, HashSet<String>)>> =
+) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    let option_simples: Vec<Option<(AHashSet<String>, AHashSet<String>)>> =
         elements.iter().map(|opt| opt.simple(parse_context, crumbs.clone())).collect();
 
     if option_simples.iter().any(Option::is_none) {
         return None;
     }
 
-    let simple_buff: Vec<(HashSet<String>, HashSet<String>)> =
+    let simple_buff: Vec<(AHashSet<String>, AHashSet<String>)> =
         option_simples.into_iter().flatten().collect();
 
-    let simple_raws: HashSet<String> =
+    let simple_raws: AHashSet<String> =
         simple_buff.iter().flat_map(|(raws, _)| raws).cloned().collect();
 
-    let simple_types: HashSet<String> =
+    let simple_types: AHashSet<String> =
         simple_buff.iter().flat_map(|(_, types)| types).cloned().collect();
 
     Some((simple_raws, simple_types))
@@ -82,6 +82,7 @@ pub struct AnyNumberOf {
     pub allow_gaps: bool,
     pub optional: bool,
     pub parse_mode: ParseMode,
+    cache_key: String,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -100,6 +101,7 @@ impl AnyNumberOf {
             optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -146,7 +148,7 @@ impl Matchable for AnyNumberOf {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         simple(&self.elements, parse_context, crumbs)
     }
 
@@ -172,7 +174,7 @@ impl Matchable for AnyNumberOf {
 
         // Keep track of the number of times each option has been matched.
         let mut n_matches = 0;
-        // let option_counter = {elem.cache_key(): 0 for elem in self._elements}
+
         loop {
             if self.max_times.is_some() && Some(n_matches) >= self.max_times {
                 // We've matched as many times as we can
@@ -211,14 +213,8 @@ impl Matchable for AnyNumberOf {
                 Vec::new()
             };
 
-            let (match_result, matched_option) =
+            let (match_result, _matched_option) =
                 self.match_once(&unmatched_segments, parse_context)?;
-
-            // Increment counter for matched option.
-            if let Some(_matched_option) = matched_option {
-                // TODO:
-                // if matched_option.cache_key() in option_counter:
-            }
 
             if match_result.has_match() {
                 matched_segments
@@ -253,7 +249,7 @@ impl Matchable for AnyNumberOf {
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 

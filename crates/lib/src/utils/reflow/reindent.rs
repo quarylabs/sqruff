@@ -1,7 +1,8 @@
 use std::borrow::Cow;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::mem::take;
 
+use ahash::AHashSet;
 use itertools::{enumerate, Itertools};
 
 use super::elements::{ReflowElement, ReflowPoint, ReflowSequenceType};
@@ -435,14 +436,14 @@ fn lint_line_untaken_negative_indents(
             continue;
         }
 
-        let covered_indents: HashSet<isize> =
+        let covered_indents: AHashSet<isize> =
             (ip.initial_indent_balance..=ip.initial_indent_balance + ip.indent_trough).collect();
 
-        let untaken_indents: HashSet<_> = ip
+        let untaken_indents: AHashSet<_> = ip
             .untaken_indents
             .iter()
             .copied()
-            .collect::<HashSet<_>>()
+            .collect::<AHashSet<_>>()
             .difference(&forced_indents.iter().map(|it| *it as isize).collect())
             .copied()
             .collect();
@@ -484,7 +485,7 @@ fn lint_line_buffer_indents(
 pub fn lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: &str,
-    skip_indentation_in: HashSet<String>,
+    skip_indentation_in: AHashSet<String>,
     allow_implicit_indents: bool,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let (lines, imbalanced_indent_locs) = map_line_buffers(&elements, allow_implicit_indents);

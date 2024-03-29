@@ -1,6 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::iter::zip;
 
+use ahash::AHashSet;
 use itertools::{chain, Itertools};
 
 use super::config::ReflowConfig;
@@ -45,7 +46,7 @@ impl ReflowPoint {
         self.segments.iter().map(|it| it.get_raw().unwrap()).join("")
     }
 
-    pub fn class_types(&self) -> HashSet<String> {
+    pub fn class_types(&self) -> AHashSet<String> {
         ReflowElement::class_types(&self.segments)
     }
 
@@ -469,7 +470,7 @@ pub struct ReflowBlock {
 }
 
 impl ReflowBlock {
-    pub fn class_types(&self) -> HashSet<String> {
+    pub fn class_types(&self) -> AHashSet<String> {
         ReflowElement::class_types(&self.segments)
     }
 }
@@ -539,7 +540,7 @@ impl ReflowElement {
         }
     }
 
-    pub fn class_types1(&self) -> HashSet<String> {
+    pub fn class_types1(&self) -> AHashSet<String> {
         Self::class_types(self.segments())
     }
 
@@ -566,7 +567,7 @@ impl ReflowElement {
 }
 
 impl ReflowElement {
-    pub fn class_types(segments: &[Box<dyn Segment>]) -> HashSet<String> {
+    pub fn class_types(segments: &[Box<dyn Segment>]) -> AHashSet<String> {
         segments.iter().flat_map(|seg| seg.combined_types()).collect()
     }
 }

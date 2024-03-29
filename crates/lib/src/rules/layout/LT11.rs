@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -14,7 +12,7 @@ impl Rule for RuleLT11 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["set_operator"])).into()
+        SegmentSeekerCrawler::new(["set_operator"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

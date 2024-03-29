@@ -1,5 +1,5 @@
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::base::{LintResult, Rule};
@@ -59,7 +59,7 @@ impl Rule for RuleAL08 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 }
 

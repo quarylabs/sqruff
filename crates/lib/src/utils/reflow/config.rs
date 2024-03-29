@@ -1,5 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
+use ahash::AHashSet;
 use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
@@ -67,7 +68,7 @@ impl BlockConfig {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
-    config_types: HashSet<String>,
+    config_types: AHashSet<String>,
     /// In production, these values are almost _always_ set because we
     /// use `.from_fluff_config`, but the defaults are here to aid in
     /// testing.
@@ -75,7 +76,7 @@ pub struct ReflowConfig {
     indent_unit: String,
     max_line_length: usize,
     hanging_indents: bool,
-    skip_indentation_in: HashSet<String>,
+    skip_indentation_in: AHashSet<String>,
     allow_implicit_indents: bool,
     trailing_comments: String,
 }
@@ -83,7 +84,7 @@ pub struct ReflowConfig {
 impl ReflowConfig {
     pub fn get_block_config(
         &self,
-        block_class_types: &HashSet<String>,
+        block_class_types: &AHashSet<String>,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
         let configured_types = self.config_types.intersection(block_class_types);
@@ -155,7 +156,7 @@ impl ReflowConfig {
 
     pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
         let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
-        let config_types: HashSet<_> = configs.keys().cloned().collect();
+        let config_types: AHashSet<_> = configs.keys().cloned().collect();
 
         ReflowConfig {
             configs: convert_to_config_dict(configs),

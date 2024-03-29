@@ -1,8 +1,9 @@
 use std::any::Any;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 
+use ahash::AHashSet;
 use dyn_clone::DynClone;
 use dyn_hash::DynHash;
 use dyn_ord::DynEq;
@@ -245,7 +246,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let is_debug = seg_types == &["object_reference"];
 
         let mut acc = Vec::new();
-        let seg_types_set: HashSet<&str> = HashSet::from_iter(seg_types.iter().copied());
+        let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
 
         let matches =
             allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it.as_str()));
@@ -363,8 +364,8 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         acc
     }
 
-    fn descendant_type_set(&self) -> HashSet<String> {
-        let mut result_set = HashSet::new();
+    fn descendant_type_set(&self) -> AHashSet<String> {
+        let mut result_set = AHashSet::new();
 
         for seg in self.segments() {
             result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
@@ -519,18 +520,18 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         anchor_info
     }
 
-    fn instance_types(&self) -> HashSet<String> {
-        HashSet::new()
+    fn instance_types(&self) -> AHashSet<String> {
+        AHashSet::new()
     }
 
-    fn combined_types(&self) -> HashSet<String> {
+    fn combined_types(&self) -> AHashSet<String> {
         let mut combined = self.instance_types();
         combined.extend(self.class_types());
         combined
     }
 
-    fn class_types(&self) -> HashSet<String> {
-        HashSet::new()
+    fn class_types(&self) -> AHashSet<String> {
+        AHashSet::new()
     }
 
     #[allow(unused_variables)]
@@ -815,7 +816,7 @@ impl Segment for CodeSegment {
         self.clone().boxed()
     }
 
-    fn class_types(&self) -> HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         Some(self.get_type().to_owned()).into_iter().collect()
     }
 
@@ -914,7 +915,7 @@ impl Segment for IdentifierSegment {
         self.clone().boxed()
     }
 
-    fn class_types(&self) -> HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         Some(self.get_type().to_owned()).into_iter().collect()
     }
 
@@ -1012,8 +1013,8 @@ impl Segment for CommentSegment {
         "comment"
     }
 
-    fn class_types(&self) -> HashSet<String> {
-        HashSet::from(["comment".into()])
+    fn class_types(&self) -> AHashSet<String> {
+        ["comment".into()].into()
     }
 
     fn is_code(&self) -> bool {
@@ -1145,8 +1146,8 @@ impl Segment for NewlineSegment {
         Some(self.raw.clone())
     }
 
-    fn class_types(&self) -> HashSet<String> {
-        HashSet::from(["newline".into()])
+    fn class_types(&self) -> AHashSet<String> {
+        ["newline".into()].into()
     }
 }
 
@@ -1349,8 +1350,8 @@ impl Segment for SymbolSegment {
         false
     }
 
-    fn instance_types(&self) -> HashSet<String> {
-        HashSet::from([self.type_.to_string()])
+    fn instance_types(&self) -> AHashSet<String> {
+        [self.type_.to_string()].into()
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {

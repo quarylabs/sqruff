@@ -1,5 +1,6 @@
-use std::collections::HashSet;
 use std::ops::Range;
+
+use ahash::AHashSet;
 
 use crate::core::slice_helpers::zero_slice;
 use crate::core::templaters::base::TemplatedFile;
@@ -84,7 +85,7 @@ impl PositionMarker {
         let mut source_end = usize::MIN;
         let mut template_start = usize::MAX;
         let mut template_end = usize::MIN;
-        let mut templated_files = HashSet::new();
+        let mut templated_files = AHashSet::new();
 
         for marker in markers {
             source_start = source_start.min(marker.source_slice.start);

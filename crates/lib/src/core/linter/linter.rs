@@ -1,9 +1,10 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
+use ahash::AHashSet;
 use itertools::Itertools;
 use regex::Regex;
 use uuid::Uuid;
@@ -595,7 +596,7 @@ impl Linter {
             }
         }
 
-        let mut filtered_buffer = HashSet::new();
+        let mut filtered_buffer = AHashSet::new();
 
         for fpath in buffer {
             let npath = crate::helpers::normalize(&fpath).to_str().unwrap().to_string();

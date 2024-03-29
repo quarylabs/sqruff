@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use indexmap::IndexSet;
 
 use crate::core::dialects::common::AliasInfo;
@@ -13,7 +12,7 @@ pub struct RuleAL04 {}
 
 impl Rule for RuleAL04 {
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["select_statement"])).into()
+        SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -36,7 +35,7 @@ impl RuleAL04 {
         table_aliases: Vec<AliasInfo>,
     ) -> Option<Vec<LintResult>> {
         let mut duplicates = IndexSet::new();
-        let mut seen: HashSet<String> = HashSet::new();
+        let mut seen: AHashSet<String> = AHashSet::new();
 
         for alias in table_aliases.iter() {
             if seen.contains(&alias.ref_str) && !alias.ref_str.is_empty() {

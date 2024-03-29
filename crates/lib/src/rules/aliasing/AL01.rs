@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
@@ -104,7 +102,7 @@ impl Rule for RuleAL01 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["alias_expression"])).into()
+        SegmentSeekerCrawler::new(["alias_expression"].into()).into()
     }
 }
 

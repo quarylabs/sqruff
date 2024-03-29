@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use itertools::{chain, Itertools};
 
 use crate::core::parser::segments::base::{Segment, SymbolSegment, WhitespaceSegment};
@@ -75,7 +74,7 @@ impl Rule for RuleST02 {
                 }
             }
 
-            let condition_expression_segments_raw: HashSet<String> = HashSet::from_iter(
+            let condition_expression_segments_raw: AHashSet<String> = AHashSet::from_iter(
                 condition_expression
                     .segments()
                     .iter()
@@ -85,7 +84,7 @@ impl Rule for RuleST02 {
             if condition_expression_segments_raw.contains("IS")
                 && condition_expression_segments_raw.contains("NULL")
                 && condition_expression_segments_raw
-                    .intersection(&HashSet::from_iter(["AND".into(), "OR".into()]))
+                    .intersection(&AHashSet::from_iter(["AND".into(), "OR".into()]))
                     .next()
                     .is_none()
             {

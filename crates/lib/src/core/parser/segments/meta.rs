@@ -1,8 +1,8 @@
-use std::collections::HashSet;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Deref;
 
+use ahash::AHashSet;
 use uuid::Uuid;
 
 use super::base::CloneSegment;
@@ -109,7 +109,7 @@ impl<M: MetaSegmentKind> Matchable for MetaSegment<M> {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         None
     }
 
@@ -178,8 +178,8 @@ impl Segment for EndOfFile {
         &[]
     }
 
-    fn class_types(&self) -> HashSet<String> {
-        HashSet::from(["end_of_file".into()])
+    fn class_types(&self) -> AHashSet<String> {
+        ["end_of_file".into()].into()
     }
 
     fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {

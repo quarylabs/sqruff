@@ -107,8 +107,7 @@ impl Rule for RuleLT08 {
                         } else {
                             fix_point = forward_slice[seg_idx].clone().into();
                         }
-                    } else {
-                    }
+                    } 
                 } else if comma_style == "leading" {
                     fix_point = forward_slice[comma_seg_idx].clone().into();
                 } else {

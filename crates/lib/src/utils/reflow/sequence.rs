@@ -15,6 +15,8 @@ pub struct ReflowSequence {
     root_segment: Box<dyn Segment>,
     elements: ReflowSequenceType,
     lint_results: Vec<LintResult>,
+    reflow_config: ReflowConfig,
+    depth_map: DepthMap,
 }
 
 impl ReflowSequence {
@@ -46,9 +48,10 @@ impl ReflowSequence {
         let depth_map = depth_map.unwrap_or_else(|| {
             DepthMap::from_raws_and_root(segments.clone(), root_segment.clone())
         });
-        let elements = Self::elements_from_raw_segments(segments, depth_map, reflow_config);
+        let elements =
+            Self::elements_from_raw_segments(segments, depth_map.clone(), reflow_config.clone());
 
-        Self { root_segment, elements, lint_results: Vec::new() }
+        Self { root_segment, elements, lint_results: Vec::new(), reflow_config, depth_map }
     }
 
     fn elements_from_raw_segments(
@@ -64,7 +67,7 @@ impl ReflowSequence {
             // This is to facilitate better evaluation of the ends of files.
             // NOTE: This also allows us to include literal placeholders for
             // whitespace only strings.
-            if matches!(seg.get_type(), "whitespace" | "newline" | "indent") {
+            if matches!(seg.get_type(), "whitespace" | "newline" | "indent" | "dedent") {
                 // Add to the buffer and move on.
                 seg_buff.push(seg);
                 continue;
@@ -74,13 +77,13 @@ impl ReflowSequence {
                 elem_buff.push(ReflowElement::Point(ReflowPoint::new(seg_buff.clone())));
             }
 
-            let depth_info = depth_map.get_depth_info(&seg);
             // Add the block, with config info.
-            elem_buff.push(ReflowElement::Block(Box::new(ReflowBlock::from_config(
+            let depth_info = depth_map.get_depth_info(&seg);
+            elem_buff.push(ReflowElement::Block(ReflowBlock::from_config(
                 vec![seg],
                 reflow_config.clone(),
                 depth_info,
-            ))));
+            )));
 
             // Empty the buffer
             seg_buff.clear();
@@ -121,8 +124,7 @@ impl ReflowSequence {
         }
 
         if sides == "both" || sides == "after" {
-            // for i in post_idx..all_raws.len() {
-            for (i, _item) in all_raws.iter().enumerate().skip(post_idx) {
+            for i in post_idx..all_raws.len() {
                 if all_raws[i].is_code() {
                     post_idx = i;
                     break;
@@ -141,7 +143,6 @@ impl ReflowSequence {
         )
     }
 
-    #[allow(unused_variables)]
     pub fn insert(
         self,
         insertion: Box<dyn Segment>,
@@ -150,11 +151,11 @@ impl ReflowSequence {
     ) -> Self {
         let target_idx = self.find_element_idx_with(&target);
 
-        let default_value = Default::default();
-        let new_block =
-            ReflowBlock::from_config(vec![insertion.clone()], default_value, <_>::default());
-        // let new_block = ReflowBlock::from_config(vec![insertion.clone()], todo!(),
-        // <_>::default());
+        let new_block = ReflowBlock::from_config(
+            vec![insertion.clone()],
+            self.reflow_config.clone(),
+            self.depth_map.get_depth_info(&target),
+        );
 
         if pos == "before" {
             let mut new_elements = self.elements[..target_idx].to_vec();
@@ -174,6 +175,8 @@ impl ReflowSequence {
                 root_segment: self.root_segment,
                 elements: new_elements,
                 lint_results: vec![new_lint_result],
+                reflow_config: self.reflow_config,
+                depth_map: self.depth_map,
             };
         }
 
@@ -192,8 +195,11 @@ impl ReflowSequence {
         if removal_idx == 0 || removal_idx == self.elements.len() - 1 {
             panic!("Unexpected removal at one end of a ReflowSequence.");
         }
-        if let ReflowElement::Point(_) = &self.elements[removal_idx] {
-            panic!("Not expected removal of whitespace in ReflowSequence.");
+        match &self.elements[removal_idx] {
+            ReflowElement::Point(_) => {
+                panic!("Not expected removal of whitespace in ReflowSequence.");
+            }
+            _ => {}
         }
         let merged_point = ReflowPoint::new(
             [self.elements[removal_idx - 1].segments(), self.elements[removal_idx + 1].segments()]
@@ -213,6 +219,8 @@ impl ReflowSequence {
                 None,
                 None,
             )],
+            reflow_config: self.reflow_config,
+            depth_map: self.depth_map,
         }
     }
 
@@ -265,7 +273,13 @@ impl ReflowSequence {
         // Delegate to the rebreak algorithm
         let (elem_buff, lint_results) = rebreak_sequence(self.elements, self.root_segment.clone());
 
-        ReflowSequence { root_segment: self.root_segment, elements: elem_buff, lint_results }
+        ReflowSequence {
+            root_segment: self.root_segment,
+            elements: elem_buff,
+            lint_results,
+            reflow_config: self.reflow_config,
+            depth_map: self.depth_map,
+        }
     }
 
     pub fn reindent(self) -> Self {
@@ -278,7 +292,13 @@ impl ReflowSequence {
         let (elements, indent_results) =
             lint_indent_points(self.elements, &single_indent, <_>::default(), <_>::default());
 
-        Self { root_segment: self.root_segment, elements, lint_results: indent_results }
+        Self {
+            root_segment: self.root_segment,
+            elements,
+            lint_results: indent_results,
+            reflow_config: self.reflow_config,
+            depth_map: self.depth_map,
+        }
     }
 
     pub fn break_long_lines(self) -> Self {

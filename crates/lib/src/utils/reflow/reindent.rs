@@ -294,7 +294,8 @@ fn map_line_buffers(
         if !indent_point.is_line_break {
             let indent_stats = elements[indent_point.idx].as_point().unwrap().indent_impulse();
             if indent_point.indent_impulse > indent_point.indent_trough
-                && !allow_implicit_indents && !indent_stats.implicit_indents.is_empty()
+                && !allow_implicit_indents
+                && !indent_stats.implicit_indents.is_empty()
             {
                 untaken_indent_locs.insert(
                     indent_point.initial_indent_balance + indent_point.indent_impulse,

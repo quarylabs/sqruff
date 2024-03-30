@@ -672,7 +672,7 @@ fn iter_segments(
 
                     // If it was an exact match, consume the templated element too.
                     if element.template_slice.end == tfs.templated_slice.end {
-                        _tfs_idx += 1
+                        tfs_idx += 1
                     }
                     // In any case, we're done with this element. Move on
                     break;

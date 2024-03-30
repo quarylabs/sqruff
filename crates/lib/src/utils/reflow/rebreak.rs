@@ -109,7 +109,7 @@ pub fn identify_rebreak_spans(
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for (idx, _item) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2){
+    for (idx, _item) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2) {
         let elem = &element_buffer[idx];
 
         let ReflowElement::Block(block) = elem else {

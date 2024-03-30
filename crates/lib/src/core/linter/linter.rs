@@ -327,7 +327,7 @@ impl Linter {
         //     ));
         // }
 
-        let mut _templated_file = None;
+        let mut templated_file = None;
         let templater_violations = vec![];
         match self.templater.process(
             in_str.as_str(),
@@ -383,7 +383,7 @@ impl Linter {
         }
 
         let mut violations = Vec::new();
-        let mut _tokens: Option<Vec<Box<dyn Segment>>> = None;
+        let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
 
         if rendered.templated_file.is_templated() {
             let (t, lvs, _config) =

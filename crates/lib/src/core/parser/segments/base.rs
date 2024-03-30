@@ -489,7 +489,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
                 if f.edit_type == EditType::Delete {
                     // We're just getting rid of this segment.
-                    
+
                     requires_validate = true;
                     // NOTE: We don't add the segment in this case.
                     continue;
@@ -533,9 +533,8 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             seg_buffer.push(s);
             seg_buffer.extend(post);
 
-            
             if !validated {
-                _requires_validate = true;
+                requires_validate = true;
             }
         }
 

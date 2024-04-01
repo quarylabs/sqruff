@@ -167,8 +167,7 @@ pub fn look_ahead_match(
                 continue;
             };
 
-            let match_result =
-                simple_match.match_segments(segments[idx..].to_vec(), parse_context)?;
+            let match_result = simple_match.match_segments(&segments[idx..], parse_context)?;
 
             if !match_result.has_match() {
                 continue;

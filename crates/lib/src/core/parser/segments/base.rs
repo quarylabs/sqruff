@@ -2,6 +2,8 @@ use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
+use std::ops::Deref;
+use std::rc::Rc;
 
 use ahash::AHashSet;
 use dyn_clone::DynClone;
@@ -78,6 +80,18 @@ impl TupleSerialisedSegment {
 
     fn nested(key: String, segments: Vec<TupleSerialisedSegment>) -> Self {
         Self(key, SerialisedSegmentValue::Nested(segments))
+    }
+}
+
+pub struct ErasedSegment {
+    value: Rc<dyn Segment>,
+}
+
+impl Deref for ErasedSegment {
+    type Target = dyn Segment;
+
+    fn deref(&self) -> &Self::Target {
+        self.value.as_ref()
     }
 }
 

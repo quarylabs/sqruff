@@ -45,7 +45,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let Some(match_grammar) = self.match_grammar() else {
@@ -53,7 +53,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
         };
 
         if segments.len() == 1 && segments[0].get_type() == self.get_type() {
-            return Ok(MatchResult::from_matched(segments));
+            return Ok(MatchResult::from_matched(segments.to_vec()));
         } else if segments.len() > 1 && segments[0].get_type() == self.get_type() {
             let (first_segment, remaining_segments) =
                 segments.split_first().expect("segments should not be empty");
@@ -63,7 +63,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
             });
         }
 
-        let match_result = match_grammar.match_segments(segments.clone(), parse_context)?;
+        let match_result = match_grammar.match_segments(segments, parse_context)?;
 
         if match_result.has_match() {
             Ok(MatchResult {
@@ -71,7 +71,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
                 unmatched_segments: match_result.unmatched_segments,
             })
         } else {
-            Ok(MatchResult::from_unmatched(segments))
+            Ok(MatchResult::from_unmatched(segments.to_vec()))
         }
     }
 

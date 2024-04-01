@@ -2465,9 +2465,7 @@ impl FileSegment {
         let match_result = parse_context.progress_bar(|this| {
             // NOTE: Don't call .match() on the segment class itself, but go
             // straight to the match grammar inside.
-            self.match_grammar()
-                .unwrap()
-                .match_segments(segments[start_idx..end_idx].to_vec(), this)
+            self.match_grammar().unwrap().match_segments(&segments[start_idx..end_idx], this)
         })?;
 
         let has_match = match_result.has_match();
@@ -5984,7 +5982,7 @@ mod tests {
                 segments.pop();
             }
 
-            let mut match_result = segment.match_segments(segments, &mut ctx).unwrap();
+            let mut match_result = segment.match_segments(&segments, &mut ctx).unwrap();
 
             assert_eq!(match_result.len(), 1, "failed {segment_ref}, {sql_string}");
 
@@ -6005,7 +6003,7 @@ mod tests {
             let mut parse_cx = ParseContext::from_config(config);
             let segment = dialect.r#ref(segment_ref);
 
-            let match_result = segment.match_segments(segments, &mut parse_cx).unwrap();
+            let match_result = segment.match_segments(&segments, &mut parse_cx).unwrap();
             assert!(!match_result.has_match());
         }
     }

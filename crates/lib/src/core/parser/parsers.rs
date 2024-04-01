@@ -95,7 +95,7 @@ impl Matchable for TypedParser {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -105,7 +105,7 @@ impl Matchable for TypedParser {
             }
         };
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 }
 
@@ -193,7 +193,7 @@ impl Matchable for StringParser {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let match_result = if !segments.is_empty() {
@@ -203,7 +203,7 @@ impl Matchable for StringParser {
             }
         };
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
     fn cache_key(&self) -> String {
@@ -312,7 +312,7 @@ impl Matchable for RegexParser {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -322,7 +322,7 @@ impl Matchable for RegexParser {
             }
         }
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
     fn cache_key(&self) -> String {
@@ -411,7 +411,7 @@ impl Matchable for MultiStringParser {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -421,7 +421,7 @@ impl Matchable for MultiStringParser {
             }
         }
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
     fn cache_key(&self) -> String {
@@ -501,13 +501,13 @@ mod tests {
         let segments = generate_test_segments_func(vec!["foo", "fo"]);
 
         // Matches when it should
-        let result = parser.match_segments(segments[0..1].to_vec(), &mut ctx).unwrap();
+        let result = parser.match_segments(&segments[0..1], &mut ctx).unwrap();
         let result1 = &result.matched_segments[0];
 
         assert_eq!(result1.get_raw().unwrap(), "foo");
 
         // Doesn't match when it shouldn't
-        let result = parser.match_segments(segments[1..].to_vec(), &mut ctx).unwrap();
+        let result = parser.match_segments(&segments[1..], &mut ctx).unwrap();
         assert_eq!(result.matched_segments, &[]);
     }
 

@@ -31,7 +31,7 @@ impl Matchable for NonCodeMatcher {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Match any starting non-code segments
@@ -59,7 +59,7 @@ mod tests {
 
         let matcher = NonCodeMatcher;
         let test_segments = test_segments(); // Assuming this function exists and generates test segments
-        let m = matcher.match_segments(test_segments[1..].to_vec(), &mut ctx).unwrap();
+        let m = matcher.match_segments(&test_segments[1..], &mut ctx).unwrap();
 
         // NonCode Matcher doesn't work with simple
         assert!(matcher.simple(&ctx, None).is_none());

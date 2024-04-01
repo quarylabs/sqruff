@@ -77,7 +77,7 @@ impl Matchable for Delimited {
     /// sequence.
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Have we been passed an empty list?
@@ -86,7 +86,7 @@ impl Matchable for Delimited {
         }
 
         // Make some buffers
-        let mut seg_buff = segments.clone();
+        let mut seg_buff = segments.to_vec();
         let mut matched_segments = Vec::new();
         let mut unmatched_segments = Vec::new();
         let mut cached_matched_segments = Vec::new();
@@ -120,7 +120,7 @@ impl Matchable for Delimited {
             let post_non_code = post_non_code.to_vec();
 
             if !self.allow_gaps && pre_non_code.iter().any(|seg| seg.is_whitespace()) {
-                unmatched_segments = seg_buff;
+                unmatched_segments = seg_buff.to_vec();
                 break;
             }
 
@@ -179,7 +179,7 @@ impl Matchable for Delimited {
                 delimiters += 1;
                 matched_delimiter = true;
                 cached_matched_segments = matched_segments.clone();
-                cached_unmatched_segments = seg_buff.clone();
+                cached_unmatched_segments = seg_buff.to_vec();
             } else {
                 matched_delimiter = false;
             }
@@ -344,7 +344,7 @@ mod tests {
             }
             g.min_delimiters = min_delimiters;
 
-            let match_result = g.match_segments(test_segments.clone(), &mut ctx).unwrap();
+            let match_result = g.match_segments(&test_segments, &mut ctx).unwrap();
 
             assert_eq!(match_result.len(), match_len);
         }
@@ -368,7 +368,7 @@ mod tests {
         );
         let matcher = Anything::new().terminators(vec![foo.boxed()]);
 
-        let match_result = matcher.match_segments(bracket_segments(), &mut ctx).unwrap();
+        let match_result = matcher.match_segments(&bracket_segments(), &mut ctx).unwrap();
         assert_eq!(match_result.len(), 4);
         assert_eq!(match_result.matched_segments[2].get_type(), "bracketed");
         assert_eq!(match_result.matched_segments[2].get_raw().unwrap(), "(foo    )");
@@ -419,7 +419,7 @@ mod tests {
 
             let result = Anything::new()
                 .terminators(terms)
-                .match_segments(test_segments(), &mut cx)
+                .match_segments(&test_segments(), &mut cx)
                 .unwrap();
 
             assert_eq!(result.len(), match_length);

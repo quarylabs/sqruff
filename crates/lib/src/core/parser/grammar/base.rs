@@ -85,7 +85,7 @@ impl Matchable for BaseGrammar {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Placeholder implementation
@@ -192,7 +192,7 @@ impl Matchable for Ref {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Implement the logic for `_get_elem`
@@ -207,11 +207,11 @@ impl Matchable for Ref {
                 None,
                 |this| {
                     if !exclude
-                        .match_segments(segments.clone(), this)
+                        .match_segments(segments, this)
                         .map_err(|e| dbg!(e))
                         .map_or(false, |match_result| !match_result.has_match())
                     {
-                        return Some(MatchResult::from_unmatched(segments.clone()));
+                        return Some(MatchResult::from_unmatched(segments.to_vec()));
                     }
 
                     None
@@ -264,14 +264,14 @@ impl Segment for Anything {}
 impl Matchable for Anything {
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if self.terminators.is_empty() {
-            return Ok(MatchResult::from_matched(segments));
+            return Ok(MatchResult::from_matched(segments.to_vec()));
         }
 
-        greedy_match(segments, parse_context, self.terminators.clone(), false)
+        greedy_match(segments.to_vec(), parse_context, self.terminators.clone(), false)
     }
 }
 
@@ -289,10 +289,10 @@ impl Segment for Nothing {}
 impl Matchable for Nothing {
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 }
 
@@ -341,7 +341,7 @@ pub fn longest_trimmed_match(
         {
             Some(match_result) => match_result,
             None => {
-                let match_result = matcher.match_segments(segments.to_vec(), parse_context)?;
+                let match_result = matcher.match_segments(segments, parse_context)?;
                 parse_context.put_parse_cache(loc_key.clone(), matcher_key, match_result.clone());
                 match_result
             }
@@ -453,13 +453,11 @@ mod tests {
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         // Assert ABS does not match, due to the exclude
-        assert!(
-            ni.match_segments(vec![ts[0].clone()], &mut ctx).unwrap().matched_segments.is_empty()
-        );
+        assert!(ni.match_segments(&[ts[0].clone()], &mut ctx).unwrap().matched_segments.is_empty());
 
         // Assert ABSOLUTE does match
         assert!(
-            !ni.match_segments(vec![ts[1].clone()], &mut ctx).unwrap().matched_segments.is_empty()
+            !ni.match_segments(&[ts[1].clone()], &mut ctx).unwrap().matched_segments.is_empty()
         );
     }
 
@@ -469,7 +467,7 @@ mod tests {
 
         assert!(
             Nothing::new()
-                .match_segments(test_segments(), &mut ctx)
+                .match_segments(&test_segments(), &mut ctx)
                 .unwrap()
                 .matched_segments
                 .is_empty()

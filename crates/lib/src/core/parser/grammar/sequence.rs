@@ -28,7 +28,7 @@ fn trim_to_terminator(
     let pruned_terms = prune_options(&terminators, &segments, parse_context);
 
     for term in pruned_terms {
-        if term.match_segments(segments.clone(), parse_context)?.has_match() {
+        if term.match_segments(&segments, parse_context)?.has_match() {
             return Ok((Vec::new(), chain(segments, tail).collect_vec()));
         }
     }
@@ -185,17 +185,17 @@ impl Matchable for Sequence {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let mut matched_segments = Vec::new();
-        let mut unmatched_segments = segments.clone();
+        let mut unmatched_segments = segments.to_vec();
         let mut tail = Vec::new();
         let mut first_match = true;
 
         if self.parse_mode == ParseMode::Greedy {
             (unmatched_segments, tail) = trim_to_terminator(
-                segments.clone(),
+                segments.to_vec(),
                 tail.clone(),
                 self.terminators.clone(),
                 parse_context,
@@ -259,11 +259,11 @@ impl Matchable for Sequence {
                 }
 
                 if self.parse_mode == ParseMode::Strict {
-                    return Ok(MatchResult::from_unmatched(segments));
+                    return Ok(MatchResult::from_unmatched(segments.to_vec()));
                 }
 
                 if matched_segments.is_empty() {
-                    return Ok(MatchResult::from_unmatched(segments));
+                    return Ok(MatchResult::from_unmatched(segments.to_vec()));
                 }
 
                 let matched =
@@ -281,7 +281,7 @@ impl Matchable for Sequence {
                 false,
                 &[],
                 None,
-                |this| elem.match_segments(unmatched_segments.clone(), this),
+                |this| elem.match_segments(&unmatched_segments, this),
             )?;
 
             // Did we fail to match? (totally or un-cleanly)
@@ -297,11 +297,11 @@ impl Matchable for Sequence {
                 if self.parse_mode == ParseMode::Strict {
                     // In a strict mode, failing to match an element means that
                     // we don't match anything.
-                    return Ok(MatchResult::from_unmatched(segments));
+                    return Ok(MatchResult::from_unmatched(segments.to_vec()));
                 }
 
                 if self.parse_mode == ParseMode::GreedyOnceStarted && matched_segments.is_empty() {
-                    return Ok(MatchResult::from_unmatched(segments));
+                    return Ok(MatchResult::from_unmatched(segments.to_vec()));
                 }
 
                 matched_segments.extend(non_code_buffer);
@@ -496,7 +496,7 @@ impl Matchable for Bracketed {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[Box<dyn Segment>],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         enum Status {
@@ -510,7 +510,7 @@ impl Matchable for Bracketed {
             let (_, seg_buff, _) = trim_non_code_segments(&segments);
             seg_buff.to_vec()
         } else {
-            segments.clone()
+            segments.to_vec()
         };
 
         // Rehydrate the bracket segments in question.
@@ -532,10 +532,10 @@ impl Matchable for Bracketed {
             bracket_segment = bracketed.clone();
 
             if !start_bracket
-                .match_segments(bracket_segment.start_bracket.clone(), parse_context)?
+                .match_segments(&bracket_segment.start_bracket, parse_context)?
                 .has_match()
             {
-                return Ok(MatchResult::from_unmatched(segments));
+                return Ok(MatchResult::from_unmatched(segments.to_vec()));
             }
 
             let start_len = bracket_segment.start_bracket.len();
@@ -555,7 +555,7 @@ impl Matchable for Bracketed {
                         let unmatched_segments = start_match.unmatched_segments.clone();
                         Status::Matched(start_match, unmatched_segments)
                     }
-                    Ok(_) => Status::EarlyReturn(MatchResult::from_unmatched(segments.clone())),
+                    Ok(_) => Status::EarlyReturn(MatchResult::from_unmatched(segments.to_vec())),
                     Err(err) => Status::Fail(err),
                 }
             });
@@ -624,7 +624,7 @@ impl Matchable for Bracketed {
                     unmatched_segments: trailing_segments,
                 }
             } else {
-                MatchResult::from_unmatched(segments)
+                MatchResult::from_unmatched(segments.to_vec())
             };
 
             return Ok(segment);
@@ -633,13 +633,13 @@ impl Matchable for Bracketed {
         // Match the content using super. Sequence will interpret the content of the
         // elements. Within the brackets, clear any inherited terminators.
         let content_match = parse_context.deeper_match("Bracketed", true, &[], None, |this| {
-            self.this.match_segments(content_segs.to_vec(), this)
+            self.this.match_segments(&content_segs, this)
         })?;
 
         // We require a complete match for the content (hopefully for obvious reasons)
         if !content_match.is_complete() {
             // No complete match. Fail.
-            return Ok(MatchResult::from_unmatched(segments));
+            return Ok(MatchResult::from_unmatched(segments.to_vec()));
         }
 
         bracket_segment.segments = chain!(
@@ -720,7 +720,7 @@ mod tests {
         let g = Sequence::new(vec![bs.clone(), fs.clone()]);
         let gc = Sequence::new(vec![bs, fs]).allow_gaps(false);
 
-        let match_result = g.match_segments(test_segments(), &mut ctx).unwrap();
+        let match_result = g.match_segments(&test_segments(), &mut ctx).unwrap();
 
         assert_eq!(match_result.matched_segments[0].get_raw().unwrap(), "bar");
         assert_eq!(
@@ -730,9 +730,9 @@ mod tests {
         assert_eq!(match_result.matched_segments[2].get_raw().unwrap(), "foo");
         assert_eq!(match_result.len(), 3);
 
-        assert!(!gc.match_segments(test_segments(), &mut ctx).unwrap().has_match());
+        assert!(!gc.match_segments(&test_segments(), &mut ctx).unwrap().has_match());
 
-        assert!(!g.match_segments(test_segments()[1..].to_vec(), &mut ctx).unwrap().has_match());
+        assert!(!g.match_segments(&test_segments()[1..], &mut ctx).unwrap().has_match());
     }
 
     #[test]
@@ -787,11 +787,11 @@ mod tests {
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
         assert!(
-            !g.match_segments(test_segments()[..2].to_vec(), &mut ctx).unwrap().has_match(),
+            !g.match_segments(&test_segments()[..2], &mut ctx).unwrap().has_match(),
             "Expected no match, but a match was found."
         );
 
-        let segments = g.match_segments(test_segments(), &mut ctx).unwrap().matched_segments;
+        let segments = g.match_segments(&test_segments(), &mut ctx).unwrap().matched_segments;
         assert_eq!(segments[0].get_raw().unwrap(), "bar");
         assert_eq!(segments[1].get_raw().unwrap(), test_segments()[1].get_raw().unwrap());
         assert_eq!(segments[2].get_raw().unwrap(), "foo");
@@ -833,7 +833,7 @@ mod tests {
 
         let g = Sequence::new(vec![MetaSegment::indent().boxed(), bs, fs]);
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
-        let segments = g.match_segments(test_segments(), &mut ctx).unwrap().matched_segments;
+        let segments = g.match_segments(&test_segments(), &mut ctx).unwrap().matched_segments;
 
         assert_eq!(segments[0].get_type(), "indent");
         assert_eq!(segments[1].get_type(), "keyword");
@@ -1065,9 +1065,8 @@ mod tests {
                 .collect();
             seq.parse_mode = *parse_mode;
 
-            let match_result = seq
-                .match_segments(segments[input_slice.clone()].to_vec(), &mut parse_context)
-                .unwrap();
+            let match_result =
+                seq.match_segments(&segments[input_slice.clone()], &mut parse_context).unwrap();
 
             let result = match_result
                 .matched_segments

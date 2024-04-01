@@ -115,7 +115,7 @@ impl<M: MetaSegmentKind> Matchable for MetaSegment<M> {
 
     fn match_segments(
         &self,
-        _segments: Vec<Box<dyn Segment>>,
+        _segments: &[Box<dyn Segment>],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         panic!(

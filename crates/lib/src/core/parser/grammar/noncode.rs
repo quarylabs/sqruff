@@ -4,7 +4,7 @@ use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct NonCodeMatcher;
@@ -31,7 +31,7 @@ impl Matchable for NonCodeMatcher {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Match any starting non-code segments

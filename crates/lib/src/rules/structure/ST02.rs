@@ -1,12 +1,14 @@
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
 
-use crate::core::parser::segments::base::{Segment, SymbolSegment, WhitespaceSegment};
+use crate::core::parser::segments::base::{
+    ErasedSegment, Segment, SymbolSegment, WhitespaceSegment,
+};
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -51,7 +53,7 @@ impl Rule for RuleST02 {
                     {
                         let coalesce_arg_1 = condition_expression.clone_box();
                         let coalesce_arg_2 =
-                            KeywordSegment::new("false".into(), None).boxed() as Box<dyn Segment>;
+                            KeywordSegment::new("false".into(), None).to_erased_segment();
                         let preceding_not = then_expression_upper == "FALSE";
 
                         let fixes = Self::coalesce_fix_list(
@@ -170,8 +172,8 @@ impl Rule for RuleST02 {
 impl RuleST02 {
     fn coalesce_fix_list(
         context: &RuleContext,
-        coalesce_arg_1: Box<dyn Segment>,
-        coalesce_arg_2: Box<dyn Segment>,
+        coalesce_arg_1: ErasedSegment,
+        coalesce_arg_2: ErasedSegment,
         preceding_not: bool,
     ) -> Vec<LintFix> {
         let mut edits = vec![
@@ -187,7 +189,7 @@ impl RuleST02 {
         if preceding_not {
             edits = chain(
                 [
-                    KeywordSegment::new("not".into(), None).boxed(),
+                    KeywordSegment::new("not".into(), None).to_erased_segment(),
                     WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
                 ],
                 edits,
@@ -200,7 +202,7 @@ impl RuleST02 {
 
     fn column_only_fix_list(
         context: &RuleContext,
-        column_reference_segment: Box<dyn Segment>,
+        column_reference_segment: ErasedSegment,
     ) -> Vec<LintFix> {
         vec![LintFix::replace(context.segment.clone_box(), vec![column_reference_segment], None)]
     }

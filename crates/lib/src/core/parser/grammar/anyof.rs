@@ -10,14 +10,14 @@ use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{Segment, UnparsableSegment};
+use crate::core::parser::segments::base::{ErasedSegment, Segment, UnparsableSegment};
 use crate::core::parser::types::ParseMode;
-use crate::helpers::{Boxed, ToMatchable};
+use crate::helpers::{ToErasedSegment, ToMatchable};
 
 fn parse_mode_match_result(
-    matched_segments: Vec<Box<dyn Segment>>,
-    unmatched_segments: Vec<Box<dyn Segment>>,
-    tail: Vec<Box<dyn Segment>>,
+    matched_segments: Vec<ErasedSegment>,
+    unmatched_segments: Vec<ErasedSegment>,
+    tail: Vec<ErasedSegment>,
     parse_mode: ParseMode,
 ) -> MatchResult {
     if let ParseMode::Strict = parse_mode {
@@ -44,7 +44,7 @@ fn parse_mode_match_result(
     let unmatched_seg = UnparsableSegment::new(unmatched_segments[trim_idx..].to_vec());
     let mut matched = matched_segments;
     matched.extend_from_slice(&unmatched_segments[..trim_idx]);
-    matched.push(unmatched_seg.boxed());
+    matched.push(unmatched_seg.to_erased_segment());
 
     MatchResult::new(matched, tail)
 }
@@ -126,7 +126,7 @@ impl AnyNumberOf {
     // for AnyNumberOf.
     pub fn match_once(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<(MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
         let name = std::any::type_name::<Self>();
@@ -154,7 +154,7 @@ impl Matchable for AnyNumberOf {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let mut matched_segments = MatchResult::from_empty();
@@ -287,7 +287,7 @@ mod tests {
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
     use crate::core::parser::types::ParseMode;
-    use crate::helpers::{Boxed, ToMatchable};
+    use crate::helpers::{ToErasedSegment, ToMatchable};
 
     #[test]
     fn test__parser__grammar_oneof() {
@@ -305,13 +305,12 @@ mod tests {
                         segment.get_raw().unwrap(),
                         segment.get_position_marker().unwrap().into(),
                     )
-                    .boxed()
+                    .to_erased_segment()
                 },
                 None,
                 false,
                 None,
-            )
-            .boxed();
+            );
 
             let fs = StringParser::new(
                 "foo",
@@ -320,15 +319,14 @@ mod tests {
                         segment.get_raw().unwrap(),
                         segment.get_position_marker().unwrap().into(),
                     )
-                    .boxed()
+                    .to_erased_segment()
                 },
                 None,
                 false,
                 None,
-            )
-            .boxed();
+            );
 
-            let mut g = one_of(vec![fs, bs]);
+            let mut g = one_of(vec![Box::new(fs), Box::new(bs)]);
 
             if allow_gaps {
                 g.disallow_gaps();
@@ -358,13 +356,12 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        );
 
         let fs = StringParser::new(
             "foo",
@@ -373,15 +370,14 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        );
 
-        let g = one_of(vec![bs, fs]);
+        let g = one_of(vec![Box::new(bs), Box::new(fs)]);
 
         assert!(!g.match_segments(&test_segments()[5..], &mut ctx).unwrap().has_match());
     }
@@ -437,7 +433,7 @@ mod tests {
                                 it.get_raw().unwrap(),
                                 it.get_position_marker().unwrap().into(),
                             )
-                            .boxed()
+                            .to_erased_segment()
                         },
                         None,
                         false,
@@ -450,20 +446,19 @@ mod tests {
             let terms = terminators
                 .iter()
                 .map(|it| {
-                    StringParser::new(
+                    Box::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
                                 segment.get_raw().unwrap(),
                                 segment.get_position_marker().unwrap().into(),
                             )
-                            .boxed()
+                            .to_erased_segment()
                         },
                         None,
                         false,
                         None,
-                    )
-                    .boxed() as Box<dyn Matchable>
+                    )) as Box<dyn Matchable>
                 })
                 .collect_vec();
 
@@ -499,7 +494,7 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
@@ -512,7 +507,7 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
@@ -520,7 +515,7 @@ mod tests {
         );
 
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
-        let g = AnyNumberOf::new(vec![bar.boxed(), foo.boxed()]);
+        let g = AnyNumberOf::new(vec![Box::new(bar), Box::new(foo)]);
         let result = g.match_segments(&segments, &mut ctx).unwrap().matched_segments;
 
         assert_eq!(result[0].get_raw().unwrap(), "bar");
@@ -539,7 +534,7 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
@@ -553,15 +548,15 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
         );
 
-        let g1 = one_of(vec![foo_regex.clone().boxed(), foo.clone().boxed()]);
-        let g2 = one_of(vec![foo.boxed(), foo_regex.boxed()]);
+        let g1 = one_of(vec![Box::new(foo_regex.clone()), Box::new(foo.clone())]);
+        let g2 = one_of(vec![Box::new(foo), Box::new(foo_regex)]);
 
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 

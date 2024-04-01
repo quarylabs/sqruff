@@ -4,24 +4,25 @@ use std::path::{Component, Path, PathBuf};
 use std::sync::Once;
 
 use crate::core::parser::matchable::Matchable;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 
 pub trait ToMatchable: Matchable + Sized {
     fn to_matchable(self) -> Box<dyn Matchable> {
-        self.boxed()
+        Box::new(self)
     }
 }
 
 impl<T: Matchable> ToMatchable for T {}
 
-pub trait Boxed {
-    fn boxed(self) -> Box<Self>
+pub trait ToErasedSegment {
+    fn to_erased_segment(self) -> ErasedSegment
     where
         Self: Sized;
 }
 
-impl<T> Boxed for T {
-    fn boxed(self) -> Box<Self> {
-        Box::new(self)
+impl<T: Segment> ToErasedSegment for T {
+    fn to_erased_segment(self) -> ErasedSegment {
+        ErasedSegment::of(self)
     }
 }
 

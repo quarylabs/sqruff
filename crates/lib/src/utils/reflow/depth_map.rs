@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use ahash::AHashSet;
 use uuid::Uuid;
 
-use crate::core::parser::segments::base::{PathStep, Segment};
+use crate::core::parser::segments::base::{ErasedSegment, PathStep, Segment};
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -47,7 +47,7 @@ pub struct DepthMap {
 }
 
 impl DepthMap {
-    fn new(raws_with_stack: Vec<(Box<dyn Segment>, Vec<PathStep>)>) -> Self {
+    fn new(raws_with_stack: Vec<(ErasedSegment, Vec<PathStep>)>) -> Self {
         let mut depth_info = HashMap::new();
 
         for (raw, stack) in raws_with_stack {
@@ -57,7 +57,7 @@ impl DepthMap {
         Self { depth_info }
     }
 
-    pub fn get_depth_info(&self, seg: &Box<dyn Segment>) -> DepthInfo {
+    pub fn get_depth_info(&self, seg: &ErasedSegment) -> DepthInfo {
         self.depth_info[&seg.get_uuid().unwrap()].clone()
     }
 
@@ -66,8 +66,8 @@ impl DepthMap {
     }
 
     pub fn from_raws_and_root(
-        raw_segments: Vec<Box<dyn Segment>>,
-        root_segment: Box<dyn Segment>,
+        raw_segments: Vec<ErasedSegment>,
+        root_segment: ErasedSegment,
     ) -> DepthMap {
         let mut buff = Vec::new();
 
@@ -98,7 +98,7 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 }
 
 impl DepthInfo {
-    fn from_raw_and_stack(raw: Box<dyn Segment>, stack: Vec<PathStep>) -> DepthInfo {
+    fn from_raw_and_stack(raw: ErasedSegment, stack: Vec<PathStep>) -> DepthInfo {
         let stack_hashes: Vec<u64> = stack
             .iter()
             .map(|ps| {

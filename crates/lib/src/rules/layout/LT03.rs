@@ -1,4 +1,4 @@
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -22,8 +22,8 @@ impl Rule for RuleLT03 {
         } else if context.segment.is_type("binary_operator") {
             let binary_positioning = "leading";
             if self.check_trail_lead_shortcut(
-                context.segment.as_ref(),
-                context.parent_stack.last().unwrap().as_ref(),
+                &context.segment,
+                context.parent_stack.last().unwrap(),
                 binary_positioning,
             ) {
                 return Vec::new();
@@ -45,11 +45,11 @@ impl Rule for RuleLT03 {
 impl RuleLT03 {
     pub(crate) fn check_trail_lead_shortcut(
         &self,
-        segment: &dyn Segment,
-        parent: &dyn Segment,
+        segment: &ErasedSegment,
+        parent: &ErasedSegment,
         line_position: &str,
     ) -> bool {
-        let idx = parent.segments().iter().position(|it| it.dyn_eq(segment)).unwrap();
+        let idx = parent.segments().iter().position(|it| it == segment).unwrap();
 
         // Shortcut #1: Leading.
         if line_position == "leading" {
@@ -77,7 +77,7 @@ impl RuleLT03 {
         false
     }
 
-    fn seek_newline(&self, segments: &[Box<dyn Segment>], idx: usize, dir: i32) -> bool {
+    fn seek_newline(&self, segments: &[ErasedSegment], idx: usize, dir: i32) -> bool {
         assert!(dir == 1 || dir == -1, "Direction must be 1 or -1");
 
         let range = if dir == 1 { idx + 1..segments.len() } else { 0..idx };

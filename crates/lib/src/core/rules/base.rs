@@ -8,14 +8,14 @@ use super::crawlers::{BaseCrawler, Crawler};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::helpers::Config;
 
 // Assuming BaseSegment, LintFix, and SQLLintError are defined elsewhere.
 
 #[derive(Clone)]
 pub struct LintResult {
-    pub anchor: Option<Box<dyn Segment>>,
+    pub anchor: Option<ErasedSegment>,
     pub fixes: Vec<LintFix>,
     memory: Option<HashMap<String, String>>, // Adjust type as needed
     description: Option<String>,
@@ -24,7 +24,7 @@ pub struct LintResult {
 
 impl LintResult {
     pub fn new(
-        anchor: Option<Box<dyn Segment>>,
+        anchor: Option<ErasedSegment>,
         fixes: Vec<LintFix>,
         memory: Option<HashMap<String, String>>, // Adjust type as needed
         description: Option<String>,
@@ -107,17 +107,17 @@ pub enum EditType {
 #[derive(Debug, Clone)]
 pub struct LintFix {
     pub edit_type: EditType,
-    pub anchor: Box<dyn Segment>,
-    pub edit: Option<Vec<Box<dyn Segment>>>,
-    pub source: Vec<Box<dyn Segment>>,
+    pub anchor: ErasedSegment,
+    pub edit: Option<Vec<ErasedSegment>>,
+    pub source: Vec<ErasedSegment>,
 }
 
 impl LintFix {
     fn new(
         edit_type: EditType,
-        anchor: Box<dyn Segment>,
-        edit: Option<Vec<Box<dyn Segment>>>,
-        source: Option<Vec<Box<dyn Segment>>>,
+        anchor: ErasedSegment,
+        edit: Option<Vec<ErasedSegment>>,
+        source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         // If `edit` is provided, copy all elements and strip position markers.
         let mut clean_edit = None;
@@ -130,7 +130,7 @@ impl LintFix {
                         "Developer Note: Edit segment found with preset position marker. These \
                          should be unset and calculated later."
                     );
-                    seg.set_position_marker(None);
+                    // seg.get_mut().set_position_marker(None);
                 };
             }
             clean_edit = Some(edit);
@@ -144,27 +144,27 @@ impl LintFix {
         LintFix { edit_type, anchor, edit: clean_edit, source: clean_source }
     }
 
-    pub fn create_before(anchor: Box<dyn Segment>, edit_segments: Vec<Box<dyn Segment>>) -> Self {
+    pub fn create_before(anchor: ErasedSegment, edit_segments: Vec<ErasedSegment>) -> Self {
         Self::new(EditType::CreateBefore, anchor, edit_segments.into(), None)
     }
 
     pub fn create_after(
-        anchor: Box<dyn Segment>,
-        edit_segments: Vec<Box<dyn Segment>>,
-        source: Option<Vec<Box<dyn Segment>>>,
+        anchor: ErasedSegment,
+        edit_segments: Vec<ErasedSegment>,
+        source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         Self::new(EditType::CreateAfter, anchor, edit_segments.into(), source)
     }
 
     pub fn replace(
-        anchor_segment: Box<dyn Segment>,
-        edit_segments: Vec<Box<dyn Segment>>,
-        source: Option<Vec<Box<dyn Segment>>>,
+        anchor_segment: ErasedSegment,
+        edit_segments: Vec<ErasedSegment>,
+        source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         Self::new(EditType::Replace, anchor_segment, Some(edit_segments), source)
     }
 
-    pub fn delete(anchor_segment: Box<dyn Segment>) -> Self {
+    pub fn delete(anchor_segment: ErasedSegment) -> Self {
         Self::new(EditType::Delete, anchor_segment, None, None)
     }
 
@@ -270,7 +270,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
         &self,
         dialect: Dialect,
         fix: bool,
-        tree: Box<dyn Segment>,
+        tree: ErasedSegment,
         config: FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
         let root_context =

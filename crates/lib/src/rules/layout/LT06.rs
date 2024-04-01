@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
-use crate::core::parser::segments::base::{CloneSegment, Segment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::parser::segments::base::{CloneSegment, ErasedSegment, Segment};
+use crate::core::rules::base::{Erased, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -27,24 +27,20 @@ impl Rule for RuleLT06 {
         let children = segment.children(None);
 
         let function_name = children
-            .find_first(Some(|segment: &dyn Segment| segment.is_type("function_name")))
+            .find_first(Some(|segment: &ErasedSegment| segment.is_type("function_name")))
             .pop();
         let start_bracket =
-            children.find_first(Some(|segment: &dyn Segment| segment.is_type("bracketed"))).pop();
+            children.find_first(Some(|segment: &ErasedSegment| segment.is_type("bracketed"))).pop();
 
-        let mut intermediate_segments = children.select(
-            None,
-            None,
-            function_name.as_ref().into(),
-            start_bracket.as_ref().into(),
-        );
+        let mut intermediate_segments =
+            children.select(None, None, Some(&function_name), Some(&start_bracket));
 
         if !intermediate_segments.is_empty() {
             return if intermediate_segments
                 .all(Some(|seg| matches!(seg.get_type(), "whitespace" | "newline")))
             {
                 vec![LintResult::new(
-                    intermediate_segments.first().map(CloneSegment::clone_box),
+                    intermediate_segments.first().cloned(),
                     intermediate_segments.into_iter().map(|seg| LintFix::delete(seg)).collect_vec(),
                     None,
                     None,

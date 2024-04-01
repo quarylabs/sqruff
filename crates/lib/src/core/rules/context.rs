@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
-use crate::core::parser::segments::base::{CodeSegment, Segment};
+use crate::core::parser::segments::base::{CodeSegment, ErasedSegment, Segment};
 use crate::core::templaters::base::TemplatedFile;
 
 /// Struct for holding the context passed to rule eval function
@@ -17,11 +17,11 @@ pub struct RuleContext {
 
     // These change within a file.
     /// segment: The segment in question
-    pub segment: Box<dyn Segment>,
+    pub segment: ErasedSegment,
     /// parent_stack: A tuple of the path from the root to this segment.
-    pub parent_stack: Vec<Box<dyn Segment>>,
+    pub parent_stack: Vec<ErasedSegment>,
     /// raw_stack: All of the raw segments so far in the file
-    pub raw_stack: Vec<Box<dyn Segment>>,
+    pub raw_stack: Vec<ErasedSegment>,
     /// memory: Arbitrary storage for the rule
     pub memory: HashMap<String, String>,
     /// segment_idx: The index of this segment in the parent
@@ -29,7 +29,7 @@ pub struct RuleContext {
 }
 
 impl RuleContext {
-    pub fn siblings_post(&self) -> Vec<Box<dyn Segment>> {
+    pub fn siblings_post(&self) -> Vec<ErasedSegment> {
         if !self.parent_stack.is_empty() {
             self.parent_stack.last().unwrap().segments()[self.segment_idx + 1..].to_vec()
         } else {

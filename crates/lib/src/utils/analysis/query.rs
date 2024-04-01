@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::utils::analysis::select::get_select_statement_info;
 
 static SELECTABLE_TYPES: &[&str] =
@@ -28,7 +28,7 @@ pub enum QueryType {
 pub enum WildcardInfo {}
 
 pub struct Selectable<'me> {
-    pub selectable: Box<dyn Segment>,
+    pub selectable: ErasedSegment,
     pub dialect: &'me Dialect,
 }
 
@@ -49,8 +49,8 @@ pub struct Query<'me, T> {
     pub ctes: HashMap<String, Query<'me, T>>,
     pub parent: Option<Box<Query<'me, T>>>,
     pub subqueries: Vec<Query<'me, T>>,
-    pub cte_definition_segment: Option<Box<dyn Segment>>,
-    pub cte_name_segment: Option<Box<dyn Segment>>,
+    pub cte_definition_segment: Option<ErasedSegment>,
+    pub cte_name_segment: Option<ErasedSegment>,
     pub payload: T,
 }
 
@@ -93,13 +93,13 @@ impl<T: Default> Query<'_, T> {
     fn from_root() {}
 
     pub fn from_segment<'a>(
-        segment: &Box<dyn Segment>,
+        segment: &ErasedSegment,
         dialect: &'a Dialect,
         parent: Option<Query<'a, T>>,
     ) -> Query<'a, T> {
         let mut selectables = Vec::new();
         let mut subqueries = Vec::new();
-        let mut cte_defs: Vec<Box<dyn Segment>> = Vec::new();
+        let mut cte_defs: Vec<ErasedSegment> = Vec::new();
         let mut query_type = QueryType::Simple;
 
         if segment.is_type("select_statement")

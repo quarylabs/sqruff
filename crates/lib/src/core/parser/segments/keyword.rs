@@ -1,9 +1,9 @@
 use ahash::AHashSet;
 
-use super::base::Segment;
+use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, Default, PartialEq)]
 pub struct KeywordSegment {
@@ -19,16 +19,16 @@ impl KeywordSegment {
 }
 
 impl Segment for KeywordSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
-        KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).boxed()
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
+        KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).to_erased_segment()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_raw(&self) -> Option<String> {
@@ -63,11 +63,7 @@ impl Segment for KeywordSegment {
         Vec::new()
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 

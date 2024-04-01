@@ -2,7 +2,7 @@ use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
 use ahash::AHashSet;
@@ -23,7 +23,7 @@ use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::{
     ColumnReferenceSegment, Node, ObjectReferenceSegment, WildcardIdentifierSegment,
 };
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 /// An element of the response to BaseSegment.path_to().
 ///     Attributes:
@@ -32,22 +32,22 @@ use crate::helpers::Boxed;
 ///         len (int): The number of children `segment` has.
 #[derive(Debug, Clone)]
 pub struct PathStep {
-    pub segment: Box<dyn Segment>,
+    pub segment: ErasedSegment,
     pub idx: usize,
     pub len: usize,
     pub code_idxs: Vec<usize>,
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
-    &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> Box<dyn Segment>;
+    &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> ErasedSegment;
 
 pub trait CloneSegment {
-    fn clone_box(&self) -> Box<dyn Segment>;
+    fn clone_box(&self) -> ErasedSegment;
 }
 
 impl<T: Segment> CloneSegment for T {
-    fn clone_box(&self) -> Box<dyn Segment> {
-        dyn_clone::clone(self).boxed()
+    fn clone_box(&self) -> ErasedSegment {
+        dyn_clone::clone(self).to_erased_segment()
     }
 }
 
@@ -83,8 +83,20 @@ impl TupleSerialisedSegment {
     }
 }
 
+#[derive(Debug, Hash, Clone)]
 pub struct ErasedSegment {
     value: Rc<dyn Segment>,
+}
+
+impl ErasedSegment {
+    fn deep_clone(&self) -> Self {
+        self.clone_box()
+    }
+
+    #[track_caller]
+    pub fn get_mut(&mut self) -> &mut dyn Segment {
+        Rc::get_mut(&mut self.value).unwrap()
+    }
 }
 
 impl Deref for ErasedSegment {
@@ -95,8 +107,20 @@ impl Deref for ErasedSegment {
     }
 }
 
+impl PartialEq for ErasedSegment {
+    fn eq(&self, other: &Self) -> bool {
+        self.value.as_ref() == other.value.as_ref()
+    }
+}
+
+impl ErasedSegment {
+    pub fn of<T: Segment>(value: T) -> Self {
+        Self { value: Rc::new(value) }
+    }
+}
+
 pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
@@ -170,11 +194,11 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
     fn select_children(
         &self,
-        start_seg: Option<&Box<dyn Segment>>,
-        stop_seg: Option<&Box<dyn Segment>>,
-        select_if: Option<fn(&dyn Segment) -> bool>,
-        loop_while: Option<fn(&dyn Segment) -> bool>,
-    ) -> Vec<Box<dyn Segment>> {
+        start_seg: Option<&ErasedSegment>,
+        stop_seg: Option<&ErasedSegment>,
+        select_if: Option<fn(&ErasedSegment) -> bool>,
+        loop_while: Option<fn(&ErasedSegment) -> bool>,
+    ) -> Vec<ErasedSegment> {
         let segments = self.segments();
 
         let start_index = start_seg
@@ -189,12 +213,12 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
         for seg in segments.iter().skip(start_index).take(stop_index - start_index) {
             if let Some(loop_while) = &loop_while {
-                if !loop_while(seg.as_ref()) {
+                if !loop_while(seg) {
                     break;
                 }
             }
 
-            if select_if.as_ref().map_or(true, |f| f(seg.as_ref())) {
+            if select_if.as_ref().map_or(true, |f| f(seg)) {
                 buff.push(seg.clone());
             }
         }
@@ -210,11 +234,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         }
     }
 
-    fn iter_segments(
-        &self,
-        expanding: Option<&[&str]>,
-        pass_through: bool,
-    ) -> Vec<Box<dyn Segment>> {
+    fn iter_segments(&self, expanding: Option<&[&str]>, pass_through: bool) -> Vec<ErasedSegment> {
         let mut result = Vec::new();
         for s in self.gather_segments() {
             if let Some(expanding) = expanding {
@@ -232,7 +252,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         result
     }
 
-    fn recursive_crawl_all(&self, reverse: bool) -> Vec<Box<dyn Segment>> {
+    fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
         let mut result = Vec::new();
 
         if reverse {
@@ -256,7 +276,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         recurse_into: bool,
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
-    ) -> Vec<Box<dyn Segment>> {
+    ) -> Vec<ErasedSegment> {
         let is_debug = seg_types == &["object_reference"];
 
         let mut acc = Vec::new();
@@ -285,20 +305,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         acc
     }
 
-    fn print_tree(&self) {
-        fn print_tree(this: &dyn Segment, mut depth: usize) {
-            let spaces = "    ".repeat(depth);
-            println!("{spaces}{} = {:?}", this.get_type(), this.get_raw().unwrap());
-
-            depth += 1;
-            for seg in this.segments() {
-                print_tree(seg.as_ref(), depth);
-            }
-        }
-
-        print_tree(self.clone_box().as_ref(), 0)
-    }
-
     fn code_indices(&self) -> Vec<usize> {
         self.segments()
             .iter()
@@ -308,11 +314,11 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             .collect()
     }
 
-    fn get_parent(&self) -> Option<Box<dyn Segment>> {
+    fn get_parent(&self) -> Option<ErasedSegment> {
         None
     }
 
-    fn child(&self, seg_types: &[&str]) -> Option<Box<dyn Segment>> {
+    fn child(&self, seg_types: &[&str]) -> Option<ErasedSegment> {
         for seg in self.gather_segments() {
             if seg_types.iter().any(|ty| seg.is_type(ty)) {
                 return Some(seg);
@@ -321,7 +327,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         None
     }
 
-    fn children(&self, seg_types: &[&str]) -> Vec<Box<dyn Segment>> {
+    fn children(&self, seg_types: &[&str]) -> Vec<ErasedSegment> {
         let mut buff = Vec::new();
         for seg in self.gather_segments() {
             if seg_types.iter().any(|ty| seg.is_type(ty)) {
@@ -331,7 +337,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         buff
     }
 
-    fn path_to(&self, other: &Box<dyn Segment>) -> Vec<PathStep> {
+    fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep> {
         let midpoint = other;
 
         for (idx, seg) in enumerate(self.segments()) {
@@ -445,13 +451,13 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         unimplemented!()
     }
 
     // get_segments is the way the segment returns its children 'self.segments' in
     // Python.
-    fn gather_segments(&self) -> Vec<Box<dyn Segment>> {
+    fn gather_segments(&self) -> Vec<ErasedSegment> {
         self.segments().to_vec()
     }
 
@@ -483,7 +489,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     /// Iterate raw segments, mostly for searching.
     ///
     /// In sqlfluff only implemented for RawSegments and up
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
         self.segments().into_iter().flat_map(|item| item.get_raw_segments()).collect_vec()
     }
 
@@ -518,7 +524,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     /// Stub.
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         unimplemented!()
     }
 
@@ -553,7 +559,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         &self,
         dialect: Dialect,
         mut fixes: HashMap<Uuid, AnchorEditInfo>,
-    ) -> (Box<dyn Segment>, Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>, bool) {
+    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone_box(), Vec::new(), Vec::new(), true);
         }
@@ -629,8 +635,8 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         (self.new(seg_buffer), Vec::new(), Vec::new(), false)
     }
 
-    fn raw_segments_with_ancestors(&self) -> Vec<(Box<dyn Segment>, Vec<PathStep>)> {
-        let mut buffer: Vec<(Box<dyn Segment>, Vec<PathStep>)> = Vec::new();
+    fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)> {
+        let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> = Vec::new();
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.segments().iter().enumerate() {
@@ -670,7 +676,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 dyn_clone::clone_trait_object!(Segment);
 dyn_hash::hash_trait_object!(Segment);
 
-impl PartialEq for Box<dyn Segment> {
+impl PartialEq for dyn Segment {
     fn eq(&self, other: &Self) -> bool {
         match (self.get_uuid(), other.get_uuid()) {
             (Some(uuid1), Some(uuid2)) => {
@@ -693,13 +699,13 @@ impl PartialEq for Box<dyn Segment> {
     }
 }
 
-impl Eq for Box<dyn Segment> {}
+impl Eq for ErasedSegment {}
 
 pub fn position_segments(
-    segments: &[Box<dyn Segment>],
+    segments: &[ErasedSegment],
     parent_pos: Option<&PositionMarker>,
     metas_only: bool,
-) -> Vec<Box<dyn Segment>> {
+) -> Vec<ErasedSegment> {
     if segments.is_empty() {
         return Vec::new();
     }
@@ -769,8 +775,8 @@ pub fn position_segments(
         let new_seg = if !segment.segments().is_empty() && old_position != new_position {
             unimplemented!()
         } else {
-            let mut new_seg = segment.clone();
-            new_seg.set_position_marker(new_position);
+            let mut new_seg = segment.deep_clone();
+            new_seg.get_mut().set_position_marker(new_position);
             new_seg
         };
 
@@ -811,8 +817,8 @@ impl CodeSegment {
         raw: &str,
         position_maker: &PositionMarker,
         args: CodeSegmentNewArgs,
-    ) -> Box<dyn Segment> {
-        Box::new(CodeSegment {
+    ) -> ErasedSegment {
+        CodeSegment {
             raw: raw.to_string(),
             position_marker: Some(position_maker.clone()),
             code_type: args.code_type,
@@ -821,13 +827,14 @@ impl CodeSegment {
             trim_chars: None,
             source_fixes: None,
             uuid: Uuid::new_v4(),
-        })
+        }
+        .to_erased_segment()
     }
 }
 
 impl Segment for CodeSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
-        self.clone().boxed()
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
+        self.clone().to_erased_segment()
     }
 
     fn class_types(&self) -> AHashSet<String> {
@@ -863,12 +870,12 @@ impl Segment for CodeSegment {
         self.uuid.into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     /// Create a new segment, with exactly the same position but different
@@ -883,7 +890,7 @@ impl Segment for CodeSegment {
     /// segment.
     ///
     /// From RawSegment implementation
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         CodeSegment::new(
             raw.unwrap_or(self.raw.clone()).as_str(),
             &self.position_marker.clone().unwrap(),
@@ -908,8 +915,8 @@ impl IdentifierSegment {
         raw: &str,
         position_maker: &PositionMarker,
         args: CodeSegmentNewArgs,
-    ) -> Box<dyn Segment> {
-        Box::new(IdentifierSegment {
+    ) -> ErasedSegment {
+        IdentifierSegment {
             base: CodeSegment {
                 raw: raw.to_string(),
                 position_marker: Some(position_maker.clone()),
@@ -920,13 +927,14 @@ impl IdentifierSegment {
                 source_fixes: None,
                 uuid: Uuid::new_v4(),
             },
-        })
+        }
+        .to_erased_segment()
     }
 }
 
 impl Segment for IdentifierSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
-        self.clone().boxed()
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
+        self.clone().to_erased_segment()
     }
 
     fn class_types(&self) -> AHashSet<String> {
@@ -962,15 +970,15 @@ impl Segment for IdentifierSegment {
         self.base.uuid.into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         IdentifierSegment::new(
             raw.unwrap_or(self.base.raw.clone()).as_str(),
             &self.base.position_marker.clone().unwrap(),
@@ -1006,7 +1014,7 @@ impl CommentSegment {
         raw: &str,
         position_maker: &PositionMarker,
         args: CommentSegmentNewArgs,
-    ) -> Box<dyn Segment> {
+    ) -> ErasedSegment {
         Self {
             raw: raw.to_string(),
             position_maker: position_maker.clone().into(),
@@ -1014,12 +1022,12 @@ impl CommentSegment {
             trim_start: args.trim_start.unwrap_or_default(),
             uuid: Uuid::new_v4(),
         }
-        .boxed()
+        .to_erased_segment()
     }
 }
 
 impl Segment for CommentSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         self.clone_box()
     }
 
@@ -1045,12 +1053,12 @@ impl Segment for CommentSegment {
         self.uuid.into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -1061,11 +1069,7 @@ impl Segment for CommentSegment {
         self.position_maker = position_marker;
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 
@@ -1090,25 +1094,26 @@ impl NewlineSegment {
         raw: &str,
         position_maker: &PositionMarker,
         _args: NewlineSegmentNewArgs,
-    ) -> Box<dyn Segment> {
-        Box::new(NewlineSegment {
+    ) -> ErasedSegment {
+        NewlineSegment {
             raw: raw.to_string(),
             position_maker: position_maker.clone(),
             uuid: Uuid::new_v4(),
-        })
+        }
+        .to_erased_segment()
     }
 }
 
 impl Segment for NewlineSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
-        self.clone().boxed()
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
+        self.clone().to_erased_segment()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
         vec![self.clone_box()]
     }
 
@@ -1144,11 +1149,7 @@ impl Segment for NewlineSegment {
         dbg!("self.position_marker = position_marker;");
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 
@@ -1181,31 +1182,32 @@ impl WhitespaceSegment {
         raw: &str,
         position_maker: &PositionMarker,
         _args: WhitespaceSegmentNewArgs,
-    ) -> Box<dyn Segment> {
-        Box::new(WhitespaceSegment {
+    ) -> ErasedSegment {
+        WhitespaceSegment {
             raw: raw.to_string(),
             position_marker: position_maker.clone(),
             uuid: Uuid::new_v4(),
-        })
+        }
+        .to_erased_segment()
     }
 }
 
 impl Segment for WhitespaceSegment {
-    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self {
             raw: self.get_raw().unwrap(),
             position_marker: self.position_marker.clone(),
             uuid: self.uuid.clone(),
         }
-        .boxed()
+        .to_erased_segment()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_raw(&self) -> Option<String> {
@@ -1244,7 +1246,7 @@ impl Segment for WhitespaceSegment {
         self.uuid.into()
     }
 
-    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> Box<dyn Segment> {
+    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         Self::new(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
     }
 
@@ -1268,8 +1270,8 @@ impl UnlexableSegment {
         _raw: &str,
         _position_maker: &PositionMarker,
         args: UnlexableSegmentNewArgs,
-    ) -> Box<dyn Segment> {
-        Box::new(UnlexableSegment { expected: args.expected.unwrap_or("".to_string()) })
+    ) -> ErasedSegment {
+        UnlexableSegment { expected: args.expected.unwrap_or("".to_string()) }.to_erased_segment()
     }
 }
 
@@ -1303,11 +1305,7 @@ impl Segment for UnlexableSegment {
         todo!()
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 }
@@ -1326,26 +1324,26 @@ pub struct SymbolSegment {
 }
 
 impl Segment for SymbolSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self {
             raw: self.raw.clone(),
             position_maker: self.position_maker.clone(),
             uuid: self.uuid,
             type_: self.type_,
         }
-        .boxed()
+        .to_erased_segment()
     }
 
     fn get_raw(&self) -> Option<String> {
         self.raw.clone().into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_type(&self) -> &'static str {
@@ -1385,11 +1383,7 @@ impl Segment for SymbolSegment {
         Vec::new()
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 }
@@ -1404,25 +1398,26 @@ impl SymbolSegment {
         raw: &str,
         position_maker: &PositionMarker,
         args: SymbolSegmentNewArgs,
-    ) -> Box<dyn Segment> {
-        Box::new(SymbolSegment {
+    ) -> ErasedSegment {
+        SymbolSegment {
             raw: raw.to_string(),
             position_maker: position_maker.clone(),
             uuid: Uuid::new_v4(),
             type_: args.r#type,
-        })
+        }
+        .to_erased_segment()
     }
 }
 
 #[derive(Debug, Hash, Clone, PartialEq)]
 pub struct UnparsableSegment {
     uuid: Uuid,
-    pub segments: Vec<Box<dyn Segment>>,
+    pub segments: Vec<ErasedSegment>,
     position_marker: Option<PositionMarker>,
 }
 
 impl UnparsableSegment {
-    pub fn new(segments: Vec<Box<dyn Segment>>) -> Self {
+    pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let mut this = Self { uuid: Uuid::new_v4(), segments, position_marker: None };
         this.uuid = Uuid::new_v4();
         this.set_position_marker(pos_marker(&this).into());
@@ -1435,7 +1430,7 @@ impl Segment for UnparsableSegment {
         self.uuid.into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &self.segments
     }
 
@@ -1478,7 +1473,9 @@ mod tests {
             None,
             None,
             None,
-        )) as Box<dyn Segment>;
+        ))
+        .to_erased_segment();
+
         let rs2 = Box::new(RawSegment::new(
             Some("foobar".to_string()),
             Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
@@ -1488,7 +1485,8 @@ mod tests {
             None,
             None,
             None,
-        )) as Box<dyn Segment>;
+        ))
+        .to_erased_segment();
 
         assert!(rs1 == rs2)
     }

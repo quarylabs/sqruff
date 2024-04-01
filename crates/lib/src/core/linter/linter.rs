@@ -21,7 +21,7 @@ use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::segments::fix::AnchorEditInfo;
 use crate::core::rules::base::{ErasedRule, LintFix};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
@@ -202,10 +202,10 @@ impl Linter {
 
     pub fn lint_fix_parsed(
         &self,
-        mut tree: Box<dyn Segment>,
+        mut tree: ErasedSegment,
         rules: Vec<ErasedRule>,
         fix: bool,
-    ) -> (Box<dyn Segment>, Vec<SQLLintError>) {
+    ) -> (ErasedSegment, Vec<SQLLintError>) {
         let mut tmp;
 
         let mut initial_linting_errors = Vec::new();
@@ -381,7 +381,7 @@ impl Linter {
         }
 
         let mut violations = Vec::new();
-        let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
+        let mut tokens: Option<Vec<ErasedSegment>> = None;
 
         if rendered.templated_file.is_templated() {
             let (t, lvs, _config) =
@@ -399,7 +399,7 @@ impl Linter {
         // let linter_logger = log::logger();
         // linter_logger.info("PARSING ({})", rendered.fname);
 
-        let parsed: Option<Box<dyn Segment>>;
+        let parsed: Option<ErasedSegment>;
         if let Some(token_list) = tokens {
             let (p, pvs) = Self::parse_tokens(
                 &token_list,
@@ -431,11 +431,11 @@ impl Linter {
     }
 
     fn parse_tokens(
-        tokens: &[Box<dyn Segment>],
+        tokens: &[ErasedSegment],
         config: &FluffConfig,
         f_name: Option<String>,
         parse_statistics: bool,
-    ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
+    ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let mut parser = Parser::new(Some(config.clone()), None);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
@@ -457,7 +457,7 @@ impl Linter {
     fn lex_templated_file(
         templated_file: TemplatedFile,
         config: &FluffConfig,
-    ) -> (Option<Vec<Box<dyn Segment>>>, Vec<SQLLexError>, FluffConfig) {
+    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>, FluffConfig) {
         let mut violations: Vec<SQLLexError> = vec![];
         // linter_logger.info("LEXING RAW ({})", templated_file.fname);
         // Get the lexer

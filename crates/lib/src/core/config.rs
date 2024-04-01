@@ -9,7 +9,7 @@ use itertools::Itertools;
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
 use crate::core::errors::SQLFluffUserError;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
@@ -322,9 +322,9 @@ impl ConfigLoader {
         let path = path.as_ref();
 
         let config_paths: Box<dyn Iterator<Item = PathBuf>> = if ignore_local_config {
-            std::iter::empty().boxed()
+            Box::new(std::iter::empty())
         } else {
-            Self::iter_config_locations_up_to_path(path, None, ignore_local_config).boxed()
+            Box::new(Self::iter_config_locations_up_to_path(path, None, ignore_local_config))
         };
 
         let config_stack = if ignore_local_config {

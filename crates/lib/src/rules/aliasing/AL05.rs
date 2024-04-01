@@ -1,6 +1,6 @@
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -89,7 +89,7 @@ impl RuleAL05 {
         }
     }
 
-    fn is_alias_required(from_expression_element: &Box<dyn Segment>) -> bool {
+    fn is_alias_required(from_expression_element: &ErasedSegment) -> bool {
         for segment in from_expression_element.iter_segments(Some(&["bracketed"]), false) {
             if segment.is_type("table_expression") {
                 if segment.child(&["values_clause"]).is_some() {
@@ -115,7 +115,7 @@ impl RuleAL05 {
             .select(
                 None,
                 Some(|it| it.is_whitespace() || it.is_meta()),
-                alias.alias_expression.as_ref().map(|it| it.as_ref()).unwrap().into(),
+                alias.alias_expression.as_ref().unwrap().into(),
                 None,
             );
 

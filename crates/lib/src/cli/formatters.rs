@@ -300,7 +300,7 @@ mod tests {
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
     use crate::core::templaters::base::TemplatedFile;
-    use crate::helpers::Boxed;
+    use crate::helpers::ToErasedSegment;
 
     #[test]
     fn test_short_string() {
@@ -324,7 +324,7 @@ mod tests {
 
     fn mk_formatter() -> (TempDir, OutputStreamFormatter) {
         let temp = TempDir::new(env!("CARGO_PKG_NAME")).unwrap();
-        let file = File::create(temp.path().join("out.txt")).unwrap().boxed();
+        let file = Box::new(File::create(temp.path().join("out.txt")).unwrap());
 
         (temp, OutputStreamFormatter::new(file, false))
     }
@@ -379,7 +379,7 @@ mod tests {
             None,
             None,
         )
-        .boxed();
+        .to_erased_segment();
 
         let mut v = SQLLintError::new("DESC", s);
 

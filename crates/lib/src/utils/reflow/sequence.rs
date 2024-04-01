@@ -8,11 +8,11 @@ use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceTyp
 use super::rebreak::rebreak_sequence;
 use super::reindent::{construct_single_indent, lint_indent_points};
 use crate::core::config::FluffConfig;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::rules::base::{LintFix, LintResult};
 
 pub struct ReflowSequence {
-    root_segment: Box<dyn Segment>,
+    root_segment: ErasedSegment,
     elements: ReflowSequenceType,
     lint_results: Vec<LintResult>,
     reflow_config: ReflowConfig,
@@ -32,15 +32,15 @@ impl ReflowSequence {
         self.results().into_iter().flat_map(|result| result.fixes).collect()
     }
 
-    pub fn from_root(root_segment: Box<dyn Segment>, config: FluffConfig) -> Self {
+    pub fn from_root(root_segment: ErasedSegment, config: FluffConfig) -> Self {
         let depth_map = DepthMap::from_parent(&*root_segment).into();
 
         Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, config, depth_map)
     }
 
     pub fn from_raw_segments(
-        segments: Vec<Box<dyn Segment>>,
-        root_segment: Box<dyn Segment>,
+        segments: Vec<ErasedSegment>,
+        root_segment: ErasedSegment,
         config: FluffConfig,
         depth_map: Option<DepthMap>,
     ) -> Self {
@@ -55,7 +55,7 @@ impl ReflowSequence {
     }
 
     fn elements_from_raw_segments(
-        segments: Vec<Box<dyn Segment>>,
+        segments: Vec<ErasedSegment>,
         depth_map: DepthMap,
         reflow_config: ReflowConfig,
     ) -> Vec<ReflowElement> {
@@ -97,8 +97,8 @@ impl ReflowSequence {
     }
 
     pub fn from_around_target(
-        target_segment: &Box<dyn Segment>,
-        root_segment: Box<dyn Segment>,
+        target_segment: &ErasedSegment,
+        root_segment: ErasedSegment,
         sides: &str,
     ) -> ReflowSequence {
         let all_raws = root_segment.get_raw_segments();
@@ -145,8 +145,8 @@ impl ReflowSequence {
 
     pub fn insert(
         self,
-        insertion: Box<dyn Segment>,
-        target: Box<dyn Segment>,
+        insertion: ErasedSegment,
+        target: ErasedSegment,
         pos: &'static str,
     ) -> Self {
         let target_idx = self.find_element_idx_with(&target);
@@ -183,14 +183,14 @@ impl ReflowSequence {
         self
     }
 
-    fn find_element_idx_with(&self, target: &Box<dyn Segment>) -> usize {
+    fn find_element_idx_with(&self, target: &ErasedSegment) -> usize {
         self.elements
             .iter()
             .position(|elem| elem.segments().contains(target))
             .unwrap_or_else(|| panic!("Target [{:?}] not found in ReflowSequence.", target))
     }
 
-    pub fn without(self, target: &Box<dyn Segment>) -> ReflowSequence {
+    pub fn without(self, target: &ErasedSegment) -> ReflowSequence {
         let removal_idx = self.find_element_idx_with(target);
         if removal_idx == 0 || removal_idx == self.elements.len() - 1 {
             panic!("Unexpected removal at one end of a ReflowSequence.");

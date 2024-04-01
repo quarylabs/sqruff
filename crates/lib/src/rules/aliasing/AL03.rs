@@ -1,4 +1,4 @@
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -34,7 +34,7 @@ impl Rule for RuleAL03 {
         let segment = functional_context.segment();
         let children = segment.children(None);
 
-        if children.any(Some(|it: &dyn Segment| it.get_type() == "alias_expression")) {
+        if children.any(Some(|it| it.get_type() == "alias_expression")) {
             return Vec::new();
         }
 
@@ -93,7 +93,7 @@ impl Rule for RuleAL03 {
 }
 
 fn recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bool {
-    let selector: Option<fn(&dyn Segment) -> bool> = Some(|it: &dyn Segment| {
+    let selector: Option<fn(&ErasedSegment) -> bool> = Some(|it: &ErasedSegment| {
         !matches!(
             it.get_type(),
             "whitespace" | "newline" | "column_reference" | "wildcard_expression" | "bracketed"
@@ -107,7 +107,7 @@ fn recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bool
         return false;
     }
 
-    let first_el = filtered.find_first::<fn(&dyn Segment) -> _>(None);
+    let first_el = filtered.find_first::<fn(&ErasedSegment) -> _>(None);
 
     if remaining_count > 1 || !first_el.all(Some(|it| it.is_type("expression"))) {
         return true;

@@ -1,13 +1,14 @@
+use super::segments::base::ErasedSegment;
 use crate::core::parser::segments::base::Segment;
 
-pub fn join_segments_raw(segments: &[Box<dyn Segment>]) -> String {
+pub fn join_segments_raw(segments: &[ErasedSegment]) -> String {
     segments.iter().filter_map(|s| s.get_raw()).collect::<Vec<_>>().concat()
 }
 
 pub fn check_still_complete(
-    segments_in: &[Box<dyn Segment>],
-    matched_segments: &[Box<dyn Segment>],
-    unmatched_segments: &[Box<dyn Segment>],
+    segments_in: &[ErasedSegment],
+    matched_segments: &[ErasedSegment],
+    unmatched_segments: &[ErasedSegment],
 ) {
     let initial_str = join_segments_raw(segments_in);
     let current_str = join_segments_raw(&[matched_segments, unmatched_segments].concat());
@@ -19,8 +20,8 @@ pub fn check_still_complete(
 
 /// Take segments and split off surrounding non-code segments as appropriate.
 pub fn trim_non_code_segments(
-    segments: &[Box<dyn Segment>],
-) -> (&[Box<dyn Segment>], &[Box<dyn Segment>], &[Box<dyn Segment>]) {
+    segments: &[ErasedSegment],
+) -> (&[ErasedSegment], &[ErasedSegment], &[ErasedSegment]) {
     let seg_len = segments.len();
     let mut pre_idx = 0;
     let mut post_idx = seg_len;

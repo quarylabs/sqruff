@@ -1,7 +1,7 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -38,7 +38,7 @@ impl Rule for RuleAL08 {
 
             match used_aliases.entry(key) {
                 Entry::Occupied(entry) => {
-                    let previous: &Box<dyn Segment> = entry.get();
+                    let previous: &ErasedSegment = entry.get();
 
                     let alias = column_alias.get_raw().unwrap();
                     let line_no = previous.get_position_marker().unwrap().source_position().0;

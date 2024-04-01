@@ -1,11 +1,11 @@
-use crate::core::parser::segments::base::{NewlineSegment, Segment};
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, Segment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
-fn get_trailing_newlines(segment: &dyn Segment) -> Vec<Box<dyn Segment>> {
+fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
 
     for seg in segment.recursive_crawl_all(true) {
@@ -19,7 +19,7 @@ fn get_trailing_newlines(segment: &dyn Segment) -> Vec<Box<dyn Segment>> {
     result
 }
 
-fn get_last_segment(mut segment: Segments) -> (Vec<Box<dyn Segment>>, Segments) {
+fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
     let mut parent_stack = Vec::new();
 
     loop {
@@ -58,8 +58,7 @@ impl Rule for RuleLT12 {
             return Vec::new();
         }
 
-        let trailing_newlines =
-            Segments::from_vec(get_trailing_newlines(context.segment.as_ref()), None);
+        let trailing_newlines = Segments::from_vec(get_trailing_newlines(&context.segment), None);
         if trailing_newlines.is_empty() {
             let fix_anchor_segment = if parent_stack.len() == 1 {
                 segment.first().unwrap().clone_box()

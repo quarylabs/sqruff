@@ -13,18 +13,20 @@ use crate::core::parser::match_algorithms::{
 };
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{position_segments, Segment, UnparsableSegment};
+use crate::core::parser::segments::base::{
+    position_segments, ErasedSegment, Segment, UnparsableSegment,
+};
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 fn trim_to_terminator(
-    mut segments: Vec<Box<dyn Segment>>,
-    mut tail: Vec<Box<dyn Segment>>,
+    mut segments: Vec<ErasedSegment>,
+    mut tail: Vec<ErasedSegment>,
     terminators: Vec<Box<dyn Matchable>>,
     parse_context: &mut ParseContext,
-) -> Result<(Vec<Box<dyn Segment>>, Vec<Box<dyn Segment>>), SQLParseError> {
+) -> Result<(Vec<ErasedSegment>, Vec<ErasedSegment>), SQLParseError> {
     let pruned_terms = prune_options(&terminators, &segments, parse_context);
 
     for term in pruned_terms {
@@ -66,19 +68,19 @@ where
 }
 
 fn position_metas(
-    metas: &[Indent],              // Assuming Indent is a struct or type alias
-    non_code: &[Box<dyn Segment>], // Assuming BaseSegment is a struct or type alias
-) -> Vec<Box<dyn Segment>> {
+    metas: &[Indent],           // Assuming Indent is a struct or type alias
+    non_code: &[ErasedSegment], // Assuming BaseSegment is a struct or type alias
+) -> Vec<ErasedSegment> {
     // Assuming BaseSegment can be cloned, or you have a way to handle ownership
     // transfer
 
     // Check if all metas have a non-negative indent value
     if metas.iter().all(|m| m.indent_val() >= 0) {
-        let mut result: Vec<Box<dyn Segment>> = Vec::new();
+        let mut result: Vec<ErasedSegment> = Vec::new();
 
         // Append metas first, then non-code elements
         for meta in metas {
-            result.push(meta.clone().boxed());
+            result.push(meta.clone().to_erased_segment());
         }
 
         for segment in non_code {
@@ -87,14 +89,14 @@ fn position_metas(
 
         result
     } else {
-        let mut result: Vec<Box<dyn Segment>> = Vec::new();
+        let mut result: Vec<ErasedSegment> = Vec::new();
 
         // Append non-code elements first, then metas
         for segment in non_code {
             result.push(segment.clone());
         }
         for meta in metas {
-            result.push(meta.clone().boxed());
+            result.push(meta.clone().to_erased_segment());
         }
 
         result
@@ -185,7 +187,7 @@ impl Matchable for Sequence {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let mut matched_segments = Vec::new();
@@ -267,7 +269,8 @@ impl Matchable for Sequence {
                 }
 
                 let matched =
-                    vec![UnparsableSegment::new(matched_segments).boxed() as Box<dyn Segment>];
+                    vec![UnparsableSegment::new(matched_segments).to_erased_segment()
+                        as ErasedSegment];
 
                 return Ok(MatchResult {
                     matched_segments: matched,
@@ -305,7 +308,8 @@ impl Matchable for Sequence {
                 }
 
                 matched_segments.extend(non_code_buffer);
-                matched_segments.push(UnparsableSegment::new(unmatched_segments).boxed());
+                matched_segments
+                    .push(UnparsableSegment::new(unmatched_segments).to_erased_segment());
                 return Ok(MatchResult { matched_segments, unmatched_segments: tail });
             }
 
@@ -345,7 +349,8 @@ impl Matchable for Sequence {
         if matches!(self.parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted) {
             let (pre, unmatched_mid, post) = trim_non_code_segments(&unmatched_segments);
             if !unmatched_mid.is_empty() {
-                let unparsable_seg = UnparsableSegment::new(unmatched_mid.to_vec()).boxed();
+                let unparsable_seg =
+                    UnparsableSegment::new(unmatched_mid.to_vec()).to_erased_segment();
 
                 // Here, `_position_metas` presumably modifies `matched_segments` in place or
                 // returns a modified copy. Since Rust does not have tuple
@@ -368,7 +373,7 @@ impl Matchable for Sequence {
         // unmatched sequence.
         if !meta_buffer.is_empty() {
             matched_segments
-                .extend(meta_buffer.into_iter().map(|it| it.boxed() as Box<dyn Segment>));
+                .extend(meta_buffer.into_iter().map(|it| it.to_erased_segment() as ErasedSegment));
         }
 
         if !non_code_buffer.is_empty() {
@@ -413,7 +418,7 @@ impl Matchable for Sequence {
             new_grammar.terminators.extend(terminators);
         }
 
-        new_grammar.boxed()
+        Box::new(new_grammar)
     }
 }
 
@@ -496,11 +501,11 @@ impl Matchable for Bracketed {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         enum Status {
-            Matched(MatchResult, Vec<Box<dyn Segment>>),
+            Matched(MatchResult, Vec<ErasedSegment>),
             EarlyReturn(MatchResult),
             Fail(SQLParseError),
         }
@@ -617,7 +622,7 @@ impl Matchable for Bracketed {
             {
                 MatchResult {
                     matched_segments: if bracket_persists {
-                        vec![bracket_segment.boxed()]
+                        vec![bracket_segment.to_erased_segment()]
                     } else {
                         bracket_segment.segments
                     },
@@ -653,7 +658,7 @@ impl Matchable for Bracketed {
 
         Ok(MatchResult {
             matched_segments: if bracket_persists {
-                vec![bracket_segment.boxed()]
+                vec![bracket_segment.to_erased_segment()]
             } else {
                 bracket_segment.segments
             },
@@ -681,39 +686,37 @@ mod tests {
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
     use crate::core::parser::types::ParseMode;
-    use crate::helpers::{Boxed, ToMatchable};
+    use crate::helpers::{ToErasedSegment, ToMatchable};
 
     #[test]
     fn test__parser__grammar_sequence() {
-        let bs = StringParser::new(
+        let bs = Box::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        ));
 
-        let fs = StringParser::new(
+        let fs = Box::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        ));
 
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
@@ -737,52 +740,49 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_sequence_nested() {
-        let bs = StringParser::new(
+        let bs = Box::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        )) as Box<dyn Matchable>;
 
-        let fs = StringParser::new(
+        let fs = Box::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        )) as Box<dyn Matchable>;
 
-        let bas = StringParser::new(
+        let bas = Box::new(StringParser::new(
             "baar",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        )) as Box<dyn Matchable>;
 
-        let g = Sequence::new(vec![Sequence::new(vec![bs, fs]).boxed(), bas]);
+        let g = Sequence::new(vec![Box::new(Sequence::new(vec![bs, fs])), bas]);
 
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
 
@@ -801,37 +801,35 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_sequence_indent() {
-        let bs = StringParser::new(
+        let bs = Box::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        ));
 
-        let fs = StringParser::new(
+        let fs = Box::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        ));
 
-        let g = Sequence::new(vec![MetaSegment::indent().boxed(), bs, fs]);
+        let g = Sequence::new(vec![Box::new(MetaSegment::indent()), bs, fs]);
         let mut ctx = ParseContext::new(fresh_ansi_dialect());
         let segments = g.match_segments(&test_segments(), &mut ctx).unwrap().matched_segments;
 
@@ -1033,7 +1031,7 @@ mod tests {
                                 it.get_raw().unwrap(),
                                 it.get_position_marker().unwrap().into(),
                             )
-                            .boxed()
+                            .to_erased_segment()
                         },
                         None,
                         false,
@@ -1047,20 +1045,19 @@ mod tests {
             seq.terminators = terminators
                 .into_iter()
                 .map(|it| {
-                    StringParser::new(
+                    Box::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
                                 segment.get_raw().unwrap(),
                                 segment.get_position_marker().unwrap().into(),
                             )
-                            .boxed()
+                            .to_erased_segment()
                         },
                         None,
                         false,
                         None,
-                    )
-                    .boxed() as Box<dyn Matchable>
+                    )) as Box<dyn Matchable>
                 })
                 .collect();
             seq.parse_mode = *parse_mode;

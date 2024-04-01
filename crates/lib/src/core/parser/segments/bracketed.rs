@@ -1,21 +1,21 @@
 use uuid::Uuid;
 
-use super::base::{pos_marker, Segment};
+use super::base::{pos_marker, ErasedSegment, Segment};
 use crate::core::parser::markers::PositionMarker;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone)]
 pub struct BracketedSegment {
-    pub segments: Vec<Box<dyn Segment>>,
-    pub start_bracket: Vec<Box<dyn Segment>>,
-    pub end_bracket: Vec<Box<dyn Segment>>,
+    pub segments: Vec<ErasedSegment>,
+    pub start_bracket: Vec<ErasedSegment>,
+    pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
 }
 
 impl PartialEq for BracketedSegment {
     fn eq(&self, other: &Self) -> bool {
-        self.segments.iter().zip(&other.segments).all(|(lhs, rhs)| lhs.dyn_eq(rhs.as_ref()))
+        self.segments.iter().zip(&other.segments).all(|(lhs, rhs)| lhs.dyn_eq(rhs))
             && self.start_bracket == other.start_bracket
             && self.end_bracket == other.end_bracket
     }
@@ -23,9 +23,9 @@ impl PartialEq for BracketedSegment {
 
 impl BracketedSegment {
     pub fn new(
-        segments: Vec<Box<dyn Segment>>,
-        start_bracket: Vec<Box<dyn Segment>>,
-        end_bracket: Vec<Box<dyn Segment>>,
+        segments: Vec<ErasedSegment>,
+        start_bracket: Vec<ErasedSegment>,
+        end_bracket: Vec<ErasedSegment>,
     ) -> Self {
         let mut this = BracketedSegment {
             segments,
@@ -40,13 +40,13 @@ impl BracketedSegment {
 }
 
 impl Segment for BracketedSegment {
-    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let mut this = self.clone();
         this.segments = segments;
-        this.boxed()
+        this.to_erased_segment()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &self.segments
     }
 

@@ -1,6 +1,8 @@
 use itertools::{enumerate, Itertools};
 
-use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
+use crate::core::parser::segments::base::{
+    ErasedSegment, NewlineSegment, Segment, WhitespaceSegment,
+};
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -14,7 +16,7 @@ struct SelectTargetsInfo {
     first_whitespace_idx: Option<usize>,
     comment_after_select_idx: Option<usize>,
     select_targets: Segments,
-    from_segment: Option<Box<dyn Segment>>,
+    from_segment: Option<ErasedSegment>,
     pre_from_whitespace: Segments,
 }
 
@@ -69,7 +71,7 @@ impl RuleLT09 {
             None,
         );
 
-        let first_select_target_idx = children.find(select_targets.get(0, None).unwrap().as_ref());
+        let first_select_target_idx = children.find(&select_targets.get(0, None).unwrap());
 
         let selects = children.select(
             Some(|segment| {
@@ -81,27 +83,26 @@ impl RuleLT09 {
             None,
         );
 
-        let select_idx = (!selects.is_empty())
-            .then(|| children.find(selects.get(0, None).unwrap().as_ref()).unwrap());
+        let select_idx =
+            (!selects.is_empty()).then(|| children.find(&selects.get(0, None).unwrap()).unwrap());
 
         let newlines = children.select(Some(|it| it.is_type("newline")), None, None, None);
 
-        let first_new_line_idx = (!newlines.is_empty())
-            .then(|| children.find(newlines.get(0, None).unwrap().as_ref()).unwrap());
+        let first_new_line_idx =
+            (!newlines.is_empty()).then(|| children.find(&newlines.get(0, None).unwrap()).unwrap());
         let mut comment_after_select_idx = None;
 
         if !newlines.is_empty() {
             let comment_after_select = children.select(
                 Some(|seg| seg.is_type("comment")),
                 Some(|seg| seg.is_type("comment") | seg.is_type("whitespace") | seg.is_meta()),
-                selects.get(0, None).as_deref(),
-                newlines.get(0, None).as_deref(),
+                selects.get(0, None).as_ref(),
+                newlines.get(0, None).as_ref(),
             );
 
             if !comment_after_select.is_empty() {
-                comment_after_select_idx = (!comment_after_select.is_empty()).then(|| {
-                    children.find(comment_after_select.get(0, None).unwrap().as_ref()).unwrap()
-                });
+                comment_after_select_idx = (!comment_after_select.is_empty())
+                    .then(|| children.find(&comment_after_select.get(0, None).unwrap()).unwrap());
             }
         }
 
@@ -110,26 +111,26 @@ impl RuleLT09 {
             let segments_after_first_line = children.select(
                 Some(|seg| seg.is_type("whitespace")),
                 None,
-                children[first_new_line_idx].as_ref().into(),
+                Some(&children[first_new_line_idx]),
                 None,
             );
 
             if !segments_after_first_line.is_empty() {
                 first_whitespace_idx =
-                    children.find(segments_after_first_line.get(0, None).unwrap().as_ref());
+                    children.find(&segments_after_first_line.get(0, None).unwrap());
             }
         }
 
         let siblings_post = FunctionalContext::new(context).siblings_post();
         let from_segment = siblings_post
-            .find_first(Some(|seg: &dyn Segment| seg.is_type("from_clause")))
-            .find_first::<fn(&dyn Segment) -> bool>(None)
+            .find_first(Some(|seg: &ErasedSegment| seg.is_type("from_clause")))
+            .find_first::<fn(&ErasedSegment) -> bool>(None)
             .get(0, None);
         let pre_from_whitespace = siblings_post.select(
             Some(|seg| seg.is_type("whitespace")),
             None,
             None,
-            from_segment.as_deref(),
+            from_segment.as_ref(),
         );
 
         SelectTargetsInfo {
@@ -147,7 +148,7 @@ impl RuleLT09 {
     fn eval_multiple_select_target_elements(
         &self,
         select_targets_info: SelectTargetsInfo,
-        segment: Box<dyn Segment>,
+        segment: ErasedSegment,
     ) -> Vec<LintResult> {
         let mut fixes = Vec::new();
 
@@ -232,7 +233,7 @@ impl RuleLT09 {
 
         let select_children = select_clause.children(None);
         let mut modifier = select_children
-            .find_first(Some(|seg: &dyn Segment| seg.is_type("select_clause_modifier")));
+            .find_first(Some(|seg: &ErasedSegment| seg.is_type("select_clause_modifier")));
 
         if select_children[select_targets_info.first_select_target_idx.unwrap()]
             .descendant_type_set()
@@ -247,7 +248,7 @@ impl RuleLT09 {
         ];
 
         if !modifier.is_empty()
-            && select_children.index(modifier.get(0, None).unwrap().as_ref())
+            && select_children.index(&modifier.get(0, None).unwrap())
                 < select_targets_info.first_new_line_idx
         {
             modifier = Segments::from_vec(Vec::new(), None);
@@ -267,8 +268,7 @@ impl RuleLT09 {
 
             insert_buff.extend(buff);
 
-            let modifier_idx =
-                select_children.index(modifier.get(0, None).unwrap().as_ref()).unwrap();
+            let modifier_idx = select_children.index(&modifier.get(0, None).unwrap()).unwrap();
 
             if select_children.len() > modifier_idx + 1
                 && select_children[modifier_idx + 2].is_whitespace()
@@ -288,13 +288,13 @@ impl RuleLT09 {
             let select_clause_idx = select_stmt
                 .segments()
                 .iter()
-                .position(|it| it.dyn_eq(select_clause.get(0, None).as_deref().unwrap()))
+                .position(|it| it.clone() == select_clause.get(0, None).unwrap())
                 .unwrap();
             let after_select_clause_idx = select_clause_idx + 1;
 
             let fixes_for_move_after_select_clause =
                 |fixes: &mut Vec<LintFix>,
-                 stop_seg: Box<dyn Segment>,
+                 stop_seg: ErasedSegment,
                  delete_segments: Option<Segments>,
                  add_newline: bool| {
                     let start_seg = if !modifier.is_empty() {
@@ -303,12 +303,8 @@ impl RuleLT09 {
                         select_children[select_targets_info.first_new_line_idx.unwrap()].clone()
                     };
 
-                    let move_after_select_clause = select_children.select(
-                        None,
-                        None,
-                        start_seg.as_ref().into(),
-                        stop_seg.as_ref().into(),
-                    );
+                    let move_after_select_clause =
+                        select_children.select(None, None, (&start_seg).into(), (&stop_seg).into());
                     let mut local_fixes = Vec::new();
                     let mut all_deletes = fixes
                         .iter()
@@ -350,7 +346,7 @@ impl RuleLT09 {
                     let to_delete = select_children.reversed().select(
                         None,
                         Some(|seg| seg.is_type("whitespace")),
-                        select_children[start_idx].as_ref().into(),
+                        (&select_children[start_idx]).into(),
                         None,
                     );
 
@@ -390,13 +386,13 @@ impl RuleLT09 {
                     let start_seg = if select_clause_idx == 0 {
                         select_children.last().unwrap()
                     } else {
-                        select_children[select_clause_idx - 1].as_ref()
+                        &select_children[select_clause_idx - 1]
                     };
 
                     let to_delete = select_children.reversed().select(
                         None,
                         Some(|it| it.is_type("whitespace")),
-                        start_seg.into(),
+                        Some(start_seg),
                         None,
                     );
 

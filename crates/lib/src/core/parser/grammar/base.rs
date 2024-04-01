@@ -9,7 +9,7 @@ use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_algorithms::{greedy_match, prune_options};
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{capitalize, ToMatchable};
 use crate::stack::ensure_sufficient_stack;
@@ -85,7 +85,7 @@ impl Matchable for BaseGrammar {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Placeholder implementation
@@ -192,7 +192,7 @@ impl Matchable for Ref {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Implement the logic for `_get_elem`
@@ -264,7 +264,7 @@ impl Segment for Anything {}
 impl Matchable for Anything {
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if self.terminators.is_empty() {
@@ -289,7 +289,7 @@ impl Segment for Nothing {}
 impl Matchable for Nothing {
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
@@ -297,7 +297,7 @@ impl Matchable for Nothing {
 }
 
 pub fn longest_trimmed_match(
-    mut segments: &[Box<dyn Segment>],
+    mut segments: &[ErasedSegment],
     matchers: Vec<Box<dyn Matchable>>,
     parse_context: &mut ParseContext,
     trim_noncode: bool,
@@ -404,7 +404,7 @@ mod tests {
     use crate::core::parser::segments::test_functions::{
         fresh_ansi_dialect, generate_test_segments_func, make_result_tuple, test_segments,
     };
-    use crate::helpers::Boxed;
+    use crate::helpers::ToErasedSegment;
 
     #[test]
     fn test__parser__grammar__ref_eq() {
@@ -498,7 +498,7 @@ mod tests {
                             segment.get_raw().unwrap(),
                             segment.get_position_marker().unwrap().into(),
                         )
-                        .boxed()
+                        .to_erased_segment()
                     },
                     None,
                     false,
@@ -524,42 +524,40 @@ mod tests {
 
     #[test]
     fn test__parser__grammar__base__longest_trimmed_match__adv() {
-        let bs = StringParser::new(
+        let bs = Box::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        )) as Box<dyn Matchable>;
 
-        let fs = StringParser::new(
+        let fs = Box::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        )) as Box<dyn Matchable>;
 
         let matchers: Vec<Box<dyn Matchable>> = vec![
             bs.clone(),
             fs.clone(),
-            Sequence::new(vec![bs.clone(), fs.clone()]).boxed(),
-            one_of(vec![bs.clone(), fs.clone()]).boxed(),
-            Sequence::new(vec![bs, fs]).boxed(),
+            Box::new(Sequence::new(vec![bs.clone(), fs.clone()])),
+            Box::new(one_of(vec![bs.clone(), fs.clone()])),
+            Box::new(Sequence::new(vec![bs, fs])),
         ];
 
         let mut ctx = ParseContext::new(fresh_ansi_dialect());

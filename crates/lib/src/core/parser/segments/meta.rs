@@ -5,7 +5,7 @@ use std::ops::Deref;
 use ahash::AHashSet;
 use uuid::Uuid;
 
-use super::base::CloneSegment;
+use super::base::{CloneSegment, ErasedSegment};
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
@@ -13,7 +13,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 pub type Indent = MetaSegment<IndentChange>;
 
@@ -87,12 +87,12 @@ impl<M: MetaSegmentKind> Segment for MetaSegment<M> {
         true
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -115,7 +115,7 @@ impl<M: MetaSegmentKind> Matchable for MetaSegment<M> {
 
     fn match_segments(
         &self,
-        _segments: &[Box<dyn Segment>],
+        _segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         panic!(
@@ -160,21 +160,21 @@ pub struct EndOfFile {
 }
 
 impl EndOfFile {
-    pub fn new(position_maker: PositionMarker) -> Box<dyn Segment> {
-        Box::new(EndOfFile { position_maker, uuid: Uuid::new_v4() })
+    pub fn new(position_maker: PositionMarker) -> ErasedSegment {
+        EndOfFile { position_maker, uuid: Uuid::new_v4() }.to_erased_segment()
     }
 }
 
 impl Segment for EndOfFile {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
-        Self { uuid: self.uuid, position_maker: self.position_maker.clone() }.boxed()
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
+        Self { uuid: self.uuid, position_maker: self.position_maker.clone() }.to_erased_segment()
     }
 
     fn get_raw(&self) -> Option<String> {
         Some(String::new())
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
@@ -182,7 +182,7 @@ impl Segment for EndOfFile {
         ["end_of_file".into()].into()
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
         vec![self.clone_box()]
     }
 
@@ -214,11 +214,7 @@ impl Segment for EndOfFile {
         self.uuid.into()
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 }

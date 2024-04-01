@@ -4,13 +4,13 @@ use ahash::AHashSet;
 use itertools::Itertools;
 
 use crate::core::errors::{SQLBaseError, SQLLintError};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::segments::fix::FixPatch;
 use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 
 #[derive(Debug)]
 pub struct LintedFile {
-    pub tree: Box<dyn Segment>,
+    pub tree: ErasedSegment,
     pub templated_file: TemplatedFile,
     pub violations: Vec<SQLLintError>,
 }
@@ -79,7 +79,7 @@ impl LintedFile {
     }
 
     fn generate_source_patches(
-        tree: Box<dyn Segment>,
+        tree: ErasedSegment,
         templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
         // Placeholder for logger setup or integration

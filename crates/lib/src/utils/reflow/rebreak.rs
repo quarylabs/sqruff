@@ -1,12 +1,12 @@
 use super::elements::{ReflowElement, ReflowSequenceType};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::helpers::capitalize;
 use crate::utils::reflow::elements::ReflowPoint;
 
 #[derive(Debug)]
 pub struct RebreakSpan {
-    target: Box<dyn Segment>,
+    target: ErasedSegment,
     start_idx: usize,
     end_idx: usize,
     line_position: String,
@@ -67,7 +67,7 @@ impl RebreakIndices {
 
 #[derive(Debug)]
 pub struct RebreakLocation {
-    target: Box<dyn Segment>,
+    target: ErasedSegment,
     prev: RebreakIndices,
     next: RebreakIndices,
     line_position: String,
@@ -103,7 +103,7 @@ impl RebreakLocation {
 
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    root_segment: Box<dyn Segment>,
+    root_segment: ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
@@ -170,7 +170,7 @@ pub fn identify_rebreak_spans(
 
 pub fn rebreak_sequence(
     elements: ReflowSequenceType,
-    root_segment: Box<dyn Segment>,
+    root_segment: ErasedSegment,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let mut lint_results = Vec::new();
     let mut fixes = Vec::new();

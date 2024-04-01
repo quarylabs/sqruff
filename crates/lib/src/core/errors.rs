@@ -4,7 +4,7 @@ use std::ops::{Deref, DerefMut};
 
 use fancy_regex::Regex;
 
-use super::parser::segments::base::Segment;
+use super::parser::segments::base::{ErasedSegment, Segment};
 use super::rules::base::ErasedRule;
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Config;
@@ -193,7 +193,7 @@ pub struct SQLLintError {
 }
 
 impl SQLLintError {
-    pub fn new(description: &str, segment: Box<dyn Segment>) -> Self {
+    pub fn new(description: &str, segment: ErasedSegment) -> Self {
         Self {
             base: SQLBaseError::new().config(|this| {
                 this.description = description.into();
@@ -295,7 +295,7 @@ impl ValueError {
 #[derive(Debug)]
 pub struct SQLParseError {
     pub description: String,
-    pub segment: Option<Box<dyn Segment>>,
+    pub segment: Option<ErasedSegment>,
 }
 
 impl SQLParseError {

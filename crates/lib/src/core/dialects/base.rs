@@ -10,7 +10,7 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::StringParser;
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::parser::types::DialectElementType;
-use crate::helpers::capitalize;
+use crate::helpers::{capitalize, ToErasedSegment};
 
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
@@ -158,10 +158,11 @@ impl Dialect {
                         let parser = StringParser::new(
                             &kw.to_lowercase(),
                             |segment| {
-                                Box::new(KeywordSegment::new(
+                                KeywordSegment::new(
                                     segment.get_raw().unwrap().clone(),
                                     segment.get_position_marker().unwrap().into(),
-                                ))
+                                )
+                                .to_erased_segment()
                             },
                             None,
                             false,

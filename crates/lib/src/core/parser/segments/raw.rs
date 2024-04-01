@@ -1,8 +1,10 @@
 use uuid::Uuid;
 
+use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{CloneSegment, Segment};
 use crate::core::parser::segments::fix::SourceFix;
+use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct RawSegment {
@@ -56,19 +58,15 @@ impl Segment for RawSegment {
         self.position_marker.clone()
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![Box::new(self.clone())]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone_box()]
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
         Some(self.uuid)
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 

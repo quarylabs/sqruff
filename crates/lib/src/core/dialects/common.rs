@@ -1,4 +1,4 @@
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 
 /// Details about a table alias.
 #[derive(Debug, Eq, Hash, Clone)]
@@ -6,11 +6,11 @@ pub struct AliasInfo {
     /// Name given to the alias
     pub ref_str: String,
     /// Identifier segment containing the name
-    pub segment: Option<Box<dyn Segment>>,
+    pub segment: Option<ErasedSegment>,
     pub aliased: bool,
-    pub from_expression_element: Box<dyn Segment>,
-    pub alias_expression: Option<Box<dyn Segment>>,
-    pub object_reference: Option<Box<dyn Segment>>,
+    pub from_expression_element: ErasedSegment,
+    pub alias_expression: Option<ErasedSegment>,
+    pub object_reference: Option<ErasedSegment>,
 }
 
 impl PartialEq for AliasInfo {
@@ -27,6 +27,6 @@ impl PartialEq for AliasInfo {
 /// Details about a column alias.
 pub struct ColumnAliasInfo {
     pub alias_identifier_name: String,
-    pub aliased_segment: Box<dyn Segment>,
-    pub column_reference_segments: Vec<Box<dyn Segment>>,
+    pub aliased_segment: ErasedSegment,
+    pub column_reference_segments: Vec<ErasedSegment>,
 }

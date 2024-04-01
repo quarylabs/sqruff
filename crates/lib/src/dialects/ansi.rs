@@ -21,20 +21,33 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     pos_marker, CloneSegment, CodeSegment, CodeSegmentNewArgs, CommentSegment,
-    CommentSegmentNewArgs, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment,
-    SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
+    CommentSegmentNewArgs, ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs,
+    Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
     WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
-use crate::helpers::{Boxed, Config, ToMatchable};
+use crate::helpers::{Config, ToErasedSegment, ToMatchable};
 
 macro_rules! vec_of_erased {
     ($($elem:expr),* $(,)?) => {{
         vec![$(Box::new($elem)),*]
     }};
+}
+
+trait BoxedE {
+    fn boxed(self) -> Box<Self>;
+}
+
+impl<T> BoxedE for T {
+    fn boxed(self) -> Box<Self>
+    where
+        Self: Sized,
+    {
+        Box::new(self)
+    }
 }
 
 pub fn ansi_dialect() -> Dialect {
@@ -600,7 +613,7 @@ pub fn ansi_dialect() -> Dialect {
                         position_maker: seg.get_position_marker().unwrap(),
                         uuid: seg.get_uuid().unwrap(),
                     }
-                    .boxed()
+                    .to_erased_segment()
                 },
                 None,
                 false,
@@ -2321,7 +2334,7 @@ pub trait NodeTrait {
 pub struct Node<T> {
     marker: PhantomData<T>,
     pub uuid: Uuid,
-    pub(crate) segments: Vec<Box<dyn Segment>>,
+    pub(crate) segments: Vec<ErasedSegment>,
     pub position_marker: Option<PositionMarker>,
 }
 
@@ -2337,17 +2350,17 @@ impl<T> Node<T> {
 }
 
 impl<T: NodeTrait + 'static> Segment for Node<T> {
-    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self {
             marker: PhantomData,
             uuid: self.uuid,
             segments,
             position_marker: self.position_marker.clone(),
         }
-        .boxed()
+        .to_erased_segment()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &self.segments
     }
 
@@ -2377,12 +2390,12 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
 }
 
 impl<T: 'static + NodeTrait> Matchable for Node<T> {
-    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+    fn from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let mut this = self.clone();
         this.segments = segments;
         this.uuid = Uuid::new_v4();
         this.set_position_marker(pos_marker(&this).into());
-        this.boxed()
+        this.to_erased_segment()
     }
 }
 
@@ -2424,7 +2437,7 @@ impl<T> Debug for Node<T> {
 /// has no match_grammar.
 #[derive(Hash, Default, Debug, Clone, PartialEq)]
 pub struct FileSegment {
-    segments: Vec<Box<dyn Segment>>,
+    segments: Vec<ErasedSegment>,
     pos_marker: Option<PositionMarker>,
     uuid: Uuid,
 }
@@ -2432,10 +2445,10 @@ pub struct FileSegment {
 impl FileSegment {
     pub fn root_parse(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
         _f_name: Option<String>,
-    ) -> Result<Box<dyn Segment>, SQLParseError> {
+    ) -> Result<ErasedSegment, SQLParseError> {
         // Trim the start
         let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0);
 
@@ -2446,13 +2459,12 @@ impl FileSegment {
             segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
 
         if start_idx == end_idx {
-            let mut file = Box::new(FileSegment {
-                segments: segments.to_vec(),
-                uuid: Uuid::new_v4(),
-                pos_marker: None,
-            });
+            let mut file =
+                FileSegment { segments: segments.to_vec(), uuid: Uuid::new_v4(), pos_marker: None }
+                    .to_erased_segment();
 
-            file.set_position_marker(pos_marker(file.as_ref()).into());
+            let b = pos_marker(&*file).into();
+            file.get_mut().set_position_marker(b);
 
             return Ok(file);
         }
@@ -2489,14 +2501,14 @@ impl FileSegment {
 
         file.set_position_marker(pos_marker(file.as_ref()).into());
 
-        Ok(file)
+        Ok(file.to_erased_segment())
     }
 }
 
 impl Segment for FileSegment {
-    fn new(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         FileSegment { segments, uuid: self.uuid, pos_marker: self.pos_marker.clone() }
-            .to_matchable()
+            .to_erased_segment()
     }
 
     fn get_type(&self) -> &'static str {
@@ -2516,7 +2528,7 @@ impl Segment for FileSegment {
             .into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &self.segments
     }
 
@@ -2534,10 +2546,10 @@ impl Segment for FileSegment {
 }
 
 impl Matchable for FileSegment {
-    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+    fn from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let mut new_object = self.clone();
         new_object.segments = segments;
-        new_object.to_matchable()
+        new_object.to_erased_segment()
     }
 }
 
@@ -2798,7 +2810,7 @@ impl NodeTrait for FromClauseSegment {
 }
 
 impl Node<FromClauseSegment> {
-    pub fn eventual_aliases(&self) -> Vec<(Box<dyn Segment>, AliasInfo)> {
+    pub fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
         let mut buff = Vec::new();
         let mut direct_table_children = Vec::new();
         let mut join_clauses = Vec::new();
@@ -3189,7 +3201,7 @@ pub enum ObjectReferenceLevel {
 #[derive(Clone, Debug)]
 pub struct ObjectReferencePart {
     pub part: String,
-    pub segments: Vec<Box<dyn Segment>>,
+    pub segments: Vec<ErasedSegment>,
 }
 
 impl Node<ObjectReferenceSegment> {
@@ -3219,7 +3231,7 @@ impl Node<ObjectReferenceSegment> {
         acc
     }
 
-    fn iter_reference_parts(&self, elem: Box<dyn Segment>) -> Vec<ObjectReferencePart> {
+    fn iter_reference_parts(&self, elem: ErasedSegment) -> Vec<ObjectReferencePart> {
         let mut acc = Vec::new();
 
         let raw = elem.get_raw().unwrap();
@@ -5074,7 +5086,7 @@ impl NodeTrait for JoinClauseSegment {
 }
 
 impl Node<JoinClauseSegment> {
-    fn eventual_aliases(&self) -> Vec<(Box<dyn Segment>, AliasInfo)> {
+    fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
         let mut buff = Vec::new();
 
         let from_expression = self.child(&["from_expression_element"]).unwrap();
@@ -5848,7 +5860,7 @@ mod tests {
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
-    use crate::core::parser::segments::base::Segment;
+    use crate::core::parser::segments::base::{ErasedSegment, Segment};
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
     use crate::helpers;
 
@@ -6063,7 +6075,7 @@ mod tests {
         }
     }
 
-    fn parse_sql(sql: &str) -> Box<dyn Segment> {
+    fn parse_sql(sql: &str) -> ErasedSegment {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let parsed = linter.parse_string(sql.into(), None, None, None, None).unwrap();
         parsed.tree.unwrap()

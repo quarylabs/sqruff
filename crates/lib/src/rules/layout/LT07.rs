@@ -1,6 +1,6 @@
 use ahash::AHashSet;
 
-use crate::core::parser::segments::base::{NewlineSegment, Segment};
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, Segment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -29,13 +29,13 @@ impl Rule for RuleLT07 {
                 .children(None)
                 .find_last(Some(|seg| seg.is_type("bracketed")))
                 .children(None)
-                .find_first(Some(|seg: &dyn Segment| seg.is_type("start_bracket")));
+                .find_first(Some(|seg: &ErasedSegment| seg.is_type("start_bracket")));
 
             let cte_end_bracket = cte
                 .children(None)
                 .find_last(Some(|seg| seg.is_type("bracketed")))
                 .children(None)
-                .find_first(Some(|seg: &dyn Segment| seg.is_type("end_bracket")));
+                .find_first(Some(|seg: &ErasedSegment| seg.is_type("end_bracket")));
 
             if !cte_start_bracket.is_empty() && !cte_end_bracket.is_empty() {
                 if cte_start_bracket[0].get_position_marker().unwrap().line_no()

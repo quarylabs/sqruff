@@ -8,13 +8,13 @@ use dyn_ord::DynEq;
 
 use super::context::ParseContext;
 use super::match_result::MatchResult;
-use super::segments::base::Segment;
+use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
 
 // Define a trait to represent the Matchable interface.
 // This trait is similar to the abstract base class in Python.
 pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
-    fn from_segments(&self, segments: Vec<Box<dyn Segment>>) -> Box<dyn Matchable> {
+    fn from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -45,7 +45,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let Some(match_grammar) = self.match_grammar() else {

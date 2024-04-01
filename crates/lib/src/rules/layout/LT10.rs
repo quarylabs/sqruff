@@ -1,6 +1,8 @@
 use itertools::chain;
 
-use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
+use crate::core::parser::segments::base::{
+    ErasedSegment, NewlineSegment, Segment, WhitespaceSegment,
+};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -25,7 +27,7 @@ impl Rule for RuleLT10 {
 
         // See if we have a select_clause_modifier.
         let select_clause_modifier_seg = child_segments
-            .find_first(Some(|sp: &dyn Segment| sp.is_type("select_clause_modifier")));
+            .find_first(Some(|sp: &ErasedSegment| sp.is_type("select_clause_modifier")));
 
         // Rule doesn't apply if there's no select clause modifier.
         if select_clause_modifier_seg.is_empty() {

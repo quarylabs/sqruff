@@ -2,7 +2,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -85,7 +85,7 @@ impl Rule for RuleAL01 {
                         "before",
                     )
                     .insert(
-                        KeywordSegment::new("AS".into(), None).boxed(),
+                        KeywordSegment::new("AS".into(), None).to_erased_segment(),
                         identifier.clone(),
                         "before",
                     )

@@ -1,10 +1,10 @@
 use ahash::AHashSet;
 use uuid::Uuid;
 
-use super::base::Segment;
+use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LiteralSegment {
@@ -14,28 +14,28 @@ pub struct LiteralSegment {
 }
 
 impl LiteralSegment {
-    pub fn new(raw: &str, position_maker: &PositionMarker) -> Box<dyn Segment> {
+    pub fn new(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
         Self { raw: raw.to_string(), position_maker: position_maker.clone(), uuid: Uuid::new_v4() }
-            .boxed()
+            .to_erased_segment()
     }
 }
 
 impl Segment for LiteralSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self { raw: self.raw.clone(), position_maker: self.position_maker.clone(), uuid: self.uuid }
-            .boxed()
+            .to_erased_segment()
     }
 
     fn get_raw(&self) -> Option<String> {
         self.raw.clone().into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_type(&self) -> &'static str {
@@ -83,28 +83,28 @@ pub struct ComparisonOperatorSegment {
 }
 
 impl ComparisonOperatorSegment {
-    pub fn new(raw: &str, position_maker: &PositionMarker) -> Box<dyn Segment> {
+    pub fn new(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
         Self { raw: raw.to_string(), position_maker: position_maker.clone(), uuid: Uuid::new_v4() }
-            .boxed()
+            .to_erased_segment()
     }
 }
 
 impl Segment for ComparisonOperatorSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self { raw: self.raw.clone(), position_maker: self.position_maker.clone(), uuid: self.uuid }
-            .boxed()
+            .to_erased_segment()
     }
 
     fn get_raw(&self) -> Option<String> {
         self.raw.clone().into()
     }
 
-    fn segments(&self) -> &[Box<dyn Segment>] {
+    fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_type(&self) -> &'static str {

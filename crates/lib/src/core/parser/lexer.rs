@@ -5,6 +5,7 @@ use dyn_clone::DynClone;
 use fancy_regex::{Error, Regex};
 
 use super::markers::PositionMarker;
+use super::segments::base::ErasedSegment;
 use super::segments::meta::EndOfFile;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
@@ -14,7 +15,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -47,7 +48,7 @@ impl TemplateElement {
         &self,
         pos_marker: PositionMarker,
         subslice: Option<Range<usize>>,
-    ) -> Box<dyn Segment> {
+    ) -> ErasedSegment {
         let slice = subslice.map_or_else(|| self.raw.clone(), |slice| self.raw[slice].to_string());
         self.matcher.construct_segment(slice, pos_marker)
     }
@@ -75,7 +76,7 @@ pub trait CloneMatcher {
 
 impl<T: Matcher + DynClone> CloneMatcher for T {
     fn clone_box(&self) -> Box<dyn Matcher> {
-        dyn_clone::clone(self).boxed()
+        Box::new(dyn_clone::clone(self))
     }
 }
 
@@ -175,7 +176,7 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + 'static {
         elem_buff
     }
 
-    fn construct_segment(&self, _raw: String, _pos_marker: PositionMarker) -> Box<dyn Segment> {
+    fn construct_segment(&self, _raw: String, _pos_marker: PositionMarker) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>());
     }
 }
@@ -322,7 +323,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
         self.trim_post_subdivide.clone()
     }
 
-    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> Box<dyn Segment> {
+    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> ErasedSegment {
         (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
     }
 }
@@ -432,7 +433,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
         self.trim_post_subdivide.clone()
     }
 
-    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> Box<dyn Segment> {
+    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> ErasedSegment {
         (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
     }
 }
@@ -467,7 +468,7 @@ impl Lexer {
     pub fn lex(
         &self,
         raw: StringOrTemplate,
-    ) -> Result<(Vec<Box<dyn Segment>>, Vec<SQLLexError>), ValueError> {
+    ) -> Result<(Vec<ErasedSegment>, Vec<SQLLexError>), ValueError> {
         // Make sure we've got a string buffer and a template regardless of what was
         // passed in.
         let (mut str_buff, template) = match raw {
@@ -599,7 +600,7 @@ impl Lexer {
         &self,
         elements: Vec<TemplateElement>,
         templated_file: TemplatedFile,
-    ) -> Vec<Box<dyn Segment>> {
+    ) -> Vec<ErasedSegment> {
         let mut segments = iter_segments(elements, templated_file.clone());
 
         // Add an end of file marker
@@ -616,7 +617,7 @@ impl Lexer {
 fn iter_segments(
     lexed_elements: Vec<TemplateElement>,
     templated_file: TemplatedFile,
-) -> Vec<Box<dyn Segment>> {
+) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
     // An index to track where we've got to in the templated file.
     let tfs_idx = 0;

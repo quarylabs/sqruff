@@ -7,7 +7,7 @@ use uuid::Uuid;
 use super::context::ParseContext;
 use super::match_result::MatchResult;
 use super::matchable::Matchable;
-use super::segments::base::Segment;
+use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
 use crate::helpers::HashableFancyRegex;
 
@@ -20,13 +20,13 @@ pub struct TypedParser {
     optional: bool,
     trim_chars: Option<Vec<char>>,
 
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
+    factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
 impl TypedParser {
     pub fn new(
         template: &str,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>,
+        factory: fn(&dyn Segment) -> ErasedSegment,
         /* raw_class: RawSegment, */
         type_: Option<String>,
         optional: bool,
@@ -58,7 +58,7 @@ impl TypedParser {
         }
     }
 
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -95,7 +95,7 @@ impl Matchable for TypedParser {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -114,7 +114,7 @@ impl Matchable for TypedParser {
 pub struct StringParser {
     template: String,
     simple: BTreeSet<String>,
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
+    factory: fn(&dyn Segment) -> ErasedSegment,
     type_: Option<String>, /* Renamed `type` to `type_` because `type` is a reserved keyword in
                             * Rust */
     optional: bool,
@@ -125,7 +125,7 @@ pub struct StringParser {
 impl StringParser {
     pub fn new(
         template: &str,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>,
+        factory: fn(&dyn Segment) -> ErasedSegment,
         type_: Option<String>,
         optional: bool,
         trim_chars: Option<Vec<char>>,
@@ -157,7 +157,7 @@ impl StringParser {
 }
 
 impl StringParser {
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -193,7 +193,7 @@ impl Matchable for StringParser {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let match_result = if !segments.is_empty() {
@@ -217,7 +217,7 @@ pub struct RegexParser {
     anti_template: Option<String>,
     _template: HashableFancyRegex,
     _anti_template: HashableFancyRegex,
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
+    factory: fn(&dyn Segment) -> ErasedSegment,
     cache_key: String, // Add other fields as needed
 }
 
@@ -234,7 +234,7 @@ impl PartialEq for RegexParser {
 impl RegexParser {
     pub fn new(
         template: &str,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>,
+        factory: fn(&dyn Segment) -> ErasedSegment,
         _type_: Option<String>,
         _optional: bool,
         anti_template: Option<String>,
@@ -274,7 +274,7 @@ impl RegexParser {
         false
     }
 
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -312,7 +312,7 @@ impl Matchable for RegexParser {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -334,14 +334,14 @@ impl Matchable for RegexParser {
 pub struct MultiStringParser {
     templates: BTreeSet<String>,
     _simple: BTreeSet<String>,
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
+    factory: fn(&dyn Segment) -> ErasedSegment,
     // Add other fields as needed
 }
 
 impl MultiStringParser {
     pub fn new(
         templates: Vec<String>,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>, // Assuming RawSegment is defined elsewhere
+        factory: fn(&dyn Segment) -> ErasedSegment, // Assuming RawSegment is defined elsewhere
         _type_: Option<String>,
         _optional: bool,
         _trim_chars: Option<Vec<String>>, // Assuming trim_chars is a vector of strings
@@ -375,7 +375,7 @@ impl MultiStringParser {
             && self.templates.contains(&segment.get_raw().unwrap().to_ascii_uppercase())
     }
 
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -411,7 +411,7 @@ impl Matchable for MultiStringParser {
 
     fn match_segments(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -440,6 +440,7 @@ mod tests {
     use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser};
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::test_functions::generate_test_segments_func;
+    use crate::helpers::ToErasedSegment;
 
     // Test the simple method of TypedParser
     #[test]
@@ -486,10 +487,11 @@ mod tests {
             vec!["foo".to_string(), "bar".to_string()],
             /* KeywordSegment */
             |segment| {
-                Box::new(KeywordSegment::new(
+                KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
-                ))
+                )
+                .to_erased_segment()
             },
             None,
             false,

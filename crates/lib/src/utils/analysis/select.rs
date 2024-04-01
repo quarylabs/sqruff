@@ -2,13 +2,13 @@ use itertools::Itertools;
 
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::dialects::ansi::{
     FromClauseSegment, Node, ObjectReferenceSegment, SelectClauseElementSegment,
 };
 
 pub struct SelectStatementColumnsAndTables {
-    pub select_statement: Box<dyn Segment>,
+    pub select_statement: ErasedSegment,
     pub table_aliases: Vec<AliasInfo>,
     pub standalone_aliases: Vec<String>,
     pub reference_buffer: Vec<Node<ObjectReferenceSegment>>,
@@ -17,7 +17,7 @@ pub struct SelectStatementColumnsAndTables {
     pub using_cols: Vec<String>,
 }
 
-pub fn get_object_references(segment: &dyn Segment) -> Vec<Node<ObjectReferenceSegment>> {
+pub fn get_object_references(segment: &ErasedSegment) -> Vec<Node<ObjectReferenceSegment>> {
     segment
         .recursive_crawl(&["object_reference"], true, "select_statement".into(), true)
         .into_iter()
@@ -26,7 +26,7 @@ pub fn get_object_references(segment: &dyn Segment) -> Vec<Node<ObjectReferenceS
 }
 
 pub fn get_select_statement_info(
-    segment: &Box<dyn Segment>,
+    segment: &ErasedSegment,
     dialect: Option<&Dialect>,
     early_exit: bool,
 ) -> Option<SelectStatementColumnsAndTables> {
@@ -37,7 +37,7 @@ pub fn get_select_statement_info(
     }
 
     let sc = segment.child(&["select_clause"])?;
-    let mut reference_buffer = get_object_references(sc.as_ref());
+    let mut reference_buffer = get_object_references(&sc);
     for potential_clause in
         ["where_clause", "groupby_clause", "having_clause", "orderby_clause", "qualify_clause"]
     {
@@ -72,7 +72,7 @@ pub fn get_select_statement_info(
                 } else if seg.is_type("join_on_condition") {
                     for on_seg in seg.segments() {
                         if matches!(on_seg.get_type(), "bracketed" | "expression") {
-                            reference_buffer.extend(get_object_references(seg.as_ref()));
+                            reference_buffer.extend(get_object_references(seg));
                         }
                     }
                 } else if seen_using && seg.is_type("bracketed") {
@@ -100,7 +100,7 @@ pub fn get_select_statement_info(
 }
 
 pub fn get_aliases_from_select(
-    segment: &Box<dyn Segment>,
+    segment: &ErasedSegment,
     dialect: Option<&Dialect>,
 ) -> (Vec<AliasInfo>, Vec<String>) {
     let fc = segment.child(&["from_clause"]);
@@ -127,7 +127,7 @@ pub fn get_aliases_from_select(
     (table_aliases, standalone_aliases)
 }
 
-fn has_value_table_function(table_expr: Box<dyn Segment>, dialect: Option<&Dialect>) -> bool {
+fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>) -> bool {
     let Some(dialect) = dialect else {
         return false;
     };
@@ -141,7 +141,7 @@ fn has_value_table_function(table_expr: Box<dyn Segment>, dialect: Option<&Diale
     false
 }
 
-fn get_pivot_table_columns(segment: &Box<dyn Segment>, dialect: Option<&Dialect>) -> Vec<String> {
+fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<String> {
     let Some(_dialect) = dialect else {
         return Vec::new();
     };
@@ -164,9 +164,6 @@ fn get_pivot_table_columns(segment: &Box<dyn Segment>, dialect: Option<&Dialect>
     pivot_table_column_aliases
 }
 
-fn get_lambda_argument_columns(
-    segment: &Box<dyn Segment>,
-    dialect: Option<&Dialect>,
-) -> Vec<String> {
+fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<String> {
     Vec::new()
 }

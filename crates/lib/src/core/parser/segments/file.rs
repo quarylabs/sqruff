@@ -1,8 +1,10 @@
 use uuid::Uuid;
 
+use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
+use crate::helpers::ToErasedSegment;
 /// A segment representing a whole file or script.
 ///
 ///     This is also the default "root" segment of the dialect,
@@ -62,22 +64,18 @@ impl Segment for BaseFileSegment {
         todo!()
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 }
 
 impl BaseFileSegment {
     pub fn new(
-        _segments: Vec<Box<dyn Segment>>,
+        _segments: Vec<ErasedSegment>,
         _position_maker: Option<PositionMarker>,
         f_name: Option<String>,
-    ) -> Box<dyn Segment> {
-        Box::new(BaseFileSegment { f_name })
+    ) -> ErasedSegment {
+        BaseFileSegment { f_name }.to_erased_segment()
     }
 }
 

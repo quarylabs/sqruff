@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLBaseError, SQLTemplaterError};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::templaters::base::TemplatedFile;
 
 /// Rule Tuple object for describing rules.
@@ -44,7 +44,7 @@ pub struct RenderedFile {
 /// An object to store the result of parsing a string.
 #[derive(Debug)]
 pub struct ParsedString {
-    pub tree: Option<Box<dyn Segment + 'static>>,
+    pub tree: Option<ErasedSegment>,
     pub violations: Vec<SQLBaseError>,
     // TODO Implement time dict
     /// `time_dict` is a :obj:`dict` containing timings for how long each step

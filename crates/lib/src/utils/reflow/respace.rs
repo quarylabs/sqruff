@@ -2,7 +2,9 @@ use itertools::{enumerate, Itertools};
 
 use super::elements::ReflowBlock;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{Segment, WhitespaceSegment, WhitespaceSegmentNewArgs};
+use crate::core::parser::segments::base::{
+    ErasedSegment, Segment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
 use crate::core::rules::base::{EditType, LintFix, LintResult};
 
 fn unpack_constraint(constraint: &str, mut strip_newlines: bool) -> (String, bool) {
@@ -94,9 +96,9 @@ pub fn determine_constraints(
 }
 
 pub fn process_spacing(
-    segment_buffer: Vec<Box<dyn Segment>>,
+    segment_buffer: Vec<ErasedSegment>,
     strip_newlines: bool,
-) -> (Vec<Box<dyn Segment>>, Option<Box<dyn Segment>>, Vec<LintResult>) {
+) -> (Vec<ErasedSegment>, Option<ErasedSegment>, Vec<LintResult>) {
     let mut removal_buffer = Vec::new();
     let mut result_buffer = Vec::new();
     let mut last_whitespace = Vec::new();
@@ -195,11 +197,11 @@ pub fn handle_respace_inline_with_space(
     prev_block: Option<&ReflowBlock>,
     next_block: Option<&ReflowBlock>,
     /* root_segment: &dyn Segment, */
-    mut segment_buffer: Vec<Box<dyn Segment>>,
-    last_whitespace: Box<dyn Segment>,
-) -> (Vec<Box<dyn Segment>>, Vec<LintResult>) {
+    mut segment_buffer: Vec<ErasedSegment>,
+    last_whitespace: ErasedSegment,
+) -> (Vec<ErasedSegment>, Vec<LintResult>) {
     // Get some indices so that we can reference around them
-    let ws_idx = segment_buffer.iter().position(|it| it.dyn_eq(&*last_whitespace)).unwrap();
+    let ws_idx = segment_buffer.iter().position(|it| it == &last_whitespace).unwrap();
 
     if ["any"].contains(&pre_constraint.as_str()) || ["any"].contains(&post_constraint.as_str()) {
         return (segment_buffer, vec![]);
@@ -271,10 +273,10 @@ pub fn handle_respace_inline_without_space(
     post_constraint: String,
     prev_block: Option<&ReflowBlock>,
     next_block: Option<&ReflowBlock>,
-    mut segment_buffer: Vec<Box<dyn Segment>>,
+    mut segment_buffer: Vec<ErasedSegment>,
     mut existing_results: Vec<LintResult>,
     anchor_on: &str,
-) -> (Vec<Box<dyn Segment>>, Vec<LintResult>, bool) {
+) -> (Vec<ErasedSegment>, Vec<LintResult>, bool) {
     let constraints = ["touch", "any"];
 
     if constraints.contains(&pre_constraint.as_str())

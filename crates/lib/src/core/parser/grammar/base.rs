@@ -12,6 +12,7 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{capitalize, ToMatchable};
+use crate::stack::ensure_sufficient_stack;
 
 #[derive(Clone, Debug, Hash)]
 pub struct BaseGrammar {
@@ -222,15 +223,17 @@ impl Matchable for Ref {
             }
         }
 
-        // Match against that. NB We're not incrementing the match_depth here.
-        // References shouldn't really count as a depth of match.
-        parse_context.deeper_match(
-            &self.reference,
-            self.reset_terminators,
-            &self.terminators,
-            None,
-            |this| elem.match_segments(segments, this),
-        )
+        ensure_sufficient_stack(|| {
+            // Match against that. NB We're not incrementing the match_depth here.
+            // References shouldn't really count as a depth of match.
+            parse_context.deeper_match(
+                &self.reference,
+                self.reset_terminators,
+                &self.terminators,
+                None,
+                |this| elem.match_segments(segments, this),
+            )
+        })
     }
 }
 

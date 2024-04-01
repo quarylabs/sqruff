@@ -32,6 +32,7 @@ pretty_assertions = "1.4.0"
 rayon = "1.9.0"
 slyce = "0.3.1"
 ahash = "0.8.11"
+stacker = "0.1.15"
 
 [dev-dependencies]
 expect-test = "1.4"

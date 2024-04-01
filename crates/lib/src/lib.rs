@@ -10,4 +10,5 @@ pub mod core;
 pub mod dialects;
 pub mod helpers;
 pub mod rules;
+mod stack;
 pub mod utils;

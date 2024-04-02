@@ -21,7 +21,7 @@ use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::fix::AnchorEditInfo;
 use crate::core::rules::base::{ErasedRule, LintFix};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};

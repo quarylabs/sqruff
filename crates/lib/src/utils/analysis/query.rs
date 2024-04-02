@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;
 
 static SELECTABLE_TYPES: &[&str] =

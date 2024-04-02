@@ -15,7 +15,6 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
-use crate::helpers::ToErasedSegment;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]

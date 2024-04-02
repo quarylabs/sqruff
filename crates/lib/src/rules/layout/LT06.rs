@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
-use crate::core::parser::segments::base::{CloneSegment, ErasedSegment, Segment};
-use crate::core::rules::base::{Erased, LintFix, LintResult, Rule};
+use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;

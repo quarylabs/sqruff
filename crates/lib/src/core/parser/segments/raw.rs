@@ -4,7 +4,6 @@ use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{CloneSegment, Segment};
 use crate::core::parser::segments::fix::SourceFix;
-use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct RawSegment {

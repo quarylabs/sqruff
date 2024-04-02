@@ -1,4 +1,4 @@
-use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, Segment};
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};

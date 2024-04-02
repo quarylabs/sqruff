@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::ansi::{
     FromClauseSegment, Node, ObjectReferenceSegment, SelectClauseElementSegment,
 };

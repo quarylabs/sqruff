@@ -1,6 +1,6 @@
 use super::context::ParseContext;
 use super::helpers::check_still_complete;
-use super::segments::base::{ErasedSegment, Segment};
+use super::segments::base::ErasedSegment;
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLParseError;
 use crate::dialects::ansi::FileSegment;

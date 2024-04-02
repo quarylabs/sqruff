@@ -553,7 +553,7 @@ impl Matchable for Bracketed {
         } else {
             // Look for the first bracket
             let status = parse_context.deeper_match("Bracketed-First", false, &[], None, |this| {
-                let start_match = start_bracket.match_segments(segments.clone(), this);
+                let start_match = start_bracket.match_segments(segments, this);
 
                 match start_match {
                     Ok(start_match) if start_match.has_match() => {

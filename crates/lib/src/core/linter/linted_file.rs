@@ -4,7 +4,7 @@ use ahash::AHashSet;
 use itertools::Itertools;
 
 use crate::core::errors::{SQLBaseError, SQLLintError};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::fix::FixPatch;
 use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 

@@ -5860,7 +5860,7 @@ mod tests {
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
-    use crate::core::parser::segments::base::{ErasedSegment, Segment};
+    use crate::core::parser::segments::base::ErasedSegment;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
     use crate::helpers;
 

@@ -1,4 +1,4 @@
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 
 /// Details about a table alias.
 #[derive(Debug, Eq, Hash, Clone)]

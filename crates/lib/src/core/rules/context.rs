@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use ahash::AHashMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
@@ -23,7 +23,7 @@ pub struct RuleContext {
     /// raw_stack: All of the raw segments so far in the file
     pub raw_stack: Vec<ErasedSegment>,
     /// memory: Arbitrary storage for the rule
-    pub memory: HashMap<String, String>,
+    pub memory: AHashMap<String, String>,
     /// segment_idx: The index of this segment in the parent
     pub segment_idx: usize,
 }

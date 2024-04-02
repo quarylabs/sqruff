@@ -1,11 +1,10 @@
 use std::any::Any;
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Deref;
 use std::rc::Rc;
 
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use dyn_clone::DynClone;
 use dyn_hash::DynHash;
 use dyn_ord::DynEq;
@@ -529,8 +528,8 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     /// Group and count fixes by anchor, return dictionary.
-    fn compute_anchor_edit_info(&self, fixes: &Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo> {
-        let mut anchor_info = HashMap::<Uuid, AnchorEditInfo>::new();
+    fn compute_anchor_edit_info(&self, fixes: &Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
+        let mut anchor_info = AHashMap::<Uuid, AnchorEditInfo>::new();
         for fix in fixes {
             // :TRICKY: Use segment uuid as the dictionary key since
             // different segments may compare as equal.
@@ -558,7 +557,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     fn apply_fixes(
         &self,
         dialect: Dialect,
-        mut fixes: HashMap<Uuid, AnchorEditInfo>,
+        mut fixes: AHashMap<Uuid, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone_box(), Vec::new(), Vec::new(), true);

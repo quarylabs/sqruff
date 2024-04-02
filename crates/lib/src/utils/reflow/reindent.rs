@@ -1,8 +1,7 @@
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::mem::take;
 
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use itertools::{enumerate, Itertools};
 
 use super::elements::{ReflowElement, ReflowPoint, ReflowSequenceType};
@@ -280,8 +279,8 @@ fn map_line_buffers(
 ) -> (Vec<IndentLine>, Vec<usize>) {
     let mut lines = Vec::new();
     let mut point_buffer = Vec::new();
-    let mut previous_points = HashMap::new();
-    let mut untaken_indent_locs = HashMap::new();
+    let mut previous_points = AHashMap::new();
+    let mut untaken_indent_locs = AHashMap::new();
     let mut imbalanced_locs = Vec::new();
 
     for indent_point in crawl_indent_points(elements, allow_implicit_indents) {
@@ -511,11 +510,11 @@ fn source_char_len(elements: Vec<ReflowElement>) -> usize {
     unimplemented!()
 }
 
-fn rebreak_priorities(spans: Vec<RebreakSpan>) -> HashMap<usize, usize> {
+fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
     unimplemented!()
 }
 
-type MatchedIndentsType = HashMap<f64, Vec<i32>>;
+type MatchedIndentsType = AHashMap<f64, Vec<i32>>;
 
 fn increment_balance(
     input_balance: i32,
@@ -527,7 +526,7 @@ fn increment_balance(
 
 fn match_indents(
     line_elements: ReflowSequenceType,
-    rebreak_priorities: HashMap<i32, i32>,
+    rebreak_priorities: AHashMap<i32, i32>,
     newline_idx: i32,
     allow_implicit_indents: bool,
 ) -> MatchedIndentsType {

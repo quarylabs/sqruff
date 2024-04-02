@@ -1,13 +1,11 @@
-use std::collections::HashMap;
-
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::DepthInfo;
 
-type ConfigElementType = HashMap<String, String>;
-type ConfigDictType = HashMap<String, ConfigElementType>;
+type ConfigElementType = AHashMap<String, String>;
+type ConfigDictType = AHashMap<String, ConfigElementType>;
 
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -37,7 +35,7 @@ impl BlockConfig {
         line_position: Option<&str>,
         config: Option<&ConfigElementType>,
     ) {
-        let empty = HashMap::new();
+        let empty = AHashMap::new();
         let config = config.unwrap_or(&empty);
 
         self.spacing_before = before
@@ -184,7 +182,7 @@ impl ReflowConfig {
     }
 }
 
-fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
+fn convert_to_config_dict(input: AHashMap<String, Value>) -> ConfigDictType {
     let mut config_dict = ConfigDictType::new();
 
     for (key, value) in input {

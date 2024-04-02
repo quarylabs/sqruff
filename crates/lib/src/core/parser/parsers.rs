@@ -526,7 +526,7 @@ mod tests {
     // AHashSet<&str> = ["example", "single_quote", "raw",
     // "base"].iter().cloned().collect();
 
-    //     let mut kwargs = HashMap::new();
+    //     let mut kwargs = AHashMap::new();
     //     let mut expected_type = "example";
     //     if let Some(t) = new_type {
     //         post_match_types.insert(t);

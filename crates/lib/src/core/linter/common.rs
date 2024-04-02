@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use ahash::AHashMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLBaseError, SQLTemplaterError};
@@ -35,7 +35,7 @@ pub struct RenderedFile {
     pub templated_file: TemplatedFile,
     pub templater_violations: Vec<SQLTemplaterError>,
     pub config: FluffConfig,
-    pub time_dict: HashMap<String, f64>,
+    pub time_dict: AHashMap<String, f64>,
     pub(crate) f_name: String,
     pub encoding: String,
     pub source_str: String,
@@ -49,7 +49,7 @@ pub struct ParsedString {
     // TODO Implement time dict
     /// `time_dict` is a :obj:`dict` containing timings for how long each step
     /// took in the process.
-    pub time_dict: HashMap<String, f64>,
+    pub time_dict: AHashMap<String, f64>,
     /// `templated_file` is a :obj:`TemplatedFile` containing the details of the
     /// templated file.
     pub templated_file: TemplatedFile,

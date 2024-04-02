@@ -1,10 +1,9 @@
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use regex::Regex;
 use uuid::Uuid;
@@ -363,7 +362,7 @@ impl Linter {
             templated_file: templated_file.unwrap(),
             templater_violations,
             config,
-            time_dict: HashMap::new(),
+            time_dict: AHashMap::new(),
             f_name: f_name.to_owned(),
             encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
@@ -565,7 +564,7 @@ impl Linter {
         path_walk.extend(path_walk_ignore_file);
 
         let mut buffer = Vec::new();
-        let mut ignores = HashMap::new();
+        let mut ignores = AHashMap::new();
         let sql_file_exts = self.config.sql_file_exts(); // Replace with actual extensions
 
         for (dirpath, _, filenames) in path_walk {
@@ -609,8 +608,8 @@ impl Linter {
     }
 }
 
-fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo> {
-    let mut anchor_info = HashMap::new();
+fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
+    let mut anchor_info = AHashMap::new();
 
     for fix in fixes {
         let anchor_id = fix.anchor.get_uuid().unwrap();

@@ -1,5 +1,6 @@
-use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
+
+use ahash::AHashMap;
 
 use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
@@ -46,7 +47,7 @@ pub struct Query<'me, T> {
     pub query_type: QueryType,
     pub dialect: &'me Dialect,
     pub selectables: Vec<Selectable<'me>>,
-    pub ctes: HashMap<String, Query<'me, T>>,
+    pub ctes: AHashMap<String, Query<'me, T>>,
     pub parent: Option<Box<Query<'me, T>>>,
     pub subqueries: Vec<Query<'me, T>>,
     pub cte_definition_segment: Option<ErasedSegment>,

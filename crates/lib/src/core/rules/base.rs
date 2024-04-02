@@ -1,7 +1,8 @@
-use std::collections::HashMap;
 use std::fmt::{self, Debug};
 use std::ops::Deref;
 use std::rc::Rc;
+
+use ahash::AHashMap;
 
 use super::context::RuleContext;
 use super::crawlers::{BaseCrawler, Crawler};
@@ -17,7 +18,7 @@ use crate::helpers::Config;
 pub struct LintResult {
     pub anchor: Option<ErasedSegment>,
     pub fixes: Vec<LintFix>,
-    memory: Option<HashMap<String, String>>, // Adjust type as needed
+    memory: Option<AHashMap<String, String>>, // Adjust type as needed
     description: Option<String>,
     source: String,
 }
@@ -26,7 +27,7 @@ impl LintResult {
     pub fn new(
         anchor: Option<ErasedSegment>,
         fixes: Vec<LintFix>,
-        memory: Option<HashMap<String, String>>, // Adjust type as needed
+        memory: Option<AHashMap<String, String>>, // Adjust type as needed
         description: Option<String>,
         source: Option<String>,
     ) -> Self {

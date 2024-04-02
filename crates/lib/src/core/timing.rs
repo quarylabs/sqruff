@@ -1,10 +1,10 @@
 /// Timing summary class
-use std::collections::HashMap;
+use ahash::AHashMap;
 
 /// An object for tracking the timing of similar steps across many files.
 pub struct TimingSummary {
     steps: Option<Vec<String>>,
-    timings: Vec<HashMap<String, f64>>,
+    timings: Vec<AHashMap<String, f64>>,
 }
 
 impl TimingSummary {

@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use std::ops::Index;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use ahash::AHashMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
 
@@ -107,9 +107,9 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
     pub(crate) indentation: FluffConfigIndentation,
-    pub(crate) raw: HashMap<String, Value>,
+    pub(crate) raw: AHashMap<String, Value>,
     extra_config_path: Option<String>,
-    _configs: HashMap<String, HashMap<String, String>>,
+    _configs: AHashMap<String, AHashMap<String, String>>,
     dialect: String,
     sql_file_exts: Vec<String>,
 }
@@ -128,7 +128,7 @@ impl FluffConfig {
     // TODO This is not a translation that is particularly accurate.
     #[track_caller]
     pub fn new(
-        mut configs: HashMap<String, Value>,
+        mut configs: AHashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
@@ -151,7 +151,7 @@ impl FluffConfig {
             raw: configs,
             dialect,
             extra_config_path,
-            _configs: HashMap::new(),
+            _configs: AHashMap::new(),
             indentation: indentation.unwrap_or_default(),
             sql_file_exts: vec![".sql".into()],
         }
@@ -167,7 +167,7 @@ impl FluffConfig {
     pub fn from_root(
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-        _overrides: Option<HashMap<String, String>>,
+        _overrides: Option<AHashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
         let loader = ConfigLoader {};
         let config =
@@ -317,7 +317,7 @@ impl ConfigLoader {
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> HashMap<String, Value> {
+    ) -> AHashMap<String, Value> {
         let path = path.as_ref();
 
         let config_paths: Box<dyn Iterator<Item = PathBuf>> = if ignore_local_config {
@@ -335,7 +335,7 @@ impl ConfigLoader {
         nested_combine(config_stack)
     }
 
-    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
+    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> AHashMap<String, Value> {
         let path = path.as_ref();
 
         let filename_options = [
@@ -344,7 +344,7 @@ impl ConfigLoader {
         ];
 
         let path = if path.is_dir() { path } else { path.parent().unwrap() };
-        let mut configs = HashMap::new();
+        let mut configs = AHashMap::new();
 
         for fname in filename_options {
             let path = path.join(fname);
@@ -356,7 +356,7 @@ impl ConfigLoader {
         configs
     }
 
-    pub fn load_config_file(&self, path: impl AsRef<Path>, configs: &mut HashMap<String, Value>) {
+    pub fn load_config_file(&self, path: impl AsRef<Path>, configs: &mut AHashMap<String, Value>) {
         let elems = self.get_config_elems_from_file(path.as_ref().into(), None);
         self.incorporate_vals(configs, elems);
     }
@@ -413,7 +413,7 @@ impl ConfigLoader {
 
     fn incorporate_vals(
         &self,
-        ctx: &mut HashMap<String, Value>,
+        ctx: &mut AHashMap<String, Value>,
         values: Vec<(Vec<String>, Value)>,
     ) {
         for (path, value) in values {
@@ -421,7 +421,7 @@ impl ConfigLoader {
             for key in path.iter().take(path.len() - 1) {
                 match current_map
                     .entry(key.to_string())
-                    .or_insert_with(|| Value::Map(HashMap::new()))
+                    .or_insert_with(|| Value::Map(AHashMap::new()))
                     .as_map_mut()
                 {
                     Some(slot) => current_map = slot,
@@ -441,7 +441,7 @@ pub enum Value {
     Bool(bool),
     Float(f64),
     String(Box<str>),
-    Map(HashMap<String, Value>),
+    Map(AHashMap<String, Value>),
     None,
 }
 
@@ -457,11 +457,11 @@ impl Index<&str> for Value {
 }
 
 impl Value {
-    pub fn as_map(&self) -> Option<&HashMap<String, Value>> {
+    pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
         if let Self::Map(map) = self { Some(map) } else { None }
     }
 
-    pub fn as_map_mut(&mut self) -> Option<&mut HashMap<String, Value>> {
+    pub fn as_map_mut(&mut self) -> Option<&mut AHashMap<String, Value>> {
         if let Self::Map(map) = self { Some(map) } else { None }
     }
 
@@ -505,9 +505,9 @@ impl FromStr for Value {
     }
 }
 
-fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
-    let capacity = config_stack.iter().map(HashMap::len).count();
-    let mut result = HashMap::with_capacity(capacity);
+fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
+    let capacity = config_stack.iter().map(|it| it.len()).count();
+    let mut result = AHashMap::with_capacity(capacity);
 
     for dict in config_stack {
         for (key, value) in dict {

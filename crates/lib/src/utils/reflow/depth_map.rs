@@ -1,8 +1,7 @@
 use std::collections::hash_map::DefaultHasher;
-use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use uuid::Uuid;
 
 use crate::core::parser::segments::base::{ErasedSegment, PathStep, Segment};
@@ -43,12 +42,12 @@ impl StackPosition {
 
 #[derive(Clone)]
 pub struct DepthMap {
-    depth_info: HashMap<Uuid, DepthInfo>,
+    depth_info: AHashMap<Uuid, DepthInfo>,
 }
 
 impl DepthMap {
     fn new(raws_with_stack: Vec<(ErasedSegment, Vec<PathStep>)>) -> Self {
-        let mut depth_info = HashMap::new();
+        let mut depth_info = AHashMap::new();
 
         for (raw, stack) in raws_with_stack {
             depth_info.insert(raw.get_uuid().unwrap(), DepthInfo::from_raw_and_stack(raw, stack));
@@ -88,7 +87,7 @@ pub struct DepthInfo {
     /// This is a convenience cache to speed up operations.
     pub stack_hash_set: AHashSet<u64>,
     pub stack_class_types: Vec<AHashSet<String>>,
-    pub stack_positions: HashMap<u64, StackPosition>,
+    pub stack_positions: AHashMap<u64, StackPosition>,
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {
@@ -112,7 +111,7 @@ impl DepthInfo {
         let stack_class_types: Vec<AHashSet<String>> =
             stack.iter().map(|ps| ps.segment.class_types().iter().cloned().collect()).collect();
 
-        let stack_positions: HashMap<u64, StackPosition> = stack
+        let stack_positions: AHashMap<u64, StackPosition> = stack
             .into_iter()
             .map(|ps| {
                 let hash = calculate_hash(&ps.segment);

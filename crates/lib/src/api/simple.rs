@@ -1,5 +1,6 @@
-use std::collections::HashMap;
 use std::mem::take;
+
+use ahash::AHashMap;
 
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
@@ -14,7 +15,7 @@ pub fn get_simple_config(
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
 ) -> Result<FluffConfig, SQLFluffUserError> {
-    let mut overrides = HashMap::new();
+    let mut overrides = AHashMap::new();
     if let Some(dialect) = dialect {
         let selected = dialect_selector(&dialect);
         if selected.is_none() {

@@ -1,5 +1,6 @@
 use std::collections::hash_map::Entry;
-use std::collections::HashMap;
+
+use ahash::AHashMap;
 
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintResult, Rule};
@@ -11,7 +12,7 @@ pub struct RuleAL08 {}
 
 impl Rule for RuleAL08 {
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let mut used_aliases = HashMap::new();
+        let mut used_aliases = AHashMap::new();
         let mut violations = Vec::new();
 
         for clause_element in context.segment.children(&["select_clause_element"]) {

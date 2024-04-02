@@ -1,6 +1,6 @@
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};

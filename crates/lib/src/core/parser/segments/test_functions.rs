@@ -11,7 +11,7 @@ use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, NewlineSegment,
-    NewlineSegmentNewArgs, Segment, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
+    NewlineSegmentNewArgs, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
     WhitespaceSegmentNewArgs,
 };
 use crate::core::templaters::base::TemplatedFile;

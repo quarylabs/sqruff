@@ -8,7 +8,7 @@ use super::crawlers::{BaseCrawler, Crawler};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::helpers::Config;
 
 // Assuming BaseSegment, LintFix, and SQLLintError are defined elsewhere.

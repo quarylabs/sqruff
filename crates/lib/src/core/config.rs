@@ -9,7 +9,6 @@ use itertools::Itertools;
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
 use crate::core::errors::SQLFluffUserError;
-use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {

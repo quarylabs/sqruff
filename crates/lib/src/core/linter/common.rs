@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLBaseError, SQLTemplaterError};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
 
 /// Rule Tuple object for describing rules.

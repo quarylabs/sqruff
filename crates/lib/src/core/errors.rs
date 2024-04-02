@@ -4,7 +4,7 @@ use std::ops::{Deref, DerefMut};
 
 use fancy_regex::Regex;
 
-use super::parser::segments::base::{ErasedSegment, Segment};
+use super::parser::segments::base::ErasedSegment;
 use super::rules::base::ErasedRule;
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Config;

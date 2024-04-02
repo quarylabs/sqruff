@@ -1,5 +1,4 @@
 use super::segments::base::ErasedSegment;
-use crate::core::parser::segments::base::Segment;
 
 pub fn join_segments_raw(segments: &[ErasedSegment]) -> String {
     segments.iter().filter_map(|s| s.get_raw()).collect::<Vec<_>>().concat()

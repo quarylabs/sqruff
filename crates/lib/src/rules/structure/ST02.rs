@@ -1,9 +1,7 @@
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
 
-use crate::core::parser::segments::base::{
-    ErasedSegment, Segment, SymbolSegment, WhitespaceSegment,
-};
+use crate::core::parser::segments::base::{ErasedSegment, SymbolSegment, WhitespaceSegment};
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;

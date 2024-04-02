@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
 
 type PredicateType = Option<fn(&ErasedSegment) -> bool>;

@@ -7,9 +7,7 @@ use itertools::{chain, Itertools};
 use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{
-    ErasedSegment, NewlineSegment, Segment, WhitespaceSegment,
-};
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment};
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{

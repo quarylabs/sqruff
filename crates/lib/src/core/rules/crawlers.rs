@@ -63,11 +63,12 @@ impl BaseCrawler for SegmentSeekerCrawler {
             acc.push(context.clone());
         }
 
-        if !context.segment.segments().is_empty() && (self_match && !self.allow_recurse) {
-            if self.provide_raw_stack {
-                unimplemented!();
-                return acc;
-            }
+        if !context.segment.segments().is_empty()
+            && (self_match && !self.allow_recurse)
+            && self.provide_raw_stack
+        {
+            unimplemented!();
+            return acc;
         }
 
         if self.types.is_disjoint(

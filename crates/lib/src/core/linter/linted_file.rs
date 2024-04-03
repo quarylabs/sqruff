@@ -16,6 +16,7 @@ pub struct LintedFile {
 }
 
 impl LintedFile {
+    #[allow(unused_variables)]
     pub fn get_violations(&self, fixable: Option<bool>) -> Vec<SQLBaseError> {
         self.violations.clone().into_iter().map(Into::into).collect_vec()
     }
@@ -78,6 +79,7 @@ impl LintedFile {
         )
     }
 
+    #[allow(unused_variables)]
     fn generate_source_patches(
         tree: ErasedSegment,
         templated_file: &TemplatedFile,

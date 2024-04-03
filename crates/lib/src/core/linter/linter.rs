@@ -73,6 +73,7 @@ impl Linter {
     }
 
     /// Parse a string.
+    #[allow(unused_variables)]
     pub fn parse_string(
         &self,
         in_str: String,
@@ -199,6 +200,7 @@ impl Linter {
         linted_file
     }
 
+    #[allow(unused_variables)]
     pub fn lint_fix_parsed(
         &self,
         mut tree: ErasedSegment,
@@ -325,7 +327,9 @@ impl Linter {
         //     ));
         // }
 
+        
         let mut templated_file = None;
+
         let templater_violations = vec![];
         match self.templater.process(
             in_str.as_str(),

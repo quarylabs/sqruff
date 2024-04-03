@@ -18,6 +18,8 @@ use crate::helpers::Config;
 pub struct LintResult {
     pub anchor: Option<ErasedSegment>,
     pub fixes: Vec<LintFix>,
+
+    #[allow(dead_code)]
     memory: Option<AHashMap<String, String>>, // Adjust type as needed
     description: Option<String>,
     source: String,
@@ -327,6 +329,7 @@ pub struct ErasedRule {
 }
 
 impl PartialEq for ErasedRule {
+    #[allow(unused_variables)]
     fn eq(&self, other: &Self) -> bool {
         unimplemented!()
     }

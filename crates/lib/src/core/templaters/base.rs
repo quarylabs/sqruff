@@ -436,6 +436,7 @@ impl TemplatedFile {
     }
 
     /// Return a list of the raw slices spanning a set of indices.
+    #[allow(dead_code)]
     fn raw_slices_spanning_source_slice(&self, source_slice: Range<usize>) -> Vec<RawFileSlice> {
         // Special case: The source_slice is at the end of the file.
         let last_raw_slice = self.raw_sliced.last().unwrap();

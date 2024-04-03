@@ -15,6 +15,7 @@ pub struct RebreakSpan {
 
 #[derive(Debug)]
 pub struct RebreakIndices {
+    #[allow(dead_code)]
     dir: i32,
     adj_pt_idx: isize,
     newline_pt_idx: isize,
@@ -101,13 +102,14 @@ impl RebreakLocation {
     }
 }
 
+#[allow(unused_variables)]
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
     root_segment: ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for idx in 2..element_buffer.len() - 2 {
+    for (idx, item) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2) {
         let elem = &element_buffer[idx];
 
         let ReflowElement::Block(block) = elem else {
@@ -119,7 +121,7 @@ pub fn identify_rebreak_spans(
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
                 end_idx: idx,
-                line_position: line_position.split(":").next().unwrap_or_default().into(),
+                line_position: line_position.split(':').next().unwrap_or_default().into(),
                 strict: line_position.ends_with("strict"),
             });
         }

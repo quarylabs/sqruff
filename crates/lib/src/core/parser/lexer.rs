@@ -504,6 +504,7 @@ impl Lexer {
     ///
     /// TODO: Taking in an iterator, also can make the typing better than use
     /// unwrap.
+    #[allow(dead_code)]
     fn violations_from_segments<T: Debug + Clone>(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
         segments
             .into_iter()

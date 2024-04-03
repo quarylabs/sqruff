@@ -243,6 +243,7 @@ pub struct Anything {
 }
 
 impl PartialEq for Anything {
+    #[allow(unused_variables)]
     fn eq(&self, other: &Self) -> bool {
         unimplemented!()
     }

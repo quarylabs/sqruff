@@ -35,7 +35,7 @@ pub fn determine_constraints(
 ) -> (String, String, bool) {
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single".into() },
+        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single" },
         strip_newlines,
     );
 
@@ -43,7 +43,7 @@ pub fn determine_constraints(
         if let Some(next_block) = next_block {
             &next_block.spacing_before
         } else {
-            "single".into()
+            "single"
         },
         strip_newlines,
     );
@@ -175,6 +175,7 @@ pub fn process_spacing(
     (filtered_segment_buffer, last_whitespace_option, result_buffer)
 }
 
+#[allow(dead_code, unused_variables)]
 fn determine_aligned_inline_spacing(
     root_segment: &dyn Segment,
     whitespace_seg: &dyn Segment,
@@ -187,10 +188,12 @@ fn determine_aligned_inline_spacing(
     unimplemented!()
 }
 
+#[allow(dead_code, unused_variables)]
 fn extract_alignment_config(constraint: &str) -> (String, Option<String>, Option<String>) {
     unimplemented!()
 }
 
+#[allow(unused_variables)]
 pub fn handle_respace_inline_with_space(
     pre_constraint: String,
     post_constraint: String,

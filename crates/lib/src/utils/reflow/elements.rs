@@ -127,7 +127,7 @@ impl ReflowPoint {
         desired_indent: &str,
         after: Option<ErasedSegment>,
         before: Option<ErasedSegment>,
-        description: Option<&str>,
+        _description: Option<&str>,
         source: Option<&str>,
     ) -> (Vec<LintResult>, ReflowPoint) {
         assert!(!desired_indent.contains('\n'), "Newline found in desired indent.");

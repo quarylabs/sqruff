@@ -446,6 +446,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    #[allow(unused_variables)]
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -523,6 +524,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     /// Stub.
+    #[allow(unused_variables)]
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         unimplemented!()
     }

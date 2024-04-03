@@ -11,6 +11,8 @@ struct SelectTargetsInfo {
     select_idx: Option<usize>,
     first_new_line_idx: Option<usize>,
     first_select_target_idx: Option<usize>,
+
+    #[allow(dead_code)]
     first_whitespace_idx: Option<usize>,
     comment_after_select_idx: Option<usize>,
     select_targets: Segments,

@@ -191,6 +191,7 @@ impl Matchable for StringParser {
         (self.simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
+    #[allow(unused_variables)]
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
@@ -360,6 +361,7 @@ impl MultiStringParser {
         }
     }
 
+    #[allow(dead_code)]
     fn simple(
         &self,
         _parse_context: &ParseContext,

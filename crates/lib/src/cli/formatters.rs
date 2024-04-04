@@ -139,7 +139,6 @@ impl OutputStreamFormatter {
 
     pub fn dispatch_file_violations(
         &mut self,
-        fname: &str,
         linted_file: &LintedFile,
         only_fixable: bool,
         warn_unused_ignores: bool,
@@ -149,7 +148,7 @@ impl OutputStreamFormatter {
         }
 
         let s = self.format_file_violations(
-            fname,
+            &linted_file.path,
             linted_file.get_violations(only_fixable.then_some(true)),
         );
 
@@ -244,6 +243,11 @@ impl OutputStreamFormatter {
         }
 
         out_buff
+    }
+
+    pub fn completion_message(&mut self) {
+        let message = if self.plain_output { "All Finished" } else { "All Finished 📜 🎉" };
+        self.dispatch(message);
     }
 }
 

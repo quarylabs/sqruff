@@ -25,6 +25,7 @@ pub struct LintArgs {
 
 #[derive(Debug, Parser)]
 pub struct FixArgs {
-    /// glob pattern to fix
-    pub file_path: String,
+    pub paths: Vec<PathBuf>,
+    #[arg(short, long)]
+    pub force: bool,
 }

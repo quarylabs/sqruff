@@ -15,8 +15,10 @@ impl LintingResult {
     }
 
     /// Add a new `LintedDir` to this result.
-    pub fn add(&mut self, path: LintedDir) {
+    pub fn add(&mut self, path: LintedDir) -> usize {
+        let idx = self.paths.len();
         self.paths.push(path);
+        idx
     }
 
     /// Stop the linting timer.

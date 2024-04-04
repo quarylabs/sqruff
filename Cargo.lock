@@ -996,6 +996,7 @@ name = "sqruff"
 version = "0.1.4"
 dependencies = [
  "clap",
+ "console",
  "sqruff-lib",
  "tikv-jemallocator",
  "ui_test",

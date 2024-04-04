@@ -10,6 +10,7 @@ use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 
 #[derive(Debug)]
 pub struct LintedFile {
+    pub path: String,
     pub tree: ErasedSegment,
     pub templated_file: TemplatedFile,
     pub violations: Vec<SQLLintError>,

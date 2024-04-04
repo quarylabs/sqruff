@@ -1,7 +1,8 @@
+use super::linted_file::LintedFile;
 use super::linter::Linter;
 
 pub trait Runner: Sized {
-    fn run(&mut self, paths: Vec<String>, linter: &mut Linter);
+    fn run(&mut self, paths: Vec<String>, fix: bool, linter: &mut Linter) -> Vec<LintedFile>;
 }
 
 pub struct RunnerContext<'me, R> {
@@ -16,18 +17,24 @@ impl<'me> RunnerContext<'me, SequentialRunner> {
 }
 
 impl<R: Runner> RunnerContext<'_, R> {
-    pub fn run(&mut self, paths: Vec<String>) {
-        self.runner.run(paths, &mut self.linter);
+    pub fn run(&mut self, paths: Vec<String>, fix: bool) -> Vec<LintedFile> {
+        self.runner.run(paths, fix, &mut self.linter)
     }
 }
 
 pub struct SequentialRunner;
 
 impl Runner for SequentialRunner {
-    fn run(&mut self, paths: Vec<String>, linter: &mut Linter) {
+    fn run(&mut self, paths: Vec<String>, fix: bool, linter: &mut Linter) -> Vec<LintedFile> {
+        let mut acc = Vec::with_capacity(paths.len());
+
         for path in paths {
             let rendered = linter.render_file(path);
-            linter.lint_rendered(rendered);
+            let linted_file = linter.lint_rendered(rendered, fix);
+
+            acc.push(linted_file);
         }
+
+        acc
     }
 }

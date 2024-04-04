@@ -146,19 +146,38 @@ impl Linter {
         self.lint_parsed(parsed, rules, fix)
     }
 
-    pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>) {
+    pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>, fix: bool) -> LintingResult {
+        let mut result = LintingResult::new();
+
         if paths.is_empty() {
             paths.push(std::env::current_dir().unwrap());
         }
 
         let mut expanded_paths = Vec::new();
+        let mut expanded_path_to_linted_dir = AHashMap::default();
+
         for path in paths {
+            let linted_dir = LintedDir::new(path.display().to_string());
+            let key = result.add(linted_dir);
+
             let paths = self.paths_from_path(path, None, None, None, None);
-            expanded_paths.extend(paths);
+
+            expanded_paths.reserve(paths.len());
+            expanded_path_to_linted_dir.reserve(paths.len());
+
+            for path in paths {
+                expanded_paths.push(path.clone());
+                expanded_path_to_linted_dir.insert(path, key);
+            }
         }
 
         let mut runner = RunnerContext::sequential(self);
-        runner.run(expanded_paths);
+        for linted_file in runner.run(expanded_paths, fix) {
+            let path = expanded_path_to_linted_dir[&linted_file.path];
+            result.paths[path].add(linted_file);
+        }
+
+        result
     }
 
     pub fn render_file(&mut self, fname: String) -> RenderedFile {
@@ -166,9 +185,9 @@ impl Linter {
         self.render_string(in_str, fname, self.config.clone(), None).unwrap()
     }
 
-    pub fn lint_rendered(&mut self, rendered: RenderedFile) {
+    pub fn lint_rendered(&mut self, rendered: RenderedFile, fix: bool) -> LintedFile {
         let parsed = Self::parse_rendered(rendered, false);
-        self.lint_parsed(parsed, self.rules.clone(), false);
+        self.lint_parsed(parsed, self.rules.clone(), fix)
     }
 
     pub fn lint_parsed(
@@ -187,13 +206,14 @@ impl Linter {
         };
 
         let linted_file = LintedFile {
+            path: parsed_string.f_name,
             tree,
             templated_file: parsed_string.templated_file,
             violations: initial_linting_errors,
         };
 
         if let Some(formatter) = &mut self.formatter {
-            formatter.dispatch_file_violations(&parsed_string.f_name, &linted_file, false, false);
+            formatter.dispatch_file_violations(&linted_file, false, false);
         }
 
         linted_file

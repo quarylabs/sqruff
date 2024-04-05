@@ -26,6 +26,7 @@ pub struct LintArgs {
 #[derive(Debug, Parser)]
 pub struct FixArgs {
     pub paths: Vec<PathBuf>,
+    /// Skip the confirmation prompt and go straight to applying fixes.
     #[arg(short, long)]
     pub force: bool,
 }

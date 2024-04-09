@@ -54,7 +54,10 @@ impl Rule for RuleLT07 {
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
                     if elem.is_type("newline") {
                         break;
-                    } else if !(elem.is_type("indent") || elem.is_type("whitespace")) {
+                    } else if !(elem.is_type("indent")
+                        || elem.is_type("dedent")
+                        || elem.is_type("whitespace"))
+                    {
                         contains_non_whitespace = true;
                         break;
                     }

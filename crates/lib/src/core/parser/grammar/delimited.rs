@@ -306,7 +306,7 @@ mod tests {
             (2.into(), true, false, vec!["bar", ".", "bar", "foo"], 0),
         ];
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         for (min_delimiters, allow_gaps, allow_trailing, token_list, match_len) in cases {
             let test_segments = generate_test_segments_func(token_list);
@@ -349,7 +349,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_anything_bracketed() {
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
         let foo = StringParser::new(
             "foo",
             |segment| {
@@ -393,7 +393,7 @@ mod tests {
         for (terminators, match_length) in cases {
             let _panic = enter_panic(terminators.join(" "));
 
-            let mut cx = ParseContext::new(fresh_ansi_dialect());
+            let mut cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
             let terms = terminators
                 .iter()
                 .map(|it| {

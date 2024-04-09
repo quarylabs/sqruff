@@ -566,7 +566,7 @@ mod tests {
                 [matcher_keywords.iter().position(|&it| it == winning_matcher).unwrap()]
             .clone();
 
-            let mut cx = ParseContext::new(fresh_ansi_dialect());
+            let mut cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
             let (_result_pre_match, result_match, result_matcher) =
                 look_ahead_match(&test_segments, matchers, &mut cx).unwrap();
 
@@ -610,7 +610,7 @@ mod tests {
         ));
 
         // We need a dialect here to do bracket matching
-        let mut parse_cx = ParseContext::new(fresh_ansi_dialect());
+        let mut parse_cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         // Basic version, we should find bar first
         let (pre_section, match_result, matcher) = bracket_sensitive_look_ahead_match(
@@ -664,7 +664,7 @@ mod tests {
             as Box<dyn Matchable>;
 
         // Assuming 'ParseContext' is defined elsewhere and requires a dialect
-        let mut ctx = ParseContext::new(fresh_ansi_dialect()); // Placeholder for dialect
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default()); // Placeholder for dialect
 
         // Rust's error handling pattern using 'Result'
         let result = bracket_sensitive_look_ahead_match(
@@ -693,7 +693,7 @@ mod tests {
         let fs = Box::new(StringParser::new("foo", |_| unimplemented!(), None, false, None));
 
         // Creating a ParseContext with a dialect
-        let mut ctx = ParseContext::new(fresh_ansi_dialect()); // Placeholder for dialect
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default()); // Placeholder for dialect
 
         // Assuming the function 'bracket_sensitive_look_ahead_match' returns a Result
         // with a tuple

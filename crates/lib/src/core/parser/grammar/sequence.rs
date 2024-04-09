@@ -5,6 +5,7 @@ use ahash::AHashSet;
 use itertools::{chain, enumerate, Itertools};
 use uuid::Uuid;
 
+use super::conditional::Conditional;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::helpers::{check_still_complete, trim_non_code_segments};
@@ -17,7 +18,7 @@ use crate::core::parser::segments::base::{
     position_segments, ErasedSegment, Segment, UnparsableSegment,
 };
 use crate::core::parser::segments::bracketed::BracketedSegment;
-use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
+use crate::core::parser::segments::meta::{Indent, MetaSegment, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
 use crate::helpers::ToErasedSegment;
 
@@ -215,6 +216,19 @@ impl Matchable for Sequence {
             // If it's a conditional, evaluate it.
             // In both cases, we don't actually add them as inserts yet
             // because their position will depend on what types we accrue.
+            if let Some(indent) = elem.as_any().downcast_ref::<Conditional>() {
+                let match_result = indent.match_segments(segments, parse_context)?;
+
+                let matches = match_result
+                    .matched_segments
+                    .into_iter()
+                    .map(|it| it.as_any().downcast_ref::<Indent>().unwrap().clone());
+
+                meta_buffer.extend(matches);
+
+                continue;
+            }
+
             if let Some(indent) = elem.as_any().downcast_ref::<Indent>() {
                 meta_buffer.push(indent.clone());
                 continue;
@@ -451,7 +465,6 @@ impl Bracketed {
         &self,
         parse_context: &ParseContext,
     ) -> Result<(Box<dyn Matchable>, Box<dyn Matchable>, bool), String> {
-        // Assuming bracket_pairs_set and other relevant fields are part of self
         let bracket_pairs = parse_context.dialect().bracket_sets(self.bracket_pairs_set);
         for (bracket_type, start_ref, end_ref, persists) in bracket_pairs {
             if bracket_type == self.bracket_type {
@@ -649,9 +662,11 @@ impl Matchable for Bracketed {
 
         bracket_segment.segments = chain!(
             bracket_segment.start_bracket.clone(),
+            Some(MetaSegment::indent().to_erased_segment()),
             pre_segs.to_vec(),
             content_match.all_segments(),
             post_segs.to_vec(),
+            Some(MetaSegment::dedent().to_erased_segment()),
             bracket_segment.end_bracket.clone()
         )
         .collect_vec();
@@ -718,7 +733,7 @@ mod tests {
             None,
         ));
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         let g = Sequence::new(vec![bs.clone(), fs.clone()]);
         let gc = Sequence::new(vec![bs, fs]).allow_gaps(false);
@@ -784,7 +799,7 @@ mod tests {
 
         let g = Sequence::new(vec![Box::new(Sequence::new(vec![bs, fs])), bas]);
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         assert!(
             !g.match_segments(&test_segments()[..2], &mut ctx).unwrap().has_match(),
@@ -830,7 +845,7 @@ mod tests {
         ));
 
         let g = Sequence::new(vec![Box::new(MetaSegment::indent()), bs, fs]);
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
         let segments = g.match_segments(&test_segments(), &mut ctx).unwrap().matched_segments;
 
         assert_eq!(segments[0].get_type(), "indent");
@@ -1019,7 +1034,7 @@ mod tests {
         ];
 
         for (parse_mode, sequence, terminators, input_slice, output) in cases {
-            let mut parse_context = ParseContext::new(fresh_ansi_dialect());
+            let mut parse_context = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
             let elements = sequence
                 .iter()

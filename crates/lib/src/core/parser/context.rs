@@ -1,4 +1,5 @@
 use ahash::AHashMap;
+use itertools::Itertools;
 
 use super::match_result::MatchResult;
 use super::matchable::Matchable;
@@ -14,12 +15,13 @@ pub struct ParseContext {
     match_stack: Vec<String>,
     match_depth: usize,
     track_progress: bool,
-    pub terminators: Vec<Box<dyn Matchable>>,
+    pub(crate) terminators: Vec<Box<dyn Matchable>>,
     parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), String), MatchResult>,
+    pub(crate) indentation_config: AHashMap<String, bool>,
 }
 
 impl ParseContext {
-    pub fn new(dialect: Dialect) -> Self {
+    pub fn new(dialect: Dialect, indentation_config: AHashMap<String, bool>) -> Self {
         Self {
             dialect,
             tqdm: None,
@@ -29,6 +31,7 @@ impl ParseContext {
             track_progress: true,
             terminators: Vec::new(),
             parse_cache: AHashMap::new(),
+            indentation_config,
         }
     }
 
@@ -36,9 +39,13 @@ impl ParseContext {
         &self.dialect
     }
 
-    pub fn from_config(_config: FluffConfig) -> Self {
+    pub fn from_config(config: FluffConfig) -> Self {
         let dialect = dialect_selector("ansi").unwrap();
-        Self::new(dialect)
+        let indentation_config = config.raw["indentation"].as_map().unwrap().clone();
+        let indentation_config: AHashMap<_, _> =
+            indentation_config.into_iter().map(|(key, value)| (key, value.to_bool())).collect();
+
+        Self::new(dialect, indentation_config)
     }
 
     pub fn progress_bar<T>(&mut self, mut f: impl FnMut(&mut Self) -> T) -> T {

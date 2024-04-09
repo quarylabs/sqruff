@@ -13,6 +13,7 @@ use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::{Nothing, Ref};
+use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
@@ -2486,7 +2487,6 @@ impl FileSegment {
         let content: Vec<_> = if !has_match {
             unimplemented!()
         } else if !unmatched.is_empty() {
-            dbg!(unmatched.iter().map(|it| it.get_raw().unwrap()).collect_vec());
             unimplemented!()
         } else {
             chain(match_result.matched_segments, unmatched).collect()
@@ -2497,9 +2497,8 @@ impl FileSegment {
         result.extend(content);
         result.extend_from_slice(&segments[end_idx..]);
 
-        let mut file = Self { segments: result, uuid: Uuid::new_v4(), pos_marker: None }.boxed();
-
-        file.set_position_marker(pos_marker(file.as_ref()).into());
+        let mut file = Self { segments: result, uuid: Uuid::new_v4(), pos_marker: None };
+        file.set_position_marker(pos_marker(&file).into());
 
         Ok(file.to_erased_segment())
     }
@@ -2994,7 +2993,7 @@ impl NodeTrait for OrderByClauseSegment {
         Sequence::new(vec_of_erased![
             Ref::keyword("ORDER"),
             Ref::keyword("BY"),
-            // Indent::new(),
+            MetaSegment::indent(),
             Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::new("ColumnReferenceSegment"),
@@ -3011,7 +3010,7 @@ impl NodeTrait for OrderByClauseSegment {
             ])])
             .config(|this| this.terminators =
                 vec_of_erased![Ref::keyword("LIMIT"), Ref::new("FrameClauseUnitGrammar")]),
-            // Dedent::new(),
+            MetaSegment::dedent(),
         ])
         .to_matchable()
     }
@@ -3060,6 +3059,7 @@ impl NodeTrait for FromExpressionSegment {
                 Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
             ]),
             MetaSegment::dedent(),
+            Conditional::new(MetaSegment::indent()).indented_joins(),
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::new("JoinClauseSegment"),
@@ -3072,7 +3072,8 @@ impl NodeTrait for FromExpressionSegment {
                         Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
                     ];
                 })
-            ])])
+            ])]),
+            Conditional::new(MetaSegment::dedent()).indented_joins(),
         ])])
         .to_matchable()
     }
@@ -3513,7 +3514,7 @@ impl NodeTrait for AliasExpressionSegment {
             one_of(vec_of_erased![Sequence::new(vec_of_erased![Ref::new(
                 "SingleIdentifierGrammar"
             )])]),
-            MetaSegment::indent()
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -3620,14 +3621,14 @@ impl NodeTrait for CaseExpressionSegment {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("CASE"),
-                // ImplicitIndent::new(),
+                MetaSegment::implicit_indent(),
                 AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(|this| {
                     this.terminators = vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
                 }),
                 Ref::new("ElseClauseSegment")
                     .optional()
                     .config(|_this| /*this = vec![Ref::keyword("END")]*/ ()),
-                // Dedent::new(),
+                MetaSegment::dedent(),
                 Ref::keyword("END"),
             ]),
             Sequence::new(vec_of_erased![
@@ -3640,7 +3641,7 @@ impl NodeTrait for CaseExpressionSegment {
                 Ref::new("ElseClauseSegment")
                     .optional()
                     .config(|_this|/*this = vec![Ref::keyword("END")]*/ ()),
-                // Dedent::new(),
+                MetaSegment::dedent(),
                 Ref::keyword("END"),
             ]),
         ])
@@ -3658,11 +3659,19 @@ impl NodeTrait for WhenClauseSegment {
     const TYPE: &'static str = "when_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("WHEN").boxed(),
-            Ref::new("ExpressionSegment").boxed(),
-            Ref::keyword("THEN").boxed(),
-            Ref::new("ExpressionSegment").boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WHEN"),
+            Sequence::new(vec_of_erased![
+                MetaSegment::implicit_indent(),
+                Ref::new("ExpressionSegment"),
+                MetaSegment::dedent(),
+            ]),
+            Conditional::new(MetaSegment::indent()).indented_then(),
+            Ref::keyword("THEN"),
+            Conditional::new(MetaSegment::implicit_indent()).indented_then_contents(),
+            Ref::new("ExpressionSegment"),
+            Conditional::new(MetaSegment::dedent()).indented_then_contents(),
+            Conditional::new(MetaSegment::dedent()).indented_then(),
         ])
         .to_matchable()
     }
@@ -3685,9 +3694,11 @@ impl NodeTrait for WhereClauseSegment {
     const TYPE: &'static str = "where_clause";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Sequence::new(vec![
-            Ref::keyword("WHERE").boxed(),
-            optionally_bracketed(vec![Ref::new("ExpressionSegment").boxed()]).boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WHERE"),
+            MetaSegment::implicit_indent(),
+            optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -5059,22 +5070,36 @@ impl NodeTrait for JoinClauseSegment {
                 MetaSegment::indent(),
                 Ref::new("FromExpressionElementSegment"),
                 AnyNumberOf::new(vec_of_erased![Ref::new("NestedJoinGrammar")]),
-                Sequence::new(vec_of_erased![one_of(vec_of_erased![
-                    Ref::new("JoinOnConditionSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("USING"),
-                        MetaSegment::indent(),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "SingleIdentifierGrammar"
-                        )])])
-                    ])
-                ])])
+                MetaSegment::dedent(),
+                Sequence::new(vec_of_erased![
+                    Conditional::new(MetaSegment::indent()).indented_using_on(),
+                    one_of(vec_of_erased![
+                        Ref::new("JoinOnConditionSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            MetaSegment::indent(),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("SingleIdentifierGrammar")
+                            ])]),
+                            MetaSegment::dedent(),
+                        ])
+                    ]),
+                    Conditional::new(MetaSegment::dedent()).indented_using_on(),
+                ])
                 .config(|this| this.optional())
             ]),
             Sequence::new(vec_of_erased![
                 Ref::new("NaturalJoinKeywordsGrammar"),
                 Ref::new("JoinKeywordsGrammar"),
-                Ref::new("FromExpressionElementSegment")
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::new("ExtendedNaturalJoinKeywordsGrammar"),
+                MetaSegment::indent(),
+                Ref::new("FromExpressionElementSegment"),
+                MetaSegment::dedent(),
             ])
         ])
         .to_matchable()
@@ -5128,7 +5153,9 @@ impl NodeTrait for JoinOnConditionSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("ON"),
-            optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")])
+            Conditional::new(MetaSegment::implicit_indent()).indented_on_contents(),
+            optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment")]),
+            Conditional::new(MetaSegment::dedent()).indented_on_contents()
         ])
         .to_matchable()
     }
@@ -5182,9 +5209,9 @@ impl NodeTrait for NamedWindowSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WINDOW"),
-            // Indent::new(),
+            MetaSegment::indent(),
             Delimited::new(vec_of_erased![Ref::new("NamedWindowExpressionSegment"),]),
-            // Dedent::new(),
+            MetaSegment::dedent(),
         ])
         .to_matchable()
     }
@@ -5661,7 +5688,7 @@ impl NodeTrait for GroupByClauseSegment {
             one_of(vec_of_erased![
                 Ref::new("CubeRollupClauseSegment"),
                 Sequence::new(vec_of_erased![
-                    // Indent::new(),
+                    MetaSegment::indent(),
                     Delimited::new(vec_of_erased![one_of(vec_of_erased![
                         Ref::new("ColumnReferenceSegment"),
                         Ref::new("NumericLiteralSegment"),
@@ -5670,7 +5697,7 @@ impl NodeTrait for GroupByClauseSegment {
                     .config(|this| {
                         this.terminators = vec![Ref::new("GroupByClauseTerminatorGrammar").boxed()];
                     }),
-                    // Dedent::new(),
+                    MetaSegment::dedent()
                 ])
             ])
         ])
@@ -5686,7 +5713,7 @@ impl NodeTrait for LimitClauseSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("LIMIT"),
-            // Indent::new(),
+            MetaSegment::indent(),
             optionally_bracketed(vec_of_erased![one_of(vec_of_erased![
                 Ref::new("NumericLiteralSegment"),
                 Ref::new("ExpressionSegment"),
@@ -5706,7 +5733,7 @@ impl NodeTrait for LimitClauseSegment {
                 ]),
             ])
             .config(|this| this.optional()),
-            // Dedent::new(),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -5842,9 +5869,9 @@ impl NodeTrait for HavingClauseSegment {
     fn match_grammar() -> Box<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("HAVING"),
-            // ImplicitIndent::new(),
+            MetaSegment::implicit_indent(),
             optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment"),]),
-            // Dedent::new(),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -5985,7 +6012,7 @@ mod tests {
 
         for (segment_ref, sql_string) in cases {
             let dialect = fresh_ansi_dialect();
-            let mut ctx = ParseContext::new(dialect.clone());
+            let mut ctx = ParseContext::new(dialect.clone(), <_>::default());
 
             let segment = dialect.r#ref(segment_ref);
             let mut segments = lex(sql_string);
@@ -6067,11 +6094,30 @@ mod tests {
 
     #[test]
     fn test__dialect__ansi_parse_indented_joins() {
-        let cases = [("select field_1 from my_table as alias_1",)];
+        let cases = [
+            // ("select field_1 from my_table as alias_1", [1, 5, 8, 11, 15, 16, 17].as_slice()),
+            (
+                "select field_1 from my_table as alias_1 join foo using (field_1)",
+                [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
+            ),
+        ];
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
 
-        for (sql_string,) in cases {
+        for (sql_string, meta_loc) in cases {
             let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
+            let tree = parsed.tree.unwrap();
+
+            let n = tree.to_serialised(false, true, true);
+            println!("{}", serde_yaml::to_string(&n).unwrap());
+
+            let res_meta_locs = tree
+                .get_raw_segments()
+                .into_iter()
+                .enumerate()
+                .filter_map(|(idx, raw_seg)| raw_seg.is_meta().then_some(idx))
+                .collect_vec();
+
+            assert_eq!(res_meta_locs, meta_loc);
         }
     }
 

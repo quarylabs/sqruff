@@ -457,6 +457,17 @@ impl Index<&str> for Value {
 }
 
 impl Value {
+    pub fn to_bool(&self) -> bool {
+        match *self {
+            Value::Int(v) => v != 0,
+            Value::Bool(v) => v,
+            Value::Float(v) => v != 0.0,
+            Value::String(ref v) => !v.is_empty(),
+            Value::Map(ref v) => !v.is_empty(),
+            Value::None => false,
+        }
+    }
+
     pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
         if let Self::Map(map) = self { Some(map) } else { None }
     }

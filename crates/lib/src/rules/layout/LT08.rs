@@ -141,7 +141,6 @@ impl Rule for RuleLT08 {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
                 edit: repeat(NewlineSegment::new("\n", &<_>::default(), <_>::default()))
-                    .into_iter()
                     .take(num_newlines)
                     .collect_vec()
                     .into(),

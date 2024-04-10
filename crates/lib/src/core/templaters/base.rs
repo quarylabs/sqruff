@@ -1,3 +1,4 @@
+use core::fmt;
 use std::ops::Range;
 
 use crate::cli::formatters::OutputStreamFormatter;
@@ -38,6 +39,12 @@ pub struct TemplatedFile {
     raw_sliced: Vec<RawFileSlice>,
     pub sliced_file: Vec<TemplatedFileSlice>,
 }
+
+// impl fmt::Display for TemplatedFile {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "{}", self.templated_str.clone().unwrap().to_string())
+//     }
+// }
 
 impl TemplatedFile {
     /// Initialise the TemplatedFile.
@@ -523,23 +530,12 @@ impl RawFileSlice {
     fn is_source_only_slice(&self) -> bool {
         // TODO: should any new logic go here?. Slice Type could probably go from String
         // To Enum
-        match self.slice_type.as_str() {
-            "comment" => true,
-            "block_end" => true,
-            "block_start" => true,
-            "block_mid" => true,
-            _ => false,
-        }
+        matches!(self.slice_type.as_str(), "comment" | "block_end" | "block_start" | "block_mid")
     }
 }
 
+#[derive(Default)]
 pub struct RawTemplater {}
-
-impl Default for RawTemplater {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl Templater for RawTemplater {
     fn name(&self) -> &str {

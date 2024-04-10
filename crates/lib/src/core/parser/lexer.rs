@@ -288,7 +288,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
 
     /// Given a string, match what we can and return the rest.
     fn match_(&self, forward_string: String) -> Result<LexMatch, ValueError> {
-        if forward_string.len() == 0 {
+        if forward_string.is_empty() {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
         let matched = self._match(&forward_string);
@@ -306,7 +306,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
     }
 
     fn search(&self, forward_string: &str) -> Option<Range<usize>> {
-        let start = forward_string.find(&self.template);
+        let start = forward_string.find(self.template);
         if start.is_some() {
             Some(start.unwrap()..start.unwrap() + self.template.len())
         } else {
@@ -390,7 +390,7 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
 
     /// Given a string, match what we can and return the rest.
     fn match_(&self, forward_string: String) -> Result<LexMatch, ValueError> {
-        if forward_string.len() == 0 {
+        if forward_string.is_empty() {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
         let matched = self._match(&forward_string);
@@ -505,7 +505,7 @@ impl Lexer {
     /// TODO: Taking in an iterator, also can make the typing better than use
     /// unwrap.
     #[allow(dead_code)]
-    fn violations_from_segments<T: Debug + Clone>(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
+    fn violations_from_segments<>(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
         segments
             .into_iter()
             .filter(|s| s.is_type("unlexable"))
@@ -591,7 +591,7 @@ impl Lexer {
                 );
             }
         }
-        return templated_buff;
+        templated_buff
     }
 
     /// Convert a tuple of lexed elements into a tuple of segments.
@@ -626,7 +626,7 @@ fn iter_segments(
     let templated_file_slices = templated_file.clone().sliced_file;
 
     // Now work out source slices, and add in template placeholders.
-    for (_idx, element) in lexed_elements.into_iter().enumerate() {
+    for element in lexed_elements.into_iter() {
         let consumed_element_length = 0;
         let mut stashed_source_idx = None;
 

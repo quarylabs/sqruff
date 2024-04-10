@@ -155,7 +155,7 @@ fn prune_untaken_indents(
     };
 
     let mut pruned_untaken_indents: Vec<_> =
-    untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold).collect();
+        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold).collect();
 
     if indent_stats.impulse > indent_stats.trough && !has_newline {
         for i in indent_stats.trough..indent_stats.impulse {
@@ -176,9 +176,10 @@ fn update_crawl_balances(
     has_newline: bool,
 ) -> (isize, Vec<isize>) {
     let new_untaken_indents =
-        prune_untaken_indents(untaken_indents, incoming_balance, indent_stats, has_newline);    let new_balance = incoming_balance + indent_stats.impulse;
+        prune_untaken_indents(untaken_indents, incoming_balance, indent_stats, has_newline);
+    let new_balance = incoming_balance + indent_stats.impulse;
 
-        (new_balance, new_untaken_indents.into_iter().collect_vec())
+    (new_balance, new_untaken_indents.into_iter().collect_vec())
 }
 
 #[allow(unused_variables)]
@@ -292,7 +293,7 @@ fn map_line_buffers(
         if !indent_point.is_line_break {
             let indent_stats = elements[indent_point.idx].as_point().unwrap().indent_impulse();
             if indent_point.indent_impulse > indent_point.indent_trough
-            && !allow_implicit_indents
+                && !allow_implicit_indents
                 && !indent_stats.implicit_indents.is_empty()
             {
                 untaken_indent_locs.insert(

@@ -185,5 +185,5 @@ impl IntoIterator for Segments {
 
 fn pyslice<T>(collection: &[T], Range { start, end }: Range<isize>) -> impl Iterator<Item = &T> {
     let slice = slyce::Slice { start: start.into(), end: end.into(), step: None };
-    slice.apply(&collection)
+    slice.apply(collection)
 }

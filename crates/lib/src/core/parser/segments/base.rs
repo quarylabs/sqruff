@@ -131,16 +131,17 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         if let Some(value) = self.as_any().downcast_ref::<Node<WildcardIdentifierSegment>>() {
             let mut node = Node::new();
             node.uuid = value.uuid;
-            node.position_marker = value.position_marker.clone();
-            node.segments = value.segments.clone();
+            // node.position_marker = value.position_marker.clone();
+            node.position_marker.clone_from(&value.position_marker);
+            node.segments.clone_from(&value.segments);
             return node;
         }
 
         if let Some(value) = self.as_any().downcast_ref::<Node<ColumnReferenceSegment>>() {
             let mut node = Node::new();
             node.uuid = value.uuid;
-            node.position_marker = value.position_marker.clone();
-            node.segments = value.segments.clone();
+            node.position_marker.clone_from(&value.position_marker);
+            node.segments.clone_from(&value.segments);
             return node;
         }
 
@@ -174,7 +175,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         } else if code_only {
             let segments = self
                 .segments()
-                .into_iter()
+                .iter()
                 .filter(|seg| seg.is_code() && !seg.is_meta())
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
                 .collect_vec();
@@ -183,7 +184,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         } else {
             let segments = self
                 .segments()
-                .into_iter()
+                .iter()
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
                 .collect_vec();
 
@@ -318,12 +319,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     fn child(&self, seg_types: &[&str]) -> Option<ErasedSegment> {
-        for seg in self.gather_segments() {
-            if seg_types.iter().any(|ty| seg.is_type(ty)) {
-                return Some(seg);
-            }
-        }
-        None
+        self.gather_segments().into_iter().find(|seg| seg_types.iter().any(|ty| seg.is_type(ty)))
     }
 
     fn children(&self, seg_types: &[&str]) -> Vec<ErasedSegment> {
@@ -347,7 +343,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                 code_idxs: self.code_indices(),
             }];
 
-            if seg.eq(&midpoint) {
+            if seg.eq(midpoint) {
                 return steps;
             }
 
@@ -490,7 +486,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     ///
     /// In sqlfluff only implemented for RawSegments and up
     fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        self.segments().into_iter().flat_map(|item| item.get_raw_segments()).collect_vec()
+        self.segments().iter().flat_map(|item| item.get_raw_segments()).collect_vec()
     }
 
     /// Yield any source patches as fixes now.
@@ -679,13 +675,10 @@ dyn_hash::hash_trait_object!(Segment);
 
 impl PartialEq for dyn Segment {
     fn eq(&self, other: &Self) -> bool {
-        match (self.get_uuid(), other.get_uuid()) {
-            (Some(uuid1), Some(uuid2)) => {
-                if uuid1 == uuid2 {
-                    return true;
-                };
-            }
-            _ => (),
+        if let (Some(uuid1), Some(uuid2)) = (self.get_uuid(), other.get_uuid()) {
+            if uuid1 == uuid2 {
+                return true;
+            };
         };
 
         let pos_self = self.get_position_marker();
@@ -1198,7 +1191,7 @@ impl Segment for WhitespaceSegment {
         Self {
             raw: self.get_raw().unwrap(),
             position_marker: self.position_marker.clone(),
-            uuid: self.uuid.clone(),
+            uuid: self.uuid,
         }
         .to_erased_segment()
     }
@@ -1450,7 +1443,7 @@ impl Segment for UnparsableSegment {
 
 pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
     let markers: Vec<_> =
-        this.segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();
+        this.segments().iter().flat_map(|seg| seg.get_position_marker()).collect();
 
     PositionMarker::from_child_markers(markers)
 }

@@ -112,8 +112,8 @@ pub fn get_aliases_from_select(
     let aliases = fc.eventual_aliases();
 
     let mut standalone_aliases = Vec::new();
-    standalone_aliases.extend(get_pivot_table_columns(&segment, dialect));
-    standalone_aliases.extend(get_lambda_argument_columns(&segment, dialect));
+    standalone_aliases.extend(get_pivot_table_columns(segment, dialect));
+    standalone_aliases.extend(get_lambda_argument_columns(segment, dialect));
 
     let mut table_aliases = Vec::new();
     for (table_expr, alias_info) in aliases {

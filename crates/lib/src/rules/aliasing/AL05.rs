@@ -94,14 +94,12 @@ impl RuleAL05 {
             if segment.is_type("table_expression") {
                 if segment.child(&["values_clause"]).is_some() {
                     return false;
-                } else if segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
-                    ["select_statement", "set_expression", "with_compound_statement"]
-                        .iter()
-                        .any(|it| seg.is_type(it))
-                }) {
-                    return true;
                 } else {
-                    return false;
+                    return segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
+                        ["select_statement", "set_expression", "with_compound_statement"]
+                            .iter()
+                            .any(|it| seg.is_type(it))
+                    });
                 }
             }
         }
@@ -119,7 +117,7 @@ impl RuleAL05 {
                 None,
             );
 
-        fixes.extend(to_delete.into_iter().map(|it| LintFix::delete(it)));
+        fixes.extend(to_delete.into_iter().map(LintFix::delete));
 
         LintResult::new(
             alias.segment,

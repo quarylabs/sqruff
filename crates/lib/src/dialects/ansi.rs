@@ -2879,6 +2879,10 @@ impl NodeTrait for SelectStatementSegment {
             )
             .into()
     }
+
+    fn class_types() -> AHashSet<String> {
+        ["select_statement".into()].into_iter().collect()
+    }
 }
 
 pub struct SelectClauseModifierSegment;
@@ -5312,6 +5316,10 @@ impl NodeTrait for WithCompoundStatementSegment {
         ])
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<String> {
+        ["with_compound_statement".into()].into_iter().collect()
+    }
 }
 
 pub struct CTEDefinitionSegment;
@@ -5327,6 +5335,10 @@ impl NodeTrait for CTEDefinitionSegment {
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")])
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<String> {
+        ["common_table_expression"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
 
@@ -5651,6 +5663,10 @@ impl NodeTrait for TableReferenceSegment {
 
     fn match_grammar() -> Box<dyn Matchable> {
         Ref::new("ObjectReferenceSegment").to_matchable()
+    }
+
+    fn class_types() -> AHashSet<String> {
+        ["table_reference".into()].into_iter().collect()
     }
 }
 

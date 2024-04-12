@@ -23,6 +23,10 @@ impl Rule for RuleAL05 {
         "aliasing.unused"
     }
 
+    fn description(&self) -> &'static str {
+        "Tables should not be aliased if that alias is not used."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }

@@ -23,6 +23,14 @@ impl RuleAL02 {
 }
 
 impl Rule for RuleAL02 {
+    fn name(&self) -> &'static str {
+        "aliasing.column"
+    }
+
+    fn description(&self) -> &'static str {
+        "Implicit/explicit aliasing of columns."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["alias_expression"].into()).into()
     }

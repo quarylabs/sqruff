@@ -9,6 +9,14 @@ use crate::utils::analysis::query::Query;
 pub struct RuleST03 {}
 
 impl Rule for RuleST03 {
+    fn name(&self) -> &'static str {
+        "structure.unused_cte"
+    }
+
+    fn description(&self) -> &'static str {
+        "Query defines a CTE (common-table expression) but does not use it."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }

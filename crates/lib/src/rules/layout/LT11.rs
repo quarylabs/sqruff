@@ -11,6 +11,10 @@ impl Rule for RuleLT11 {
         "layout.set_operators"
     }
 
+    fn description(&self) -> &'static str {
+        "Set operators should be surrounded by newlines."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["set_operator"].into()).into()
     }

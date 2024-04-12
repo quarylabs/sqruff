@@ -14,6 +14,10 @@ impl Rule for RuleLT10 {
         "layout.select_modifiers"
     }
 
+    fn description(&self) -> &'static str {
+        "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }

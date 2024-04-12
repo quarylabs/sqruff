@@ -14,6 +14,14 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleST02 {}
 
 impl Rule for RuleST02 {
+    fn name(&self) -> &'static str {
+        "structure.simple_case"
+    }
+
+    fn description(&self) -> &'static str {
+        "Unnecessary 'CASE' statement."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["case_expression"].into()).into()
     }

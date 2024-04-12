@@ -14,6 +14,10 @@ impl Rule for RuleLT07 {
         "layout.cte_bracket"
     }
 
+    fn description(&self) -> &'static str {
+        "'WITH' clause closing bracket should be on a new line."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }

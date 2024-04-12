@@ -16,6 +16,10 @@ impl Rule for RuleLT08 {
         "layout.cte_newline"
     }
 
+    fn description(&self) -> &'static str {
+        "Blank line expected but not found after CTE closing bracket."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }

@@ -16,6 +16,10 @@ impl Rule for RuleLT04 {
         "layout.commas"
     }
 
+    fn description(&self) -> &'static str {
+        "Leading/Trailing comma enforcement."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["comma".into()].into()).into()
     }

@@ -11,6 +11,10 @@ impl Rule for RuleLT02 {
         "layout.indent"
     }
 
+    fn description(&self) -> &'static str {
+        "Incorrect Indentation."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler::default().into()
     }

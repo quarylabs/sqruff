@@ -8,6 +8,14 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleST01 {}
 
 impl Rule for RuleST01 {
+    fn name(&self) -> &'static str {
+        "structure.else_null"
+    }
+
+    fn description(&self) -> &'static str {
+        "Do not specify 'else null' in a case when statement (redundant)."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["case_expression"].into()).into()
     }

@@ -22,6 +22,14 @@ use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 pub struct RuleL001 {}
 
 impl Rule for RuleL001 {
+    fn name(&self) -> &'static str {
+        "trailing whitespace"
+    }
+
+    fn description(&self) -> &'static str {
+        "Unnecessary trailing whitespace."
+    }
+
     /// Unnecessary trailing whitespace.
     ///
     /// Look for newline segments, and then evaluate what

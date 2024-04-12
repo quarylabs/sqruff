@@ -34,6 +34,14 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleCv02 {}
 
 impl Rule for RuleCv02 {
+    fn name(&self) -> &'static str {
+        "convention.coalesce"
+    }
+
+    fn description(&self) -> &'static str {
+        "Use 'COALESCE' instead of 'IFNULL' or 'NVL'."
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Use "COALESCE" instead of "IFNULL" or "NVL".
         // We only care about function names, and they should be the

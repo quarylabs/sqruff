@@ -246,17 +246,13 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
         "main"
     }
 
-    fn name(&self) -> &'static str {
-        std::any::type_name::<Self>()
-    }
+    fn name(&self) -> &'static str;
+
+    fn description(&self) -> &'static str;
 
     fn code(&self) -> &'static str {
         let name = std::any::type_name::<Self>();
         name.split("::").last().unwrap().strip_prefix("Rule").unwrap_or(name)
-    }
-
-    fn description(&self) -> &'static str {
-        "write description"
     }
 
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult>;

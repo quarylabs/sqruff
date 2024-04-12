@@ -39,6 +39,14 @@ impl Default for RuleAL01 {
 }
 
 impl Rule for RuleAL01 {
+    fn name(&self) -> &'static str {
+        "aliasing.table"
+    }
+
+    fn description(&self) -> &'static str {
+        "Implicit/explicit aliasing of table."
+    }
+
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
         let last_seg = rule_cx.parent_stack.last().unwrap();
         let last_seg_ty = last_seg.get_type();

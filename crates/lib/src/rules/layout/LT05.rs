@@ -14,6 +14,10 @@ impl Rule for RuleLT05 {
         "layout.long_lines"
     }
 
+    fn description(&self) -> &'static str {
+        "Line is too long."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler::default().into()
     }

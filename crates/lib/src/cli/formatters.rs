@@ -353,6 +353,10 @@ mod tests {
                 "some-name"
             }
 
+            fn description(&self) -> &'static str {
+                ""
+            }
+
             fn code(&self) -> &'static str {
                 "A"
             }

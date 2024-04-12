@@ -11,6 +11,14 @@ use crate::utils::analysis::select::get_select_statement_info;
 pub struct RuleAL04 {}
 
 impl Rule for RuleAL04 {
+    fn name(&self) -> &'static str {
+        "aliasing.unique.table"
+    }
+
+    fn description(&self) -> &'static str {
+        "Table aliases should be unique within each clause."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }

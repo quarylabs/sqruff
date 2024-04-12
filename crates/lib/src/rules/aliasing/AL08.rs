@@ -11,6 +11,14 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleAL08 {}
 
 impl Rule for RuleAL08 {
+    fn name(&self) -> &'static str {
+        "layout.cte_newline"
+    }
+
+    fn description(&self) -> &'static str {
+        "Column aliases should be unique within each clause."
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut used_aliases = AHashMap::new();
         let mut violations = Vec::new();

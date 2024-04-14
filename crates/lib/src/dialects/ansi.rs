@@ -6124,7 +6124,6 @@ mod tests {
             let tree = parsed.tree.unwrap();
 
             let n = tree.to_serialised(false, true, true);
-            println!("{}", serde_yaml::to_string(&n).unwrap());
 
             let res_meta_locs = tree
                 .get_raw_segments()

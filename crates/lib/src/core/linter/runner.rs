@@ -27,10 +27,11 @@ pub struct SequentialRunner;
 impl Runner for SequentialRunner {
     fn run(&mut self, paths: Vec<String>, fix: bool, linter: &mut Linter) -> Vec<LintedFile> {
         let mut acc = Vec::with_capacity(paths.len());
+        let rule_pack = linter.get_rulepack();
 
         for path in paths {
             let rendered = linter.render_file(path);
-            let linted_file = linter.lint_rendered(rendered, fix);
+            let linted_file = linter.lint_rendered(rendered, &rule_pack, fix);
 
             acc.push(linted_file);
         }

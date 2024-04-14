@@ -1,6 +1,8 @@
+use ahash::AHashMap;
 use itertools::Itertools;
 
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
@@ -9,6 +11,10 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleLT13 {}
 
 impl Rule for RuleLT13 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
     fn name(&self) -> &'static str {
         "layout.start_of_file"
     }

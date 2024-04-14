@@ -1,7 +1,8 @@
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 
+use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -10,6 +11,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT07 {}
 
 impl Rule for RuleLT07 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT07::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_bracket"
     }

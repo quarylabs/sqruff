@@ -1,5 +1,8 @@
+use ahash::AHashMap;
+
 use super::AL01::{Aliasing, RuleAL01};
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -23,6 +26,10 @@ impl RuleAL02 {
 }
 
 impl Rule for RuleAL02 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleAL02::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "aliasing.column"
     }

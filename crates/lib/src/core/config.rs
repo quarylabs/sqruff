@@ -98,8 +98,16 @@ pub fn removed_configs() -> [RemovedConfig<'static>; 12] {
 
 /// split_comma_separated_string takes a string and splits it on commas and
 /// trims and filters out empty strings.
-pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
-    raw_str.split(',').map(|x| x.trim().to_string()).filter(|x| !x.is_empty()).collect()
+pub fn split_comma_separated_string(raw_str: &str) -> Value {
+    let values = raw_str
+        .split(',')
+        .flat_map(|x| {
+            let trimmed = x.trim();
+            (!trimmed.is_empty()).then(|| Value::String(trimmed.into()))
+        })
+        .collect();
+
+    Value::Array(values)
 }
 
 /// The class that actually gets passed around as a config object.
@@ -125,8 +133,11 @@ impl FluffConfig {
         &self.raw[section][key]
     }
 
+    pub fn get_section(&self, section: &str) -> &AHashMap<String, Value> {
+        &self.raw[section].as_map().unwrap()
+    }
+
     // TODO This is not a translation that is particularly accurate.
-    #[track_caller]
     pub fn new(
         mut configs: AHashMap<String, Value>,
         extra_config_path: Option<String>,
@@ -146,6 +157,30 @@ impl FluffConfig {
             .get_config_elems_from_file(None, include_str!("./default_config.cfg").into());
 
         ConfigLoader.incorporate_vals(&mut configs, values);
+
+        for (in_key, out_key) in [
+            // Deal with potential ignore & warning parameters
+            ("ignore", "ignore"),
+            ("warnings", "warnings"),
+            ("rules", "rule_allowlist"),
+            // Allowlists and denylistsignore_words
+            ("exclude_rules", "rule_denylist"),
+        ] {
+            match configs["core"].as_map().unwrap().get(in_key) {
+                Some(value) if !value.is_none() => {
+                    let string = value.as_string().unwrap();
+                    let values = split_comma_separated_string(string);
+
+                    configs
+                        .get_mut("core")
+                        .unwrap()
+                        .as_map_mut()
+                        .unwrap()
+                        .insert(out_key.into(), values);
+                }
+                _ => {}
+            }
+        }
 
         Self {
             raw: configs,
@@ -442,7 +477,18 @@ pub enum Value {
     Float(f64),
     String(Box<str>),
     Map(AHashMap<String, Value>),
+    Array(Vec<Value>),
     None,
+}
+
+impl Value {
+    pub fn is_none(&self) -> bool {
+        matches!(self, Value::None)
+    }
+
+    pub fn as_array(&self) -> Option<&[Value]> {
+        if let Self::Array(v) = self { Some(v) } else { None }
+    }
 }
 
 impl Index<&str> for Value {
@@ -465,6 +511,7 @@ impl Value {
             Value::String(ref v) => !v.is_empty(),
             Value::Map(ref v) => !v.is_empty(),
             Value::None => false,
+            Value::Array(ref v) => !v.is_empty(),
         }
     }
 

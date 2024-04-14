@@ -22,8 +22,9 @@ use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::fix::AnchorEditInfo;
-use crate::core::rules::base::{ErasedRule, LintFix};
+use crate::core::rules::base::{ErasedRule, LintFix, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
+use crate::rules::get_ruleset;
 
 pub struct Linter {
     config: FluffConfig,
@@ -38,7 +39,7 @@ impl Linter {
         formatter: Option<OutputStreamFormatter>,
         templater: Option<Box<dyn Templater>>,
     ) -> Linter {
-        let rules = crate::rules::layout::get_rules(&config);
+        let rules = crate::rules::layout::get_rules();
         match templater {
             Some(templater) => Linter { config, formatter, templater, rules },
             None => Linter { config, formatter, templater: Box::<RawTemplater>::default(), rules },
@@ -180,12 +181,22 @@ impl Linter {
         result
     }
 
+    pub fn get_rulepack(&self) -> RulePack {
+        let rs = get_ruleset();
+        rs.get_rulepack(&self.config)
+    }
+
     pub fn render_file(&mut self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
         self.render_string(in_str, fname, self.config.clone(), None).unwrap()
     }
 
-    pub fn lint_rendered(&mut self, rendered: RenderedFile, fix: bool) -> LintedFile {
+    pub fn lint_rendered(
+        &mut self,
+        rendered: RenderedFile,
+        rule_pack: &RulePack,
+        fix: bool,
+    ) -> LintedFile {
         let parsed = Self::parse_rendered(rendered, false);
         self.lint_parsed(parsed, self.rules.clone(), fix)
     }

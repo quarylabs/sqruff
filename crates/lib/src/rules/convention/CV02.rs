@@ -1,5 +1,8 @@
+use ahash::AHashMap;
+
+use crate::core::config::Value;
 use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -34,6 +37,10 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleCv02 {}
 
 impl Rule for RuleCv02 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
     fn name(&self) -> &'static str {
         "convention.coalesce"
     }

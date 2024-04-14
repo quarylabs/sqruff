@@ -1,7 +1,10 @@
 use std::ops::Deref;
 
+use ahash::AHashMap;
+
 use super::LT03::RuleLT03;
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -12,6 +15,10 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT04::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.commas"
     }

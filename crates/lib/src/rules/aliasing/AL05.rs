@@ -1,7 +1,10 @@
+use ahash::AHashMap;
+
+use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceLevel;
@@ -19,6 +22,10 @@ struct AL05Query {
 pub struct RuleAL05 {}
 
 impl Rule for RuleAL05 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
     fn name(&self) -> &'static str {
         "aliasing.unused"
     }

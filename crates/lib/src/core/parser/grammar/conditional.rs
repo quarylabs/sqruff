@@ -86,8 +86,6 @@ impl Matchable for Conditional {
             return Ok(MatchResult::from_unmatched(segments.to_vec()));
         }
 
-        dbg!(self);
-
         Ok(MatchResult {
             matched_segments: vec![self.meta.clone().to_erased_segment()],
             unmatched_segments: segments.to_vec(),

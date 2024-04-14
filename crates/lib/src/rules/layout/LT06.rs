@@ -1,7 +1,9 @@
+use ahash::AHashMap;
 use itertools::Itertools;
 
+use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -10,6 +12,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT06 {}
 
 impl Rule for RuleLT06 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT06::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.functions"
     }

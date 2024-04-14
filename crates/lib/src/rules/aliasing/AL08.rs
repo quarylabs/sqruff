@@ -2,8 +2,9 @@ use std::collections::hash_map::Entry;
 
 use ahash::AHashMap;
 
+use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -11,6 +12,10 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleAL08 {}
 
 impl Rule for RuleAL08 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_newline"
     }

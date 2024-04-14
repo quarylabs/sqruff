@@ -291,16 +291,18 @@ impl Status {
 mod tests {
     use std::fs::File;
 
+    use ahash::AHashMap;
     use anstyle::AnsiColor;
     use fancy_regex::Regex;
     use tempdir::TempDir;
 
     use super::OutputStreamFormatter;
     use crate::cli::formatters::split_string_on_spaces;
+    use crate::core::config::Value;
     use crate::core::errors::SQLLintError;
     use crate::core::parser::markers::PositionMarker;
     use crate::core::parser::segments::raw::RawSegment;
-    use crate::core::rules::base::{Erased, LintResult, Rule};
+    use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
     use crate::core::templaters::base::TemplatedFile;
@@ -367,6 +369,10 @@ mod tests {
 
             fn crawl_behaviour(&self) -> Crawler {
                 todo!()
+            }
+
+            fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+                unimplemented!()
             }
         }
 

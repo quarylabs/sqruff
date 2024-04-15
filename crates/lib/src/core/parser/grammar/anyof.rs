@@ -35,7 +35,7 @@ fn parse_mode_match_result(
     let trim_idx = unmatched_segments.iter().position(|s| s.is_code()).unwrap_or(0);
 
     // Create an unmatched segment
-    let _expected = if let Some(first_tail_segment) = tail.get(0) {
+    let _expected = if let Some(first_tail_segment) = tail.first() {
         format!("Nothing else before {first_tail_segment:?}")
     } else {
         "Nothing else".to_string()

@@ -124,12 +124,13 @@ impl ReflowSequence {
         }
 
         if sides == "both" || sides == "after" {
-            for i in post_idx..all_raws.len() {
-                if all_raws[i].is_code() {
+            for (i, item) in all_raws.iter().enumerate().skip(post_idx) {
+                if item.is_code() {
                     post_idx = i;
                     break;
                 }
             }
+            
             post_idx += 1;
         }
 

@@ -46,6 +46,12 @@ pub struct TemplatedFile {
 //     }
 // }
 
+impl fmt::Display for TemplatedFile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.templated_str.clone().unwrap().to_string())
+    }
+}
+
 impl TemplatedFile {
     /// Initialise the TemplatedFile.
     /// If no templated_str is provided then we assume that
@@ -213,10 +219,11 @@ impl TemplatedFile {
         self.templated_str.as_deref()
     }
 
+
     /// Return the templated file if coerced to string.
-    pub fn to_string(&self) -> String {
-        self.templated_str.clone().unwrap().to_string()
-    }
+    // pub fn to_string(&self) -> String {
+    //     self.templated_str.clone().unwrap().to_string()
+    // }
 
     /// Return a list a slices which reference the parts only in the source.
     ///
@@ -259,9 +266,10 @@ impl TemplatedFile {
                 if first_idx.is_none() {
                     first_idx = Some(idx + start_idx);
                 }
-                if elem.templated_slice.start > templated_pos {
-                    break;
-                } else if !inclusive && elem.templated_slice.end >= templated_pos {
+                // if elem.templated_slice.start > templated_pos {
+                //     break;
+                // } // same as bellow
+                else if !inclusive && elem.templated_slice.end >= templated_pos {
                     break;
                 }
             }
@@ -363,25 +371,27 @@ impl TemplatedFile {
 
         let start_slices;
         if ts_start_sf_start == ts_start_sf_stop {
-            if ts_start_sf_start > sliced_file.len() {
-                return Err(ValueError::new(
-                    "Starting position higher than sliced file position".into(),
-                ));
-            } else if ts_start_sf_start < sliced_file.len() {
-                return Ok(sliced_file[1].source_slice.clone());
-            } else {
-                return Ok(sliced_file.last().unwrap().source_slice.clone());
+            match ts_start_sf_start {
+                value if value > sliced_file.len() => {
+                    return Err(ValueError::new(
+                        "Starting position higher than sliced file position".into(),
+                    ));
+                }
+                _ => {
+                    return Ok(sliced_file.last().unwrap().source_slice.clone());
+                }
             }
+            
         } else {
             start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
         }
 
-        let stop_slices;
-        if ts_stop_sf_start == ts_stop_sf_stop {
-            stop_slices = vec![sliced_file[ts_stop_sf_start].clone()];
+        
+        let stop_slices = if ts_stop_sf_start == ts_stop_sf_stop {
+            vec![sliced_file[ts_stop_sf_start].clone()]
         } else {
-            stop_slices = sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec();
-        }
+          sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec()
+        };
 
         let source_start: isize = if insertion_point >= 0 {
             insertion_point

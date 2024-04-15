@@ -198,7 +198,7 @@ impl Linter {
         fix: bool,
     ) -> LintedFile {
         let parsed = Self::parse_rendered(rendered, false);
-        self.lint_parsed(parsed, self.rules.clone(), fix)
+        self.lint_parsed(parsed, rule_pack.rules.clone(), fix)
     }
 
     pub fn lint_parsed(

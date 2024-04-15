@@ -17,7 +17,7 @@ jobs:
         run: |
           RELEASE_VERSION=${{ github.event.release.tag_name }}
           STRIPPED_VERSION=${RELEASE_VERSION#v}
-          ./.hacking/check_versions_match.sh check_versions_match GITHUB_RELEASE_VERSION=$STRIPPED_VERSION
+          ./.hacking/check_versions_match.sh $STRIPPED_VERSION
   release:
     name: Release ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.os }}

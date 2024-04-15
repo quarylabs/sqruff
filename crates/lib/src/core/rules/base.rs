@@ -362,7 +362,7 @@ pub struct RuleManifest {
 }
 
 pub struct RulePack {
-    rules: Vec<ErasedRule>,
+    pub(crate) rules: Vec<ErasedRule>,
     reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
 }
 

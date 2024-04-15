@@ -143,6 +143,24 @@ impl FluffConfig {
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
+        fn nested_combine(
+            mut a: AHashMap<String, Value>,
+            b: AHashMap<String, Value>,
+        ) -> AHashMap<String, Value> {
+            for (key, value_b) in b {
+                match (a.get(&key), value_b) {
+                    (Some(Value::Map(map_a)), Value::Map(map_b)) => {
+                        let combined = nested_combine(map_a.clone(), map_b);
+                        a.insert(key, Value::Map(combined));
+                    }
+                    (_, value) => {
+                        a.insert(key, value);
+                    }
+                }
+            }
+            a
+        }
+
         let dialect = match configs.get("dialect") {
             None => get_default_dialect(),
             Some(Value::String(std)) => {
@@ -156,7 +174,10 @@ impl FluffConfig {
         let values = ConfigLoader
             .get_config_elems_from_file(None, include_str!("./default_config.cfg").into());
 
-        ConfigLoader.incorporate_vals(&mut configs, values);
+        let mut defaults = AHashMap::new();
+        ConfigLoader.incorporate_vals(&mut defaults, values);
+
+        let mut configs = nested_combine(defaults, configs);
 
         for (in_key, out_key) in [
             // Deal with potential ignore & warning parameters
@@ -290,7 +311,7 @@ impl ConfigLoader {
         working_path: Option<&Path>,
         ignore_local_config: bool,
     ) -> impl Iterator<Item = PathBuf> {
-        let mut given_path = std::fs::canonicalize(path).unwrap();
+        let mut given_path = std::path::absolute(path).unwrap();
         let working_path = std::env::current_dir().unwrap();
 
         if !given_path.is_dir() {

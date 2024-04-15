@@ -8,6 +8,16 @@ env:
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: short
 jobs:
+  check-versions-match:
+    name: Check versions match
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Allow running check_versions_match.sh
+        run: chmod +x ./.hacking/check_versions_match.sh
+      - run: ./.hacking/check_versions_match.sh
   compile:
     name: Compile
     runs-on: ubuntu-latest

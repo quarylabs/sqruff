@@ -30,7 +30,7 @@ impl Rule for RuleAL04 {
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let Some(select_info) =
-            get_select_statement_info(&context.segment, (&context.dialect).into(), true)
+            get_select_statement_info(&context.segment, context.dialect.into(), true)
         else {
             return Vec::new();
         };

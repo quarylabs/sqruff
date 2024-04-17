@@ -267,13 +267,23 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
 
     fn crawl(
         &self,
-        dialect: Dialect,
+        dialect: &Dialect,
         fix: bool,
         tree: ErasedSegment,
         config: FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
-        let root_context =
-            RuleContext { dialect, fix, config: config.into(), segment: tree, ..<_>::default() };
+        let root_context = RuleContext {
+            dialect,
+            fix,
+            config: config.into(),
+            segment: tree,
+            templated_file: <_>::default(),
+            path: <_>::default(),
+            parent_stack: <_>::default(),
+            raw_stack: <_>::default(),
+            memory: <_>::default(),
+            segment_idx: 0,
+        };
         let mut vs = Vec::new();
         let mut fixes = Vec::new();
 

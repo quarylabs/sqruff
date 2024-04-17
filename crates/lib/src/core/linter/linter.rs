@@ -278,7 +278,7 @@ impl Linter {
                     }
 
                     let (linting_errors, fixes) =
-                        rule.crawl(dialect.clone(), fix, tree.clone(), self.config.clone());
+                        rule.crawl(&dialect, fix, tree.clone(), self.config.clone());
                     let anchor_info = compute_anchor_edit_info(fixes.clone());
 
                     if is_first_linter_pass {

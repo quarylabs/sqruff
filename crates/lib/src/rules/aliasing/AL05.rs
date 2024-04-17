@@ -40,8 +40,7 @@ impl Rule for RuleAL05 {
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
-        let select_info =
-            get_select_statement_info(&context.segment, (&context.dialect).into(), true);
+        let select_info = get_select_statement_info(&context.segment, context.dialect.into(), true);
 
         let Some(select_info) = select_info else {
             return Vec::new();

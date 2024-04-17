@@ -15,7 +15,7 @@ pub trait BaseCrawler {
         self.works_on_unparsable() || !segment.is_type("unparsable")
     }
 
-    fn crawl(&self, context: RuleContext) -> Vec<RuleContext>;
+    fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>>;
 }
 
 #[enum_dispatch(BaseCrawler)]
@@ -32,7 +32,7 @@ pub enum Crawler {
 pub struct RootOnlyCrawler;
 
 impl BaseCrawler for RootOnlyCrawler {
-    fn crawl(&self, context: RuleContext) -> Vec<RuleContext> {
+    fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
         if self.passes_filter(&*context.segment) { vec![context.clone()] } else { Vec::new() }
     }
 }
@@ -54,7 +54,7 @@ impl SegmentSeekerCrawler {
 }
 
 impl BaseCrawler for SegmentSeekerCrawler {
-    fn crawl(&self, mut context: RuleContext) -> Vec<RuleContext> {
+    fn crawl<'a>(&self, mut context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
         let mut acc = Vec::new();
 
         let self_match = false;

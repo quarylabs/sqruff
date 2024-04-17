@@ -11,22 +11,22 @@ use crate::core::parser::segments::base::{ErasedSegment, PathStep, Segment};
 pub struct StackPosition {
     pub idx: usize,
     pub len: usize,
-    pub type_: String,
+    pub type_: &'static str,
 }
 
 impl StackPosition {
     /// Interpret a path step for stack_positions.
-    fn stack_pos_interpreter(path_step: &PathStep) -> String {
+    fn stack_pos_interpreter(path_step: &PathStep) -> &'static str {
         if path_step.code_idxs.is_empty() {
-            "".to_string()
+            ""
         } else if path_step.code_idxs.len() == 1 {
-            "solo".to_string()
+            "solo"
         } else if path_step.idx == *path_step.code_idxs.iter().min().unwrap() {
-            "start".to_string()
+            "start"
         } else if path_step.idx == *path_step.code_idxs.iter().max().unwrap() {
-            "end".to_string()
+            "end"
         } else {
-            "".to_string()
+            ""
         }
     }
 
@@ -47,7 +47,7 @@ pub struct DepthMap {
 
 impl DepthMap {
     fn new(raws_with_stack: Vec<(ErasedSegment, Vec<PathStep>)>) -> Self {
-        let mut depth_info = AHashMap::new();
+        let mut depth_info = AHashMap::with_capacity(raws_with_stack.len());
 
         for (raw, stack) in raws_with_stack {
             depth_info.insert(raw.get_uuid().unwrap(), DepthInfo::from_raw_and_stack(raw, stack));
@@ -91,7 +91,7 @@ pub struct DepthInfo {
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {
-    let mut hasher = DefaultHasher::new();
+    let mut hasher = ahash::AHasher::default();
     t.hash(&mut hasher);
     hasher.finish()
 }
@@ -106,10 +106,10 @@ impl DepthInfo {
             })
             .collect();
 
-        let stack_hash_set: AHashSet<u64> = stack_hashes.iter().cloned().collect();
+        let stack_hash_set: AHashSet<u64> = AHashSet::from_iter(stack_hashes.clone());
 
         let stack_class_types: Vec<AHashSet<String>> =
-            stack.iter().map(|ps| ps.segment.class_types().iter().cloned().collect()).collect();
+            stack.iter().map(|ps| ps.segment.class_types()).collect();
 
         let stack_positions: AHashMap<u64, StackPosition> = stack
             .into_iter()

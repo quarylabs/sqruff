@@ -3638,7 +3638,7 @@ impl NodeTrait for CaseExpressionSegment {
             Sequence::new(vec_of_erased![
                 Ref::keyword("CASE"),
                 Ref::new("ExpressionSegment"),
-                // ImplicitIndent::new(),
+                MetaSegment::implicit_indent(),
                 AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],)
                     .config(|this| this.terminators =
                         vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")]),
@@ -3949,7 +3949,10 @@ impl NodeTrait for MergeStatementSegment {
                 .boxed(),
             ])
             .boxed(),
+            MetaSegment::dedent().boxed(),
+            Conditional::new(MetaSegment::indent()).indented_using_on().boxed(),
             Ref::new("JoinOnConditionSegment").boxed(),
+            Conditional::new(MetaSegment::dedent()).indented_using_on().boxed(),
             Ref::new("MergeMatchSegment").boxed(),
         ])
         .to_matchable()

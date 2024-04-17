@@ -179,7 +179,7 @@ impl ReflowPoint {
                         if let Some(before) = before { before.into() } else { unimplemented!() },
                         vec![],
                         None,
-                        format!("Expected").into(),
+                        format!("Expected {}", indent_description(desired_indent)).into(),
                         None,
                     )],
                     ReflowPoint::new(vec![]),

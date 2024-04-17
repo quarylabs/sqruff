@@ -49,7 +49,7 @@ impl Rule for RuleCv02 {
         // Create fix to replace "IFNULL" or "NVL" with "COALESCE".
         let fix = LintFix::replace(
             context.segment.clone(),
-            vec![SymbolSegment::new(
+            vec![SymbolSegment::create(
                 "COALESCE",
                 &<_>::default(),
                 SymbolSegmentNewArgs { r#type: "function_name_identifier" },

@@ -121,7 +121,7 @@ pub fn ansi_dialect() -> Dialect {
     ansi_dialect.sets_mut("value_table_functions");
 
     let symbol_factory = |segment: &dyn Segment| {
-        SymbolSegment::new(
+        SymbolSegment::create(
             &segment.get_raw().unwrap(),
             &segment.get_position_marker().unwrap(),
             SymbolSegmentNewArgs { r#type: "remove me" },
@@ -136,7 +136,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 ";",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "statement_terminator" },
@@ -172,7 +172,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 "(",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "start_bracket" },
@@ -190,7 +190,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 ")",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "end_bracket" },
@@ -224,7 +224,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 ",",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "comma" },
@@ -242,7 +242,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 ".",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "dot" },
@@ -264,7 +264,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 "~",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "tilde" },
@@ -290,7 +290,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 "+",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
@@ -312,7 +312,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 "+",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "sign_indicator" },
@@ -330,7 +330,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 "-",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "sign_indicator" },
@@ -368,7 +368,7 @@ pub fn ansi_dialect() -> Dialect {
             StringParser::new(
                 "|",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "pipe" },
@@ -390,7 +390,7 @@ pub fn ansi_dialect() -> Dialect {
             TypedParser::new(
                 "like_operator",
                 |it| {
-                    ComparisonOperatorSegment::new(
+                    ComparisonOperatorSegment::create(
                         &it.get_raw().unwrap(),
                         &it.get_position_marker().unwrap(),
                     )
@@ -495,7 +495,7 @@ pub fn ansi_dialect() -> Dialect {
             TypedParser::new(
                 "word",
                 |segment: &dyn Segment| {
-                    SymbolSegment::new(
+                    SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "function_name_identifier" },
@@ -729,13 +729,14 @@ pub fn ansi_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::keyword("DATE"),
-                    Ref::keyword("TIME"),
+                    Ref::keyword("TIME"
+                ),
                     Ref::keyword("TIMESTAMP"),
                     Ref::keyword("INTERVAL")
                 ]),
                 TypedParser::new(
                     "single_quote",
-                    |seg| LiteralSegment::new(
+                    |seg| LiteralSegment::create(
                         &seg.get_raw().unwrap(),
                         &seg.get_position_marker().unwrap()
                     ),
@@ -1789,7 +1790,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "whitespace",
                 r"[^\S\r\n]+",
-                &WhitespaceSegment::new as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
+                &WhitespaceSegment::create as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
                 WhitespaceSegmentNewArgs {},
                 None,
                 None,
@@ -1831,7 +1832,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                     RegexLexer::new(
                         "whitespace",
                         r"[^\S\r\n]+",
-                        &WhitespaceSegment::new as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
+                        &WhitespaceSegment::create as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
                         WhitespaceSegmentNewArgs {},
                         None,
                         None,

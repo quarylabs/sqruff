@@ -71,7 +71,7 @@ impl Rule for RuleLT10 {
 
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
-            WhitespaceSegment::new(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
             select_clause_modifier.clone_box(),
         ];
 

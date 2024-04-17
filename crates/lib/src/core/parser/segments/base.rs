@@ -1172,7 +1172,7 @@ pub struct WhitespaceSegment {
 pub struct WhitespaceSegmentNewArgs;
 
 impl WhitespaceSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         _args: WhitespaceSegmentNewArgs,
@@ -1241,7 +1241,7 @@ impl Segment for WhitespaceSegment {
     }
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        Self::new(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
+        Self::create(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -1260,7 +1260,7 @@ pub struct UnlexableSegmentNewArgs {
 }
 
 impl UnlexableSegment {
-    pub fn new(
+    pub fn create(
         _raw: &str,
         _position_maker: &PositionMarker,
         args: UnlexableSegmentNewArgs,
@@ -1388,7 +1388,7 @@ pub struct SymbolSegmentNewArgs {
 }
 
 impl SymbolSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: SymbolSegmentNewArgs,

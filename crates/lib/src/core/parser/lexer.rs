@@ -455,7 +455,7 @@ impl Lexer {
         let last_resort_lexer = RegexLexer::new(
             "last_resort",
             "[^\t\n.]*",
-            &UnlexableSegment::new,
+            &UnlexableSegment::create,
             UnlexableSegmentNewArgs { expected: None },
             None,
             None,
@@ -608,7 +608,7 @@ impl Lexer {
             .last()
             .map(|segment| segment.get_position_marker().unwrap())
             .unwrap_or_else(|| PositionMarker::from_point(0, 0, templated_file, None, None));
-        segments.push(EndOfFile::new(position_maker));
+        segments.push(EndOfFile::create(position_maker));
 
         segments
     }

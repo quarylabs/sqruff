@@ -171,7 +171,7 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent = WhitespaceSegment::new(
+                let new_indent = WhitespaceSegment::create(
                     desired_indent,
                     &<_>::default(),
                     WhitespaceSegmentNewArgs,
@@ -249,7 +249,7 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                let new_indent = WhitespaceSegment::new(
+                let new_indent = WhitespaceSegment::create(
                     desired_indent,
                     &<_>::default(),
                     WhitespaceSegmentNewArgs,

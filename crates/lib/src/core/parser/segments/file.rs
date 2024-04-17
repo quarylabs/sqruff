@@ -73,7 +73,7 @@ impl Segment for BaseFileSegment {
 
 impl BaseFileSegment {
     #[allow(dead_code)]
-    pub fn new(
+    pub fn create(
         _segments: Vec<ErasedSegment>,
         _position_maker: Option<PositionMarker>,
         f_name: Option<String>,

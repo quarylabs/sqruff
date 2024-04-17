@@ -266,7 +266,7 @@ impl Linter {
                         let (new_tree, _, _, valid) =
                             tree.apply_fixes(dialect_selector("ansi").unwrap(), anchor_info);
 
-                        if !true {
+                        if false {
                             println!(
                                 "Fixes for {rule:?} not applied, as it would result in an \
                                  unparsable file. Please report this as a bug with a minimal \

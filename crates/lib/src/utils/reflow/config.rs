@@ -95,11 +95,11 @@ impl ReflowConfig {
             for (idx, key) in depth_info.stack_hashes.iter().rev().enumerate() {
                 let stack_position = &depth_info.stack_positions[key];
 
-                if !["solo", "start"].contains(&stack_position.type_.as_str()) {
+                if !["solo", "start"].contains(&stack_position.type_) {
                     parent_start = false;
                 }
 
-                if !["solo", "end"].contains(&stack_position.type_.as_str()) {
+                if !["solo", "end"].contains(&stack_position.type_) {
                     parent_end = false;
                 }
 

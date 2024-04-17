@@ -380,6 +380,22 @@ fn lint_line_starting_indent(
         return Vec::new();
     }
 
+    if initial_point_idx > 0 && initial_point_idx < elements.len() - 1 {
+        if elements[initial_point_idx + 1].class_types1().contains("comment") {
+            let last_indent =
+                deduce_line_current_indent(elements, indent_points[0].last_line_break_idx);
+            if current_indent.len() == last_indent.len() {
+                return Vec::new();
+            }
+        }
+
+        if elements[initial_point_idx - 1].class_types1().contains("block_comment")
+            && elements[initial_point_idx + 1].class_types1().contains("block_comment")
+        {
+            return Vec::new();
+        }
+    }
+
     let (new_results, new_point) = if indent_points[0].idx == 0 && !indent_points[0].is_line_break {
         let init_seg = &elements[indent_points[0].idx].segments()[0];
         let fixes = if init_seg.is_type("placeholder") {

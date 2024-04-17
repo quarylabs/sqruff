@@ -17,7 +17,7 @@ impl<'me> RunnerContext<'me, SequentialRunner> {
 
 impl<R: Runner> RunnerContext<'_, R> {
     pub fn run(&mut self, paths: Vec<String>) {
-        self.runner.run(paths, &mut self.linter);
+        self.runner.run(paths, self.linter);
     }
 }
 

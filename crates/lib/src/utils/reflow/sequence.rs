@@ -130,7 +130,7 @@ impl ReflowSequence {
                     break;
                 }
             }
-            
+
             post_idx += 1;
         }
 

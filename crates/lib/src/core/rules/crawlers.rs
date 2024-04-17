@@ -68,7 +68,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
             && self.provide_raw_stack
         {
             unimplemented!();
-            return acc;
+         //   return acc;
         }
 
         self.types.is_disjoint(

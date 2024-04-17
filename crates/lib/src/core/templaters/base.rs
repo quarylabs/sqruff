@@ -48,7 +48,7 @@ pub struct TemplatedFile {
 
 impl fmt::Display for TemplatedFile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.templated_str.clone().unwrap().to_string())
+        write!(f, "{}", self.templated_str.clone().unwrap())
     }
 }
 
@@ -219,7 +219,6 @@ impl TemplatedFile {
         self.templated_str.as_deref()
     }
 
-
     /// Return the templated file if coerced to string.
     // pub fn to_string(&self) -> String {
     //     self.templated_str.clone().unwrap().to_string()
@@ -381,16 +380,14 @@ impl TemplatedFile {
                     return Ok(sliced_file.last().unwrap().source_slice.clone());
                 }
             }
-            
         } else {
             start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
         }
 
-        
         let stop_slices = if ts_stop_sf_start == ts_stop_sf_stop {
             vec![sliced_file[ts_stop_sf_start].clone()]
         } else {
-          sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec()
+            sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec()
         };
 
         let source_start: isize = if insertion_point >= 0 {

@@ -207,7 +207,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
         let stop_index = stop_seg
             .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
-            .unwrap_or_else(|| segments.len());
+            .unwrap_or(segments.len());
 
         let mut buff = Vec::new();
 
@@ -277,7 +277,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
     ) -> Vec<ErasedSegment> {
-        let is_debug = seg_types == &["object_reference"];
+        let is_debug = seg_types == ["object_reference"];
 
         let mut acc = Vec::new();
         let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
@@ -637,7 +637,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.segments().iter().enumerate() {
-            let mut new_step = vec![PathStep {
+            let new_step = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
                 len: self.segments().len(),
@@ -1136,7 +1136,7 @@ impl Segment for NewlineSegment {
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        let Some(position_marker) = position_marker else {
+        let Some(_position_marker) = position_marker else {
             return;
         };
 

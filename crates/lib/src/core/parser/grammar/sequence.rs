@@ -388,7 +388,7 @@ impl Matchable for Sequence {
         check_still_complete(segments, &matched_segments, &unmatched_segments);
 
         Ok(MatchResult {
-            matched_segments: position_segments(&mut matched_segments, None, true),
+            matched_segments: position_segments(&matched_segments, None, true),
             unmatched_segments,
         })
     }

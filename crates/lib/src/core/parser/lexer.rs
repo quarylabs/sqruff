@@ -306,12 +306,12 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
     }
 
     fn search(&self, forward_string: &str) -> Option<Range<usize>> {
-        let start = forward_string.find(self.template);
-        if start.is_some() {
-            Some(start.unwrap()..start.unwrap() + self.template.len())
-        } else {
-            None
-        }
+        // if let Some(start) = forward_string.find(self.template) {
+        //     Some(start..start + self.template.len())
+        // } else {
+        //     None
+        // }
+        forward_string.find(self.template).map(|start| start..start + self.template.len())
     }
 
     fn get_sub_divider(&self) -> Option<Box<dyn Matcher>> {
@@ -505,7 +505,7 @@ impl Lexer {
     /// TODO: Taking in an iterator, also can make the typing better than use
     /// unwrap.
     #[allow(dead_code)]
-    fn violations_from_segments<>(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
+    fn violations_from_segments(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
         segments
             .into_iter()
             .filter(|s| s.is_type("unlexable"))

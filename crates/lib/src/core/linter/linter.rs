@@ -469,7 +469,7 @@ impl Linter {
         match result {
             Err(_err) => {
                 unimplemented!("violations.push(_err)");
-                return (None, violations, config.clone());
+                // return (None, violations, config.clone());
             }
             Ok((tokens, lex_vs)) => {
                 violations.extend(lex_vs);

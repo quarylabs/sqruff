@@ -465,9 +465,12 @@ mod test {
         }
     }
 
+    #[allow(dead_code)]
     fn templated_file_1() -> TemplatedFile {
         TemplatedFile::from_string("abc".to_string())
     }
+
+    #[allow(dead_code)]
     fn templated_file_2() -> TemplatedFile {
         TemplatedFile::new(
             "{# blah #}{{ foo }}bc".to_string(),

@@ -23,6 +23,7 @@ impl SourceFix {
 
 /// An edit patch for a source file.
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 pub struct FixPatch {
     templated_slice: Range<usize>,
     pub fixed_raw: String,

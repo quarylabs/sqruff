@@ -330,6 +330,7 @@ pub struct ErasedRule {
 
 impl PartialEq for ErasedRule {
     #[allow(unused_variables)]
+    #[allow(unused_variables)]
     fn eq(&self, other: &Self) -> bool {
         unimplemented!()
     }

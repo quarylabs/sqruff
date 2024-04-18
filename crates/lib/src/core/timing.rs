@@ -3,6 +3,7 @@ use ahash::AHashMap;
 
 /// An object for tracking the timing of similar steps across many files.
 #[allow(unused_variables, dead_code)]
+#[allow(unused_variables, dead_code)]
 pub struct TimingSummary {
     steps: Option<Vec<String>>,
     timings: Vec<AHashMap<String, f64>>,

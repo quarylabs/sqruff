@@ -323,7 +323,7 @@ impl ConfigLoader {
     pub fn load_config_up_to_path(
         &self,
         path: impl AsRef<Path>,
-        extra_config_path: Option<String>,
+        _extra_config_path: Option<String>,
         ignore_local_config: bool,
     ) -> AHashMap<String, Value> {
         let path = path.as_ref();

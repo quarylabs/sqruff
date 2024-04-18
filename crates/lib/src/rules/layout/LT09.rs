@@ -40,6 +40,7 @@ impl Rule for RuleLT09 {
         SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 
+    #[allow(unused_variables)]
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context.clone());
         let select_clause = FunctionalContext::new(context.clone()).segment();

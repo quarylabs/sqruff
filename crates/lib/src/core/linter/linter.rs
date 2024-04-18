@@ -374,6 +374,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
+
     pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
         // panic!("Not implemented");
 
@@ -508,7 +509,7 @@ impl Linter {
         let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
         let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
         let ignore_files = ignore_files.unwrap_or(true);
-        let working_path =
+        let _working_path =
             working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string());
 
         let Ok(metadata) = std::fs::metadata(&path) else {

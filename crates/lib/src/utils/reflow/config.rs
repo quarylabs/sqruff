@@ -69,7 +69,7 @@ impl BlockConfig {
 /// This acts as the primary translation engine between configuration
 /// held either in dicts for testing, or in the FluffConfig in live
 /// usage, and the configuration used during reflow operations.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
     config_types: AHashSet<String>,

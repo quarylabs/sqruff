@@ -25,6 +25,7 @@ impl PartialEq for AliasInfo {
 }
 
 /// Details about a column alias.
+#[allow(dead_code)]
 pub struct ColumnAliasInfo {
     pub alias_identifier_name: String,
     pub aliased_segment: ErasedSegment,

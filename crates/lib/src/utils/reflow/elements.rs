@@ -399,7 +399,7 @@ impl ReflowPoint {
         } else {
             // No. Should we insert some?
             // NOTE: This method operates on the existing fix buffer.
-            let (segment_buffer, results, edited) = handle_respace_inline_without_space(
+            let (segment_buffer, results, _edited) = handle_respace_inline_without_space(
                 pre_constraint,
                 post_constraint,
                 prev_block,
@@ -513,7 +513,7 @@ impl ReflowBlock {
 
 impl From<ReflowBlock> for ReflowElement {
     fn from(value: ReflowBlock) -> Self {
-        Self::Block(value)
+        Self::Block(Box::new(value))
     }
 }
 
@@ -525,7 +525,7 @@ impl From<ReflowPoint> for ReflowElement {
 
 #[derive(Debug, Clone)]
 pub enum ReflowElement {
-    Block(ReflowBlock),
+    Block(Box<ReflowBlock>),
     Point(ReflowPoint),
 }
 
@@ -575,7 +575,7 @@ impl ReflowElement {
 impl PartialEq<ReflowBlock> for ReflowElement {
     fn eq(&self, other: &ReflowBlock) -> bool {
         match self {
-            ReflowElement::Block(this) => this == other,
+            ReflowElement::Block(this) => **this == *other,
             ReflowElement::Point(_) => false,
         }
     }

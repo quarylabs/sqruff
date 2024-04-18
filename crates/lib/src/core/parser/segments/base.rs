@@ -443,7 +443,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     #[allow(unused_variables)]
-    #[allow(unused_variables)]
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -580,10 +579,8 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                 fixes_applied.push(f.clone());
 
                 // Deletes are easy.
-
                 if f.edit_type == EditType::Delete {
                     // We're just getting rid of this segment.
-
                     requires_validate = true;
                     // NOTE: We don't add the segment in this case.
                     continue;
@@ -640,7 +637,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.segments().iter().enumerate() {
-            let new_step = vec![PathStep {
             let new_step = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
@@ -1140,7 +1136,6 @@ impl Segment for NewlineSegment {
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        let Some(_position_marker) = position_marker else {
         let Some(_position_marker) = position_marker else {
             return;
         };

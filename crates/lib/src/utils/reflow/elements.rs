@@ -6,9 +6,7 @@ use itertools::{chain, Itertools};
 use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{
-    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment};
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{
@@ -16,7 +14,9 @@ use crate::utils::reflow::respace::{
 };
 
 fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
-    let segment = segment?;
+    let Some(segment) = segment else {
+        return None;
+    };
 
     if segment.is_type("placeholder") {
         None
@@ -85,7 +85,7 @@ impl ReflowPoint {
                 "newline" => return indent,
                 "whitespace" => indent = Some(seg.clone()),
                 _ => {
-                    if get_consumed_whitespace(Some(seg)).unwrap_or_default().contains('\n') {
+                    if get_consumed_whitespace(Some(&seg)).unwrap_or_default().contains('\n') {
                         return Some(seg.clone());
                     }
                 }
@@ -116,7 +116,7 @@ impl ReflowPoint {
         let consumed_whitespace = get_consumed_whitespace(seg.as_ref());
 
         if let Some(consumed_whitespace) = consumed_whitespace {
-            return consumed_whitespace.split('\n').last().unwrap().to_owned().into();
+            return consumed_whitespace.split("\n").last().unwrap().to_owned().into();
         }
 
         if let Some(seg) = seg { seg.get_raw() } else { String::new().into() }
@@ -127,7 +127,7 @@ impl ReflowPoint {
         desired_indent: &str,
         after: Option<ErasedSegment>,
         before: Option<ErasedSegment>,
-        _description: Option<&str>,
+        description: Option<&str>,
         source: Option<&str>,
     ) -> (Vec<LintResult>, ReflowPoint) {
         assert!(!desired_indent.contains('\n'), "Newline found in desired indent.");
@@ -171,19 +171,15 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent = WhitespaceSegment::create(
-                    desired_indent,
-                    &<_>::default(),
-                    WhitespaceSegmentNewArgs,
-                );
+                let new_indent =
+                    WhitespaceSegment::create(desired_indent, &<_>::default(), <_>::default());
 
                 return (
                     vec![LintResult::new(
                         if let Some(before) = before { before.into() } else { unimplemented!() },
                         vec![],
                         None,
-                        // format!("Expected").into(),
-                        Some(String::from("Expected")),
+                        format!("Expected {}", indent_description(desired_indent)).into(),
                         None,
                     )],
                     ReflowPoint::new(vec![]),
@@ -196,7 +192,7 @@ impl ReflowPoint {
             let ws_seg = self.segments.iter().find(|seg| seg.is_type("whitespace"));
 
             if let Some(ws_seg) = ws_seg {
-                let new_segs = if desired_indent.is_empty() {
+                let new_segs = if desired_indent == "" {
                     vec![new_newline]
                 } else {
                     vec![new_newline, ws_seg.edit(desired_indent.to_owned().into(), None)]
@@ -249,11 +245,8 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                let new_indent = WhitespaceSegment::create(
-                    desired_indent,
-                    &<_>::default(),
-                    WhitespaceSegmentNewArgs,
-                );
+                let new_indent =
+                    WhitespaceSegment::create(desired_indent, &<_>::default(), <_>::default());
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(
@@ -275,7 +268,7 @@ impl ReflowPoint {
                             None,
                             source.map(ToOwned::to_owned),
                         )],
-                        ReflowPoint::new(vec![new_newline, new_indent]),
+                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
                     );
                 } else {
                     let after = after.unwrap();
@@ -292,13 +285,13 @@ impl ReflowPoint {
 
                     return (
                         vec![LintResult::new(
-                            before,
+                            before.into(),
                             vec![fix],
                             None,
                             Some(description),
                             source.map(ToOwned::to_owned),
                         )],
-                        ReflowPoint::new(vec![new_newline, new_indent]),
+                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
                     );
                 }
             }
@@ -399,7 +392,7 @@ impl ReflowPoint {
         } else {
             // No. Should we insert some?
             // NOTE: This method operates on the existing fix buffer.
-            let (segment_buffer, results, _edited) = handle_respace_inline_without_space(
+            let (segment_buffer, results, edited) = handle_respace_inline_without_space(
                 pre_constraint,
                 post_constraint,
                 prev_block,
@@ -427,7 +420,7 @@ impl ReflowPoint {
 fn indent_description(indent: &str) -> String {
     match indent {
         "" => "no indent".to_string(),
-        _ if indent.contains(' ') && indent.contains('\t') => "mixed indent".to_string(),
+        _ if indent.contains(" ") && indent.contains("\t") => "mixed indent".to_string(),
         _ if indent.starts_with(' ') => {
             assert!(indent.chars().all(|c| c == ' '));
             format!("indent of {} spaces", indent.len())
@@ -513,7 +506,7 @@ impl ReflowBlock {
 
 impl From<ReflowBlock> for ReflowElement {
     fn from(value: ReflowBlock) -> Self {
-        Self::Block(Box::new(value))
+        Self::Block(value)
     }
 }
 
@@ -525,7 +518,7 @@ impl From<ReflowPoint> for ReflowElement {
 
 #[derive(Debug, Clone)]
 pub enum ReflowElement {
-    Block(Box<ReflowBlock>),
+    Block(ReflowBlock),
     Point(ReflowPoint),
 }
 
@@ -575,7 +568,7 @@ impl ReflowElement {
 impl PartialEq<ReflowBlock> for ReflowElement {
     fn eq(&self, other: &ReflowBlock) -> bool {
         match self {
-            ReflowElement::Block(this) => **this == *other,
+            ReflowElement::Block(this) => this == other,
             ReflowElement::Point(_) => false,
         }
     }

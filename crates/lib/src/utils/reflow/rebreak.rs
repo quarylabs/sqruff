@@ -14,9 +14,7 @@ pub struct RebreakSpan {
 }
 
 #[derive(Debug)]
-#[allow(unused_variables)]
 pub struct RebreakIndices {
-    #[allow(dead_code)]
     dir: i32,
     adj_pt_idx: isize,
     newline_pt_idx: isize,
@@ -103,14 +101,13 @@ impl RebreakLocation {
     }
 }
 
-#[allow(unused_variables)]
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    _root_segment: Box<dyn Segment>,
+    root_segment: ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for (idx, _item) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2) {
+    for idx in 2..element_buffer.len() - 2 {
         let elem = &element_buffer[idx];
 
         let ReflowElement::Block(block) = elem else {
@@ -122,7 +119,7 @@ pub fn identify_rebreak_spans(
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
                 end_idx: idx,
-                line_position: line_position.split(':').next().unwrap_or_default().into(),
+                line_position: line_position.split(":").next().unwrap_or_default().into(),
                 strict: line_position.ends_with("strict"),
             });
         }
@@ -217,7 +214,7 @@ pub fn rebreak_sequence(
 
             // Generate the text for any issues.
             let pretty_name = loc.pretty_target_name();
-            let _desc = if loc.strict {
+            let desc = if loc.strict {
                 format!("{} should always start a new line.", capitalize(&pretty_name))
             } else {
                 format!("Found trailing {}. Expected only leading near line breaks.", pretty_name)
@@ -290,7 +287,7 @@ pub fn rebreak_sequence(
             }
 
             let pretty_name = loc.pretty_target_name();
-            let _desc = if loc.strict {
+            let desc = if loc.strict {
                 format!("{} should always be at the end of a line.", capitalize(&pretty_name))
             } else {
                 format!("Found leading {}. Expected only trailing near line breaks.", pretty_name)

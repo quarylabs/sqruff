@@ -283,9 +283,9 @@ fn map_line_buffers(
 ) -> (Vec<IndentLine>, Vec<usize>) {
     let mut lines = Vec::new();
     let mut point_buffer = Vec::new();
-    let mut previous_points = HashMap::new();
-    let mut untaken_indent_locs = HashMap::new();
-    let imbalanced_locs = Vec::new();
+    let mut previous_points = AHashMap::new();
+    let mut untaken_indent_locs = AHashMap::new();
+    let mut imbalanced_locs = Vec::new();
 
     for indent_point in crawl_indent_points(elements, allow_implicit_indents) {
         point_buffer.push(indent_point.clone());
@@ -521,7 +521,7 @@ fn source_char_len(elements: Vec<ReflowElement>) -> usize {
 }
 
 #[allow(unused_variables, dead_code)]
-fn rebreak_priorities(spans: Vec<RebreakSpan>) -> HashMap<usize, usize> {
+fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize>  {
     unimplemented!()
 }
 

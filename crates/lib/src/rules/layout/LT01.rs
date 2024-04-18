@@ -151,14 +151,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "incorrect spacing"]
     fn test_fail_cte_newline_after_as() {
         let sql = fix("WITH a AS\n(select 1)\nselect * from a".into(), rules());
         assert_eq!(sql, "WITH a AS (select 1)\nselect * from a");
     }
 
     #[test]
-    #[ignore = "incorrect spacing"]
     fn test_fail_cte_newline_and_spaces_after_as() {
         let sql = fix("WITH a AS\n\n\n(select 1)\nselect * from a".into(), rules());
         assert_eq!(sql, "WITH a AS (select 1)\nselect * from a");

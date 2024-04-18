@@ -6093,7 +6093,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "WIP"]
     fn test__dialect__ansi_is_whitespace() {
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let file_content =
@@ -6102,12 +6101,10 @@ mod tests {
 
         let parsed = lnt.parse_string(file_content, None, None, None, None).unwrap();
 
-        #[allow(clippy::never_loop)]
-        for _raw_seg in parsed.tree.unwrap().get_raw_segments() {
-            unimplemented!()
-            // if raw_seg.is_type("whitespace", "newline") {
-            //     assert!(raw_seg.is_whitespace());
-            // }
+        for raw_seg in parsed.tree.unwrap().get_raw_segments() {
+            if raw_seg.is_type("whitespace") || raw_seg.is_type("newline") {
+                assert!(raw_seg.is_whitespace());
+            }
         }
     }
 

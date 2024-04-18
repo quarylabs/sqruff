@@ -15,7 +15,7 @@ impl Rule for RuleLT05 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
+        RootOnlyCrawler.into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

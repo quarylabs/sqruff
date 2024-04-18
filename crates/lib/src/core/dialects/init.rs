@@ -8,7 +8,7 @@ pub fn dialect_selector(s: &str) -> Option<Dialect> {
 }
 
 pub fn get_default_dialect() -> &'static str {
-    return "ansi";
+    "ansi"
 }
 
 /// Dialect Tuple object for describing dialects.

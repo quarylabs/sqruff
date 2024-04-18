@@ -131,16 +131,17 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         if let Some(value) = self.as_any().downcast_ref::<Node<WildcardIdentifierSegment>>() {
             let mut node = Node::new();
             node.uuid = value.uuid;
-            node.position_marker = value.position_marker.clone();
-            node.segments = value.segments.clone();
+            // node.position_marker = value.position_marker.clone();
+            node.position_marker.clone_from(&value.position_marker);
+            node.segments.clone_from(&value.segments);
             return node;
         }
 
         if let Some(value) = self.as_any().downcast_ref::<Node<ColumnReferenceSegment>>() {
             let mut node = Node::new();
             node.uuid = value.uuid;
-            node.position_marker = value.position_marker.clone();
-            node.segments = value.segments.clone();
+            node.position_marker.clone_from(&value.position_marker);
+            node.segments.clone_from(&value.segments);
             return node;
         }
 
@@ -174,7 +175,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         } else if code_only {
             let segments = self
                 .segments()
-                .into_iter()
+                .iter()
                 .filter(|seg| seg.is_code() && !seg.is_meta())
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
                 .collect_vec();
@@ -183,7 +184,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         } else {
             let segments = self
                 .segments()
-                .into_iter()
+                .iter()
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
                 .collect_vec();
 
@@ -206,7 +207,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
         let stop_index = stop_seg
             .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
-            .unwrap_or_else(|| segments.len());
+            .unwrap_or(segments.len());
 
         let mut buff = Vec::new();
 
@@ -276,7 +277,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
     ) -> Vec<ErasedSegment> {
-        let is_debug = seg_types == &["object_reference"];
+        let is_debug = seg_types == ["object_reference"];
 
         let mut acc = Vec::new();
         let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
@@ -318,12 +319,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     }
 
     fn child(&self, seg_types: &[&str]) -> Option<ErasedSegment> {
-        for seg in self.gather_segments() {
-            if seg_types.iter().any(|ty| seg.is_type(ty)) {
-                return Some(seg);
-            }
-        }
-        None
+        self.gather_segments().into_iter().find(|seg| seg_types.iter().any(|ty| seg.is_type(ty)))
     }
 
     fn children(&self, seg_types: &[&str]) -> Vec<ErasedSegment> {
@@ -347,7 +343,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                 code_idxs: self.code_indices(),
             }];
 
-            if seg.eq(&midpoint) {
+            if seg.eq(midpoint) {
                 return steps;
             }
 
@@ -490,7 +486,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
     ///
     /// In sqlfluff only implemented for RawSegments and up
     fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        self.segments().into_iter().flat_map(|item| item.get_raw_segments()).collect_vec()
+        self.segments().iter().flat_map(|item| item.get_raw_segments()).collect_vec()
     }
 
     /// Yield any source patches as fixes now.
@@ -641,7 +637,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.segments().iter().enumerate() {
-            let mut new_step = vec![PathStep {
+            let new_step = vec![PathStep {
                 segment: self.clone_box(),
                 idx,
                 len: self.segments().len(),
@@ -679,13 +675,10 @@ dyn_hash::hash_trait_object!(Segment);
 
 impl PartialEq for dyn Segment {
     fn eq(&self, other: &Self) -> bool {
-        match (self.get_uuid(), other.get_uuid()) {
-            (Some(uuid1), Some(uuid2)) => {
-                if uuid1 == uuid2 {
-                    return true;
-                };
-            }
-            _ => (),
+        if let (Some(uuid1), Some(uuid2)) = (self.get_uuid(), other.get_uuid()) {
+            if uuid1 == uuid2 {
+                return true;
+            };
         };
 
         let pos_self = self.get_position_marker();
@@ -814,7 +807,7 @@ pub struct CodeSegmentNewArgs {
 }
 
 impl CodeSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: CodeSegmentNewArgs,
@@ -892,7 +885,7 @@ impl Segment for CodeSegment {
     ///
     /// From RawSegment implementation
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        CodeSegment::new(
+        CodeSegment::create(
             raw.unwrap_or(self.raw.clone()).as_str(),
             &self.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
@@ -912,7 +905,7 @@ pub struct IdentifierSegment {
 }
 
 impl IdentifierSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: CodeSegmentNewArgs,
@@ -980,7 +973,7 @@ impl Segment for IdentifierSegment {
     }
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        IdentifierSegment::new(
+        IdentifierSegment::create(
             raw.unwrap_or(self.base.raw.clone()).as_str(),
             &self.base.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
@@ -1011,7 +1004,7 @@ pub struct CommentSegmentNewArgs {
 }
 
 impl CommentSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: CommentSegmentNewArgs,
@@ -1091,7 +1084,7 @@ pub struct NewlineSegment {
 pub struct NewlineSegmentNewArgs {}
 
 impl NewlineSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         _args: NewlineSegmentNewArgs,
@@ -1143,7 +1136,7 @@ impl Segment for NewlineSegment {
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        let Some(position_marker) = position_marker else {
+        let Some(_position_marker) = position_marker else {
             return;
         };
 
@@ -1179,7 +1172,7 @@ pub struct WhitespaceSegment {
 pub struct WhitespaceSegmentNewArgs;
 
 impl WhitespaceSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         _args: WhitespaceSegmentNewArgs,
@@ -1198,7 +1191,7 @@ impl Segment for WhitespaceSegment {
         Self {
             raw: self.get_raw().unwrap(),
             position_marker: self.position_marker.clone(),
-            uuid: self.uuid.clone(),
+            uuid: self.uuid,
         }
         .to_erased_segment()
     }
@@ -1248,7 +1241,7 @@ impl Segment for WhitespaceSegment {
     }
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        Self::new(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
+        Self::create(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -1267,7 +1260,7 @@ pub struct UnlexableSegmentNewArgs {
 }
 
 impl UnlexableSegment {
-    pub fn new(
+    pub fn create(
         _raw: &str,
         _position_maker: &PositionMarker,
         args: UnlexableSegmentNewArgs,
@@ -1395,7 +1388,7 @@ pub struct SymbolSegmentNewArgs {
 }
 
 impl SymbolSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: SymbolSegmentNewArgs,
@@ -1450,7 +1443,7 @@ impl Segment for UnparsableSegment {
 
 pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
     let markers: Vec<_> =
-        this.segments().into_iter().flat_map(|seg| seg.get_position_marker()).collect();
+        this.segments().iter().flat_map(|seg| seg.get_position_marker()).collect();
 
     PositionMarker::from_child_markers(markers)
 }

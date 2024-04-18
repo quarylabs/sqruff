@@ -27,10 +27,8 @@ impl Rule for RuleAL08 {
                     column_alias = it.clone().into();
                     break;
                 }
-            } else {
-                if let Some(column_reference) = clause_element.child(&["column_reference"]) {
-                    column_alias = column_reference.segments().last().cloned();
-                }
+            } else if let Some(column_reference) = clause_element.child(&["column_reference"]) {
+                column_alias = column_reference.segments().last().cloned();
             }
 
             let Some(column_alias) = column_alias else { continue };

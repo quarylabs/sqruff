@@ -17,7 +17,7 @@ impl Rule for RuleLT01 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
+        RootOnlyCrawler.into()
     }
 }
 

@@ -74,10 +74,13 @@ impl<T: Default> Query<'_, T> {
         self.ctes.values_mut().chain(self.subqueries.iter_mut())
     }
 
+    #[allow(dead_code)]
     fn as_dict() {}
 
+    #[allow(dead_code)]
     fn lookup_cte() {}
 
+    #[allow(dead_code)]
     fn crawl_sources() {}
 
     fn extract_subqueries<'a>(selectable: &Selectable, dialect: &'a Dialect) -> Vec<Query<'a, T>> {
@@ -91,6 +94,7 @@ impl<T: Default> Query<'_, T> {
         acc
     }
 
+    #[allow(dead_code)]
     fn from_root() {}
 
     pub fn from_segment<'a>(
@@ -100,8 +104,8 @@ impl<T: Default> Query<'_, T> {
     ) -> Query<'a, T> {
         let mut selectables = Vec::new();
         let mut subqueries = Vec::new();
-        let mut cte_defs: Vec<ErasedSegment> = Vec::new();
-        let mut query_type = QueryType::Simple;
+        let cte_defs: Vec<ErasedSegment> = Vec::new();
+        let query_type = QueryType::Simple;
 
         if segment.is_type("select_statement")
             || SUBSELECT_TYPES.iter().any(|ty| segment.is_type(ty))

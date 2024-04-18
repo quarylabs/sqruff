@@ -46,7 +46,7 @@ impl Default for RuleContext {
             templated_file: Default::default(),
             path: Default::default(),
             config: Default::default(),
-            segment: CodeSegment::new("", &<_>::default(), <_>::default()),
+            segment: CodeSegment::create("", &<_>::default(), <_>::default()),
             parent_stack: Default::default(),
             raw_stack: Default::default(),
             memory: Default::default(),

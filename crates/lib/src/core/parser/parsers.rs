@@ -197,7 +197,7 @@ impl Matchable for StringParser {
         segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        let match_result = if !segments.is_empty() {
+        if !segments.is_empty() {
             let segment = &*segments[0];
             if let Some(seg) = self.match_single(segment) {
                 return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));

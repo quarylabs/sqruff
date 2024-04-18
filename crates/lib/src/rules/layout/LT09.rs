@@ -1,6 +1,8 @@
 use itertools::{enumerate, Itertools};
 
-use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment};
+use crate::core::parser::segments::base::{
+    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
 use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -35,7 +37,7 @@ impl Rule for RuleLT09 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause".into()].into()).into()
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -182,10 +184,10 @@ impl RuleLT09 {
                     Some(|seg| seg.is_type("whitespace") | seg.is_type("comma") | seg.is_meta()),
                 );
 
-                fixes.extend(ws_to_delete.into_iter().map(|seg| LintFix::delete(seg)));
+                fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone_box(),
-                    vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                    vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                 ));
             }
 
@@ -199,12 +201,12 @@ impl RuleLT09 {
                             .pre_from_whitespace
                             .clone()
                             .into_iter()
-                            .map(|ws| LintFix::delete(ws)),
+                            .map(LintFix::delete),
                     );
 
                     fixes.push(LintFix::create_before(
                         from_segment.clone_box(),
-                        vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                        vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                     ));
                 }
             }
@@ -243,7 +245,7 @@ impl RuleLT09 {
         }
 
         let mut insert_buff = vec![
-            WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
 
@@ -262,7 +264,7 @@ impl RuleLT09 {
             let buff = std::mem::take(&mut insert_buff);
 
             insert_buff = vec![
-                WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+                WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
                 modifier[0].clone(),
             ];
 
@@ -320,14 +322,14 @@ impl RuleLT09 {
                         .iter()
                         .filter(|it| !all_deletes.contains(it))
                         .cloned()
-                        .map(|seg| LintFix::delete(seg));
+                        .map(LintFix::delete);
                     local_fixes.extend(new_fixes);
 
                     if !move_after_select_clause.is_empty() || add_newline {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone_box(),
                             if add_newline {
-                                vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())]
+                                vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())]
                             } else {
                                 vec![]
                             }

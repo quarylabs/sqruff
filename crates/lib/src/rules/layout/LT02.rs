@@ -12,7 +12,7 @@ impl Rule for RuleLT02 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
+        RootOnlyCrawler.into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

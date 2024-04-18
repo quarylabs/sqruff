@@ -194,9 +194,8 @@ impl FluffConfig {
                  its own dialect and rules."
             )
         } else {
-            return config.unwrap();
+            config.unwrap()
         }
-        panic!("Not implemenrted!")
     }
 
     /// Process a full raw file for inline config and update self.
@@ -515,7 +514,7 @@ impl FromStr for Value {
 }
 
 fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
-    let capacity = config_stack.iter().map(|it| it.len()).count();
+    let capacity = config_stack.iter().count();
     let mut result = AHashMap::with_capacity(capacity);
 
     for dict in config_stack {

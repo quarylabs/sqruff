@@ -124,12 +124,13 @@ impl ReflowSequence {
         }
 
         if sides == "both" || sides == "after" {
-            for i in post_idx..all_raws.len() {
-                if all_raws[i].is_code() {
+            for (i, item) in all_raws.iter().enumerate().skip(post_idx) {
+                if item.is_code() {
                     post_idx = i;
                     break;
                 }
             }
+
             post_idx += 1;
         }
 
@@ -195,11 +196,8 @@ impl ReflowSequence {
         if removal_idx == 0 || removal_idx == self.elements.len() - 1 {
             panic!("Unexpected removal at one end of a ReflowSequence.");
         }
-        match &self.elements[removal_idx] {
-            ReflowElement::Point(_) => {
-                panic!("Not expected removal of whitespace in ReflowSequence.");
-            }
-            _ => {}
+        if let ReflowElement::Point(_) = &self.elements[removal_idx] {
+            panic!("Not expected removal of whitespace in ReflowSequence.");
         }
         let merged_point = ReflowPoint::new(
             [self.elements[removal_idx - 1].segments(), self.elements[removal_idx + 1].segments()]

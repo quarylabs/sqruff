@@ -42,7 +42,7 @@ pub fn get_select_statement_info(
         ["where_clause", "groupby_clause", "having_clause", "orderby_clause", "qualify_clause"]
     {
         let clause = segment.child(&[potential_clause]);
-        if let Some(clause) = clause {
+        if let Some(_clause) = clause {
             unimplemented!();
             // reference_buffer.extend(iter)
         }
@@ -112,8 +112,8 @@ pub fn get_aliases_from_select(
     let aliases = fc.eventual_aliases();
 
     let mut standalone_aliases = Vec::new();
-    standalone_aliases.extend(get_pivot_table_columns(&segment, dialect));
-    standalone_aliases.extend(get_lambda_argument_columns(&segment, dialect));
+    standalone_aliases.extend(get_pivot_table_columns(segment, dialect));
+    standalone_aliases.extend(get_lambda_argument_columns(segment, dialect));
 
     let mut table_aliases = Vec::new();
     for (table_expr, alias_info) in aliases {
@@ -164,6 +164,6 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
     pivot_table_column_aliases
 }
 
-fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<String> {
+fn get_lambda_argument_columns(_segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<String> {
     Vec::new()
 }

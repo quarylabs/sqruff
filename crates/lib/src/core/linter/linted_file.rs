@@ -148,7 +148,7 @@ impl LintedFile {
                 let next_so_slice = source_only_slices.remove(0).source_slice();
                 // Add a pre-slice before the next templated slices if needed.
                 if next_so_slice.end > source_idx {
-                    slice_buff.push(source_idx..next_so_slice.start.clone());
+                    slice_buff.push(source_idx..next_so_slice.start);
                 }
                 // Add the templated slice.
                 slice_buff.push(next_so_slice.clone());

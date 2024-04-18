@@ -385,10 +385,10 @@ impl Matchable for Sequence {
         unmatched_segments.extend(tail);
 
         #[cfg(debug_assertions)]
-        check_still_complete(&segments, &matched_segments, &unmatched_segments);
+        check_still_complete(segments, &matched_segments, &unmatched_segments);
 
         Ok(MatchResult {
-            matched_segments: position_segments(&mut matched_segments, None, true),
+            matched_segments: position_segments(&matched_segments, None, true),
             unmatched_segments,
         })
     }
@@ -512,7 +512,7 @@ impl Matchable for Bracketed {
 
         // Trim ends if allowed.
         let mut seg_buff = if self.allow_gaps {
-            let (_, seg_buff, _) = trim_non_code_segments(&segments);
+            let (_, seg_buff, _) = trim_non_code_segments(segments);
             seg_buff.to_vec()
         } else {
             segments.to_vec()
@@ -638,7 +638,7 @@ impl Matchable for Bracketed {
         // Match the content using super. Sequence will interpret the content of the
         // elements. Within the brackets, clear any inherited terminators.
         let content_match = parse_context.deeper_match("Bracketed", true, &[], None, |this| {
-            self.this.match_segments(&content_segs, this)
+            self.this.match_segments(content_segs, this)
         })?;
 
         // We require a complete match for the content (hopefully for obvious reasons)

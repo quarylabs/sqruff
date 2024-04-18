@@ -56,6 +56,10 @@ impl MatchResult {
         self.matched_segments.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.matched_segments.is_empty()
+    }
+
     /// Return true if everything has matched.
     ///
     ///         Note: An empty match is not a match so will return False.

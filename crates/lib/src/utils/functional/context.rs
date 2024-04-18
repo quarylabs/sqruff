@@ -28,10 +28,7 @@ impl FunctionalContext {
     }
 
     pub fn parent_stack(&self) -> Segments {
-        Segments::from_vec(
-            self.context.parent_stack.clone(),
-            self.context.templated_file.clone().into(),
-        )
+        Segments::from_vec(self.context.parent_stack.clone(), self.context.templated_file.clone())
     }
 
     // pub fn raw_stack(&self) -> Segments {

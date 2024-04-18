@@ -6,7 +6,9 @@ use itertools::{chain, Itertools};
 use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment};
+use crate::core::parser::segments::base::{
+    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{
@@ -14,9 +16,7 @@ use crate::utils::reflow::respace::{
 };
 
 fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
-    let Some(segment) = segment else {
-        return None;
-    };
+    let segment = segment?;
 
     if segment.is_type("placeholder") {
         None
@@ -85,7 +85,7 @@ impl ReflowPoint {
                 "newline" => return indent,
                 "whitespace" => indent = Some(seg.clone()),
                 _ => {
-                    if get_consumed_whitespace(Some(&seg)).unwrap_or_default().contains('\n') {
+                    if get_consumed_whitespace(Some(seg)).unwrap_or_default().contains('\n') {
                         return Some(seg.clone());
                     }
                 }
@@ -116,7 +116,7 @@ impl ReflowPoint {
         let consumed_whitespace = get_consumed_whitespace(seg.as_ref());
 
         if let Some(consumed_whitespace) = consumed_whitespace {
-            return consumed_whitespace.split("\n").last().unwrap().to_owned().into();
+            return consumed_whitespace.split('\n').last().unwrap().to_owned().into();
         }
 
         if let Some(seg) = seg { seg.get_raw() } else { String::new().into() }
@@ -171,15 +171,19 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent =
-                    WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
+                let new_indent = WhitespaceSegment::create(
+                    desired_indent,
+                    &<_>::default(),
+                    WhitespaceSegmentNewArgs,
+                );
 
                 return (
                     vec![LintResult::new(
                         if let Some(before) = before { before.into() } else { unimplemented!() },
                         vec![],
                         None,
-                        format!("Expected").into(),
+                        // format!("Expected").into(),
+                        Some(String::from("Expected")),
                         None,
                     )],
                     ReflowPoint::new(vec![]),
@@ -187,12 +191,12 @@ impl ReflowPoint {
             }
         } else {
             // There isn't currently a newline.
-            let new_newline = NewlineSegment::new("\n", &<_>::default(), <_>::default());
+            let new_newline = NewlineSegment::create("\n", &<_>::default(), <_>::default());
             // Check for whitespace
             let ws_seg = self.segments.iter().find(|seg| seg.is_type("whitespace"));
 
             if let Some(ws_seg) = ws_seg {
-                let new_segs = if desired_indent == "" {
+                let new_segs = if desired_indent.is_empty() {
                     vec![new_newline]
                 } else {
                     vec![new_newline, ws_seg.edit(desired_indent.to_owned().into(), None)]
@@ -245,8 +249,11 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                let new_indent =
-                    WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
+                let new_indent = WhitespaceSegment::create(
+                    desired_indent,
+                    &<_>::default(),
+                    WhitespaceSegmentNewArgs,
+                );
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(
@@ -268,7 +275,7 @@ impl ReflowPoint {
                             None,
                             source.map(ToOwned::to_owned),
                         )],
-                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
+                        ReflowPoint::new(vec![new_newline, new_indent]),
                     );
                 } else {
                     let after = after.unwrap();
@@ -285,13 +292,13 @@ impl ReflowPoint {
 
                     return (
                         vec![LintResult::new(
-                            before.into(),
+                            before,
                             vec![fix],
                             None,
                             Some(description),
                             source.map(ToOwned::to_owned),
                         )],
-                        ReflowPoint::new(vec![new_newline, new_indent]).into(),
+                        ReflowPoint::new(vec![new_newline, new_indent]),
                     );
                 }
             }
@@ -420,7 +427,7 @@ impl ReflowPoint {
 fn indent_description(indent: &str) -> String {
     match indent {
         "" => "no indent".to_string(),
-        _ if indent.contains(" ") && indent.contains("\t") => "mixed indent".to_string(),
+        _ if indent.contains(' ') && indent.contains('\t') => "mixed indent".to_string(),
         _ if indent.starts_with(' ') => {
             assert!(indent.chars().all(|c| c == ' '));
             format!("indent of {} spaces", indent.len())

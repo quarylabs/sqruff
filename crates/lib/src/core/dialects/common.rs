@@ -18,7 +18,7 @@ impl PartialEq for AliasInfo {
         self.ref_str == other.ref_str
             && self.segment == other.segment
             && self.aliased == other.aliased
-            && &self.from_expression_element == &other.from_expression_element
+            && self.from_expression_element == other.from_expression_element
             && self.alias_expression == other.alias_expression
             && self.object_reference == other.object_reference
     }

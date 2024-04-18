@@ -31,7 +31,7 @@ impl Rule for RuleST01 {
 
             let mut fixes = Vec::with_capacity(before_else.len() + 1);
             fixes.push(LintFix::delete(else_clause.first().unwrap().clone_box()));
-            fixes.extend(before_else.into_iter().map(|it| LintFix::delete(it)));
+            fixes.extend(before_else.into_iter().map(LintFix::delete));
 
             vec![LintResult::new(anchor.into(), fixes, None, None, None)]
         } else {

@@ -1,5 +1,4 @@
 use ahash::AHashMap;
-use itertools::Itertools;
 
 use super::match_result::MatchResult;
 use super::matchable::Matchable;
@@ -41,9 +40,9 @@ impl ParseContext {
 
     pub fn from_config(config: FluffConfig) -> Self {
         let dialect = dialect_selector("ansi").unwrap();
-        let indentation_config = config.raw["indentation"].as_map().unwrap().clone();
+        let indentation_config = config.raw["indentation"].as_map().unwrap();
         let indentation_config: AHashMap<_, _> =
-            indentation_config.into_iter().map(|(key, value)| (key, value.to_bool())).collect();
+            indentation_config.iter().map(|(key, value)| (key.clone(), value.to_bool())).collect();
 
         Self::new(dialect, indentation_config)
     }

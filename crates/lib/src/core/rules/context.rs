@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
-use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
 
 /// Struct for holding the context passed to rule eval function

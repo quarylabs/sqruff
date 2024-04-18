@@ -213,7 +213,7 @@ impl OutputStreamFormatter {
             desc.push_str(&text);
         }
 
-        let split_desc = split_string_on_spaces(&desc, max_line_length);
+        let split_desc = split_string_on_spaces(&desc, max_line_length - 25);
         let mut section_color = if violation.ignore || violation.warning {
             LIGHT_GREY
         } else {

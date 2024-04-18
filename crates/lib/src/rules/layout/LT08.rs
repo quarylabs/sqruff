@@ -140,7 +140,7 @@ impl Rule for RuleLT08 {
             let fixes = vec![LintFix {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
-                edit: repeat(NewlineSegment::new("\n", &<_>::default(), <_>::default()))
+                edit: repeat(NewlineSegment::create("\n", &<_>::default(), <_>::default()))
                     .take(num_newlines)
                     .collect_vec()
                     .into(),

@@ -425,7 +425,7 @@ pub fn ansi_dialect() -> Dialect {
                 MultiStringParser::new(
                     dialect.sets("bare_functions").into_iter().map(Into::into).collect_vec(),
                     |segment| {
-                        CodeSegment::new(
+                        CodeSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs::default(),
@@ -452,7 +452,7 @@ pub fn ansi_dialect() -> Dialect {
                 RegexParser::new(
                     "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
                     |segment| {
-                        IdentifierSegment::new(
+                        IdentifierSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
                             <_>::default(),
@@ -475,7 +475,7 @@ pub fn ansi_dialect() -> Dialect {
                 RegexParser::new(
                     pattern,
                     |segment| {
-                        CodeSegment::new(
+                        CodeSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs::default(),
@@ -520,7 +520,7 @@ pub fn ansi_dialect() -> Dialect {
                     RegexParser::new(
                         "[A-Z_][A-Z0-9_]*",
                         |segment| {
-                            CodeSegment::new(
+                            CodeSegment::create(
                                 &segment.get_raw().unwrap(),
                                 &segment.get_position_marker().unwrap(),
                                 CodeSegmentNewArgs::default(),
@@ -547,7 +547,7 @@ pub fn ansi_dialect() -> Dialect {
                 MultiStringParser::new(
                     dialect.sets("datetime_units").into_iter().map(Into::into).collect_vec(),
                     |segment| {
-                        CodeSegment::new(
+                        CodeSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs::default(),
@@ -571,7 +571,7 @@ pub fn ansi_dialect() -> Dialect {
                         .map(Into::into)
                         .collect::<Vec<_>>(),
                     |segment| {
-                        CodeSegment::new(
+                        CodeSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs::default(),
@@ -1801,7 +1801,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "inline_comment",
                 r"(--|#)[^\n]*",
-                &CommentSegment::new as SegmentConstructorFn<CommentSegmentNewArgs>,
+                &CommentSegment::create as SegmentConstructorFn<CommentSegmentNewArgs>,
                 CommentSegmentNewArgs {
                     r#type: "inline_comment",
                     trim_start: Some(vec!["--", "#"]),
@@ -1815,13 +1815,13 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "block_comment",
                 r"\/\*([^\*]|\*(?!\/))*\*\/",
-                &CommentSegment::new as SegmentConstructorFn<CommentSegmentNewArgs>,
+                &CommentSegment::create as SegmentConstructorFn<CommentSegmentNewArgs>,
                 CommentSegmentNewArgs { r#type: "block_comment", trim_start: None },
                 Some(Box::new(
                     RegexLexer::new(
                         "newline",
                         r"\r\n|\n",
-                        &NewlineSegment::new as SegmentConstructorFn<NewlineSegmentNewArgs>,
+                        &NewlineSegment::create as SegmentConstructorFn<NewlineSegmentNewArgs>,
                         NewlineSegmentNewArgs {},
                         None,
                         None,
@@ -1846,7 +1846,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "single_quote",
                 r"'([^'\\]|\\.|'')*'",
-                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "single_quote",
                     instance_types: vec![],
@@ -1863,7 +1863,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "double_quote",
                 r#""([^"\\]|\\.)*""#,
-                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "double_quote",
                     instance_types: vec![],
@@ -1880,7 +1880,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "back_quote",
                 r"`[^`]*`",
-                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "back_quote",
                     instance_types: vec![],
@@ -1898,7 +1898,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                 "dollar_quote",
                 // r"\$(\w*)\$[^\1]*?\$\1\$" is the original regex, but it doesn't work in Rust.
                 r"\$(\w*)\$[^\$]*?\$\1\$",
-                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "dollar_quote",
                     instance_types: vec![],
@@ -1918,7 +1918,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "numeric_literal",
                 r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
-                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs {
                     code_type: "numeric_literal",
                     ..CodeSegmentNewArgs::default()
@@ -1932,7 +1932,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "like_operator",
                 r"!?~~?\*?",
-                &CodeSegment::new as SegmentConstructorFn<CodeSegmentNewArgs>,
+                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
                 CodeSegmentNewArgs { code_type: "like_operator", ..CodeSegmentNewArgs::default() },
                 None,
                 None,
@@ -1943,7 +1943,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "newline",
                 r"\r\n|\n",
-                &NewlineSegment::new as SegmentConstructorFn<NewlineSegmentNewArgs>,
+                &NewlineSegment::create as SegmentConstructorFn<NewlineSegmentNewArgs>,
                 NewlineSegmentNewArgs {},
                 None,
                 None,
@@ -1953,7 +1953,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "casting_operator",
             "::",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "casting_operator",
                 instance_types: vec![],
@@ -1967,7 +1967,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "equals",
             "=",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "equals",
                 instance_types: vec![],
@@ -1981,7 +1981,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "greater_than",
             ">",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "greater_than",
                 instance_types: vec![],
@@ -1995,7 +1995,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "less_than",
             "<",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "less_than",
                 instance_types: vec![],
@@ -2009,7 +2009,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "not",
             "!",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "not",
                 instance_types: vec![],
@@ -2023,7 +2023,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "dot",
             ".",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "dot",
                 instance_types: vec![],
@@ -2037,7 +2037,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "comma",
             ",",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "comma",
                 instance_types: vec![],
@@ -2051,7 +2051,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "plus",
             "+",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "plus",
                 instance_types: vec![],
@@ -2065,7 +2065,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "minus",
             "-",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "minus",
                 instance_types: vec![],
@@ -2079,7 +2079,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "divide",
             "/",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "divide",
                 instance_types: vec![],
@@ -2093,7 +2093,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "percent",
             "%",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "percent",
                 instance_types: vec![],
@@ -2107,7 +2107,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "question",
             "?",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "question",
                 instance_types: vec![],
@@ -2121,7 +2121,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "ampersand",
             "&",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "ampersand",
                 instance_types: vec![],
@@ -2135,7 +2135,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "vertical_bar",
             "|",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "vertical_bar",
                 instance_types: vec![],
@@ -2149,7 +2149,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "caret",
             "^",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "caret",
                 instance_types: vec![],
@@ -2163,7 +2163,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "star",
             "*",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "star",
                 instance_types: vec![],
@@ -2177,7 +2177,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "start_bracket",
             "(",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "start_bracket",
                 instance_types: vec![],
@@ -2191,7 +2191,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "end_bracket",
             ")",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "end_bracket",
                 instance_types: vec![],
@@ -2205,7 +2205,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "start_square_bracket",
             "[",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "start_square_bracket",
                 instance_types: vec![],
@@ -2219,7 +2219,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "end_square_bracket",
             "]",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "end_square_bracket",
                 instance_types: vec![],
@@ -2233,7 +2233,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "start_curly_bracket",
             "{",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "start_curly_bracket",
                 instance_types: vec![],
@@ -2247,7 +2247,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "end_curly_bracket",
             "}",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "end_curly_bracket",
                 instance_types: vec![],
@@ -2261,7 +2261,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "colon",
             ":",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "colon",
                 instance_types: vec![],
@@ -2275,7 +2275,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
         Box::new(StringLexer::new(
             "semicolon",
             ";",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "semicolon",
                 instance_types: vec![],
@@ -2312,7 +2312,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
             RegexLexer::new(
                 "word",
                 "[0-9a-zA-Z_]+",
-                &CodeSegment::new,
+                &CodeSegment::create,
                 CodeSegmentNewArgs { code_type: "word", ..<_>::default() },
                 None,
                 None,
@@ -5737,7 +5737,7 @@ impl NodeTrait for RollupFunctionNameSegment {
         StringParser::new(
             "ROLLUP",
             |segment| {
-                CodeSegment::new(
+                CodeSegment::create(
                     &segment.get_raw().unwrap(),
                     &segment.get_position_marker().unwrap(),
                     CodeSegmentNewArgs::default(),
@@ -5760,7 +5760,7 @@ impl NodeTrait for CubeFunctionNameSegment {
         StringParser::new(
             "CUBE",
             |segment| {
-                CodeSegment::new(
+                CodeSegment::create(
                     &segment.get_raw().unwrap(),
                     &segment.get_position_marker().unwrap(),
                     CodeSegmentNewArgs::default(),

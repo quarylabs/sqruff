@@ -76,7 +76,7 @@ impl Rule for RuleLT10 {
         ];
 
         if trailing_newline_segments.is_empty() {
-            edit_segments.push(NewlineSegment::new("\n", &<_>::default(), <_>::default()));
+            edit_segments.push(NewlineSegment::create("\n", &<_>::default(), <_>::default()));
         }
 
         let mut fixes = Vec::new();

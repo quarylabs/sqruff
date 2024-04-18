@@ -187,7 +187,7 @@ impl RuleLT09 {
                 fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone_box(),
-                    vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                    vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                 ));
             }
 
@@ -206,7 +206,7 @@ impl RuleLT09 {
 
                     fixes.push(LintFix::create_before(
                         from_segment.clone_box(),
-                        vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                        vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                     ));
                 }
             }
@@ -329,7 +329,7 @@ impl RuleLT09 {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone_box(),
                             if add_newline {
-                                vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())]
+                                vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())]
                             } else {
                                 vec![]
                             }

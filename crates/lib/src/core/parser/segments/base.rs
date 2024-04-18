@@ -807,7 +807,7 @@ pub struct CodeSegmentNewArgs {
 }
 
 impl CodeSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: CodeSegmentNewArgs,
@@ -885,7 +885,7 @@ impl Segment for CodeSegment {
     ///
     /// From RawSegment implementation
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        CodeSegment::new(
+        CodeSegment::create(
             raw.unwrap_or(self.raw.clone()).as_str(),
             &self.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
@@ -905,7 +905,7 @@ pub struct IdentifierSegment {
 }
 
 impl IdentifierSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: CodeSegmentNewArgs,
@@ -973,7 +973,7 @@ impl Segment for IdentifierSegment {
     }
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        IdentifierSegment::new(
+        IdentifierSegment::create(
             raw.unwrap_or(self.base.raw.clone()).as_str(),
             &self.base.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
@@ -1004,7 +1004,7 @@ pub struct CommentSegmentNewArgs {
 }
 
 impl CommentSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         args: CommentSegmentNewArgs,
@@ -1084,7 +1084,7 @@ pub struct NewlineSegment {
 pub struct NewlineSegmentNewArgs {}
 
 impl NewlineSegment {
-    pub fn new(
+    pub fn create(
         raw: &str,
         position_maker: &PositionMarker,
         _args: NewlineSegmentNewArgs,

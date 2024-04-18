@@ -191,7 +191,7 @@ impl ReflowPoint {
             }
         } else {
             // There isn't currently a newline.
-            let new_newline = NewlineSegment::new("\n", &<_>::default(), <_>::default());
+            let new_newline = NewlineSegment::create("\n", &<_>::default(), <_>::default());
             // Check for whitespace
             let ws_seg = self.segments.iter().find(|seg| seg.is_type("whitespace"));
 

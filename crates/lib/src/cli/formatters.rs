@@ -83,26 +83,21 @@ impl OutputStreamFormatter {
     }
 
     #[allow(dead_code)]
-    #[allow(dead_code)]
     fn format_config(&self) -> String {
         unimplemented!()
     }
 
-    #[allow(dead_code)]
     #[allow(dead_code)]
     fn dispatch_config(&mut self) {
         self.dispatch(&self.format_config())
     }
 
     #[allow(dead_code)]
-    #[allow(dead_code)]
     fn dispatch_persist_filename(&self) {}
 
     #[allow(dead_code)]
-    #[allow(dead_code)]
     fn format_path(&self) {}
 
-    #[allow(dead_code)]
     #[allow(dead_code)]
     fn dispatch_path(&self) {}
 
@@ -111,18 +106,14 @@ impl OutputStreamFormatter {
     pub fn dispatch_parse_header(&self) {}
 
     #[allow(dead_code)]
-    #[allow(dead_code)]
     fn dispatch_lint_header(&self) {}
 
-    #[allow(dead_code)]
     #[allow(dead_code)]
     fn dispatch_compilation_header(&self) {}
 
     #[allow(dead_code)]
-    #[allow(dead_code)]
     fn dispatch_processing_header(&self) {}
 
-    #[allow(dead_code)]
     #[allow(dead_code)]
     fn dispatch_dialect_warning(&self) {}
 
@@ -182,10 +173,8 @@ impl OutputStreamFormatter {
     }
 
     #[allow(dead_code)]
-    #[allow(dead_code)]
     fn cli_table_row(&self) {}
 
-    #[allow(dead_code)]
     #[allow(dead_code)]
     fn cli_table(&self) {}
 

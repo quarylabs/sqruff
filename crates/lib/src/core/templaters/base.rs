@@ -40,12 +40,6 @@ pub struct TemplatedFile {
     pub sliced_file: Vec<TemplatedFileSlice>,
 }
 
-// impl fmt::Display for TemplatedFile {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         write!(f, "{}", self.templated_str.clone().unwrap().to_string())
-//     }
-// }
-
 impl fmt::Display for TemplatedFile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.templated_str.clone().unwrap())
@@ -265,9 +259,6 @@ impl TemplatedFile {
                 if first_idx.is_none() {
                     first_idx = Some(idx + start_idx);
                 }
-                // if elem.templated_slice.start > templated_pos {
-                //     break;
-                // } // same as bellow
                 else if !inclusive && elem.templated_slice.end >= templated_pos {
                     break;
                 }

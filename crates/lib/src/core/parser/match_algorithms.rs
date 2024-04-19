@@ -403,7 +403,6 @@ pub fn bracket_sensitive_look_ahead_match(
                         // Add anything before it to the pre segment buffer.
                         // Reset the working buffer.
                         pre_seg_buff.extend(pre.iter().cloned());
-                        // seg_buff = match_result.unmatched_segments.clone();
                         seg_buff.clone_from(&match_result.unmatched_segments);
                         continue;
                     } else if has_matching_end_bracket {

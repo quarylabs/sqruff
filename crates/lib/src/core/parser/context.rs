@@ -53,11 +53,6 @@ impl ParseContext {
         // TODO:
         self.tqdm = Some(());
 
-        // try
-        // let ret = f(self);
-        // finally
-        // self.tqdm.unwrap().close();
-
        f(self)
     }
 

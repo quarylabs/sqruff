@@ -252,12 +252,6 @@ impl PartialEq for Anything {
     }
 }
 
-// impl Default for Anything {
-//     fn default() -> Self {
-//         Self::new()
-//     }
-// }
-
 impl Anything {
     pub fn new() -> Self {
         Self { terminators: Vec::new() }

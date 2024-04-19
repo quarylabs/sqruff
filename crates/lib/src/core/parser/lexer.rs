@@ -306,11 +306,6 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
     }
 
     fn search(&self, forward_string: &str) -> Option<Range<usize>> {
-        // if let Some(start) = forward_string.find(self.template) {
-        //     Some(start..start + self.template.len())
-        // } else {
-        //     None
-        // }
         forward_string.find(self.template).map(|start| start..start + self.template.len())
     }
 

@@ -131,7 +131,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         if let Some(value) = self.as_any().downcast_ref::<Node<WildcardIdentifierSegment>>() {
             let mut node = Node::new();
             node.uuid = value.uuid;
-            // node.position_marker = value.position_marker.clone();
             node.position_marker.clone_from(&value.position_marker);
             node.segments.clone_from(&value.segments);
             return node;

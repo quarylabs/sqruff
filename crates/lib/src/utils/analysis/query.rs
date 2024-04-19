@@ -112,8 +112,8 @@ impl<T: Default> Query<'_, T> {
     ) -> Query<'a, T> {
         let mut selectables = Vec::new();
         let mut subqueries = Vec::new();
-        let cte_defs: Vec<ErasedSegment> = Vec::new();
-        let query_type = QueryType::Simple;
+        let mut cte_defs: Vec<ErasedSegment> = Vec::new();
+        let mut query_type = QueryType::Simple;
 
         if segment.is_type("select_statement")
             || SUBSELECT_TYPES.iter().any(|ty| segment.is_type(ty))

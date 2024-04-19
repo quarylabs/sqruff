@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use itertools::{enumerate, Itertools};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment};
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs};
 use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};

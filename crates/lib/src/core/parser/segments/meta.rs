@@ -60,6 +60,10 @@ impl Indent {
     pub fn dedent() -> Self {
         Self::from_kind(IndentChange::Dedent)
     }
+
+    pub fn implicit_indent() -> Self {
+        Self::from_kind(IndentChange::Implicit)
+    }
 }
 
 impl<M: MetaSegmentKind> Deref for MetaSegment<M> {
@@ -134,18 +138,23 @@ impl<M: MetaSegmentKind> Matchable for MetaSegment<M> {
 /// will just     be compared later.
 #[derive(Hash, Debug, Clone, Copy, PartialEq)]
 pub enum IndentChange {
-    Indent = 1,
-    Dedent = -1,
+    Indent,
+    Implicit,
+    Dedent,
 }
 
 impl MetaSegmentKind for IndentChange {
     fn indent_val(&self) -> i8 {
-        *self as i8
+        match self {
+            IndentChange::Indent | IndentChange::Implicit => 1,
+            IndentChange::Dedent => -1,
+        }
     }
 
     fn kind(&self) -> &'static str {
         match self {
             IndentChange::Indent => "indent",
+            IndentChange::Implicit => "indent",
             IndentChange::Dedent => "dedent",
         }
     }
@@ -185,6 +194,10 @@ impl Segment for EndOfFile {
 
     fn get_raw_segments(&self) -> Vec<ErasedSegment> {
         vec![self.clone_box()]
+    }
+
+    fn is_meta(&self) -> bool {
+        true
     }
 
     fn get_type(&self) -> &'static str {

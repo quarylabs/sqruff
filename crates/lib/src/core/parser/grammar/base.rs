@@ -1,3 +1,6 @@
+use std::borrow::Cow;
+use std::ops::Deref;
+
 use ahash::AHashSet;
 use itertools::enumerate;
 use uuid::Uuid;
@@ -99,7 +102,7 @@ impl Matchable for BaseGrammar {
 
 #[derive(Clone, Hash)]
 pub struct Ref {
-    reference: String,
+    reference: Cow<'static, str>,
     exclude: Option<Box<dyn Matchable>>,
     terminators: Vec<Box<dyn Matchable>>,
     reset_terminators: bool,
@@ -116,9 +119,9 @@ impl std::fmt::Debug for Ref {
 
 impl Ref {
     // Constructor function
-    pub fn new(reference: impl ToString) -> Self {
+    pub fn new(reference: impl Into<Cow<'static, str>>) -> Self {
         Ref {
-            reference: reference.to_string(),
+            reference: reference.into(),
             exclude: None,
             terminators: Vec::new(),
             reset_terminators: false,
@@ -145,7 +148,7 @@ impl Ref {
 
     // Static method to create a Ref instance for a keyword
     pub fn keyword(keyword: &str) -> Self {
-        let name = format!("{}KeywordSegment", capitalize(keyword));
+        let name = capitalize(keyword) + "KeywordSegment";
         Ref::new(name)
     }
 }
@@ -178,7 +181,7 @@ impl Matchable for Ref {
         crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         if let Some(ref c) = crumbs {
-            if c.contains(&self.reference.as_str()) {
+            if c.contains(&self.reference.deref()) {
                 let loop_string = c.join(" -> ");
                 panic!("Self referential grammar detected: {}", loop_string);
             }
@@ -457,7 +460,7 @@ mod tests {
         // Assuming 'generate_test_segments' and 'fresh_ansi_dialect' are implemented
         // elsewhere
         let ts = generate_test_segments_func(vec!["ABS", "ABSOLUTE"]);
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         // Assert ABS does not match, due to the exclude
         assert!(ni.match_segments(&[ts[0].clone()], &mut ctx).unwrap().matched_segments.is_empty());
@@ -470,7 +473,7 @@ mod tests {
 
     #[test]
     fn test_parser_grammar_nothing() {
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         assert!(
             Nothing::new()
@@ -495,7 +498,7 @@ mod tests {
             (0..2, "bar", true, (0..2).into()),
         ];
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
         for (segments_slice, matcher_keyword, trim_noncode, result_slice) in cases {
             let matchers = vec![
                 StringParser::new(
@@ -567,7 +570,7 @@ mod tests {
             Box::new(Sequence::new(vec![bs, fs])),
         ];
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
         // Matching the first element of the list
         let (match_result, matcher) =
             longest_trimmed_match(&test_segments(), matchers.clone(), &mut ctx, true).unwrap();

@@ -1,7 +1,8 @@
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 
+use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -10,8 +11,16 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT07 {}
 
 impl Rule for RuleLT07 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT07::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_bracket"
+    }
+
+    fn description(&self) -> &'static str {
+        "'WITH' clause closing bracket should be on a new line."
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -54,7 +63,10 @@ impl Rule for RuleLT07 {
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
                     if elem.is_type("newline") {
                         break;
-                    } else if !(elem.is_type("indent") || elem.is_type("whitespace")) {
+                    } else if !(elem.is_type("indent")
+                        || elem.is_type("dedent")
+                        || elem.is_type("whitespace"))
+                    {
                         contains_non_whitespace = true;
                         break;
                     }

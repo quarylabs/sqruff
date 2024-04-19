@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 
 #[derive(Debug, Parser)]
 #[command(name = "sqruff")]
@@ -21,10 +21,23 @@ pub enum Commands {
 #[derive(Debug, Parser)]
 pub struct LintArgs {
     pub paths: Vec<PathBuf>,
+    #[arg(default_value = "human", short, long)]
+    pub format: Format,
 }
 
 #[derive(Debug, Parser)]
 pub struct FixArgs {
-    /// glob pattern to fix
-    pub file_path: String,
+    pub paths: Vec<PathBuf>,
+    /// Skip the confirmation prompt and go straight to applying fixes.
+    #[arg(short, long)]
+    pub force: bool,
+    #[arg(default_value = "human", short, long)]
+    pub format: Format,
+}
+
+#[derive(Debug, Default, Clone, Copy, ValueEnum)]
+pub enum Format {
+    #[default]
+    Human,
+    GithubAnnotationNative,
 }

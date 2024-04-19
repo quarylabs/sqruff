@@ -1,8 +1,9 @@
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use indexmap::IndexSet;
 
+use crate::core::config::Value;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::analysis::select::get_select_statement_info;
@@ -11,13 +12,25 @@ use crate::utils::analysis::select::get_select_statement_info;
 pub struct RuleAL04 {}
 
 impl Rule for RuleAL04 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
+    fn name(&self) -> &'static str {
+        "aliasing.unique.table"
+    }
+
+    fn description(&self) -> &'static str {
+        "Table aliases should be unique within each clause."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let Some(select_info) =
-            get_select_statement_info(&context.segment, (&context.dialect).into(), true)
+            get_select_statement_info(&context.segment, context.dialect.into(), true)
         else {
             return Vec::new();
         };

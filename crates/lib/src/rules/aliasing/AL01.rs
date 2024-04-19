@@ -1,5 +1,8 @@
+use ahash::AHashMap;
+
+use crate::core::config::Value;
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
@@ -39,6 +42,25 @@ impl Default for RuleAL01 {
 }
 
 impl Rule for RuleAL01 {
+    fn from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+        let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
+            "explicit" => Aliasing::Explicit,
+            "implicit" => Aliasing::Implicit,
+            _ => unreachable!(),
+        };
+
+        RuleAL01 { aliasing, target_parent_types: &["from_expression_element", "merge_statement"] }
+            .erased()
+    }
+
+    fn name(&self) -> &'static str {
+        "aliasing.table"
+    }
+
+    fn description(&self) -> &'static str {
+        "Implicit/explicit aliasing of table."
+    }
+
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
         let last_seg = rule_cx.parent_stack.last().unwrap();
         let last_seg_ty = last_seg.get_type();

@@ -1,4 +1,7 @@
-use crate::core::rules::base::{LintResult, Rule};
+use ahash::AHashMap;
+
+use crate::core::config::Value;
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
@@ -7,8 +10,16 @@ use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 pub struct RuleLT01 {}
 
 impl Rule for RuleLT01 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT01::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.spacing"
+    }
+
+    fn description(&self) -> &'static str {
+        "Inappropriate Spacing."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -140,14 +151,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "incorrect spacing"]
     fn test_fail_cte_newline_after_as() {
         let sql = fix("WITH a AS\n(select 1)\nselect * from a".into(), rules());
         assert_eq!(sql, "WITH a AS (select 1)\nselect * from a");
     }
 
     #[test]
-    #[ignore = "incorrect spacing"]
     fn test_fail_cte_newline_and_spaces_after_as() {
         let sql = fix("WITH a AS\n\n\n(select 1)\nselect * from a".into(), rules());
         assert_eq!(sql, "WITH a AS (select 1)\nselect * from a");

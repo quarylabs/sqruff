@@ -277,8 +277,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
         no_recursive_seg_type: Option<&str>,
         allow_self: bool,
     ) -> Vec<ErasedSegment> {
-        let is_debug = seg_types == ["object_reference"];
-
         let mut acc = Vec::new();
         let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
 

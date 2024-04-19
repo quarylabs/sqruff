@@ -21,6 +21,7 @@ static SUBSELECT_TYPES: &[&str] = &[
     "values_clause",
 ];
 
+#[derive(Debug)]
 pub enum QueryType {
     Simple,
     WithCompound,
@@ -28,6 +29,7 @@ pub enum QueryType {
 
 pub enum WildcardInfo {}
 
+#[derive(Debug)]
 pub struct Selectable<'me> {
     pub selectable: ErasedSegment,
     pub dialect: &'me Dialect,
@@ -43,6 +45,7 @@ impl<'me> Selectable<'me> {
     }
 }
 
+#[derive(Debug)]
 pub struct Query<'me, T> {
     pub query_type: QueryType,
     pub dialect: &'me Dialect,
@@ -94,8 +97,13 @@ impl<T: Default> Query<'_, T> {
         acc
     }
 
-    #[allow(dead_code)]
-    fn from_root() {}
+    pub fn from_root<'a>(root_segment: ErasedSegment, dialect: &'a Dialect) -> Query<'a, T> {
+        let selectable_segment =
+            root_segment.recursive_crawl(SELECTABLE_TYPES, true, "merge_statement".into(), true)[0]
+                .clone();
+
+        Query::from_segment(&selectable_segment, dialect, None)
+    }
 
     pub fn from_segment<'a>(
         segment: &ErasedSegment,
@@ -114,14 +122,32 @@ impl<T: Default> Query<'_, T> {
         } else if segment.is_type("set_expression") {
             unimplemented!()
         } else {
-            unimplemented!()
+            query_type = QueryType::WithCompound;
+
+            for seg in segment.recursive_crawl(
+                &["select_statement"],
+                false,
+                "common_table_expression".into(),
+                true,
+            ) {
+                selectables.push(Selectable { selectable: seg, dialect });
+            }
+
+            for seg in segment.recursive_crawl(
+                &["common_table_expression"],
+                false,
+                "with_compound_statement".into(),
+                true,
+            ) {
+                cte_defs.push(seg);
+            }
         }
 
         for selectable in &selectables {
             subqueries.extend(Self::extract_subqueries(selectable, dialect));
         }
 
-        let outer_query = Query {
+        let mut outer_query = Query {
             query_type,
             dialect,
             selectables,
@@ -137,6 +163,26 @@ impl<T: Default> Query<'_, T> {
             return outer_query;
         }
 
+        let mut ctes = AHashMap::new();
+        for cte in cte_defs {
+            let name_seg = cte.segments()[0].clone_box();
+            let name = name_seg.get_raw_upper().unwrap();
+
+            let types = [SELECTABLE_TYPES, &["values_clause"], SUBSELECT_TYPES].concat();
+            let queries = cte.recursive_crawl(&types, true, None, true);
+
+            if queries.is_empty() {
+                continue;
+            };
+
+            let query = &queries[0];
+            let mut query = Self::from_segment(query, dialect, None);
+            query.cte_definition_segment = cte.into();
+            query.cte_name_segment = name_seg.into();
+            ctes.insert(name, query);
+        }
+
+        outer_query.ctes = ctes;
         outer_query
     }
 }

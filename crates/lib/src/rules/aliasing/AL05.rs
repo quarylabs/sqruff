@@ -1,7 +1,10 @@
+use ahash::AHashMap;
+
+use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceLevel;
@@ -19,8 +22,16 @@ struct AL05Query {
 pub struct RuleAL05 {}
 
 impl Rule for RuleAL05 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
     fn name(&self) -> &'static str {
         "aliasing.unused"
+    }
+
+    fn description(&self) -> &'static str {
+        "Tables should not be aliased if that alias is not used."
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -29,8 +40,7 @@ impl Rule for RuleAL05 {
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
-        let select_info =
-            get_select_statement_info(&context.segment, (&context.dialect).into(), true);
+        let select_info = get_select_statement_info(&context.segment, context.dialect.into(), true);
 
         let Some(select_info) = select_info else {
             return Vec::new();

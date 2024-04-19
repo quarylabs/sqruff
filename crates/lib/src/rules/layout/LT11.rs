@@ -1,4 +1,7 @@
-use crate::core::rules::base::{LintResult, Rule};
+use ahash::AHashMap;
+
+use crate::core::config::Value;
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -7,8 +10,16 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT11;
 
 impl Rule for RuleLT11 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT11::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.set_operators"
+    }
+
+    fn description(&self) -> &'static str {
+        "Set operators should be surrounded by newlines."
     }
 
     fn crawl_behaviour(&self) -> Crawler {

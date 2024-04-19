@@ -1,5 +1,8 @@
+use ahash::AHashMap;
+
+use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -8,8 +11,16 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT03 {}
 
 impl Rule for RuleLT03 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT03::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.operators"
+    }
+
+    fn description(&self) -> &'static str {
+        "Operators should follow a standard for being before/after newlines."
     }
 
     fn crawl_behaviour(&self) -> Crawler {

@@ -1,10 +1,12 @@
 use std::iter::repeat;
 
+use ahash::AHashMap;
 use indexmap::IndexMap;
 use itertools::Itertools;
 
+use crate::core::config::Value;
 use crate::core::parser::segments::base::NewlineSegment;
-use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
+use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -12,8 +14,16 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleLT08 {}
 
 impl Rule for RuleLT08 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT08::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_newline"
+    }
+
+    fn description(&self) -> &'static str {
+        "Blank line expected but not found after CTE closing bracket."
     }
 
     fn crawl_behaviour(&self) -> Crawler {

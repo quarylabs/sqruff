@@ -4,9 +4,25 @@ on:
       - "v*.*.*"
 
 jobs:
+  check-versions-match:
+    name: Check versions match
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Allow running check_versions_match.sh
+        run: chmod +x ./.hacking/check_versions_match.sh
+      - name: Check release version matches code
+        run: |
+          RELEASE_VERSION=${{ github.event.release.tag_name }}
+          STRIPPED_VERSION=${RELEASE_VERSION#v}
+          ./.hacking/check_versions_match.sh $STRIPPED_VERSION
   release:
     name: Release ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.os }}
+    needs:
+      - check-versions-match
     strategy:
       fail-fast: false
       matrix:

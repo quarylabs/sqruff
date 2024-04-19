@@ -1,11 +1,10 @@
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
 
-use crate::core::parser::segments::base::{
-    ErasedSegment, SymbolSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
+use crate::core::config::Value;
+use crate::core::parser::segments::base::{ErasedSegment, SymbolSegment, WhitespaceSegment};
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
@@ -16,6 +15,18 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleST02 {}
 
 impl Rule for RuleST02 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleST02::default().erased()
+    }
+
+    fn name(&self) -> &'static str {
+        "structure.simple_case"
+    }
+
+    fn description(&self) -> &'static str {
+        "Unnecessary 'CASE' statement."
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["case_expression"].into()).into()
     }

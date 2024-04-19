@@ -1,9 +1,9 @@
+use ahash::AHashMap;
 use itertools::{enumerate, Itertools};
 
-use crate::core::parser::segments::base::{
-    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
-use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment};
+use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -24,10 +24,15 @@ struct SelectTargetsInfo {
 
 #[derive(Debug, Clone)]
 pub struct RuleLT09 {
-    wildcard_policy: &'static str,
+    wildcard_policy: String,
 }
 
 impl Rule for RuleLT09 {
+    fn from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT09 { wildcard_policy: config["wildcard_policy"].as_string().unwrap().to_owned() }
+            .erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.select_targets"
     }
@@ -442,7 +447,7 @@ impl RuleLT09 {
 
 impl Default for RuleLT09 {
     fn default() -> Self {
-        Self { wildcard_policy: "single" }
+        Self { wildcard_policy: "single".into() }
     }
 }
 

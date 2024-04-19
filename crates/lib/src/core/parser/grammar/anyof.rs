@@ -332,7 +332,7 @@ mod tests {
                 g.disallow_gaps();
             }
 
-            let mut ctx = ParseContext::new(fresh_ansi_dialect());
+            let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
             // Check directly
             let mut segments = g.match_segments(&test_segments(), &mut ctx).unwrap();
@@ -347,7 +347,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_oneof_templated() {
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         let bs = StringParser::new(
             "bar",
@@ -420,7 +420,7 @@ mod tests {
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
-        let mut parse_cx = ParseContext::new(fresh_ansi_dialect());
+        let mut parse_cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         for (mode, sequence, terminators, output, max_times) in cases {
             let elements = sequence
@@ -514,7 +514,7 @@ mod tests {
             None,
         );
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
         let g = AnyNumberOf::new(vec![Box::new(bar), Box::new(foo)]);
         let result = g.match_segments(&segments, &mut ctx).unwrap().matched_segments;
 
@@ -558,7 +558,7 @@ mod tests {
         let g1 = one_of(vec![Box::new(foo_regex.clone()), Box::new(foo.clone())]);
         let g2 = one_of(vec![Box::new(foo), Box::new(foo_regex)]);
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         for segment in g1.match_segments(&segments, &mut ctx).unwrap().matched_segments.iter() {
             assert_eq!(segment.get_raw().unwrap(), "foo");

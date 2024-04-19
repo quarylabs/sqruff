@@ -1,5 +1,8 @@
+use ahash::AHashMap;
+
+use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -38,6 +41,10 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
 pub struct RuleLT12 {}
 
 impl Rule for RuleLT12 {
+    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT12::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.end_of_file"
     }

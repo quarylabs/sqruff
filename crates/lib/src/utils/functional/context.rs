@@ -1,12 +1,12 @@
 use super::segments::Segments;
 use crate::core::rules::context::RuleContext;
 
-pub struct FunctionalContext {
-    context: RuleContext,
+pub struct FunctionalContext<'a> {
+    context: RuleContext<'a>,
 }
 
-impl FunctionalContext {
-    pub fn new(context: RuleContext) -> FunctionalContext {
+impl<'a> FunctionalContext<'a> {
+    pub fn new(context: RuleContext<'a>) -> FunctionalContext {
         FunctionalContext { context }
     }
 

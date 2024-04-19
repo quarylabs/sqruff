@@ -537,7 +537,7 @@ fn source_char_len(elements: Vec<ReflowElement>) -> usize {
 }
 
 #[allow(unused_variables, dead_code)]
-fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize>  {
+fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
     unimplemented!()
 }
 

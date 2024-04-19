@@ -53,7 +53,7 @@ impl ParseContext {
         // TODO:
         self.tqdm = Some(());
 
-       f(self)
+        f(self)
     }
 
     pub(crate) fn deeper_match<T>(

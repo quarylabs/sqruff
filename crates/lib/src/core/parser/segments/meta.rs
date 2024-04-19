@@ -174,7 +174,6 @@ impl EndOfFile {
     }
 }
 
-
 impl Segment for EndOfFile {
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self { uuid: self.uuid, position_maker: self.position_maker.clone() }.to_erased_segment()

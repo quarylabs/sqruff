@@ -14,17 +14,17 @@ pub struct RawSegment {
     uuid: Uuid,
 }
 
-struct RawSegmentArgs {
-    _type: Option<String>,
-    _instance_types: Option<Vec<String>>,
-    _trim_start: Option<Vec<String>>,
-    _trim_cars: Option<Vec<String>>,
-    _source_fixes: Option<Vec<SourceFix>>,
-    _uuid: Option<String>,
+pub struct RawSegmentArgs {
+    pub _type: Option<String>,
+    pub _instance_types: Option<Vec<String>>,
+    pub _trim_start: Option<Vec<String>>,
+    pub _trim_cars: Option<Vec<String>>,
+    pub _source_fixes: Option<Vec<SourceFix>>,
+    pub _uuid: Option<String>,
 }
 
 impl RawSegment {
-    pub fn new(
+    pub fn create(
         raw: Option<String>,
         position_marker: Option<PositionMarker>,
         // For legacy and syntactic sugar we allow the simple

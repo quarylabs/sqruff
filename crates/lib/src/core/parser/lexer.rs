@@ -768,7 +768,7 @@ mod tests {
             RegexLexer::new(
                 "function_script_terminator",
                 r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
-                &CodeSegment::new,
+                &CodeSegment::create,
                 CodeSegmentNewArgs {
                     code_type: "function_script_terminator",
                     instance_types: vec![],
@@ -779,7 +779,7 @@ mod tests {
                 Some(Box::new(StringLexer::new(
                     "semicolon",
                     ";",
-                    &CodeSegment::new,
+                    &CodeSegment::create,
                     CodeSegmentNewArgs {
                         code_type: "semicolon",
                         instance_types: vec![],
@@ -794,7 +794,7 @@ mod tests {
                     RegexLexer::new(
                         "newline",
                         r"(\n|\r\n)+",
-                        &NewlineSegment::new,
+                        &NewlineSegment::create,
                         NewlineSegmentNewArgs {},
                         None,
                         None,
@@ -836,7 +836,7 @@ mod tests {
             let matcher = RegexLexer::new(
                 "test",
                 reg,
-                &CodeSegment::new,
+                &CodeSegment::create,
                 CodeSegmentNewArgs {
                     code_type: "",
                     instance_types: vec![],
@@ -859,7 +859,7 @@ mod tests {
         let matcher = StringLexer::new(
             "dot",
             ".",
-            &CodeSegment::new,
+            &CodeSegment::create,
             CodeSegmentNewArgs {
                 code_type: "dot",
                 instance_types: vec![],
@@ -881,7 +881,7 @@ mod tests {
             Box::new(StringLexer::new(
                 "dot",
                 ".",
-                &CodeSegment::new,
+                &CodeSegment::create,
                 CodeSegmentNewArgs {
                     code_type: "",
                     instance_types: vec![],
@@ -896,7 +896,7 @@ mod tests {
                 RegexLexer::new(
                     "test",
                     r"#[^#]*#",
-                    &CodeSegment::new,
+                    &CodeSegment::create,
                     CodeSegmentNewArgs {
                         code_type: "",
                         instance_types: vec![],

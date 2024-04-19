@@ -213,11 +213,6 @@ impl TemplatedFile {
         self.templated_str.as_deref()
     }
 
-    /// Return the templated file if coerced to string.
-    // pub fn to_string(&self) -> String {
-    //     self.templated_str.clone().unwrap().to_string()
-    // }
-
     /// Return a list a slices which reference the parts only in the source.
     ///
     /// All of these slices should be expected to have zero-length in the
@@ -258,8 +253,7 @@ impl TemplatedFile {
             if elem.templated_slice.end >= templated_pos {
                 if first_idx.is_none() {
                     first_idx = Some(idx + start_idx);
-                }
-                else if !inclusive && elem.templated_slice.end >= templated_pos {
+                } else if !inclusive && elem.templated_slice.end >= templated_pos {
                     break;
                 }
             }

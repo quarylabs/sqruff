@@ -730,8 +730,7 @@ pub fn ansi_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::keyword("DATE"),
-                    Ref::keyword("TIME"
-                ),
+                    Ref::keyword("TIME"),
                     Ref::keyword("TIMESTAMP"),
                     Ref::keyword("INTERVAL")
                 ]),
@@ -1833,7 +1832,8 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                     RegexLexer::new(
                         "whitespace",
                         r"[^\S\r\n]+",
-                        &WhitespaceSegment::create as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
+                        &WhitespaceSegment::create
+                            as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
                         WhitespaceSegmentNewArgs {},
                         None,
                         None,

@@ -325,7 +325,7 @@ mod tests {
             ))]);
 
             let symbol_factory = |segment: &dyn Segment| {
-                SymbolSegment::new(
+                SymbolSegment::create(
                     &segment.get_raw().unwrap(),
                     &segment.get_position_marker().unwrap(),
                     SymbolSegmentNewArgs { r#type: "remove me" },

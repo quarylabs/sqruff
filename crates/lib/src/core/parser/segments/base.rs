@@ -1448,34 +1448,33 @@ pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::parser::segments::raw::RawSegment;
+    use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
     use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
+
+    const TEMP_SEGMENTS_ARGS: RawSegmentArgs = RawSegmentArgs {
+        _type: None,
+        _instance_types: None,
+        _source_fixes: None,
+        _trim_cars: None,
+        _trim_start: None,
+        _uuid: None,
+    };
 
     #[test]
     /// Test comparison of raw segments.
     fn test__parser__base_segments_raw_compare() {
         let template = TemplatedFile::from_string("foobar".to_string());
-        let rs1 = Box::new(RawSegment::new(
+        let rs1 = Box::new(RawSegment::create(
             Some("foobar".to_string()),
             Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
+            TEMP_SEGMENTS_ARGS,
         ))
         .to_erased_segment();
 
-        let rs2 = Box::new(RawSegment::new(
+        let rs2 = Box::new(RawSegment::create(
             Some("foobar".to_string()),
             Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
+            TEMP_SEGMENTS_ARGS,
         ))
         .to_erased_segment();
 
@@ -1564,7 +1563,7 @@ mod tests {
     #[test]
     fn test__parser__base_segments_type() {
         let args = UnlexableSegmentNewArgs { expected: None };
-        let segment = UnlexableSegment::new("", &PositionMarker::default(), args);
+        let segment = UnlexableSegment::create("", &PositionMarker::default(), args);
 
         assert!(segment.is_type("unlexable"));
         assert!(!segment.is_type("whitespace"));

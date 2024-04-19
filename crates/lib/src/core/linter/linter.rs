@@ -358,7 +358,6 @@ impl Linter {
         //     ));
         // }
 
-        
         let mut templated_file = None;
 
         let templater_violations = vec![];

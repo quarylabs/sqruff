@@ -312,7 +312,7 @@ mod tests {
     use crate::core::config::Value;
     use crate::core::errors::SQLLintError;
     use crate::core::parser::markers::PositionMarker;
-    use crate::core::parser::segments::raw::RawSegment;
+    use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
     use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
@@ -387,7 +387,16 @@ mod tests {
             }
         }
 
-        let s = RawSegment::new(
+        let tempRawSegmentArgs = RawSegmentArgs {
+            _type: None,
+            _instance_types: None,
+            _source_fixes: None,
+            _trim_cars: None,
+            _trim_start: None,
+            _uuid: None,
+        };
+
+        let s = RawSegment::create(
             "foobarbar".to_owned().into(),
             PositionMarker::new(
                 10..19,
@@ -397,12 +406,7 @@ mod tests {
                 None,
             )
             .into(),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
+            tempRawSegmentArgs,
         )
         .to_erased_segment();
 

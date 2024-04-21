@@ -1,4 +1,3 @@
-use core::fmt;
 use std::ops::Range;
 
 use crate::cli::formatters::OutputStreamFormatter;
@@ -38,12 +37,6 @@ pub struct TemplatedFile {
     templated_newlines: Vec<usize>,
     raw_sliced: Vec<RawFileSlice>,
     pub sliced_file: Vec<TemplatedFileSlice>,
-}
-
-impl fmt::Display for TemplatedFile {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.templated_str.clone().unwrap())
-    }
 }
 
 impl TemplatedFile {
@@ -213,6 +206,11 @@ impl TemplatedFile {
         self.templated_str.as_deref()
     }
 
+    /// Return the templated file if coerced to string.
+    pub fn to_string(&self) -> String {
+        self.templated_str.clone().unwrap().to_string()
+    }
+
     /// Return a list a slices which reference the parts only in the source.
     ///
     /// All of these slices should be expected to have zero-length in the
@@ -253,6 +251,9 @@ impl TemplatedFile {
             if elem.templated_slice.end >= templated_pos {
                 if first_idx.is_none() {
                     first_idx = Some(idx + start_idx);
+                }
+                if elem.templated_slice.start > templated_pos {
+                    break;
                 } else if !inclusive && elem.templated_slice.end >= templated_pos {
                     break;
                 }
@@ -355,25 +356,25 @@ impl TemplatedFile {
 
         let start_slices;
         if ts_start_sf_start == ts_start_sf_stop {
-            match ts_start_sf_start {
-                value if value > sliced_file.len() => {
-                    return Err(ValueError::new(
-                        "Starting position higher than sliced file position".into(),
-                    ));
-                }
-                _ => {
-                    return Ok(sliced_file.last().unwrap().source_slice.clone());
-                }
+            if ts_start_sf_start > sliced_file.len() {
+                return Err(ValueError::new(
+                    "Starting position higher than sliced file position".into(),
+                ));
+            } else if ts_start_sf_start < sliced_file.len() {
+                return Ok(sliced_file[1].source_slice.clone());
+            } else {
+                return Ok(sliced_file.last().unwrap().source_slice.clone());
             }
         } else {
             start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
         }
 
-        let stop_slices = if ts_stop_sf_start == ts_stop_sf_stop {
-            vec![sliced_file[ts_stop_sf_start].clone()]
+        let stop_slices;
+        if ts_stop_sf_start == ts_stop_sf_stop {
+            stop_slices = vec![sliced_file[ts_stop_sf_start].clone()];
         } else {
-            sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec()
-        };
+            stop_slices = sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec();
+        }
 
         let source_start: isize = if insertion_point >= 0 {
             insertion_point
@@ -435,7 +436,6 @@ impl TemplatedFile {
     }
 
     /// Return a list of the raw slices spanning a set of indices.
-    #[allow(dead_code)]
     fn raw_slices_spanning_source_slice(&self, source_slice: Range<usize>) -> Vec<RawFileSlice> {
         // Special case: The source_slice is at the end of the file.
         let last_raw_slice = self.raw_sliced.last().unwrap();
@@ -522,12 +522,23 @@ impl RawFileSlice {
     fn is_source_only_slice(&self) -> bool {
         // TODO: should any new logic go here?. Slice Type could probably go from String
         // To Enum
-        matches!(self.slice_type.as_str(), "comment" | "block_end" | "block_start" | "block_mid")
+        match self.slice_type.as_str() {
+            "comment" => true,
+            "block_end" => true,
+            "block_start" => true,
+            "block_mid" => true,
+            _ => false,
+        }
     }
 }
 
-#[derive(Default)]
 pub struct RawTemplater {}
+
+impl Default for RawTemplater {
+    fn default() -> Self {
+        Self {}
+    }
+}
 
 impl Templater for RawTemplater {
     fn name(&self) -> &str {

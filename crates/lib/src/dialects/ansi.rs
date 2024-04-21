@@ -1832,8 +1832,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                     RegexLexer::new(
                         "whitespace",
                         r"[^\S\r\n]+",
-                        &WhitespaceSegment::create
-                            as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
+                        &WhitespaceSegment::create as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
                         WhitespaceSegmentNewArgs {},
                         None,
                         None,
@@ -2340,12 +2339,6 @@ pub struct Node<T> {
     pub position_marker: Option<PositionMarker>,
 }
 
-impl<T> Default for Node<T> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl<T> Node<T> {
     pub fn new() -> Self {
         Self {
@@ -2416,7 +2409,7 @@ impl<T> PartialEq for Node<T> {
 impl<T> Clone for Node<T> {
     fn clone(&self) -> Self {
         Self {
-            marker: self.marker,
+            marker: self.marker.clone(),
             segments: self.segments.clone(),
             uuid: self.uuid,
             position_marker: self.position_marker.clone(),
@@ -2835,7 +2828,7 @@ impl Node<FromClauseSegment> {
                 .unwrap()
                 .eventual_alias();
 
-            let table_expr = if direct_table_children.contains(clause) {
+            let table_expr = if direct_table_children.contains(&clause) {
                 clause
             } else {
                 tmp = clause.child(&["from_expression_element"]).unwrap();
@@ -2867,20 +2860,24 @@ impl NodeTrait for SelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Node::<UnorderedSelectStatementSegment>::new().match_grammar().unwrap().copy(
-            Some(vec_of_erased![
-                Ref::new("OrderByClauseSegment").optional(),
-                Ref::new("FetchClauseSegment").optional(),
-                Ref::new("LimitClauseSegment").optional(),
-                Ref::new("NamedWindowSegment").optional(),
-            ]),
-            true,
-            vec_of_erased![
-                Ref::new("SetOperatorSegment"),
-                Ref::new("WithNoSchemaBindingClauseSegment"),
-                Ref::new("WithDataClauseSegment"),
-            ],
-        )
+        Node::<UnorderedSelectStatementSegment>::new()
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![
+                    Ref::new("OrderByClauseSegment").optional(),
+                    Ref::new("FetchClauseSegment").optional(),
+                    Ref::new("LimitClauseSegment").optional(),
+                    Ref::new("NamedWindowSegment").optional()
+                ]),
+                true,
+                vec_of_erased![
+                    Ref::new("SetOperatorSegment"),
+                    Ref::new("WithNoSchemaBindingClauseSegment"),
+                    Ref::new("WithDataClauseSegment")
+                ],
+            )
+            .into()
     }
 
     fn class_types() -> AHashSet<String> {
@@ -2938,7 +2935,7 @@ impl NodeTrait for SelectClauseElementSegment {
 impl Node<SelectClauseElementSegment> {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
         let alias_expression_segment =
-            self.recursive_crawl(&["alias_expression"], true, None, true).first();
+            self.recursive_crawl(&["alias_expression"], true, None, true).get(0)?.clone();
 
         unimplemented!()
     }
@@ -3243,7 +3240,7 @@ impl Node<ObjectReferenceSegment> {
         let mut acc = Vec::new();
 
         let raw = elem.get_raw().unwrap();
-        let parts = raw.split('.');
+        let parts = raw.split(".");
 
         for part in parts {
             acc.push(ObjectReferencePart { part: part.into(), segments: vec![elem.clone()] });
@@ -4941,12 +4938,15 @@ impl NodeTrait for CreateTriggerStatementSegment {
                 Sequence::new(vec![
                     Ref::keyword("UPDATE").boxed(),
                     Ref::keyword("OF").boxed(),
-                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").boxed()]).boxed(),
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").boxed()])
+                        //.with_terminators(vec!["OR", "ON"])
+                        .boxed(),
                 ])
                 .boxed(),
             ])
             .config(|this| {
                 this.delimiter(Ref::keyword("OR"));
+                // .with_terminators(vec!["ON"]);
             })
             .boxed(),
             Ref::keyword("ON").boxed(),
@@ -4968,7 +4968,7 @@ impl NodeTrait for CreateTriggerStatementSegment {
                     Ref::new("TableReferenceSegment"),
                 ]),
                 one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")]),
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE"),]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DEFERRABLE").optional(),
                         one_of(vec_of_erased![
@@ -4986,11 +4986,11 @@ impl NodeTrait for CreateTriggerStatementSegment {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("FOR"),
                     Ref::keyword("EACH").optional(),
-                    one_of(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("STATEMENT")]),
+                    one_of(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("STATEMENT"),]),
                 ]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WHEN"),
-                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
                 ]),
             ])
             .boxed(),
@@ -5005,6 +5005,7 @@ impl NodeTrait for CreateTriggerStatementSegment {
             .boxed(),
         ])
         .to_matchable()
+        .into()
     }
 }
 

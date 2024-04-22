@@ -26,7 +26,7 @@ pub fn get_rules() -> Vec<crate::core::rules::base::ErasedRule> {
         LT08::RuleLT08::default().erased(),
         LT09::RuleLT09::default().erased(),
         LT10::RuleLT10::default().erased(),
-        LT11::RuleLT11::default().erased(),
+        LT11::RuleLT11.erased(),
         LT12::RuleLT12::default().erased(),
     ]
 }

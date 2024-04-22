@@ -107,23 +107,18 @@ pub fn identify_rebreak_spans(
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for idx in 2..element_buffer.len() - 2 {
-        let elem = &element_buffer[idx];
-
-        let ReflowElement::Block(block) = elem else {
-            continue;
-        };
-
-        if let Some(line_position) = &block.line_position {
-            spans.push(RebreakSpan {
-                target: elem.segments().first().cloned().unwrap(),
-                start_idx: idx,
-                end_idx: idx,
-                line_position: line_position.split(':').next().unwrap_or_default().into(),
-                strict: line_position.ends_with("strict"),
-            });
+    for (idx, elem) in element_buffer.iter().enumerate().skip(2).take(element_buffer.len() - 4) {
+        if let ReflowElement::Block(block) = elem {
+            if let Some(line_position) = &block.line_position {
+                spans.push(RebreakSpan {
+                    target: elem.segments().first().cloned().unwrap(),
+                    start_idx: idx,
+                    end_idx: idx,
+                    line_position: line_position.split(':').next().unwrap_or_default().into(),
+                    strict: line_position.ends_with("strict"),
+                });
+            }
         }
-
         // for (key, config) in elem.line_position_configs.iter() {
         //     if elem.depth_info.stack_positions[key].idx != 0 {
         //         continue;

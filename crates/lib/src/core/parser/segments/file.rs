@@ -90,7 +90,8 @@ mod test {
     #[test]
     fn test__parser__base_segments_file() {
         let segments = raw_segments();
-        let base_seg = BaseFileSegment::create(segments, None, Some("/some/dir/file.sql".to_string()));
+        let base_seg =
+            BaseFileSegment::create(segments, None, Some("/some/dir/file.sql".to_string()));
 
         assert_eq!(base_seg.get_type(), "file");
         assert_eq!(base_seg.get_file_path(), Some("/some/dir/file.sql".to_string()));

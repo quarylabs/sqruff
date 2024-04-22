@@ -172,8 +172,8 @@ impl Linter {
             }
         }
 
-        let mut runner = RunnerContext::sequential(self);
-        for linted_file in runner.run(expanded_paths, fix) {
+        let mut runner = RunnerContext::parallel(self);
+        for linted_file in runner.run(&expanded_paths, fix) {
             let path = expanded_path_to_linted_dir[&linted_file.path];
             result.paths[path].add(linted_file);
         }

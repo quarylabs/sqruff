@@ -11,7 +11,7 @@ doctest = false
 [dependencies]
 dyn-clone = "1"
 dyn_ord = "0.2.1"
-dyn-hash = "0.1.2"
+dyn-hash = "0.2.0"
 fancy-regex = "0.13"
 itertools = "0.12.0"
 regex = "1"
@@ -24,7 +24,7 @@ anymap = "0.12.1"
 configparser = "3.0.4"
 phf = { version = "0.11.2", features = ["macros", "unicase"] }
 unicase = "2.7.0"
-serde = { version = "1.0.197", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9.32"
 anstyle = "1.0"
 tracing = "0.1.40"
@@ -35,7 +35,7 @@ ahash = "0.8.11"
 stacker = "0.1.15"
 
 [dev-dependencies]
-expect-test = "1.4"
-glob = "0.3.1"
-serde_json = "1.0.114"
+expect-test = "1.5"
+glob = "0.3"
+serde_json = "1"
 tempdir = "0.3"

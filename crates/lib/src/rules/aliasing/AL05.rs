@@ -50,8 +50,8 @@ impl Rule for RuleAL05 {
             return Vec::new();
         }
 
-        let mut query = Query::from_segment(&context.segment, &context.dialect, None);
-        self.analyze_table_aliases(&mut query, &context.dialect);
+        let mut query = Query::from_segment(&context.segment, context.dialect, None);
+        self.analyze_table_aliases(&mut query, context.dialect);
 
         for alias in query.payload.aliases {
             if Self::is_alias_required(&alias.from_expression_element) {

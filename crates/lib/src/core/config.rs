@@ -146,7 +146,7 @@ impl FluffConfig {
 
     // TODO This is not a translation that is particularly accurate.
     pub fn new(
-        mut configs: AHashMap<String, Value>,
+        configs: AHashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
@@ -593,7 +593,7 @@ impl FromStr for Value {
 }
 
 fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
-    let capacity = config_stack.iter().count();
+    let capacity = config_stack.len();
     let mut result = AHashMap::with_capacity(capacity);
 
     for dict in config_stack {

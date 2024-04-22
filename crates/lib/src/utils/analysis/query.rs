@@ -97,7 +97,7 @@ impl<T: Default> Query<'_, T> {
         acc
     }
 
-    pub fn from_root<'a>(root_segment: ErasedSegment, dialect: &'a Dialect) -> Query<'a, T> {
+    pub fn from_root(root_segment: ErasedSegment, dialect: &Dialect) -> Query<'_, T> {
         let selectable_segment =
             root_segment.recursive_crawl(SELECTABLE_TYPES, true, "merge_statement".into(), true)[0]
                 .clone();

@@ -29,7 +29,7 @@ impl Rule for RuleST03 {
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut result = Vec::new();
-        let query: Query<'_, ()> = Query::from_root(context.segment.clone(), &context.dialect);
+        let query: Query<'_, ()> = Query::from_root(context.segment.clone(), context.dialect);
 
         let mut remaining_ctes: IndexMap<_, _> =
             query.ctes.keys().map(|it| (it.to_uppercase(), it.clone())).collect();

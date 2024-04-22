@@ -75,7 +75,11 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         } else if elem.chars().all(|c| c == '\n') {
             NewlineSegment::create(elem, &position_marker, NewlineSegmentNewArgs {})
         } else if elem == "(" || elem == ")" {
-            SymbolSegment::create(elem, &position_marker, SymbolSegmentNewArgs { r#type: "remove me" })
+            SymbolSegment::create(
+                elem,
+                &position_marker,
+                SymbolSegmentNewArgs { r#type: "remove me" },
+            )
         } else if elem.starts_with("--") {
             CommentSegment::create(
                 elem,

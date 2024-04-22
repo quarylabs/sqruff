@@ -1832,7 +1832,8 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
                     RegexLexer::new(
                         "whitespace",
                         r"[^\S\r\n]+",
-                        &WhitespaceSegment::create as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
+                        &WhitespaceSegment::create
+                            as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
                         WhitespaceSegmentNewArgs {},
                         None,
                         None,
@@ -3240,7 +3241,7 @@ impl Node<ObjectReferenceSegment> {
         let mut acc = Vec::new();
 
         let raw = elem.get_raw().unwrap();
-        let parts = raw.split(".");
+        let parts = raw.split('.');
 
         for part in parts {
             acc.push(ObjectReferencePart { part: part.into(), segments: vec![elem.clone()] });

@@ -23,10 +23,6 @@ impl Rule for RuleST01 {
         "Do not specify 'else null' in a case when statement (redundant)."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["case_expression"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let anchor = context.segment.clone();
 
@@ -52,6 +48,10 @@ impl Rule for RuleST01 {
         } else {
             Vec::new()
         }
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["case_expression"].into()).into()
     }
 }
 

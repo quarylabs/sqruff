@@ -30,14 +30,6 @@ impl Segment for LiteralSegment {
         self.raw.clone().into()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
     fn get_type(&self) -> &'static str {
         "numeric_literal"
     }
@@ -60,6 +52,14 @@ impl Segment for LiteralSegment {
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         todo!()
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
@@ -99,14 +99,6 @@ impl Segment for ComparisonOperatorSegment {
         self.raw.clone().into()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
     fn get_type(&self) -> &'static str {
         "numeric_literal"
     }
@@ -129,6 +121,14 @@ impl Segment for ComparisonOperatorSegment {
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         todo!()
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_uuid(&self) -> Option<Uuid> {

@@ -23,14 +23,6 @@ impl Segment for KeywordSegment {
         KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).to_erased_segment()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
     fn get_raw(&self) -> Option<String> {
         self.raw.clone().into()
     }
@@ -53,6 +45,14 @@ impl Segment for KeywordSegment {
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.position_marker = position_marker;
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_uuid(&self) -> Option<uuid::Uuid> {

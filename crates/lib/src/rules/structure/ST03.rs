@@ -23,10 +23,6 @@ impl Rule for RuleST03 {
         "Query defines a CTE (common-table expression) but does not use it."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut result = Vec::new();
         let query: Query<'_, ()> = Query::from_root(context.segment.clone(), &context.dialect);
@@ -58,6 +54,10 @@ impl Rule for RuleST03 {
         }
 
         result
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 }
 

@@ -38,10 +38,6 @@ impl Rule for RuleAL02 {
         "Implicit/explicit aliasing of columns."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["alias_expression"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if FunctionalContext::new(context.clone())
             .segment()
@@ -56,6 +52,10 @@ impl Rule for RuleAL02 {
         }
 
         self.base.eval(context)
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["alias_expression"].into()).into()
     }
 }
 

@@ -12,21 +12,17 @@ pub struct NonCodeMatcher;
 impl Segment for NonCodeMatcher {}
 
 impl Matchable for NonCodeMatcher {
+    fn is_optional(&self) -> bool {
+        // Not optional
+        false
+    }
+
     fn simple(
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         None
-    }
-
-    fn is_optional(&self) -> bool {
-        // Not optional
-        false
-    }
-
-    fn cache_key(&self) -> String {
-        "non-code-matcher".to_string()
     }
 
     fn match_segments(
@@ -42,6 +38,10 @@ impl Matchable for NonCodeMatcher {
         }
 
         Ok(MatchResult::new(segments[0..idx].to_vec(), segments[idx..].to_vec()))
+    }
+
+    fn cache_key(&self) -> String {
+        "non-code-matcher".to_string()
     }
 }
 

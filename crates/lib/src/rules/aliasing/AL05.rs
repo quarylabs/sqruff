@@ -34,10 +34,6 @@ impl Rule for RuleAL05 {
         "Tables should not be aliased if that alias is not used."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
         let select_info = get_select_statement_info(&context.segment, context.dialect.into(), true);
@@ -65,6 +61,10 @@ impl Rule for RuleAL05 {
         }
 
         violations
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
 }
 
@@ -102,16 +102,16 @@ impl RuleAL05 {
     fn is_alias_required(from_expression_element: &ErasedSegment) -> bool {
         for segment in from_expression_element.iter_segments(Some(&["bracketed"]), false) {
             if segment.is_type("table_expression") {
-                if segment.child(&["values_clause"]).is_some() {
-                    return false;
+                return if segment.child(&["values_clause"]).is_some() {
+                    false
                 } else if segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
                     ["select_statement", "set_expression", "with_compound_statement"]
                         .iter()
                         .any(|it| seg.is_type(it))
                 }) {
-                    return true;
+                    true
                 } else {
-                    return false;
+                    false
                 }
             }
         }

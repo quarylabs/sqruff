@@ -2361,8 +2361,12 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         .to_erased_segment()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        T::match_grammar().into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        T::TYPE
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -2373,20 +2377,16 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         self.position_marker = position_marker;
     }
 
+    fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
 
-    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        T::match_grammar().into()
-    }
-
     fn class_types(&self) -> AHashSet<String> {
         T::class_types()
-    }
-
-    fn get_type(&self) -> &'static str {
-        T::TYPE
     }
 }
 
@@ -2510,10 +2510,6 @@ impl Segment for FileSegment {
             .to_erased_segment()
     }
 
-    fn get_type(&self) -> &'static str {
-        "file"
-    }
-
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Delimited::new(vec![Ref::new("StatementSegment").boxed()])
             .config(|this| {
@@ -2527,20 +2523,24 @@ impl Segment for FileSegment {
             .into()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
+    fn get_type(&self) -> &'static str {
+        "file"
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.pos_marker.clone()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["file"].map(ToOwned::to_owned).into_iter().collect()
-    }
-
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.pos_marker = position_marker;
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
+    }
+
+    fn class_types(&self) -> AHashSet<String> {
+        ["file"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
 

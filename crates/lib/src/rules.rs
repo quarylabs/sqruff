@@ -1,6 +1,5 @@
-use ahash::AHashMap;
-
 use crate::core::rules::base::{RuleManifest, RuleSet};
+use crate::helpers::IndexMap;
 
 pub mod aliasing;
 pub mod convention;
@@ -9,7 +8,7 @@ pub mod layout;
 pub mod structure;
 
 pub fn get_ruleset() -> RuleSet {
-    let mut register = AHashMap::default();
+    let mut register = IndexMap::default();
 
     let rules = layout::get_rules();
     register.reserve(rules.len());

@@ -333,7 +333,7 @@ impl TemplatedFile {
                      {:?}.",
                     template_slice, ts_start_subsliced_file
                 )))
-            }
+            };
         }
 
         let (ts_stop_sf_start, ts_stop_sf_stop) =
@@ -357,14 +357,12 @@ impl TemplatedFile {
         let start_slices;
         if ts_start_sf_start == ts_start_sf_stop {
             return if ts_start_sf_start > sliced_file.len() {
-                Err(ValueError::new(
-                    "Starting position higher than sliced file position".into(),
-                ))
+                Err(ValueError::new("Starting position higher than sliced file position".into()))
             } else if ts_start_sf_start < sliced_file.len() {
                 Ok(sliced_file[1].source_slice.clone())
             } else {
                 Ok(sliced_file.last().unwrap().source_slice.clone())
-            }
+            };
         } else {
             start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
         }

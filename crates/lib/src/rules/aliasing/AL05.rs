@@ -112,7 +112,7 @@ impl RuleAL05 {
                     true
                 } else {
                     false
-                }
+                };
             }
         }
         false

@@ -26,7 +26,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@nightly
       - run: cargo build --locked --release --all-features
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -40,9 +39,8 @@ jobs:
           tool: nextest
       - name: Run tests
         run: cargo nextest run --locked --release
-
-  lint:
-    name: Lint
+  fmt:
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: Swatinem/rust-cache@v2

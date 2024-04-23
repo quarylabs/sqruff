@@ -26,10 +26,6 @@ impl Rule for RuleLT08 {
         "Blank line expected but not found after CTE closing bracket."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
         let global_comma_style = "trailing";
@@ -169,6 +165,10 @@ impl Rule for RuleLT08 {
         }
 
         error_buffer
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 }
 

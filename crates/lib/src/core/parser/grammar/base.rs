@@ -167,10 +167,6 @@ impl Eq for Ref {}
 impl Segment for Ref {}
 
 impl Matchable for Ref {
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
-    }
-
     fn is_optional(&self) -> bool {
         self.optional
     }
@@ -237,6 +233,10 @@ impl Matchable for Ref {
                 |this| elem.match_segments(segments, this),
             )
         })
+    }
+
+    fn cache_key(&self) -> String {
+        self.cache_key.clone()
     }
 }
 
@@ -417,7 +417,7 @@ mod tests {
 
         // Rust does not directly compare object identities like Python's `is`,
         // but we can ensure they are not the same object by comparing memory addresses
-        assert!(&r1 as *const _ != &r2 as *const _);
+        assert_ne!(&r1 as *const _, &r2 as *const _);
         assert_eq!(r1, r2);
 
         // For lists, we use Vec in Rust

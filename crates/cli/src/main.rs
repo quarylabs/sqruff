@@ -26,7 +26,7 @@ fn main() {
                 for path in result.paths {
                     for file in path.files {
                         for violation in file.violations {
-                            let mut line = format!("::error ");
+                            let mut line = "::error ".to_string();
                             line.push_str("title=SQLFluff,");
                             line.push_str(&format!("file={},", file.path));
                             line.push_str(&format!("line={},", violation.line_no));

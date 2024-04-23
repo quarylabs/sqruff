@@ -46,19 +46,19 @@ impl Segment for BracketedSegment {
         this.to_erased_segment()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
-    }
-
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
-    }
-
     fn get_type(&self) -> &'static str {
         "bracketed"
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.pos_marker.clone()
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 }

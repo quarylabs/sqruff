@@ -24,10 +24,6 @@ impl Rule for RuleAL04 {
         "Table aliases should be unique within each clause."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let Some(select_info) =
             get_select_statement_info(&context.segment, context.dialect.into(), true)
@@ -39,6 +35,10 @@ impl Rule for RuleAL04 {
             context.parent_stack.iter().rev().find(|seg| seg.is_type("select_statement"));
 
         self.lint_references_and_aliases(select_info.table_aliases).unwrap_or_default()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
 }
 

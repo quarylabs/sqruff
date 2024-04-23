@@ -53,10 +53,6 @@ impl Rule for RuleLT12 {
         "Files must end with a single trailing newline."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let (parent_stack, segment) =
             get_last_segment(FunctionalContext::new(context.clone()).segment());
@@ -95,6 +91,10 @@ impl Rule for RuleLT12 {
         } else {
             vec![]
         }
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler::default().into()
     }
 }
 

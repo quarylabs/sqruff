@@ -32,10 +32,6 @@ impl Rule for RuleAL03 {
         "Column expression without alias. Use explicit `AS` clause."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause_element"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let functional_context = FunctionalContext::new(context.clone());
         let segment = functional_context.segment();
@@ -96,6 +92,10 @@ impl Rule for RuleAL03 {
         }
 
         vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)]
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_clause_element"].into()).into()
     }
 }
 

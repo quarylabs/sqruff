@@ -354,7 +354,7 @@ pub fn handle_respace_inline_without_space(
             next_block.segments[0].get_raw().unwrap()
         )
     } else {
-        format!("Expected single whitespace.")
+        "Expected single whitespace.".to_string()
     };
 
     let new_result = if let Some(prev_block) = prev_block

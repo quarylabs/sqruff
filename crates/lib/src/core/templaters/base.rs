@@ -318,21 +318,21 @@ impl TemplatedFile {
         // Zero length slice.
         if template_slice.start == template_slice.end {
             // Is it on a join?
-            if insertion_point >= 0 {
-                return Ok(zero_slice(insertion_point.try_into().unwrap()));
+            return if insertion_point >= 0 {
+                Ok(zero_slice(insertion_point.try_into().unwrap()))
                 // It's within a segment.
             } else if !ts_start_subsliced_file.is_empty()
                 && ts_start_subsliced_file[0].slice_type == "literal"
             {
                 let offset =
                     template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
-                return Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset));
+                Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset))
             } else {
-                return Err(ValueError::new(format!(
+                Err(ValueError::new(format!(
                     "Attempting a single length slice within a templated section! {:?} within \
                      {:?}.",
                     template_slice, ts_start_subsliced_file
-                )));
+                )))
             }
         }
 
@@ -356,14 +356,14 @@ impl TemplatedFile {
 
         let start_slices;
         if ts_start_sf_start == ts_start_sf_stop {
-            if ts_start_sf_start > sliced_file.len() {
-                return Err(ValueError::new(
+            return if ts_start_sf_start > sliced_file.len() {
+                Err(ValueError::new(
                     "Starting position higher than sliced file position".into(),
-                ));
+                ))
             } else if ts_start_sf_start < sliced_file.len() {
-                return Ok(sliced_file[1].source_slice.clone());
+                Ok(sliced_file[1].source_slice.clone())
             } else {
-                return Ok(sliced_file.last().unwrap().source_slice.clone());
+                Ok(sliced_file.last().unwrap().source_slice.clone())
             }
         } else {
             start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];

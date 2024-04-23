@@ -22,14 +22,14 @@ impl Rule for RuleLT02 {
         "Incorrect Indentation."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_root(context.segment, context.config.clone().unwrap())
             .reindent()
             .results()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler::default().into()
     }
 }
 

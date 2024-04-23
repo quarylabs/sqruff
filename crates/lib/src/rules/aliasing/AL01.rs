@@ -82,6 +82,7 @@ impl Rule for RuleAL01 {
                         &as_keyword,
                         rule_cx.parent_stack[0].clone(),
                         "both",
+                        rule_cx.config.unwrap(),
                     )
                     .without(&as_keyword)
                     .respace(false, Filter::All)
@@ -105,6 +106,7 @@ impl Rule for RuleAL01 {
                         &identifier,
                         rule_cx.parent_stack[0].clone(),
                         "before",
+                        rule_cx.config.unwrap(),
                     )
                     .insert(
                         KeywordSegment::new("AS".into(), None).to_erased_segment(),

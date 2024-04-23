@@ -44,6 +44,7 @@ impl Rule for RuleLT04 {
             &context.segment,
             context.parent_stack.first().unwrap().clone(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()

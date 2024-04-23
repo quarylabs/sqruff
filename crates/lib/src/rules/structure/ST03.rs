@@ -1,10 +1,10 @@
 use ahash::AHashMap;
-use indexmap::IndexMap;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::helpers::IndexMap;
 use crate::utils::analysis::query::Query;
 
 #[derive(Debug, Default, Clone)]

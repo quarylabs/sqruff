@@ -449,7 +449,7 @@ mod tests {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, <_>::default());
+            let seq = ReflowSequence::from_root(root, &<_>::default());
             let new_seq = seq.rebreak();
 
             assert_eq!(new_seq.raw(), raw_sql_out);
@@ -472,7 +472,7 @@ mod tests {
         for (raw_sql_in, target_idx, seq_sql_in, seq_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
             let target = &root.get_raw_segments()[target_idx];
-            let seq = ReflowSequence::from_around_target(target, root, "both");
+            let seq = ReflowSequence::from_around_target(target, root, "both", &<_>::default());
 
             assert_eq!(seq.raw(), seq_sql_in);
 

@@ -622,7 +622,7 @@ fn iter_segments(
     let tfs_idx = 0;
     // We keep a map of previous block locations in case they re-occur.
     // let block_stack = BlockTracker()
-    let templated_file_slices = templated_file.clone().sliced_file;
+    let templated_file_slices = &templated_file.clone().sliced_file;
 
     // Now work out source slices, and add in template placeholders.
     for (_idx, element) in lexed_elements.into_iter().enumerate() {

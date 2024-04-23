@@ -1,7 +1,6 @@
 use std::iter::repeat;
 
 use ahash::AHashMap;
-use indexmap::IndexMap;
 use itertools::Itertools;
 
 use crate::core::config::Value;
@@ -9,6 +8,7 @@ use crate::core::parser::segments::base::NewlineSegment;
 use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::helpers::IndexMap;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT08 {}
@@ -45,7 +45,7 @@ impl Rule for RuleLT08 {
             let mut blank_lines = 0;
             let mut comma_line_idx = None;
             let mut line_blank = false;
-            let mut line_starts = IndexMap::new();
+            let mut line_starts = IndexMap::default();
             let mut comment_lines = Vec::new();
 
             while forward_slice[seg_idx].is_type("comma") || !forward_slice[seg_idx].is_code() {

@@ -27,6 +27,7 @@ impl Rule for RuleLT11 {
             &context.segment,
             context.parent_stack.first().unwrap().clone_box(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()

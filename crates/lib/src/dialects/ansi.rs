@@ -18,13 +18,14 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     pos_marker, CloneSegment, CodeSegment, CodeSegmentNewArgs, CommentSegment,
     CommentSegmentNewArgs, ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs,
-    Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
+    Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, UnparsableSegment,
+    WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::generator::SegmentGenerator;
@@ -2482,14 +2483,27 @@ impl FileSegment {
         })?;
 
         let has_match = match_result.has_match();
-        let unmatched = match_result.unmatched_segments;
+        let MatchResult { matched_segments, unmatched_segments } = match_result;
 
         let content: Vec<_> = if !has_match {
-            unimplemented!()
-        } else if !unmatched.is_empty() {
-            unimplemented!()
+            vec![UnparsableSegment::new(segments[start_idx..end_idx].to_vec()).to_erased_segment()]
+        } else if !unmatched_segments.is_empty() {
+            let idx = unmatched_segments
+                .iter()
+                .position(|item| item.is_code())
+                .unwrap_or(unmatched_segments.len());
+            let mut result = Vec::new();
+            result.extend(matched_segments.clone());
+            result.extend(unmatched_segments.iter().take(idx).cloned());
+            if idx < unmatched_segments.len() {
+                result.push(
+                    UnparsableSegment::new(unmatched_segments[idx..].to_vec()).to_erased_segment(),
+                );
+            }
+
+            result
         } else {
-            chain(match_result.matched_segments, unmatched).collect()
+            chain(matched_segments, unmatched_segments).collect()
         };
 
         let mut result = Vec::new();

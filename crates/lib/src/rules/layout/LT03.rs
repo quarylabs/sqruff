@@ -43,6 +43,7 @@ impl Rule for RuleLT03 {
             &context.segment,
             context.parent_stack.first().unwrap().clone_box(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()

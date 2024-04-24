@@ -32,7 +32,7 @@ pub fn get_simple_config(
     if let Some(exclude_rules) = exclude_rules {
         overrides.insert("exclude_rules".to_owned(), exclude_rules.join(","));
     }
-    
+
     FluffConfig::from_root(config_path, true, Some(overrides))
         .map_err(|err| SQLFluffUserError::new(format!("Error loading config: {:?}", err)))
 }

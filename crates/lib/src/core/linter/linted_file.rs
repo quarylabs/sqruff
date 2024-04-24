@@ -207,7 +207,7 @@ mod test {
             (vec![0..1], vec![], "a", "a"),
             // Simple replacement
             (
-                vec![(0..1), (1..2), (2..3)],
+                vec![0..1, 1..2, 2..3],
                 vec![FixPatch::new(
                     1..2,
                     "d".to_string(),
@@ -221,7 +221,7 @@ mod test {
             ),
             // Simple insertion
             (
-                vec![(0..1), (1..1), (1..2)],
+                vec![0..1, 1..1, 1..2],
                 vec![FixPatch::new(
                     1..1,
                     "b".to_string(),
@@ -235,7 +235,7 @@ mod test {
             ),
             // Simple deletion
             (
-                vec![(0..1), (1..2), (2..3)],
+                vec![0..1, 1..2, 2..3],
                 vec![FixPatch::new(
                     1..2,
                     "".to_string(),
@@ -250,7 +250,7 @@ mod test {
             // Illustrative templated example (although practically at this step, the routine
             // shouldn't care if it's templated).
             (
-                vec![(0..2), (2..7), (7..9)],
+                vec![0..2, 2..7, 7..9],
                 vec![FixPatch::new(
                     2..3,
                     "{{ b }}".to_string(),

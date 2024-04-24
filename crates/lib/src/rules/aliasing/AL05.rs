@@ -34,10 +34,6 @@ impl Rule for RuleAL05 {
         "Tables should not be aliased if that alias is not used."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
         let select_info = get_select_statement_info(&context.segment, context.dialect.into(), true);
@@ -65,6 +61,10 @@ impl Rule for RuleAL05 {
         }
 
         violations
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
 }
 

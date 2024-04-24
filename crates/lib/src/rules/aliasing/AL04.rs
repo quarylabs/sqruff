@@ -1,11 +1,11 @@
 use ahash::{AHashMap, AHashSet};
-use indexmap::IndexSet;
 
 use crate::core::config::Value;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::rules::base::{ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::helpers::IndexSet;
 use crate::utils::analysis::select::get_select_statement_info;
 
 #[derive(Debug, Clone, Default)]
@@ -24,10 +24,6 @@ impl Rule for RuleAL04 {
         "Table aliases should be unique within each clause."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let Some(select_info) =
             get_select_statement_info(&context.segment, context.dialect.into(), true)
@@ -40,6 +36,10 @@ impl Rule for RuleAL04 {
 
         self.lint_references_and_aliases(select_info.table_aliases).unwrap_or_default()
     }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_statement"].into()).into()
+    }
 }
 
 impl RuleAL04 {
@@ -47,7 +47,7 @@ impl RuleAL04 {
         &self,
         table_aliases: Vec<AliasInfo>,
     ) -> Option<Vec<LintResult>> {
-        let mut duplicates = IndexSet::new();
+        let mut duplicates = IndexSet::default();
         let mut seen: AHashSet<String> = AHashSet::new();
 
         for alias in table_aliases.iter() {

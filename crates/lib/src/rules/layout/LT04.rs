@@ -27,10 +27,6 @@ impl Rule for RuleLT04 {
         "Leading/Trailing comma enforcement."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["comma"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if self.check_trail_lead_shortcut(
             &context.segment,
@@ -44,9 +40,14 @@ impl Rule for RuleLT04 {
             &context.segment,
             context.parent_stack.first().unwrap().clone(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["comma".into()].into()).into()
     }
 }
 

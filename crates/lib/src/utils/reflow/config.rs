@@ -158,7 +158,7 @@ impl ReflowConfig {
         block_config
     }
 
-    pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
+    pub fn from_fluff_config(config: &FluffConfig) -> ReflowConfig {
         let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
         let config_types: AHashSet<_> = configs.keys().cloned().collect();
 

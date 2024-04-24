@@ -43,10 +43,6 @@ impl Rule for RuleLT09 {
         "Select targets should be on a new line unless there is only one select target."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
-    }
-
     #[allow(unused_variables)]
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context.clone());
@@ -67,6 +63,10 @@ impl Rule for RuleLT09 {
         }
 
         unimplemented!()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_clause".into()].into()).into()
     }
 }
 

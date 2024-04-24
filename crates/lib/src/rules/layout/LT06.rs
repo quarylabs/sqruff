@@ -24,10 +24,6 @@ impl Rule for RuleLT06 {
         "Function name not immediately followed by parenthesis."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
         let children = segment.children(None);
@@ -58,6 +54,10 @@ impl Rule for RuleLT06 {
         }
 
         vec![]
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["function".into()].into()).into()
     }
 }
 

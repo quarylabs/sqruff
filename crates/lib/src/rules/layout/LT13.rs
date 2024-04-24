@@ -23,10 +23,6 @@ impl Rule for RuleLT13 {
         "Files must not begin with newlines or whitespace."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler.into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut raw_segments = Vec::new();
 
@@ -57,6 +53,10 @@ impl Rule for RuleLT13 {
         }
 
         Vec::new()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler::default().into()
     }
 }
 

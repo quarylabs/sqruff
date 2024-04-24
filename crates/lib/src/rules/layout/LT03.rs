@@ -23,10 +23,6 @@ impl Rule for RuleLT03 {
         "Operators should follow a standard for being before/after newlines."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["binary_operator", "comparison_operator"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if context.segment.is_type("") {
             unimplemented!()
@@ -47,9 +43,14 @@ impl Rule for RuleLT03 {
             &context.segment,
             context.parent_stack.first().unwrap().clone_box(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["binary_operator", "comparison_operator"].into()).into()
     }
 }
 

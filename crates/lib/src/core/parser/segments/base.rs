@@ -828,13 +828,10 @@ impl Segment for CodeSegment {
         self.clone().to_erased_segment()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        Some(self.get_type().to_owned()).into_iter().collect()
-    }
-
     fn get_raw(&self) -> Option<String> {
         Some(self.raw.clone())
     }
+
     fn get_type(&self) -> &'static str {
         self.code_type
     }
@@ -844,7 +841,6 @@ impl Segment for CodeSegment {
     fn is_comment(&self) -> bool {
         false
     }
-
     fn is_whitespace(&self) -> bool {
         false
     }
@@ -857,16 +853,16 @@ impl Segment for CodeSegment {
         self.position_marker = position_marker
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
-    }
-
     fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
     fn get_raw_segments(&self) -> Vec<ErasedSegment> {
         vec![self.clone().to_erased_segment()]
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 
     /// Create a new segment, with exactly the same position but different
@@ -893,6 +889,10 @@ impl Segment for CodeSegment {
                 trim_chars: None,
             },
         )
+    }
+
+    fn class_types(&self) -> AHashSet<String> {
+        Some(self.get_type().to_owned()).into_iter().collect()
     }
 }
 
@@ -928,13 +928,10 @@ impl Segment for IdentifierSegment {
         self.clone().to_erased_segment()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        Some(self.get_type().to_owned()).into_iter().collect()
-    }
-
     fn get_raw(&self) -> Option<String> {
         Some(self.base.raw.clone())
     }
+
     fn get_type(&self) -> &'static str {
         "identifier"
     }
@@ -944,7 +941,6 @@ impl Segment for IdentifierSegment {
     fn is_comment(&self) -> bool {
         false
     }
-
     fn is_whitespace(&self) -> bool {
         false
     }
@@ -957,16 +953,16 @@ impl Segment for IdentifierSegment {
         self.base.position_marker = position_marker
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.base.uuid.into()
-    }
-
     fn segments(&self) -> &[ErasedSegment] {
         &[]
     }
 
     fn get_raw_segments(&self) -> Vec<ErasedSegment> {
         vec![self.clone().to_erased_segment()]
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.base.uuid.into()
     }
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -981,6 +977,10 @@ impl Segment for IdentifierSegment {
                 trim_chars: None,
             },
         )
+    }
+
+    fn class_types(&self) -> AHashSet<String> {
+        Some(self.get_type().to_owned()).into_iter().collect()
     }
 }
 
@@ -1022,12 +1022,12 @@ impl Segment for CommentSegment {
         self.clone_box()
     }
 
-    fn get_type(&self) -> &'static str {
-        "comment"
+    fn get_raw(&self) -> Option<String> {
+        self.raw.clone().into()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["comment".into()].into()
+    fn get_type(&self) -> &'static str {
+        "comment"
     }
 
     fn is_code(&self) -> bool {
@@ -1040,8 +1040,12 @@ impl Segment for CommentSegment {
         false
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.position_maker.clone()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_maker = position_marker;
     }
 
     fn segments(&self) -> &[ErasedSegment] {
@@ -1052,20 +1056,16 @@ impl Segment for CommentSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_maker = position_marker;
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        self.raw.clone().into()
+    fn class_types(&self) -> AHashSet<String> {
+        ["comment".into()].into()
     }
 }
 
@@ -1100,34 +1100,30 @@ impl Segment for NewlineSegment {
         self.clone().to_erased_segment()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone_box()]
-    }
-
-    fn is_meta(&self) -> bool {
-        false
+    fn get_raw(&self) -> Option<String> {
+        Some(self.raw.clone())
     }
 
     fn get_type(&self) -> &'static str {
         "newline"
     }
+
     fn is_code(&self) -> bool {
         false
     }
+
     fn is_comment(&self) -> bool {
         false
     }
     fn is_whitespace(&self) -> bool {
         true
     }
+    fn is_meta(&self) -> bool {
+        false
+    }
     fn get_default_raw(&self) -> Option<&'static str> {
         Some("\n")
     }
-
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_maker.clone().into()
     }
@@ -1140,16 +1136,20 @@ impl Segment for NewlineSegment {
         dbg!("self.position_marker = position_marker;");
     }
 
-    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        todo!()
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone_box()]
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        Some(self.raw.clone())
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        todo!()
     }
 
     fn class_types(&self) -> AHashSet<String> {
@@ -1193,14 +1193,6 @@ impl Segment for WhitespaceSegment {
         .to_erased_segment()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
     fn get_raw(&self) -> Option<String> {
         Some(self.raw.clone())
     }
@@ -1208,9 +1200,11 @@ impl Segment for WhitespaceSegment {
     fn get_type(&self) -> &'static str {
         "whitespace"
     }
+
     fn is_code(&self) -> bool {
         false
     }
+
     fn is_comment(&self) -> bool {
         false
     }
@@ -1220,11 +1214,9 @@ impl Segment for WhitespaceSegment {
     fn get_default_raw(&self) -> Option<&'static str> {
         Some(" ")
     }
-
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_marker.clone().into()
     }
-
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         let Some(position_marker) = position_marker else {
             return;
@@ -1233,16 +1225,24 @@ impl Segment for WhitespaceSegment {
         self.position_marker = position_marker;
     }
 
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
 
-    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        Self::create(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
-    }
-
     fn get_source_fixes(&self) -> Vec<SourceFix> {
         Vec::new()
+    }
+
+    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        Self::create(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
     }
 }
 
@@ -1329,14 +1329,6 @@ impl Segment for SymbolSegment {
         self.raw.clone().into()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
     fn get_type(&self) -> &'static str {
         self.type_
     }
@@ -1353,10 +1345,6 @@ impl Segment for SymbolSegment {
         false
     }
 
-    fn instance_types(&self) -> AHashSet<String> {
-        [self.type_.to_string()].into()
-    }
-
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_maker.clone().into()
     }
@@ -1364,6 +1352,14 @@ impl Segment for SymbolSegment {
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         let Some(position_marker) = position_marker else { return };
         self.position_maker = position_marker;
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
@@ -1376,6 +1372,10 @@ impl Segment for SymbolSegment {
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
+    }
+
+    fn instance_types(&self) -> AHashSet<String> {
+        [self.type_.to_string()].into()
     }
 }
 
@@ -1417,14 +1417,6 @@ impl UnparsableSegment {
 }
 
 impl Segment for UnparsableSegment {
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
-    }
-
     fn get_type(&self) -> &'static str {
         "unparsable"
     }
@@ -1435,6 +1427,14 @@ impl Segment for UnparsableSegment {
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.position_marker = position_marker;
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
+    }
+
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 }
 
@@ -1478,7 +1478,7 @@ mod tests {
         ))
         .to_erased_segment();
 
-        assert!(rs1 == rs2)
+        assert_eq!(rs1, rs2)
     }
 
     #[test]

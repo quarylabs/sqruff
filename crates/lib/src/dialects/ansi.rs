@@ -18,13 +18,14 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     pos_marker, CloneSegment, CodeSegment, CodeSegmentNewArgs, CommentSegment,
     CommentSegmentNewArgs, ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs,
-    Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
+    Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, UnparsableSegment,
+    WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::generator::SegmentGenerator;
@@ -2362,8 +2363,12 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         .to_erased_segment()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
+    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+        T::match_grammar().into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        T::TYPE
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -2374,20 +2379,16 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         self.position_marker = position_marker;
     }
 
+    fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
 
-    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
-        T::match_grammar().into()
-    }
-
     fn class_types(&self) -> AHashSet<String> {
         T::class_types()
-    }
-
-    fn get_type(&self) -> &'static str {
-        T::TYPE
     }
 }
 
@@ -2483,14 +2484,27 @@ impl FileSegment {
         })?;
 
         let has_match = match_result.has_match();
-        let unmatched = match_result.unmatched_segments;
+        let MatchResult { matched_segments, unmatched_segments } = match_result;
 
         let content: Vec<_> = if !has_match {
-            unimplemented!()
-        } else if !unmatched.is_empty() {
-            unimplemented!()
+            vec![UnparsableSegment::new(segments[start_idx..end_idx].to_vec()).to_erased_segment()]
+        } else if !unmatched_segments.is_empty() {
+            let idx = unmatched_segments
+                .iter()
+                .position(|item| item.is_code())
+                .unwrap_or(unmatched_segments.len());
+            let mut result = Vec::new();
+            result.extend(matched_segments.clone());
+            result.extend(unmatched_segments.iter().take(idx).cloned());
+            if idx < unmatched_segments.len() {
+                result.push(
+                    UnparsableSegment::new(unmatched_segments[idx..].to_vec()).to_erased_segment(),
+                );
+            }
+
+            result
         } else {
-            chain(match_result.matched_segments, unmatched).collect()
+            chain(matched_segments, unmatched_segments).collect()
         };
 
         let mut result = Vec::new();
@@ -2511,10 +2525,6 @@ impl Segment for FileSegment {
             .to_erased_segment()
     }
 
-    fn get_type(&self) -> &'static str {
-        "file"
-    }
-
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
         Delimited::new(vec![Ref::new("StatementSegment").boxed()])
             .config(|this| {
@@ -2528,20 +2538,24 @@ impl Segment for FileSegment {
             .into()
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
+    fn get_type(&self) -> &'static str {
+        "file"
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.pos_marker.clone()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["file"].map(ToOwned::to_owned).into_iter().collect()
-    }
-
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.pos_marker = position_marker;
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
+    }
+
+    fn class_types(&self) -> AHashSet<String> {
+        ["file"].map(ToOwned::to_owned).into_iter().collect()
     }
 }
 
@@ -5985,7 +5999,7 @@ mod tests {
             ("ExpressionSegment", "bits[OFFSET(0)] + 7"),
             (
                 "SelectClauseElementSegment",
-                ("(count_18_24 * bits[OFFSET(0)]) / audience_size AS relative_abundance"),
+                "(count_18_24 * bits[OFFSET(0)]) / audience_size AS relative_abundance",
             ),
             ("ExpressionSegment", "count_18_24 * bits[OFFSET(0)] + count_25_34"),
             (

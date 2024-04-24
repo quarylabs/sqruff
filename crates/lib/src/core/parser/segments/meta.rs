@@ -79,16 +79,20 @@ impl<M: MetaSegmentKind> Segment for MetaSegment<M> {
         self.kind.kind()
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
-    }
-
     fn is_code(&self) -> bool {
         false
     }
 
     fn is_meta(&self) -> bool {
         true
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.position_marker.clone()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker;
     }
 
     fn segments(&self) -> &[ErasedSegment] {
@@ -99,12 +103,8 @@ impl<M: MetaSegmentKind> Segment for MetaSegment<M> {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_marker = position_marker;
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.uuid.into()
     }
 }
 
@@ -144,18 +144,18 @@ pub enum IndentChange {
 }
 
 impl MetaSegmentKind for IndentChange {
-    fn indent_val(&self) -> i8 {
-        match self {
-            IndentChange::Indent | IndentChange::Implicit => 1,
-            IndentChange::Dedent => -1,
-        }
-    }
-
     fn kind(&self) -> &'static str {
         match self {
             IndentChange::Indent => "indent",
             IndentChange::Implicit => "indent",
             IndentChange::Dedent => "dedent",
+        }
+    }
+
+    fn indent_val(&self) -> i8 {
+        match self {
+            IndentChange::Indent | IndentChange::Implicit => 1,
+            IndentChange::Dedent => -1,
         }
     }
 }
@@ -183,22 +183,6 @@ impl Segment for EndOfFile {
         Some(String::new())
     }
 
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn class_types(&self) -> AHashSet<String> {
-        ["end_of_file".into()].into()
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone_box()]
-    }
-
-    fn is_meta(&self) -> bool {
-        true
-    }
-
     fn get_type(&self) -> &'static str {
         "end_of_file"
     }
@@ -215,6 +199,10 @@ impl Segment for EndOfFile {
         false
     }
 
+    fn is_meta(&self) -> bool {
+        true
+    }
+
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_maker.clone().into()
     }
@@ -223,12 +211,24 @@ impl Segment for EndOfFile {
         todo!()
     }
 
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone_box()]
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
+    }
+
+    fn class_types(&self) -> AHashSet<String> {
+        ["end_of_file".into()].into()
     }
 }
 

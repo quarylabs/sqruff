@@ -26,10 +26,6 @@ impl Rule for RuleLT10 {
         "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
         let child_segments = FunctionalContext::new(context.clone()).segment().children(None);
@@ -115,6 +111,10 @@ impl Rule for RuleLT10 {
         fixes.push(LintFix::delete(select_clause_modifier.clone_box()));
 
         vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 }
 

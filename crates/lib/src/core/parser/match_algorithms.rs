@@ -573,7 +573,7 @@ mod tests {
             assert!(result_matcher.unwrap().dyn_eq(winning_matcher));
 
             let expected_result =
-                make_result_tuple((result_slice).into(), matcher_keywords, &test_segments);
+                make_result_tuple(result_slice.into(), matcher_keywords, &test_segments);
             assert_eq!(result_match.matched_segments, expected_result);
         }
     }

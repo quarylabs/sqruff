@@ -29,10 +29,6 @@ impl Rule for RuleST02 {
         "Unnecessary 'CASE' statement."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["case_expression"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if context.segment.segments()[0].get_raw().unwrap().eq_ignore_ascii_case("CASE") {
             let children = FunctionalContext::new(context.clone()).segment().children(None);
@@ -179,6 +175,10 @@ impl Rule for RuleST02 {
         } else {
             Vec::new()
         }
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["case_expression"].into()).into()
     }
 }
 

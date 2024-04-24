@@ -25,10 +25,6 @@ impl Rule for RuleLT05 {
         "Line is too long."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler.into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let results = ReflowSequence::from_root(context.segment, context.config.unwrap())
             .break_long_lines()
@@ -43,5 +39,9 @@ impl Rule for RuleLT05 {
         }
 
         results
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler::default().into()
     }
 }

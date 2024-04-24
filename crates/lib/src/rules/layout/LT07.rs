@@ -23,10 +23,6 @@ impl Rule for RuleLT07 {
         "'WITH' clause closing bracket should be on a new line."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segments = FunctionalContext::new(context.clone())
             .segment()
@@ -88,6 +84,10 @@ impl Rule for RuleLT07 {
         }
 
         Vec::new()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 }
 

@@ -32,7 +32,7 @@ impl ReflowSequence {
         self.results().into_iter().flat_map(|result| result.fixes).collect()
     }
 
-    pub fn from_root(root_segment: ErasedSegment, config: FluffConfig) -> Self {
+    pub fn from_root(root_segment: ErasedSegment, config: &FluffConfig) -> Self {
         let depth_map = DepthMap::from_parent(&*root_segment).into();
 
         Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, config, depth_map)
@@ -41,7 +41,7 @@ impl ReflowSequence {
     pub fn from_raw_segments(
         segments: Vec<ErasedSegment>,
         root_segment: ErasedSegment,
-        config: FluffConfig,
+        config: &FluffConfig,
         depth_map: Option<DepthMap>,
     ) -> Self {
         let reflow_config = ReflowConfig::from_fluff_config(config);
@@ -100,6 +100,7 @@ impl ReflowSequence {
         target_segment: &ErasedSegment,
         root_segment: ErasedSegment,
         sides: &str,
+        config: &FluffConfig,
     ) -> ReflowSequence {
         let all_raws = root_segment.get_raw_segments();
         let target_raws = target_segment.get_raw_segments();
@@ -138,7 +139,7 @@ impl ReflowSequence {
             segments.to_vec(),
             root_segment,
             // FIXME:
-            FluffConfig::default(),
+            config,
             None,
         )
     }

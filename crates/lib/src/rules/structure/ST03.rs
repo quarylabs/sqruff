@@ -1,10 +1,10 @@
 use ahash::AHashMap;
-use indexmap::IndexMap;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::helpers::IndexMap;
 use crate::utils::analysis::query::Query;
 
 #[derive(Debug, Default, Clone)]
@@ -21,10 +21,6 @@ impl Rule for RuleST03 {
 
     fn description(&self) -> &'static str {
         "Query defines a CTE (common-table expression) but does not use it."
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -58,6 +54,10 @@ impl Rule for RuleST03 {
         }
 
         result
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 }
 

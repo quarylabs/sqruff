@@ -31,8 +31,8 @@ pub struct PositionMarker {
 impl Default for PositionMarker {
     fn default() -> Self {
         PositionMarker {
-            source_slice: (0..0),
-            templated_slice: (0..0),
+            source_slice: 0..0,
+            templated_slice: 0..0,
             templated_file: TemplatedFile::from_string("".to_string()),
             working_line_no: 0,
             working_line_pos: 0,
@@ -247,12 +247,12 @@ mod tests {
         }
 
         let tests: Vec<Test> = vec![
-            Test { raw: "fsaljk".to_string(), start: (0..0), end: (0..6) },
-            Test { raw: "".to_string(), start: (2..2), end: (2..2) },
-            Test { raw: "\n".to_string(), start: (2..2), end: (3..1) },
-            Test { raw: "boo\n".to_string(), start: (2..2), end: (3..1) },
-            Test { raw: "boo\nfoo".to_string(), start: (2..2), end: (3..4) },
-            Test { raw: "\nfoo".to_string(), start: (2..2), end: (3..4) },
+            Test { raw: "fsaljk".to_string(), start: 0..0, end: 0..6 },
+            Test { raw: "".to_string(), start: 2..2, end: 2..2 },
+            Test { raw: "\n".to_string(), start: 2..2, end: 3..1 },
+            Test { raw: "boo\n".to_string(), start: 2..2, end: 3..1 },
+            Test { raw: "boo\nfoo".to_string(), start: 2..2, end: 3..4 },
+            Test { raw: "\nfoo".to_string(), start: 2..2, end: 3..4 },
         ];
 
         for t in tests {

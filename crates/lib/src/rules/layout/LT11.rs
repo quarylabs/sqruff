@@ -22,18 +22,19 @@ impl Rule for RuleLT11 {
         "Set operators should be surrounded by newlines."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["set_operator"].into()).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_around_target(
             &context.segment,
             context.parent_stack.first().unwrap().clone_box(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["set_operator"].into()).into()
     }
 }
 

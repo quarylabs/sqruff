@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::ops::{Deref, Range};
 
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
@@ -30,6 +30,46 @@ impl TemplatedFileSlice {
 /// the capability to split up that file when lexing.
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub struct TemplatedFile {
+    inner: TemplatedFileInner,
+}
+
+impl TemplatedFile {
+    pub fn new(
+        source_str: String,
+        f_name: String,
+        input_templated_str: Option<String>,
+        sliced_file: Option<Vec<TemplatedFileSlice>>,
+        input_raw_sliced: Option<Vec<RawFileSlice>>,
+    ) -> Result<TemplatedFile, SQLFluffSkipFile> {
+        Ok(TemplatedFile {
+            inner: TemplatedFileInner::new(
+                source_str,
+                f_name,
+                input_templated_str,
+                sliced_file,
+                input_raw_sliced,
+            )?,
+        })
+    }
+
+    pub fn from_string(raw: String) -> TemplatedFile {
+        TemplatedFile {
+            inner: TemplatedFileInner::new(raw.clone(), "<string>".to_string(), None, None, None)
+                .unwrap(),
+        }
+    }
+}
+
+impl Deref for TemplatedFile {
+    type Target = TemplatedFileInner;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
+pub struct TemplatedFileInner {
     pub source_str: String,
     f_name: String,
     pub templated_str: Option<String>,
@@ -39,7 +79,7 @@ pub struct TemplatedFile {
     pub sliced_file: Vec<TemplatedFileSlice>,
 }
 
-impl TemplatedFile {
+impl TemplatedFileInner {
     /// Initialise the TemplatedFile.
     /// If no templated_str is provided then we assume that
     /// the file is NOT templated and that the templated view
@@ -50,7 +90,7 @@ impl TemplatedFile {
         input_templated_str: Option<String>,
         sliced_file: Option<Vec<TemplatedFileSlice>>,
         input_raw_sliced: Option<Vec<RawFileSlice>>,
-    ) -> Result<TemplatedFile, SQLFluffSkipFile> {
+    ) -> Result<TemplatedFileInner, SQLFluffSkipFile> {
         // Assume that no sliced_file, means the file is not templated.
         // TODO Will this not always be Some and so type can avoid Option?
         let templated_str = input_templated_str.clone().unwrap_or(source_str.clone());
@@ -157,7 +197,7 @@ impl TemplatedFile {
             }
         }
 
-        Ok(TemplatedFile {
+        Ok(TemplatedFileInner {
             raw_sliced,
             source_newlines,
             templated_newlines,
@@ -185,11 +225,11 @@ impl TemplatedFile {
         match ref_str.binary_search(&char_pos) {
             Ok(nl_idx) | Err(nl_idx) => {
                 if nl_idx > 0 {
-                    ((nl_idx + 1), (char_pos - ref_str[nl_idx - 1]))
+                    (nl_idx + 1, char_pos - ref_str[nl_idx - 1])
                 } else {
                     // NB: line_pos is char_pos + 1 because character position is 0-indexed,
                     // but the line position is 1-indexed.
-                    (1, (char_pos + 1))
+                    (1, char_pos + 1)
                 }
             }
         }
@@ -318,22 +358,22 @@ impl TemplatedFile {
         // Zero length slice.
         if template_slice.start == template_slice.end {
             // Is it on a join?
-            if insertion_point >= 0 {
-                return Ok(zero_slice(insertion_point.try_into().unwrap()));
+            return if insertion_point >= 0 {
+                Ok(zero_slice(insertion_point.try_into().unwrap()))
                 // It's within a segment.
             } else if !ts_start_subsliced_file.is_empty()
                 && ts_start_subsliced_file[0].slice_type == "literal"
             {
                 let offset =
                     template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
-                return Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset));
+                Ok(zero_slice(ts_start_subsliced_file[0].source_slice.start + offset))
             } else {
-                return Err(ValueError::new(format!(
+                Err(ValueError::new(format!(
                     "Attempting a single length slice within a templated section! {:?} within \
                      {:?}.",
                     template_slice, ts_start_subsliced_file
-                )));
-            }
+                )))
+            };
         }
 
         let (ts_stop_sf_start, ts_stop_sf_stop) =
@@ -356,15 +396,13 @@ impl TemplatedFile {
 
         let start_slices;
         if ts_start_sf_start == ts_start_sf_stop {
-            if ts_start_sf_start > sliced_file.len() {
-                return Err(ValueError::new(
-                    "Starting position higher than sliced file position".into(),
-                ));
+            return if ts_start_sf_start > sliced_file.len() {
+                Err(ValueError::new("Starting position higher than sliced file position".into()))
             } else if ts_start_sf_start < sliced_file.len() {
-                return Ok(sliced_file[1].source_slice.clone());
+                Ok(sliced_file[1].source_slice.clone())
             } else {
-                return Ok(sliced_file.last().unwrap().source_slice.clone());
-            }
+                Ok(sliced_file.last().unwrap().source_slice.clone())
+            };
         } else {
             start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
         }
@@ -382,7 +420,7 @@ impl TemplatedFile {
             let offset = template_slice.start - start_slices[0].templated_slice.start;
             (start_slices[0].source_slice.start + offset).try_into().unwrap()
         } else {
-            (start_slices[0].source_slice.start).try_into().unwrap()
+            start_slices[0].source_slice.start.try_into().unwrap()
         };
 
         let source_stop = if stop_slices.last().unwrap().slice_type == "literal" {

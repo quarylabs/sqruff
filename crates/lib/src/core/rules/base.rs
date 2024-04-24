@@ -11,7 +11,7 @@ use crate::core::config::{FluffConfig, Value};
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::helpers::Config;
+use crate::helpers::{Config, IndexMap};
 
 #[derive(Clone)]
 pub struct LintResult {
@@ -272,12 +272,12 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
         dialect: &Dialect,
         fix: bool,
         tree: ErasedSegment,
-        config: FluffConfig,
+        config: &FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
         let root_context = RuleContext {
             dialect,
             fix,
-            config: config.into(),
+            config: Some(config),
             segment: tree,
             templated_file: <_>::default(),
             path: <_>::default(),
@@ -383,7 +383,7 @@ pub struct RulePack {
 pub struct RuleSet {
     pub(crate) name: String,
     pub(crate) config_info: AHashMap<String, String>,
-    pub(crate) register: AHashMap<&'static str, RuleManifest>,
+    pub(crate) register: IndexMap<&'static str, RuleManifest>,
 }
 
 impl RuleSet {

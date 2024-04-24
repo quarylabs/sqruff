@@ -37,6 +37,10 @@ impl RawSegment {
 }
 
 impl Segment for RawSegment {
+    fn get_raw(&self) -> Option<String> {
+        self.raw.clone()
+    }
+
     fn get_type(&self) -> &'static str {
         "raw"
     }
@@ -53,12 +57,12 @@ impl Segment for RawSegment {
         false
     }
 
-    fn get_raw(&self) -> Option<String> {
-        self.raw.clone()
-    }
-
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_marker.clone()
+    }
+
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
     }
 
     fn get_raw_segments(&self) -> Vec<ErasedSegment> {
@@ -70,10 +74,6 @@ impl Segment for RawSegment {
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        todo!()
-    }
-
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         todo!()
     }
 }

@@ -362,6 +362,10 @@ mod tests {
         struct RuleGhost;
 
         impl Rule for RuleGhost {
+            fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+                unimplemented!()
+            }
+
             fn name(&self) -> &'static str {
                 "some-name"
             }
@@ -380,10 +384,6 @@ mod tests {
 
             fn crawl_behaviour(&self) -> Crawler {
                 todo!()
-            }
-
-            fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-                unimplemented!()
             }
         }
 

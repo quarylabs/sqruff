@@ -560,7 +560,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
         let mut seg_buffer = Vec::new();
         let mut fixes_applied = Vec::new();
-        let mut requires_validate = false;
+        let requires_validate = false;
 
         for seg in self.gather_segments() {
             // Look for uuid match.

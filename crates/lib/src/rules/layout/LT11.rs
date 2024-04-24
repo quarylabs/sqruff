@@ -45,7 +45,7 @@ mod tests {
     use crate::core::rules::base::{Erased, ErasedRule};
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT11::default().erased()]
+        vec![RuleLT11.erased()]
     }
 
     #[test]

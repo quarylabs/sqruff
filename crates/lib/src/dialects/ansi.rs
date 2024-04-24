@@ -2341,6 +2341,12 @@ pub struct Node<T> {
     pub position_marker: Option<PositionMarker>,
 }
 
+impl<T> Default for Node<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> Node<T> {
     pub fn new() -> Self {
         Self {
@@ -2947,7 +2953,7 @@ impl Node<SelectClauseElementSegment> {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
         // this fix breaks AL05 test cases
         let alias_expression_segment =
-            self.recursive_crawl(&["alias_expression"], true, None, true).get(0)?.clone();
+            self.recursive_crawl(&["alias_expression"], true, None, true).first()?.clone();
 
         unimplemented!()
     }
@@ -6162,7 +6168,7 @@ mod tests {
             let yaml = std::path::absolute(yaml).unwrap();
 
             let actual = {
-                let sql = std::fs::read_to_string(&file).unwrap();
+                let sql = std::fs::read_to_string(file).unwrap();
                 let tree = parse_sql(&sql);
                 let tree = tree.to_serialised(true, true, false);
 

@@ -63,6 +63,7 @@ impl FixPatch {
 
 /// For a given fix anchor, count of the fix edit types and fixes for it."""
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct AnchorEditInfo {
     pub delete: usize,
     pub replace: usize,
@@ -74,19 +75,6 @@ pub struct AnchorEditInfo {
     pub first_replace_fix: Option<LintFix>,
 }
 
-impl Default for AnchorEditInfo {
-    fn default() -> Self {
-        AnchorEditInfo {
-            delete: 0,
-            replace: 0,
-            create_before: 0,
-            create_after: 0,
-            fixes: Vec::new(),
-            source_fixes: Vec::new(),
-            first_replace_fix: None,
-        }
-    }
-}
 
 impl AnchorEditInfo {
     /// Returns total count of fixes.

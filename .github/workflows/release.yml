@@ -4,9 +4,25 @@ on:
       - "v*.*.*"
 
 jobs:
+  check-versions-match:
+    name: Check versions match
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Allow running check_versions_match.sh
+        run: chmod +x ./.hacking/check_versions_match.sh
+      - name: Check release version matches code
+        run: |
+          RELEASE_VERSION=${{ github.event.release.tag_name }}
+          STRIPPED_VERSION=${RELEASE_VERSION#v}
+          ./.hacking/check_versions_match.sh $STRIPPED_VERSION
   release:
     name: Release ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.os }}
+    needs:
+      - check-versions-match
     strategy:
       fail-fast: false
       matrix:
@@ -15,17 +31,18 @@ jobs:
             os: ubuntu-20.04
             target: x86_64-unknown-linux-musl
             bin: sqruff
-
+          - name: sqruff-linux-aarch64-musl.tar.gz
+            os: ubuntu-20.04
+            target: aarch64-unknown-linux-musl
+            bin: sqruff
           - name: sqruff-windows-x86_64.zip
             os: windows-latest
             target: x86_64-pc-windows-msvc
             bin: sqruff.exe
-
           - name: sqruff-darwin-x86_64.tar.gz
             os: macOS-latest
             target: x86_64-apple-darwin
             bin: sqruff
-
           - name: sqruff-darwin-aarch64.tar.gz
             os: macOS-latest
             target: aarch64-apple-darwin
@@ -62,7 +79,7 @@ jobs:
         run: shasum -a 256 ${{ matrix.platform.name }} > ${{ matrix.platform.name }}.sha256
 
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: |

@@ -8,7 +8,7 @@ pub fn dialect_selector(s: &str) -> Option<Dialect> {
 }
 
 pub fn get_default_dialect() -> &'static str {
-    return "ansi";
+    "ansi"
 }
 
 /// Dialect Tuple object for describing dialects.
@@ -19,6 +19,6 @@ pub struct DialectTuple {
 }
 
 /// Generate a readout of available dialects.
-pub fn dialect_readout<'a>() -> Vec<String> {
+pub fn dialect_readout() -> Vec<String> {
     panic!("dialect_readout not implemented yet");
 }

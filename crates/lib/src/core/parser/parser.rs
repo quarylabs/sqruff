@@ -1,6 +1,6 @@
 use super::context::ParseContext;
 use super::helpers::check_still_complete;
-use super::segments::base::Segment;
+use super::segments::base::ErasedSegment;
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLParseError;
 use crate::dialects::ansi::FileSegment;
@@ -19,10 +19,10 @@ impl Parser {
 
     pub fn parse(
         &mut self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         f_name: Option<String>,
         parse_statistics: bool,
-    ) -> Result<Option<Box<dyn Segment>>, SQLParseError> {
+    ) -> Result<Option<ErasedSegment>, SQLParseError> {
         if segments.is_empty() {
             // This should normally never happen because there will usually
             // be an end_of_file segment. It would probably only happen in

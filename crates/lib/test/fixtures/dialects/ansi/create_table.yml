@@ -1,0 +1,52 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - identifier: pk
+        - data_type:
+          - '': int
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+        - identifier: quoted_name
+        - data_type:
+          - remove me: '"custom udt"'
+      - comma: ','
+      - column_definition:
+        - identifier: qualified_name
+        - data_type:
+          - identifier: sch
+          - dot: .
+          - '': qualified
+      - comma: ','
+      - column_definition:
+        - identifier: quoted_qualified
+        - data_type:
+          - remove me: '"my schema"'
+          - dot: .
+          - '': qualified
+      - comma: ','
+      - column_definition:
+        - identifier: more_quoted
+        - data_type:
+          - remove me: '"my schema"'
+          - dot: .
+          - remove me: '"custom udt"'
+      - comma: ','
+      - column_definition:
+        - identifier: quoted_udt
+        - data_type:
+          - identifier: sch
+          - dot: .
+          - remove me: '"custom udt"'
+      - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,29 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - remove me: 'NULL'
+            - remove me: '::'
+            - data_type:
+              - '': INT
+        - alias_expression:
+          - keyword: AS
+          - identifier: user_id
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - remove me: 'NULL'
+            - remove me: '::'
+            - data_type:
+              - '': INT
+        - alias_expression:
+          - keyword: AS
+          - identifier: is_paid
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '0'

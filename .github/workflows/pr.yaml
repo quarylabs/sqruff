@@ -8,6 +8,16 @@ env:
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: short
 jobs:
+  check-versions-match:
+    name: Check versions match
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Allow running check_versions_match.sh
+        run: chmod +x ./.hacking/check_versions_match.sh
+      - run: ./.hacking/check_versions_match.sh
   compile:
     name: Compile
     runs-on: ubuntu-latest
@@ -16,7 +26,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@nightly
       - run: cargo build --locked --release --all-features
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -29,10 +38,9 @@ jobs:
         with:
           tool: nextest
       - name: Run tests
-        run: cargo nextest run --locked
-
-  lint:
-    name: Lint
+        run: cargo nextest run --locked --release
+  fmt:
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: Swatinem/rust-cache@v2
@@ -43,3 +51,15 @@ jobs:
           components: rustfmt
       - name: Run cargo fmt
         run: cargo fmt --all -- --check
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Swatinem/rust-cache@v2
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+      - name: Run cargo clippy
+        run: cargo clippy --all --all-features -- -D warnings

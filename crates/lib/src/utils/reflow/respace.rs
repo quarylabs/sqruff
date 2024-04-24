@@ -2,7 +2,9 @@ use itertools::{enumerate, Itertools};
 
 use super::elements::ReflowBlock;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{Segment, WhitespaceSegment, WhitespaceSegmentNewArgs};
+use crate::core::parser::segments::base::{
+    ErasedSegment, Segment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
 use crate::core::rules::base::{EditType, LintFix, LintResult};
 
 fn unpack_constraint(constraint: &str, mut strip_newlines: bool) -> (String, bool) {
@@ -33,16 +35,12 @@ pub fn determine_constraints(
 ) -> (String, String, bool) {
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single".into() },
+        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single" },
         strip_newlines,
     );
 
     let (mut post_constraint, mut strip_newlines) = unpack_constraint(
-        if let Some(next_block) = next_block {
-            &next_block.spacing_before
-        } else {
-            "single".into()
-        },
+        if let Some(next_block) = next_block { &next_block.spacing_before } else { "single" },
         strip_newlines,
     );
 
@@ -94,9 +92,9 @@ pub fn determine_constraints(
 }
 
 pub fn process_spacing(
-    segment_buffer: Vec<Box<dyn Segment>>,
+    segment_buffer: Vec<ErasedSegment>,
     strip_newlines: bool,
-) -> (Vec<Box<dyn Segment>>, Option<Box<dyn Segment>>, Vec<LintResult>) {
+) -> (Vec<ErasedSegment>, Option<ErasedSegment>, Vec<LintResult>) {
     let mut removal_buffer = Vec::new();
     let mut result_buffer = Vec::new();
     let mut last_whitespace = Vec::new();
@@ -173,6 +171,7 @@ pub fn process_spacing(
     (filtered_segment_buffer, last_whitespace_option, result_buffer)
 }
 
+#[allow(unused_variables, dead_code)]
 fn determine_aligned_inline_spacing(
     root_segment: &dyn Segment,
     whitespace_seg: &dyn Segment,
@@ -185,21 +184,22 @@ fn determine_aligned_inline_spacing(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn extract_alignment_config(constraint: &str) -> (String, Option<String>, Option<String>) {
     unimplemented!()
 }
-
+#[allow(unused_variables)]
 pub fn handle_respace_inline_with_space(
     pre_constraint: String,
     post_constraint: String,
     prev_block: Option<&ReflowBlock>,
     next_block: Option<&ReflowBlock>,
     /* root_segment: &dyn Segment, */
-    mut segment_buffer: Vec<Box<dyn Segment>>,
-    last_whitespace: Box<dyn Segment>,
-) -> (Vec<Box<dyn Segment>>, Vec<LintResult>) {
+    mut segment_buffer: Vec<ErasedSegment>,
+    last_whitespace: ErasedSegment,
+) -> (Vec<ErasedSegment>, Vec<LintResult>) {
     // Get some indices so that we can reference around them
-    let ws_idx = segment_buffer.iter().position(|it| it.dyn_eq(&*last_whitespace)).unwrap();
+    let ws_idx = segment_buffer.iter().position(|it| it == &last_whitespace).unwrap();
 
     if ["any"].contains(&pre_constraint.as_str()) || ["any"].contains(&post_constraint.as_str()) {
         return (segment_buffer, vec![]);
@@ -271,10 +271,10 @@ pub fn handle_respace_inline_without_space(
     post_constraint: String,
     prev_block: Option<&ReflowBlock>,
     next_block: Option<&ReflowBlock>,
-    mut segment_buffer: Vec<Box<dyn Segment>>,
+    mut segment_buffer: Vec<ErasedSegment>,
     mut existing_results: Vec<LintResult>,
     anchor_on: &str,
-) -> (Vec<Box<dyn Segment>>, Vec<LintResult>, bool) {
+) -> (Vec<ErasedSegment>, Vec<LintResult>, bool) {
     let constraints = ["touch", "any"];
 
     if constraints.contains(&pre_constraint.as_str())
@@ -284,7 +284,7 @@ pub fn handle_respace_inline_without_space(
     }
 
     let added_whitespace =
-        WhitespaceSegment::new(" ", &PositionMarker::default(), WhitespaceSegmentNewArgs {});
+        WhitespaceSegment::create(" ", &PositionMarker::default(), WhitespaceSegmentNewArgs {});
 
     // Add it to the buffer first (the easy bit). The hard bit is to then determine
     // how to generate the appropriate LintFix objects.
@@ -352,7 +352,7 @@ pub fn handle_respace_inline_without_space(
             next_block.segments[0].get_raw().unwrap()
         )
     } else {
-        format!("Expected single whitespace.")
+        "Expected single whitespace.".to_owned()
     };
 
     let new_result = if let Some(prev_block) = prev_block
@@ -414,7 +414,7 @@ mod tests {
 
         for (raw_sql_in, (strip_newlines, filter), raw_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, <_>::default());
+            let seq = ReflowSequence::from_root(root, &<_>::default());
 
             let new_seq = seq.respace(strip_newlines, filter);
             assert_eq!(new_seq.raw(), raw_sql_out);
@@ -461,7 +461,7 @@ mod tests {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, <_>::default());
+            let seq = ReflowSequence::from_root(root, &<_>::default());
             let pnt = seq.elements()[point_idx].as_point().unwrap();
 
             let (results, new_pnt) = pnt.respace_point(

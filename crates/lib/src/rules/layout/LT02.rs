@@ -1,4 +1,7 @@
-use crate::core::rules::base::{LintResult, Rule};
+use ahash::AHashMap;
+
+use crate::core::config::Value;
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -7,18 +10,24 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT02 {}
 
 impl Rule for RuleLT02 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT02::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.indent"
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
+    fn description(&self) -> &'static str {
+        "Incorrect Indentation."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        ReflowSequence::from_root(context.segment, context.config.clone().unwrap())
-            .reindent()
-            .results()
+        ReflowSequence::from_root(context.segment, context.config.unwrap()).reindent().results()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler.into()
     }
 }
 
@@ -48,7 +57,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_pass_indentation_of_comments_1() {
         let sql = "
 SELECT
@@ -63,7 +71,6 @@ FROM
     }
 
     #[test]
-    #[ignore]
     fn test_pass_indentation_of_comments_2() {
         let pass_str = "
 SELECT
@@ -100,6 +107,42 @@ LEFT JOIN another_tbl USING(a)"
         assert_eq!(violations, []);
     }
 
+    #[test]
+    fn test_pass_trailing_comment_1() {
+        let pass_str = "
+select
+    bar
+    -- comment
+from foo";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_trailing_comment_2() {
+        let pass_str = "
+select
+    bar
+    -- comment
+from foo";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_issue_4582() {
+        let pass_str = "
+select
+    bar
+    -- comment
+from foo";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
     // LT02-tab-space.yml
 
     #[test]
@@ -112,5 +155,30 @@ LEFT JOIN another_tbl USING(a)"
     fn tabs_fail_default() {
         let fixed = fix("SELECT\n\t\t1\n".into(), rules());
         assert_eq!(fixed, "SELECT\n    1\n");
+    }
+
+    #[test]
+    fn indented_comments() {
+        let pass_str = "
+SELECT
+    a,         -- Some comment
+    longer_col -- A lined up comment
+FROM spam";
+
+        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn indented_comments_default_config() {
+        let fail_str = "
+SELECT
+	a,			-- Some comment
+	longer_col	-- A lined up comment
+FROM spam";
+        let fix_str = "\nSELECT\n    a,\t\t\t-- Some comment\n    longer_col\t-- A lined up \
+                       comment\nFROM spam";
+
+        assert_eq!(fix(fail_str.into(), rules()), fix_str);
     }
 }

@@ -4,7 +4,7 @@ use std::ops::{Deref, DerefMut};
 
 use fancy_regex::Regex;
 
-use super::parser::segments::base::Segment;
+use super::parser::segments::base::ErasedSegment;
 use super::rules::base::ErasedRule;
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Config;
@@ -29,6 +29,12 @@ pub struct SQLBaseError {
     pub description: String,
     pub rule_code: String,
     pub rule: Option<ErasedRule>,
+}
+
+impl Default for SQLBaseError {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SQLBaseError {
@@ -193,7 +199,7 @@ pub struct SQLLintError {
 }
 
 impl SQLLintError {
-    pub fn new(description: &str, segment: Box<dyn Segment>) -> Self {
+    pub fn new(description: &str, segment: ErasedSegment) -> Self {
         Self {
             base: SQLBaseError::new().config(|this| {
                 this.description = description.into();
@@ -271,6 +277,7 @@ impl SqlError for SQLTemplaterError {
 /// An error which should be fed back to the user.
 #[derive(Debug)]
 pub struct SQLFluffUserError {
+    #[allow(dead_code)]
     value: String,
 }
 
@@ -283,6 +290,7 @@ impl SQLFluffUserError {
 // Not from SQLFluff but translates Python value error
 #[derive(Debug)]
 pub struct ValueError {
+    #[allow(dead_code)]
     value: String,
 }
 
@@ -295,7 +303,7 @@ impl ValueError {
 #[derive(Debug)]
 pub struct SQLParseError {
     pub description: String,
-    pub segment: Option<Box<dyn Segment>>,
+    pub segment: Option<ErasedSegment>,
 }
 
 impl SQLParseError {
@@ -350,6 +358,7 @@ impl SQLLexError {
 
 #[derive(Debug)]
 pub struct SQLFluffSkipFile {
+    #[allow(dead_code)]
     value: String,
 }
 

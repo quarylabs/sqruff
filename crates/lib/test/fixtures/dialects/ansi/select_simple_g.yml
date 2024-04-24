@@ -1,0 +1,37 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: id
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: test
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - identifier: id
+        - greater_than_or_equal_to:
+          - remove me: '>'
+          - remove me: =
+        - numeric_literal: '4'
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - identifier: id
+    - having_clause:
+      - keyword: HAVING
+      - expression:
+        - column_reference:
+          - identifier: id
+        - less_than: <
+        - numeric_literal: '5'

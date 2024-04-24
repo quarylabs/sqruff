@@ -1,5 +1,6 @@
-use std::collections::HashMap;
 use std::mem::take;
+
+use ahash::AHashMap;
 
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
@@ -14,7 +15,7 @@ pub fn get_simple_config(
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
 ) -> Result<FluffConfig, SQLFluffUserError> {
-    let mut overrides = HashMap::new();
+    let mut overrides = AHashMap::new();
     if let Some(dialect) = dialect {
         let selected = dialect_selector(&dialect);
         if selected.is_none() {
@@ -31,9 +32,9 @@ pub fn get_simple_config(
     if let Some(exclude_rules) = exclude_rules {
         overrides.insert("exclude_rules".to_owned(), exclude_rules.join(","));
     }
-    let out = FluffConfig::from_root(config_path, true, Some(overrides))
-        .map_err(|err| SQLFluffUserError::new(format!("Error loading config: {:?}", err)));
-    return out;
+
+    FluffConfig::from_root(config_path, true, Some(overrides))
+        .map_err(|err| SQLFluffUserError::new(format!("Error loading config: {:?}", err)))
 }
 
 pub fn lint(
@@ -58,7 +59,7 @@ pub fn lint_with_formatter(
     let cfg = get_simple_config(dialect.into(), None, exclude_rules, config_path)?;
 
     let mut linter = Linter::new(cfg, None, None);
-    linter.formatter = formatter.into();
+    linter.formatter = formatter;
 
     let mut result = linter.lint_string_wrapped(sql, None, None, rules);
 

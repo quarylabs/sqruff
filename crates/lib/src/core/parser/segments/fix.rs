@@ -23,6 +23,7 @@ impl SourceFix {
 
 /// An edit patch for a source file.
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 pub struct FixPatch {
     templated_slice: Range<usize>,
     pub fixed_raw: String,
@@ -62,6 +63,7 @@ impl FixPatch {
 
 /// For a given fix anchor, count of the fix edit types and fixes for it."""
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct AnchorEditInfo {
     pub delete: usize,
     pub replace: usize,
@@ -73,22 +75,9 @@ pub struct AnchorEditInfo {
     pub first_replace_fix: Option<LintFix>,
 }
 
-impl Default for AnchorEditInfo {
-    fn default() -> Self {
-        AnchorEditInfo {
-            delete: 0,
-            replace: 0,
-            create_before: 0,
-            create_after: 0,
-            fixes: Vec::new(),
-            source_fixes: Vec::new(),
-            first_replace_fix: None,
-        }
-    }
-}
-
 impl AnchorEditInfo {
     /// Returns total count of fixes.
+    #[allow(dead_code)]
     fn total(&self) -> usize {
         self.delete + self.replace + self.create_before + self.create_after
     }
@@ -98,6 +87,7 @@ impl AnchorEditInfo {
     /// Cases:
     /// * 0-1 fixes of any type: Valid
     /// * 2 fixes: Valid if and only if types are create_before and create_after
+    #[allow(dead_code)]
     fn is_valid(&self) -> bool {
         let total = self.total();
         if total <= 1 {

@@ -1,5 +1,6 @@
-use std::collections::HashSet;
 use std::ops::{Deref, DerefMut};
+
+use ahash::AHashSet;
 
 use super::anyof::{one_of, AnyNumberOf};
 use super::base::{longest_trimmed_match, Ref};
@@ -9,7 +10,7 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::helpers::ToMatchable;
 
 /// Match an arbitrary number of elements separated by a delimiter.
@@ -17,12 +18,14 @@ use crate::helpers::ToMatchable;
 /// Note that if there are multiple elements passed in that they will be treated
 /// as different options of what can be delimited, rather than a sequence.
 #[derive(Clone, Debug, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Delimited {
     base: AnyNumberOf,
     allow_trailing: bool,
     delimiter: Box<dyn Matchable>,
     min_delimiters: Option<usize>,
     optional: bool,
+    cache_key: String,
 }
 
 impl Delimited {
@@ -33,6 +36,7 @@ impl Delimited {
             delimiter: Ref::new("CommaSegment").to_matchable(),
             min_delimiters: None,
             optional: false,
+            cache_key: uuid::Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -56,14 +60,14 @@ impl Segment for Delimited {}
 
 impl Matchable for Delimited {
     fn is_optional(&self) -> bool {
-        self.optional
+        self.optional || self.base.is_optional()
     }
 
     fn simple(
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         super::anyof::simple(&self.elements, parse_context, crumbs)
     }
 
@@ -74,7 +78,7 @@ impl Matchable for Delimited {
     /// sequence.
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         // Have we been passed an empty list?
@@ -83,7 +87,7 @@ impl Matchable for Delimited {
         }
 
         // Make some buffers
-        let mut seg_buff = segments.clone();
+        let mut seg_buff = segments.to_vec();
         let mut matched_segments = Vec::new();
         let mut unmatched_segments = Vec::new();
         let mut cached_matched_segments = Vec::new();
@@ -117,7 +121,7 @@ impl Matchable for Delimited {
             let post_non_code = post_non_code.to_vec();
 
             if !self.allow_gaps && pre_non_code.iter().any(|seg| seg.is_whitespace()) {
-                unmatched_segments = seg_buff;
+                unmatched_segments = seg_buff.to_vec();
                 break;
             }
 
@@ -175,8 +179,8 @@ impl Matchable for Delimited {
             if seeking_delimiter {
                 delimiters += 1;
                 matched_delimiter = true;
-                cached_matched_segments = matched_segments.clone();
-                cached_unmatched_segments = seg_buff.clone();
+                cached_matched_segments.clone_from(&matched_segments);
+                cached_unmatched_segments.clone_from(&seg_buff);
             } else {
                 matched_delimiter = false;
             }
@@ -245,7 +249,7 @@ impl Matchable for Delimited {
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 
@@ -277,7 +281,7 @@ mod tests {
     use crate::core::parser::segments::test_functions::{
         bracket_segments, fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
-    use crate::helpers::{enter_panic, Boxed, ToMatchable};
+    use crate::helpers::{enter_panic, ToErasedSegment, ToMatchable};
 
     #[test]
     fn test__parser__grammar_delimited() {
@@ -303,29 +307,26 @@ mod tests {
             (2.into(), true, false, vec!["bar", ".", "bar", "foo"], 0),
         ];
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         for (min_delimiters, allow_gaps, allow_trailing, token_list, match_len) in cases {
             let test_segments = generate_test_segments_func(token_list);
-            let mut g = Delimited::new(vec![
-                StringParser::new(
-                    "bar",
-                    |segment| {
-                        KeywordSegment::new(
-                            segment.get_raw().unwrap(),
-                            segment.get_position_marker().unwrap().into(),
-                        )
-                        .boxed()
-                    },
-                    None,
-                    false,
-                    None,
-                )
-                .boxed(),
-            ]);
+            let mut g = Delimited::new(vec![Box::new(StringParser::new(
+                "bar",
+                |segment| {
+                    KeywordSegment::new(
+                        segment.get_raw().unwrap(),
+                        segment.get_position_marker().unwrap().into(),
+                    )
+                    .to_erased_segment()
+                },
+                None,
+                false,
+                None,
+            ))]);
 
             let symbol_factory = |segment: &dyn Segment| {
-                SymbolSegment::new(
+                SymbolSegment::create(
                     &segment.get_raw().unwrap(),
                     &segment.get_position_marker().unwrap(),
                     SymbolSegmentNewArgs { r#type: "remove me" },
@@ -341,7 +342,7 @@ mod tests {
             }
             g.min_delimiters = min_delimiters;
 
-            let match_result = g.match_segments(test_segments.clone(), &mut ctx).unwrap();
+            let match_result = g.match_segments(&test_segments, &mut ctx).unwrap();
 
             assert_eq!(match_result.len(), match_len);
         }
@@ -349,7 +350,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_anything_bracketed() {
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
         let foo = StringParser::new(
             "foo",
             |segment| {
@@ -357,15 +358,15 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
         );
-        let matcher = Anything::new().terminators(vec![foo.boxed()]);
+        let matcher = Anything::new().terminators(vec![Box::new(foo)]);
 
-        let match_result = matcher.match_segments(bracket_segments(), &mut ctx).unwrap();
+        let match_result = matcher.match_segments(&bracket_segments(), &mut ctx).unwrap();
         assert_eq!(match_result.len(), 4);
         assert_eq!(match_result.matched_segments[2].get_type(), "bracketed");
         assert_eq!(match_result.matched_segments[2].get_raw().unwrap(), "(foo    )");
@@ -393,30 +394,29 @@ mod tests {
         for (terminators, match_length) in cases {
             let _panic = enter_panic(terminators.join(" "));
 
-            let mut cx = ParseContext::new(fresh_ansi_dialect());
+            let mut cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
             let terms = terminators
                 .iter()
                 .map(|it| {
-                    StringParser::new(
+                    Box::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
                                 segment.get_raw().unwrap(),
                                 segment.get_position_marker().unwrap().into(),
                             )
-                            .boxed()
+                            .to_erased_segment()
                         },
                         None,
                         false,
                         None,
-                    )
-                    .boxed() as Box<dyn Matchable>
+                    )) as Box<dyn Matchable>
                 })
                 .collect_vec();
 
             let result = Anything::new()
                 .terminators(terms)
-                .match_segments(test_segments(), &mut cx)
+                .match_segments(&test_segments(), &mut cx)
                 .unwrap();
 
             assert_eq!(result.len(), match_length);

@@ -1,0 +1,88 @@
+file:
+- statement:
+  - bracketed:
+    - start_bracket: (
+    - with_compound_statement:
+      - keyword: WITH
+      - common_table_expression:
+        - identifier: mycte2
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - with_compound_statement:
+            - keyword: WITH
+            - common_table_expression:
+              - identifier: mycte1
+              - keyword: AS
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - identifier: foo
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - identifier: bar
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - identifier: baz
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - identifier: mytable
+                - end_bracket: )
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - identifier: foo
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - identifier: bar
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - identifier: baz
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - object_reference:
+                          - identifier: mycte1
+          - end_bracket: )
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - identifier: foo
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - identifier: bar
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - identifier: baz
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - identifier: mycte2
+    - end_bracket: )
+- statement_terminator: ;

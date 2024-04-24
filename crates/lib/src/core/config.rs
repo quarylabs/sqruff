@@ -1,21 +1,27 @@
-use std::collections::HashMap;
 use std::ops::Index;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use ahash::AHashMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
 
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
 use crate::core::errors::SQLFluffUserError;
-use crate::helpers::Boxed;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
+    #[allow(dead_code)]
     old_path: Vec<&'static str>,
+
+    #[allow(dead_code)]
     warning: &'a str,
+
+    #[allow(dead_code)]
     new_path: Option<Vec<&'a str>>,
+
+    #[allow(dead_code)]
     translation_func: Option<fn(&'a str) -> &'a str>,
 }
 
@@ -99,8 +105,16 @@ pub fn removed_configs() -> [RemovedConfig<'static>; 12] {
 
 /// split_comma_separated_string takes a string and splits it on commas and
 /// trims and filters out empty strings.
-pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
-    raw_str.split(',').map(|x| x.trim().to_string()).filter(|x| !x.is_empty()).collect()
+pub fn split_comma_separated_string(raw_str: &str) -> Value {
+    let values = raw_str
+        .split(',')
+        .flat_map(|x| {
+            let trimmed = x.trim();
+            (!trimmed.is_empty()).then(|| Value::String(trimmed.into()))
+        })
+        .collect();
+
+    Value::Array(values)
 }
 
 /// The class that actually gets passed around as a config object.
@@ -108,9 +122,9 @@ pub fn split_comma_separated_string(raw_str: &str) -> Vec<String> {
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
     pub(crate) indentation: FluffConfigIndentation,
-    pub(crate) raw: HashMap<String, Value>,
+    pub(crate) raw: AHashMap<String, Value>,
     extra_config_path: Option<String>,
-    _configs: HashMap<String, HashMap<String, String>>,
+    _configs: AHashMap<String, AHashMap<String, String>>,
     dialect: String,
     sql_file_exts: Vec<String>,
 }
@@ -126,13 +140,34 @@ impl FluffConfig {
         &self.raw[section][key]
     }
 
+    pub fn get_section(&self, section: &str) -> &AHashMap<String, Value> {
+        self.raw[section].as_map().unwrap()
+    }
+
     // TODO This is not a translation that is particularly accurate.
-    #[track_caller]
     pub fn new(
-        mut configs: HashMap<String, Value>,
+        configs: AHashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
+        fn nested_combine(
+            mut a: AHashMap<String, Value>,
+            b: AHashMap<String, Value>,
+        ) -> AHashMap<String, Value> {
+            for (key, value_b) in b {
+                match (a.get(&key), value_b) {
+                    (Some(Value::Map(map_a)), Value::Map(map_b)) => {
+                        let combined = nested_combine(map_a.clone(), map_b);
+                        a.insert(key, Value::Map(combined));
+                    }
+                    (_, value) => {
+                        a.insert(key, value);
+                    }
+                }
+            }
+            a
+        }
+
         let dialect = match configs.get("dialect") {
             None => get_default_dialect(),
             Some(Value::String(std)) => {
@@ -146,13 +181,40 @@ impl FluffConfig {
         let values = ConfigLoader
             .get_config_elems_from_file(None, include_str!("./default_config.cfg").into());
 
-        ConfigLoader.incorporate_vals(&mut configs, values);
+        let mut defaults = AHashMap::new();
+        ConfigLoader.incorporate_vals(&mut defaults, values);
+
+        let mut configs = nested_combine(defaults, configs);
+
+        for (in_key, out_key) in [
+            // Deal with potential ignore & warning parameters
+            ("ignore", "ignore"),
+            ("warnings", "warnings"),
+            ("rules", "rule_allowlist"),
+            // Allowlists and denylistsignore_words
+            ("exclude_rules", "rule_denylist"),
+        ] {
+            match configs["core"].as_map().unwrap().get(in_key) {
+                Some(value) if !value.is_none() => {
+                    let string = value.as_string().unwrap();
+                    let values = split_comma_separated_string(string);
+
+                    configs
+                        .get_mut("core")
+                        .unwrap()
+                        .as_map_mut()
+                        .unwrap()
+                        .insert(out_key.into(), values);
+                }
+                _ => {}
+            }
+        }
 
         Self {
             raw: configs,
             dialect,
             extra_config_path,
-            _configs: HashMap::new(),
+            _configs: AHashMap::new(),
             indentation: indentation.unwrap_or_default(),
             sql_file_exts: vec![".sql".into()],
         }
@@ -168,7 +230,7 @@ impl FluffConfig {
     pub fn from_root(
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-        _overrides: Option<HashMap<String, String>>,
+        _overrides: Option<AHashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
         let loader = ConfigLoader {};
         let config =
@@ -188,9 +250,8 @@ impl FluffConfig {
                  its own dialect and rules."
             )
         } else {
-            return config.unwrap();
+            config.unwrap()
         }
-        panic!("Not implemenrted!")
     }
 
     /// Process a full raw file for inline config and update self.
@@ -251,12 +312,13 @@ impl Default for FluffConfigIndentation {
 pub struct ConfigLoader;
 
 impl ConfigLoader {
+    #[allow(unused_variables)]
     fn iter_config_locations_up_to_path(
         path: &Path,
         working_path: Option<&Path>,
         ignore_local_config: bool,
     ) -> impl Iterator<Item = PathBuf> {
-        let mut given_path = std::fs::canonicalize(path).unwrap();
+        let mut given_path = std::path::absolute(path).unwrap();
         let working_path = std::env::current_dir().unwrap();
 
         if !given_path.is_dir() {
@@ -313,18 +375,19 @@ impl ConfigLoader {
         head.chain(tail)
     }
 
+    #[allow(unused_variables)]
     pub fn load_config_up_to_path(
         &self,
         path: impl AsRef<Path>,
-        extra_config_path: Option<String>,
+        _extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> HashMap<String, Value> {
+    ) -> AHashMap<String, Value> {
         let path = path.as_ref();
 
         let config_paths: Box<dyn Iterator<Item = PathBuf>> = if ignore_local_config {
-            std::iter::empty().boxed()
+            Box::new(std::iter::empty())
         } else {
-            Self::iter_config_locations_up_to_path(path, None, ignore_local_config).boxed()
+            Box::new(Self::iter_config_locations_up_to_path(path, None, ignore_local_config))
         };
 
         let config_stack = if ignore_local_config {
@@ -336,7 +399,7 @@ impl ConfigLoader {
         nested_combine(config_stack)
     }
 
-    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
+    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> AHashMap<String, Value> {
         let path = path.as_ref();
 
         let filename_options = [
@@ -345,7 +408,7 @@ impl ConfigLoader {
         ];
 
         let path = if path.is_dir() { path } else { path.parent().unwrap() };
-        let mut configs = HashMap::new();
+        let mut configs = AHashMap::new();
 
         for fname in filename_options {
             let path = path.join(fname);
@@ -357,7 +420,7 @@ impl ConfigLoader {
         configs
     }
 
-    pub fn load_config_file(&self, path: impl AsRef<Path>, configs: &mut HashMap<String, Value>) {
+    pub fn load_config_file(&self, path: impl AsRef<Path>, configs: &mut AHashMap<String, Value>) {
         let elems = self.get_config_elems_from_file(path.as_ref().into(), None);
         self.incorporate_vals(configs, elems);
     }
@@ -381,7 +444,7 @@ impl ConfigLoader {
         config.read(content).unwrap();
 
         for section in config.sections() {
-            let mut key = if section == "sqlfluff" {
+            let key = if section == "sqlfluff" {
                 vec!["core".to_owned()]
             } else if let Some(key) = section.strip_prefix("sqlfluff:") {
                 key.split(':').map(ToOwned::to_owned).collect()
@@ -414,7 +477,7 @@ impl ConfigLoader {
 
     fn incorporate_vals(
         &self,
-        ctx: &mut HashMap<String, Value>,
+        ctx: &mut AHashMap<String, Value>,
         values: Vec<(Vec<String>, Value)>,
     ) {
         for (path, value) in values {
@@ -422,7 +485,7 @@ impl ConfigLoader {
             for key in path.iter().take(path.len() - 1) {
                 match current_map
                     .entry(key.to_string())
-                    .or_insert_with(|| Value::Map(HashMap::new()))
+                    .or_insert_with(|| Value::Map(AHashMap::new()))
                     .as_map_mut()
                 {
                     Some(slot) => current_map = slot,
@@ -442,8 +505,19 @@ pub enum Value {
     Bool(bool),
     Float(f64),
     String(Box<str>),
-    Map(HashMap<String, Value>),
+    Map(AHashMap<String, Value>),
+    Array(Vec<Value>),
     None,
+}
+
+impl Value {
+    pub fn is_none(&self) -> bool {
+        matches!(self, Value::None)
+    }
+
+    pub fn as_array(&self) -> Option<&[Value]> {
+        if let Self::Array(v) = self { Some(v) } else { None }
+    }
 }
 
 impl Index<&str> for Value {
@@ -458,11 +532,23 @@ impl Index<&str> for Value {
 }
 
 impl Value {
-    pub fn as_map(&self) -> Option<&HashMap<String, Value>> {
+    pub fn to_bool(&self) -> bool {
+        match *self {
+            Value::Int(v) => v != 0,
+            Value::Bool(v) => v,
+            Value::Float(v) => v != 0.0,
+            Value::String(ref v) => !v.is_empty(),
+            Value::Map(ref v) => !v.is_empty(),
+            Value::None => false,
+            Value::Array(ref v) => !v.is_empty(),
+        }
+    }
+
+    pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
         if let Self::Map(map) = self { Some(map) } else { None }
     }
 
-    pub fn as_map_mut(&mut self) -> Option<&mut HashMap<String, Value>> {
+    pub fn as_map_mut(&mut self) -> Option<&mut AHashMap<String, Value>> {
         if let Self::Map(map) = self { Some(map) } else { None }
     }
 
@@ -506,9 +592,9 @@ impl FromStr for Value {
     }
 }
 
-fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
-    let capacity = config_stack.iter().map(HashMap::len).count();
-    let mut result = HashMap::with_capacity(capacity);
+fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
+    let capacity = config_stack.len();
+    let mut result = AHashMap::with_capacity(capacity);
 
     for dict in config_stack {
         for (key, value) in dict {

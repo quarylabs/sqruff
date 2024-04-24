@@ -1,12 +1,12 @@
 use super::elements::{ReflowElement, ReflowSequenceType};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::helpers::capitalize;
 use crate::utils::reflow::elements::ReflowPoint;
 
 #[derive(Debug)]
 pub struct RebreakSpan {
-    target: Box<dyn Segment>,
+    target: ErasedSegment,
     start_idx: usize,
     end_idx: usize,
     line_position: String,
@@ -15,7 +15,7 @@ pub struct RebreakSpan {
 
 #[derive(Debug)]
 pub struct RebreakIndices {
-    dir: i32,
+    _dir: i32,
     adj_pt_idx: isize,
     newline_pt_idx: isize,
     pre_code_pt_idx: isize,
@@ -57,7 +57,7 @@ impl RebreakIndices {
         }
 
         RebreakIndices {
-            dir,
+            _dir: dir,
             adj_pt_idx: adj_point_idx,
             newline_pt_idx: newline_point_idx,
             pre_code_pt_idx: pre_code_point_idx,
@@ -67,7 +67,7 @@ impl RebreakIndices {
 
 #[derive(Debug)]
 pub struct RebreakLocation {
-    target: Box<dyn Segment>,
+    target: ErasedSegment,
     prev: RebreakIndices,
     next: RebreakIndices,
     line_position: String,
@@ -103,13 +103,11 @@ impl RebreakLocation {
 
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    root_segment: Box<dyn Segment>,
+    _root_segment: ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for idx in 2..element_buffer.len() - 2 {
-        let elem = &element_buffer[idx];
-
+    for (idx, elem) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2) {
         let ReflowElement::Block(block) = elem else {
             continue;
         };
@@ -119,7 +117,7 @@ pub fn identify_rebreak_spans(
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
                 end_idx: idx,
-                line_position: line_position.split(":").next().unwrap_or_default().into(),
+                line_position: line_position.split(':').next().unwrap_or_default().into(),
                 strict: line_position.ends_with("strict"),
             });
         }
@@ -170,7 +168,7 @@ pub fn identify_rebreak_spans(
 
 pub fn rebreak_sequence(
     elements: ReflowSequenceType,
-    root_segment: Box<dyn Segment>,
+    root_segment: ErasedSegment,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let mut lint_results = Vec::new();
     let mut fixes = Vec::new();
@@ -214,7 +212,7 @@ pub fn rebreak_sequence(
 
             // Generate the text for any issues.
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let _desc = if loc.strict {
                 format!("{} should always start a new line.", capitalize(&pretty_name))
             } else {
                 format!("Found trailing {}. Expected only leading near line breaks.", pretty_name)
@@ -287,7 +285,7 @@ pub fn rebreak_sequence(
             }
 
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let _desc = if loc.strict {
                 format!("{} should always be at the end of a line.", capitalize(&pretty_name))
             } else {
                 format!("Found leading {}. Expected only trailing near line breaks.", pretty_name)
@@ -449,7 +447,7 @@ mod tests {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, <_>::default());
+            let seq = ReflowSequence::from_root(root, &<_>::default());
             let new_seq = seq.rebreak();
 
             assert_eq!(new_seq.raw(), raw_sql_out);
@@ -472,7 +470,7 @@ mod tests {
         for (raw_sql_in, target_idx, seq_sql_in, seq_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
             let target = &root.get_raw_segments()[target_idx];
-            let seq = ReflowSequence::from_around_target(target, root, "both");
+            let seq = ReflowSequence::from_around_target(target, root, "both", &<_>::default());
 
             assert_eq!(seq.raw(), seq_sql_in);
 

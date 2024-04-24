@@ -1,16 +1,18 @@
-use crate::core::parser::segments::base::Segment;
+use std::ops::Range;
+
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
 
-type PredicateType = Option<fn(&dyn Segment) -> bool>;
+type PredicateType = Option<fn(&ErasedSegment) -> bool>;
 
 #[derive(Debug, Default, Clone)]
 pub struct Segments {
-    base: Vec<Box<dyn Segment>>,
+    base: Vec<ErasedSegment>,
     templated_file: Option<TemplatedFile>,
 }
 
 impl Segments {
-    pub fn iter(&self) -> impl Iterator<Item = &Box<dyn Segment>> {
+    pub fn iter(&self) -> impl Iterator<Item = &ErasedSegment> {
         self.base.iter()
     }
 
@@ -23,7 +25,7 @@ impl Segments {
         })
     }
 
-    pub fn from_vec(base: Vec<Box<dyn Segment>>, templated_file: Option<TemplatedFile>) -> Self {
+    pub fn from_vec(base: Vec<ErasedSegment>, templated_file: Option<TemplatedFile>) -> Self {
         Self { base, templated_file }
     }
 
@@ -34,25 +36,29 @@ impl Segments {
         Self { base, templated_file: self.templated_file.clone() }
     }
 
-    pub fn get(&self, index: usize, default: Option<Box<dyn Segment>>) -> Option<Box<dyn Segment>> {
+    pub fn get(&self, index: usize, default: Option<ErasedSegment>) -> Option<ErasedSegment> {
         self.base.get(index).cloned().or(default)
     }
 
-    pub fn first(&self) -> Option<&dyn Segment> {
-        self.base.first().map(Box::as_ref)
+    pub fn first(&self) -> Option<&ErasedSegment> {
+        self.base.first()
     }
 
-    pub fn last(&self) -> Option<&dyn Segment> {
-        self.base.last().map(Box::as_ref)
+    pub fn last(&self) -> Option<&ErasedSegment> {
+        self.base.last()
     }
 
     #[track_caller]
-    pub fn pop(&mut self) -> Box<dyn Segment> {
+    pub fn pop(&mut self) -> ErasedSegment {
         self.base.pop().unwrap()
     }
 
     pub fn all(&self, predicate: PredicateType) -> bool {
-        self.base.iter().all(|s| predicate.map_or(true, |pred| pred(s.as_ref())))
+        self.base.iter().all(|s| predicate.map_or(true, |pred| pred(s)))
+    }
+
+    pub fn any(&self, predicate: PredicateType) -> bool {
+        self.base.iter().any(|s| predicate.map_or(true, |pred| pred(s)))
     }
 
     pub fn len(&self) -> usize {
@@ -63,7 +69,7 @@ impl Segments {
         self.base.is_empty()
     }
 
-    pub fn new(segment: Box<dyn Segment>, templated_file: Option<TemplatedFile>) -> Self {
+    pub fn new(segment: ErasedSegment, templated_file: Option<TemplatedFile>) -> Self {
         Self { base: vec![segment], templated_file }
     }
 
@@ -73,7 +79,7 @@ impl Segments {
         for s in &self.base {
             for child in s.gather_segments() {
                 if let Some(ref pred) = predicate {
-                    if pred(child.as_ref()) {
+                    if pred(&child) {
                         child_segments.push(child);
                     }
                 } else {
@@ -90,7 +96,7 @@ impl Segments {
             .iter()
             .rev()
             .find_map(|s| {
-                if predicate.as_ref().map_or(true, |p| p(s.as_ref())) {
+                if predicate.as_ref().map_or(true, |p| p(s)) {
                     Some(Segments {
                         base: vec![s.clone()],
                         templated_file: self.templated_file.clone(),
@@ -105,13 +111,13 @@ impl Segments {
             })
     }
 
-    pub fn find(&self, value: &dyn Segment) -> Option<usize> {
+    pub fn find(&self, value: &ErasedSegment) -> Option<usize> {
         self.index(value)
     }
 
-    pub fn find_first<F: Fn(&dyn Segment) -> bool>(&self, predicate: Option<F>) -> Segments {
+    pub fn find_first<F: Fn(&ErasedSegment) -> bool>(&self, predicate: Option<F>) -> Segments {
         for s in &self.base {
-            if predicate.as_ref().map_or(true, |p| p(s.as_ref())) {
+            if predicate.as_ref().map_or(true, |p| p(s)) {
                 return Segments {
                     base: vec![s.clone()],
                     templated_file: self.templated_file.clone(),
@@ -122,8 +128,8 @@ impl Segments {
         Segments { base: vec![], templated_file: self.templated_file.clone() }
     }
 
-    pub fn index(&self, value: &dyn Segment) -> Option<usize> {
-        self.base.iter().position(|it| it.dyn_eq(value))
+    pub fn index(&self, value: &ErasedSegment) -> Option<usize> {
+        self.base.iter().position(|it| it == value)
     }
 
     #[track_caller]
@@ -131,27 +137,27 @@ impl Segments {
         &self,
         select_if: PredicateType,
         loop_while: PredicateType,
-        start_seg: Option<&dyn Segment>,
-        stop_seg: Option<&dyn Segment>,
+        start_seg: Option<&ErasedSegment>,
+        stop_seg: Option<&ErasedSegment>,
     ) -> Segments {
         let start_index = start_seg
-            .and_then(|seg| self.base.iter().position(|x| x.dyn_eq(seg)))
-            .map_or(0, |index| index + 1);
+            .map(|seg| self.base.iter().position(|x| x == seg).unwrap() as isize)
+            .unwrap_or(-1);
 
         let stop_index = stop_seg
-            .and_then(|seg| self.base.iter().position(|x| x.dyn_eq(seg)))
-            .unwrap_or_else(|| self.base.len());
+            .map(|seg| self.base.iter().position(|x| x == seg).unwrap() as isize)
+            .unwrap_or_else(|| self.base.len() as isize);
 
         let mut buff = Vec::new();
 
-        for seg in self.base.iter().skip(start_index).take(stop_index - start_index) {
+        for seg in pyslice(&self.base, start_index + 1..stop_index) {
             if let Some(loop_while) = &loop_while {
-                if !loop_while(seg.as_ref()) {
+                if !loop_while(seg) {
                     break;
                 }
             }
 
-            if select_if.as_ref().map_or(true, |f| f(seg.as_ref())) {
+            if select_if.as_ref().map_or(true, |f| f(seg)) {
                 buff.push(seg.clone());
             }
         }
@@ -160,7 +166,7 @@ impl Segments {
     }
 }
 
-impl<I: std::slice::SliceIndex<[Box<dyn Segment>]>> std::ops::Index<I> for Segments {
+impl<I: std::slice::SliceIndex<[ErasedSegment]>> std::ops::Index<I> for Segments {
     type Output = I::Output;
 
     fn index(&self, index: I) -> &Self::Output {
@@ -169,10 +175,15 @@ impl<I: std::slice::SliceIndex<[Box<dyn Segment>]>> std::ops::Index<I> for Segme
 }
 
 impl IntoIterator for Segments {
-    type Item = Box<dyn Segment>;
+    type Item = ErasedSegment;
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.base.into_iter()
     }
+}
+
+fn pyslice<T>(collection: &[T], Range { start, end }: Range<isize>) -> impl Iterator<Item = &T> {
+    let slice = slyce::Slice { start: start.into(), end: end.into(), step: None };
+    slice.apply(collection)
 }

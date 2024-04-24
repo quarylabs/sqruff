@@ -1,8 +1,10 @@
-use std::collections::HashSet;
 use std::ops::Deref;
 
+use ahash::AHashMap;
+
 use super::LT03::RuleLT03;
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -13,18 +15,22 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT04::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.commas"
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["comma".into()])).into()
+    fn description(&self) -> &'static str {
+        "Leading/Trailing comma enforcement."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if self.check_trail_lead_shortcut(
-            context.segment.as_ref(),
-            context.parent_stack.last().unwrap().as_ref(),
+            &context.segment,
+            context.parent_stack.last().unwrap(),
             "trailing",
         ) {
             return Vec::new();
@@ -34,9 +40,14 @@ impl Rule for RuleLT04 {
             &context.segment,
             context.parent_stack.first().unwrap().clone(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["comma"].into()).into()
     }
 }
 

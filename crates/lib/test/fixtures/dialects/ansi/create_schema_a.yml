@@ -1,0 +1,8 @@
+file:
+- statement:
+  - create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - identifier: my_schema

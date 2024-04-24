@@ -1,7 +1,7 @@
 use std::borrow::Cow;
-use std::collections::{HashMap, HashSet};
 use std::mem::take;
 
+use ahash::{AHashMap, AHashSet};
 use itertools::{enumerate, Itertools};
 
 use super::elements::{ReflowElement, ReflowPoint, ReflowSequenceType};
@@ -128,8 +128,10 @@ impl std::fmt::Display for IndentLine {
     }
 }
 
+#[allow(unused_variables, dead_code)]
 fn revise_templated_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) {}
 
+#[allow(unused_variables, dead_code)]
 fn revise_comment_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) {}
 
 pub fn construct_single_indent(indent_unit: &str, tab_space_size: usize) -> Cow<'static, str> {
@@ -153,13 +155,13 @@ fn prune_untaken_indents(
     };
 
     let mut pruned_untaken_indents: Vec<_> =
-        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold as isize).collect();
+        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold).collect();
 
     if indent_stats.impulse > indent_stats.trough && !has_newline {
         for i in indent_stats.trough..indent_stats.impulse {
             let indent_val = incoming_balance + i + 1;
             if !indent_stats.implicit_indents.contains(&(indent_val - incoming_balance)) {
-                pruned_untaken_indents.push(indent_val as isize);
+                pruned_untaken_indents.push(indent_val);
             }
         }
     }
@@ -174,12 +176,13 @@ fn update_crawl_balances(
     has_newline: bool,
 ) -> (isize, Vec<isize>) {
     let new_untaken_indents =
-        prune_untaken_indents(untaken_indents, incoming_balance, &indent_stats, has_newline);
+        prune_untaken_indents(untaken_indents, incoming_balance, indent_stats, has_newline);
     let new_balance = incoming_balance + indent_stats.impulse;
 
-    (new_balance as isize, new_untaken_indents.into_iter().map(|it| it as isize).collect_vec())
+    (new_balance, new_untaken_indents.into_iter().collect_vec())
 }
 
+#[allow(unused_variables)]
 fn crawl_indent_points(
     elements: &ReflowSequenceType,
     allow_implicit_indents: bool,
@@ -208,10 +211,10 @@ fn crawl_indent_points(
                 if cached_point.is_line_break {
                     acc.push(IndentPoint {
                         idx: cached_point.idx,
-                        indent_impulse: indent_stats.impulse as isize,
-                        indent_trough: indent_stats.trough as isize,
+                        indent_impulse: indent_stats.impulse,
+                        indent_trough: indent_stats.trough,
                         initial_indent_balance: indent_balance,
-                        last_line_break_idx: cached_point.last_line_break_idx.into(),
+                        last_line_break_idx: cached_point.last_line_break_idx,
                         is_line_break: true,
                         untaken_indents: take(&mut untaken_indents),
                     });
@@ -239,8 +242,8 @@ fn crawl_indent_points(
             // Construct the point we may yield
             let indent_point = IndentPoint {
                 idx,
-                indent_impulse: indent_stats.impulse as isize,
-                indent_trough: indent_stats.trough as isize,
+                indent_impulse: indent_stats.impulse,
+                indent_trough: indent_stats.trough,
                 initial_indent_balance: indent_balance,
                 last_line_break_idx,
                 is_line_break: has_newline,
@@ -273,15 +276,16 @@ fn crawl_indent_points(
     acc
 }
 
+#[allow(unused_variables)]
 fn map_line_buffers(
     elements: &ReflowSequenceType,
     allow_implicit_indents: bool,
 ) -> (Vec<IndentLine>, Vec<usize>) {
     let mut lines = Vec::new();
     let mut point_buffer = Vec::new();
-    let mut previous_points = HashMap::new();
-    let mut untaken_indent_locs = HashMap::new();
-    let mut imbalanced_locs = Vec::new();
+    let mut previous_points = AHashMap::new();
+    let mut untaken_indent_locs = AHashMap::new();
+    let imbalanced_locs = Vec::new();
 
     for indent_point in crawl_indent_points(elements, allow_implicit_indents) {
         point_buffer.push(indent_point.clone());
@@ -290,7 +294,8 @@ fn map_line_buffers(
         if !indent_point.is_line_break {
             let indent_stats = elements[indent_point.idx].as_point().unwrap().indent_impulse();
             if indent_point.indent_impulse > indent_point.indent_trough
-                && !(allow_implicit_indents && !indent_stats.implicit_indents.is_empty())
+                && !allow_implicit_indents
+                && !indent_stats.implicit_indents.is_empty()
             {
                 untaken_indent_locs.insert(
                     indent_point.initial_indent_balance + indent_point.indent_impulse,
@@ -380,12 +385,28 @@ fn lint_line_starting_indent(
         return Vec::new();
     }
 
+    if initial_point_idx > 0 && initial_point_idx < elements.len() - 1 {
+        if elements[initial_point_idx + 1].class_types1().contains("comment") {
+            let last_indent =
+                deduce_line_current_indent(elements, indent_points[0].last_line_break_idx);
+            if current_indent.len() == last_indent.len() {
+                return Vec::new();
+            }
+        }
+
+        if elements[initial_point_idx - 1].class_types1().contains("block_comment")
+            && elements[initial_point_idx + 1].class_types1().contains("block_comment")
+        {
+            return Vec::new();
+        }
+    }
+
     let (new_results, new_point) = if indent_points[0].idx == 0 && !indent_points[0].is_line_break {
         let init_seg = &elements[indent_points[0].idx].segments()[0];
         let fixes = if init_seg.is_type("placeholder") {
             unimplemented!()
         } else {
-            initial_point.segments.clone().into_iter().map(|seg| LintFix::delete(seg)).collect_vec()
+            initial_point.segments.clone().into_iter().map(LintFix::delete).collect_vec()
         };
 
         (
@@ -407,6 +428,7 @@ fn lint_line_starting_indent(
     new_results
 }
 
+#[allow(unused_variables, dead_code)]
 fn lint_line_untaken_positive_indents(
     elements: Vec<ReflowElement>,
     indent_line: IndentLine,
@@ -416,6 +438,7 @@ fn lint_line_untaken_positive_indents(
     unimplemented!()
 }
 
+#[allow(unused_variables)]
 fn lint_line_untaken_negative_indents(
     elements: &mut ReflowSequenceType,
     indent_line: &IndentLine,
@@ -435,14 +458,14 @@ fn lint_line_untaken_negative_indents(
             continue;
         }
 
-        let covered_indents: HashSet<isize> =
+        let covered_indents: AHashSet<isize> =
             (ip.initial_indent_balance..=ip.initial_indent_balance + ip.indent_trough).collect();
 
-        let untaken_indents: HashSet<_> = ip
+        let untaken_indents: AHashSet<_> = ip
             .untaken_indents
             .iter()
             .copied()
-            .collect::<HashSet<_>>()
+            .collect::<AHashSet<_>>()
             .difference(&forced_indents.iter().map(|it| *it as isize).collect())
             .copied()
             .collect();
@@ -455,6 +478,7 @@ fn lint_line_untaken_negative_indents(
     Vec::new()
 }
 
+#[allow(unused_variables)]
 fn lint_line_buffer_indents(
     elements: &mut ReflowSequenceType,
     indent_line: IndentLine,
@@ -481,10 +505,11 @@ fn lint_line_buffer_indents(
     results
 }
 
+#[allow(unused_variables)]
 pub fn lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: &str,
-    skip_indentation_in: HashSet<String>,
+    skip_indentation_in: AHashSet<String>,
     allow_implicit_indents: bool,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let (lines, imbalanced_indent_locs) = map_line_buffers(&elements, allow_implicit_indents);
@@ -506,16 +531,19 @@ pub fn lint_indent_points(
     (elem_buffer, results)
 }
 
+#[allow(unused_variables, dead_code)]
 fn source_char_len(elements: Vec<ReflowElement>) -> usize {
     unimplemented!()
 }
 
-fn rebreak_priorities(spans: Vec<RebreakSpan>) -> HashMap<usize, usize> {
+#[allow(unused_variables, dead_code)]
+fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
     unimplemented!()
 }
 
-type MatchedIndentsType = HashMap<f64, Vec<i32>>;
+type MatchedIndentsType = AHashMap<f64, Vec<i32>>;
 
+#[allow(unused_variables, dead_code)]
 fn increment_balance(
     input_balance: i32,
     indent_stats: (),
@@ -524,15 +552,17 @@ fn increment_balance(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn match_indents(
     line_elements: ReflowSequenceType,
-    rebreak_priorities: HashMap<i32, i32>,
+    rebreak_priorities: AHashMap<i32, i32>,
     newline_idx: i32,
     allow_implicit_indents: bool,
 ) -> MatchedIndentsType {
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn fix_long_line_with_comment(
     line_buffer: ReflowSequenceType,
     elements: ReflowSequenceType,
@@ -544,6 +574,7 @@ fn fix_long_line_with_comment(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn fix_long_line_with_fractional_targets(
     elements: Vec<ReflowElement>,
     target_breaks: Vec<usize>,
@@ -552,6 +583,7 @@ fn fix_long_line_with_fractional_targets(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn fix_long_line_with_integer_targets(
     elements: Vec<ReflowElement>,
     target_breaks: Vec<usize>,
@@ -580,7 +612,7 @@ mod tests {
 
         for (raw_sql_in, elem_idx, indent_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, <_>::default());
+            let seq = ReflowSequence::from_root(root, &<_>::default());
             let elem = seq.elements()[elem_idx].as_point().unwrap();
 
             assert_eq!(indent_out, elem.get_indent().as_deref());

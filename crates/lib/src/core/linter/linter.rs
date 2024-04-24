@@ -1,9 +1,9 @@
-use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
+use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use regex::Regex;
 use uuid::Uuid;
@@ -20,16 +20,17 @@ use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::fix::AnchorEditInfo;
-use crate::core::rules::base::{ErasedRule, LintFix};
+use crate::core::rules::base::{ErasedRule, LintFix, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
+use crate::rules::get_ruleset;
 
 pub struct Linter {
     config: FluffConfig,
     pub formatter: Option<OutputStreamFormatter>,
     templater: Box<dyn Templater>,
-    rules: Vec<ErasedRule>,
+    _rules: Vec<ErasedRule>,
 }
 
 impl Linter {
@@ -38,10 +39,15 @@ impl Linter {
         formatter: Option<OutputStreamFormatter>,
         templater: Option<Box<dyn Templater>>,
     ) -> Linter {
-        let rules = crate::rules::layout::get_rules(&config);
+        let rules = crate::rules::layout::get_rules();
         match templater {
-            Some(templater) => Linter { config, formatter, templater, rules },
-            None => Linter { config, formatter, templater: Box::<RawTemplater>::default(), rules },
+            Some(templater) => Linter { config, formatter, templater, _rules: rules },
+            None => Linter {
+                config,
+                formatter,
+                templater: Box::<RawTemplater>::default(),
+                _rules: rules,
+            },
         }
     }
 
@@ -73,6 +79,7 @@ impl Linter {
     }
 
     /// Parse a string.
+    #[allow(unused_variables)]
     pub fn parse_string(
         &self,
         in_str: String,
@@ -119,6 +126,7 @@ impl Linter {
     }
 
     /// Lint a string.
+    #[allow(clippy::too_many_arguments)]
     pub fn lint_string(
         &mut self,
         in_str: Option<String>,
@@ -146,19 +154,43 @@ impl Linter {
         self.lint_parsed(parsed, rules, fix)
     }
 
-    pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>) {
+    pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>, fix: bool) -> LintingResult {
+        let mut result = LintingResult::new();
+
         if paths.is_empty() {
             paths.push(std::env::current_dir().unwrap());
         }
 
         let mut expanded_paths = Vec::new();
+        let mut expanded_path_to_linted_dir = AHashMap::default();
+
         for path in paths {
+            let linted_dir = LintedDir::new(path.display().to_string());
+            let key = result.add(linted_dir);
+
             let paths = self.paths_from_path(path, None, None, None, None);
-            expanded_paths.extend(paths);
+
+            expanded_paths.reserve(paths.len());
+            expanded_path_to_linted_dir.reserve(paths.len());
+
+            for path in paths {
+                expanded_paths.push(path.clone());
+                expanded_path_to_linted_dir.insert(path, key);
+            }
         }
 
         let mut runner = RunnerContext::sequential(self);
-        runner.run(expanded_paths);
+        for linted_file in runner.run(expanded_paths, fix) {
+            let path = expanded_path_to_linted_dir[&linted_file.path];
+            result.paths[path].add(linted_file);
+        }
+
+        result
+    }
+
+    pub fn get_rulepack(&self) -> RulePack {
+        let rs = get_ruleset();
+        rs.get_rulepack(&self.config)
     }
 
     pub fn render_file(&mut self, fname: String) -> RenderedFile {
@@ -166,9 +198,14 @@ impl Linter {
         self.render_string(in_str, fname, self.config.clone(), None).unwrap()
     }
 
-    pub fn lint_rendered(&mut self, rendered: RenderedFile) {
+    pub fn lint_rendered(
+        &mut self,
+        rendered: RenderedFile,
+        rule_pack: &RulePack,
+        fix: bool,
+    ) -> LintedFile {
         let parsed = Self::parse_rendered(rendered, false);
-        self.lint_parsed(parsed, self.rules.clone(), false);
+        self.lint_parsed(parsed, rule_pack.rules.clone(), fix)
     }
 
     pub fn lint_parsed(
@@ -187,24 +224,26 @@ impl Linter {
         };
 
         let linted_file = LintedFile {
+            path: parsed_string.f_name,
             tree,
             templated_file: parsed_string.templated_file,
             violations: initial_linting_errors,
         };
 
         if let Some(formatter) = &mut self.formatter {
-            formatter.dispatch_file_violations(&parsed_string.f_name, &linted_file, false, false);
+            formatter.dispatch_file_violations(&linted_file, false, false);
         }
 
         linted_file
     }
 
+    #[allow(unused_variables)]
     pub fn lint_fix_parsed(
         &self,
-        mut tree: Box<dyn Segment>,
+        mut tree: ErasedSegment,
         rules: Vec<ErasedRule>,
         fix: bool,
-    ) -> (Box<dyn Segment>, Vec<SQLLintError>) {
+    ) -> (ErasedSegment, Vec<SQLLintError>) {
         let mut tmp;
 
         let mut initial_linting_errors = Vec::new();
@@ -247,7 +286,7 @@ impl Linter {
                     }
 
                     let (linting_errors, fixes) =
-                        rule.crawl(dialect.clone(), fix, tree.clone(), self.config.clone());
+                        rule.crawl(&dialect, fix, tree.clone(), &self.config);
                     let anchor_info = compute_anchor_edit_info(fixes.clone());
 
                     if is_first_linter_pass {
@@ -264,7 +303,7 @@ impl Linter {
                         let (new_tree, _, _, valid) =
                             tree.apply_fixes(dialect_selector("ansi").unwrap(), anchor_info);
 
-                        if !true {
+                        if false {
                             println!(
                                 "Fixes for {rule:?} not applied, as it would result in an \
                                  unparsable file. Please report this as a bug with a minimal \
@@ -325,7 +364,9 @@ impl Linter {
         //     ));
         // }
 
+        #[allow(unused_assignments)]
         let mut templated_file = None;
+
         let templater_violations = vec![];
         match self.templater.process(
             in_str.as_str(),
@@ -362,7 +403,7 @@ impl Linter {
             templated_file: templated_file.unwrap(),
             templater_violations,
             config,
-            time_dict: HashMap::new(),
+            time_dict: AHashMap::new(),
             f_name: f_name.to_owned(),
             encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
@@ -370,6 +411,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
+
     pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
         // panic!("Not implemented");
 
@@ -380,7 +422,8 @@ impl Linter {
         }
 
         let mut violations = Vec::new();
-        let mut tokens: Option<Vec<Box<dyn Segment>>> = None;
+        #[allow(unused_assignments)]
+        let mut tokens: Option<Vec<ErasedSegment>> = None;
 
         if rendered.templated_file.is_templated() {
             let (t, lvs, _config) =
@@ -398,7 +441,7 @@ impl Linter {
         // let linter_logger = log::logger();
         // linter_logger.info("PARSING ({})", rendered.fname);
 
-        let parsed: Option<Box<dyn Segment>>;
+        let parsed: Option<ErasedSegment>;
         if let Some(token_list) = tokens {
             let (p, pvs) = Self::parse_tokens(
                 &token_list,
@@ -430,11 +473,11 @@ impl Linter {
     }
 
     fn parse_tokens(
-        tokens: &[Box<dyn Segment>],
+        tokens: &[ErasedSegment],
         config: &FluffConfig,
         f_name: Option<String>,
         parse_statistics: bool,
-    ) -> (Option<Box<dyn Segment>>, Vec<SQLParseError>) {
+    ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let mut parser = Parser::new(Some(config.clone()), None);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
@@ -456,7 +499,7 @@ impl Linter {
     fn lex_templated_file(
         templated_file: TemplatedFile,
         config: &FluffConfig,
-    ) -> (Option<Vec<Box<dyn Segment>>>, Vec<SQLLexError>, FluffConfig) {
+    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>, FluffConfig) {
         let mut violations: Vec<SQLLexError> = vec![];
         // linter_logger.info("LEXING RAW ({})", templated_file.fname);
         // Get the lexer
@@ -466,7 +509,7 @@ impl Linter {
         match result {
             Err(_err) => {
                 unimplemented!("violations.push(_err)");
-                return (None, violations, config.clone());
+                // return (None, violations, config.clone());
             }
             Ok((tokens, lex_vs)) => {
                 violations.extend(lex_vs);
@@ -504,7 +547,7 @@ impl Linter {
         let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
         let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
         let ignore_files = ignore_files.unwrap_or(true);
-        let working_path =
+        let _working_path =
             working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string());
 
         let Ok(metadata) = std::fs::metadata(&path) else {
@@ -564,7 +607,7 @@ impl Linter {
         path_walk.extend(path_walk_ignore_file);
 
         let mut buffer = Vec::new();
-        let mut ignores = HashMap::new();
+        let mut ignores = AHashMap::new();
         let sql_file_exts = self.config.sql_file_exts(); // Replace with actual extensions
 
         for (dirpath, _, filenames) in path_walk {
@@ -595,7 +638,7 @@ impl Linter {
             }
         }
 
-        let mut filtered_buffer = HashSet::new();
+        let mut filtered_buffer = AHashSet::new();
 
         for fpath in buffer {
             let npath = crate::helpers::normalize(&fpath).to_str().unwrap().to_string();
@@ -608,8 +651,8 @@ impl Linter {
     }
 }
 
-fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> HashMap<Uuid, AnchorEditInfo> {
-    let mut anchor_info = HashMap::new();
+fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
+    let mut anchor_info = AHashMap::new();
 
     for fix in fixes {
         let anchor_id = fix.anchor.get_uuid().unwrap();

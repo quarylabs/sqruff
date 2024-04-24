@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use itertools::{chain, Itertools};
+use uuid::Uuid;
 
 use super::base::longest_trimmed_match;
 use super::sequence::{Bracketed, Sequence};
@@ -10,14 +10,14 @@ use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{Segment, UnparsableSegment};
+use crate::core::parser::segments::base::{ErasedSegment, Segment, UnparsableSegment};
 use crate::core::parser::types::ParseMode;
-use crate::helpers::{Boxed, ToMatchable};
+use crate::helpers::{ToErasedSegment, ToMatchable};
 
 fn parse_mode_match_result(
-    matched_segments: Vec<Box<dyn Segment>>,
-    unmatched_segments: Vec<Box<dyn Segment>>,
-    tail: Vec<Box<dyn Segment>>,
+    matched_segments: Vec<ErasedSegment>,
+    unmatched_segments: Vec<ErasedSegment>,
+    tail: Vec<ErasedSegment>,
     parse_mode: ParseMode,
 ) -> MatchResult {
     if let ParseMode::Strict = parse_mode {
@@ -35,7 +35,7 @@ fn parse_mode_match_result(
     let trim_idx = unmatched_segments.iter().position(|s| s.is_code()).unwrap_or(0);
 
     // Create an unmatched segment
-    let _expected = if let Some(first_tail_segment) = tail.get(0) {
+    let _expected = if let Some(first_tail_segment) = tail.first() {
         format!("Nothing else before {first_tail_segment:?}")
     } else {
         "Nothing else".to_string()
@@ -44,7 +44,7 @@ fn parse_mode_match_result(
     let unmatched_seg = UnparsableSegment::new(unmatched_segments[trim_idx..].to_vec());
     let mut matched = matched_segments;
     matched.extend_from_slice(&unmatched_segments[..trim_idx]);
-    matched.push(unmatched_seg.boxed());
+    matched.push(unmatched_seg.to_erased_segment());
 
     MatchResult::new(matched, tail)
 }
@@ -53,27 +53,28 @@ pub fn simple(
     elements: &[Box<dyn Matchable>],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
-) -> Option<(HashSet<String>, HashSet<String>)> {
-    let option_simples: Vec<Option<(HashSet<String>, HashSet<String>)>> =
+) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    let option_simples: Vec<Option<(AHashSet<String>, AHashSet<String>)>> =
         elements.iter().map(|opt| opt.simple(parse_context, crumbs.clone())).collect();
 
     if option_simples.iter().any(Option::is_none) {
         return None;
     }
 
-    let simple_buff: Vec<(HashSet<String>, HashSet<String>)> =
+    let simple_buff: Vec<(AHashSet<String>, AHashSet<String>)> =
         option_simples.into_iter().flatten().collect();
 
-    let simple_raws: HashSet<String> =
+    let simple_raws: AHashSet<String> =
         simple_buff.iter().flat_map(|(raws, _)| raws).cloned().collect();
 
-    let simple_types: HashSet<String> =
+    let simple_types: AHashSet<String> =
         simple_buff.iter().flat_map(|(_, types)| types).cloned().collect();
 
     Some((simple_raws, simple_types))
 }
 
 #[derive(Debug, Clone, Hash)]
+#[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
 pub struct AnyNumberOf {
     pub elements: Vec<Box<dyn Matchable>>,
     pub terminators: Vec<Box<dyn Matchable>>,
@@ -82,6 +83,7 @@ pub struct AnyNumberOf {
     pub allow_gaps: bool,
     pub optional: bool,
     pub parse_mode: ParseMode,
+    cache_key: String,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -100,6 +102,7 @@ impl AnyNumberOf {
             optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -124,7 +127,7 @@ impl AnyNumberOf {
     // for AnyNumberOf.
     pub fn match_once(
         &self,
-        segments: &[Box<dyn Segment>],
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<(MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
         let name = std::any::type_name::<Self>();
@@ -146,24 +149,24 @@ impl Matchable for AnyNumberOf {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         simple(&self.elements, parse_context, crumbs)
     }
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let mut matched_segments = MatchResult::from_empty();
-        let mut unmatched_segments = segments.clone();
+        let mut unmatched_segments = segments.to_vec();
         let mut tail = Vec::new();
 
         if self.parse_mode == ParseMode::Greedy {
             let mut terminators = self.terminators.clone();
             terminators.extend(parse_context.terminators.clone());
 
-            let term_match = greedy_match(segments.clone(), parse_context, terminators, false)?;
+            let term_match = greedy_match(segments.to_vec(), parse_context, terminators, false)?;
             if term_match.has_match() {
                 unmatched_segments = term_match.matched_segments;
                 tail = term_match.unmatched_segments;
@@ -172,7 +175,7 @@ impl Matchable for AnyNumberOf {
 
         // Keep track of the number of times each option has been matched.
         let mut n_matches = 0;
-        // let option_counter = {elem.cache_key(): 0 for elem in self._elements}
+
         loop {
             if self.max_times.is_some() && Some(n_matches) >= self.max_times {
                 // We've matched as many times as we can
@@ -196,7 +199,7 @@ impl Matchable for AnyNumberOf {
                     ))
                 } else {
                     // We didn't meet the hurdle
-                    Ok(MatchResult::from_unmatched(segments))
+                    Ok(MatchResult::from_unmatched(segments.to_vec()))
                 };
             }
 
@@ -211,14 +214,8 @@ impl Matchable for AnyNumberOf {
                 Vec::new()
             };
 
-            let (match_result, matched_option) =
+            let (match_result, _matched_option) =
                 self.match_once(&unmatched_segments, parse_context)?;
-
-            // Increment counter for matched option.
-            if let Some(_matched_option) = matched_option {
-                // TODO:
-                // if matched_option.cache_key() in option_counter:
-            }
 
             if match_result.has_match() {
                 matched_segments
@@ -253,7 +250,7 @@ impl Matchable for AnyNumberOf {
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 
@@ -291,7 +288,7 @@ mod tests {
         fresh_ansi_dialect, generate_test_segments_func, test_segments,
     };
     use crate::core::parser::types::ParseMode;
-    use crate::helpers::{Boxed, ToMatchable};
+    use crate::helpers::{ToErasedSegment, ToMatchable};
 
     #[test]
     fn test__parser__grammar_oneof() {
@@ -309,13 +306,12 @@ mod tests {
                         segment.get_raw().unwrap(),
                         segment.get_position_marker().unwrap().into(),
                     )
-                    .boxed()
+                    .to_erased_segment()
                 },
                 None,
                 false,
                 None,
-            )
-            .boxed();
+            );
 
             let fs = StringParser::new(
                 "foo",
@@ -324,38 +320,35 @@ mod tests {
                         segment.get_raw().unwrap(),
                         segment.get_position_marker().unwrap().into(),
                     )
-                    .boxed()
+                    .to_erased_segment()
                 },
                 None,
                 false,
                 None,
-            )
-            .boxed();
+            );
 
-            let mut g = one_of(vec![fs, bs]);
+            let mut g = one_of(vec![Box::new(fs), Box::new(bs)]);
 
             if allow_gaps {
                 g.disallow_gaps();
             }
 
-            let mut ctx = ParseContext::new(fresh_ansi_dialect());
+            let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
             // Check directly
-            let mut segments = g.match_segments(test_segments(), &mut ctx).unwrap();
+            let mut segments = g.match_segments(&test_segments(), &mut ctx).unwrap();
 
             assert_eq!(segments.len(), 1);
             assert_eq!(segments.matched_segments.pop().unwrap().get_raw().unwrap(), "bar");
 
             // Check with a bit of whitespace
-            assert!(
-                !g.match_segments(test_segments()[1..].to_vec(), &mut ctx).unwrap().has_match()
-            );
+            assert!(!g.match_segments(&test_segments()[1..], &mut ctx).unwrap().has_match());
         }
     }
 
     #[test]
     fn test__parser__grammar_oneof_templated() {
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         let bs = StringParser::new(
             "bar",
@@ -364,13 +357,12 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        );
 
         let fs = StringParser::new(
             "foo",
@@ -379,17 +371,16 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
-        )
-        .boxed();
+        );
 
-        let g = one_of(vec![bs, fs]);
+        let g = one_of(vec![Box::new(bs), Box::new(fs)]);
 
-        assert!(!g.match_segments(test_segments()[5..].to_vec(), &mut ctx).unwrap().has_match());
+        assert!(!g.match_segments(&test_segments()[5..], &mut ctx).unwrap().has_match());
     }
 
     #[test]
@@ -430,7 +421,7 @@ mod tests {
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
-        let mut parse_cx = ParseContext::new(fresh_ansi_dialect());
+        let mut parse_cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         for (mode, sequence, terminators, output, max_times) in cases {
             let elements = sequence
@@ -443,7 +434,7 @@ mod tests {
                                 it.get_raw().unwrap(),
                                 it.get_position_marker().unwrap().into(),
                             )
-                            .boxed()
+                            .to_erased_segment()
                         },
                         None,
                         false,
@@ -456,20 +447,19 @@ mod tests {
             let terms = terminators
                 .iter()
                 .map(|it| {
-                    StringParser::new(
+                    Box::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
                                 segment.get_raw().unwrap(),
                                 segment.get_position_marker().unwrap().into(),
                             )
-                            .boxed()
+                            .to_erased_segment()
                         },
                         None,
                         false,
                         None,
-                    )
-                    .boxed() as Box<dyn Matchable>
+                    )) as Box<dyn Matchable>
                 })
                 .collect_vec();
 
@@ -480,7 +470,7 @@ mod tests {
                 seq.max_times(max_times);
             }
 
-            let match_result = seq.match_segments(segments.clone(), &mut parse_cx).unwrap();
+            let match_result = seq.match_segments(&segments, &mut parse_cx).unwrap();
 
             let result = match_result
                 .matched_segments
@@ -505,7 +495,7 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
@@ -518,16 +508,16 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
         );
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
-        let g = AnyNumberOf::new(vec![bar.boxed(), foo.boxed()]);
-        let result = g.match_segments(segments, &mut ctx).unwrap().matched_segments;
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+        let g = AnyNumberOf::new(vec![Box::new(bar), Box::new(foo)]);
+        let result = g.match_segments(&segments, &mut ctx).unwrap().matched_segments;
 
         assert_eq!(result[0].get_raw().unwrap(), "bar");
         assert_eq!(result[1].get_raw().unwrap(), "  \t ");
@@ -545,7 +535,7 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
@@ -559,21 +549,19 @@ mod tests {
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
                 )
-                .boxed()
+                .to_erased_segment()
             },
             None,
             false,
             None,
         );
 
-        let g1 = one_of(vec![foo_regex.clone().boxed(), foo.clone().boxed()]);
-        let g2 = one_of(vec![foo.boxed(), foo_regex.boxed()]);
+        let g1 = one_of(vec![Box::new(foo_regex.clone()), Box::new(foo.clone())]);
+        let g2 = one_of(vec![Box::new(foo), Box::new(foo_regex)]);
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect());
+        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
-        for segment in
-            g1.match_segments(segments.clone(), &mut ctx).unwrap().matched_segments.iter()
-        {
+        for segment in g1.match_segments(&segments, &mut ctx).unwrap().matched_segments.iter() {
             assert_eq!(segment.get_raw().unwrap(), "foo");
             assert_eq!(
                 segment.get_position_marker().unwrap(),
@@ -581,8 +569,7 @@ mod tests {
             );
         }
 
-        for segment in
-            g2.match_segments(segments[2..].to_vec(), &mut ctx).unwrap().matched_segments.iter()
+        for segment in g2.match_segments(&segments[2..], &mut ctx).unwrap().matched_segments.iter()
         {
             assert_eq!(segment.get_raw().unwrap(), "foo");
             assert_eq!(

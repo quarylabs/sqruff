@@ -7,7 +7,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - identifier: table_name
+            - table_reference:
+              - object_reference:
+                - identifier: table_name
     - where_clause:
       - keyword: WHERE
       - expression:

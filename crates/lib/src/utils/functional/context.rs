@@ -1,12 +1,12 @@
 use super::segments::Segments;
 use crate::core::rules::context::RuleContext;
 
-pub struct FunctionalContext {
-    context: RuleContext,
+pub struct FunctionalContext<'a> {
+    context: RuleContext<'a>,
 }
 
-impl FunctionalContext {
-    pub fn new(context: RuleContext) -> FunctionalContext {
+impl<'a> FunctionalContext<'a> {
+    pub fn new(context: RuleContext<'a>) -> FunctionalContext {
         FunctionalContext { context }
     }
 
@@ -25,6 +25,10 @@ impl FunctionalContext {
 
     pub fn siblings_post(&self) -> Segments {
         Segments::from_vec(self.context.siblings_post(), self.context.templated_file.clone())
+    }
+
+    pub fn parent_stack(&self) -> Segments {
+        Segments::from_vec(self.context.parent_stack.clone(), self.context.templated_file.clone())
     }
 
     // pub fn raw_stack(&self) -> Segments {

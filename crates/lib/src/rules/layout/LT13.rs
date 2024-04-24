@@ -1,6 +1,8 @@
+use ahash::AHashMap;
 use itertools::Itertools;
 
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
@@ -9,16 +11,16 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleLT13 {}
 
 impl Rule for RuleLT13 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
     fn name(&self) -> &'static str {
         "layout.start_of_file"
     }
 
     fn description(&self) -> &'static str {
         "Files must not begin with newlines or whitespace."
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -40,7 +42,7 @@ impl Rule for RuleLT13 {
             if !raw_stack.all(Some(|seg| seg.is_meta())) {
                 return vec![LintResult::new(
                     context.segment.into(),
-                    raw_stack.into_iter().map(|seg| LintFix::delete(seg)).collect_vec(),
+                    raw_stack.into_iter().map(LintFix::delete).collect_vec(),
                     None,
                     None,
                     None,
@@ -51,6 +53,10 @@ impl Rule for RuleLT13 {
         }
 
         Vec::new()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler.into()
     }
 }
 

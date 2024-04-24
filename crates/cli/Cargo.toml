@@ -1,7 +1,7 @@
 [package]
 name = "sqruff"
 description = "A high-speed SQL linter."
-version = "0.1.4"
+version = "0.0.14"
 edition = "2021"
 license = "MIT"
 
@@ -13,8 +13,9 @@ harness = false
 jemalloc = ["jemallocator"]
 
 [dependencies]
-sqruff-lib = { version = "0.1.4", path = "../lib" }
+sqruff-lib = { version = "0.0.14", path = "../lib" }
 clap = { version = "4", features = ["derive"] }
+console = "0.15.8"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { version = "0.5", package = "tikv-jemallocator", optional = true }

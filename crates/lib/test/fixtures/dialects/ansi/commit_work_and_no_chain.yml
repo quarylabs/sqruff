@@ -1,0 +1,8 @@
+file:
+- statement:
+  - transaction_statement:
+    - keyword: commit
+    - keyword: work
+    - keyword: and
+    - keyword: no
+    - keyword: chain

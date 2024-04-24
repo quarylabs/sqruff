@@ -1,9 +1,9 @@
-use std::collections::HashSet;
-
+use ahash::AHashMap;
 use itertools::Itertools;
 
-use crate::core::parser::segments::base::{CloneSegment, Segment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -12,6 +12,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT06 {}
 
 impl Rule for RuleLT06 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT06::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.functions"
     }
@@ -20,34 +24,26 @@ impl Rule for RuleLT06 {
         "Function name not immediately followed by parenthesis."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["function".into()])).into()
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
         let children = segment.children(None);
 
         let function_name = children
-            .find_first(Some(|segment: &dyn Segment| segment.is_type("function_name")))
+            .find_first(Some(|segment: &ErasedSegment| segment.is_type("function_name")))
             .pop();
         let start_bracket =
-            children.find_first(Some(|segment: &dyn Segment| segment.is_type("bracketed"))).pop();
+            children.find_first(Some(|segment: &ErasedSegment| segment.is_type("bracketed"))).pop();
 
-        let mut intermediate_segments = children.select(
-            None,
-            None,
-            function_name.as_ref().into(),
-            start_bracket.as_ref().into(),
-        );
+        let mut intermediate_segments =
+            children.select(None, None, Some(&function_name), Some(&start_bracket));
 
         if !intermediate_segments.is_empty() {
             return if intermediate_segments
                 .all(Some(|seg| matches!(seg.get_type(), "whitespace" | "newline")))
             {
                 vec![LintResult::new(
-                    intermediate_segments.first().map(CloneSegment::clone_box),
-                    intermediate_segments.into_iter().map(|seg| LintFix::delete(seg)).collect_vec(),
+                    intermediate_segments.first().cloned(),
+                    intermediate_segments.into_iter().map(LintFix::delete).collect_vec(),
                     None,
                     None,
                     None,
@@ -58,6 +54,10 @@ impl Rule for RuleLT06 {
         }
 
         vec![]
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["function"].into()).into()
     }
 }
 

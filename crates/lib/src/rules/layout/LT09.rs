@@ -1,9 +1,11 @@
-use std::collections::HashSet;
-
+use ahash::AHashMap;
 use itertools::{enumerate, Itertools};
 
-use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
-use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::parser::segments::base::{
+    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
+use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -13,19 +15,26 @@ struct SelectTargetsInfo {
     select_idx: Option<usize>,
     first_new_line_idx: Option<usize>,
     first_select_target_idx: Option<usize>,
+
+    #[allow(dead_code)]
     first_whitespace_idx: Option<usize>,
     comment_after_select_idx: Option<usize>,
     select_targets: Segments,
-    from_segment: Option<Box<dyn Segment>>,
+    from_segment: Option<ErasedSegment>,
     pre_from_whitespace: Segments,
 }
 
 #[derive(Debug, Clone)]
 pub struct RuleLT09 {
-    wildcard_policy: &'static str,
+    wildcard_policy: String,
 }
 
 impl Rule for RuleLT09 {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT09 { wildcard_policy: config["wildcard_policy"].as_string().unwrap().to_owned() }
+            .erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.select_targets"
     }
@@ -34,18 +43,16 @@ impl Rule for RuleLT09 {
         "Select targets should be on a new line unless there is only one select target."
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["select_clause".into()])).into()
-    }
-
+    #[allow(unused_variables)]
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context.clone());
-        let select_clause = FunctionalContext::new(context.clone());
+        let select_clause = FunctionalContext::new(context.clone()).segment();
 
-        // let wildcards = select_clause
-        //     .children(sp.is_type("select_clause_element"))
-        //     .children(sp.is_type("wildcard_expression"));
-        let has_wildcard = false;
+        let wildcards = select_clause
+            .children(Some(|sp| sp.is_type("select_clause_element")))
+            .children(Some(|sp| sp.is_type("wildcard_expression")));
+
+        let has_wildcard = wildcards.is_empty();
 
         if select_targets_info.select_targets.len() == 1
             && (!has_wildcard || self.wildcard_policy == "single")
@@ -56,6 +63,10 @@ impl Rule for RuleLT09 {
         }
 
         unimplemented!()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 }
 
@@ -70,7 +81,7 @@ impl RuleLT09 {
             None,
         );
 
-        let first_select_target_idx = children.find(select_targets.get(0, None).unwrap().as_ref());
+        let first_select_target_idx = children.find(&select_targets.get(0, None).unwrap());
 
         let selects = children.select(
             Some(|segment| {
@@ -82,27 +93,26 @@ impl RuleLT09 {
             None,
         );
 
-        let select_idx = (!selects.is_empty())
-            .then(|| children.find(selects.get(0, None).unwrap().as_ref()).unwrap());
+        let select_idx =
+            (!selects.is_empty()).then(|| children.find(&selects.get(0, None).unwrap()).unwrap());
 
         let newlines = children.select(Some(|it| it.is_type("newline")), None, None, None);
 
-        let first_new_line_idx = (!newlines.is_empty())
-            .then(|| children.find(newlines.get(0, None).unwrap().as_ref()).unwrap());
+        let first_new_line_idx =
+            (!newlines.is_empty()).then(|| children.find(&newlines.get(0, None).unwrap()).unwrap());
         let mut comment_after_select_idx = None;
 
         if !newlines.is_empty() {
             let comment_after_select = children.select(
                 Some(|seg| seg.is_type("comment")),
                 Some(|seg| seg.is_type("comment") | seg.is_type("whitespace") | seg.is_meta()),
-                selects.get(0, None).as_deref(),
-                newlines.get(0, None).as_deref(),
+                selects.get(0, None).as_ref(),
+                newlines.get(0, None).as_ref(),
             );
 
             if !comment_after_select.is_empty() {
-                comment_after_select_idx = (!comment_after_select.is_empty()).then(|| {
-                    children.find(comment_after_select.get(0, None).unwrap().as_ref()).unwrap()
-                });
+                comment_after_select_idx = (!comment_after_select.is_empty())
+                    .then(|| children.find(&comment_after_select.get(0, None).unwrap()).unwrap());
             }
         }
 
@@ -111,26 +121,26 @@ impl RuleLT09 {
             let segments_after_first_line = children.select(
                 Some(|seg| seg.is_type("whitespace")),
                 None,
-                children[first_new_line_idx].as_ref().into(),
+                Some(&children[first_new_line_idx]),
                 None,
             );
 
             if !segments_after_first_line.is_empty() {
                 first_whitespace_idx =
-                    children.find(segments_after_first_line.get(0, None).unwrap().as_ref());
+                    children.find(&segments_after_first_line.get(0, None).unwrap());
             }
         }
 
         let siblings_post = FunctionalContext::new(context).siblings_post();
         let from_segment = siblings_post
-            .find_first(Some(|seg: &dyn Segment| seg.is_type("from_clause")))
-            .find_first::<fn(&dyn Segment) -> bool>(None)
+            .find_first(Some(|seg: &ErasedSegment| seg.is_type("from_clause")))
+            .find_first::<fn(&ErasedSegment) -> bool>(None)
             .get(0, None);
         let pre_from_whitespace = siblings_post.select(
             Some(|seg| seg.is_type("whitespace")),
             None,
             None,
-            from_segment.as_deref(),
+            from_segment.as_ref(),
         );
 
         SelectTargetsInfo {
@@ -148,7 +158,7 @@ impl RuleLT09 {
     fn eval_multiple_select_target_elements(
         &self,
         select_targets_info: SelectTargetsInfo,
-        segment: Box<dyn Segment>,
+        segment: ErasedSegment,
     ) -> Vec<LintResult> {
         let mut fixes = Vec::new();
 
@@ -182,10 +192,10 @@ impl RuleLT09 {
                     Some(|seg| seg.is_type("whitespace") | seg.is_type("comma") | seg.is_meta()),
                 );
 
-                fixes.extend(ws_to_delete.into_iter().map(|seg| LintFix::delete(seg)));
+                fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone_box(),
-                    vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                    vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                 ));
             }
 
@@ -199,12 +209,12 @@ impl RuleLT09 {
                             .pre_from_whitespace
                             .clone()
                             .into_iter()
-                            .map(|ws| LintFix::delete(ws)),
+                            .map(LintFix::delete),
                     );
 
                     fixes.push(LintFix::create_before(
                         from_segment.clone_box(),
-                        vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                        vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                     ));
                 }
             }
@@ -232,13 +242,27 @@ impl RuleLT09 {
         }
 
         let select_children = select_clause.children(None);
-        let modifier = select_children
-            .find_first(Some(|seg: &dyn Segment| seg.is_type("select_clause_modifier")));
+        let mut modifier = select_children
+            .find_first(Some(|seg: &ErasedSegment| seg.is_type("select_clause_modifier")));
+
+        if select_children[select_targets_info.first_select_target_idx.unwrap()]
+            .descendant_type_set()
+            .contains("newline")
+        {
+            return Vec::new();
+        }
 
         let mut insert_buff = vec![
-            WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
+
+        if !modifier.is_empty()
+            && select_children.index(&modifier.get(0, None).unwrap())
+                < select_targets_info.first_new_line_idx
+        {
+            modifier = Segments::from_vec(Vec::new(), None);
+        }
 
         let mut fixes = vec![LintFix::delete(
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
@@ -248,14 +272,13 @@ impl RuleLT09 {
             let buff = std::mem::take(&mut insert_buff);
 
             insert_buff = vec![
-                WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+                WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
                 modifier[0].clone(),
             ];
 
             insert_buff.extend(buff);
 
-            let modifier_idx =
-                select_children.index(modifier.get(0, None).unwrap().as_ref()).unwrap();
+            let modifier_idx = select_children.index(&modifier.get(0, None).unwrap()).unwrap();
 
             if select_children.len() > modifier_idx + 1
                 && select_children[modifier_idx + 2].is_whitespace()
@@ -275,13 +298,13 @@ impl RuleLT09 {
             let select_clause_idx = select_stmt
                 .segments()
                 .iter()
-                .position(|it| it.dyn_eq(select_clause.get(0, None).as_deref().unwrap()))
+                .position(|it| it.clone() == select_clause.get(0, None).unwrap())
                 .unwrap();
             let after_select_clause_idx = select_clause_idx + 1;
 
             let fixes_for_move_after_select_clause =
                 |fixes: &mut Vec<LintFix>,
-                 stop_seg: Box<dyn Segment>,
+                 stop_seg: ErasedSegment,
                  delete_segments: Option<Segments>,
                  add_newline: bool| {
                     let start_seg = if !modifier.is_empty() {
@@ -290,12 +313,8 @@ impl RuleLT09 {
                         select_children[select_targets_info.first_new_line_idx.unwrap()].clone()
                     };
 
-                    let move_after_select_clause = select_children.select(
-                        None,
-                        None,
-                        start_seg.as_ref().into(),
-                        stop_seg.as_ref().into(),
-                    );
+                    let move_after_select_clause =
+                        select_children.select(None, None, (&start_seg).into(), (&stop_seg).into());
                     let mut local_fixes = Vec::new();
                     let mut all_deletes = fixes
                         .iter()
@@ -311,14 +330,14 @@ impl RuleLT09 {
                         .iter()
                         .filter(|it| !all_deletes.contains(it))
                         .cloned()
-                        .map(|seg| LintFix::delete(seg));
+                        .map(LintFix::delete);
                     local_fixes.extend(new_fixes);
 
                     if !move_after_select_clause.is_empty() || add_newline {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone_box(),
                             if add_newline {
-                                vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())]
+                                vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())]
                             } else {
                                 vec![]
                             }
@@ -337,7 +356,7 @@ impl RuleLT09 {
                     let to_delete = select_children.reversed().select(
                         None,
                         Some(|seg| seg.is_type("whitespace")),
-                        select_children[start_idx].as_ref().into(),
+                        (&select_children[start_idx]).into(),
                         None,
                     );
 
@@ -357,7 +376,6 @@ impl RuleLT09 {
                             to_delete.into(),
                             true,
                         );
-
                         fixes.extend(new_fixes);
                     }
                 } else if select_stmt.segments()[after_select_clause_idx].is_type("whitespace") {
@@ -375,9 +393,38 @@ impl RuleLT09 {
 
                     fixes.extend(new_fixes);
                 } else if select_stmt.segments()[after_select_clause_idx].is_type("dedent") {
-                    unimplemented!()
+                    let start_seg = if select_clause_idx == 0 {
+                        select_children.last().unwrap()
+                    } else {
+                        &select_children[select_clause_idx - 1]
+                    };
+
+                    let to_delete = select_children.reversed().select(
+                        None,
+                        Some(|it| it.is_type("whitespace")),
+                        Some(start_seg),
+                        None,
+                    );
+
+                    if !to_delete.is_empty() {
+                        let add_newline = to_delete.iter().any(|it| it.is_type("newline"));
+                        let local_fixes = fixes_for_move_after_select_clause(
+                            &mut fixes,
+                            to_delete.last().unwrap().clone_box(),
+                            to_delete.into(),
+                            add_newline,
+                        );
+                        fixes.extend(local_fixes);
+                    }
                 } else {
-                    unimplemented!()
+                    let local_fixes = fixes_for_move_after_select_clause(
+                        &mut fixes,
+                        select_children[select_targets_info.first_select_target_idx.unwrap()]
+                            .clone_box(),
+                        None,
+                        true,
+                    );
+                    fixes.extend(local_fixes);
                 }
             }
         }
@@ -402,7 +449,7 @@ impl RuleLT09 {
 
 impl Default for RuleLT09 {
     fn default() -> Self {
-        Self { wildcard_policy: "single" }
+        Self { wildcard_policy: "single".into() }
     }
 }
 
@@ -698,7 +745,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_distinct_single_fail_a() {
         let fail_str = "
 SELECT distinct
@@ -715,7 +761,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_distinct_single_fail_b() {
         let fail_str = "
 SELECT
@@ -732,7 +777,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_single_select_with_no_from() {
         let fail_str = "SELECT\n   10000000\n";
         let expected_fixed_str = "SELECT 10000000\n";
@@ -742,7 +786,6 @@ FROM my_table";
     }
 
     #[test]
-    #[ignore]
     fn test_single_select_with_no_from_previous_comment() {
         let fail_str = "SELECT\n /* test */  10000000\n";
 
@@ -773,7 +816,6 @@ FROM
     }
 
     #[test]
-    #[ignore]
     fn test_single_select_with_comment_after_column_no_space() {
         let fail_str = "
 SELECT
@@ -855,7 +897,6 @@ INNER JOIN table2 ON (table1.id = table2.id);";
     }
 
     #[test]
-    #[ignore]
     fn test_multiline_single() {
         let pass_str = "
 SELECT
@@ -867,6 +908,6 @@ SELECT
 FROM test_table";
 
         let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert!(violations.is_empty(), "Expected no linting violations, but found some.");
+        assert_eq!(violations, []);
     }
 }

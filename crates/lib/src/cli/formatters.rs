@@ -78,34 +78,43 @@ impl OutputStreamFormatter {
 
     fn dispatch(&mut self, s: &str) {
         if !self.filter_empty || !s.trim().is_empty() {
-            self.output_stream.write(s.as_bytes()).unwrap();
+            _ = self.output_stream.write(s.as_bytes()).unwrap();
         }
     }
 
+    #[allow(dead_code)]
     fn format_config(&self) -> String {
         unimplemented!()
     }
 
+    #[allow(dead_code)]
     fn dispatch_config(&mut self) {
         self.dispatch(&self.format_config())
     }
 
+    #[allow(dead_code)]
     fn dispatch_persist_filename(&self) {}
 
+    #[allow(dead_code)]
     fn format_path(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_path(&self) {}
 
     pub fn dispatch_template_header(&self) {}
 
     pub fn dispatch_parse_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_lint_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_compilation_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_processing_header(&self) {}
 
+    #[allow(dead_code)]
     fn dispatch_dialect_warning(&self) {}
 
     fn format_file_violations(&mut self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
@@ -136,10 +145,9 @@ impl OutputStreamFormatter {
 
         text_buffer
     }
-
+    #[allow(unused_variables)]
     pub fn dispatch_file_violations(
         &mut self,
-        fname: &str,
         linted_file: &LintedFile,
         only_fixable: bool,
         warn_unused_ignores: bool,
@@ -149,7 +157,7 @@ impl OutputStreamFormatter {
         }
 
         let s = self.format_file_violations(
-            fname,
+            &linted_file.path,
             linted_file.get_violations(only_fixable.then_some(true)),
         );
 
@@ -164,8 +172,10 @@ impl OutputStreamFormatter {
         if plain_output { s.into() } else { format!("{style}{s}{style:#}").into() }
     }
 
+    #[allow(dead_code)]
     fn cli_table_row(&self) {}
 
+    #[allow(dead_code)]
     fn cli_table(&self) {}
 
     fn format_filename(&self, filename: &str, success: impl IntoStatus) -> String {
@@ -214,7 +224,7 @@ impl OutputStreamFormatter {
             desc.push_str(&text);
         }
 
-        let split_desc = split_string_on_spaces(&desc, max_line_length);
+        let split_desc = split_string_on_spaces(&desc, max_line_length - 25);
         let mut section_color = if violation.ignore || violation.warning {
             LIGHT_GREY
         } else {
@@ -244,6 +254,11 @@ impl OutputStreamFormatter {
         }
 
         out_buff
+    }
+
+    pub fn completion_message(&mut self) {
+        let message = if self.plain_output { "All Finished" } else { "All Finished 📜 🎉" };
+        self.dispatch(message);
     }
 }
 
@@ -287,20 +302,22 @@ impl Status {
 mod tests {
     use std::fs::File;
 
+    use ahash::AHashMap;
     use anstyle::AnsiColor;
     use fancy_regex::Regex;
     use tempdir::TempDir;
 
     use super::OutputStreamFormatter;
     use crate::cli::formatters::split_string_on_spaces;
+    use crate::core::config::Value;
     use crate::core::errors::SQLLintError;
     use crate::core::parser::markers::PositionMarker;
-    use crate::core::parser::segments::raw::RawSegment;
-    use crate::core::rules::base::{Erased, LintResult, Rule};
+    use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
+    use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
     use crate::core::templaters::base::TemplatedFile;
-    use crate::helpers::Boxed;
+    use crate::helpers::ToErasedSegment;
 
     #[test]
     fn test_short_string() {
@@ -324,7 +341,7 @@ mod tests {
 
     fn mk_formatter() -> (TempDir, OutputStreamFormatter) {
         let temp = TempDir::new(env!("CARGO_PKG_NAME")).unwrap();
-        let file = File::create(temp.path().join("out.txt")).unwrap().boxed();
+        let file = Box::new(File::create(temp.path().join("out.txt")).unwrap());
 
         (temp, OutputStreamFormatter::new(file, false))
     }
@@ -345,8 +362,16 @@ mod tests {
         struct RuleGhost;
 
         impl Rule for RuleGhost {
+            fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+                unimplemented!()
+            }
+
             fn name(&self) -> &'static str {
                 "some-name"
+            }
+
+            fn description(&self) -> &'static str {
+                ""
             }
 
             fn code(&self) -> &'static str {
@@ -362,7 +387,16 @@ mod tests {
             }
         }
 
-        let s = RawSegment::new(
+        let tempRawSegmentArgs = RawSegmentArgs {
+            _type: None,
+            _instance_types: None,
+            _source_fixes: None,
+            _trim_cars: None,
+            _trim_start: None,
+            _uuid: None,
+        };
+
+        let s = RawSegment::create(
             "foobarbar".to_owned().into(),
             PositionMarker::new(
                 10..19,
@@ -372,14 +406,9 @@ mod tests {
                 None,
             )
             .into(),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
+            tempRawSegmentArgs,
         )
-        .boxed();
+        .to_erased_segment();
 
         let mut v = SQLLintError::new("DESC", s);
 

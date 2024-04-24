@@ -1,32 +1,34 @@
-use std::collections::HashMap;
 use std::fmt::{self, Debug};
 use std::ops::Deref;
 use std::rc::Rc;
 
+use ahash::{AHashMap, AHashSet};
+use itertools::chain;
+
 use super::context::RuleContext;
 use super::crawlers::{BaseCrawler, Crawler};
-use crate::core::config::FluffConfig;
+use crate::core::config::{FluffConfig, Value};
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLLintError;
-use crate::core::parser::segments::base::Segment;
-use crate::helpers::Config;
-
-// Assuming BaseSegment, LintFix, and SQLLintError are defined elsewhere.
+use crate::core::parser::segments::base::ErasedSegment;
+use crate::helpers::{Config, IndexMap};
 
 #[derive(Clone)]
 pub struct LintResult {
-    anchor: Option<Box<dyn Segment>>,
+    pub anchor: Option<ErasedSegment>,
     pub fixes: Vec<LintFix>,
-    memory: Option<HashMap<String, String>>, // Adjust type as needed
+
+    #[allow(dead_code)]
+    memory: Option<AHashMap<String, String>>, // Adjust type as needed
     description: Option<String>,
     source: String,
 }
 
 impl LintResult {
     pub fn new(
-        anchor: Option<Box<dyn Segment>>,
+        anchor: Option<ErasedSegment>,
         fixes: Vec<LintFix>,
-        memory: Option<HashMap<String, String>>, // Adjust type as needed
+        memory: Option<AHashMap<String, String>>,
         description: Option<String>,
         source: Option<String>,
     ) -> Self {
@@ -107,17 +109,17 @@ pub enum EditType {
 #[derive(Debug, Clone)]
 pub struct LintFix {
     pub edit_type: EditType,
-    pub anchor: Box<dyn Segment>,
-    pub edit: Option<Vec<Box<dyn Segment>>>,
-    pub source: Vec<Box<dyn Segment>>,
+    pub anchor: ErasedSegment,
+    pub edit: Option<Vec<ErasedSegment>>,
+    pub source: Vec<ErasedSegment>,
 }
 
 impl LintFix {
     fn new(
         edit_type: EditType,
-        anchor: Box<dyn Segment>,
-        edit: Option<Vec<Box<dyn Segment>>>,
-        source: Option<Vec<Box<dyn Segment>>>,
+        anchor: ErasedSegment,
+        edit: Option<Vec<ErasedSegment>>,
+        source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         // If `edit` is provided, copy all elements and strip position markers.
         let mut clean_edit = None;
@@ -130,7 +132,7 @@ impl LintFix {
                         "Developer Note: Edit segment found with preset position marker. These \
                          should be unset and calculated later."
                     );
-                    seg.set_position_marker(None);
+                    // seg.get_mut().set_position_marker(None);
                 };
             }
             clean_edit = Some(edit);
@@ -144,27 +146,27 @@ impl LintFix {
         LintFix { edit_type, anchor, edit: clean_edit, source: clean_source }
     }
 
-    pub fn create_before(anchor: Box<dyn Segment>, edit_segments: Vec<Box<dyn Segment>>) -> Self {
+    pub fn create_before(anchor: ErasedSegment, edit_segments: Vec<ErasedSegment>) -> Self {
         Self::new(EditType::CreateBefore, anchor, edit_segments.into(), None)
     }
 
     pub fn create_after(
-        anchor: Box<dyn Segment>,
-        edit_segments: Vec<Box<dyn Segment>>,
-        source: Option<Vec<Box<dyn Segment>>>,
+        anchor: ErasedSegment,
+        edit_segments: Vec<ErasedSegment>,
+        source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         Self::new(EditType::CreateAfter, anchor, edit_segments.into(), source)
     }
 
     pub fn replace(
-        anchor_segment: Box<dyn Segment>,
-        edit_segments: Vec<Box<dyn Segment>>,
-        source: Option<Vec<Box<dyn Segment>>>,
+        anchor_segment: ErasedSegment,
+        edit_segments: Vec<ErasedSegment>,
+        source: Option<Vec<ErasedSegment>>,
     ) -> Self {
         Self::new(EditType::Replace, anchor_segment, Some(edit_segments), source)
     }
 
-    pub fn delete(anchor_segment: Box<dyn Segment>) -> Self {
+    pub fn delete(anchor_segment: ErasedSegment) -> Self {
         Self::new(EditType::Delete, anchor_segment, None, None)
     }
 
@@ -234,28 +236,27 @@ impl<T: Rule> CloneRule for T {
 }
 
 pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
-    fn from_config(_config: &FluffConfig) -> Self
-    where
-        Self: Default,
-    {
-        Self::default()
-    }
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule;
 
     fn lint_phase(&self) -> &'static str {
         "main"
     }
 
-    fn name(&self) -> &'static str {
-        std::any::type_name::<Self>()
+    fn name(&self) -> &'static str;
+
+    fn config_ref(&self) -> &'static str {
+        self.name()
+    }
+
+    fn description(&self) -> &'static str;
+
+    fn groups(&self) -> &'static [&'static str] {
+        &["all"]
     }
 
     fn code(&self) -> &'static str {
         let name = std::any::type_name::<Self>();
         name.split("::").last().unwrap().strip_prefix("Rule").unwrap_or(name)
-    }
-
-    fn description(&self) -> &'static str {
-        "write description"
     }
 
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult>;
@@ -268,13 +269,23 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
 
     fn crawl(
         &self,
-        dialect: Dialect,
+        dialect: &Dialect,
         fix: bool,
-        tree: Box<dyn Segment>,
-        config: FluffConfig,
+        tree: ErasedSegment,
+        config: &FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
-        let root_context =
-            RuleContext { dialect, fix, config: config.into(), segment: tree, ..<_>::default() };
+        let root_context = RuleContext {
+            dialect,
+            fix,
+            config: Some(config),
+            segment: tree,
+            templated_file: <_>::default(),
+            path: <_>::default(),
+            parent_stack: <_>::default(),
+            raw_stack: <_>::default(),
+            memory: <_>::default(),
+            segment_idx: 0,
+        };
         let mut vs = Vec::new();
         let mut fixes = Vec::new();
 
@@ -326,6 +337,8 @@ pub struct ErasedRule {
 }
 
 impl PartialEq for ErasedRule {
+    #[allow(unused_variables)]
+    #[allow(unused_variables)]
     fn eq(&self, other: &Self) -> bool {
         unimplemented!()
     }
@@ -350,5 +363,149 @@ impl<T: Rule> Erased for T {
 
     fn erased(self) -> Self::Erased {
         ErasedRule { erased: Rc::new(self) }
+    }
+}
+
+pub struct RuleManifest {
+    pub code: &'static str,
+    pub name: &'static str,
+    pub description: &'static str,
+    pub groups: &'static [&'static str],
+    pub aliases: Vec<&'static str>,
+    pub rule_class: ErasedRule,
+}
+
+pub struct RulePack {
+    pub(crate) rules: Vec<ErasedRule>,
+    _reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
+}
+
+pub struct RuleSet {
+    pub(crate) _name: String,
+    pub(crate) _config_info: AHashMap<String, String>,
+    pub(crate) register: IndexMap<&'static str, RuleManifest>,
+}
+
+impl RuleSet {
+    fn rule_reference_map(&self) -> AHashMap<&'static str, AHashSet<&'static str>> {
+        let valid_codes: AHashSet<_> = self.register.keys().cloned().collect();
+
+        let reference_map: AHashMap<_, AHashSet<_>> =
+            valid_codes.iter().map(|&code| (code, AHashSet::from([code]))).collect();
+
+        let name_map = {
+            let mut name_map = AHashMap::new();
+            for manifest in self.register.values() {
+                name_map.entry(manifest.name).or_insert_with(AHashSet::new).insert(manifest.code);
+            }
+            name_map
+        };
+
+        let name_collisions: AHashSet<_> = {
+            let name_keys: AHashSet<_> = name_map.keys().cloned().collect();
+            name_keys.intersection(&valid_codes).copied().collect()
+        };
+
+        if !name_collisions.is_empty() {
+            tracing::warn!(
+                "The following defined rule names were found which collide with codes. Those \
+                 names will not be available for selection: {name_collisions:?}",
+            );
+        }
+
+        let reference_map: AHashMap<_, _> = chain(name_map, reference_map).collect();
+
+        let mut group_map: AHashMap<_, AHashSet<&'static str>> = AHashMap::new();
+        for manifest in self.register.values() {
+            for group in manifest.groups {
+                if let Some(codes) = reference_map.get(*group) {
+                    tracing::warn!(
+                        "Rule {} defines group '{}' which is already defined as a name or code of \
+                         {:?}. This group will not be available for use as a result of this \
+                         collision.",
+                        manifest.code,
+                        group,
+                        codes
+                    );
+                } else {
+                    group_map.entry(*group).or_insert_with(AHashSet::new).insert(manifest.code);
+                }
+            }
+        }
+
+        let reference_map: AHashMap<_, _> = chain(group_map, reference_map).collect();
+
+        let mut alias_map: AHashMap<_, AHashSet<&'static str>> = AHashMap::new();
+        for manifest in self.register.values() {
+            for alias in &manifest.aliases {
+                if let Some(codes) = reference_map.get(alias) {
+                    tracing::warn!(
+                        "Rule {} defines alias '{}' which is already defined as a name, code or \
+                         group of {:?}. This alias will not be available for use as a result of \
+                         this collision.",
+                        manifest.code,
+                        alias,
+                        codes
+                    );
+                } else {
+                    alias_map.entry(*alias).or_insert_with(AHashSet::new).insert(manifest.code);
+                }
+            }
+        }
+
+        chain(alias_map, reference_map).collect()
+    }
+
+    fn expand_rule_refs(
+        &self,
+        glob_list: Vec<String>,
+        reference_map: &AHashMap<&'static str, AHashSet<&'static str>>,
+    ) -> AHashSet<&'static str> {
+        let mut expanded_rule_set = AHashSet::new();
+
+        for r in glob_list {
+            expanded_rule_set.extend(reference_map[r.as_str()].clone());
+        }
+
+        expanded_rule_set
+    }
+
+    pub(crate) fn get_rulepack(&self, config: &FluffConfig) -> RulePack {
+        let reference_map = self.rule_reference_map();
+        let rules = config.get_section("rules");
+        let keylist = self.register.keys();
+        let mut instantiated_rules = Vec::with_capacity(keylist.len());
+
+        let allowlist: Vec<String> = match config.get("rule_allowlist", "core").as_array() {
+            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            None => self.register.keys().map(|it| it.to_string()).collect(),
+        };
+
+        let denylist: Vec<String> = match config.get("rule_denylist", "core").as_array() {
+            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            None => Vec::new(),
+        };
+
+        let expanded_allowlist = self.expand_rule_refs(allowlist, &reference_map);
+        let expanded_denylist = self.expand_rule_refs(denylist, &reference_map);
+
+        let keylist: Vec<_> = keylist
+            .into_iter()
+            .filter(|&&r| expanded_allowlist.contains(r) && !expanded_denylist.contains(r))
+            .collect();
+
+        for code in keylist {
+            let rule = self.register[code].rule_class.clone();
+            let rule_config_ref = rule.config_ref();
+
+            let tmp = AHashMap::new();
+
+            let specific_rule_config =
+                rules.get(rule_config_ref).and_then(|section| section.as_map()).unwrap_or(&tmp);
+
+            instantiated_rules.push(rule.load_from_config(specific_rule_config));
+        }
+
+        RulePack { rules: instantiated_rules, _reference_map: reference_map }
     }
 }

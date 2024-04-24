@@ -1,0 +1,44 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - remove me: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: A_TABLE
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - identifier: margin
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - object_reference:
+                              - identifier: B_TABLE
+                - end_bracket: )
+          - keyword: USING
+          - bracketed:
+            - start_bracket: (
+            - identifier: SOME_COLUMN
+            - end_bracket: )

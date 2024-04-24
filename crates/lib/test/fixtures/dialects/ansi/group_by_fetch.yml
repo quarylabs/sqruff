@@ -1,0 +1,27 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: status
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: orders
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - identifier: status
+    - fetch_clause:
+      - keyword: FETCH
+      - keyword: FIRST
+      - numeric_literal: '3'
+      - keyword: ROWS
+      - keyword: ONLY

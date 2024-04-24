@@ -32,6 +32,14 @@ You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
 brew install quarylabs/quary/sqruff
 ```
 
+#### Linux
+
+Using Bash:
+
+```
+curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | bash
+```
+
 #### For other platforms
 
 For other platforms, compilie sqruff with cargo with the following commands.

@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
 use itertools::{chain, Itertools};
 
@@ -16,7 +15,7 @@ pub trait BaseCrawler {
         self.works_on_unparsable() || !segment.is_type("unparsable")
     }
 
-    fn crawl(&self, context: RuleContext) -> Vec<RuleContext>;
+    fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>>;
 }
 
 #[enum_dispatch(BaseCrawler)]
@@ -33,19 +32,19 @@ pub enum Crawler {
 pub struct RootOnlyCrawler;
 
 impl BaseCrawler for RootOnlyCrawler {
-    fn crawl(&self, context: RuleContext) -> Vec<RuleContext> {
+    fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
         if self.passes_filter(&*context.segment) { vec![context.clone()] } else { Vec::new() }
     }
 }
 
 pub struct SegmentSeekerCrawler {
-    types: HashSet<&'static str>,
+    types: AHashSet<&'static str>,
     provide_raw_stack: bool,
     allow_recurse: bool,
 }
 
 impl SegmentSeekerCrawler {
-    pub fn new(types: HashSet<&'static str>) -> Self {
+    pub fn new(types: AHashSet<&'static str>) -> Self {
         Self { types, provide_raw_stack: false, allow_recurse: true }
     }
 
@@ -55,7 +54,7 @@ impl SegmentSeekerCrawler {
 }
 
 impl BaseCrawler for SegmentSeekerCrawler {
-    fn crawl(&self, mut context: RuleContext) -> Vec<RuleContext> {
+    fn crawl<'a>(&self, mut context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
         let mut acc = Vec::new();
 
         let self_match = false;
@@ -64,19 +63,22 @@ impl BaseCrawler for SegmentSeekerCrawler {
             acc.push(context.clone());
         }
 
-        if !context.segment.segments().is_empty() && (self_match && !self.allow_recurse) {
-            if self.provide_raw_stack {
-                unimplemented!();
-                return acc;
-            }
+        if !context.segment.segments().is_empty()
+            && (self_match && !self.allow_recurse)
+            && self.provide_raw_stack
+        {
+            unimplemented!();
+            //   return acc;
         }
 
-        if self.types.is_disjoint(
+        self.types.is_disjoint(
             &context.segment.descendant_type_set().iter().map(|it| it.as_str()).collect(),
-        ) {}
+        );
 
         let new_parent_stack =
             chain(context.parent_stack, Some(context.segment.clone())).collect_vec();
+
+        #[allow(clippy::assigning_clones)]
         for (idx, child) in context.segment.gather_segments().into_iter().enumerate() {
             context.segment = child;
             context.parent_stack = new_parent_stack.clone();

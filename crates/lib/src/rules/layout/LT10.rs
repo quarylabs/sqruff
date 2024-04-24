@@ -1,9 +1,11 @@
-use std::collections::HashSet;
-
+use ahash::AHashMap;
 use itertools::chain;
 
-use crate::core::parser::segments::base::{NewlineSegment, Segment, WhitespaceSegment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::parser::segments::base::{
+    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -12,12 +14,16 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT10 {}
 
 impl Rule for RuleLT10 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT10::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.select_modifiers"
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
+    fn description(&self) -> &'static str {
+        "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -27,7 +33,7 @@ impl Rule for RuleLT10 {
 
         // See if we have a select_clause_modifier.
         let select_clause_modifier_seg = child_segments
-            .find_first(Some(|sp: &dyn Segment| sp.is_type("select_clause_modifier")));
+            .find_first(Some(|sp: &ErasedSegment| sp.is_type("select_clause_modifier")));
 
         // Rule doesn't apply if there's no select clause modifier.
         if select_clause_modifier_seg.is_empty() {
@@ -71,12 +77,12 @@ impl Rule for RuleLT10 {
 
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
-            WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
             select_clause_modifier.clone_box(),
         ];
 
         if trailing_newline_segments.is_empty() {
-            edit_segments.push(NewlineSegment::new("\n", &<_>::default(), <_>::default()));
+            edit_segments.push(NewlineSegment::create("\n", &<_>::default(), <_>::default()));
         }
 
         let mut fixes = Vec::new();
@@ -84,12 +90,10 @@ impl Rule for RuleLT10 {
         fixes.push(LintFix::create_after(select_keyword.clone_box(), edit_segments, None));
 
         if trailing_newline_segments.is_empty() {
-            fixes.extend(
-                leading_newline_segments.into_iter().map(|segment| LintFix::delete(segment)),
-            );
+            fixes.extend(leading_newline_segments.into_iter().map(LintFix::delete));
         } else {
             let segments = chain(leading_newline_segments, leading_whitespace_segments);
-            fixes.extend(segments.map(|segment| LintFix::delete(segment)));
+            fixes.extend(segments.map(LintFix::delete));
         }
 
         let trailing_whitespace_segments = child_segments.select(
@@ -100,15 +104,17 @@ impl Rule for RuleLT10 {
         );
 
         if !trailing_whitespace_segments.is_empty() {
-            fixes.extend(
-                trailing_whitespace_segments.into_iter().map(|segment| LintFix::delete(segment)),
-            );
+            fixes.extend(trailing_whitespace_segments.into_iter().map(LintFix::delete));
         }
 
         // Delete the original select clause modifier.
         fixes.push(LintFix::delete(select_clause_modifier.clone_box()));
 
         vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 }
 

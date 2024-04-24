@@ -1,21 +1,23 @@
-use std::collections::HashSet;
 use std::ops::Range;
 
+use ahash::AHashSet;
 use itertools::Itertools;
 
 use crate::core::errors::{SQLBaseError, SQLLintError};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::fix::FixPatch;
 use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 
 #[derive(Debug)]
 pub struct LintedFile {
-    pub tree: Box<dyn Segment>,
+    pub path: String,
+    pub tree: ErasedSegment,
     pub templated_file: TemplatedFile,
     pub violations: Vec<SQLLintError>,
 }
 
 impl LintedFile {
+    #[allow(unused_variables)]
     pub fn get_violations(&self, fixable: Option<bool>) -> Vec<SQLBaseError> {
         self.violations.clone().into_iter().map(Into::into).collect_vec()
     }
@@ -78,13 +80,14 @@ impl LintedFile {
         )
     }
 
+    #[allow(unused_variables)]
     fn generate_source_patches(
-        tree: Box<dyn Segment>,
+        tree: ErasedSegment,
         templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
         // Placeholder for logger setup or integration
         let mut filtered_source_patches = Vec::new();
-        let mut dedupe_buffer = HashSet::new();
+        let mut dedupe_buffer = AHashSet::new();
 
         for (idx, patch) in tree.iter_patches(templated_file).into_iter().enumerate() {
             // Log patch details
@@ -146,7 +149,7 @@ impl LintedFile {
                 let next_so_slice = source_only_slices.remove(0).source_slice();
                 // Add a pre-slice before the next templated slices if needed.
                 if next_so_slice.end > source_idx {
-                    slice_buff.push(source_idx..next_so_slice.start.clone());
+                    slice_buff.push(source_idx..next_so_slice.start);
                 }
                 // Add the templated slice.
                 slice_buff.push(next_so_slice.clone());
@@ -204,7 +207,7 @@ mod test {
             (vec![0..1], vec![], "a", "a"),
             // Simple replacement
             (
-                vec![(0..1), (1..2), (2..3)],
+                vec![0..1, 1..2, 2..3],
                 vec![FixPatch::new(
                     1..2,
                     "d".to_string(),
@@ -218,7 +221,7 @@ mod test {
             ),
             // Simple insertion
             (
-                vec![(0..1), (1..1), (1..2)],
+                vec![0..1, 1..1, 1..2],
                 vec![FixPatch::new(
                     1..1,
                     "b".to_string(),
@@ -232,7 +235,7 @@ mod test {
             ),
             // Simple deletion
             (
-                vec![(0..1), (1..2), (2..3)],
+                vec![0..1, 1..2, 2..3],
                 vec![FixPatch::new(
                     1..2,
                     "".to_string(),
@@ -247,7 +250,7 @@ mod test {
             // Illustrative templated example (although practically at this step, the routine
             // shouldn't care if it's templated).
             (
-                vec![(0..2), (2..7), (7..9)],
+                vec![0..2, 2..7, 7..9],
                 vec![FixPatch::new(
                     2..3,
                     "{{ b }}".to_string(),
@@ -277,6 +280,7 @@ mod test {
     ///     This is part of fix_string().
     #[test]
     fn test__slice_source_file_using_patches() {
+        #[allow(clippy::single_range_in_vec_init)]
         let test_cases = [
             (
                 // Trivial example.
@@ -463,9 +467,12 @@ mod test {
         }
     }
 
+    #[allow(dead_code)]
     fn templated_file_1() -> TemplatedFile {
         TemplatedFile::from_string("abc".to_string())
     }
+
+    #[allow(dead_code)]
     fn templated_file_2() -> TemplatedFile {
         TemplatedFile::new(
             "{# blah #}{{ foo }}bc".to_string(),

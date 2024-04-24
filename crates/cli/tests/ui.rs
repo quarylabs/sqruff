@@ -4,13 +4,13 @@ use ui_test::status_emitter::Text;
 use ui_test::*;
 
 fn main() -> Result<()> {
+    let profile = if cfg!(debug_assertions) { "debug" } else { "release" };
+
     let mut config = Config::rustc("tests/ui");
     config.host = Some("".into());
-    config.program.program = "../../target/debug/sqruff".into();
+    config.program.program = format!("../../target/{profile}/sqruff").into();
     config.program.out_dir_flag = None;
     config.program.args = vec!["lint".into()];
-
-    config.stderr_filter("Developer Note.*(?s)(?:\n|^)", "");
 
     std::mem::swap(&mut config.comment_defaults.base().edition, &mut <_>::default());
     config.comment_defaults.base().mode =

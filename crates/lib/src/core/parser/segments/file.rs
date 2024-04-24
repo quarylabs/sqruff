@@ -1,18 +1,22 @@
 use uuid::Uuid;
 
+use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
+use crate::helpers::ToErasedSegment;
 /// A segment representing a whole file or script.
 ///
 ///     This is also the default "root" segment of the dialect,
 ///     and so is usually instantiated directly. It therefore
 ///     has no match_grammar.
 #[derive(Hash, Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 struct BaseFileSegment {
     pub f_name: Option<String>,
 }
 
+#[allow(dead_code)]
 struct BaseFileSegmentNewArgs {
     f_name: Option<String>,
 }
@@ -62,22 +66,19 @@ impl Segment for BaseFileSegment {
         todo!()
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 }
 
 impl BaseFileSegment {
-    pub fn new(
-        _segments: Vec<Box<dyn Segment>>,
+    #[allow(dead_code)]
+    pub fn create(
+        _segments: Vec<ErasedSegment>,
         _position_maker: Option<PositionMarker>,
         f_name: Option<String>,
-    ) -> Box<dyn Segment> {
-        Box::new(BaseFileSegment { f_name })
+    ) -> ErasedSegment {
+        BaseFileSegment { f_name }.to_erased_segment()
     }
 }
 
@@ -89,7 +90,8 @@ mod test {
     #[test]
     fn test__parser__base_segments_file() {
         let segments = raw_segments();
-        let base_seg = BaseFileSegment::new(segments, None, Some("/some/dir/file.sql".to_string()));
+        let base_seg =
+            BaseFileSegment::create(segments, None, Some("/some/dir/file.sql".to_string()));
 
         assert_eq!(base_seg.get_type(), "file");
         assert_eq!(base_seg.get_file_path(), Some("/some/dir/file.sql".to_string()));

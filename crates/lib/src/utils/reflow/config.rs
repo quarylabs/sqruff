@@ -1,12 +1,11 @@
-use std::collections::{HashMap, HashSet};
-
+use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::DepthInfo;
 
-type ConfigElementType = HashMap<String, String>;
-type ConfigDictType = HashMap<String, ConfigElementType>;
+type ConfigElementType = AHashMap<String, String>;
+type ConfigDictType = AHashMap<String, ConfigElementType>;
 
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -15,6 +14,12 @@ pub struct BlockConfig {
     pub spacing_after: String,
     pub spacing_within: Option<String>,
     pub line_position: Option<String>,
+}
+
+impl Default for BlockConfig {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl BlockConfig {
@@ -36,7 +41,7 @@ impl BlockConfig {
         line_position: Option<&str>,
         config: Option<&ConfigElementType>,
     ) {
-        let empty = HashMap::new();
+        let empty = AHashMap::new();
         let config = config.unwrap_or(&empty);
 
         self.spacing_before = before
@@ -64,10 +69,10 @@ impl BlockConfig {
 /// This acts as the primary translation engine between configuration
 /// held either in dicts for testing, or in the FluffConfig in live
 /// usage, and the configuration used during reflow operations.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
-    config_types: HashSet<String>,
+    config_types: AHashSet<String>,
     /// In production, these values are almost _always_ set because we
     /// use `.from_fluff_config`, but the defaults are here to aid in
     /// testing.
@@ -75,7 +80,7 @@ pub struct ReflowConfig {
     indent_unit: String,
     max_line_length: usize,
     hanging_indents: bool,
-    skip_indentation_in: HashSet<String>,
+    skip_indentation_in: AHashSet<String>,
     allow_implicit_indents: bool,
     trailing_comments: String,
 }
@@ -83,7 +88,7 @@ pub struct ReflowConfig {
 impl ReflowConfig {
     pub fn get_block_config(
         &self,
-        block_class_types: &HashSet<String>,
+        block_class_types: &AHashSet<String>,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
         let configured_types = self.config_types.intersection(block_class_types);
@@ -96,11 +101,11 @@ impl ReflowConfig {
             for (idx, key) in depth_info.stack_hashes.iter().rev().enumerate() {
                 let stack_position = &depth_info.stack_positions[key];
 
-                if !["solo", "start"].contains(&stack_position.type_.as_str()) {
+                if !["solo", "start"].contains(&stack_position.type_) {
                     parent_start = false;
                 }
 
-                if !["solo", "end"].contains(&stack_position.type_.as_str()) {
+                if !["solo", "end"].contains(&stack_position.type_) {
                     parent_end = false;
                 }
 
@@ -153,9 +158,9 @@ impl ReflowConfig {
         block_config
     }
 
-    pub fn from_fluff_config(config: FluffConfig) -> ReflowConfig {
+    pub fn from_fluff_config(config: &FluffConfig) -> ReflowConfig {
         let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
-        let config_types: HashSet<_> = configs.keys().cloned().collect();
+        let config_types: AHashSet<_> = configs.keys().cloned().collect();
 
         ReflowConfig {
             configs: convert_to_config_dict(configs),
@@ -169,7 +174,7 @@ impl ReflowConfig {
             skip_indentation_in: config.raw["indentation"]["indent_unit"]
                 .as_string()
                 .unwrap()
-                .split(",")
+                .split(',')
                 .map(ToOwned::to_owned)
                 .collect(),
             allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]
@@ -183,7 +188,7 @@ impl ReflowConfig {
     }
 }
 
-fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
+fn convert_to_config_dict(input: AHashMap<String, Value>) -> ConfigDictType {
     let mut config_dict = ConfigDictType::new();
 
     for (key, value) in input {

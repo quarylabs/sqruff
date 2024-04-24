@@ -1,11 +1,13 @@
-use std::collections::{BTreeSet, HashSet};
+use std::collections::BTreeSet;
 
+use ahash::AHashSet;
 use fancy_regex::Regex;
+use uuid::Uuid;
 
 use super::context::ParseContext;
 use super::match_result::MatchResult;
 use super::matchable::Matchable;
-use super::segments::base::Segment;
+use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
 use crate::helpers::HashableFancyRegex;
 
@@ -18,13 +20,13 @@ pub struct TypedParser {
     optional: bool,
     trim_chars: Option<Vec<char>>,
 
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
+    factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
 impl TypedParser {
     pub fn new(
         template: &str,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>,
+        factory: fn(&dyn Segment) -> ErasedSegment,
         /* raw_class: RawSegment, */
         type_: Option<String>,
         optional: bool,
@@ -56,7 +58,7 @@ impl TypedParser {
         }
     }
 
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -86,14 +88,14 @@ impl Matchable for TypedParser {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         let _ = (parse_context, crumbs);
-        (HashSet::new(), self.target_types.clone().into_iter().collect()).into()
+        (AHashSet::new(), self.target_types.clone().into_iter().collect()).into()
     }
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -103,7 +105,7 @@ impl Matchable for TypedParser {
             }
         };
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 }
 
@@ -112,17 +114,18 @@ impl Matchable for TypedParser {
 pub struct StringParser {
     template: String,
     simple: BTreeSet<String>,
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
+    factory: fn(&dyn Segment) -> ErasedSegment,
     type_: Option<String>, /* Renamed `type` to `type_` because `type` is a reserved keyword in
                             * Rust */
     optional: bool,
     trim_chars: Option<Vec<char>>,
+    cache_key: String,
 }
 
 impl StringParser {
     pub fn new(
         template: &str,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>,
+        factory: fn(&dyn Segment) -> ErasedSegment,
         type_: Option<String>,
         optional: bool,
         trim_chars: Option<Vec<char>>,
@@ -137,13 +140,14 @@ impl StringParser {
             type_,
             optional,
             trim_chars,
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
-    pub fn simple(&self, _parse_cx: &ParseContext) -> (HashSet<String>, HashSet<String>) {
-        // Assuming SimpleHintType is a type alias for (&HashSet<String>,
-        // HashSet<String>)
-        (self.simple.clone().into_iter().collect(), HashSet::new())
+    pub fn simple(&self, _parse_cx: &ParseContext) -> (AHashSet<String>, AHashSet<String>) {
+        // Assuming SimpleHintType is a type alias for (&AHashSet<String>,
+        // AHashSet<String>)
+        (self.simple.clone().into_iter().collect(), AHashSet::new())
     }
 
     pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
@@ -153,7 +157,7 @@ impl StringParser {
 }
 
 impl StringParser {
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -183,38 +187,40 @@ impl Matchable for StringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         (self.simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
+    #[allow(unused_variables)]
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        let match_result = if !segments.is_empty() {
+        if !segments.is_empty() {
             let segment = &*segments[0];
             if let Some(seg) = self.match_single(segment) {
                 return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
             }
         };
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 
 #[derive(Hash, Debug, Clone)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct RegexParser {
     template: String,
     anti_template: Option<String>,
     _template: HashableFancyRegex,
     _anti_template: HashableFancyRegex,
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
-    // Add other fields as needed
+    factory: fn(&dyn Segment) -> ErasedSegment,
+    cache_key: String, // Add other fields as needed
 }
 
 impl PartialEq for RegexParser {
@@ -230,7 +236,7 @@ impl PartialEq for RegexParser {
 impl RegexParser {
     pub fn new(
         template: &str,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>,
+        factory: fn(&dyn Segment) -> ErasedSegment,
         _type_: Option<String>,
         _optional: bool,
         anti_template: Option<String>,
@@ -246,6 +252,7 @@ impl RegexParser {
             _template: HashableFancyRegex(template_pattern),
             _anti_template: HashableFancyRegex(anti_template_pattern),
             factory, // Initialize other fields here
+            cache_key: Uuid::new_v4().hyphenated().to_string(),
         }
     }
 
@@ -269,7 +276,7 @@ impl RegexParser {
         false
     }
 
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -299,7 +306,7 @@ impl Matchable for RegexParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
         None
@@ -307,7 +314,7 @@ impl Matchable for RegexParser {
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -317,11 +324,11 @@ impl Matchable for RegexParser {
             }
         }
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
     fn cache_key(&self) -> String {
-        todo!()
+        self.cache_key.clone()
     }
 }
 
@@ -329,14 +336,14 @@ impl Matchable for RegexParser {
 pub struct MultiStringParser {
     templates: BTreeSet<String>,
     _simple: BTreeSet<String>,
-    factory: fn(&dyn Segment) -> Box<dyn Segment>,
+    factory: fn(&dyn Segment) -> ErasedSegment,
     // Add other fields as needed
 }
 
 impl MultiStringParser {
     pub fn new(
         templates: Vec<String>,
-        factory: fn(&dyn Segment) -> Box<dyn Segment>, // Assuming RawSegment is defined elsewhere
+        factory: fn(&dyn Segment) -> ErasedSegment, // Assuming RawSegment is defined elsewhere
         _type_: Option<String>,
         _optional: bool,
         _trim_chars: Option<Vec<String>>, // Assuming trim_chars is a vector of strings
@@ -344,7 +351,7 @@ impl MultiStringParser {
         let templates = templates
             .iter()
             .map(|template| template.to_ascii_uppercase())
-            .collect::<HashSet<String>>();
+            .collect::<AHashSet<String>>();
         let _simple = templates.clone();
 
         Self {
@@ -355,13 +362,14 @@ impl MultiStringParser {
         }
     }
 
+    #[allow(dead_code)]
     fn simple(
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<String>>,
-    ) -> (HashSet<String>, HashSet<String>) {
+    ) -> (AHashSet<String>, AHashSet<String>) {
         // Return the simple options (templates) and an empty set of hints
-        (self._simple.clone().into_iter().collect(), HashSet::new())
+        (self._simple.clone().into_iter().collect(), AHashSet::new())
     }
 
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
@@ -370,7 +378,7 @@ impl MultiStringParser {
             && self.templates.contains(&segment.get_raw().unwrap().to_ascii_uppercase())
     }
 
-    fn match_single(&self, segment: &dyn Segment) -> Option<Box<dyn Segment>> {
+    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
             return None;
@@ -400,13 +408,13 @@ impl Matchable for MultiStringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(HashSet<String>, HashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
         (self._simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
     fn match_segments(
         &self,
-        segments: Vec<Box<dyn Segment>>,
+        segments: &[ErasedSegment],
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !segments.is_empty() {
@@ -416,7 +424,7 @@ impl Matchable for MultiStringParser {
             }
         }
 
-        Ok(MatchResult::from_unmatched(segments))
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
     fn cache_key(&self) -> String {
@@ -426,7 +434,7 @@ impl Matchable for MultiStringParser {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
+    use ahash::AHashSet;
 
     use super::TypedParser;
     use crate::core::dialects::init::dialect_selector;
@@ -435,6 +443,7 @@ mod tests {
     use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser};
     use crate::core::parser::segments::keyword::KeywordSegment;
     use crate::core::parser::segments::test_functions::generate_test_segments_func;
+    use crate::helpers::ToErasedSegment;
 
     // Test the simple method of TypedParser
     #[test]
@@ -447,11 +456,11 @@ mod tests {
             <_>::default(),
         );
 
-        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap());
+        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
 
         assert_eq!(
             parser.simple(&parse_cx, None),
-            (HashSet::new(), HashSet::from(["single_quote".into()])).into()
+            (AHashSet::new(), ["single_quote".into()].into()).into()
         );
     }
 
@@ -461,17 +470,16 @@ mod tests {
         let parser = StringParser::new("foo", |_| todo!(), None, false, None);
 
         // Create a dummy ParseContext
-        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap());
+        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
 
         // Perform the test
-        assert_eq!(parser.simple(&parse_cx), (HashSet::from(["FOO".to_string()]), HashSet::new()));
+        assert_eq!(parser.simple(&parse_cx), (["FOO".to_string()].into(), AHashSet::new()));
     }
 
     #[test]
     fn test_parser_regexparser_simple() {
         let parser = RegexParser::new("b.r", |_| todo!(), None, false, None, None);
-        let ctx = ParseContext::new(dialect_selector("ansi").unwrap()); // Assuming ParseContext has a dialect field
-
+        let ctx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
         assert_eq!(parser.simple(&ctx, None), None);
     }
 
@@ -481,28 +489,29 @@ mod tests {
             vec!["foo".to_string(), "bar".to_string()],
             /* KeywordSegment */
             |segment| {
-                Box::new(KeywordSegment::new(
+                KeywordSegment::new(
                     segment.get_raw().unwrap(),
                     segment.get_position_marker().unwrap().into(),
-                ))
+                )
+                .to_erased_segment()
             },
             None,
             false,
             None,
         );
-        let mut ctx = ParseContext::new(dialect_selector("ansi").unwrap()); // Assuming ParseContext has a dialect field
+        let mut ctx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
 
         // Check directly
         let segments = generate_test_segments_func(vec!["foo", "fo"]);
 
         // Matches when it should
-        let result = parser.match_segments(segments[0..1].to_vec(), &mut ctx).unwrap();
+        let result = parser.match_segments(&segments[0..1], &mut ctx).unwrap();
         let result1 = &result.matched_segments[0];
 
         assert_eq!(result1.get_raw().unwrap(), "foo");
 
         // Doesn't match when it shouldn't
-        let result = parser.match_segments(segments[1..].to_vec(), &mut ctx).unwrap();
+        let result = parser.match_segments(&segments[1..], &mut ctx).unwrap();
         assert_eq!(result.matched_segments, &[]);
     }
 
@@ -514,12 +523,12 @@ mod tests {
 
     //     // Example implementations for these structs/functions will be needed
 
-    //     let pre_match_types: HashSet<&str> = ["single_quote", "raw",
+    //     let pre_match_types: AHashSet<&str> = ["single_quote", "raw",
     // "base"].iter().cloned().collect();     let mut post_match_types:
-    // HashSet<&str> = ["example", "single_quote", "raw",
+    // AHashSet<&str> = ["example", "single_quote", "raw",
     // "base"].iter().cloned().collect();
 
-    //     let mut kwargs = HashMap::new();
+    //     let mut kwargs = AHashMap::new();
     //     let mut expected_type = "example";
     //     if let Some(t) = new_type {
     //         post_match_types.insert(t);

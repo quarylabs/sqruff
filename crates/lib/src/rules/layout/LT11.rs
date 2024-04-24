@@ -1,6 +1,7 @@
-use std::collections::HashSet;
+use ahash::AHashMap;
 
-use crate::core::rules::base::{LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -9,12 +10,16 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT11;
 
 impl Rule for RuleLT11 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT11.erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.set_operators"
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["set_operator"])).into()
+    fn description(&self) -> &'static str {
+        "Set operators should be surrounded by newlines."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -22,9 +27,14 @@ impl Rule for RuleLT11 {
             &context.segment,
             context.parent_stack.first().unwrap().clone_box(),
             "both",
+            context.config.unwrap(),
         )
         .rebreak()
         .results()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["set_operator"].into()).into()
     }
 }
 
@@ -35,7 +45,7 @@ mod tests {
     use crate::core::rules::base::{Erased, ErasedRule};
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT11::default().erased()]
+        vec![RuleLT11.erased()]
     }
 
     #[test]

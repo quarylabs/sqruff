@@ -1,0 +1,22 @@
+file:
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - object_reference:
+        - identifier: my_table
+    - alias_expression:
+      - keyword: AS
+      - identifier: tttd
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - identifier: tttd
+          - dot: .
+          - identifier: days
+        - remove me: =
+        - column_reference:
+          - identifier: ttu
+          - dot: .
+          - identifier: days

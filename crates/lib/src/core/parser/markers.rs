@@ -1,5 +1,6 @@
-use std::collections::HashSet;
 use std::ops::Range;
+
+use ahash::AHashSet;
 
 use crate::core::slice_helpers::zero_slice;
 use crate::core::templaters::base::TemplatedFile;
@@ -19,6 +20,7 @@ use crate::core::templaters::base::TemplatedFile;
 ///   position, which identify a point.
 /// - Arithmetic comparisons are on the location in the fixed file.
 #[derive(Debug, Clone, Eq, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct PositionMarker {
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
@@ -30,8 +32,8 @@ pub struct PositionMarker {
 impl Default for PositionMarker {
     fn default() -> Self {
         PositionMarker {
-            source_slice: (0..0),
-            templated_slice: (0..0),
+            source_slice: 0..0,
+            templated_slice: 0..0,
             templated_file: TemplatedFile::from_string("".to_string()),
             working_line_no: 0,
             working_line_pos: 0,
@@ -50,6 +52,7 @@ impl PositionMarker {
         working_line_no: Option<usize>,
         working_line_pos: Option<usize>,
     ) -> Self {
+        #[allow(clippy::unnecessary_unwrap)]
         if working_line_no.is_none() || working_line_pos.is_none() {
             let (working_line_no, working_line_pos) =
                 templated_file.get_line_pos_of_char_pos(templated_slice.start, false);
@@ -84,7 +87,7 @@ impl PositionMarker {
         let mut source_end = usize::MIN;
         let mut template_start = usize::MAX;
         let mut template_end = usize::MIN;
-        let mut templated_files = HashSet::new();
+        let mut templated_files = AHashSet::new();
 
         for marker in markers {
             source_start = source_start.min(marker.source_slice.start);
@@ -117,6 +120,10 @@ impl PositionMarker {
     /// Return the line and position of this marker in the source.
     pub fn templated_position(&self) -> (usize, usize) {
         self.templated_file.get_line_pos_of_char_pos(self.templated_slice.start, false)
+    }
+
+    pub fn working_loc_after(&self, raw: &str) -> (usize, usize) {
+        Self::infer_next_position(raw, self.working_line_no, self.working_line_pos)
     }
 
     /// Using the raw string provided to infer the position of the next.
@@ -166,6 +173,7 @@ impl PositionMarker {
         )
     }
 
+    #[allow(dead_code)]
     fn end_point_marker(&self) -> PositionMarker {
         // Assuming PositionMarker is a struct and from_point is an associated function
         PositionMarker::from_point(
@@ -241,12 +249,12 @@ mod tests {
         }
 
         let tests: Vec<Test> = vec![
-            Test { raw: "fsaljk".to_string(), start: (0..0), end: (0..6) },
-            Test { raw: "".to_string(), start: (2..2), end: (2..2) },
-            Test { raw: "\n".to_string(), start: (2..2), end: (3..1) },
-            Test { raw: "boo\n".to_string(), start: (2..2), end: (3..1) },
-            Test { raw: "boo\nfoo".to_string(), start: (2..2), end: (3..4) },
-            Test { raw: "\nfoo".to_string(), start: (2..2), end: (3..4) },
+            Test { raw: "fsaljk".to_string(), start: 0..0, end: 0..6 },
+            Test { raw: "".to_string(), start: 2..2, end: 2..2 },
+            Test { raw: "\n".to_string(), start: 2..2, end: 3..1 },
+            Test { raw: "boo\n".to_string(), start: 2..2, end: 3..1 },
+            Test { raw: "boo\nfoo".to_string(), start: 2..2, end: 3..4 },
+            Test { raw: "\nfoo".to_string(), start: 2..2, end: 3..4 },
         ];
 
         for t in tests {
@@ -289,7 +297,7 @@ mod tests {
         let b_pos = PositionMarker::new(1..2, 1..2, templ.clone(), None, None);
         let c_pos = PositionMarker::new(2..3, 2..3, templ.clone(), None, None);
 
-        let all_pos = vec![&a_pos, &b_pos, &c_pos];
+        let all_pos = [&a_pos, &b_pos, &c_pos];
 
         // Check equality
         assert!(all_pos.iter().all(|p| p == p));

@@ -1,7 +1,9 @@
-use super::base::Segment;
+use ahash::AHashSet;
+
+use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
-use crate::helpers::Boxed;
+use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, Default, PartialEq)]
 pub struct KeywordSegment {
@@ -17,16 +19,8 @@ impl KeywordSegment {
 }
 
 impl Segment for KeywordSegment {
-    fn new(&self, _segments: Vec<Box<dyn Segment>>) -> Box<dyn Segment> {
-        KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).boxed()
-    }
-
-    fn segments(&self) -> &[Box<dyn Segment>] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![self.clone().boxed()]
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
+        KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).to_erased_segment()
     }
 
     fn get_raw(&self) -> Option<String> {
@@ -46,11 +40,19 @@ impl Segment for KeywordSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone().into()
+        self.position_marker.clone()
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.position_marker = position_marker;
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &[]
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone().to_erased_segment()]
     }
 
     fn get_uuid(&self) -> Option<uuid::Uuid> {
@@ -61,15 +63,11 @@ impl Segment for KeywordSegment {
         Vec::new()
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 
-    fn class_types(&self) -> std::collections::HashSet<String> {
+    fn class_types(&self) -> AHashSet<String> {
         ["keyword", "word"].map(ToOwned::to_owned).into_iter().collect()
     }
 }

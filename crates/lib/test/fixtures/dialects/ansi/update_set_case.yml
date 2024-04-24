@@ -1,0 +1,57 @@
+file:
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - object_reference:
+        - identifier: table1
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - identifier: a
+        - remove me: =
+        - expression:
+          - case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - identifier: t2
+                  - dot: .
+                  - identifier: column
+                - remove me: =
+                - remove me: '''T'''
+              - keyword: THEN
+              - expression:
+                - remove me: 'TRUE'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - identifier: t2
+                  - dot: .
+                  - identifier: column
+                - remove me: =
+                - remove me: '''F'''
+              - keyword: THEN
+              - expression:
+                - column_reference:
+                  - identifier: 'FALSE'
+            - else_clause:
+              - keyword: ELSE
+              - expression:
+                - remove me: 'NULL'
+            - keyword: END
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - identifier: table2
+          - alias_expression:
+            - identifier: t2
+- statement_terminator: ;

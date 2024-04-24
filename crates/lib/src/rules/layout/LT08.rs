@@ -1,24 +1,29 @@
-use std::collections::HashSet;
 use std::iter::repeat;
 
-use indexmap::IndexMap;
+use ahash::AHashMap;
 use itertools::Itertools;
 
+use crate::core::config::Value;
 use crate::core::parser::segments::base::NewlineSegment;
-use crate::core::rules::base::{EditType, LintFix, LintResult, Rule};
+use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::helpers::IndexMap;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT08 {}
 
 impl Rule for RuleLT08 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT08::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_newline"
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).into()
+    fn description(&self) -> &'static str {
+        "Blank line expected but not found after CTE closing bracket."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -40,7 +45,7 @@ impl Rule for RuleLT08 {
             let mut blank_lines = 0;
             let mut comma_line_idx = None;
             let mut line_blank = false;
-            let mut line_starts = IndexMap::new();
+            let mut line_starts = IndexMap::default();
             let mut comment_lines = Vec::new();
 
             while forward_slice[seg_idx].is_type("comma") || !forward_slice[seg_idx].is_code() {
@@ -107,7 +112,6 @@ impl Rule for RuleLT08 {
                         } else {
                             fix_point = forward_slice[seg_idx].clone().into();
                         }
-                    } else {
                     }
                 } else if comma_style == "leading" {
                     fix_point = forward_slice[comma_seg_idx].clone().into();
@@ -142,8 +146,7 @@ impl Rule for RuleLT08 {
             let fixes = vec![LintFix {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
-                edit: repeat(NewlineSegment::new("\n", &<_>::default(), <_>::default()))
-                    .into_iter()
+                edit: repeat(NewlineSegment::create("\n", &<_>::default(), <_>::default()))
                     .take(num_newlines)
                     .collect_vec()
                     .into(),
@@ -160,6 +163,10 @@ impl Rule for RuleLT08 {
         }
 
         error_buffer
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 }
 

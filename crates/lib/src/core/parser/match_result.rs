@@ -1,7 +1,7 @@
 use std::fmt;
 
+use super::segments::base::ErasedSegment;
 use crate::core::parser::helpers::{join_segments_raw, trim_non_code_segments};
-use crate::core::parser::segments::base::Segment;
 
 #[derive(Clone)]
 /// This should be the default response from any `match` method.
@@ -13,14 +13,14 @@ use crate::core::parser::segments::base::Segment;
 ///             the `matched_segments` which could not be matched.
 #[derive(Debug)]
 pub struct MatchResult {
-    pub matched_segments: Vec<Box<dyn Segment>>,
-    pub unmatched_segments: Vec<Box<dyn Segment>>,
+    pub matched_segments: Vec<ErasedSegment>,
+    pub unmatched_segments: Vec<ErasedSegment>,
 }
 
 impl MatchResult {
     pub fn new(
-        matched_segments: Vec<Box<dyn Segment>>,
-        unmatched_segments: Vec<Box<dyn Segment>>,
+        matched_segments: Vec<ErasedSegment>,
+        unmatched_segments: Vec<ErasedSegment>,
     ) -> Self {
         MatchResult { matched_segments, unmatched_segments }
     }
@@ -31,11 +31,11 @@ impl MatchResult {
     }
 
     /// Construct a `MatchResult` from just unmatched segments.
-    pub fn from_unmatched(segments: Vec<Box<dyn Segment>>) -> MatchResult {
+    pub fn from_unmatched(segments: Vec<ErasedSegment>) -> MatchResult {
         Self::new(Vec::new(), segments.to_vec())
     }
 
-    pub fn from_matched(matched: Vec<Box<dyn Segment>>) -> MatchResult {
+    pub fn from_matched(matched: Vec<ErasedSegment>) -> MatchResult {
         MatchResult { unmatched_segments: vec![], matched_segments: matched }
     }
 
@@ -46,7 +46,7 @@ impl MatchResult {
     }
 
     /// Return a tuple of all the segments, matched or otherwise.
-    pub fn all_segments(&self) -> Vec<Box<dyn Segment>> {
+    pub fn all_segments(&self) -> Vec<ErasedSegment> {
         let mut all = self.matched_segments.clone();
         all.extend(self.unmatched_segments.clone());
         all
@@ -54,6 +54,10 @@ impl MatchResult {
 
     pub fn len(&self) -> usize {
         self.matched_segments.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.matched_segments.is_empty()
     }
 
     /// Return true if everything has matched.

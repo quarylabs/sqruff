@@ -1,0 +1,17 @@
+file:
+- statement:
+  - drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+- statement_terminator: ;
+- statement:
+  - drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - column_reference:
+      - identifier: foo
+      - dot: .
+      - identifier: foo
+- statement_terminator: ;

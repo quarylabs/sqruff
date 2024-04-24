@@ -3,16 +3,18 @@ file:
   - create_table_statement:
     - keyword: create
     - keyword: table
-    - identifier: table1
+    - table_reference:
+      - object_reference:
+        - identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
         - identifier: c1
-        - datatype:
+        - data_type:
           - '': SMALLINT
       - comma: ','
       - column_definition:
         - identifier: c2
-        - datatype:
+        - data_type:
           - '': DATE
       - end_bracket: )

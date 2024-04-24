@@ -1,3 +1,6 @@
+use ahash::AHashMap;
+
+use super::match_result::MatchResult;
 use super::matchable::Matchable;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
@@ -11,16 +14,13 @@ pub struct ParseContext {
     match_stack: Vec<String>,
     match_depth: usize,
     track_progress: bool,
-    pub terminators: Vec<Box<dyn Matchable>>,
-    // recurse: bool,
-    // indentation_config: HashMap<String, bool>,
-    // denylist: ParseDenylist,
-    // logger: Logger,
-    // uuid: uuid::Uuid,
+    pub(crate) terminators: Vec<Box<dyn Matchable>>,
+    parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), String), MatchResult>,
+    pub(crate) indentation_config: AHashMap<String, bool>,
 }
 
 impl ParseContext {
-    pub fn new(dialect: Dialect) -> Self {
+    pub fn new(dialect: Dialect, indentation_config: AHashMap<String, bool>) -> Self {
         Self {
             dialect,
             tqdm: None,
@@ -29,6 +29,8 @@ impl ParseContext {
             match_depth: 0,
             track_progress: true,
             terminators: Vec::new(),
+            parse_cache: AHashMap::new(),
+            indentation_config,
         }
     }
 
@@ -36,9 +38,13 @@ impl ParseContext {
         &self.dialect
     }
 
-    pub fn from_config(_config: FluffConfig) -> Self {
+    pub fn from_config(config: FluffConfig) -> Self {
         let dialect = dialect_selector("ansi").unwrap();
-        Self::new(dialect)
+        let indentation_config = config.raw["indentation"].as_map().unwrap();
+        let indentation_config: AHashMap<_, _> =
+            indentation_config.iter().map(|(key, value)| (key.clone(), value.to_bool())).collect();
+
+        Self::new(dialect, indentation_config)
     }
 
     pub fn progress_bar<T>(&mut self, mut f: impl FnMut(&mut Self) -> T) -> T {
@@ -47,12 +53,7 @@ impl ParseContext {
         // TODO:
         self.tqdm = Some(());
 
-        // try
-        let ret = f(self);
-        // finally
-        // self.tqdm.unwrap().close();
-
-        ret
+        f(self)
     }
 
     pub(crate) fn deeper_match<T>(
@@ -67,7 +68,7 @@ impl ParseContext {
         self.match_segment = name.to_string();
         self.match_depth += 1;
 
-        let terms = self.set_terminators(clear_terminators, push_terminators);
+        let (appended, terms) = self.set_terminators(clear_terminators, push_terminators);
 
         // _append, _terms = self._set_terminators(clear_terminators, push_terminators)
         let _track_progress = self.track_progress;
@@ -85,7 +86,7 @@ impl ParseContext {
         let ret = f(self);
 
         // finally
-        self.reset_terminators(terms, clear_terminators);
+        self.reset_terminators(appended, terms, clear_terminators);
         self.match_depth -= 1;
         // Reset back to old name
         self.match_segment = self.match_stack.pop().unwrap();
@@ -99,7 +100,8 @@ impl ParseContext {
         &mut self,
         clear_terminators: bool,
         push_terminators: &[Box<dyn Matchable>],
-    ) -> Vec<Box<dyn Matchable>> {
+    ) -> (usize, Vec<Box<dyn Matchable>>) {
+        let mut appended = 0;
         let terminators = self.terminators.clone();
 
         if clear_terminators && !self.terminators.is_empty() {
@@ -110,18 +112,44 @@ impl ParseContext {
                 let terminator_owned = terminator.clone();
                 let terminator = &*terminator_owned;
 
-                if self.terminators.iter().find(|item| item.dyn_eq(terminator)).is_none() {
+                if !self.terminators.iter().any(|item| item.dyn_eq(terminator)) {
                     self.terminators.push(terminator_owned);
+                    appended += 1;
                 }
             }
         }
 
-        terminators
+        (appended, terminators)
     }
 
-    fn reset_terminators(&mut self, terminators: Vec<Box<dyn Matchable>>, clear_terminators: bool) {
+    fn reset_terminators(
+        &mut self,
+        appended: usize,
+        terminators: Vec<Box<dyn Matchable>>,
+        clear_terminators: bool,
+    ) {
         if clear_terminators {
             self.terminators = terminators;
+        } else {
+            let new_len = self.terminators.len().saturating_sub(appended);
+            self.terminators.truncate(new_len);
         }
+    }
+
+    pub(crate) fn check_parse_cache(
+        &self,
+        loc_key: (String, (usize, usize), &'static str, usize),
+        matcher_key: String,
+    ) -> Option<MatchResult> {
+        self.parse_cache.get(&(loc_key, matcher_key)).cloned()
+    }
+
+    pub(crate) fn put_parse_cache(
+        &mut self,
+        loc_key: (String, (usize, usize), &'static str, usize),
+        matcher_key: String,
+        match_result: MatchResult,
+    ) {
+        self.parse_cache.insert((loc_key, matcher_key), match_result);
     }
 }

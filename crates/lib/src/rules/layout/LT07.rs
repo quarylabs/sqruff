@@ -1,7 +1,8 @@
-use std::collections::HashSet;
+use ahash::{AHashMap, AHashSet};
 
-use crate::core::parser::segments::base::{NewlineSegment, Segment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use crate::core::config::Value;
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -10,12 +11,16 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT07 {}
 
 impl Rule for RuleLT07 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT07::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_bracket"
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["with_compound_statement"])).into()
+    fn description(&self) -> &'static str {
+        "'WITH' clause closing bracket should be on a new line."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -23,19 +28,19 @@ impl Rule for RuleLT07 {
             .segment()
             .children(Some(|seg| seg.is_type("common_table_expression")));
 
-        let mut cte_end_brackets = HashSet::new();
+        let mut cte_end_brackets = AHashSet::new();
         for cte in segments.iterate_segments() {
             let cte_start_bracket = cte
                 .children(None)
                 .find_last(Some(|seg| seg.is_type("bracketed")))
                 .children(None)
-                .find_first(Some(|seg: &dyn Segment| seg.is_type("start_bracket")));
+                .find_first(Some(|seg: &ErasedSegment| seg.is_type("start_bracket")));
 
             let cte_end_bracket = cte
                 .children(None)
                 .find_last(Some(|seg| seg.is_type("bracketed")))
                 .children(None)
-                .find_first(Some(|seg: &dyn Segment| seg.is_type("end_bracket")));
+                .find_first(Some(|seg: &ErasedSegment| seg.is_type("end_bracket")));
 
             if !cte_start_bracket.is_empty() && !cte_end_bracket.is_empty() {
                 if cte_start_bracket[0].get_position_marker().unwrap().line_no()
@@ -54,7 +59,10 @@ impl Rule for RuleLT07 {
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
                     if elem.is_type("newline") {
                         break;
-                    } else if elem.is_type("indent") && elem.is_type("whitespace") {
+                    } else if !(elem.is_type("indent")
+                        || elem.is_type("dedent")
+                        || elem.is_type("whitespace"))
+                    {
                         contains_non_whitespace = true;
                         break;
                     }
@@ -66,7 +74,7 @@ impl Rule for RuleLT07 {
                     seg.clone().into(),
                     vec![LintFix::create_before(
                         seg,
-                        vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                        vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                     )],
                     None,
                     None,
@@ -76,6 +84,10 @@ impl Rule for RuleLT07 {
         }
 
         Vec::new()
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
 }
 
@@ -131,7 +143,6 @@ with cte as (
     }
 
     #[test]
-    #[ignore = "parser bug"]
     fn test_move_parenthesis_to_next_line() {
         let sql = "
 with cte_1 as (
@@ -141,7 +152,36 @@ with cte_1 as (
 select cte_1.foo
 from cte_1";
 
-        let result = fix(sql.into(), rules());
-        dbg!(result);
+        let fixed = fix(sql.into(), rules());
+        assert_eq!(
+            fixed,
+            "
+with cte_1 as (
+    select foo
+    from tbl_1
+) -- Foobar
+    
+select cte_1.foo
+from cte_1"
+        );
+    }
+
+    #[test]
+    fn test_pass_cte_with_column_list() {
+        let violations = lint(
+            "
+with
+search_path (node_ids, total_time) as (
+    select 1
+)
+select * from search_path"
+                .into(),
+            "ansi".into(),
+            rules(),
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(violations, []);
     }
 }

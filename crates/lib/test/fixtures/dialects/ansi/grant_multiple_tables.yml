@@ -1,0 +1,137 @@
+file:
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - remove me: '"public"'
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - remove me: '"public"'
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - remove me: '"public"'
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - keyword: ON
+    - object_reference:
+      - identifier: my_table
+    - comma: ','
+    - object_reference:
+      - identifier: my_table2
+    - keyword: TO
+    - role_reference:
+      - remove me: '"public"'
+- statement_terminator: ;

@@ -1,8 +1,10 @@
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
 
-use crate::core::parser::segments::base::Segment;
-use crate::core::rules::base::{LintResult, Rule};
+use ahash::AHashMap;
+
+use crate::core::config::Value;
+use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::rules::base::{ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -10,8 +12,20 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleAL08 {}
 
 impl Rule for RuleAL08 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
+    fn name(&self) -> &'static str {
+        "layout.cte_newline"
+    }
+
+    fn description(&self) -> &'static str {
+        "Column aliases should be unique within each clause."
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let mut used_aliases = HashMap::new();
+        let mut used_aliases = AHashMap::new();
         let mut violations = Vec::new();
 
         for clause_element in context.segment.children(&["select_clause_element"]) {
@@ -26,10 +40,8 @@ impl Rule for RuleAL08 {
                     column_alias = it.clone().into();
                     break;
                 }
-            } else {
-                if let Some(column_reference) = clause_element.child(&["column_reference"]) {
-                    column_alias = column_reference.segments().last().cloned();
-                }
+            } else if let Some(column_reference) = clause_element.child(&["column_reference"]) {
+                column_alias = column_reference.segments().last().cloned();
             }
 
             let Some(column_alias) = column_alias else { continue };
@@ -38,7 +50,7 @@ impl Rule for RuleAL08 {
 
             match used_aliases.entry(key) {
                 Entry::Occupied(entry) => {
-                    let previous: &Box<dyn Segment> = entry.get();
+                    let previous: &ErasedSegment = entry.get();
 
                     let alias = column_alias.get_raw().unwrap();
                     let line_no = previous.get_position_marker().unwrap().source_position().0;
@@ -59,7 +71,7 @@ impl Rule for RuleAL08 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(HashSet::from(["select_clause"])).into()
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 }
 
@@ -154,13 +166,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_table_names() {
         let sql = "select a.b, b.c, c.d from a, b, c";
         let result =
             lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
                 .unwrap();
 
-        dbg!(result);
+        assert_eq!(result, []);
     }
 }

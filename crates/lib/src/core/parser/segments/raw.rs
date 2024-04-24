@@ -1,7 +1,8 @@
 use uuid::Uuid;
 
+use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::{CloneSegment, Segment};
 use crate::core::parser::segments::fix::SourceFix;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
@@ -13,25 +14,33 @@ pub struct RawSegment {
     uuid: Uuid,
 }
 
+pub struct RawSegmentArgs {
+    pub _type: Option<String>,
+    pub _instance_types: Option<Vec<String>>,
+    pub _trim_start: Option<Vec<String>>,
+    pub _trim_cars: Option<Vec<String>>,
+    pub _source_fixes: Option<Vec<SourceFix>>,
+    pub _uuid: Option<String>,
+}
+
 impl RawSegment {
-    pub fn new(
+    pub fn create(
         raw: Option<String>,
         position_marker: Option<PositionMarker>,
         // For legacy and syntactic sugar we allow the simple
         // `type` argument here, but for more precise inheritance
         // we suggest using the `instance_types` option.
-        _type: Option<String>,
-        _instance_types: Option<Vec<String>>,
-        _trim_start: Option<Vec<String>>,
-        _trim_cars: Option<Vec<String>>,
-        _source_fixes: Option<Vec<SourceFix>>,
-        _uuid: Option<String>,
+        _args: RawSegmentArgs,
     ) -> Self {
         Self { position_marker, raw, uuid: Uuid::new_v4() }
     }
 }
 
 impl Segment for RawSegment {
+    fn get_raw(&self) -> Option<String> {
+        self.raw.clone()
+    }
+
     fn get_type(&self) -> &'static str {
         "raw"
     }
@@ -48,31 +57,23 @@ impl Segment for RawSegment {
         false
     }
 
-    fn get_raw(&self) -> Option<String> {
-        self.raw.clone()
-    }
-
     fn get_position_marker(&self) -> Option<PositionMarker> {
         self.position_marker.clone()
     }
 
-    fn get_raw_segments(&self) -> Vec<Box<dyn Segment>> {
-        vec![Box::new(self.clone())]
+    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+        todo!()
+    }
+
+    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        vec![self.clone_box()]
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
         Some(self.uuid)
     }
 
-    fn edit(
-        &self,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> Box<dyn Segment> {
-        todo!()
-    }
-
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
+    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         todo!()
     }
 }

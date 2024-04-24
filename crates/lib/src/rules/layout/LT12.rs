@@ -1,11 +1,14 @@
-use crate::core::parser::segments::base::{NewlineSegment, Segment};
-use crate::core::rules::base::{LintFix, LintResult, Rule};
+use ahash::AHashMap;
+
+use crate::core::config::Value;
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
-fn get_trailing_newlines(segment: &dyn Segment) -> Vec<Box<dyn Segment>> {
+fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
 
     for seg in segment.recursive_crawl_all(true) {
@@ -19,7 +22,7 @@ fn get_trailing_newlines(segment: &dyn Segment) -> Vec<Box<dyn Segment>> {
     result
 }
 
-fn get_last_segment(mut segment: Segments) -> (Vec<Box<dyn Segment>>, Segments) {
+fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
     let mut parent_stack = Vec::new();
 
     loop {
@@ -38,16 +41,16 @@ fn get_last_segment(mut segment: Segments) -> (Vec<Box<dyn Segment>>, Segments) 
 pub struct RuleLT12 {}
 
 impl Rule for RuleLT12 {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleLT12::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "layout.end_of_file"
     }
 
     fn description(&self) -> &'static str {
         "Files must end with a single trailing newline."
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -58,8 +61,7 @@ impl Rule for RuleLT12 {
             return Vec::new();
         }
 
-        let trailing_newlines =
-            Segments::from_vec(get_trailing_newlines(context.segment.as_ref()), None);
+        let trailing_newlines = Segments::from_vec(get_trailing_newlines(&context.segment), None);
         if trailing_newlines.is_empty() {
             let fix_anchor_segment = if parent_stack.len() == 1 {
                 segment.first().unwrap().clone_box()
@@ -71,7 +73,7 @@ impl Rule for RuleLT12 {
                 segment.first().unwrap().clone_box().into(),
                 vec![LintFix::create_after(
                     fix_anchor_segment,
-                    vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                    vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                     None,
                 )],
                 None,
@@ -89,6 +91,10 @@ impl Rule for RuleLT12 {
         } else {
             vec![]
         }
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        RootOnlyCrawler.into()
     }
 }
 

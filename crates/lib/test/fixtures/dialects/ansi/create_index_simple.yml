@@ -1,0 +1,34 @@
+file:
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - database_reference:
+      - identifier: transaction_updated
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - identifier: transaction_master
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+        - identifier: last_updated
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - database_reference:
+      - identifier: transaction_updated
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - identifier: transaction_master
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+        - identifier: last_updated
+      - end_bracket: )
+- statement_terminator: ;

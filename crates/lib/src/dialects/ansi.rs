@@ -2881,23 +2881,20 @@ impl NodeTrait for SelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
     fn match_grammar() -> Box<dyn Matchable> {
-        Node::<UnorderedSelectStatementSegment>::new()
-            .match_grammar()
-            .unwrap()
-            .copy(
-                Some(vec_of_erased![
-                    Ref::new("OrderByClauseSegment").optional(),
-                    Ref::new("FetchClauseSegment").optional(),
-                    Ref::new("LimitClauseSegment").optional(),
-                    Ref::new("NamedWindowSegment").optional()
-                ]),
-                true,
-                vec_of_erased![
-                    Ref::new("SetOperatorSegment"),
-                    Ref::new("WithNoSchemaBindingClauseSegment"),
-                    Ref::new("WithDataClauseSegment")
-                ],
-            )
+        Node::<UnorderedSelectStatementSegment>::new().match_grammar().unwrap().copy(
+            Some(vec_of_erased![
+                Ref::new("OrderByClauseSegment").optional(),
+                Ref::new("FetchClauseSegment").optional(),
+                Ref::new("LimitClauseSegment").optional(),
+                Ref::new("NamedWindowSegment").optional()
+            ]),
+            true,
+            vec_of_erased![
+                Ref::new("SetOperatorSegment"),
+                Ref::new("WithNoSchemaBindingClauseSegment"),
+                Ref::new("WithDataClauseSegment")
+            ],
+        )
     }
 
     fn class_types() -> AHashSet<String> {

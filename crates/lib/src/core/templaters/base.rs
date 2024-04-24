@@ -573,7 +573,6 @@ impl RawFileSlice {
 #[derive(Default)]
 pub struct RawTemplater {}
 
-
 impl Templater for RawTemplater {
     fn name(&self) -> &str {
         "raw"

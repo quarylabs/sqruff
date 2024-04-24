@@ -3,7 +3,7 @@ use std::hash::{Hash, Hasher};
 use ahash::{AHashMap, AHashSet};
 use uuid::Uuid;
 
-use crate::core::parser::segments::base::{ErasedSegment, PathStep, Segment};
+use crate::core::parser::segments::base::{ErasedSegment, PathStep};
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -59,7 +59,7 @@ impl DepthMap {
         self.depth_info[&seg.get_uuid().unwrap()].clone()
     }
 
-    pub fn from_parent(parent: &dyn Segment) -> Self {
+    pub fn from_parent(parent: &ErasedSegment) -> Self {
         Self::new(parent.raw_segments_with_ancestors())
     }
 
@@ -156,7 +156,7 @@ mod tests {
         let sql = "SELECT 1";
         let root = parse_ansi_string(sql);
 
-        let dm = DepthMap::from_parent(root.as_ref());
+        let dm = DepthMap::from_parent(&root);
 
         let stack = root
             .get_raw_segments()
@@ -172,7 +172,7 @@ mod tests {
         let sql = "SELECT 1";
         let root = parse_ansi_string(sql);
 
-        let dm_direct = DepthMap::from_parent(root.as_ref());
+        let dm_direct = DepthMap::from_parent(&root);
         let dm_indirect = DepthMap::from_raws_and_root(root.get_raw_segments(), root);
 
         assert_eq!(dm_direct.depth_info, dm_indirect.depth_info);

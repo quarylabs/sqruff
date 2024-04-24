@@ -33,7 +33,7 @@ impl ReflowSequence {
     }
 
     pub fn from_root(root_segment: ErasedSegment, config: &FluffConfig) -> Self {
-        let depth_map = DepthMap::from_parent(&*root_segment).into();
+        let depth_map = DepthMap::from_parent(&root_segment).into();
 
         Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, config, depth_map)
     }

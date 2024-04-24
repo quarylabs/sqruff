@@ -477,12 +477,12 @@ impl RuleSet {
         let mut instantiated_rules = Vec::with_capacity(keylist.len());
 
         let allowlist: Vec<String> = match config.get("rule_allowlist", "core").as_array() {
-            Some(array) => array.into_iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
             None => self.register.keys().map(|it| it.to_string()).collect(),
         };
 
         let denylist: Vec<String> = match config.get("rule_denylist", "core").as_array() {
-            Some(array) => array.into_iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
             None => Vec::new(),
         };
 

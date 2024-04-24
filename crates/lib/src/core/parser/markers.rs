@@ -295,7 +295,7 @@ mod tests {
         let b_pos = PositionMarker::new(1..2, 1..2, templ.clone(), None, None);
         let c_pos = PositionMarker::new(2..3, 2..3, templ.clone(), None, None);
 
-        let all_pos = vec![&a_pos, &b_pos, &c_pos];
+        let all_pos = [&a_pos, &b_pos, &c_pos];
 
         // Check equality
         assert!(all_pos.iter().all(|p| p == p));

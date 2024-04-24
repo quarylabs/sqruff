@@ -119,7 +119,7 @@ pub fn identify_rebreak_spans(
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
                 end_idx: idx,
-                line_position: line_position.split(":").next().unwrap_or_default().into(),
+                line_position: line_position.split(':').next().unwrap_or_default().into(),
                 strict: line_position.ends_with("strict"),
             });
         }

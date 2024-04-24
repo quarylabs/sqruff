@@ -66,7 +66,7 @@ impl Rule for RuleLT09 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause".into()].into()).into()
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
 }
 

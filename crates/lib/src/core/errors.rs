@@ -31,6 +31,12 @@ pub struct SQLBaseError {
     pub rule: Option<ErasedRule>,
 }
 
+impl Default for SQLBaseError {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SQLBaseError {
     pub fn new() -> Self {
         Self {

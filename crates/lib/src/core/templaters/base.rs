@@ -570,13 +570,9 @@ impl RawFileSlice {
     }
 }
 
+#[derive(Default)]
 pub struct RawTemplater {}
 
-impl Default for RawTemplater {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl Templater for RawTemplater {
     fn name(&self) -> &str {

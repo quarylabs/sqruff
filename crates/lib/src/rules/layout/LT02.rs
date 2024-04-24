@@ -23,13 +23,13 @@ impl Rule for RuleLT02 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        ReflowSequence::from_root(context.segment, context.config.clone().unwrap())
+        ReflowSequence::from_root(context.segment, context.config.unwrap())
             .reindent()
             .results()
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler::default().into()
+        RootOnlyCrawler.into()
     }
 }
 

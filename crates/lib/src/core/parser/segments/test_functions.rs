@@ -71,7 +71,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         );
 
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
-            WhitespaceSegment::create(elem, &position_marker, WhitespaceSegmentNewArgs {})
+            WhitespaceSegment::create(elem, &position_marker, WhitespaceSegmentNewArgs)
         } else if elem.chars().all(|c| c == '\n') {
             NewlineSegment::create(elem, &position_marker, NewlineSegmentNewArgs {})
         } else if elem == "(" || elem == ")" {
@@ -133,7 +133,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
 
 /// Construct a list of raw segments as a fixture.
 pub fn raw_segments() -> Vec<ErasedSegment> {
-    return generate_test_segments_func(["foobar", ".barfoo"].to_vec());
+    generate_test_segments_func(["foobar", ".barfoo"].to_vec())
 }
 
 pub fn raw_seg() -> ErasedSegment {
@@ -143,9 +143,9 @@ pub fn raw_seg() -> ErasedSegment {
 pub fn test_segments() -> Vec<ErasedSegment> {
     let mut main_list = generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "]);
     let ts = MetaSegment::template(
-        main_list.last().unwrap().get_position_marker().unwrap().into(),
-        "{# comment #}".into(),
-        "comment".into(),
+        main_list.last().unwrap().get_position_marker().unwrap(),
+        "{# comment #}",
+        "comment",
     );
     main_list.push(ts.to_erased_segment() as ErasedSegment);
     main_list

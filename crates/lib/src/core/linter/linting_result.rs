@@ -9,6 +9,12 @@ pub struct LintingResult {
     total_time: f64,
 }
 
+impl Default for LintingResult {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LintingResult {
     pub fn new() -> Self {
         LintingResult { paths: vec![], start_time: Instant::now(), total_time: 0.0 }

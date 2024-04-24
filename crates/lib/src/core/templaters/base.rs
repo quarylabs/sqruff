@@ -407,12 +407,11 @@ impl TemplatedFileInner {
             start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
         }
 
-        let stop_slices;
-        if ts_stop_sf_start == ts_stop_sf_stop {
-            stop_slices = vec![sliced_file[ts_stop_sf_start].clone()];
+        let stop_slices = if ts_stop_sf_start == ts_stop_sf_stop {
+            vec![sliced_file[ts_stop_sf_start].clone()]
         } else {
-            stop_slices = sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec();
-        }
+            sliced_file[ts_stop_sf_start..ts_stop_sf_stop].to_vec()
+        };
 
         let source_start: isize = if insertion_point >= 0 {
             insertion_point

@@ -11,7 +11,7 @@ pub struct RuleLT11;
 
 impl Rule for RuleLT11 {
     fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleLT11::default().erased()
+        RuleLT11.erased()
     }
 
     fn name(&self) -> &'static str {
@@ -45,7 +45,7 @@ mod tests {
     use crate::core::rules::base::{Erased, ErasedRule};
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT11::default().erased()]
+        vec![RuleLT11.erased()]
     }
 
     #[test]

@@ -252,6 +252,12 @@ impl PartialEq for Anything {
     }
 }
 
+impl Default for Anything {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Anything {
     pub fn new() -> Self {
         Self { terminators: Vec::new() }
@@ -281,6 +287,12 @@ impl Matchable for Anything {
 
 #[derive(Clone, Debug, PartialEq, Hash)]
 pub struct Nothing {}
+
+impl Default for Nothing {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl Nothing {
     pub fn new() -> Self {

@@ -2341,6 +2341,12 @@ pub struct Node<T> {
     pub position_marker: Option<PositionMarker>,
 }
 
+impl<T> Default for Node<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> Node<T> {
     pub fn new() -> Self {
         Self {
@@ -2411,7 +2417,7 @@ impl<T> PartialEq for Node<T> {
 impl<T> Clone for Node<T> {
     fn clone(&self) -> Self {
         Self {
-            marker: self.marker.clone(),
+            marker: self.marker,
             segments: self.segments.clone(),
             uuid: self.uuid,
             position_marker: self.position_marker.clone(),
@@ -2843,7 +2849,7 @@ impl Node<FromClauseSegment> {
                 .unwrap()
                 .eventual_alias();
 
-            let table_expr = if direct_table_children.contains(&clause) {
+            let table_expr = if direct_table_children.contains(clause) {
                 clause
             } else {
                 tmp = clause.child(&["from_expression_element"]).unwrap();
@@ -2892,7 +2898,6 @@ impl NodeTrait for SelectStatementSegment {
                     Ref::new("WithDataClauseSegment")
                 ],
             )
-            .into()
     }
 
     fn class_types() -> AHashSet<String> {
@@ -2950,7 +2955,7 @@ impl NodeTrait for SelectClauseElementSegment {
 impl Node<SelectClauseElementSegment> {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
         let alias_expression_segment =
-            self.recursive_crawl(&["alias_expression"], true, None, true).get(0)?.clone();
+            self.recursive_crawl(&["alias_expression"], true, None, true).first()?.clone();
 
         unimplemented!()
     }
@@ -3255,7 +3260,7 @@ impl Node<ObjectReferenceSegment> {
         let mut acc = Vec::new();
 
         let raw = elem.get_raw().unwrap();
-        let parts = raw.split(".");
+        let parts = raw.split('.');
 
         for part in parts {
             acc.push(ObjectReferencePart { part: part.into(), segments: vec![elem.clone()] });
@@ -5020,7 +5025,6 @@ impl NodeTrait for CreateTriggerStatementSegment {
             .boxed(),
         ])
         .to_matchable()
-        .into()
     }
 }
 
@@ -6169,7 +6173,7 @@ mod tests {
             let yaml = std::path::absolute(yaml).unwrap();
 
             let actual = {
-                let sql = std::fs::read_to_string(&file).unwrap();
+                let sql = std::fs::read_to_string(file).unwrap();
                 let tree = parse_sql(&sql);
                 let tree = tree.to_serialised(true, true, false);
 

@@ -57,7 +57,7 @@ impl Rule for RuleLT06 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function".into()].into()).into()
+        SegmentSeekerCrawler::new(["function"].into()).into()
     }
 }
 

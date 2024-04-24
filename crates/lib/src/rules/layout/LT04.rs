@@ -47,7 +47,7 @@ impl Rule for RuleLT04 {
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["comma".into()].into()).into()
+        SegmentSeekerCrawler::new(["comma"].into()).into()
     }
 }
 

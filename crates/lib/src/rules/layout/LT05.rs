@@ -13,7 +13,7 @@ pub struct RuleLT05 {
 }
 
 impl Rule for RuleLT05 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleLT05::default().erased()
     }
 

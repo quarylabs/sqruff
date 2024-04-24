@@ -22,7 +22,7 @@ struct AL05Query {
 pub struct RuleAL05 {}
 
 impl Rule for RuleAL05 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         unimplemented!()
     }
 
@@ -69,7 +69,8 @@ impl Rule for RuleAL05 {
 }
 
 impl RuleAL05 {
-    fn analyze_table_aliases(&self, query: &mut Query<AL05Query>, dialect: &Dialect) {
+    #[allow(clippy::only_used_in_recursion)]
+    fn analyze_table_aliases(&self, query: &mut Query<AL05Query>, _dialect: &Dialect) {
         let selectables = std::mem::take(&mut query.selectables);
 
         for selectable in &selectables {
@@ -87,7 +88,7 @@ impl RuleAL05 {
         query.selectables = selectables;
 
         for child in query.children_mut() {
-            self.analyze_table_aliases(child, dialect);
+            self.analyze_table_aliases(child, _dialect);
         }
     }
 

@@ -83,6 +83,7 @@ impl TupleSerialisedSegment {
 }
 
 #[derive(Debug, Hash, Clone)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct ErasedSegment {
     value: Rc<dyn Segment>,
 }
@@ -119,6 +120,7 @@ impl ErasedSegment {
 }
 
 pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
+    #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -576,6 +578,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                 fixes_applied.push(f.clone());
 
                 // Deletes are easy.
+                #[allow(unused_assignments)]
                 if f.edit_type == EditType::Delete {
                     // We're just getting rid of this segment.
                     requires_validate = true;
@@ -600,6 +603,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                     seg_buffer.push(s.clone());
                 }
 
+                #[allow(unused_assignments)]
                 if !(f.edit_type == EditType::Replace
                     && f.edit.as_ref().map_or(false, |x| x.len() == 1)
                     && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
@@ -621,6 +625,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             seg_buffer.push(s);
             seg_buffer.extend(post);
 
+            #[allow(unused_assignments)]
             if !validated {
                 requires_validate = true;
             }
@@ -1184,7 +1189,7 @@ impl WhitespaceSegment {
 }
 
 impl Segment for WhitespaceSegment {
-    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self {
             raw: self.get_raw().unwrap(),
             position_marker: self.position_marker.clone(),

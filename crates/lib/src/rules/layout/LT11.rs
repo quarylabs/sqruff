@@ -10,7 +10,7 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT11;
 
 impl Rule for RuleLT11 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleLT11.erased()
     }
 

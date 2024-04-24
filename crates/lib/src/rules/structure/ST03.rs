@@ -11,7 +11,7 @@ use crate::utils::analysis::query::Query;
 pub struct RuleST03 {}
 
 impl Rule for RuleST03 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleST03::default().erased()
     }
 
@@ -36,7 +36,7 @@ impl Rule for RuleST03 {
             Some("with_compound_statement"),
             true,
         ) {
-            remaining_ctes.remove(&reference.get_raw_upper().unwrap());
+            remaining_ctes.shift_remove(&reference.get_raw_upper().unwrap());
         }
 
         for name in remaining_ctes.values() {

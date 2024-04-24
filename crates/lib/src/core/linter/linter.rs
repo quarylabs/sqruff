@@ -30,7 +30,7 @@ pub struct Linter {
     config: FluffConfig,
     pub formatter: Option<OutputStreamFormatter>,
     templater: Box<dyn Templater>,
-    rules: Vec<ErasedRule>,
+    _rules: Vec<ErasedRule>,
 }
 
 impl Linter {
@@ -41,8 +41,13 @@ impl Linter {
     ) -> Linter {
         let rules = crate::rules::layout::get_rules();
         match templater {
-            Some(templater) => Linter { config, formatter, templater, rules },
-            None => Linter { config, formatter, templater: Box::<RawTemplater>::default(), rules },
+            Some(templater) => Linter { config, formatter, templater, _rules: rules },
+            None => Linter {
+                config,
+                formatter,
+                templater: Box::<RawTemplater>::default(),
+                _rules: rules,
+            },
         }
     }
 
@@ -121,6 +126,7 @@ impl Linter {
     }
 
     /// Lint a string.
+    #[allow(clippy::too_many_arguments)]
     pub fn lint_string(
         &mut self,
         in_str: Option<String>,
@@ -358,6 +364,7 @@ impl Linter {
         //     ));
         // }
 
+        #[allow(unused_assignments)]
         let mut templated_file = None;
 
         let templater_violations = vec![];
@@ -415,6 +422,7 @@ impl Linter {
         }
 
         let mut violations = Vec::new();
+        #[allow(unused_assignments)]
         let mut tokens: Option<Vec<ErasedSegment>> = None;
 
         if rendered.templated_file.is_templated() {

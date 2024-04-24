@@ -164,6 +164,9 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
     pivot_table_column_aliases
 }
 
-fn get_lambda_argument_columns(_segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<String> {
+fn get_lambda_argument_columns(
+    _segment: &ErasedSegment,
+    _dialect: Option<&Dialect>,
+) -> Vec<String> {
     Vec::new()
 }

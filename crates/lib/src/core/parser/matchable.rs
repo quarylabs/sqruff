@@ -14,7 +14,7 @@ use crate::core::errors::SQLParseError;
 // Define a trait to represent the Matchable interface.
 // This trait is similar to the abstract base class in Python.
 pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
-    fn from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+    fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -67,7 +67,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + DynHash {
 
         if match_result.has_match() {
             Ok(MatchResult {
-                matched_segments: vec![self.from_segments(match_result.matched_segments)],
+                matched_segments: vec![self.mk_from_segments(match_result.matched_segments)],
                 unmatched_segments: match_result.unmatched_segments,
             })
         } else {

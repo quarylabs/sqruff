@@ -18,6 +18,7 @@ use crate::helpers::ToMatchable;
 /// Note that if there are multiple elements passed in that they will be treated
 /// as different options of what can be delimited, rather than a sequence.
 #[derive(Clone, Debug, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Delimited {
     base: AnyNumberOf,
     allow_trailing: bool,
@@ -178,8 +179,8 @@ impl Matchable for Delimited {
             if seeking_delimiter {
                 delimiters += 1;
                 matched_delimiter = true;
-                cached_matched_segments = matched_segments.clone();
-                cached_unmatched_segments = seg_buff.to_vec();
+                cached_matched_segments.clone_from(&matched_segments);
+                cached_unmatched_segments.clone_from(&seg_buff);
             } else {
                 matched_delimiter = false;
             }

@@ -5,6 +5,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct BracketedSegment {
     pub segments: Vec<ErasedSegment>,
     pub start_bracket: Vec<ErasedSegment>,

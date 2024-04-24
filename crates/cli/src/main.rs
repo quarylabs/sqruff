@@ -92,7 +92,7 @@ fn check_user_input() -> Option<bool> {
     use std::io::Write;
 
     let mut term = console::Term::stdout();
-    term.write(b"Are you sure you wish to attempt to fix these? [Y/n] ").unwrap();
+    _ = term.write(b"Are you sure you wish to attempt to fix these? [Y/n] ").unwrap();
     term.flush().unwrap();
 
     let ret = match term.read_char().unwrap().to_ascii_lowercase() {
@@ -100,6 +100,6 @@ fn check_user_input() -> Option<bool> {
         'n' => Some(false),
         _ => None,
     };
-    term.write(b" ...\n").unwrap();
+    _ = term.write(b" ...\n").unwrap();
     ret
 }

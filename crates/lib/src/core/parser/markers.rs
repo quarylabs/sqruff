@@ -20,6 +20,7 @@ use crate::core::templaters::base::TemplatedFile;
 ///   position, which identify a point.
 /// - Arithmetic comparisons are on the location in the fixed file.
 #[derive(Debug, Clone, Eq, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct PositionMarker {
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
@@ -51,6 +52,7 @@ impl PositionMarker {
         working_line_no: Option<usize>,
         working_line_pos: Option<usize>,
     ) -> Self {
+        #[allow(clippy::unnecessary_unwrap)]
         if working_line_no.is_none() || working_line_pos.is_none() {
             let (working_line_no, working_line_pos) =
                 templated_file.get_line_pos_of_char_pos(templated_slice.start, false);

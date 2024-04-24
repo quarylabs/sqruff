@@ -30,7 +30,7 @@ pub struct RuleLT09 {
 }
 
 impl Rule for RuleLT09 {
-    fn from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
         RuleLT09 { wildcard_policy: config["wildcard_policy"].as_string().unwrap().to_owned() }
             .erased()
     }

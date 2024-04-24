@@ -11,7 +11,7 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleLT13 {}
 
 impl Rule for RuleLT13 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         unimplemented!()
     }
 

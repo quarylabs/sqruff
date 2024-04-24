@@ -26,7 +26,7 @@ impl RuleAL02 {
 }
 
 impl Rule for RuleAL02 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleAL02::default().erased()
     }
 

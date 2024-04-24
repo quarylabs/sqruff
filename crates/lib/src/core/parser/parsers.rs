@@ -213,6 +213,7 @@ impl Matchable for StringParser {
 }
 
 #[derive(Hash, Debug, Clone)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct RegexParser {
     template: String,
     anti_template: Option<String>,

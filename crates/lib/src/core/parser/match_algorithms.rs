@@ -613,7 +613,7 @@ mod tests {
         let mut parse_cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
 
         // Basic version, we should find bar first
-        let (pre_section, match_result, matcher) = bracket_sensitive_look_ahead_match(
+        let (pre_section, match_result, _matcher) = bracket_sensitive_look_ahead_match(
             bracket_segments(),
             vec![bs.clone(), fs.clone()],
             &mut parse_cx,
@@ -632,7 +632,7 @@ mod tests {
 
         // Look ahead for foo, we should find the one AFTER the brackets, not the
         // on IN the brackets.
-        let (pre_section, match_result, matcher) = bracket_sensitive_look_ahead_match(
+        let (pre_section, match_result, _matcher) = bracket_sensitive_look_ahead_match(
             bracket_segments(), // assuming this is a function call or a variable
             vec![fs.clone()],   // assuming fs is a variable
             &mut parse_cx,      // assuming ctx is a variable

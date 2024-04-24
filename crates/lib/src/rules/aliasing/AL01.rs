@@ -42,7 +42,7 @@ impl Default for RuleAL01 {
 }
 
 impl Rule for RuleAL01 {
-    fn from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
         let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
             "explicit" => Aliasing::Explicit,
             "implicit" => Aliasing::Implicit,

@@ -14,7 +14,7 @@ pub struct LiteralSegment {
 }
 
 impl LiteralSegment {
-    pub fn new(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
+    pub fn create(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
         Self { raw: raw.to_string(), position_maker: position_maker.clone(), uuid: Uuid::new_v4() }
             .to_erased_segment()
     }
@@ -83,7 +83,7 @@ pub struct ComparisonOperatorSegment {
 }
 
 impl ComparisonOperatorSegment {
-    pub fn new(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
+    pub fn create(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
         Self { raw: raw.to_string(), position_maker: position_maker.clone(), uuid: Uuid::new_v4() }
             .to_erased_segment()
     }

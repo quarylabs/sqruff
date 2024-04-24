@@ -16,6 +16,12 @@ pub struct BlockConfig {
     pub line_position: Option<String>,
 }
 
+impl Default for BlockConfig {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BlockConfig {
     pub fn new() -> Self {
         BlockConfig {
@@ -63,7 +69,7 @@ impl BlockConfig {
 /// This acts as the primary translation engine between configuration
 /// held either in dicts for testing, or in the FluffConfig in live
 /// usage, and the configuration used during reflow operations.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
     config_types: AHashSet<String>,
@@ -168,7 +174,7 @@ impl ReflowConfig {
             skip_indentation_in: config.raw["indentation"]["indent_unit"]
                 .as_string()
                 .unwrap()
-                .split(",")
+                .split(',')
                 .map(ToOwned::to_owned)
                 .collect(),
             allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]

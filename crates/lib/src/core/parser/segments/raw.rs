@@ -14,19 +14,23 @@ pub struct RawSegment {
     uuid: Uuid,
 }
 
+pub struct RawSegmentArgs {
+    pub _type: Option<String>,
+    pub _instance_types: Option<Vec<String>>,
+    pub _trim_start: Option<Vec<String>>,
+    pub _trim_cars: Option<Vec<String>>,
+    pub _source_fixes: Option<Vec<SourceFix>>,
+    pub _uuid: Option<String>,
+}
+
 impl RawSegment {
-    pub fn new(
+    pub fn create(
         raw: Option<String>,
         position_marker: Option<PositionMarker>,
         // For legacy and syntactic sugar we allow the simple
         // `type` argument here, but for more precise inheritance
         // we suggest using the `instance_types` option.
-        _type: Option<String>,
-        _instance_types: Option<Vec<String>>,
-        _trim_start: Option<Vec<String>>,
-        _trim_cars: Option<Vec<String>>,
-        _source_fixes: Option<Vec<SourceFix>>,
-        _uuid: Option<String>,
+        args: RawSegmentArgs,
     ) -> Self {
         Self { position_marker, raw, uuid: Uuid::new_v4() }
     }

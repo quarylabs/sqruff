@@ -77,10 +77,13 @@ impl<T: Default> Query<'_, T> {
         self.ctes.values_mut().chain(self.subqueries.iter_mut())
     }
 
+    #[allow(dead_code)]
     fn as_dict() {}
 
+    #[allow(dead_code)]
     fn lookup_cte() {}
 
+    #[allow(dead_code)]
     fn crawl_sources() {}
 
     fn extract_subqueries<'a>(selectable: &Selectable, dialect: &'a Dialect) -> Vec<Query<'a, T>> {

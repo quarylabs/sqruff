@@ -53,12 +53,7 @@ impl ParseContext {
         // TODO:
         self.tqdm = Some(());
 
-        // try
-        let ret = f(self);
-        // finally
-        // self.tqdm.unwrap().close();
-
-        ret
+        f(self)
     }
 
     pub(crate) fn deeper_match<T>(
@@ -117,7 +112,7 @@ impl ParseContext {
                 let terminator_owned = terminator.clone();
                 let terminator = &*terminator_owned;
 
-                if self.terminators.iter().find(|item| item.dyn_eq(terminator)).is_none() {
+                if !self.terminators.iter().any(|item| item.dyn_eq(terminator)) {
                     self.terminators.push(terminator_owned);
                     appended += 1;
                 }

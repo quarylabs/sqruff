@@ -2,7 +2,9 @@ use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, SymbolSegment, WhitespaceSegment};
+use crate::core::parser::segments::base::{
+    ErasedSegment, SymbolSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
@@ -132,7 +134,7 @@ impl Rule for RuleST02 {
                             condition_expression.into(),
                             fixes,
                             None,
-                            format!("").into(),
+                            Some(String::new()),
                             None,
                         )];
                     }
@@ -188,27 +190,27 @@ impl RuleST02 {
         preceding_not: bool,
     ) -> Vec<LintFix> {
         let mut edits = vec![
-            SymbolSegment::new("coalesce", &<_>::default(), <_>::default()),
-            SymbolSegment::new("(", &<_>::default(), <_>::default()),
+            SymbolSegment::create("coalesce", &<_>::default(), <_>::default()),
+            SymbolSegment::create("(", &<_>::default(), <_>::default()),
             coalesce_arg_1,
-            SymbolSegment::new(",", &<_>::default(), <_>::default()),
-            WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+            SymbolSegment::create(",", &<_>::default(), <_>::default()),
+            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
             coalesce_arg_2,
-            SymbolSegment::new(")", &<_>::default(), <_>::default()),
+            SymbolSegment::create(")", &<_>::default(), <_>::default()),
         ];
 
         if preceding_not {
             edits = chain(
                 [
                     KeywordSegment::new("not".into(), None).to_erased_segment(),
-                    WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+                    WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
                 ],
                 edits,
             )
             .collect_vec();
         }
 
-        vec![LintFix::replace(context.segment.clone_box().into(), edits, None)]
+        vec![LintFix::replace(context.segment.clone_box(), edits, None)]
     }
 
     fn column_only_fix_list(

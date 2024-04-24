@@ -102,17 +102,15 @@ impl RuleAL05 {
     fn is_alias_required(from_expression_element: &ErasedSegment) -> bool {
         for segment in from_expression_element.iter_segments(Some(&["bracketed"]), false) {
             if segment.is_type("table_expression") {
-                return if segment.child(&["values_clause"]).is_some() {
-                    false
-                } else if segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
-                    ["select_statement", "set_expression", "with_compound_statement"]
-                        .iter()
-                        .any(|it| seg.is_type(it))
-                }) {
-                    true
+                if segment.child(&["values_clause"]).is_some() {
+                    return false;
                 } else {
-                    false
-                };
+                    return segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
+                        ["select_statement", "set_expression", "with_compound_statement"]
+                            .iter()
+                            .any(|it| seg.is_type(it))
+                    });
+                }
             }
         }
         false
@@ -129,7 +127,7 @@ impl RuleAL05 {
                 None,
             );
 
-        fixes.extend(to_delete.into_iter().map(|it| LintFix::delete(it)));
+        fixes.extend(to_delete.into_iter().map(LintFix::delete));
 
         LintResult::new(
             alias.segment,

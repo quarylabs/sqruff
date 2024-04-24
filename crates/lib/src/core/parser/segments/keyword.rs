@@ -40,7 +40,7 @@ impl Segment for KeywordSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone().into()
+        self.position_marker.clone()
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {

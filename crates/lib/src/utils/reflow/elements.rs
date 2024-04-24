@@ -172,7 +172,7 @@ impl ReflowPoint {
                 }
 
                 let new_indent =
-                    WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
+                    WhitespaceSegment::create(desired_indent, &<_>::default(), <_>::default());
 
                 return (
                     vec![LintResult::new(
@@ -187,7 +187,7 @@ impl ReflowPoint {
             }
         } else {
             // There isn't currently a newline.
-            let new_newline = NewlineSegment::new("\n", &<_>::default(), <_>::default());
+            let new_newline = NewlineSegment::create("\n", &<_>::default(), <_>::default());
             // Check for whitespace
             let ws_seg = self.segments.iter().find(|seg| seg.is_type("whitespace"));
 
@@ -246,7 +246,7 @@ impl ReflowPoint {
                 );
             } else {
                 let new_indent =
-                    WhitespaceSegment::new(desired_indent, &<_>::default(), <_>::default());
+                    WhitespaceSegment::create(desired_indent, &<_>::default(), <_>::default());
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(

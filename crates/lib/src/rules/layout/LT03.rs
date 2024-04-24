@@ -65,23 +65,23 @@ impl RuleLT03 {
 
         // Shortcut #1: Leading.
         if line_position == "leading" {
-            if self.seek_newline(&parent.segments(), idx, -1) {
+            if self.seek_newline(parent.segments(), idx, -1) {
                 return true;
             }
             // If we didn't find a newline before, if there's _also_ not a newline
             // after, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(&parent.segments(), idx, 1) {
+            if !self.seek_newline(parent.segments(), idx, 1) {
                 return true;
             }
         }
         // Shortcut #2: Trailing.
         else if line_position == "trailing" {
-            if self.seek_newline(&parent.segments(), idx, 1) {
+            if self.seek_newline(parent.segments(), idx, 1) {
                 return true;
             }
             // If we didn't find a newline after, if there's _also_ not a newline
             // before, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(&parent.segments(), idx, -1) {
+            if !self.seek_newline(parent.segments(), idx, -1) {
                 return true;
             }
         }
@@ -94,7 +94,7 @@ impl RuleLT03 {
 
         let range = if dir == 1 { idx + 1..segments.len() } else { 0..idx };
 
-        for segment in segments[range].iter().step_by(dir.abs() as usize) {
+        for segment in segments[range].iter().step_by(dir.unsigned_abs() as usize) {
             if segment.is_type("newline") {
                 return true;
             } else if !segment.is_type("whitespace")

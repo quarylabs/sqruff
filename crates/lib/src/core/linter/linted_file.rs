@@ -17,6 +17,7 @@ pub struct LintedFile {
 }
 
 impl LintedFile {
+    #[allow(unused_variables)]
     pub fn get_violations(&self, fixable: Option<bool>) -> Vec<SQLBaseError> {
         self.violations.clone().into_iter().map(Into::into).collect_vec()
     }
@@ -79,6 +80,7 @@ impl LintedFile {
         )
     }
 
+    #[allow(unused_variables)]
     fn generate_source_patches(
         tree: ErasedSegment,
         templated_file: &TemplatedFile,
@@ -147,7 +149,7 @@ impl LintedFile {
                 let next_so_slice = source_only_slices.remove(0).source_slice();
                 // Add a pre-slice before the next templated slices if needed.
                 if next_so_slice.end > source_idx {
-                    slice_buff.push(source_idx..next_so_slice.start.clone());
+                    slice_buff.push(source_idx..next_so_slice.start);
                 }
                 // Add the templated slice.
                 slice_buff.push(next_so_slice.clone());
@@ -464,9 +466,12 @@ mod test {
         }
     }
 
+    #[allow(dead_code)]
     fn templated_file_1() -> TemplatedFile {
         TemplatedFile::from_string("abc".to_string())
     }
+
+    #[allow(dead_code)]
     fn templated_file_2() -> TemplatedFile {
         TemplatedFile::new(
             "{# blah #}{{ foo }}bc".to_string(),

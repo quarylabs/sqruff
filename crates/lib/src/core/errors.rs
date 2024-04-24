@@ -271,6 +271,7 @@ impl SqlError for SQLTemplaterError {
 /// An error which should be fed back to the user.
 #[derive(Debug)]
 pub struct SQLFluffUserError {
+    #[allow(dead_code)]
     value: String,
 }
 
@@ -283,6 +284,7 @@ impl SQLFluffUserError {
 // Not from SQLFluff but translates Python value error
 #[derive(Debug)]
 pub struct ValueError {
+    #[allow(dead_code)]
     value: String,
 }
 
@@ -350,6 +352,7 @@ impl SQLLexError {
 
 #[derive(Debug)]
 pub struct SQLFluffSkipFile {
+    #[allow(dead_code)]
     value: String,
 }
 

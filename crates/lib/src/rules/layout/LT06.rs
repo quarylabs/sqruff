@@ -43,7 +43,7 @@ impl Rule for RuleLT06 {
             {
                 vec![LintResult::new(
                     intermediate_segments.first().cloned(),
-                    intermediate_segments.into_iter().map(|seg| LintFix::delete(seg)).collect_vec(),
+                    intermediate_segments.into_iter().map(LintFix::delete).collect_vec(),
                     None,
                     None,
                     None,

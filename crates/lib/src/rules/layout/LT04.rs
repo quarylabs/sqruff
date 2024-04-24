@@ -30,7 +30,7 @@ impl Rule for RuleLT04 {
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if self.check_trail_lead_shortcut(
             &context.segment,
-            &context.parent_stack.last().unwrap(),
+            context.parent_stack.last().unwrap(),
             "trailing",
         ) {
             return Vec::new();

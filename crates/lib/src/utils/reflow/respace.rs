@@ -35,16 +35,12 @@ pub fn determine_constraints(
 ) -> (String, String, bool) {
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single".into() },
+        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single" },
         strip_newlines,
     );
 
     let (mut post_constraint, mut strip_newlines) = unpack_constraint(
-        if let Some(next_block) = next_block {
-            &next_block.spacing_before
-        } else {
-            "single".into()
-        },
+        if let Some(next_block) = next_block { &next_block.spacing_before } else { "single" },
         strip_newlines,
     );
 
@@ -175,6 +171,7 @@ pub fn process_spacing(
     (filtered_segment_buffer, last_whitespace_option, result_buffer)
 }
 
+#[allow(unused_variables, dead_code)]
 fn determine_aligned_inline_spacing(
     root_segment: &dyn Segment,
     whitespace_seg: &dyn Segment,
@@ -187,10 +184,11 @@ fn determine_aligned_inline_spacing(
     unimplemented!()
 }
 
+#[allow(unused_variables, dead_code)]
 fn extract_alignment_config(constraint: &str) -> (String, Option<String>, Option<String>) {
     unimplemented!()
 }
-
+#[allow(unused_variables)]
 pub fn handle_respace_inline_with_space(
     pre_constraint: String,
     post_constraint: String,
@@ -286,7 +284,7 @@ pub fn handle_respace_inline_without_space(
     }
 
     let added_whitespace =
-        WhitespaceSegment::new(" ", &PositionMarker::default(), WhitespaceSegmentNewArgs {});
+        WhitespaceSegment::create(" ", &PositionMarker::default(), WhitespaceSegmentNewArgs {});
 
     // Add it to the buffer first (the easy bit). The hard bit is to then determine
     // how to generate the appropriate LintFix objects.
@@ -354,7 +352,7 @@ pub fn handle_respace_inline_without_space(
             next_block.segments[0].get_raw().unwrap()
         )
     } else {
-        "Expected single whitespace.".to_string()
+        "Expected single whitespace.".to_owned()
     };
 
     let new_result = if let Some(prev_block) = prev_block

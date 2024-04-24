@@ -74,6 +74,7 @@ impl Linter {
     }
 
     /// Parse a string.
+    #[allow(unused_variables)]
     pub fn parse_string(
         &self,
         in_str: String,
@@ -230,6 +231,7 @@ impl Linter {
         linted_file
     }
 
+    #[allow(unused_variables)]
     pub fn lint_fix_parsed(
         &self,
         mut tree: ErasedSegment,
@@ -295,7 +297,7 @@ impl Linter {
                         let (new_tree, _, _, valid) =
                             tree.apply_fixes(dialect_selector("ansi").unwrap(), anchor_info);
 
-                        if !true {
+                        if false {
                             println!(
                                 "Fixes for {rule:?} not applied, as it would result in an \
                                  unparsable file. Please report this as a bug with a minimal \
@@ -357,6 +359,7 @@ impl Linter {
         // }
 
         let mut templated_file = None;
+
         let templater_violations = vec![];
         match self.templater.process(
             in_str.as_str(),
@@ -401,6 +404,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
+
     pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
         // panic!("Not implemented");
 
@@ -497,7 +501,7 @@ impl Linter {
         match result {
             Err(_err) => {
                 unimplemented!("violations.push(_err)");
-                return (None, violations, config.clone());
+                // return (None, violations, config.clone());
             }
             Ok((tokens, lex_vs)) => {
                 violations.extend(lex_vs);
@@ -535,7 +539,7 @@ impl Linter {
         let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
         let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
         let ignore_files = ignore_files.unwrap_or(true);
-        let working_path =
+        let _working_path =
             working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string());
 
         let Ok(metadata) = std::fs::metadata(&path) else {

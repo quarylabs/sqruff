@@ -73,7 +73,7 @@ impl Rule for RuleLT12 {
                 segment.first().unwrap().clone_box().into(),
                 vec![LintFix::create_after(
                     fix_anchor_segment,
-                    vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                    vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                     None,
                 )],
                 None,

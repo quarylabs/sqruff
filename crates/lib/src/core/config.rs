@@ -12,9 +12,16 @@ use crate::core::errors::SQLFluffUserError;
 
 #[derive(Clone, Debug)]
 pub struct RemovedConfig<'a> {
+    #[allow(dead_code)]
     old_path: Vec<&'static str>,
+
+    #[allow(dead_code)]
     warning: &'a str,
+
+    #[allow(dead_code)]
     new_path: Option<Vec<&'a str>>,
+
+    #[allow(dead_code)]
     translation_func: Option<fn(&'a str) -> &'a str>,
 }
 
@@ -243,9 +250,8 @@ impl FluffConfig {
                  its own dialect and rules."
             )
         } else {
-            return config.unwrap();
+            config.unwrap()
         }
-        panic!("Not implemenrted!")
     }
 
     /// Process a full raw file for inline config and update self.
@@ -306,6 +312,7 @@ impl Default for FluffConfigIndentation {
 pub struct ConfigLoader;
 
 impl ConfigLoader {
+    #[allow(unused_variables)]
     fn iter_config_locations_up_to_path(
         path: &Path,
         working_path: Option<&Path>,
@@ -368,10 +375,11 @@ impl ConfigLoader {
         head.chain(tail)
     }
 
+    #[allow(unused_variables)]
     pub fn load_config_up_to_path(
         &self,
         path: impl AsRef<Path>,
-        extra_config_path: Option<String>,
+        _extra_config_path: Option<String>,
         ignore_local_config: bool,
     ) -> AHashMap<String, Value> {
         let path = path.as_ref();
@@ -436,7 +444,7 @@ impl ConfigLoader {
         config.read(content).unwrap();
 
         for section in config.sections() {
-            let mut key = if section == "sqlfluff" {
+            let key = if section == "sqlfluff" {
                 vec!["core".to_owned()]
             } else if let Some(key) = section.strip_prefix("sqlfluff:") {
                 key.split(':').map(ToOwned::to_owned).collect()
@@ -585,7 +593,7 @@ impl FromStr for Value {
 }
 
 fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
-    let capacity = config_stack.iter().map(|it| it.len()).count();
+    let capacity = config_stack.iter().count();
     let mut result = AHashMap::with_capacity(capacity);
 
     for dict in config_stack {

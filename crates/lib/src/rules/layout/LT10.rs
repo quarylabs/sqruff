@@ -2,7 +2,9 @@ use ahash::AHashMap;
 use itertools::chain;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment};
+use crate::core::parser::segments::base::{
+    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -75,12 +77,12 @@ impl Rule for RuleLT10 {
 
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
-            WhitespaceSegment::new(" ", &<_>::default(), <_>::default()),
+            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
             select_clause_modifier.clone_box(),
         ];
 
         if trailing_newline_segments.is_empty() {
-            edit_segments.push(NewlineSegment::new("\n", &<_>::default(), <_>::default()));
+            edit_segments.push(NewlineSegment::create("\n", &<_>::default(), <_>::default()));
         }
 
         let mut fixes = Vec::new();
@@ -88,12 +90,10 @@ impl Rule for RuleLT10 {
         fixes.push(LintFix::create_after(select_keyword.clone_box(), edit_segments, None));
 
         if trailing_newline_segments.is_empty() {
-            fixes.extend(
-                leading_newline_segments.into_iter().map(|segment| LintFix::delete(segment)),
-            );
+            fixes.extend(leading_newline_segments.into_iter().map(LintFix::delete));
         } else {
             let segments = chain(leading_newline_segments, leading_whitespace_segments);
-            fixes.extend(segments.map(|segment| LintFix::delete(segment)));
+            fixes.extend(segments.map(LintFix::delete));
         }
 
         let trailing_whitespace_segments = child_segments.select(
@@ -104,9 +104,7 @@ impl Rule for RuleLT10 {
         );
 
         if !trailing_whitespace_segments.is_empty() {
-            fixes.extend(
-                trailing_whitespace_segments.into_iter().map(|segment| LintFix::delete(segment)),
-            );
+            fixes.extend(trailing_whitespace_segments.into_iter().map(LintFix::delete));
         }
 
         // Delete the original select clause modifier.

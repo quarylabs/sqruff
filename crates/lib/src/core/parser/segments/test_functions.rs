@@ -71,19 +71,23 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         );
 
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
-            WhitespaceSegment::new(elem, &position_marker, WhitespaceSegmentNewArgs {})
+            WhitespaceSegment::create(elem, &position_marker, WhitespaceSegmentNewArgs {})
         } else if elem.chars().all(|c| c == '\n') {
-            NewlineSegment::new(elem, &position_marker, NewlineSegmentNewArgs {})
+            NewlineSegment::create(elem, &position_marker, NewlineSegmentNewArgs {})
         } else if elem == "(" || elem == ")" {
-            SymbolSegment::new(elem, &position_marker, SymbolSegmentNewArgs { r#type: "remove me" })
+            SymbolSegment::create(
+                elem,
+                &position_marker,
+                SymbolSegmentNewArgs { r#type: "remove me" },
+            )
         } else if elem.starts_with("--") {
-            CommentSegment::new(
+            CommentSegment::create(
                 elem,
                 &position_marker,
                 CommentSegmentNewArgs { r#type: "inline", trim_start: None },
             )
         } else if elem.starts_with('\"') {
-            CodeSegment::new(
+            CodeSegment::create(
                 elem,
                 &position_marker,
                 CodeSegmentNewArgs {
@@ -95,7 +99,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
                 },
             )
         } else if elem.starts_with('\'') {
-            CodeSegment::new(
+            CodeSegment::create(
                 elem,
                 &position_marker,
                 CodeSegmentNewArgs {
@@ -107,7 +111,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
                 },
             )
         } else {
-            CodeSegment::new(
+            CodeSegment::create(
                 elem,
                 &position_marker,
                 CodeSegmentNewArgs {

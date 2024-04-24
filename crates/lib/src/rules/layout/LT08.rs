@@ -112,7 +112,6 @@ impl Rule for RuleLT08 {
                         } else {
                             fix_point = forward_slice[seg_idx].clone().into();
                         }
-                    } else {
                     }
                 } else if comma_style == "leading" {
                     fix_point = forward_slice[comma_seg_idx].clone().into();
@@ -147,8 +146,7 @@ impl Rule for RuleLT08 {
             let fixes = vec![LintFix {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
-                edit: repeat(NewlineSegment::new("\n", &<_>::default(), <_>::default()))
-                    .into_iter()
+                edit: repeat(NewlineSegment::create("\n", &<_>::default(), <_>::default()))
                     .take(num_newlines)
                     .collect_vec()
                     .into(),

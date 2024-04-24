@@ -11,10 +11,12 @@ use crate::helpers::ToErasedSegment;
 ///     and so is usually instantiated directly. It therefore
 ///     has no match_grammar.
 #[derive(Hash, Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 struct BaseFileSegment {
     pub f_name: Option<String>,
 }
 
+#[allow(dead_code)]
 struct BaseFileSegmentNewArgs {
     f_name: Option<String>,
 }
@@ -70,7 +72,8 @@ impl Segment for BaseFileSegment {
 }
 
 impl BaseFileSegment {
-    pub fn new(
+    #[allow(dead_code)]
+    pub fn create(
         _segments: Vec<ErasedSegment>,
         _position_maker: Option<PositionMarker>,
         f_name: Option<String>,
@@ -87,7 +90,8 @@ mod test {
     #[test]
     fn test__parser__base_segments_file() {
         let segments = raw_segments();
-        let base_seg = BaseFileSegment::new(segments, None, Some("/some/dir/file.sql".to_string()));
+        let base_seg =
+            BaseFileSegment::create(segments, None, Some("/some/dir/file.sql".to_string()));
 
         assert_eq!(base_seg.get_type(), "file");
         assert_eq!(base_seg.get_file_path(), Some("/some/dir/file.sql".to_string()));

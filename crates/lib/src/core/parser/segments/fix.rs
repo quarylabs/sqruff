@@ -23,6 +23,7 @@ impl SourceFix {
 
 /// An edit patch for a source file.
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 pub struct FixPatch {
     templated_slice: Range<usize>,
     pub fixed_raw: String,
@@ -89,6 +90,7 @@ impl Default for AnchorEditInfo {
 
 impl AnchorEditInfo {
     /// Returns total count of fixes.
+    #[allow(dead_code)]
     fn total(&self) -> usize {
         self.delete + self.replace + self.create_before + self.create_after
     }
@@ -98,6 +100,7 @@ impl AnchorEditInfo {
     /// Cases:
     /// * 0-1 fixes of any type: Valid
     /// * 2 fixes: Valid if and only if types are create_before and create_after
+    #[allow(dead_code)]
     fn is_valid(&self) -> bool {
         let total = self.total();
         if total <= 1 {

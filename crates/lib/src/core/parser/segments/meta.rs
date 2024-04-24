@@ -169,7 +169,7 @@ pub struct EndOfFile {
 }
 
 impl EndOfFile {
-    pub fn new(position_maker: PositionMarker) -> ErasedSegment {
+    pub fn create(position_maker: PositionMarker) -> ErasedSegment {
         EndOfFile { position_maker, uuid: Uuid::new_v4() }.to_erased_segment()
     }
 }

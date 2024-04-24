@@ -18,13 +18,14 @@ impl PartialEq for AliasInfo {
         self.ref_str == other.ref_str
             && self.segment == other.segment
             && self.aliased == other.aliased
-            && &self.from_expression_element == &other.from_expression_element
+            && self.from_expression_element == other.from_expression_element
             && self.alias_expression == other.alias_expression
             && self.object_reference == other.object_reference
     }
 }
 
 /// Details about a column alias.
+#[allow(dead_code)]
 pub struct ColumnAliasInfo {
     pub alias_identifier_name: String,
     pub aliased_segment: ErasedSegment,

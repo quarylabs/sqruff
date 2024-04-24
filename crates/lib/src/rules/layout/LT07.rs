@@ -74,7 +74,7 @@ impl Rule for RuleLT07 {
                     seg.clone().into(),
                     vec![LintFix::create_before(
                         seg,
-                        vec![NewlineSegment::new("\n", &<_>::default(), <_>::default())],
+                        vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
                     )],
                     None,
                     None,

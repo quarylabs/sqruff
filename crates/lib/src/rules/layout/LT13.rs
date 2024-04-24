@@ -42,7 +42,7 @@ impl Rule for RuleLT13 {
             if !raw_stack.all(Some(|seg| seg.is_meta())) {
                 return vec![LintResult::new(
                     context.segment.into(),
-                    raw_stack.into_iter().map(|seg| LintFix::delete(seg)).collect_vec(),
+                    raw_stack.into_iter().map(LintFix::delete).collect_vec(),
                     None,
                     None,
                     None,

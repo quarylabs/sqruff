@@ -75,7 +75,6 @@ pub struct AnchorEditInfo {
     pub first_replace_fix: Option<LintFix>,
 }
 
-
 impl AnchorEditInfo {
     /// Returns total count of fixes.
     #[allow(dead_code)]

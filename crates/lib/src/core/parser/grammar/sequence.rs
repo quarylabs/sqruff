@@ -370,10 +370,8 @@ impl Matchable for Sequence {
                 // returns a modified copy. Since Rust does not have tuple
                 // concatenation like Python, we need to explicitly extend `matched_segments`
                 // with the results of `_position_metas` and then push `unparsable_seg`.
-                matched_segments.extend(position_metas(
-                    &meta_buffer,
-                    &[&non_code_buffer[..], pre].concat(),
-                ));
+                matched_segments
+                    .extend(position_metas(&meta_buffer, &[&non_code_buffer[..], pre].concat()));
                 matched_segments.push(unparsable_seg);
                 meta_buffer.clear();
                 non_code_buffer.clear();

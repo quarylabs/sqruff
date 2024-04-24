@@ -119,7 +119,7 @@ pub fn identify_rebreak_spans(
                 });
             }
         }
-        
+
         // for (key, config) in elem.line_position_configs.iter() {
         //     if elem.depth_info.stack_positions[key].idx != 0 {
         //         continue;

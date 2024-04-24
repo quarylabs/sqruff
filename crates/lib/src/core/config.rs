@@ -141,7 +141,7 @@ impl FluffConfig {
     }
 
     pub fn get_section(&self, section: &str) -> &AHashMap<String, Value> {
-        &self.raw[section].as_map().unwrap()
+        self.raw[section].as_map().unwrap()
     }
 
     // TODO This is not a translation that is particularly accurate.

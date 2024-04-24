@@ -559,13 +559,7 @@ impl RawFileSlice {
     fn is_source_only_slice(&self) -> bool {
         // TODO: should any new logic go here?. Slice Type could probably go from String
         // To Enum
-        match self.slice_type.as_str() {
-            "comment" => true,
-            "block_end" => true,
-            "block_start" => true,
-            "block_mid" => true,
-            _ => false,
-        }
+        matches!(self.slice_type.as_str(), "comment" | "block_end" | "block_start" | "block_mid")
     }
 }
 

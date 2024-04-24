@@ -78,7 +78,7 @@ impl OutputStreamFormatter {
 
     fn dispatch(&mut self, s: &str) {
         if !self.filter_empty || !s.trim().is_empty() {
-            self.output_stream.write(s.as_bytes()).unwrap();
+            self.output_stream.write_all(s.as_bytes()).unwrap();
         }
     }
 

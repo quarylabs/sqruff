@@ -377,11 +377,14 @@ pub struct RuleManifest {
 
 pub struct RulePack {
     pub(crate) rules: Vec<ErasedRule>,
+    #[allow(dead_code)]
     reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
 }
 
 pub struct RuleSet {
+    #[allow(dead_code)]
     pub(crate) name: String,
+    #[allow(dead_code)]
     pub(crate) config_info: AHashMap<String, String>,
     pub(crate) register: IndexMap<&'static str, RuleManifest>,
 }
@@ -477,12 +480,12 @@ impl RuleSet {
         let mut instantiated_rules = Vec::with_capacity(keylist.len());
 
         let allowlist: Vec<String> = match config.get("rule_allowlist", "core").as_array() {
-            Some(array) => array.into_iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
             None => self.register.keys().map(|it| it.to_string()).collect(),
         };
 
         let denylist: Vec<String> = match config.get("rule_denylist", "core").as_array() {
-            Some(array) => array.into_iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
             None => Vec::new(),
         };
 

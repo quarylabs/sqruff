@@ -132,7 +132,6 @@ impl ReflowSequence {
                 }
             }
             post_idx += 1;
-            
         }
 
         let segments = &all_raws[pre_idx..post_idx];

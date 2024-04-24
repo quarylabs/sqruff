@@ -69,7 +69,7 @@ impl Rule for RuleAL05 {
 }
 
 impl RuleAL05 {
-    fn analyze_table_aliases(&self, query: &mut Query<AL05Query>, dialect: &Dialect) {
+    fn analyze_table_aliases(&self, query: &mut Query<AL05Query>, _dialect: &Dialect) {
         let selectables = std::mem::take(&mut query.selectables);
 
         for selectable in &selectables {
@@ -87,7 +87,7 @@ impl RuleAL05 {
         query.selectables = selectables;
 
         for child in query.children_mut() {
-            self.analyze_table_aliases(child, dialect);
+            self.analyze_table_aliases(child, _dialect);
         }
     }
 

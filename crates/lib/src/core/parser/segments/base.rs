@@ -578,7 +578,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                 // Deletes are easy.
                 if f.edit_type == EditType::Delete {
                     // We're just getting rid of this segment.
-                    requires_validate = true;
                     // NOTE: We don't add the segment in this case.
                     continue;
                 }
@@ -600,12 +599,9 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                     seg_buffer.push(s.clone());
                 }
 
-                if !(f.edit_type == EditType::Replace
+                let _ = !(f.edit_type == EditType::Replace
                     && f.edit.as_ref().map_or(false, |x| x.len() == 1)
-                    && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
-                {
-                    requires_validate = true;
-                }
+                    && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types());
 
                 if f.edit_type == EditType::CreateBefore {
                     seg_buffer.push(seg.clone());
@@ -621,9 +617,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
             seg_buffer.push(s);
             seg_buffer.extend(post);
 
-            if !validated {
-                requires_validate = true;
-            }
+            if !validated {}
         }
 
         (self.new(seg_buffer), Vec::new(), Vec::new(), false)

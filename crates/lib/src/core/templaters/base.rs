@@ -225,11 +225,11 @@ impl TemplatedFileInner {
         match ref_str.binary_search(&char_pos) {
             Ok(nl_idx) | Err(nl_idx) => {
                 if nl_idx > 0 {
-                    ((nl_idx + 1), (char_pos - ref_str[nl_idx - 1]))
+                    (nl_idx + 1, char_pos - ref_str[nl_idx - 1])
                 } else {
                     // NB: line_pos is char_pos + 1 because character position is 0-indexed,
                     // but the line position is 1-indexed.
-                    (1, (char_pos + 1))
+                    (1, char_pos + 1)
                 }
             }
         }
@@ -420,7 +420,7 @@ impl TemplatedFileInner {
             let offset = template_slice.start - start_slices[0].templated_slice.start;
             (start_slices[0].source_slice.start + offset).try_into().unwrap()
         } else {
-            (start_slices[0].source_slice.start).try_into().unwrap()
+            start_slices[0].source_slice.start.try_into().unwrap()
         };
 
         let source_stop = if stop_slices.last().unwrap().slice_type == "literal" {

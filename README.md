@@ -32,7 +32,7 @@ You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
 brew install quarylabs/quary/sqruff
 ```
 
-### Linux
+#### Linux
 
 Using Bash:
 

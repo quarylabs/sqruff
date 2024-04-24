@@ -6,9 +6,7 @@ use itertools::{chain, Itertools};
 use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{
-    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs};
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::utils::reflow::respace::{
@@ -171,11 +169,8 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent = WhitespaceSegment::create(
-                    desired_indent,
-                    &<_>::default(),
-                    WhitespaceSegmentNewArgs,
-                );
+                let new_indent =
+                    WhitespaceSegment::create(desired_indent, &<_>::default(), WhitespaceSegmentNewArgs);
 
                 return (
                     vec![LintResult::new(
@@ -248,11 +243,8 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                let new_indent = WhitespaceSegment::create(
-                    desired_indent,
-                    &<_>::default(),
-                    WhitespaceSegmentNewArgs,
-                );
+                let new_indent =
+                    WhitespaceSegment::create(desired_indent, &<_>::default(), WhitespaceSegmentNewArgs);
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(

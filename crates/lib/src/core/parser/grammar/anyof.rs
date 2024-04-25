@@ -74,6 +74,7 @@ pub fn simple(
 }
 
 #[derive(Debug, Clone, Hash)]
+#[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
 pub struct AnyNumberOf {
     pub elements: Vec<Box<dyn Matchable>>,
     pub terminators: Vec<Box<dyn Matchable>>,

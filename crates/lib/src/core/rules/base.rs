@@ -236,7 +236,7 @@ impl<T: Rule> CloneRule for T {
 }
 
 pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule;
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule;
 
     fn lint_phase(&self) -> &'static str {
         "main"
@@ -377,15 +377,12 @@ pub struct RuleManifest {
 
 pub struct RulePack {
     pub(crate) rules: Vec<ErasedRule>,
-    #[allow(dead_code)]
-    reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
+    _reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
 }
 
 pub struct RuleSet {
-    #[allow(dead_code)]
-    pub(crate) name: String,
-    #[allow(dead_code)]
-    pub(crate) config_info: AHashMap<String, String>,
+    pub(crate) _name: String,
+    pub(crate) _config_info: AHashMap<String, String>,
     pub(crate) register: IndexMap<&'static str, RuleManifest>,
 }
 
@@ -506,9 +503,9 @@ impl RuleSet {
             let specific_rule_config =
                 rules.get(rule_config_ref).and_then(|section| section.as_map()).unwrap_or(&tmp);
 
-            instantiated_rules.push(rule.from_config(specific_rule_config));
+            instantiated_rules.push(rule.load_from_config(specific_rule_config));
         }
 
-        RulePack { rules: instantiated_rules, reference_map }
+        RulePack { rules: instantiated_rules, _reference_map: reference_map }
     }
 }

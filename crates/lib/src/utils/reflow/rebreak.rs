@@ -15,7 +15,7 @@ pub struct RebreakSpan {
 
 #[derive(Debug)]
 pub struct RebreakIndices {
-    dir: i32,
+    _dir: i32,
     adj_pt_idx: isize,
     newline_pt_idx: isize,
     pre_code_pt_idx: isize,
@@ -57,7 +57,7 @@ impl RebreakIndices {
         }
 
         RebreakIndices {
-            dir,
+            _dir: dir,
             adj_pt_idx: adj_point_idx,
             newline_pt_idx: newline_point_idx,
             pre_code_pt_idx: pre_code_point_idx,
@@ -103,21 +103,23 @@ impl RebreakLocation {
 
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    root_segment: ErasedSegment,
+    _root_segment: ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for (idx, elem) in element_buffer.iter().enumerate().skip(2).take(element_buffer.len() - 4) {
-        if let ReflowElement::Block(block) = elem {
-            if let Some(line_position) = &block.line_position {
-                spans.push(RebreakSpan {
-                    target: elem.segments().first().cloned().unwrap(),
-                    start_idx: idx,
-                    end_idx: idx,
-                    line_position: line_position.split(':').next().unwrap_or_default().into(),
-                    strict: line_position.ends_with("strict"),
-                });
-            }
+    for (idx, elem) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2) {
+        let ReflowElement::Block(block) = elem else {
+            continue;
+        };
+
+        if let Some(line_position) = &block.line_position {
+            spans.push(RebreakSpan {
+                target: elem.segments().first().cloned().unwrap(),
+                start_idx: idx,
+                end_idx: idx,
+                line_position: line_position.split(':').next().unwrap_or_default().into(),
+                strict: line_position.ends_with("strict"),
+            });
         }
 
         // for (key, config) in elem.line_position_configs.iter() {
@@ -210,7 +212,7 @@ pub fn rebreak_sequence(
 
             // Generate the text for any issues.
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let _desc = if loc.strict {
                 format!("{} should always start a new line.", capitalize(&pretty_name))
             } else {
                 format!("Found trailing {}. Expected only leading near line breaks.", pretty_name)
@@ -283,7 +285,7 @@ pub fn rebreak_sequence(
             }
 
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let _desc = if loc.strict {
                 format!("{} should always be at the end of a line.", capitalize(&pretty_name))
             } else {
                 format!("Found leading {}. Expected only trailing near line breaks.", pretty_name)

@@ -11,7 +11,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT07 {}
 
 impl Rule for RuleLT07 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleLT07::default().erased()
     }
 

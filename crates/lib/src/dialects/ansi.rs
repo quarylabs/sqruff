@@ -2399,7 +2399,7 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
 }
 
 impl<T: 'static + NodeTrait> Matchable for Node<T> {
-    fn from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+    fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let mut this = self.clone();
         this.segments = segments;
         this.uuid = Uuid::new_v4();
@@ -2566,7 +2566,7 @@ impl Segment for FileSegment {
 }
 
 impl Matchable for FileSegment {
-    fn from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+    fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let mut new_object = self.clone();
         new_object.segments = segments;
         new_object.to_erased_segment()
@@ -2886,13 +2886,13 @@ impl NodeTrait for SelectStatementSegment {
                 Ref::new("OrderByClauseSegment").optional(),
                 Ref::new("FetchClauseSegment").optional(),
                 Ref::new("LimitClauseSegment").optional(),
-                Ref::new("NamedWindowSegment").optional(),
+                Ref::new("NamedWindowSegment").optional()
             ]),
             true,
             vec_of_erased![
                 Ref::new("SetOperatorSegment"),
                 Ref::new("WithNoSchemaBindingClauseSegment"),
-                Ref::new("WithDataClauseSegment"),
+                Ref::new("WithDataClauseSegment")
             ],
         )
     }
@@ -2951,8 +2951,7 @@ impl NodeTrait for SelectClauseElementSegment {
 
 impl Node<SelectClauseElementSegment> {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
-        // this fix breaks AL05 test cases
-        let alias_expression_segment =
+        let _alias_expression_segment =
             self.recursive_crawl(&["alias_expression"], true, None, true).first()?.clone();
 
         unimplemented!()
@@ -6136,8 +6135,6 @@ mod tests {
         for (sql_string, meta_loc) in cases {
             let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
             let tree = parsed.tree.unwrap();
-
-            let n = tree.to_serialised(false, true, true);
 
             let res_meta_locs = tree
                 .get_raw_segments()

@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::ops::{Deref, Range};
 
 use crate::cli::formatters::OutputStreamFormatter;
@@ -247,6 +248,7 @@ impl TemplatedFileInner {
     }
 
     /// Return the templated file if coerced to string.
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         self.templated_str.clone().unwrap().to_string()
     }
@@ -292,6 +294,8 @@ impl TemplatedFileInner {
                 if first_idx.is_none() {
                     first_idx = Some(idx + start_idx);
                 }
+
+                #[allow(clippy::if_same_then_else)]
                 if elem.templated_slice.start > templated_pos {
                     break;
                 } else if !inclusive && elem.templated_slice.end >= templated_pos {
@@ -394,18 +398,17 @@ impl TemplatedFileInner {
         let subslices = &sliced_file[usize::min(ts_start_sf_start, ts_stop_sf_start)
             ..usize::max(ts_start_sf_stop, ts_stop_sf_stop)];
 
-        let start_slices;
-        if ts_start_sf_start == ts_start_sf_stop {
-            return if ts_start_sf_start > sliced_file.len() {
-                Err(ValueError::new("Starting position higher than sliced file position".into()))
-            } else if ts_start_sf_start < sliced_file.len() {
-                Ok(sliced_file[1].source_slice.clone())
-            } else {
-                Ok(sliced_file.last().unwrap().source_slice.clone())
+        let start_slices = if ts_start_sf_start == ts_start_sf_stop {
+            return match ts_start_sf_start.cmp(&sliced_file.len()) {
+                Ordering::Greater => Err(ValueError::new(
+                    "Starting position higher than sliced file position".into(),
+                )),
+                Ordering::Less => Ok(sliced_file[1].source_slice.clone()),
+                Ordering::Equal => Ok(sliced_file.last().unwrap().source_slice.clone()),
             };
         } else {
-            start_slices = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
-        }
+            &sliced_file[ts_start_sf_start..ts_start_sf_stop]
+        };
 
         let stop_slices = if ts_stop_sf_start == ts_stop_sf_stop {
             vec![sliced_file[ts_stop_sf_start].clone()]
@@ -473,6 +476,7 @@ impl TemplatedFileInner {
     }
 
     /// Return a list of the raw slices spanning a set of indices.
+    #[allow(dead_code)]
     fn raw_slices_spanning_source_slice(&self, source_slice: Range<usize>) -> Vec<RawFileSlice> {
         // Special case: The source_slice is at the end of the file.
         let last_raw_slice = self.raw_sliced.last().unwrap();

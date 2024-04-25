@@ -25,7 +25,7 @@ use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 pub struct RuleL001 {}
 
 impl Rule for RuleL001 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         unimplemented!()
     }
 

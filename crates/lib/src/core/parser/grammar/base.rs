@@ -18,6 +18,7 @@ use crate::helpers::{capitalize, ToMatchable};
 use crate::stack::ensure_sufficient_stack;
 
 #[derive(Clone, Debug, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct BaseGrammar {
     elements: Vec<Box<dyn Matchable>>,
     allow_gaps: bool,
@@ -101,6 +102,7 @@ impl Matchable for BaseGrammar {
 }
 
 #[derive(Clone, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Ref {
     reference: Cow<'static, str>,
     exclude: Option<Box<dyn Matchable>>,
@@ -241,6 +243,7 @@ impl Matchable for Ref {
 }
 
 #[derive(Clone, Debug, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Anything {
     terminators: Vec<Box<dyn Matchable>>,
 }

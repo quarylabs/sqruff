@@ -11,7 +11,7 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT03 {}
 
 impl Rule for RuleLT03 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleLT03::default().erased()
     }
 

@@ -78,7 +78,7 @@ impl OutputStreamFormatter {
 
     fn dispatch(&mut self, s: &str) {
         if !self.filter_empty || !s.trim().is_empty() {
-            self.output_stream.write_all(s.as_bytes()).unwrap();
+            _ = self.output_stream.write(s.as_bytes()).unwrap();
         }
     }
 
@@ -362,7 +362,7 @@ mod tests {
         struct RuleGhost;
 
         impl Rule for RuleGhost {
-            fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+            fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
                 unimplemented!()
             }
 

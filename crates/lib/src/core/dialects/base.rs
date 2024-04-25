@@ -24,9 +24,7 @@ pub struct Dialect {
 
 impl Dialect {
     pub fn new(root_segment_name: &'static str) -> Self {
-        let mut this = Dialect::default();
-        this.root_segment_name = root_segment_name;
-        this
+        Dialect { root_segment_name, ..Default::default() }
     }
 
     pub fn add(

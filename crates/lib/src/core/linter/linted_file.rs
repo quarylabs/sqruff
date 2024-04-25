@@ -280,6 +280,7 @@ mod test {
     ///     This is part of fix_string().
     #[test]
     fn test__slice_source_file_using_patches() {
+        #[allow(clippy::single_range_in_vec_init)]
         let test_cases = [
             (
                 // Trivial example.

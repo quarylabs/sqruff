@@ -125,8 +125,8 @@ impl ReflowSequence {
         }
 
         if sides == "both" || sides == "after" {
-            for (i, raw) in all_raws.iter().enumerate().skip(post_idx) {
-                if raw.is_code() {
+            for (i, it) in all_raws.iter().enumerate().skip(post_idx) {
+                if it.is_code() {
                     post_idx = i;
                     break;
                 }

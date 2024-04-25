@@ -15,7 +15,7 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleLT04::default().erased()
     }
 

@@ -20,7 +20,7 @@ impl Default for RuleAL03 {
 }
 
 impl Rule for RuleAL03 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         unimplemented!()
     }
 

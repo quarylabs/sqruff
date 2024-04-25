@@ -30,7 +30,7 @@ impl RawSegment {
         // For legacy and syntactic sugar we allow the simple
         // `type` argument here, but for more precise inheritance
         // we suggest using the `instance_types` option.
-        args: RawSegmentArgs,
+        _args: RawSegmentArgs,
     ) -> Self {
         Self { position_marker, raw, uuid: Uuid::new_v4() }
     }

@@ -334,6 +334,7 @@ pub struct RegexLexer<SegmentArgs: 'static + Clone> {
 }
 
 impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
+    #[allow(clippy::result_large_err)]
     pub fn new(
         name: &'static str,
         regex: &str,
@@ -666,6 +667,7 @@ fn iter_segments(
                     ));
 
                     // If it was an exact match, consume the templated element too.
+                    #[allow(unused_assignments)]
                     if element.template_slice.end == tfs.templated_slice.end {
                         tfs_idx += 1
                     }

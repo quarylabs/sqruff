@@ -77,6 +77,8 @@ impl BaseCrawler for SegmentSeekerCrawler {
 
         let new_parent_stack =
             chain(context.parent_stack, Some(context.segment.clone())).collect_vec();
+
+        #[allow(clippy::assigning_clones)]
         for (idx, child) in context.segment.gather_segments().into_iter().enumerate() {
             context.segment = child;
             context.parent_stack = new_parent_stack.clone();

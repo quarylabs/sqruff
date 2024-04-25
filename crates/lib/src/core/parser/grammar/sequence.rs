@@ -105,6 +105,7 @@ fn position_metas(
 }
 
 #[derive(Debug, Clone, Hash)]
+#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Sequence {
     elements: Vec<Box<dyn Matchable>>,
     parse_mode: ParseMode,
@@ -661,9 +662,9 @@ impl Matchable for Bracketed {
         bracket_segment.segments = chain!(
             bracket_segment.start_bracket.clone(),
             Some(MetaSegment::indent().to_erased_segment()),
-            pre_segs.to_vec(),
+            pre_segs.iter().cloned(),
             content_match.all_segments(),
-            post_segs.to_vec(),
+            post_segs.iter().cloned(),
             Some(MetaSegment::dedent().to_erased_segment()),
             bracket_segment.end_bracket.clone()
         )

@@ -27,5 +27,5 @@ pub fn get_ruleset() -> RuleSet {
         );
     }
 
-    RuleSet { name: "standard".into(), config_info: <_>::default(), register }
+    RuleSet { _name: "standard".into(), _config_info: <_>::default(), register }
 }

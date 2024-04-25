@@ -12,7 +12,7 @@ use crate::utils::analysis::select::get_select_statement_info;
 pub struct RuleAL04 {}
 
 impl Rule for RuleAL04 {
-    fn from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         unimplemented!()
     }
 

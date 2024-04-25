@@ -71,7 +71,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         );
 
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
-            WhitespaceSegment::create(elem, &position_marker, WhitespaceSegmentNewArgs {})
+            WhitespaceSegment::create(elem, &position_marker, WhitespaceSegmentNewArgs)
         } else if elem.chars().all(|c| c == '\n') {
             NewlineSegment::create(elem, &position_marker, NewlineSegmentNewArgs {})
         } else if elem == "(" || elem == ")" {

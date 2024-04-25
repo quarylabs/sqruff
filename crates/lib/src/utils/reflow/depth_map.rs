@@ -3,7 +3,7 @@ use std::hash::{Hash, Hasher};
 use ahash::{AHashMap, AHashSet};
 use uuid::Uuid;
 
-use crate::core::parser::segments::base::{ErasedSegment, PathStep, Segment};
+use crate::core::parser::segments::base::{ErasedSegment, PathStep, SegmentExt as _};
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -59,7 +59,7 @@ impl DepthMap {
         self.depth_info[&seg.get_uuid().unwrap()].clone()
     }
 
-    pub fn from_parent(parent: &dyn Segment) -> Self {
+    pub fn from_parent(parent: &ErasedSegment) -> Self {
         Self::new(parent.raw_segments_with_ancestors())
     }
 

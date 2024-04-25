@@ -33,7 +33,7 @@ impl ReflowSequence {
     }
 
     pub fn from_root(root_segment: ErasedSegment, config: &FluffConfig) -> Self {
-        let depth_map = DepthMap::from_parent(&*root_segment).into();
+        let depth_map = DepthMap::from_parent(&root_segment).into();
 
         Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, config, depth_map)
     }
@@ -48,16 +48,15 @@ impl ReflowSequence {
         let depth_map = depth_map.unwrap_or_else(|| {
             DepthMap::from_raws_and_root(segments.clone(), root_segment.clone())
         });
-        let elements =
-            Self::elements_from_raw_segments(segments, depth_map.clone(), reflow_config.clone());
+        let elements = Self::elements_from_raw_segments(segments, &depth_map, &reflow_config);
 
         Self { root_segment, elements, lint_results: Vec::new(), reflow_config, depth_map }
     }
 
     fn elements_from_raw_segments(
         segments: Vec<ErasedSegment>,
-        depth_map: DepthMap,
-        reflow_config: ReflowConfig,
+        depth_map: &DepthMap,
+        reflow_config: &ReflowConfig,
     ) -> Vec<ReflowElement> {
         let mut elem_buff = Vec::new();
         let mut seg_buff = Vec::new();
@@ -81,7 +80,7 @@ impl ReflowSequence {
             let depth_info = depth_map.get_depth_info(&seg);
             elem_buff.push(ReflowElement::Block(ReflowBlock::from_config(
                 vec![seg],
-                reflow_config.clone(),
+                reflow_config,
                 depth_info,
             )));
 
@@ -154,7 +153,7 @@ impl ReflowSequence {
 
         let new_block = ReflowBlock::from_config(
             vec![insertion.clone()],
-            self.reflow_config.clone(),
+            &self.reflow_config,
             self.depth_map.get_depth_info(&target),
         );
 

@@ -605,7 +605,9 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
                 #[allow(unused_assignments)]
                 if !(f.edit_type == EditType::Replace
                     && f.edit.as_ref().map_or(false, |x| x.len() == 1)
-                    && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types());
+                    && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
+                {
+                }
 
                 if f.edit_type == EditType::CreateBefore {
                     seg_buffer.push(seg.clone());
@@ -623,7 +625,7 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 
             #[allow(unused_assignments)]
             if !validated {
-                requires_validate = true;
+                //  requires_validate = true;
             }
         }
 

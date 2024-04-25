@@ -6,7 +6,6 @@ use std::rc::Rc;
 
 use ahash::{AHashMap, AHashSet};
 use dyn_clone::DynClone;
-use dyn_hash::DynHash;
 use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
 use serde::ser::SerializeMap;
@@ -119,10 +118,14 @@ impl ErasedSegment {
     }
 }
 
-pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
+pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
     #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn type_name(&self) -> &'static str {
+        std::any::type_name::<Self>()
     }
 
     fn as_object_reference(&self) -> Node<ObjectReferenceSegment> {
@@ -673,7 +676,6 @@ pub trait Segment: Any + DynEq + DynClone + DynHash + Debug + CloneSegment {
 }
 
 dyn_clone::clone_trait_object!(Segment);
-dyn_hash::hash_trait_object!(Segment);
 
 impl PartialEq for dyn Segment {
     fn eq(&self, other: &Self) -> bool {
@@ -696,6 +698,22 @@ impl PartialEq for dyn Segment {
 }
 
 impl Eq for ErasedSegment {}
+
+impl Hash for dyn Segment {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.type_name().hash(state);
+
+        if let Some(marker) = &self.get_raw() {
+            marker.hash(state);
+        }
+
+        if let Some(marker) = &self.get_position_marker() {
+            marker.source_position().hash(state);
+        } else {
+            None::<usize>.hash(state);
+        }
+    }
+}
 
 pub fn position_segments(
     segments: &[ErasedSegment],

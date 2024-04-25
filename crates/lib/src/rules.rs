@@ -2,6 +2,7 @@ use crate::core::rules::base::{RuleManifest, RuleSet};
 use crate::helpers::IndexMap;
 
 pub mod aliasing;
+pub mod ambiguous;
 pub mod convention;
 pub mod l001;
 pub mod layout;

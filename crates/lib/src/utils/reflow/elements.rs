@@ -478,7 +478,7 @@ impl ReflowBlock {
 impl ReflowBlock {
     pub fn from_config(
         segments: Vec<ErasedSegment>,
-        config: ReflowConfig,
+        config: &ReflowConfig,
         depth_info: DepthInfo,
     ) -> Self {
         let block_config =

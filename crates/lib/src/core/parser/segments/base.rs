@@ -334,32 +334,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         buff
     }
 
-    fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep> {
-        let midpoint = other;
-
-        for (idx, seg) in enumerate(self.segments()) {
-            let mut steps = vec![PathStep {
-                segment: self.clone_box(),
-                idx,
-                len: self.segments().len(),
-                code_idxs: self.code_indices(),
-            }];
-
-            if seg.eq(midpoint) {
-                return steps;
-            }
-
-            let res = seg.path_to(midpoint);
-
-            if !res.is_empty() {
-                steps.extend(res);
-                return steps;
-            }
-        }
-
-        Vec::new()
-    }
-
     fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
         let mut acc = Vec::new();
 
@@ -636,14 +610,21 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
 
         (self.new(seg_buffer), Vec::new(), Vec::new(), false)
     }
+}
 
+pub trait SegmentExt {
+    fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)>;
+    fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep>;
+}
+
+impl SegmentExt for ErasedSegment {
     fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)> {
         let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> = Vec::new();
         let code_idxs: Vec<usize> = self.code_indices();
 
         for (idx, seg) in self.segments().iter().enumerate() {
             let new_step = vec![PathStep {
-                segment: self.clone_box(),
+                segment: self.clone(),
                 idx,
                 len: self.segments().len(),
                 code_idxs: code_idxs.clone(),
@@ -672,6 +653,32 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         }
 
         buffer
+    }
+
+    fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep> {
+        let midpoint = other;
+
+        for (idx, seg) in enumerate(self.segments()) {
+            let mut steps = vec![PathStep {
+                segment: self.clone_box(),
+                idx,
+                len: self.segments().len(),
+                code_idxs: self.code_indices(),
+            }];
+
+            if seg.eq(midpoint) {
+                return steps;
+            }
+
+            let res = seg.path_to(midpoint);
+
+            if !res.is_empty() {
+                steps.extend(res);
+                return steps;
+            }
+        }
+
+        Vec::new()
     }
 }
 

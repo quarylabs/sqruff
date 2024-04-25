@@ -1,26 +1,27 @@
+use std::rc::Rc;
+
 use ahash::AHashMap;
 
 use super::match_result::MatchResult;
 use super::matchable::Matchable;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
-use crate::core::dialects::init::dialect_selector;
 
 #[derive(Debug)]
-pub struct ParseContext {
-    dialect: Dialect,
+pub struct ParseContext<'a> {
+    dialect: &'a Dialect,
     tqdm: Option<()>,
     match_segment: String,
     match_stack: Vec<String>,
     match_depth: usize,
     track_progress: bool,
-    pub(crate) terminators: Vec<Box<dyn Matchable>>,
+    pub(crate) terminators: Vec<Rc<dyn Matchable>>,
     parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), String), MatchResult>,
     pub(crate) indentation_config: AHashMap<String, bool>,
 }
 
-impl ParseContext {
-    pub fn new(dialect: Dialect, indentation_config: AHashMap<String, bool>) -> Self {
+impl<'a> ParseContext<'a> {
+    pub fn new(dialect: &'a Dialect, indentation_config: AHashMap<String, bool>) -> Self {
         Self {
             dialect,
             tqdm: None,
@@ -35,11 +36,11 @@ impl ParseContext {
     }
 
     pub fn dialect(&self) -> &Dialect {
-        &self.dialect
+        self.dialect
     }
 
-    pub fn from_config(config: FluffConfig) -> Self {
-        let dialect = dialect_selector("ansi").unwrap();
+    pub fn from_config(config: &'a FluffConfig) -> Self {
+        let dialect = &config.dialect;
         let indentation_config = config.raw["indentation"].as_map().unwrap();
         let indentation_config: AHashMap<_, _> =
             indentation_config.iter().map(|(key, value)| (key.clone(), value.to_bool())).collect();
@@ -60,7 +61,7 @@ impl ParseContext {
         &mut self,
         name: impl ToString,
         clear_terminators: bool,
-        push_terminators: &[Box<dyn Matchable>],
+        push_terminators: &[Rc<dyn Matchable>],
         track_progress: Option<bool>,
         f: impl FnOnce(&mut Self) -> T,
     ) -> T {
@@ -99,8 +100,8 @@ impl ParseContext {
     fn set_terminators(
         &mut self,
         clear_terminators: bool,
-        push_terminators: &[Box<dyn Matchable>],
-    ) -> (usize, Vec<Box<dyn Matchable>>) {
+        push_terminators: &[Rc<dyn Matchable>],
+    ) -> (usize, Vec<Rc<dyn Matchable>>) {
         let mut appended = 0;
         let terminators = self.terminators.clone();
 
@@ -125,7 +126,7 @@ impl ParseContext {
     fn reset_terminators(
         &mut self,
         appended: usize,
-        terminators: Vec<Box<dyn Matchable>>,
+        terminators: Vec<Rc<dyn Matchable>>,
         clear_terminators: bool,
     ) {
         if clear_terminators {

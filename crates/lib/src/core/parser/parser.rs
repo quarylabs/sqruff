@@ -6,14 +6,13 @@ use crate::core::errors::SQLParseError;
 use crate::dialects::ansi::FileSegment;
 
 /// Instantiates parsed queries from a sequence of lexed raw segments.
-pub struct Parser {
-    config: FluffConfig,
+pub struct Parser<'a> {
+    config: &'a FluffConfig,
     root_segment: FileSegment,
 }
 
-impl Parser {
-    pub fn new(config: Option<FluffConfig>, _dialect: Option<String>) -> Self {
-        let config = config.unwrap_or_else(|| FluffConfig::new(<_>::default(), None, None));
+impl<'a> Parser<'a> {
+    pub fn new(config: &'a FluffConfig, _dialect: Option<String>) -> Self {
         Self { config, root_segment: FileSegment::default() }
     }
 
@@ -33,7 +32,7 @@ impl Parser {
         // NOTE: This is the only time we use the parse context not in the
         // context of a context manager. That's because it's the initial
         // instantiation.
-        let mut parse_cx = ParseContext::from_config(self.config.clone());
+        let mut parse_cx = ParseContext::from_config(self.config);
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
@@ -62,6 +61,6 @@ mod tests {
         let config = FluffConfig::new(<_>::default(), None, None);
         let linter = Linter::new(config, None, None);
 
-        let _ = linter.parse_string(in_str, None, None, None, None);
+        let _ = linter.parse_string(in_str, None, None, None);
     }
 }

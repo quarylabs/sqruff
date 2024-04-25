@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::fmt::Debug;
+use std::rc::Rc;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
@@ -20,6 +21,12 @@ pub struct Dialect {
     library: AHashMap<Cow<'static, str>, DialectElementType>,
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
     bracket_collections: AHashMap<String, AHashSet<BracketPair>>,
+}
+
+impl PartialEq for Dialect {
+    fn eq(&self, other: &Self) -> bool {
+        self.root_segment_name == other.root_segment_name
+    }
 }
 
 impl Dialect {
@@ -106,7 +113,7 @@ impl Dialect {
         }
     }
 
-    pub fn r#ref(&self, name: &str) -> Box<dyn Matchable> {
+    pub fn r#ref(&self, name: &str) -> Rc<dyn Matchable> {
         // TODO:
         // if !self.expanded {
         //     panic!("Dialect must be expanded before use.");
@@ -168,7 +175,7 @@ impl Dialect {
                         );
 
                         self.library
-                            .insert(n.into(), DialectElementType::Matchable(Box::new(parser)));
+                            .insert(n.into(), DialectElementType::Matchable(Rc::new(parser)));
                     }
                 }
             }
@@ -179,7 +186,7 @@ impl Dialect {
         self.root_segment_name
     }
 
-    pub fn get_root_segment(&self) -> Box<dyn Matchable> {
+    pub fn get_root_segment(&self) -> Rc<dyn Matchable> {
         self.r#ref(self.root_segment_name())
     }
 }

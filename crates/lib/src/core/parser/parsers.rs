@@ -456,7 +456,8 @@ mod tests {
             <_>::default(),
         );
 
-        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
+        let dialect = dialect_selector("ansi").unwrap();
+        let parse_cx = ParseContext::new(&dialect, <_>::default());
 
         assert_eq!(
             parser.simple(&parse_cx, None),
@@ -470,7 +471,8 @@ mod tests {
         let parser = StringParser::new("foo", |_| todo!(), None, false, None);
 
         // Create a dummy ParseContext
-        let parse_cx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
+        let dialect = dialect_selector("ansi").unwrap();
+        let parse_cx = ParseContext::new(&dialect, <_>::default());
 
         // Perform the test
         assert_eq!(parser.simple(&parse_cx), (["FOO".to_string()].into(), AHashSet::new()));
@@ -479,7 +481,8 @@ mod tests {
     #[test]
     fn test_parser_regexparser_simple() {
         let parser = RegexParser::new("b.r", |_| todo!(), None, false, None, None);
-        let ctx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
+        let dialect = dialect_selector("ansi").unwrap();
+        let ctx = ParseContext::new(&dialect, <_>::default());
         assert_eq!(parser.simple(&ctx, None), None);
     }
 
@@ -499,7 +502,8 @@ mod tests {
             false,
             None,
         );
-        let mut ctx = ParseContext::new(dialect_selector("ansi").unwrap(), <_>::default());
+        let dialect = dialect_selector("ansi").unwrap();
+        let mut ctx = ParseContext::new(&dialect, <_>::default());
 
         // Check directly
         let segments = generate_test_segments_func(vec!["foo", "fo"]);

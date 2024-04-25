@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use ahash::AHashSet;
 use itertools::{chain, enumerate, multiunzip, Itertools};
 
@@ -56,10 +58,10 @@ impl BracketInfo {
 /// Works in the context of a grammar making choices between options
 /// such as AnyOf or the content of Delimited.
 pub fn prune_options(
-    options: &[Box<dyn Matchable>],
+    options: &[Rc<dyn Matchable>],
     segments: &[ErasedSegment],
     parse_context: &mut ParseContext,
-) -> Vec<Box<dyn Matchable>> {
+) -> Vec<Rc<dyn Matchable>> {
     let mut available_options = vec![];
     let mut prune_buff = vec![];
 
@@ -115,9 +117,9 @@ pub fn prune_options(
 //  `tuple` of (unmatched_segments, match_object, matcher).
 pub fn look_ahead_match(
     segments: &[ErasedSegment],
-    matchers: Vec<Box<dyn Matchable>>,
+    matchers: Vec<Rc<dyn Matchable>>,
     parse_context: &mut ParseContext,
-) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
+) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
     // Have we been passed an empty tuple?
     if segments.is_empty() {
         return Ok((Vec::new(), MatchResult::from_empty(), None));
@@ -202,12 +204,12 @@ pub fn look_ahead_match(
 //    `tuple` of (unmatched_segments, match_object, matcher).
 pub fn bracket_sensitive_look_ahead_match(
     segments: Vec<ErasedSegment>,
-    matchers: Vec<Box<dyn Matchable>>,
+    matchers: Vec<Rc<dyn Matchable>>,
     parse_cx: &mut ParseContext,
-    start_bracket: Option<Box<dyn Matchable>>,
-    end_bracket: Option<Box<dyn Matchable>>,
+    start_bracket: Option<Rc<dyn Matchable>>,
+    end_bracket: Option<Rc<dyn Matchable>>,
     bracket_pairs_set: Option<&'static str>,
-) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
+) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
     let bracket_pairs_set = bracket_pairs_set.unwrap_or("bracket_pairs");
 
     // Have we been passed an empty tuple?
@@ -442,7 +444,7 @@ pub fn bracket_sensitive_look_ahead_match(
 pub fn greedy_match(
     segments: Vec<ErasedSegment>,
     parse_context: &mut ParseContext,
-    matchers: Vec<Box<dyn Matchable>>,
+    matchers: Vec<Rc<dyn Matchable>>,
     include_terminator: bool,
 ) -> Result<MatchResult, SQLParseError> {
     let mut seg_buff = segments.clone();
@@ -524,6 +526,8 @@ pub fn greedy_match(
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use itertools::Itertools;
 
     use super::{bracket_sensitive_look_ahead_match, look_ahead_match};
@@ -546,7 +550,7 @@ mod tests {
             let matchers = matcher_keywords
                 .iter()
                 .map(|kw| {
-                    Box::new(StringParser::new(
+                    Rc::new(StringParser::new(
                         kw,
                         |segment| {
                             KeywordSegment::new(
@@ -558,7 +562,7 @@ mod tests {
                         None,
                         false,
                         None,
-                    )) as Box<dyn Matchable>
+                    )) as Rc<dyn Matchable>
                 })
                 .collect_vec();
 
@@ -566,7 +570,8 @@ mod tests {
                 [matcher_keywords.iter().position(|&it| it == winning_matcher).unwrap()]
             .clone();
 
-            let mut cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+            let dialect = fresh_ansi_dialect();
+            let mut cx = ParseContext::new(&dialect, <_>::default());
             let (_result_pre_match, result_match, result_matcher) =
                 look_ahead_match(&test_segments, matchers, &mut cx).unwrap();
 
@@ -581,7 +586,7 @@ mod tests {
     // Test the bracket_sensitive_look_ahead_match method of the BaseGrammar.
     #[test]
     fn test__parser__algorithms__bracket_sensitive_look_ahead_match() {
-        let bs = Box::new(StringParser::new(
+        let bs = Rc::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
@@ -595,7 +600,7 @@ mod tests {
             None,
         ));
 
-        let fs = Box::new(StringParser::new(
+        let fs = Rc::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
@@ -610,7 +615,8 @@ mod tests {
         ));
 
         // We need a dialect here to do bracket matching
-        let mut parse_cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+        let dialect = fresh_ansi_dialect();
+        let mut parse_cx = ParseContext::new(&dialect, <_>::default());
 
         // Basic version, we should find bar first
         let (pre_section, match_result, _matcher) = bracket_sensitive_look_ahead_match(
@@ -660,11 +666,12 @@ mod tests {
     #[test]
     fn test__parser__algorithms__bracket_fail_with_open_paren_close_square_mismatch() {
         // Assuming 'StringParser' and 'KeywordSegment' are defined elsewhere
-        let fs = Box::new(StringParser::new("foo", |_| unimplemented!(), None, false, None))
-            as Box<dyn Matchable>;
+        let fs = Rc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None))
+            as Rc<dyn Matchable>;
 
         // Assuming 'ParseContext' is defined elsewhere and requires a dialect
-        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default()); // Placeholder for dialect
+        let dialect = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(&dialect, <_>::default()); // Placeholder for dialect
 
         // Rust's error handling pattern using 'Result'
         let result = bracket_sensitive_look_ahead_match(
@@ -690,10 +697,11 @@ mod tests {
     fn test__parser__algorithms__bracket_fail_with_unexpected_end_bracket() {
         // Assuming 'StringParser', 'KeywordSegment', 'ParseContext', and other
         // necessary types are defined elsewhere
-        let fs = Box::new(StringParser::new("foo", |_| unimplemented!(), None, false, None));
+        let fs = Rc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None));
 
         // Creating a ParseContext with a dialect
-        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default()); // Placeholder for dialect
+        let dialect = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(&dialect, <_>::default()); // Placeholder for dialect
 
         // Assuming the function 'bracket_sensitive_look_ahead_match' returns a Result
         // with a tuple

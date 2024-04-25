@@ -13,7 +13,6 @@ use super::linted_dir::LintedDir;
 use super::runner::RunnerContext;
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
-use crate::core::dialects::init::dialect_selector;
 use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
@@ -84,7 +83,6 @@ impl Linter {
         &self,
         in_str: String,
         f_name: Option<String>,
-        config: Option<&FluffConfig>,
         encoding: Option<String>,
         parse_statistics: Option<bool>,
     ) -> Result<ParsedString, SQLFluffUserError> {
@@ -93,25 +91,10 @@ impl Linter {
         let parse_statistics = parse_statistics.unwrap_or(false);
 
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
-        // Dispatch the output for the template header (including the config diff)
-        if let Some(formatter) = &self.formatter {
-            if let Some(unwrapped_config) = config {
-                formatter.dispatch_template_header(
-                    /*f_name.clone(),
-                    self.config.clone(),
-                    unwrapped_config.clone()*/
-                )
-            } else {
-                panic!("config cannot be Option in this case")
-            }
-        }
 
-        // Just use the local config from here
-        let binding = self.config.clone();
-        let mut config = config.unwrap_or(&binding).clone();
         // Scan the raw file for config commands.
-        config.process_raw_file_for_config(&in_str);
-        let rendered = self.render_string(in_str, f_name.clone(), config, Some(encoding))?;
+        self.config.process_raw_file_for_config(&in_str);
+        let rendered = self.render_string(in_str, f_name.clone(), &self.config, Some(encoding))?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));
@@ -138,17 +121,10 @@ impl Linter {
         fix: bool,
     ) -> LintedFile {
         // Sort out config, defaulting to the built in config if no override
-        let defaulted_config = config.unwrap_or(&self.config);
+        let _defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
-        let parsed = self
-            .parse_string(
-                in_str.unwrap_or("".to_string()),
-                f_name,
-                Some(defaulted_config),
-                None,
-                None,
-            )
-            .unwrap();
+        let parsed =
+            self.parse_string(in_str.unwrap_or("".to_string()), f_name, None, None).unwrap();
 
         // Lint the file and return the LintedFile
         self.lint_parsed(parsed, rules, fix)
@@ -195,7 +171,7 @@ impl Linter {
 
     pub fn render_file(&mut self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
-        self.render_string(in_str, fname, self.config.clone(), None).unwrap()
+        self.render_string(in_str, fname, &self.config, None).unwrap()
     }
 
     pub fn lint_rendered(
@@ -248,7 +224,6 @@ impl Linter {
 
         let mut initial_linting_errors = Vec::new();
         let phases: &[_] = if fix { &["main", "post"] } else { &["main"] };
-        let dialect = dialect_selector("ansi").unwrap();
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
         // once for linting.
@@ -286,7 +261,7 @@ impl Linter {
                     }
 
                     let (linting_errors, fixes) =
-                        rule.crawl(&dialect, fix, tree.clone(), &self.config);
+                        rule.crawl(&self.config.dialect, fix, tree.clone(), &self.config);
                     let anchor_info = compute_anchor_edit_info(fixes.clone());
 
                     if is_first_linter_pass {
@@ -301,7 +276,7 @@ impl Linter {
                         let _last_fixes = fixes;
 
                         let (new_tree, _, _, valid) =
-                            tree.apply_fixes(dialect_selector("ansi").unwrap(), anchor_info);
+                            tree.apply_fixes(&self.config.dialect, anchor_info);
 
                         if false {
                             println!(
@@ -330,7 +305,7 @@ impl Linter {
         &self,
         in_str: String,
         f_name: String,
-        config: FluffConfig,
+        config: &FluffConfig,
         encoding: Option<String>,
     ) -> Result<RenderedFile, SQLFluffUserError> {
         // TODO Implement loggers eventually
@@ -371,7 +346,7 @@ impl Linter {
         match self.templater.process(
             in_str.as_str(),
             f_name.as_str(),
-            Some(&config),
+            Some(config),
             self.formatter.as_ref(),
         ) {
             Ok(file) => {
@@ -402,7 +377,7 @@ impl Linter {
         Ok(RenderedFile {
             templated_file: templated_file.unwrap(),
             templater_violations,
-            config,
+            config: config.clone(),
             time_dict: AHashMap::new(),
             f_name: f_name.to_owned(),
             encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
@@ -426,7 +401,7 @@ impl Linter {
         let mut tokens: Option<Vec<ErasedSegment>> = None;
 
         if rendered.templated_file.is_templated() {
-            let (t, lvs, _config) =
+            let (t, lvs) =
                 Self::lex_templated_file(rendered.templated_file.clone(), &rendered.config);
             tokens = t;
             if !lvs.is_empty() {
@@ -478,7 +453,7 @@ impl Linter {
         f_name: Option<String>,
         parse_statistics: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
-        let mut parser = Parser::new(Some(config.clone()), None);
+        let mut parser = Parser::new(config, None);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
         let parsed = match parser.parse(tokens, f_name, parse_statistics) {
@@ -499,11 +474,11 @@ impl Linter {
     fn lex_templated_file(
         templated_file: TemplatedFile,
         config: &FluffConfig,
-    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>, FluffConfig) {
+    ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
         let mut violations: Vec<SQLLexError> = vec![];
         // linter_logger.info("LEXING RAW ({})", templated_file.fname);
         // Get the lexer
-        let lexer = Lexer::new(config.clone(), None);
+        let lexer = Lexer::new(config, None);
         // Lex the file and log any problems
         let result = lexer.lex(StringOrTemplate::Template(templated_file));
         match result {
@@ -515,10 +490,10 @@ impl Linter {
                 violations.extend(lex_vs);
 
                 if tokens.is_empty() {
-                    return (None, violations, config.clone());
+                    return (None, violations);
                 }
 
-                (tokens.into(), violations, config.clone())
+                (tokens.into(), violations)
             }
         }
     }
@@ -755,7 +730,7 @@ mod tests {
     #[test]
     fn test__linter__empty_file() {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let parsed = linter.parse_string("".into(), None, None, None, None).unwrap();
+        let parsed = linter.parse_string("".into(), None, None, None).unwrap();
 
         assert!(parsed.violations.is_empty());
     }
@@ -781,7 +756,7 @@ mod tests {
         .to_string();
 
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let _parsed = linter.parse_string(sql, None, None, None, None).unwrap();
+        let _parsed = linter.parse_string(sql, None, None, None).unwrap();
     }
 
     #[test]

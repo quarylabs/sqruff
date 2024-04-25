@@ -434,8 +434,8 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
 }
 
 /// The Lexer class actually does the lexing step.
-pub struct Lexer {
-    config: FluffConfig,
+pub struct Lexer<'a> {
+    config: &'a FluffConfig,
     last_resort_lexer: Box<dyn Matcher>,
 }
 
@@ -444,10 +444,9 @@ pub enum StringOrTemplate {
     Template(TemplatedFile),
 }
 
-impl Lexer {
+impl<'a> Lexer<'a> {
     /// Create a new lexer.
-    pub fn new(config: FluffConfig, dialect: Option<Dialect>) -> Self {
-        let fluff_config = FluffConfig::from_kwargs(Some(config), dialect, None);
+    pub fn new(config: &'a FluffConfig, _dialect: Option<Dialect>) -> Self {
         let last_resort_lexer = RegexLexer::new(
             "last_resort",
             "[^\t\n.]*",
@@ -457,7 +456,7 @@ impl Lexer {
             None,
         )
         .expect("Unable to create last resort lexer");
-        Lexer { config: fluff_config, last_resort_lexer: Box::new(last_resort_lexer) }
+        Lexer { config, last_resort_lexer: Box::new(last_resort_lexer) }
     }
 
     pub fn lex(

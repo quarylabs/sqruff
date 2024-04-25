@@ -27,12 +27,12 @@ pub fn bracket_segments() -> Vec<ErasedSegment> {
 
 pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
     let linter = Linter::new(<_>::default(), None, None);
-    linter.parse_string(sql.into(), None, None, None, None).unwrap().tree.unwrap()
+    linter.parse_string(sql.into(), None, None, None).unwrap().tree.unwrap()
 }
 
 pub fn lex(string: &str) -> Vec<ErasedSegment> {
     let config = FluffConfig::new(<_>::default(), None, None);
-    let lexer = Lexer::new(config, None);
+    let lexer = Lexer::new(&config, None);
 
     let (segments, errors) = lexer.lex(StringOrTemplate::String(string.into())).unwrap();
     assert_eq!(errors, &[]);

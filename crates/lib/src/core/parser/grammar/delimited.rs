@@ -1,4 +1,5 @@
 use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
 
 use ahash::AHashSet;
 
@@ -22,14 +23,14 @@ use crate::helpers::ToMatchable;
 pub struct Delimited {
     base: AnyNumberOf,
     allow_trailing: bool,
-    delimiter: Box<dyn Matchable>,
+    delimiter: Rc<dyn Matchable>,
     min_delimiters: Option<usize>,
     optional: bool,
     cache_key: String,
 }
 
 impl Delimited {
-    pub fn new(elements: Vec<Box<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Rc<dyn Matchable>>) -> Self {
         Self {
             base: one_of(elements),
             allow_trailing: false,
@@ -269,6 +270,8 @@ impl DerefMut for Delimited {
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use itertools::Itertools;
 
     use super::Delimited;
@@ -307,11 +310,12 @@ mod tests {
             (2.into(), true, false, vec!["bar", ".", "bar", "foo"], 0),
         ];
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+        let dialect = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(&dialect, <_>::default());
 
         for (min_delimiters, allow_gaps, allow_trailing, token_list, match_len) in cases {
             let test_segments = generate_test_segments_func(token_list);
-            let mut g = Delimited::new(vec![Box::new(StringParser::new(
+            let mut g = Delimited::new(vec![Rc::new(StringParser::new(
                 "bar",
                 |segment| {
                     KeywordSegment::new(
@@ -350,7 +354,8 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_anything_bracketed() {
-        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+        let dialect = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(&dialect, <_>::default());
         let foo = StringParser::new(
             "foo",
             |segment| {
@@ -364,7 +369,7 @@ mod tests {
             false,
             None,
         );
-        let matcher = Anything::new().terminators(vec![Box::new(foo)]);
+        let matcher = Anything::new().terminators(vec![Rc::new(foo)]);
 
         let match_result = matcher.match_segments(&bracket_segments(), &mut ctx).unwrap();
         assert_eq!(match_result.len(), 4);
@@ -394,11 +399,12 @@ mod tests {
         for (terminators, match_length) in cases {
             let _panic = enter_panic(terminators.join(" "));
 
-            let mut cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+            let dialect = fresh_ansi_dialect();
+            let mut cx = ParseContext::new(&dialect, <_>::default());
             let terms = terminators
                 .iter()
                 .map(|it| {
-                    Box::new(StringParser::new(
+                    Rc::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
@@ -410,7 +416,7 @@ mod tests {
                         None,
                         false,
                         None,
-                    )) as Box<dyn Matchable>
+                    )) as Rc<dyn Matchable>
                 })
                 .collect_vec();
 

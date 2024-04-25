@@ -55,7 +55,7 @@ mod tests {
     #[test]
     fn test__parser__grammar_noncode() {
         let dialect = fresh_ansi_dialect(); // Assuming this function exists and returns a Dialect
-        let mut ctx = ParseContext::new(dialect, <_>::default());
+        let mut ctx = ParseContext::new(&dialect, <_>::default());
 
         let matcher = NonCodeMatcher;
         let test_segments = test_segments(); // Assuming this function exists and generates test segments

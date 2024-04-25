@@ -125,7 +125,7 @@ pub struct FluffConfig {
     pub(crate) raw: AHashMap<String, Value>,
     extra_config_path: Option<String>,
     _configs: AHashMap<String, AHashMap<String, String>>,
-    dialect: String,
+    pub(crate) dialect: Dialect,
     sql_file_exts: Vec<String>,
 }
 
@@ -168,7 +168,7 @@ impl FluffConfig {
             a
         }
 
-        let dialect = match configs.get("dialect") {
+        let _dialect = match configs.get("dialect") {
             None => get_default_dialect(),
             Some(Value::String(std)) => {
                 dialect_selector(std).unwrap_or_else(|| panic!("Unknown dialect {std}"));
@@ -212,7 +212,7 @@ impl FluffConfig {
 
         Self {
             raw: configs,
-            dialect,
+            dialect: dialect_selector("ansi").unwrap(),
             extra_config_path,
             _configs: AHashMap::new(),
             indentation: indentation.unwrap_or_default(),
@@ -255,7 +255,7 @@ impl FluffConfig {
     }
 
     /// Process a full raw file for inline config and update self.
-    pub fn process_raw_file_for_config(&mut self, raw_str: &str) {
+    pub fn process_raw_file_for_config(&self, raw_str: &str) {
         // Scan the raw file for config commands
         for raw_line in raw_str.lines() {
             if raw_line.to_string().starts_with("-- sqlfluff") {
@@ -266,7 +266,7 @@ impl FluffConfig {
     }
 
     /// Process an inline config command and update self.
-    pub fn process_inline_config(&mut self, _config_line: &str) {
+    pub fn process_inline_config(&self, _config_line: &str) {
         panic!("Not implemented")
     }
 
@@ -286,11 +286,8 @@ command. Available dialects: {}",
         )))
     }
 
-    pub fn get_dialect(&self) -> Dialect {
-        match dialect_selector(self.dialect.as_str()) {
-            None => panic!("dialect not found"),
-            Some(d) => d,
-        }
+    pub fn get_dialect(&self) -> &Dialect {
+        &self.dialect
     }
 
     pub fn sql_file_exts(&self) -> &[String] {

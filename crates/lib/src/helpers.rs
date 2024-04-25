@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::hash::BuildHasherDefault;
 use std::panic;
 use std::path::{Component, Path, PathBuf};
+use std::rc::Rc;
 use std::sync::Once;
 
 use crate::core::parser::matchable::Matchable;
@@ -11,8 +12,8 @@ pub type IndexMap<K, V> = indexmap::IndexMap<K, V, BuildHasherDefault<ahash::AHa
 pub type IndexSet<V> = indexmap::IndexSet<V, BuildHasherDefault<ahash::AHasher>>;
 
 pub trait ToMatchable: Matchable + Sized {
-    fn to_matchable(self) -> Box<dyn Matchable> {
-        Box::new(self)
+    fn to_matchable(self) -> Rc<dyn Matchable> {
+        Rc::new(self)
     }
 }
 

@@ -392,7 +392,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
     }
 
     // TODO: remove &self?
-    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+    fn match_grammar(&self) -> Option<Rc<dyn Matchable>> {
         None
     }
 
@@ -556,7 +556,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
     #[allow(unused_variables)]
     fn apply_fixes(
         &self,
-        dialect: Dialect,
+        dialect: &Dialect,
         mut fixes: AHashMap<Uuid, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
@@ -623,7 +623,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         let seg_queue = seg_buffer.clone();
         let mut seg_buffer = Vec::new();
         for seg in seg_queue {
-            let (s, pre, post, validated) = seg.apply_fixes(dialect.clone(), fixes.clone());
+            let (s, pre, post, validated) = seg.apply_fixes(dialect, fixes.clone());
             seg_buffer.extend(pre);
             seg_buffer.push(s);
             seg_buffer.extend(post);

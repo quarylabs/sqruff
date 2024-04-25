@@ -1,7 +1,9 @@
+use std::rc::Rc;
+
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::matchable::Matchable;
 
-type Generator = fn(&Dialect) -> Box<dyn Matchable>;
+type Generator = fn(&Dialect) -> Rc<dyn Matchable>;
 
 #[derive(Debug, Clone)]
 pub struct SegmentGenerator {
@@ -15,7 +17,7 @@ impl SegmentGenerator {
     }
 
     // Implement the expand function
-    pub fn expand(&self, dialect: &Dialect) -> Box<dyn Matchable> {
+    pub fn expand(&self, dialect: &Dialect) -> Rc<dyn Matchable> {
         (self.func)(dialect)
     }
 }

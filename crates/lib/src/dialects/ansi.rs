@@ -2,6 +2,7 @@ use std::cell::OnceCell;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::marker::PhantomData;
+use std::rc::Rc;
 
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
@@ -36,20 +37,20 @@ use crate::helpers::{Config, ToErasedSegment, ToMatchable};
 
 macro_rules! vec_of_erased {
     ($($elem:expr),* $(,)?) => {{
-        vec![$(Box::new($elem)),*]
+        vec![$(Rc::new($elem)),*]
     }};
 }
 
 trait BoxedE {
-    fn boxed(self) -> Box<Self>;
+    fn boxed(self) -> Rc<Self>;
 }
 
 impl<T> BoxedE for T {
-    fn boxed(self) -> Box<Self>
+    fn boxed(self) -> Rc<Self>
     where
         Self: Sized,
     {
-        Box::new(self)
+        Rc::new(self)
     }
 }
 
@@ -2328,7 +2329,7 @@ fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
 pub trait NodeTrait {
     const TYPE: &'static str;
 
-    fn match_grammar() -> Box<dyn Matchable>;
+    fn match_grammar() -> Rc<dyn Matchable>;
 
     fn class_types() -> AHashSet<String> {
         <_>::default()
@@ -2380,7 +2381,7 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
             .into()
     }
 
-    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+    fn match_grammar(&self) -> Option<Rc<dyn Matchable>> {
         T::match_grammar().into()
     }
 
@@ -2543,7 +2544,7 @@ impl Segment for FileSegment {
             .to_erased_segment()
     }
 
-    fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
+    fn match_grammar(&self) -> Option<Rc<dyn Matchable>> {
         Delimited::new(vec![Ref::new("StatementSegment").boxed()])
             .config(|this| {
                 this.allow_trailing();
@@ -2592,7 +2593,7 @@ pub struct IntervalExpressionSegment;
 impl NodeTrait for IntervalExpressionSegment {
     const TYPE: &'static str = "interval_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::keyword("INTERVAL").boxed(),
             one_of(vec![
@@ -2623,7 +2624,7 @@ pub struct ArrayTypeSegment;
 impl NodeTrait for ArrayTypeSegment {
     const TYPE: &'static str = "array_type";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Nothing::new().to_matchable()
     }
 }
@@ -2634,7 +2635,7 @@ pub struct SizedArrayTypeSegment;
 impl NodeTrait for SizedArrayTypeSegment {
     const TYPE: &'static str = "sized_array_type";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("ArrayTypeSegment").boxed(),
             Ref::new("ArrayAccessorSegment").boxed(),
@@ -2648,7 +2649,7 @@ pub struct UnorderedSelectStatementSegment;
 impl NodeTrait for UnorderedSelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("SelectClauseSegment"),
             MetaSegment::dedent(),
@@ -2682,7 +2683,7 @@ pub struct OverlapsClauseSegment;
 impl NodeTrait for OverlapsClauseSegment {
     const TYPE: &'static str = "overlaps_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("OVERLAPS"),
             one_of(vec_of_erased![
@@ -2703,7 +2704,7 @@ pub struct SelectClauseSegment;
 impl NodeTrait for SelectClauseSegment {
     const TYPE: &'static str = "select_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("SELECT"),
             Ref::new("SelectClauseModifierSegment").optional(),
@@ -2724,7 +2725,7 @@ pub struct StatementSegment;
 impl NodeTrait for StatementSegment {
     const TYPE: &'static str = "statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec![
             Ref::new("SelectableGrammar").boxed(),
             Ref::new("MergeStatementSegment").boxed(),
@@ -2780,7 +2781,7 @@ pub struct WithNoSchemaBindingClauseSegment;
 impl NodeTrait for WithNoSchemaBindingClauseSegment {
     const TYPE: &'static str = "with_no_schema_binding_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WITH"),
             Ref::keyword("NO"),
@@ -2796,7 +2797,7 @@ pub struct WithDataClauseSegment;
 impl NodeTrait for WithDataClauseSegment {
     const TYPE: &'static str = "with_data_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WITH"),
             Sequence::new(vec_of_erased![Ref::keyword("NO")]).config(|this| this.optional()),
@@ -2811,7 +2812,7 @@ pub struct SetExpressionSegment;
 impl NodeTrait for SetExpressionSegment {
     const TYPE: &'static str = "set_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("NonSetSelectableGrammar"),
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -2832,7 +2833,7 @@ pub struct FromClauseSegment;
 impl NodeTrait for FromClauseSegment {
     const TYPE: &'static str = "from_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("FROM"),
             Delimited::new(vec_of_erased![Ref::new("FromExpressionSegment")]),
@@ -2892,7 +2893,7 @@ pub struct SelectStatementSegment;
 impl NodeTrait for SelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Node::<UnorderedSelectStatementSegment>::new().match_grammar().unwrap().copy(
             Some(vec_of_erased![
                 Ref::new("OrderByClauseSegment").optional(),
@@ -2919,7 +2920,7 @@ pub struct SelectClauseModifierSegment;
 impl NodeTrait for SelectClauseModifierSegment {
     const TYPE: &'static str = "select_clause_modifier";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()]).to_matchable()
     }
 }
@@ -2929,7 +2930,7 @@ pub struct NamedWindowExpressionSegment;
 impl NodeTrait for NamedWindowExpressionSegment {
     const TYPE: &'static str = "named_window_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("SingleIdentifierGrammar"),
             Ref::keyword("AS"),
@@ -2948,7 +2949,7 @@ pub struct SelectClauseElementSegment;
 impl NodeTrait for SelectClauseElementSegment {
     const TYPE: &'static str = "select_clause_element";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             // *, blah.*, blah.blah.*, etc.
             Ref::new("WildcardExpressionSegment"),
@@ -2979,7 +2980,7 @@ pub struct WildcardExpressionSegment;
 impl NodeTrait for WildcardExpressionSegment {
     const TYPE: &'static str = "wildcard_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             // *, blah.*, blah.blah.*, etc.
             Ref::new("WildcardIdentifierSegment").boxed(),
@@ -2996,7 +2997,7 @@ pub struct WildcardIdentifierSegment;
 impl NodeTrait for WildcardIdentifierSegment {
     const TYPE: &'static str = "wildcard_identifier";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             AnyNumberOf::new(vec![
                 Sequence::new(vec![
@@ -3022,7 +3023,7 @@ pub struct OrderByClauseSegment;
 impl NodeTrait for OrderByClauseSegment {
     const TYPE: &'static str = "orderby_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("ORDER"),
             Ref::keyword("BY"),
@@ -3054,7 +3055,7 @@ pub struct TruncateStatementSegment;
 impl NodeTrait for TruncateStatementSegment {
     const TYPE: &'static str = "truncate_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::keyword("TRUNCATE").boxed(),
             Ref::keyword("TABLE").optional().boxed(),
@@ -3069,7 +3070,7 @@ pub struct ExpressionSegment;
 impl NodeTrait for ExpressionSegment {
     const TYPE: &'static str = "expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("Expression_A_Grammar").to_matchable()
     }
 }
@@ -3079,7 +3080,7 @@ pub struct FromExpressionSegment;
 impl NodeTrait for FromExpressionSegment {
     const TYPE: &'static str = "from_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
             MetaSegment::indent(),
             one_of(vec_of_erased![
@@ -3117,7 +3118,7 @@ pub struct FromExpressionElementSegment;
 impl NodeTrait for FromExpressionElementSegment {
     const TYPE: &'static str = "from_expression_element";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("PreTableFunctionKeywordsGrammar").optional(),
             optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
@@ -3203,7 +3204,7 @@ pub struct ColumnReferenceSegment;
 impl NodeTrait for ColumnReferenceSegment {
     const TYPE: &'static str = "column_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
             .to_matchable()
@@ -3219,7 +3220,7 @@ pub struct ObjectReferenceSegment;
 impl NodeTrait for ObjectReferenceSegment {
     const TYPE: &'static str = "object_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
             .config(|this| {
                 this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
@@ -3288,7 +3289,7 @@ pub struct ArrayAccessorSegment;
 impl NodeTrait for ArrayAccessorSegment {
     const TYPE: &'static str = "array_accessor";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec![
             Delimited::new(vec![
                 one_of(vec![
@@ -3313,7 +3314,7 @@ pub struct ArrayLiteralSegment;
 impl NodeTrait for ArrayLiteralSegment {
     const TYPE: &'static str = "array_literal";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec![
             Delimited::new(vec![Ref::new("BaseExpressionElementGrammar").boxed()])
                 .config(|this| {
@@ -3335,7 +3336,7 @@ pub struct TypedArrayLiteralSegment;
 impl NodeTrait for TypedArrayLiteralSegment {
     const TYPE: &'static str = "typed_array_literal";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("ArrayTypeSegment").boxed(),
             Ref::new("ArrayLiteralSegment").boxed(),
@@ -3349,7 +3350,7 @@ pub struct StructTypeSegment;
 impl NodeTrait for StructTypeSegment {
     const TYPE: &'static str = "struct_type";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Nothing::new().to_matchable()
     }
 }
@@ -3359,7 +3360,7 @@ pub struct StructLiteralSegment;
 impl NodeTrait for StructLiteralSegment {
     const TYPE: &'static str = "struct_literal";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec![
             Delimited::new(vec![
                 Sequence::new(vec![
@@ -3379,7 +3380,7 @@ pub struct TypedStructLiteralSegment;
 impl NodeTrait for TypedStructLiteralSegment {
     const TYPE: &'static str = "typed_struct_literal";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("StructTypeSegment").boxed(),
             Ref::new("StructLiteralSegment").boxed(),
@@ -3393,7 +3394,7 @@ pub struct EmptyStructLiteralBracketsSegment;
 impl NodeTrait for EmptyStructLiteralBracketsSegment {
     const TYPE: &'static str = "empty_struct_literal_brackets";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec![]).to_matchable()
     }
 }
@@ -3403,7 +3404,7 @@ pub struct EmptyStructLiteralSegment;
 impl NodeTrait for EmptyStructLiteralSegment {
     const TYPE: &'static str = "empty_struct_literal";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("StructTypeSegment").boxed(),
             Ref::new("EmptyStructLiteralBracketsSegment").boxed(),
@@ -3417,7 +3418,7 @@ pub struct ObjectLiteralSegment;
 impl NodeTrait for ObjectLiteralSegment {
     const TYPE: &'static str = "object_literal";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec![
             Delimited::new(vec![Ref::new("ObjectLiteralElementSegment").boxed()])
                 .config(|this| {
@@ -3437,7 +3438,7 @@ pub struct ObjectLiteralElementSegment;
 impl NodeTrait for ObjectLiteralElementSegment {
     const TYPE: &'static str = "object_literal_element";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("QuotedLiteralSegment").boxed(),
             Ref::new("ColonSegment").boxed(),
@@ -3452,7 +3453,7 @@ pub struct TimeZoneGrammar;
 impl NodeTrait for TimeZoneGrammar {
     const TYPE: &'static str = "time_zone_grammar";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         AnyNumberOf::new(vec![
             Sequence::new(vec![
                 Ref::keyword("AT").boxed(),
@@ -3471,7 +3472,7 @@ pub struct BracketedArguments;
 impl NodeTrait for BracketedArguments {
     const TYPE: &'static str = "bracketed_arguments";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec![
             Delimited::new(vec![Ref::new("LiteralGrammar").boxed()])
                 .config(|this| {
@@ -3488,7 +3489,7 @@ pub struct DatatypeSegment;
 impl NodeTrait for DatatypeSegment {
     const TYPE: &'static str = "data_type";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             // Handles TIME and TIMESTAMP with optional precision and time zone specification
             Sequence::new(vec_of_erased![
@@ -3544,7 +3545,7 @@ pub struct AliasExpressionSegment;
 impl NodeTrait for AliasExpressionSegment {
     const TYPE: &'static str = "alias_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             MetaSegment::indent(),
             Ref::keyword("AS").optional(),
@@ -3562,7 +3563,7 @@ pub struct ShorthandCastSegment;
 impl NodeTrait for ShorthandCastSegment {
     const TYPE: &'static str = "cast_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             one_of(vec_of_erased![
                 Ref::new("Expression_D_Grammar"),
@@ -3584,7 +3585,7 @@ pub struct QualifiedNumericLiteralSegment;
 impl NodeTrait for QualifiedNumericLiteralSegment {
     const TYPE: &'static str = "qualified_numeric_literal";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("SignedSegmentGrammar").boxed(),
             Ref::new("NumericLiteralSegment").boxed(),
@@ -3598,7 +3599,7 @@ pub struct AggregateOrderByClause;
 impl NodeTrait for AggregateOrderByClause {
     const TYPE: &'static str = "aggregate_order_by_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("OrderByClauseSegment").to_matchable()
     }
 }
@@ -3608,7 +3609,7 @@ pub struct FunctionSegment;
 impl NodeTrait for FunctionSegment {
     const TYPE: &'static str = "function";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![Sequence::new(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::new("FunctionNameSegment"),
@@ -3626,7 +3627,7 @@ pub struct FunctionNameSegment;
 impl NodeTrait for FunctionNameSegment {
     const TYPE: &'static str = "function_name";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             // Project name, schema identifier, etc.
             AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -3654,7 +3655,7 @@ pub struct CaseExpressionSegment;
 impl NodeTrait for CaseExpressionSegment {
     const TYPE: &'static str = "case_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("CASE"),
@@ -3695,7 +3696,7 @@ pub struct WhenClauseSegment;
 impl NodeTrait for WhenClauseSegment {
     const TYPE: &'static str = "when_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WHEN"),
             Sequence::new(vec_of_erased![
@@ -3719,7 +3720,7 @@ pub struct ElseClauseSegment;
 impl NodeTrait for ElseClauseSegment {
     const TYPE: &'static str = "else_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![Ref::keyword("ELSE").boxed(), Ref::new("ExpressionSegment").boxed()])
             .to_matchable()
     }
@@ -3730,7 +3731,7 @@ pub struct WhereClauseSegment;
 impl NodeTrait for WhereClauseSegment {
     const TYPE: &'static str = "where_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WHERE"),
             MetaSegment::implicit_indent(),
@@ -3746,7 +3747,7 @@ pub struct SetOperatorSegment;
 impl NodeTrait for SetOperatorSegment {
     const TYPE: &'static str = "set_operator";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             Ref::new("UnionGrammar"),
             Sequence::new(vec_of_erased![
@@ -3764,7 +3765,7 @@ pub struct ValuesClauseSegment;
 impl NodeTrait for ValuesClauseSegment {
     const TYPE: &'static str = "values_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             one_of(vec![Ref::keyword("VALUE").boxed(), Ref::keyword("VALUES").boxed()]).boxed(),
             Delimited::new(vec![
@@ -3794,7 +3795,7 @@ pub struct IndexColumnDefinitionSegment;
 impl NodeTrait for IndexColumnDefinitionSegment {
     const TYPE: &'static str = "index_column_definition";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("SingleIdentifierGrammar").boxed(), // Column name
             one_of(vec![Ref::keyword("ASC").boxed(), Ref::keyword("DESC").boxed()])
@@ -3810,7 +3811,7 @@ pub struct BitwiseAndSegment;
 impl NodeTrait for BitwiseAndSegment {
     const TYPE: &'static str = "bitwise_and";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("AmpersandSegment").to_matchable()
     }
 }
@@ -3820,7 +3821,7 @@ pub struct BitwiseOrSegment;
 impl NodeTrait for BitwiseOrSegment {
     const TYPE: &'static str = "bitwise_or";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("PipeSegment").to_matchable()
     }
 }
@@ -3830,7 +3831,7 @@ pub struct BitwiseLShiftSegment;
 impl NodeTrait for BitwiseLShiftSegment {
     const TYPE: &'static str = "bitwise_lshift";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("RawLessThanSegment").boxed(),
             Ref::new("RawLessThanSegment").boxed(),
@@ -3845,7 +3846,7 @@ pub struct BitwiseRShiftSegment;
 impl NodeTrait for BitwiseRShiftSegment {
     const TYPE: &'static str = "bitwise_rshift";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("RawGreaterThanSegment").boxed(),
             Ref::new("RawGreaterThanSegment").boxed(),
@@ -3860,7 +3861,7 @@ pub struct LessThanSegment;
 impl NodeTrait for LessThanSegment {
     const TYPE: &'static str = "less_than";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("RawLessThanSegment").to_matchable()
     }
 }
@@ -3870,7 +3871,7 @@ pub struct GreaterThanOrEqualToSegment;
 impl NodeTrait for GreaterThanOrEqualToSegment {
     const TYPE: &'static str = "greater_than_or_equal_to";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("RawGreaterThanSegment").boxed(),
             Ref::new("RawEqualsSegment").boxed(),
@@ -3885,7 +3886,7 @@ pub struct LessThanOrEqualToSegment;
 impl NodeTrait for LessThanOrEqualToSegment {
     const TYPE: &'static str = "less_than_or_equal_to";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("RawLessThanSegment").boxed(),
             Ref::new("RawEqualsSegment").boxed(),
@@ -3900,7 +3901,7 @@ pub struct NotEqualToSegment;
 impl NodeTrait for NotEqualToSegment {
     const TYPE: &'static str = "not_equal_to";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec![
             Sequence::new(vec![
                 Ref::new("RawNotSegment").boxed(),
@@ -3924,7 +3925,7 @@ pub struct ConcatSegment;
 impl NodeTrait for ConcatSegment {
     const TYPE: &'static str = "binary_operator";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![Ref::new("PipeSegment").boxed(), Ref::new("PipeSegment").boxed()])
             .allow_gaps(false)
             .to_matchable()
@@ -3940,7 +3941,7 @@ pub struct ArrayExpressionSegment;
 impl NodeTrait for ArrayExpressionSegment {
     const TYPE: &'static str = "array_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Nothing::new().to_matchable()
     }
 }
@@ -3950,7 +3951,7 @@ pub struct LocalAliasSegment;
 impl NodeTrait for LocalAliasSegment {
     const TYPE: &'static str = "local_alias";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Nothing::new().to_matchable()
     }
 }
@@ -3960,7 +3961,7 @@ pub struct MergeStatementSegment;
 impl NodeTrait for MergeStatementSegment {
     const TYPE: &'static str = "merge_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("MergeIntoLiteralGrammar").boxed(),
             MetaSegment::indent().boxed(),
@@ -3997,7 +3998,7 @@ pub struct InsertStatementSegment;
 impl NodeTrait for InsertStatementSegment {
     const TYPE: &'static str = "insert_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("INSERT"),
             Ref::keyword("OVERWRITE").optional(),
@@ -4021,7 +4022,7 @@ pub struct TransactionStatementSegment;
 impl NodeTrait for TransactionStatementSegment {
     const TYPE: &'static str = "transaction_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             one_of(vec_of_erased![
                 Ref::keyword("START"),
@@ -4053,7 +4054,7 @@ pub struct DropTableStatementSegment;
 impl NodeTrait for DropTableStatementSegment {
     const TYPE: &'static str = "drop_table_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::new("TemporaryGrammar").optional(),
@@ -4071,7 +4072,7 @@ pub struct DropViewStatementSegment;
 impl NodeTrait for DropViewStatementSegment {
     const TYPE: &'static str = "drop_view_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("VIEW"),
@@ -4088,7 +4089,7 @@ pub struct CreateUserStatementSegment;
 impl NodeTrait for CreateUserStatementSegment {
     const TYPE: &'static str = "create_user_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("USER"),
@@ -4103,7 +4104,7 @@ pub struct DropUserStatementSegment;
 impl NodeTrait for DropUserStatementSegment {
     const TYPE: &'static str = "drop_user_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("USER"),
@@ -4119,7 +4120,7 @@ pub struct AccessStatementSegment;
 impl NodeTrait for AccessStatementSegment {
     const TYPE: &'static str = "access_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         let global_permissions = one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("CREATE"),
@@ -4365,7 +4366,7 @@ pub struct CreateTableStatementSegment;
 impl NodeTrait for CreateTableStatementSegment {
     const TYPE: &'static str = "create_table_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::new("OrReplaceGrammar").optional(),
@@ -4406,7 +4407,7 @@ pub struct CreateRoleStatementSegment;
 impl NodeTrait for CreateRoleStatementSegment {
     const TYPE: &'static str = "create_role_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("ROLE"),
@@ -4421,7 +4422,7 @@ pub struct DropRoleStatementSegment;
 impl NodeTrait for DropRoleStatementSegment {
     const TYPE: &'static str = "drop_role_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("ROLE"),
@@ -4437,7 +4438,7 @@ pub struct AlterTableStatementSegment;
 impl NodeTrait for AlterTableStatementSegment {
     const TYPE: &'static str = "alter_table_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("ALTER"),
             Ref::keyword("TABLE"),
@@ -4453,7 +4454,7 @@ pub struct CreateSchemaStatementSegment;
 impl NodeTrait for CreateSchemaStatementSegment {
     const TYPE: &'static str = "create_schema_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("SCHEMA"),
@@ -4469,7 +4470,7 @@ pub struct SetSchemaStatementSegment;
 impl NodeTrait for SetSchemaStatementSegment {
     const TYPE: &'static str = "set_schema_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("SET"),
             Ref::keyword("SCHEMA"),
@@ -4485,7 +4486,7 @@ pub struct DropSchemaStatementSegment;
 impl NodeTrait for DropSchemaStatementSegment {
     const TYPE: &'static str = "drop_schema_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("SCHEMA"),
@@ -4502,7 +4503,7 @@ pub struct DropTypeStatementSegment;
 impl NodeTrait for DropTypeStatementSegment {
     const TYPE: &'static str = "drop_type_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("TYPE"),
@@ -4519,7 +4520,7 @@ pub struct CreateDatabaseStatementSegment;
 impl NodeTrait for CreateDatabaseStatementSegment {
     const TYPE: &'static str = "create_database_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("DATABASE"),
@@ -4535,7 +4536,7 @@ pub struct DropDatabaseStatementSegment;
 impl NodeTrait for DropDatabaseStatementSegment {
     const TYPE: &'static str = "drop_database_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("DATABASE"),
@@ -4552,7 +4553,7 @@ pub struct FunctionParameterListGrammar;
 impl NodeTrait for FunctionParameterListGrammar {
     const TYPE: &'static str = "function_parameter_list";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec_of_erased![
             Delimited::new(vec_of_erased![Ref::new("FunctionParameterGrammar")])
                 .config(|this| this.optional())
@@ -4566,7 +4567,7 @@ pub struct CreateIndexStatementSegment;
 impl NodeTrait for CreateIndexStatementSegment {
     const TYPE: &'static str = "create_index_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::new("OrReplaceGrammar").optional(),
@@ -4589,7 +4590,7 @@ pub struct DropIndexStatementSegment;
 impl NodeTrait for DropIndexStatementSegment {
     const TYPE: &'static str = "drop_index_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("INDEX"),
@@ -4606,7 +4607,7 @@ pub struct CreateViewStatementSegment;
 impl NodeTrait for CreateViewStatementSegment {
     const TYPE: &'static str = "create_view_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::new("OrReplaceGrammar").optional(),
@@ -4627,7 +4628,7 @@ pub struct DeleteStatementSegment;
 impl NodeTrait for DeleteStatementSegment {
     const TYPE: &'static str = "delete_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DELETE"),
             Ref::new("FromClauseSegment"),
@@ -4642,7 +4643,7 @@ pub struct UpdateStatementSegment;
 impl NodeTrait for UpdateStatementSegment {
     const TYPE: &'static str = "update_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("UPDATE"),
             Ref::new("TableReferenceSegment"),
@@ -4660,7 +4661,7 @@ pub struct CreateCastStatementSegment;
 impl NodeTrait for CreateCastStatementSegment {
     const TYPE: &'static str = "create_cast_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("CAST"),
@@ -4701,7 +4702,7 @@ pub struct DropCastStatementSegment;
 impl NodeTrait for DropCastStatementSegment {
     const TYPE: &'static str = "drop_cast_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("CAST"),
@@ -4721,7 +4722,7 @@ pub struct CreateFunctionStatementSegment;
 impl NodeTrait for CreateFunctionStatementSegment {
     const TYPE: &'static str = "create_function_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::new("OrReplaceGrammar").optional(),
@@ -4743,7 +4744,7 @@ pub struct DropFunctionStatementSegment;
 impl NodeTrait for DropFunctionStatementSegment {
     const TYPE: &'static str = "drop_function_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("FUNCTION"),
@@ -4759,7 +4760,7 @@ pub struct CreateModelStatementSegment;
 impl NodeTrait for CreateModelStatementSegment {
     const TYPE: &'static str = "create_model_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::new("OrReplaceGrammar").optional(),
@@ -4798,7 +4799,7 @@ pub struct DropModelStatementSegment;
 impl NodeTrait for DropModelStatementSegment {
     const TYPE: &'static str = "drop_model_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("MODEL"),
@@ -4814,7 +4815,7 @@ pub struct DescribeStatementSegment;
 impl NodeTrait for DescribeStatementSegment {
     const TYPE: &'static str = "describe_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DESCRIBE"),
             Ref::new("NakedIdentifierSegment"),
@@ -4829,7 +4830,7 @@ pub struct UseStatementSegment;
 impl NodeTrait for UseStatementSegment {
     const TYPE: &'static str = "use_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![Ref::keyword("USE"), Ref::new("DatabaseReferenceSegment")])
             .to_matchable()
     }
@@ -4840,7 +4841,7 @@ pub struct ExplainStatementSegment;
 impl NodeTrait for ExplainStatementSegment {
     const TYPE: &'static str = "explain_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("EXPLAIN"),
             one_of(vec_of_erased![
@@ -4859,7 +4860,7 @@ pub struct CreateSequenceStatementSegment;
 impl NodeTrait for CreateSequenceStatementSegment {
     const TYPE: &'static str = "create_sequence_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("SEQUENCE"),
@@ -4876,7 +4877,7 @@ pub struct CreateSequenceOptionsSegment;
 impl NodeTrait for CreateSequenceOptionsSegment {
     const TYPE: &'static str = "create_sequence_options_segment";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("INCREMENT"),
@@ -4921,7 +4922,7 @@ pub struct AlterSequenceStatementSegment;
 impl NodeTrait for AlterSequenceStatementSegment {
     const TYPE: &'static str = "alter_sequence_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("ALTER"),
             Ref::keyword("SEQUENCE"),
@@ -4937,7 +4938,7 @@ pub struct DropSequenceStatementSegment;
 impl NodeTrait for DropSequenceStatementSegment {
     const TYPE: &'static str = "drop_sequence_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("SEQUENCE"),
@@ -4952,7 +4953,7 @@ pub struct CreateTriggerStatementSegment;
 impl NodeTrait for CreateTriggerStatementSegment {
     const TYPE: &'static str = "create_trigger_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec![
             Ref::keyword("CREATE").boxed(),
             Ref::keyword("TRIGGER").boxed(),
@@ -5046,7 +5047,7 @@ pub struct DropTriggerStatementSegment;
 impl NodeTrait for DropTriggerStatementSegment {
     const TYPE: &'static str = "drop_trigger_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("TRIGGER"),
@@ -5062,7 +5063,7 @@ pub struct SamplingExpressionSegment;
 impl NodeTrait for SamplingExpressionSegment {
     const TYPE: &'static str = "sample_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("TABLESAMPLE"),
             one_of(vec_of_erased![Ref::keyword("BERNOULLI"), Ref::keyword("SYSTEM")]),
@@ -5082,7 +5083,7 @@ pub struct TableExpressionSegment;
 impl NodeTrait for TableExpressionSegment {
     const TYPE: &'static str = "table_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             Ref::new("ValuesClauseSegment"),
             Ref::new("BareFunctionSegment"),
@@ -5101,7 +5102,7 @@ pub struct JoinClauseSegment;
 impl NodeTrait for JoinClauseSegment {
     const TYPE: &'static str = "join_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::new("JoinTypeKeywordsGrammar").optional(),
@@ -5189,7 +5190,7 @@ pub struct JoinOnConditionSegment;
 impl NodeTrait for JoinOnConditionSegment {
     const TYPE: &'static str = "join_on_condition";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("ON"),
             Conditional::new(MetaSegment::implicit_indent()).indented_on_contents(),
@@ -5205,7 +5206,7 @@ pub struct DatabaseReferenceSegment;
 impl NodeTrait for DatabaseReferenceSegment {
     const TYPE: &'static str = "database_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         ObjectReferenceSegment::match_grammar()
     }
 }
@@ -5215,7 +5216,7 @@ pub struct IndexReferenceSegment;
 impl NodeTrait for IndexReferenceSegment {
     const TYPE: &'static str = "database_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         ObjectReferenceSegment::match_grammar()
     }
 }
@@ -5225,7 +5226,7 @@ pub struct OverClauseSegment;
 impl NodeTrait for OverClauseSegment {
     const TYPE: &'static str = "over_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             MetaSegment::indent(),
             Ref::new("IgnoreRespectNullsGrammar").optional(),
@@ -5245,7 +5246,7 @@ pub struct NamedWindowSegment;
 impl NodeTrait for NamedWindowSegment {
     const TYPE: &'static str = "named_window";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WINDOW"),
             MetaSegment::indent(),
@@ -5261,7 +5262,7 @@ pub struct WindowSpecificationSegment;
 impl NodeTrait for WindowSpecificationSegment {
     const TYPE: &'static str = "window_specification";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("SingleIdentifierGrammar").optional().exclude(Ref::keyword("PARTITION")),
             Ref::new("PartitionClauseSegment").optional(),
@@ -5278,7 +5279,7 @@ pub struct PartitionClauseSegment;
 impl NodeTrait for PartitionClauseSegment {
     const TYPE: &'static str = "partitionby_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("PARTITION"),
             Ref::keyword("BY"),
@@ -5297,7 +5298,7 @@ pub struct FrameClauseSegment;
 impl NodeTrait for FrameClauseSegment {
     const TYPE: &'static str = "frame_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         let frame_extent = one_of(vec_of_erased![
             Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW")]),
             Sequence::new(vec_of_erased![
@@ -5334,7 +5335,7 @@ pub struct WithCompoundStatementSegment;
 impl NodeTrait for WithCompoundStatementSegment {
     const TYPE: &'static str = "with_compound_statement";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WITH"),
             Ref::keyword("RECURSIVE").optional(),
@@ -5362,7 +5363,7 @@ pub struct CTEDefinitionSegment;
 impl NodeTrait for CTEDefinitionSegment {
     const TYPE: &'static str = "common_table_expression";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("SingleIdentifierGrammar"),
             Ref::new("CTEColumnList").optional(),
@@ -5382,7 +5383,7 @@ pub struct CTEColumnList;
 impl NodeTrait for CTEColumnList {
     const TYPE: &'static str = "cte_column_list";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")]).to_matchable()
     }
 }
@@ -5392,7 +5393,7 @@ pub struct SequenceReferenceSegment;
 impl NodeTrait for SequenceReferenceSegment {
     const TYPE: &'static str = "column_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         ObjectReferenceSegment::match_grammar()
     }
 }
@@ -5402,7 +5403,7 @@ pub struct TriggerReferenceSegment;
 impl NodeTrait for TriggerReferenceSegment {
     const TYPE: &'static str = "trigger_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         ObjectReferenceSegment::match_grammar()
     }
 }
@@ -5412,7 +5413,7 @@ pub struct TableConstraintSegment;
 impl NodeTrait for TableConstraintSegment {
     const TYPE: &'static str = "table_constraint";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Sequence::new(vec_of_erased![
                 // [ CONSTRAINT <Constraint name> ]
@@ -5448,7 +5449,7 @@ pub struct AlterSequenceOptionsSegment;
 impl NodeTrait for AlterSequenceOptionsSegment {
     const TYPE: &'static str = "alter_sequence_options_segment";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("INCREMENT"),
@@ -5488,7 +5489,7 @@ pub struct RoleReferenceSegment;
 impl NodeTrait for RoleReferenceSegment {
     const TYPE: &'static str = "role_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("SingleIdentifierGrammar").to_matchable()
     }
 }
@@ -5498,7 +5499,7 @@ pub struct ColumnDefinitionSegment;
 impl NodeTrait for ColumnDefinitionSegment {
     const TYPE: &'static str = "column_definition";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("SingleIdentifierGrammar"), // Column name
             Ref::new("DatatypeSegment"),         // Column type
@@ -5514,7 +5515,7 @@ pub struct ColumnConstraintSegment;
 impl NodeTrait for ColumnConstraintSegment {
     const TYPE: &'static str = "column_constraint_segment";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("CONSTRAINT"),
@@ -5553,7 +5554,7 @@ pub struct CommentClauseSegment;
 impl NodeTrait for CommentClauseSegment {
     const TYPE: &'static str = "comment_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![Ref::keyword("COMMENT"), Ref::new("QuotedLiteralSegment"),])
             .to_matchable()
     }
@@ -5564,7 +5565,7 @@ pub struct TableEndClauseSegment;
 impl NodeTrait for TableEndClauseSegment {
     const TYPE: &'static str = "table_end_clause_segment";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Nothing::new().to_matchable()
     }
 }
@@ -5574,7 +5575,7 @@ pub struct MergeMatchSegment;
 impl NodeTrait for MergeMatchSegment {
     const TYPE: &'static str = "merge_match";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         AnyNumberOf::new(vec_of_erased![
             Ref::new("MergeMatchedClauseSegment"),
             Ref::new("MergeNotMatchedClauseSegment")
@@ -5589,7 +5590,7 @@ pub struct MergeMatchedClauseSegment;
 impl NodeTrait for MergeMatchedClauseSegment {
     const TYPE: &'static str = "merge_when_matched_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WHEN"),
             Ref::keyword("MATCHED"),
@@ -5612,7 +5613,7 @@ pub struct MergeNotMatchedClauseSegment;
 impl NodeTrait for MergeNotMatchedClauseSegment {
     const TYPE: &'static str = "merge_when_not_matched_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WHEN"),
             Ref::keyword("NOT"),
@@ -5633,7 +5634,7 @@ pub struct MergeInsertClauseSegment;
 impl NodeTrait for MergeInsertClauseSegment {
     const TYPE: &'static str = "merge_insert_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("INSERT"),
             MetaSegment::indent(),
@@ -5650,7 +5651,7 @@ pub struct MergeUpdateClauseSegment;
 impl NodeTrait for MergeUpdateClauseSegment {
     const TYPE: &'static str = "merge_update_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("UPDATE"),
             MetaSegment::indent(),
@@ -5666,7 +5667,7 @@ pub struct MergeDeleteClauseSegment;
 impl NodeTrait for MergeDeleteClauseSegment {
     const TYPE: &'static str = "merge_delete_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::keyword("DELETE").to_matchable()
     }
 }
@@ -5676,7 +5677,7 @@ pub struct SetClauseListSegment;
 impl NodeTrait for SetClauseListSegment {
     const TYPE: &'static str = "set_clause_list";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("SET"),
             MetaSegment::indent(),
@@ -5696,7 +5697,7 @@ pub struct TableReferenceSegment;
 impl NodeTrait for TableReferenceSegment {
     const TYPE: &'static str = "table_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("ObjectReferenceSegment").to_matchable()
     }
 
@@ -5710,7 +5711,7 @@ pub struct SchemaReferenceSegment;
 impl NodeTrait for SchemaReferenceSegment {
     const TYPE: &'static str = "table_reference";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Ref::new("ObjectReferenceSegment").to_matchable()
     }
 }
@@ -5720,7 +5721,7 @@ pub struct SingleIdentifierListSegment;
 impl NodeTrait for SingleIdentifierListSegment {
     const TYPE: &'static str = "identifier_list";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
             .config(|this| this.optional())
             .to_matchable()
@@ -5732,7 +5733,7 @@ pub struct GroupByClauseSegment;
 impl NodeTrait for GroupByClauseSegment {
     const TYPE: &'static str = "groupby_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("GROUP"),
             Ref::keyword("BY"),
@@ -5761,7 +5762,7 @@ pub struct LimitClauseSegment;
 impl NodeTrait for LimitClauseSegment {
     const TYPE: &'static str = "limit_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("LIMIT"),
             MetaSegment::indent(),
@@ -5795,7 +5796,7 @@ pub struct CubeRollupClauseSegment;
 impl NodeTrait for CubeRollupClauseSegment {
     const TYPE: &'static str = "cube_rollup_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             one_of(vec_of_erased![
                 Ref::new("CubeFunctionNameSegment"),
@@ -5812,7 +5813,7 @@ pub struct RollupFunctionNameSegment;
 impl NodeTrait for RollupFunctionNameSegment {
     const TYPE: &'static str = "function_name";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         StringParser::new(
             "ROLLUP",
             |segment| {
@@ -5835,7 +5836,7 @@ pub struct CubeFunctionNameSegment;
 impl NodeTrait for CubeFunctionNameSegment {
     const TYPE: &'static str = "function_name";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         StringParser::new(
             "CUBE",
             |segment| {
@@ -5858,7 +5859,7 @@ pub struct SetClauseSegment;
 impl NodeTrait for SetClauseSegment {
     const TYPE: &'static str = "set_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("ColumnReferenceSegment"),
             Ref::new("EqualsSegment"),
@@ -5881,7 +5882,7 @@ pub struct FetchClauseSegment;
 impl NodeTrait for FetchClauseSegment {
     const TYPE: &'static str = "fetch_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("FETCH"),
             one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("NEXT")]),
@@ -5898,7 +5899,7 @@ pub struct FunctionDefinitionGrammar;
 impl NodeTrait for FunctionDefinitionGrammar {
     const TYPE: &'static str = "function_definition";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("AS"),
             Ref::new("QuotedLiteralSegment"),
@@ -5917,7 +5918,7 @@ pub struct HavingClauseSegment;
 impl NodeTrait for HavingClauseSegment {
     const TYPE: &'static str = "having_clause";
 
-    fn match_grammar() -> Box<dyn Matchable> {
+    fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("HAVING"),
             MetaSegment::implicit_indent(),
@@ -5955,7 +5956,7 @@ mod tests {
             // Assume FluffConfig and Lexer are defined somewhere in your codebase
             let config = FluffConfig::new(<_>::default(), None, None);
 
-            let lexer = Lexer::new(config, None);
+            let lexer = Lexer::new(&config, None);
 
             // Assume that the lex function returns a Result with tokens
             let tokens_result = lexer.lex(StringOrTemplate::String(raw.to_string()));
@@ -6063,7 +6064,7 @@ mod tests {
 
         for (segment_ref, sql_string) in cases {
             let dialect = fresh_ansi_dialect();
-            let mut ctx = ParseContext::new(dialect.clone(), <_>::default());
+            let mut ctx = ParseContext::new(&dialect, <_>::default());
 
             let segment = dialect.r#ref(segment_ref);
             let mut segments = lex(sql_string);
@@ -6090,7 +6091,7 @@ mod tests {
             let config = FluffConfig::new(<_>::default(), None, None);
             let segments = lex(sql);
 
-            let mut parse_cx = ParseContext::from_config(config);
+            let mut parse_cx = ParseContext::from_config(&config);
             let segment = dialect.r#ref(segment_ref);
 
             let match_result = segment.match_segments(&segments, &mut parse_cx).unwrap();
@@ -6115,7 +6116,7 @@ mod tests {
 
         for (raw, err_locations) in tests {
             let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-            let parsed = lnt.parse_string(raw.to_string(), None, None, None, None).unwrap();
+            let parsed = lnt.parse_string(raw.to_string(), None, None, None).unwrap();
             assert!(!parsed.violations.is_empty());
 
             let locs: Vec<(usize, usize)> =
@@ -6131,7 +6132,7 @@ mod tests {
             std::fs::read_to_string("test/fixtures/dialects/ansi/select_in_multiline_comment.sql")
                 .expect("Unable to read file");
 
-        let parsed = lnt.parse_string(file_content, None, None, None, None).unwrap();
+        let parsed = lnt.parse_string(file_content, None, None, None).unwrap();
 
         for raw_seg in parsed.tree.unwrap().get_raw_segments() {
             if raw_seg.is_type("whitespace") || raw_seg.is_type("newline") {
@@ -6152,7 +6153,7 @@ mod tests {
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
 
         for (sql_string, meta_loc) in cases {
-            let parsed = lnt.parse_string(sql_string.to_string(), None, None, None, None).unwrap();
+            let parsed = lnt.parse_string(sql_string.to_string(), None, None, None).unwrap();
             let tree = parsed.tree.unwrap();
 
             let res_meta_locs = tree
@@ -6168,7 +6169,7 @@ mod tests {
 
     fn parse_sql(sql: &str) -> ErasedSegment {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let parsed = linter.parse_string(sql.into(), None, None, None, None).unwrap();
+        let parsed = linter.parse_string(sql.into(), None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

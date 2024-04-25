@@ -1,14 +1,16 @@
+use std::rc::Rc;
+
 use super::matchable::Matchable;
 use super::segments::generator::SegmentGenerator;
 
 #[derive(Debug, Clone)]
 pub enum DialectElementType {
-    Matchable(Box<dyn Matchable>),
+    Matchable(Rc<dyn Matchable>),
     SegmentGenerator(SegmentGenerator),
 }
 
-impl From<Box<dyn Matchable>> for DialectElementType {
-    fn from(value: Box<dyn Matchable>) -> Self {
+impl From<Rc<dyn Matchable>> for DialectElementType {
+    fn from(value: Rc<dyn Matchable>) -> Self {
         DialectElementType::Matchable(value)
     }
 }

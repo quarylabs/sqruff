@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
 use uuid::Uuid;
@@ -50,7 +52,7 @@ fn parse_mode_match_result(
 }
 
 pub fn simple(
-    elements: &[Box<dyn Matchable>],
+    elements: &[Rc<dyn Matchable>],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
 ) -> Option<(AHashSet<String>, AHashSet<String>)> {
@@ -76,8 +78,8 @@ pub fn simple(
 #[derive(Debug, Clone, Hash)]
 #[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
 pub struct AnyNumberOf {
-    pub elements: Vec<Box<dyn Matchable>>,
-    pub terminators: Vec<Box<dyn Matchable>>,
+    pub elements: Vec<Rc<dyn Matchable>>,
+    pub terminators: Vec<Rc<dyn Matchable>>,
     pub max_times: Option<usize>,
     pub min_times: usize,
     pub allow_gaps: bool,
@@ -93,7 +95,7 @@ impl PartialEq for AnyNumberOf {
 }
 
 impl AnyNumberOf {
-    pub fn new(elements: Vec<Box<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Rc<dyn Matchable>>) -> Self {
         Self {
             elements,
             max_times: None,
@@ -129,7 +131,7 @@ impl AnyNumberOf {
         &self,
         segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
-    ) -> Result<(MatchResult, Option<Box<dyn Matchable>>), SQLParseError> {
+    ) -> Result<(MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
         let name = std::any::type_name::<Self>();
 
         parse_context.deeper_match(name, false, &[], None, |ctx| {
@@ -254,14 +256,14 @@ impl Matchable for AnyNumberOf {
     }
 }
 
-pub fn one_of(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
+pub fn one_of(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
     let mut matcher = AnyNumberOf::new(elements);
     matcher.max_times(1);
     matcher.min_times(1);
     matcher
 }
 
-pub fn optionally_bracketed(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
+pub fn optionally_bracketed(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
     let mut args = vec![Bracketed::new(elements.clone()).to_matchable()];
 
     if elements.len() == 1 {
@@ -275,6 +277,8 @@ pub fn optionally_bracketed(elements: Vec<Box<dyn Matchable>>) -> AnyNumberOf {
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use itertools::Itertools;
     use pretty_assertions::assert_eq;
     use serde_json::{json, Value};
@@ -327,13 +331,14 @@ mod tests {
                 None,
             );
 
-            let mut g = one_of(vec![Box::new(fs), Box::new(bs)]);
+            let mut g = one_of(vec![Rc::new(fs), Rc::new(bs)]);
 
             if allow_gaps {
                 g.disallow_gaps();
             }
 
-            let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+            let dialect = fresh_ansi_dialect();
+            let mut ctx = ParseContext::new(&dialect, <_>::default());
 
             // Check directly
             let mut segments = g.match_segments(&test_segments(), &mut ctx).unwrap();
@@ -348,7 +353,8 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_oneof_templated() {
-        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+        let dialect = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(&dialect, <_>::default());
 
         let bs = StringParser::new(
             "bar",
@@ -378,7 +384,7 @@ mod tests {
             None,
         );
 
-        let g = one_of(vec![Box::new(bs), Box::new(fs)]);
+        let g = one_of(vec![Rc::new(bs), Rc::new(fs)]);
 
         assert!(!g.match_segments(&test_segments()[5..], &mut ctx).unwrap().has_match());
     }
@@ -421,7 +427,8 @@ mod tests {
         ];
 
         let segments = generate_test_segments_func(vec!["a", " ", "b", " ", "c", "d", " ", "d"]);
-        let mut parse_cx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+        let dialect = fresh_ansi_dialect();
+        let mut parse_cx = ParseContext::new(&dialect, <_>::default());
 
         for (mode, sequence, terminators, output, max_times) in cases {
             let elements = sequence
@@ -447,7 +454,7 @@ mod tests {
             let terms = terminators
                 .iter()
                 .map(|it| {
-                    Box::new(StringParser::new(
+                    Rc::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
@@ -459,7 +466,7 @@ mod tests {
                         None,
                         false,
                         None,
-                    )) as Box<dyn Matchable>
+                    )) as Rc<dyn Matchable>
                 })
                 .collect_vec();
 
@@ -515,8 +522,9 @@ mod tests {
             None,
         );
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
-        let g = AnyNumberOf::new(vec![Box::new(bar), Box::new(foo)]);
+        let ansi = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(&ansi, <_>::default());
+        let g = AnyNumberOf::new(vec![Rc::new(bar), Rc::new(foo)]);
         let result = g.match_segments(&segments, &mut ctx).unwrap().matched_segments;
 
         assert_eq!(result[0].get_raw().unwrap(), "bar");
@@ -556,10 +564,11 @@ mod tests {
             None,
         );
 
-        let g1 = one_of(vec![Box::new(foo_regex.clone()), Box::new(foo.clone())]);
-        let g2 = one_of(vec![Box::new(foo), Box::new(foo_regex)]);
+        let g1 = one_of(vec![Rc::new(foo_regex.clone()), Rc::new(foo.clone())]);
+        let g2 = one_of(vec![Rc::new(foo), Rc::new(foo_regex)]);
 
-        let mut ctx = ParseContext::new(fresh_ansi_dialect(), <_>::default());
+        let dialect = fresh_ansi_dialect();
+        let mut ctx = ParseContext::new(&dialect, <_>::default());
 
         for segment in g1.match_segments(&segments, &mut ctx).unwrap().matched_segments.iter() {
             assert_eq!(segment.get_raw().unwrap(), "foo");

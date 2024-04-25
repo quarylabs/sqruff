@@ -1,3 +1,4 @@
+use std::cell::OnceCell;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::marker::PhantomData;
@@ -2339,6 +2340,7 @@ pub struct Node<T> {
     pub uuid: Uuid,
     pub(crate) segments: Vec<ErasedSegment>,
     pub position_marker: Option<PositionMarker>,
+    pub raw: OnceCell<String>,
 }
 
 impl<T> Default for Node<T> {
@@ -2354,6 +2356,7 @@ impl<T> Node<T> {
             uuid: Uuid::new_v4(),
             segments: Vec::new(),
             position_marker: None,
+            raw: OnceCell::new(),
         }
     }
 }
@@ -2365,8 +2368,16 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
             uuid: self.uuid,
             segments,
             position_marker: self.position_marker.clone(),
+            raw: OnceCell::new(),
         }
         .to_erased_segment()
+    }
+
+    fn get_raw(&self) -> Option<String> {
+        self.raw
+            .get_or_init(|| self.segments().iter().filter_map(|segment| segment.get_raw()).join(""))
+            .clone()
+            .into()
     }
 
     fn match_grammar(&self) -> Option<Box<dyn Matchable>> {
@@ -2421,6 +2432,7 @@ impl<T> Clone for Node<T> {
             segments: self.segments.clone(),
             uuid: self.uuid,
             position_marker: self.position_marker.clone(),
+            raw: self.raw.clone(),
         }
     }
 }

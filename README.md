@@ -28,25 +28,53 @@ SQRUFF is an innovative SQL linter and formatter for modern development environm
 
 You can use [brew](https://brew.sh/) to install sqruff easily on macOS. 
 
-```
+```bash
 brew install quarylabs/quary/sqruff
 ```
 
 #### Linux
 
-Using Bash:
+Using `bash`:
 
-```
+```bash
 curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | bash
 ```
 
 #### For other platforms
 
-For other platforms, compilie sqruff with cargo with the following commands.
+Either download the binary from the [releases page](https://github.com/quarylabs.sqruff/releases) or compile it yourself and with cargo with the following commands.
 
-```
+```bash
 rustup override set nightly
 cargo install sqruff
+sqruff --help
+```
+
+### Usage
+
+#### Linting
+
+To lint a SQL file or set of files, run the following command:
+
+```bash
+sqruff lint <file>
+sqruff lint <file1> <file2> <file3>
+sqruff lint <directory>
+```
+
+#### Fixing
+
+To fix a single or or set of files, run the following command:
+
+```bash
+sqruff fix <file/paths/directory>
+```
+
+#### Help
+
+To get help on the available commands and options, run the following command:
+
+```bash
 sqruff --help
 ```
 
@@ -62,13 +90,13 @@ Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelin
 4. Tag the commit with the new version
 5. Release `sqruff-lib` crate
 
-```
+```bash
 cargo publish -p sqruff-lib
 ```
 
 5. Release `sqruff` crate
 
-```
+```bash
 cargo publish -p sqruff
 ```
 

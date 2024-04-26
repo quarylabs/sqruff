@@ -1,6 +1,5 @@
 #![feature(trait_upcasting)]
 #![feature(let_chains)]
-#![feature(absolute_path)]
 #![allow(non_snake_case, clippy::module_inception, clippy::type_complexity)]
 #![deny(unused_qualifications)]
 

@@ -3,6 +3,7 @@ use crate::helpers::IndexMap;
 
 pub mod aliasing;
 pub mod ambiguous;
+pub mod capitalisation;
 pub mod convention;
 pub mod l001;
 pub mod layout;

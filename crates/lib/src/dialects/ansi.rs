@@ -3128,6 +3128,10 @@ impl NodeTrait for FromExpressionElementSegment {
         ])
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<String> {
+        ["from_expression_element".into()].into()
+    }
 }
 
 impl Node<FromExpressionElementSegment> {

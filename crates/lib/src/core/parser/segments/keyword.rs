@@ -63,8 +63,8 @@ impl Segment for KeywordSegment {
         Vec::new()
     }
 
-    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        todo!()
+    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        Self::new(raw.unwrap(), self.get_position_marker()).to_erased_segment()
     }
 
     fn class_types(&self) -> AHashSet<String> {

@@ -1,59 +1,14 @@
 use ahash::AHashMap;
 
+use super::CP01::handle_segment;
 use crate::core::config::Value;
-use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::helpers::capitalize;
 
 #[derive(Debug, Clone)]
 pub struct RuleCP05 {
     extended_capitalisation_policy: String,
-}
-
-impl RuleCP05 {
-    fn handle_segment(&self, seg: ErasedSegment, _context: &RuleContext) -> LintResult {
-        if seg.get_raw().unwrap().is_empty() {
-            return LintResult::new(None, Vec::new(), None, None, None);
-        }
-
-        let mut fixed_raw = seg.get_raw().unwrap();
-        fixed_raw = match self.extended_capitalisation_policy.as_str() {
-            "upper" => fixed_raw.to_uppercase(),
-            "lower" => fixed_raw.to_lowercase(),
-            "capitalise" => capitalize(&fixed_raw),
-            "pascal" => regex::Regex::new(r"(?:\b|_)([a-z])")
-                .unwrap()
-                .replace_all(&fixed_raw, |caps: &regex::Captures| caps[1].to_uppercase())
-                .to_string(),
-            _ => fixed_raw,
-        };
-
-        return if fixed_raw == seg.get_raw().unwrap() {
-            LintResult::new(None, Vec::new(), None, None, None)
-        } else {
-            let consistency = if self.extended_capitalisation_policy == "consistent" {
-                "consistently "
-            } else {
-                ""
-            };
-            let policy = match self.extended_capitalisation_policy.as_str() {
-                concrete_policy @ ("upper" | "lower") => format!("{} case.", concrete_policy),
-                "capitalise" => "capitalised.".to_string(),
-                "pascal" => "pascal case.".to_string(),
-                _ => "".to_string(),
-            };
-
-            LintResult::new(
-                seg.clone().into(),
-                vec![LintFix::replace(seg.clone(), vec![seg.edit(fixed_raw.into(), None)], None)],
-                None,
-                format!("{} must be {}{}", "Datatypes", consistency, policy).into(),
-                None,
-            )
-        };
-    }
 }
 
 impl Rule for RuleCP05 {
@@ -83,7 +38,11 @@ impl Rule for RuleCP05 {
                     continue;
                 }
 
-                results.push(self.handle_segment(seg.clone(), &context));
+                results.push(handle_segment(
+                    &self.extended_capitalisation_policy,
+                    seg.clone(),
+                    &context,
+                ));
             }
         }
 

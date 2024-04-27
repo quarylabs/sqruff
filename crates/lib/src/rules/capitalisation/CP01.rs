@@ -1,4 +1,5 @@
-use ahash::AHashMap;
+use ahash::{AHashMap, AHashSet};
+use itertools::Itertools;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
@@ -6,6 +7,10 @@ use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::capitalize;
+
+fn is_capitalizable(character: char) -> bool {
+    character.to_lowercase().ne(character.to_uppercase())
+}
 
 #[derive(Debug, Clone)]
 pub struct RuleCP01 {
@@ -59,21 +64,79 @@ impl Rule for RuleCP01 {
     }
 }
 
+#[derive(Clone, Default)]
+struct RefutedCases(AHashSet<&'static str>);
+
+#[derive(Clone)]
+struct LatestPossibleCase(String);
+
 pub fn handle_segment(
-    mut extended_capitalisation_policy: &str,
+    extended_capitalisation_policy: &str,
     seg: ErasedSegment,
-    _context: &RuleContext,
+    context: &RuleContext,
 ) -> LintResult {
     if seg.get_raw().unwrap().is_empty() {
         return LintResult::new(None, Vec::new(), None, None, None);
     }
 
-    if extended_capitalisation_policy == "consistent" {
-        extended_capitalisation_policy = "upper";
+    let mut refuted_cases =
+        context.memory.borrow().get::<RefutedCases>().cloned().unwrap_or_default().0;
+
+    let first_letter_is_lowercase =
+        seg.get_raw().unwrap().chars().next().is_some_and(is_capitalizable);
+
+    if first_letter_is_lowercase {
+        refuted_cases.extend(["upper", "capitalise", "pascal"]);
+        if seg.get_raw().unwrap() != seg.get_raw().unwrap().to_lowercase() {
+            refuted_cases.insert("lower");
+        }
+    } else {
+        refuted_cases.insert("lower");
+
+        let segment_raw = seg.get_raw().unwrap();
+        if segment_raw != segment_raw.to_uppercase() {
+            refuted_cases.insert("upper");
+        }
+        if segment_raw
+            != segment_raw.to_uppercase().chars().next().unwrap().to_string()
+                + segment_raw[1..].to_lowercase().as_str()
+        {
+            refuted_cases.insert("capitalize");
+        }
+        if !segment_raw.chars().all(|c| c.is_alphanumeric()) {
+            refuted_cases.insert("pascal");
+        }
     }
 
+    context.memory.borrow_mut().insert(RefutedCases(refuted_cases.clone()));
+
+    let concrete_policy = if extended_capitalisation_policy == "consistent" {
+        let cap_policy_opts = ["upper", "lower", "capitalise"];
+
+        let possible_cases =
+            cap_policy_opts.into_iter().filter(|it| !refuted_cases.contains(it)).collect_vec();
+
+        if !possible_cases.is_empty() {
+            context.memory.borrow_mut().insert(LatestPossibleCase(possible_cases[0].to_owned()));
+            dbg!("RETURN");
+            return LintResult::new(None, Vec::new(), None, None, None);
+        } else {
+            context
+                .memory
+                .borrow()
+                .get::<LatestPossibleCase>()
+                .cloned()
+                .unwrap_or_else(|| LatestPossibleCase("upper".into()))
+                .0
+        }
+    } else {
+        extended_capitalisation_policy.to_string()
+    };
+
+    let concrete_policy = concrete_policy.as_str();
+
     let mut fixed_raw = seg.get_raw().unwrap();
-    fixed_raw = match extended_capitalisation_policy {
+    fixed_raw = match concrete_policy {
         "upper" => fixed_raw.to_uppercase(),
         "lower" => fixed_raw.to_lowercase(),
         "capitalise" => capitalize(&fixed_raw),
@@ -94,9 +157,8 @@ pub fn handle_segment(
     if fixed_raw == seg.get_raw().unwrap() {
         LintResult::new(None, Vec::new(), None, None, None)
     } else {
-        let consistency =
-            if extended_capitalisation_policy == "consistent" { "consistently " } else { "" };
-        let policy = match extended_capitalisation_policy {
+        let consistency = if concrete_policy == "consistent" { "consistently " } else { "" };
+        let policy = match concrete_policy {
             concrete_policy @ ("upper" | "lower") => format!("{} case.", concrete_policy),
             "capitalise" => "capitalised.".to_string(),
             "pascal" => "pascal case.".to_string(),

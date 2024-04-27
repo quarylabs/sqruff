@@ -1,4 +1,7 @@
-use ahash::AHashMap;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use anymap::AnyMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
@@ -23,7 +26,7 @@ pub struct RuleContext<'a> {
     /// raw_stack: All of the raw segments so far in the file
     pub raw_stack: Vec<ErasedSegment>,
     /// memory: Arbitrary storage for the rule
-    pub memory: AHashMap<String, String>,
+    pub memory: Rc<RefCell<AnyMap>>,
     /// segment_idx: The index of this segment in the parent
     pub segment_idx: usize,
 }

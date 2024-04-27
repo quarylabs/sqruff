@@ -25,7 +25,7 @@ file:
           - identifier: col_a
         - keyword: IS
         - keyword: NOT
-        - remove me: 'NULL'
+        - null_literal: 'NULL'
         - remove me: AND
         - column_reference:
           - identifier: col_b

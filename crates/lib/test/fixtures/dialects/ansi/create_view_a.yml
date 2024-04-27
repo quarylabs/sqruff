@@ -91,7 +91,7 @@ file:
                     - dot: .
                     - identifier: current_appt_id
                   - keyword: IS
-                  - remove me: 'NULL'
+                  - null_literal: 'NULL'
             - end_bracket: )
         - select_statement:
           - select_clause:

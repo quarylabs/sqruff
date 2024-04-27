@@ -25,7 +25,7 @@ file:
                 - remove me: '''T'''
               - keyword: THEN
               - expression:
-                - remove me: 'TRUE'
+                - boolean_literal: 'TRUE'
             - when_clause:
               - keyword: WHEN
               - expression:
@@ -37,12 +37,11 @@ file:
                 - remove me: '''F'''
               - keyword: THEN
               - expression:
-                - column_reference:
-                  - identifier: 'FALSE'
+                - boolean_literal: 'FALSE'
             - else_clause:
               - keyword: ELSE
               - expression:
-                - remove me: 'NULL'
+                - null_literal: 'NULL'
             - keyword: END
     - from_clause:
       - keyword: FROM

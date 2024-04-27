@@ -23,7 +23,7 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - remove me: 'NULL'
+              - null_literal: 'NULL'
             - keyword: AS
             - data_type:
               - '': STRING

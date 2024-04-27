@@ -16,7 +16,7 @@ file:
       - comma: ','
       - '': AUTO_CLASS_WEIGHTS
       - remove me: =
-      - remove me: 'TRUE'
+      - boolean_literal: 'TRUE'
       - comma: ','
       - '': INPUT_LABEL_COLS
       - remove me: =

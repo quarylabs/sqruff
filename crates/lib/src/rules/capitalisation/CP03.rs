@@ -37,7 +37,6 @@ impl Rule for RuleCP03 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        dbg!(context.segment.get_type(), context.segment.get_raw());
         self.base.eval(context)
     }
 

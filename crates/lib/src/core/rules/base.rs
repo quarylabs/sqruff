@@ -1,8 +1,10 @@
+use std::cell::RefCell;
 use std::fmt::{self, Debug};
 use std::ops::Deref;
 use std::rc::Rc;
 
 use ahash::{AHashMap, AHashSet};
+use anymap::AnyMap;
 use itertools::chain;
 
 use super::context::RuleContext;
@@ -283,7 +285,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
             path: <_>::default(),
             parent_stack: <_>::default(),
             raw_stack: <_>::default(),
-            memory: <_>::default(),
+            memory: Rc::new(RefCell::new(AnyMap::new())),
             segment_idx: 0,
         };
         let mut vs = Vec::new();

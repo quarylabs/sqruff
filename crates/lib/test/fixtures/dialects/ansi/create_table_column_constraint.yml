@@ -56,7 +56,7 @@ file:
                 - identifier: age
               - keyword: IS
               - keyword: NOT
-              - remove me: 'NULL'
+              - null_literal: 'NULL'
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

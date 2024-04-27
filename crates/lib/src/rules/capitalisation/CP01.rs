@@ -39,7 +39,9 @@ impl Rule for RuleCP01 {
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
-        if self.skip_literals || self.exclude_parent_types.iter().all(|it| parent.is_type(it)) {
+        if (self.skip_literals && context.segment.is_type("literal"))
+            || self.exclude_parent_types.iter().all(|it| parent.is_type(it))
+        {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
 
@@ -63,7 +65,7 @@ pub fn handle_segment(
     if seg.get_raw().unwrap().is_empty() {
         return LintResult::new(None, Vec::new(), None, None, None);
     }
-    dbg!(extended_capitalisation_policy);
+
     if extended_capitalisation_policy == "consistent" {
         extended_capitalisation_policy = "upper";
     }
@@ -80,7 +82,7 @@ pub fn handle_segment(
         _ => fixed_raw,
     };
 
-    return if fixed_raw == seg.get_raw().unwrap() {
+    if fixed_raw == seg.get_raw().unwrap() {
         LintResult::new(None, Vec::new(), None, None, None)
     } else {
         let consistency =
@@ -99,7 +101,7 @@ pub fn handle_segment(
             format!("{} must be {}{}", "Datatypes", consistency, policy).into(),
             None,
         )
-    };
+    }
 }
 
 #[cfg(test)]
@@ -117,5 +119,117 @@ mod tests {
 
         let actual = fix(fail_str.into(), vec![RuleCP01::default().erased()]);
         assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_fail_inconsistent_capitalisation_2() {
+        let fail_str = "SeLeCt 1 from blah;";
+        let fix_str = "SELECT 1 FROM blah;";
+
+        let actual = fix(fail_str.into(), vec![RuleCP01::default().erased()]);
+        assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_fail_capitalisation_policy_lower() {
+        let fail_str = "SELECT * FROM MOO ORDER BY dt DESC;";
+        let fix_str = "select * from MOO order by dt desc;";
+
+        let actual = fix(
+            fail_str.into(),
+            vec![RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() }.erased()],
+        );
+        assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_fail_capitalisation_policy_upper() {
+        let fail_str = "select * from MOO order by dt desc;";
+        let fix_str = "SELECT * FROM MOO ORDER BY dt DESC;";
+
+        let actual = fix(
+            fail_str.into(),
+            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
+        );
+
+        assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_fail_capitalisation_policy_capitalise() {
+        let fail_str = "SELECT * FROM MOO ORDER BY dt DESC;";
+        let fix_str = "Select * From MOO Order By dt Desc;";
+
+        let actual = fix(
+            fail_str.into(),
+            vec![
+                RuleCP01 { capitalisation_policy: "capitalise".into(), ..Default::default() }
+                    .erased(),
+            ],
+        );
+
+        assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_fail_date_part_inconsistent_capitalisation() {
+        let fail_str = "SELECT dt + interval 2 day, interval 3 HOUR;";
+        let fix_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
+
+        let actual = fix(
+            fail_str.into(),
+            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
+        );
+
+        assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_fail_date_part_capitalisation_policy_lower() {
+        let fail_str = "SELECT dt + interval 2 day, interval 3 HOUR;";
+        let fix_str = "select dt + interval 2 day, interval 3 hour;";
+
+        let actual = fix(
+            fail_str.into(),
+            vec![RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() }.erased()],
+        );
+
+        assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_fail_date_part_capitalisation_policy_upper() {
+        let fail_str = "SELECT dt + interval 2 day, interval 3 HOUR;";
+        let fix_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
+
+        let actual = fix(
+            fail_str.into(),
+            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
+        );
+
+        assert_eq!(fix_str, actual);
+    }
+
+    #[test]
+    fn test_pass_date_part_consistent_capitalisation() {
+        let pass_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
+        let expected_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
+
+        let actual = fix(pass_str.into(), vec![RuleCP01::default().erased()]);
+
+        assert_eq!(expected_str, actual);
+    }
+
+    #[test]
+    fn test_pass_data_type_inconsistent_capitalisation() {
+        let pass_str = "CREATE TABLE table1 (account_id bigint);";
+        let expected_str = "CREATE TABLE table1 (account_id bigint);";
+
+        let actual = fix(
+            pass_str.into(),
+            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
+        );
+
+        assert_eq!(expected_str, actual);
     }
 }

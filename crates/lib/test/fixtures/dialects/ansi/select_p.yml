@@ -38,7 +38,7 @@ file:
             - function_name_identifier: EXTRACT
           - bracketed:
             - start_bracket: (
-            - '': day
+            - date_part: day
             - keyword: FROM
             - expression:
               - column_reference:

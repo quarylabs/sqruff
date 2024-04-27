@@ -554,7 +554,7 @@ pub fn ansi_dialect() -> Dialect {
                         CodeSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
-                            CodeSegmentNewArgs::default(),
+                            CodeSegmentNewArgs { code_type: "date_part", ..Default::default() },
                         )
                     },
                     None,

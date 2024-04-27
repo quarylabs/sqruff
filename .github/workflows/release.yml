@@ -89,6 +89,7 @@ jobs:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest
     needs: release
+    permissions: write-all
     steps:
       - uses: actions/checkout@v4
       - name: Update Homebrew Formula

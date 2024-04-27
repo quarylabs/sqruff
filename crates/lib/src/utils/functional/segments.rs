@@ -7,13 +7,23 @@ type PredicateType = Option<fn(&ErasedSegment) -> bool>;
 
 #[derive(Debug, Default, Clone)]
 pub struct Segments {
-    base: Vec<ErasedSegment>,
+    pub(crate) base: Vec<ErasedSegment>,
     templated_file: Option<TemplatedFile>,
 }
 
 impl Segments {
     pub fn iter(&self) -> impl Iterator<Item = &ErasedSegment> {
         self.base.iter()
+    }
+
+    pub fn recursive_crawl(&self, seg_type: &[&str], recurse_into: bool) -> Segments {
+        let mut segments = Vec::new();
+
+        for s in &self.base {
+            segments.extend(s.recursive_crawl(seg_type, recurse_into, None, true));
+        }
+
+        Segments::from_vec(segments, self.templated_file.clone())
     }
 
     pub fn iterate_segments(&self) -> impl Iterator<Item = Segments> + '_ {

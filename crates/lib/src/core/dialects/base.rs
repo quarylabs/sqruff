@@ -4,7 +4,6 @@ use std::fmt::Debug;
 use std::rc::Rc;
 
 use ahash::{AHashMap, AHashSet};
-use itertools::Itertools;
 
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::matchable::Matchable;
@@ -39,7 +38,7 @@ impl Dialect {
         iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)> + Clone,
     ) {
         #[cfg(debug_assertions)]
-        check_unique_names(self, &iter.clone().into_iter().collect_vec());
+        check_unique_names(self, &iter.clone().into_iter().collect::<Vec<_>>());
 
         self.library.extend(iter);
     }
@@ -191,6 +190,7 @@ impl Dialect {
     }
 }
 
+#[cfg(debug_assertions)]
 fn check_unique_names(dialect: &Dialect, xs: &[(Cow<'static, str>, DialectElementType)]) {
     let mut names = AHashSet::new();
 

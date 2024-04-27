@@ -303,14 +303,13 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - identifier: 'FALSE'
+          - boolean_literal: 'FALSE'
           - remove me: AND
           - remove me: NOT
           - bracketed:
             - start_bracket: (
             - expression:
-              - remove me: 'TRUE'
+              - boolean_literal: 'TRUE'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -319,8 +318,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - identifier: 'FALSE'
+          - boolean_literal: 'FALSE'
           - remove me: AND
           - remove me: NOT
           - remove me: NOT
@@ -328,7 +326,7 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - remove me: 'TRUE'
+              - boolean_literal: 'TRUE'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -337,14 +335,13 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - identifier: 'FALSE'
+          - boolean_literal: 'FALSE'
           - remove me: AND
           - remove me: NOT
           - bracketed:
             - start_bracket: (
             - expression:
-              - remove me: 'TRUE'
+              - boolean_literal: 'TRUE'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -353,8 +350,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - identifier: 'FALSE'
+          - boolean_literal: 'FALSE'
           - remove me: AND
           - remove me: NOT
           - function:

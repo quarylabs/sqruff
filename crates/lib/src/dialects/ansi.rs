@@ -633,19 +633,75 @@ pub fn ansi_dialect() -> Dialect {
         // type
         (
             "NullLiteralSegment".into(),
-            StringParser::new("null", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "null",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "null_literal" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "NanLiteralSegment".into(),
-            StringParser::new("nan", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "nan",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "null_literal" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "TrueSegment".into(),
-            StringParser::new("true", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "true",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "boolean_literal" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "FalseSegment".into(),
-            StringParser::new("false", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "false",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "boolean_literal" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         // We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
         (
@@ -660,7 +716,7 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "BooleanLiteralGrammar".into(),
-            one_of(vec_of_erased![Ref::new("TrueSegment"), Ref::new("TrueSegment")])
+            one_of(vec_of_erased![Ref::new("TrueSegment"), Ref::new("FalseSegment")])
                 .to_matchable()
                 .into(),
         ),

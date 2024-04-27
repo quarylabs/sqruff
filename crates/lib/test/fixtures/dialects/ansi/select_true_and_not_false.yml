@@ -5,18 +5,17 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - remove me: 'TRUE'
+          - boolean_literal: 'TRUE'
           - remove me: AND
           - remove me: NOT
-          - column_reference:
-            - identifier: 'FALSE'
+          - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - remove me: 'TRUE'
+        - boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -24,10 +23,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - remove me: 'TRUE'
+          - boolean_literal: 'TRUE'
           - remove me: AND
-          - column_reference:
-            - identifier: 'FALSE'
+          - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -36,7 +34,7 @@ file:
       - select_clause_element:
         - expression:
           - remove me: NOT
-          - remove me: 'TRUE'
+          - boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -45,8 +43,7 @@ file:
       - select_clause_element:
         - expression:
           - remove me: NOT
-          - remove me: 'TRUE'
+          - boolean_literal: 'TRUE'
           - remove me: AND
-          - column_reference:
-            - identifier: 'FALSE'
+          - boolean_literal: 'FALSE'
 - statement_terminator: ;

@@ -42,12 +42,11 @@ file:
                   - end_bracket: )
               - keyword: THEN
               - expression:
-                - remove me: 'TRUE'
+                - boolean_literal: 'TRUE'
             - else_clause:
               - keyword: ELSE
               - expression:
-                - column_reference:
-                  - identifier: 'FALSE'
+                - boolean_literal: 'FALSE'
             - keyword: END
         - alias_expression:
           - keyword: AS

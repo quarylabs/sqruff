@@ -12,7 +12,7 @@ file:
               - '': INT
         - alias_expression:
           - keyword: AS
-          - identifier: user_id
+          - naked_identifier: user_id
       - comma: ','
       - select_clause_element:
         - expression:
@@ -23,7 +23,7 @@ file:
               - '': INT
         - alias_expression:
           - keyword: AS
-          - identifier: is_paid
+          - naked_identifier: is_paid
     - fetch_clause:
       - keyword: FETCH
       - keyword: FIRST

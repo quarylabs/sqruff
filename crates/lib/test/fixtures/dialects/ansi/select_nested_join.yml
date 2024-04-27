@@ -5,21 +5,21 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - identifier: orders
+          - naked_identifier: orders
           - dot: .
-          - identifier: order_id
+          - naked_identifier: order_id
         - alias_expression:
           - keyword: AS
-          - identifier: order_id
+          - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: customers
+          - naked_identifier: customers
           - dot: .
-          - identifier: email
+          - naked_identifier: email
         - alias_expression:
           - keyword: AS
-          - identifier: email
+          - naked_identifier: email
     - from_clause:
       - keyword: from
       - from_expression:
@@ -27,14 +27,14 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: orders
+                - naked_identifier: orders
         - join_clause:
           - keyword: join
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: customers
+                  - naked_identifier: customers
           - join_on_condition:
             - keyword: on
             - bracketed:
@@ -44,14 +44,14 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: customers
+                      - naked_identifier: customers
                       - dot: .
-                      - identifier: customer_id
+                      - naked_identifier: customer_id
                     - remove me: =
                     - column_reference:
-                      - identifier: orders
+                      - naked_identifier: orders
                       - dot: .
-                      - identifier: customer_id
+                      - naked_identifier: customer_id
                   - end_bracket: )
               - end_bracket: )
     - where_clause:
@@ -60,9 +60,9 @@ file:
         - start_bracket: (
         - expression:
           - column_reference:
-            - identifier: customers
+            - naked_identifier: customers
             - dot: .
-            - identifier: email
+            - naked_identifier: email
           - remove me: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
@@ -70,21 +70,21 @@ file:
       - keyword: group
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
       - comma: ','
       - column_reference:
-        - identifier: customers
+        - naked_identifier: customers
         - dot: .
-        - identifier: email
+        - naked_identifier: email
     - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -92,21 +92,21 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - identifier: orders
+          - naked_identifier: orders
           - dot: .
-          - identifier: order_id
+          - naked_identifier: order_id
         - alias_expression:
           - keyword: AS
-          - identifier: order_id
+          - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: customers
+          - naked_identifier: customers
           - dot: .
-          - identifier: email
+          - naked_identifier: email
         - alias_expression:
           - keyword: AS
-          - identifier: email
+          - naked_identifier: email
     - from_clause:
       - keyword: from
       - from_expression:
@@ -116,14 +116,14 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: orders
+                  - naked_identifier: orders
           - join_clause:
             - keyword: join
             - from_expression_element:
               - table_expression:
                 - table_reference:
                   - object_reference:
-                    - identifier: customers
+                    - naked_identifier: customers
             - join_on_condition:
               - keyword: on
               - bracketed:
@@ -133,14 +133,14 @@ file:
                     - start_bracket: (
                     - expression:
                       - column_reference:
-                        - identifier: customers
+                        - naked_identifier: customers
                         - dot: .
-                        - identifier: customer_id
+                        - naked_identifier: customer_id
                       - remove me: =
                       - column_reference:
-                        - identifier: orders
+                        - naked_identifier: orders
                         - dot: .
-                        - identifier: customer_id
+                        - naked_identifier: customer_id
                     - end_bracket: )
                 - end_bracket: )
           - end_bracket: )
@@ -150,9 +150,9 @@ file:
         - start_bracket: (
         - expression:
           - column_reference:
-            - identifier: customers
+            - naked_identifier: customers
             - dot: .
-            - identifier: email
+            - naked_identifier: email
           - remove me: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
@@ -160,21 +160,21 @@ file:
       - keyword: group
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
       - comma: ','
       - column_reference:
-        - identifier: customers
+        - naked_identifier: customers
         - dot: .
-        - identifier: email
+        - naked_identifier: email
     - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -182,21 +182,21 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - identifier: orders
+          - naked_identifier: orders
           - dot: .
-          - identifier: order_id
+          - naked_identifier: order_id
         - alias_expression:
           - keyword: AS
-          - identifier: order_id
+          - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: customers
+          - naked_identifier: customers
           - dot: .
-          - identifier: email
+          - naked_identifier: email
         - alias_expression:
           - keyword: AS
-          - identifier: email
+          - naked_identifier: email
     - from_clause:
       - keyword: from
       - from_expression:
@@ -209,14 +209,14 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - identifier: orders
+                      - naked_identifier: orders
               - join_clause:
                 - keyword: join
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - identifier: customers
+                        - naked_identifier: customers
                 - join_on_condition:
                   - keyword: on
                   - bracketed:
@@ -226,14 +226,14 @@ file:
                         - start_bracket: (
                         - expression:
                           - column_reference:
-                            - identifier: customers
+                            - naked_identifier: customers
                             - dot: .
-                            - identifier: customer_id
+                            - naked_identifier: customer_id
                           - remove me: =
                           - column_reference:
-                            - identifier: orders
+                            - naked_identifier: orders
                             - dot: .
-                            - identifier: customer_id
+                            - naked_identifier: customer_id
                         - end_bracket: )
                     - end_bracket: )
             - end_bracket: )
@@ -243,7 +243,7 @@ file:
               - table_expression:
                 - table_reference:
                   - object_reference:
-                    - identifier: products
+                    - naked_identifier: products
             - join_on_condition:
               - keyword: on
               - bracketed:
@@ -253,14 +253,14 @@ file:
                     - start_bracket: (
                     - expression:
                       - column_reference:
-                        - identifier: products
+                        - naked_identifier: products
                         - dot: .
-                        - identifier: product_id
+                        - naked_identifier: product_id
                       - remove me: =
                       - column_reference:
-                        - identifier: orders
+                        - naked_identifier: orders
                         - dot: .
-                        - identifier: product_id
+                        - naked_identifier: product_id
                     - end_bracket: )
                 - end_bracket: )
           - end_bracket: )
@@ -270,9 +270,9 @@ file:
         - start_bracket: (
         - expression:
           - column_reference:
-            - identifier: customers
+            - naked_identifier: customers
             - dot: .
-            - identifier: email
+            - naked_identifier: email
           - remove me: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
@@ -280,21 +280,21 @@ file:
       - keyword: group
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
       - comma: ','
       - column_reference:
-        - identifier: customers
+        - naked_identifier: customers
         - dot: .
-        - identifier: email
+        - naked_identifier: email
     - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -302,21 +302,21 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - identifier: orders
+          - naked_identifier: orders
           - dot: .
-          - identifier: order_id
+          - naked_identifier: order_id
         - alias_expression:
           - keyword: AS
-          - identifier: order_id
+          - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: customers
+          - naked_identifier: customers
           - dot: .
-          - identifier: email
+          - naked_identifier: email
         - alias_expression:
           - keyword: AS
-          - identifier: email
+          - naked_identifier: email
     - from_clause:
       - keyword: from
       - from_expression:
@@ -332,14 +332,14 @@ file:
                     - table_expression:
                       - table_reference:
                         - object_reference:
-                          - identifier: orders
+                          - naked_identifier: orders
                   - join_clause:
                     - keyword: join
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
                           - object_reference:
-                            - identifier: customers
+                            - naked_identifier: customers
                     - join_on_condition:
                       - keyword: on
                       - bracketed:
@@ -349,14 +349,14 @@ file:
                             - start_bracket: (
                             - expression:
                               - column_reference:
-                                - identifier: customers
+                                - naked_identifier: customers
                                 - dot: .
-                                - identifier: customer_id
+                                - naked_identifier: customer_id
                               - remove me: =
                               - column_reference:
-                                - identifier: orders
+                                - naked_identifier: orders
                                 - dot: .
-                                - identifier: customer_id
+                                - naked_identifier: customer_id
                             - end_bracket: )
                         - end_bracket: )
                 - end_bracket: )
@@ -366,7 +366,7 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - identifier: products
+                        - naked_identifier: products
                 - join_on_condition:
                   - keyword: on
                   - bracketed:
@@ -376,14 +376,14 @@ file:
                         - start_bracket: (
                         - expression:
                           - column_reference:
-                            - identifier: products
+                            - naked_identifier: products
                             - dot: .
-                            - identifier: product_id
+                            - naked_identifier: product_id
                           - remove me: =
                           - column_reference:
-                            - identifier: orders
+                            - naked_identifier: orders
                             - dot: .
-                            - identifier: product_id
+                            - naked_identifier: product_id
                         - end_bracket: )
                     - end_bracket: )
             - end_bracket: )
@@ -393,7 +393,7 @@ file:
               - table_expression:
                 - table_reference:
                   - object_reference:
-                    - identifier: random
+                    - naked_identifier: random
             - join_on_condition:
               - keyword: on
               - bracketed:
@@ -403,14 +403,14 @@ file:
                     - start_bracket: (
                     - expression:
                       - column_reference:
-                        - identifier: random
+                        - naked_identifier: random
                         - dot: .
-                        - identifier: product_id
+                        - naked_identifier: product_id
                       - remove me: =
                       - column_reference:
-                        - identifier: products
+                        - naked_identifier: products
                         - dot: .
-                        - identifier: product_id
+                        - naked_identifier: product_id
                     - end_bracket: )
                 - end_bracket: )
           - end_bracket: )
@@ -420,9 +420,9 @@ file:
         - start_bracket: (
         - expression:
           - column_reference:
-            - identifier: customers
+            - naked_identifier: customers
             - dot: .
-            - identifier: email
+            - naked_identifier: email
           - remove me: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
@@ -430,19 +430,19 @@ file:
       - keyword: group
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
       - comma: ','
       - column_reference:
-        - identifier: customers
+        - naked_identifier: customers
         - dot: .
-        - identifier: email
+        - naked_identifier: email
     - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
-        - identifier: orders
+        - naked_identifier: orders
         - dot: .
-        - identifier: order_id
+        - naked_identifier: order_id
 - statement_terminator: ;

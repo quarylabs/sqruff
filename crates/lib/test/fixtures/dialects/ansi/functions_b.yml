@@ -17,7 +17,7 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: text
+                      - naked_identifier: text
                   - end_bracket: )
             - comma: ','
             - expression:
@@ -25,7 +25,7 @@ file:
             - end_bracket: )
         - alias_expression:
           - keyword: AS
-          - identifier: text
+          - naked_identifier: text
     - from_clause:
       - keyword: FROM
       - from_expression:

@@ -4,4 +4,4 @@ file:
     - keyword: create
     - keyword: database
     - database_reference:
-      - identifier: my_database
+      - naked_identifier: my_database

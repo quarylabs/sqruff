@@ -15,7 +15,7 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: sd2
+                      - naked_identifier: sd2
                   - comma: ','
                   - expression:
                     - numeric_literal: '2'
@@ -28,7 +28,7 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: sd3
+                      - naked_identifier: sd3
                   - comma: ','
                   - expression:
                     - numeric_literal: '2'
@@ -41,7 +41,7 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: sd4
+                      - naked_identifier: sd4
                   - comma: ','
                   - expression:
                     - numeric_literal: '2'
@@ -54,14 +54,14 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: sd4
+                      - naked_identifier: sd4
                   - comma: ','
                   - expression:
                     - numeric_literal: '2'
                   - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - identifier: w1
+          - naked_identifier: w1
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -69,7 +69,7 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: dat
+                - naked_identifier: dat
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -83,10 +83,10 @@ file:
               - keyword: WHEN
               - expression:
                 - column_reference:
-                  - identifier: order_month
+                  - naked_identifier: order_month
                 - remove me: =
                 - column_reference:
-                  - identifier: max_month
+                  - naked_identifier: max_month
               - keyword: THEN
               - expression:
                 - numeric_literal: '1'
@@ -96,4 +96,4 @@ file:
                 - numeric_literal: '0'
             - keyword: END
         - alias_expression:
-          - identifier: churn
+          - naked_identifier: churn

@@ -5,5 +5,5 @@ file:
     - keyword: view
     - table_reference:
       - object_reference:
-        - identifier: a
+        - naked_identifier: a
     - keyword: restrict

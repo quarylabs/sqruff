@@ -5,7 +5,7 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - identifier: foo
+        - naked_identifier: foo
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -13,7 +13,7 @@ file:
           - numeric_literal: '0'
           - alias_expression:
             - keyword: AS
-            - identifier: bar
+            - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -21,7 +21,7 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - identifier: foo
+        - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - select_statement:
@@ -31,7 +31,7 @@ file:
             - numeric_literal: '1'
             - alias_expression:
               - keyword: AS
-              - identifier: bar
+              - naked_identifier: bar
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -40,7 +40,7 @@ file:
     - keyword: INTO
     - table_reference:
       - object_reference:
-        - identifier: foo
+        - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - bracketed:
@@ -52,7 +52,7 @@ file:
               - numeric_literal: '1'
               - alias_expression:
                 - keyword: AS
-                - identifier: bar
+                - naked_identifier: bar
         - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

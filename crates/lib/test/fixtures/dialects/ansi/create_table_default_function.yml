@@ -5,11 +5,11 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: a
+        - naked_identifier: a
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: ts
+        - naked_identifier: ts
         - data_type:
           - keyword: TIMESTAMP
         - column_constraint_segment:

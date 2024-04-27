@@ -5,16 +5,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: users
+        - naked_identifier: users
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: username
+        - naked_identifier: username
         - data_type:
           - '': TEXT
       - comma: ','
       - column_definition:
-        - identifier: age
+        - naked_identifier: age
         - data_type:
           - '': INT
         - column_constraint_segment:
@@ -23,7 +23,7 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: age
+                - naked_identifier: age
               - remove me: '>'
               - numeric_literal: '18'
             - end_bracket: )
@@ -35,16 +35,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: users
+        - naked_identifier: users
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: username
+        - naked_identifier: username
         - data_type:
           - '': TEXT
       - comma: ','
       - column_definition:
-        - identifier: age
+        - naked_identifier: age
         - data_type:
           - '': INT
         - column_constraint_segment:
@@ -53,7 +53,7 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: age
+                - naked_identifier: age
               - keyword: IS
               - keyword: NOT
               - null_literal: 'NULL'
@@ -66,11 +66,11 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: Persons
+        - naked_identifier: Persons
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: ID
+        - naked_identifier: ID
         - data_type:
           - '': int
         - column_constraint_segment:
@@ -78,7 +78,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: LastName
+        - naked_identifier: LastName
         - data_type:
           - '': varchar
           - bracketed_arguments:
@@ -91,7 +91,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: FirstName
+        - naked_identifier: FirstName
         - data_type:
           - '': varchar
           - bracketed_arguments:
@@ -101,12 +101,12 @@ file:
               - end_bracket: )
       - comma: ','
       - column_definition:
-        - identifier: Age
+        - naked_identifier: Age
         - data_type:
           - '': int
       - comma: ','
       - column_definition:
-        - identifier: City
+        - naked_identifier: City
         - data_type:
           - '': varchar
           - bracketed_arguments:
@@ -116,7 +116,7 @@ file:
               - end_bracket: )
       - comma: ','
       - column_definition:
-        - identifier: CONSTRAINT
+        - naked_identifier: CONSTRAINT
         - data_type:
           - '': CHK_Person
         - column_constraint_segment:
@@ -125,14 +125,14 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: Age
+                - naked_identifier: Age
               - greater_than_or_equal_to:
                 - remove me: '>'
                 - remove me: =
               - numeric_literal: '18'
               - remove me: AND
               - column_reference:
-                - identifier: City
+                - naked_identifier: City
               - remove me: =
               - remove me: '''Sandnes'''
             - end_bracket: )

@@ -71,7 +71,9 @@ impl RuleAL07 {
                     for alias_with_column in
                         select_clause.recursive_crawl(&["object_reference"], true, None, true)
                     {
-                        if let Some(used_alias_ref) = alias_with_column.child(&["identifier"]) {
+                        if let Some(used_alias_ref) =
+                            alias_with_column.child(&["identifier", "naked_identifier"])
+                        {
                             if used_alias_ref.get_raw().unwrap() == alias_name {
                                 ids_refs.push(used_alias_ref);
                             }
@@ -80,7 +82,9 @@ impl RuleAL07 {
 
                     // Find all references to alias in column references
                     for exp_ref in column_reference_segments.clone() {
-                        if let Some(used_alias_ref) = exp_ref.child(&["identifier"]) {
+                        if let Some(used_alias_ref) =
+                            exp_ref.child(&["identifier", "naked_identifier"])
+                        {
                             if used_alias_ref.get_raw().unwrap() == alias_name
                                 && exp_ref.child(&["dot"]).is_some()
                             {
@@ -164,7 +168,7 @@ impl RuleAL07 {
                 continue;
             };
 
-            let alias_identifier_ref = alias_exp_ref.child(&["identifier"]);
+            let alias_identifier_ref = alias_exp_ref.child(&["identifier", "naked_identifier"]);
 
             acc.push(TableAliasInfo {
                 table_ref,

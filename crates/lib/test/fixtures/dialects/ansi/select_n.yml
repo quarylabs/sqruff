@@ -5,21 +5,21 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: exists_left
+          - naked_identifier: exists_left
           - dot: .
-          - identifier: business_type
+          - naked_identifier: business_type
         - alias_expression:
           - keyword: AS
-          - identifier: business_type_left
+          - naked_identifier: business_type_left
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: exists_right
+          - naked_identifier: exists_right
           - dot: .
-          - identifier: business_type
+          - naked_identifier: business_type
         - alias_expression:
           - keyword: AS
-          - identifier: business_type_right
+          - naked_identifier: business_type_right
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -27,10 +27,10 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: benchmark_summaries
+                - naked_identifier: benchmark_summaries
           - alias_expression:
             - keyword: AS
-            - identifier: exists_left
+            - naked_identifier: exists_left
         - join_clause:
           - keyword: FULL
           - keyword: JOIN
@@ -38,19 +38,19 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: business_types
+                  - naked_identifier: business_types
             - alias_expression:
               - keyword: AS
-              - identifier: exists_right
+              - naked_identifier: exists_right
           - join_on_condition:
             - keyword: ON
             - expression:
               - column_reference:
-                - identifier: exists_left
+                - naked_identifier: exists_left
                 - dot: .
-                - identifier: business_type
+                - naked_identifier: business_type
               - remove me: =
               - column_reference:
-                - identifier: exists_right
+                - naked_identifier: exists_right
                 - dot: .
-                - identifier: business_type
+                - naked_identifier: business_type

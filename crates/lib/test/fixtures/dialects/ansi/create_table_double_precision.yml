@@ -5,11 +5,11 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: test
+        - naked_identifier: test
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: angle
+        - naked_identifier: angle
         - data_type:
           - keyword: double
           - keyword: precision

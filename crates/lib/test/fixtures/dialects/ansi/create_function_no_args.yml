@@ -16,5 +16,5 @@ file:
       - keyword: AS
       - remove me: '''select $1 + $2;'''
       - keyword: LANGUAGE
-      - identifier: SQL
+      - naked_identifier: SQL
 - statement_terminator: ;

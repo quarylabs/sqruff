@@ -5,7 +5,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: business_type
+          - naked_identifier: business_type
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -13,12 +13,12 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: benchmark_summaries
+                - naked_identifier: benchmark_summaries
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
-          - identifier: avg_click_rate
+          - naked_identifier: avg_click_rate
         - keyword: NOT
         - keyword: BETWEEN
         - numeric_literal: '0'
@@ -28,25 +28,25 @@ file:
         - numeric_literal: '1'
         - binary_operator: +
         - column_reference:
-          - identifier: some_value
+          - naked_identifier: some_value
         - remove me: AND
         - column_reference:
-          - identifier: some_other_thing
+          - naked_identifier: some_other_thing
         - keyword: BETWEEN
         - numeric_literal: '0'
         - remove me: '-'
         - numeric_literal: '1'
         - remove me: '*'
         - column_reference:
-          - identifier: another_value
+          - naked_identifier: another_value
         - keyword: and
         - numeric_literal: '1'
         - remove me: AND
         - column_reference:
-          - identifier: another_thing
+          - naked_identifier: another_thing
         - keyword: BETWEEN
         - sign_indicator: '-'
         - column_reference:
-          - identifier: another_value
+          - naked_identifier: another_value
         - keyword: and
         - numeric_literal: '0'

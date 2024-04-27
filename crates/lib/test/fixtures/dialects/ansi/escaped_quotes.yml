@@ -20,7 +20,7 @@ file:
             - keyword: end
         - alias_expression:
           - keyword: as
-          - identifier: field
+          - naked_identifier: field
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -30,5 +30,5 @@ file:
         - remove me: '''This shouldn''''t fail'''
         - alias_expression:
           - keyword: as
-          - identifier: success
+          - naked_identifier: success
 - statement_terminator: ;

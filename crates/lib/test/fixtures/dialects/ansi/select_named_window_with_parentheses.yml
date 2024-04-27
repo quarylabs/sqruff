@@ -11,7 +11,7 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
             - comma: ','
             - expression:
               - numeric_literal: '1'
@@ -21,11 +21,11 @@ file:
             - bracketed:
               - start_bracket: (
               - window_specification:
-                - identifier: w1
+                - naked_identifier: w1
               - end_bracket: )
         - alias_expression:
           - keyword: AS
-          - identifier: baz
+          - naked_identifier: baz
       - comma: ','
       - select_clause_element:
         - function:
@@ -35,7 +35,7 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
             - comma: ','
             - expression:
               - numeric_literal: '1'
@@ -47,7 +47,7 @@ file:
               - end_bracket: )
         - alias_expression:
           - keyword: AS
-          - identifier: foo
+          - naked_identifier: foo
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -55,11 +55,11 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: t
+                - naked_identifier: t
     - named_window:
       - keyword: WINDOW
       - named_window_expression:
-        - identifier: w1
+        - naked_identifier: w1
         - keyword: AS
         - bracketed:
           - start_bracket: (
@@ -69,19 +69,19 @@ file:
               - keyword: BY
               - expression:
                 - column_reference:
-                  - identifier: x
+                  - naked_identifier: x
               - comma: ','
               - expression:
                 - column_reference:
-                  - identifier: y
+                  - naked_identifier: y
               - comma: ','
               - expression:
                 - column_reference:
-                  - identifier: z
+                  - naked_identifier: z
             - orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                - identifier: abc
+                - naked_identifier: abc
               - keyword: DESC
           - end_bracket: )

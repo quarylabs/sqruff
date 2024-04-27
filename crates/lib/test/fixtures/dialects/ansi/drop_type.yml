@@ -4,7 +4,7 @@ file:
     - keyword: DROP
     - keyword: TYPE
     - object_reference:
-      - identifier: typename
+      - naked_identifier: typename
 - statement_terminator: ;
 - statement:
   - drop_type_statement:
@@ -13,14 +13,14 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: typename
+      - naked_identifier: typename
 - statement_terminator: ;
 - statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE
     - object_reference:
-      - identifier: typename
+      - naked_identifier: typename
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -28,6 +28,6 @@ file:
     - keyword: DROP
     - keyword: TYPE
     - object_reference:
-      - identifier: typename
+      - naked_identifier: typename
     - keyword: RESTRICT
 - statement_terminator: ;

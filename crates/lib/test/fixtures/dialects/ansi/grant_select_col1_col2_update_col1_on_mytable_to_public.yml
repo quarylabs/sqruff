@@ -6,21 +6,21 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-        - identifier: col1
+        - naked_identifier: col1
       - comma: ','
       - column_reference:
-        - identifier: col2
+        - naked_identifier: col2
       - end_bracket: )
     - comma: ','
     - keyword: update
     - bracketed:
       - start_bracket: (
       - column_reference:
-        - identifier: col1
+        - naked_identifier: col1
       - end_bracket: )
     - keyword: on
     - object_reference:
-      - identifier: mytable
+      - naked_identifier: mytable
     - keyword: to
     - role_reference:
-      - identifier: public
+      - naked_identifier: public

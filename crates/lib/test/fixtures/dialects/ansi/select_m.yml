@@ -5,7 +5,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: a
+          - naked_identifier: a
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -13,7 +13,7 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: zendesk
+                - naked_identifier: zendesk
         - join_clause:
           - keyword: LEFT
           - keyword: JOIN
@@ -21,19 +21,19 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: ticket
+                  - naked_identifier: ticket
           - join_on_condition:
             - keyword: ON
             - expression:
               - column_reference:
-                - identifier: zendesk
+                - naked_identifier: zendesk
                 - dot: .
-                - identifier: ticket_id
+                - naked_identifier: ticket_id
               - remove me: =
               - column_reference:
-                - identifier: ticket
+                - naked_identifier: ticket
                 - dot: .
-                - identifier: id
+                - naked_identifier: id
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -41,7 +41,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: low_user_counts
+          - naked_identifier: low_user_counts
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -49,14 +49,14 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: acceptable_buckets
+                - naked_identifier: acceptable_buckets
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: small_buckets
+                  - naked_identifier: small_buckets
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -64,25 +64,25 @@ file:
                 - start_bracket: (
                 - expression:
                   - column_reference:
-                    - identifier: business_type
+                    - naked_identifier: business_type
                   - remove me: =
                   - column_reference:
-                    - identifier: low_business_type
+                    - naked_identifier: low_business_type
                 - end_bracket: )
               - remove me: AND
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - column_reference:
-                    - identifier: business_type
+                    - naked_identifier: business_type
                   - remove me: =
                   - column_reference:
-                    - identifier: low_business_type
+                    - naked_identifier: low_business_type
                   - remove me: OR
                   - column_reference:
-                    - identifier: size_label
+                    - naked_identifier: size_label
                   - remove me: =
                   - column_reference:
-                    - identifier: low_size_label
+                    - naked_identifier: low_size_label
                 - end_bracket: )
 - statement_terminator: ;

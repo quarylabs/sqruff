@@ -5,11 +5,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: col_a
+          - naked_identifier: col_a
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: col_b
+          - naked_identifier: col_b
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -17,18 +17,18 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: some_table
+                - naked_identifier: some_table
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
-          - identifier: col_a
+          - naked_identifier: col_a
         - keyword: IS
         - keyword: NOT
         - null_literal: 'NULL'
         - remove me: AND
         - column_reference:
-          - identifier: col_b
+          - naked_identifier: col_b
         - keyword: NOT
         - keyword: IN
         - bracketed:
@@ -38,7 +38,7 @@ file:
               - keyword: SELECT
               - select_clause_element:
                 - column_reference:
-                  - identifier: c
+                  - naked_identifier: c
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -46,5 +46,5 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - identifier: another_table
+                        - naked_identifier: another_table
           - end_bracket: )

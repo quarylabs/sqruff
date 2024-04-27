@@ -5,13 +5,13 @@ file:
     - keyword: INSERT
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - identifier: public
+      - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -19,10 +19,10 @@ file:
     - keyword: INSERT
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
       - remove me: '"public"'
@@ -35,13 +35,13 @@ file:
     - keyword: UPDATE
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - identifier: public
+      - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -51,10 +51,10 @@ file:
     - keyword: UPDATE
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
       - remove me: '"public"'
@@ -69,13 +69,13 @@ file:
     - keyword: DELETE
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - identifier: public
+      - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -87,10 +87,10 @@ file:
     - keyword: DELETE
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
       - remove me: '"public"'
@@ -107,13 +107,13 @@ file:
     - keyword: SELECT
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - identifier: public
+      - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -127,10 +127,10 @@ file:
     - keyword: SELECT
     - keyword: ON
     - object_reference:
-      - identifier: my_table
+      - naked_identifier: my_table
     - comma: ','
     - object_reference:
-      - identifier: my_table2
+      - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
       - remove me: '"public"'

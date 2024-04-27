@@ -21,7 +21,7 @@ file:
               SELECT 1;
           '
       - keyword: LANGUAGE
-      - identifier: SQL
+      - naked_identifier: SQL
 - statement_terminator: ;
 - statement:
   - create_function_statement:
@@ -43,5 +43,5 @@ file:
               SELECT 1;
           '
       - keyword: LANGUAGE
-      - identifier: SQL
+      - naked_identifier: SQL
 - statement_terminator: ;

@@ -14,7 +14,7 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: TABLE_1
+                - naked_identifier: TABLE_1
         - join_clause:
           - keyword: FULL
           - keyword: OUTER
@@ -38,12 +38,12 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - identifier: Table_B
+                                - naked_identifier: Table_B
                     - where_clause:
                       - keyword: WHERE
                       - expression:
                         - column_reference:
-                          - identifier: COL_2
+                          - naked_identifier: COL_2
                         - remove me: =
                         - remove me: '''B'''
                   - set_operator:
@@ -63,12 +63,12 @@ file:
                           - table_expression:
                             - table_reference:
                               - object_reference:
-                                - identifier: TABLE_C
+                                - naked_identifier: TABLE_C
                     - where_clause:
                       - keyword: WHERE
                       - expression:
                         - column_reference:
-                          - identifier: COL_1
+                          - naked_identifier: COL_1
                         - remove me: =
                         - numeric_literal: '0'
                 - end_bracket: )
@@ -76,11 +76,11 @@ file:
             - keyword: ON
             - expression:
               - column_reference:
-                - identifier: TABLE_1
+                - naked_identifier: TABLE_1
                 - dot: .
-                - identifier: A
+                - naked_identifier: A
               - remove me: =
               - column_reference:
-                - identifier: TABLE_2
+                - naked_identifier: TABLE_2
                 - dot: .
-                - identifier: A
+                - naked_identifier: A

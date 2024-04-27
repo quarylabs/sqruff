@@ -3,7 +3,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-      - identifier: result
+      - naked_identifier: result
       - keyword: AS
       - bracketed:
         - start_bracket: (
@@ -13,7 +13,7 @@ file:
               - keyword: SELECT
               - select_clause_element:
                 - column_reference:
-                  - identifier: customer
+                  - naked_identifier: customer
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -21,10 +21,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - identifier: sales_eu
+                        - naked_identifier: sales_eu
                   - alias_expression:
                     - keyword: AS
-                    - identifier: s
+                    - naked_identifier: s
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -33,7 +33,7 @@ file:
               - keyword: SELECT
               - select_clause_element:
                 - column_reference:
-                  - identifier: customer
+                  - naked_identifier: customer
             - from_clause:
               - keyword: FROM
               - from_expression:
@@ -41,10 +41,10 @@ file:
                   - table_expression:
                     - table_reference:
                       - object_reference:
-                        - identifier: sales_us
+                        - naked_identifier: sales_us
                   - alias_expression:
                     - keyword: AS
-                    - identifier: s2
+                    - naked_identifier: s2
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -60,4 +60,4 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: result
+                  - naked_identifier: result

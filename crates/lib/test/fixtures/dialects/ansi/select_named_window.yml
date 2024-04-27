@@ -11,14 +11,14 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: col
+                - naked_identifier: col
             - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
               - start_bracket: (
               - window_specification:
-                - identifier: win
+                - naked_identifier: win
               - end_bracket: )
     - from_clause:
       - keyword: FROM
@@ -27,11 +27,11 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: table
+                - naked_identifier: table
     - named_window:
       - keyword: WINDOW
       - named_window_expression:
-        - identifier: win
+        - naked_identifier: win
         - keyword: AS
         - bracketed:
           - start_bracket: (
@@ -41,5 +41,5 @@ file:
               - keyword: BY
               - expression:
                 - column_reference:
-                  - identifier: date
+                  - naked_identifier: date
           - end_bracket: )

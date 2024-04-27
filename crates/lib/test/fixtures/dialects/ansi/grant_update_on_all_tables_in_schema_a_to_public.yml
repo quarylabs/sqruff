@@ -9,7 +9,7 @@ file:
     - keyword: in
     - keyword: schema
     - object_reference:
-      - identifier: a
+      - naked_identifier: a
     - keyword: to
     - role_reference:
-      - identifier: public
+      - naked_identifier: public

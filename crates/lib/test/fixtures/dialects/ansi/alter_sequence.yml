@@ -4,7 +4,7 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: INCREMENT
       - keyword: BY
@@ -15,7 +15,7 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: MAXVALUE
       - numeric_literal: '7'
@@ -28,7 +28,7 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: NOCACHE
     - alter_sequence_options_segment:
@@ -39,7 +39,7 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: NOORDER
     - alter_sequence_options_segment:
@@ -53,7 +53,7 @@ file:
     - keyword: ALTER
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: ORDER
 - statement_terminator: ;

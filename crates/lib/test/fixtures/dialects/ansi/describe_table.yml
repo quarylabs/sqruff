@@ -2,7 +2,7 @@ file:
 - statement:
   - describe_statement:
     - keyword: describe
-    - identifier: table
+    - naked_identifier: table
     - object_reference:
       - remove me: '"my_table"'
 - statement_terminator: ;

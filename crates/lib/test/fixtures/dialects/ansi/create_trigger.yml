@@ -4,13 +4,13 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: ON
     - table_reference:
       - object_reference:
-        - identifier: bar
+        - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -18,7 +18,7 @@ file:
       - start_bracket: (
       - expression:
         - column_reference:
-          - identifier: args
+          - naked_identifier: args
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -26,13 +26,13 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: on
     - table_reference:
       - object_reference:
-        - identifier: bar
+        - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -40,7 +40,7 @@ file:
       - start_bracket: (
       - expression:
         - column_reference:
-          - identifier: args
+          - naked_identifier: args
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -48,19 +48,19 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - keyword: AFTER
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-      - identifier: bar
+      - naked_identifier: bar
     - comma: ','
     - column_reference:
-      - identifier: baz
+      - naked_identifier: baz
     - keyword: ON
     - table_reference:
       - object_reference:
-        - identifier: bar
+        - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -68,7 +68,7 @@ file:
       - start_bracket: (
       - expression:
         - column_reference:
-          - identifier: args
+          - naked_identifier: args
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -76,18 +76,18 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - keyword: INSTEAD
     - keyword: OF
     - keyword: DELETE
     - keyword: ON
     - table_reference:
       - object_reference:
-        - identifier: bar
+        - naked_identifier: bar
     - keyword: FROM
     - table_reference:
       - object_reference:
-        - identifier: baz
+        - naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: IMMEDIATE
@@ -101,7 +101,7 @@ file:
       - start_bracket: (
       - expression:
         - column_reference:
-          - identifier: args
+          - naked_identifier: args
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -109,22 +109,22 @@ file:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: ON
     - table_reference:
       - object_reference:
-        - identifier: bar
+        - naked_identifier: bar
     - keyword: WHEN
     - bracketed:
       - start_bracket: (
       - expression:
         - column_reference:
-          - identifier: a
+          - naked_identifier: a
         - remove me: =
         - column_reference:
-          - identifier: b
+          - naked_identifier: b
       - end_bracket: )
     - keyword: EXECUTE
     - keyword: PROCEDURE
@@ -133,6 +133,6 @@ file:
       - start_bracket: (
       - expression:
         - column_reference:
-          - identifier: args
+          - naked_identifier: args
       - end_bracket: )
 - statement_terminator: ;

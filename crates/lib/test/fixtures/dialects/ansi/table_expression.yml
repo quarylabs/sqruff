@@ -5,10 +5,10 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: y
+          - naked_identifier: y
         - alias_expression:
           - keyword: AS
-          - identifier: woy
+          - naked_identifier: woy
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -34,7 +34,7 @@ file:
                 - end_bracket: )
           - alias_expression:
             - keyword: AS
-            - identifier: y
+            - naked_identifier: y
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -42,11 +42,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: id
+          - naked_identifier: id
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: name
+          - naked_identifier: name
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -68,11 +68,11 @@ file:
                     - remove me: ']'
                 - end_bracket: )
           - alias_expression:
-            - identifier: id
+            - naked_identifier: id
           - keyword: WITH
           - keyword: OFFSET
           - alias_expression:
-            - identifier: pos1
+            - naked_identifier: pos1
       - comma: ','
       - from_expression:
         - from_expression_element:
@@ -93,17 +93,17 @@ file:
                     - remove me: ']'
                 - end_bracket: )
           - alias_expression:
-            - identifier: name
+            - naked_identifier: name
           - keyword: WITH
           - keyword: OFFSET
           - alias_expression:
-            - identifier: pos2
+            - naked_identifier: pos2
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
-          - identifier: pos1
+          - naked_identifier: pos1
         - remove me: =
         - column_reference:
-          - identifier: pos2
+          - naked_identifier: pos2
 - statement_terminator: ;

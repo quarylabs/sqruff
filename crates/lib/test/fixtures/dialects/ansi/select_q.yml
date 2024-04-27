@@ -5,9 +5,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: data
+          - naked_identifier: data
           - dot: .
-          - identifier: id
+          - naked_identifier: id
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -15,26 +15,26 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: data
+                - naked_identifier: data
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: data_max
+                  - naked_identifier: data_max
           - join_on_condition:
             - keyword: ON
             - expression:
               - column_reference:
-                - identifier: data
+                - naked_identifier: data
                 - dot: .
-                - identifier: event_id
+                - naked_identifier: event_id
               - remove me: =
               - column_reference:
-                - identifier: data_max
+                - naked_identifier: data_max
                 - dot: .
-                - identifier: event_id
+                - naked_identifier: event_id
         - join_clause:
           - keyword: LEFT
           - keyword: JOIN
@@ -47,16 +47,16 @@ file:
                   - remove me: '"other_data"'
             - alias_expression:
               - keyword: AS
-              - identifier: od
+              - naked_identifier: od
           - join_on_condition:
             - keyword: ON
             - expression:
               - column_reference:
-                - identifier: od
+                - naked_identifier: od
                 - dot: .
-                - identifier: fid
+                - naked_identifier: fid
               - remove me: =
               - column_reference:
-                - identifier: data_max
+                - naked_identifier: data_max
                 - dot: .
-                - identifier: fid
+                - naked_identifier: fid

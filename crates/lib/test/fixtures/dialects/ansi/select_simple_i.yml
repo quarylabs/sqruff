@@ -5,45 +5,45 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: raw_column
+          - naked_identifier: raw_column
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: raw_sch
+          - naked_identifier: raw_sch
           - dot: .
-          - identifier: raw_col
+          - naked_identifier: raw_col
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: simple_explicit
+          - naked_identifier: simple_explicit
         - alias_expression:
           - keyword: as
-          - identifier: aliased_column_1
+          - naked_identifier: aliased_column_1
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: simple_implicit
+          - naked_identifier: simple_implicit
         - alias_expression:
-          - identifier: aliased_column_2
+          - naked_identifier: aliased_column_2
       - comma: ','
       - select_clause_element:
         - expression:
           - column_reference:
-            - identifier: an_unaliased
+            - naked_identifier: an_unaliased
           - binary_operator: +
           - column_reference:
-            - identifier: calculation
+            - naked_identifier: calculation
       - comma: ','
       - select_clause_element:
         - expression:
           - column_reference:
-            - identifier: an_explicitly
+            - naked_identifier: an_explicitly
           - remove me: '-'
           - column_reference:
-            - identifier: aliased
+            - naked_identifier: aliased
         - alias_expression:
           - keyword: as
-          - identifier: calculation
+          - naked_identifier: calculation
       - comma: ','
       - select_clause_element:
         - remove me: '''an unalised string'''
@@ -57,7 +57,7 @@ file:
           - numeric_literal: '786'
         - alias_expression:
           - keyword: as
-          - identifier: aliased_column3
+          - naked_identifier: aliased_column3
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -65,28 +65,28 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: unaliased
+                - naked_identifier: unaliased
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: aliased_1
+                  - naked_identifier: aliased_1
             - alias_expression:
               - keyword: as
-              - identifier: foo
+              - naked_identifier: foo
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: aliased_2
+                  - naked_identifier: aliased_2
             - alias_expression:
-              - identifier: bar
+              - naked_identifier: bar
           - keyword: USING
           - bracketed:
             - start_bracket: (
-            - identifier: b
+            - naked_identifier: b
             - end_bracket: )

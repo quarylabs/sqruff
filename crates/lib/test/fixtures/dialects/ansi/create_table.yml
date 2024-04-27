@@ -5,11 +5,11 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: foo
+        - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: pk
+        - naked_identifier: pk
         - data_type:
           - '': int
         - column_constraint_segment:
@@ -17,35 +17,35 @@ file:
           - keyword: KEY
       - comma: ','
       - column_definition:
-        - identifier: quoted_name
+        - naked_identifier: quoted_name
         - data_type:
           - remove me: '"custom udt"'
       - comma: ','
       - column_definition:
-        - identifier: qualified_name
+        - naked_identifier: qualified_name
         - data_type:
-          - identifier: sch
+          - naked_identifier: sch
           - dot: .
           - '': qualified
       - comma: ','
       - column_definition:
-        - identifier: quoted_qualified
+        - naked_identifier: quoted_qualified
         - data_type:
           - remove me: '"my schema"'
           - dot: .
           - '': qualified
       - comma: ','
       - column_definition:
-        - identifier: more_quoted
+        - naked_identifier: more_quoted
         - data_type:
           - remove me: '"my schema"'
           - dot: .
           - remove me: '"custom udt"'
       - comma: ','
       - column_definition:
-        - identifier: quoted_udt
+        - naked_identifier: quoted_udt
         - data_type:
-          - identifier: sch
+          - naked_identifier: sch
           - dot: .
           - remove me: '"custom udt"'
       - end_bracket: )

@@ -6,8 +6,8 @@ file:
     - keyword: on
     - keyword: table
     - object_reference:
-      - identifier: a
+      - naked_identifier: a
     - keyword: from
     - keyword: group
     - object_reference:
-      - identifier: b
+      - naked_identifier: b

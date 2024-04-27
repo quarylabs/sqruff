@@ -6,7 +6,7 @@ file:
     - keyword: privileges
     - keyword: on
     - object_reference:
-      - identifier: mytable
+      - naked_identifier: mytable
     - keyword: to
     - role_reference:
-      - identifier: myrole
+      - naked_identifier: myrole

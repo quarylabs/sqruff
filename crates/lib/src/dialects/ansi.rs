@@ -3230,7 +3230,7 @@ impl Node<FromExpressionElementSegment> {
 
         let alias_expression = self.child(&["alias_expression"]);
         if let Some(alias_expression) = alias_expression {
-            let segment = alias_expression.child(&["identifier"]);
+            let segment = alias_expression.child(&["identifier", "naked_identifier"]);
             if let Some(segment) = segment {
                 return AliasInfo {
                     ref_str: segment.get_raw().unwrap(),
@@ -3322,7 +3322,7 @@ impl Node<ObjectReferenceSegment> {
     pub fn iter_raw_references(&self) -> Vec<ObjectReferencePart> {
         let mut acc = Vec::new();
 
-        for elem in self.recursive_crawl(&["identifier"], true, None, true) {
+        for elem in self.recursive_crawl(&["identifier", "naked_identifier"], true, None, true) {
             acc.extend(self.iter_reference_parts(elem));
         }
 

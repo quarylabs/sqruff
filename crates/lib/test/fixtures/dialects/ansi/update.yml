@@ -4,27 +4,27 @@ file:
     - keyword: UPDATE
     - table_reference:
       - object_reference:
-        - identifier: table_name
+        - naked_identifier: table_name
     - set_clause_list:
       - keyword: SET
       - set_clause:
         - column_reference:
-          - identifier: column1
+          - naked_identifier: column1
         - remove me: =
         - column_reference:
-          - identifier: value1
+          - naked_identifier: value1
       - comma: ','
       - set_clause:
         - column_reference:
-          - identifier: column2
+          - naked_identifier: column2
         - remove me: =
         - column_reference:
-          - identifier: value2
+          - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
-          - identifier: a
+          - naked_identifier: a
         - remove me: =
         - numeric_literal: '1'
 - statement_terminator: ;

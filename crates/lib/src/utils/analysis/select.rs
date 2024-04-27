@@ -77,7 +77,7 @@ pub fn get_select_statement_info(
                     }
                 } else if seen_using && seg.is_type("bracketed") {
                     for subseg in seg.segments() {
-                        if subseg.is_type("identifier") {
+                        if subseg.is_type("identifier") || subseg.is_type("naked_identifier") {
                             using_cols.push(subseg.get_raw().unwrap());
                         }
                     }

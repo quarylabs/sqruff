@@ -3,7 +3,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-      - identifier: mycte
+      - naked_identifier: mycte
       - keyword: AS
       - bracketed:
         - start_bracket: (
@@ -12,15 +12,15 @@ file:
             - keyword: SELECT
             - select_clause_element:
               - column_reference:
-                - identifier: foo
+                - naked_identifier: foo
             - comma: ','
             - select_clause_element:
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
             - comma: ','
             - select_clause_element:
               - column_reference:
-                - identifier: baz
+                - naked_identifier: baz
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -28,24 +28,24 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - identifier: mytable1
+                      - naked_identifier: mytable1
         - end_bracket: )
     - insert_statement:
       - keyword: INSERT
       - keyword: INTO
       - table_reference:
         - object_reference:
-          - identifier: table2
+          - naked_identifier: table2
       - bracketed:
         - start_bracket: (
         - column_reference:
-          - identifier: column1
+          - naked_identifier: column1
         - comma: ','
         - column_reference:
-          - identifier: column2
+          - naked_identifier: column2
         - comma: ','
         - column_reference:
-          - identifier: column3
+          - naked_identifier: column3
         - end_bracket: )
       - values_clause:
         - keyword: VALUES
@@ -62,7 +62,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-      - identifier: mycte
+      - naked_identifier: mycte
       - bracketed:
         - start_bracket: (
         - select_statement:
@@ -70,15 +70,15 @@ file:
             - keyword: SELECT
             - select_clause_element:
               - column_reference:
-                - identifier: foo
+                - naked_identifier: foo
             - comma: ','
             - select_clause_element:
               - column_reference:
-                - identifier: bar
+                - naked_identifier: bar
             - comma: ','
             - select_clause_element:
               - column_reference:
-                - identifier: baz
+                - naked_identifier: baz
           - from_clause:
             - keyword: FROM
             - from_expression:
@@ -86,24 +86,24 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - identifier: mytable1
+                      - naked_identifier: mytable1
         - end_bracket: )
     - insert_statement:
       - keyword: INSERT
       - keyword: INTO
       - table_reference:
         - object_reference:
-          - identifier: table2
+          - naked_identifier: table2
       - bracketed:
         - start_bracket: (
         - column_reference:
-          - identifier: column1
+          - naked_identifier: column1
         - comma: ','
         - column_reference:
-          - identifier: column2
+          - naked_identifier: column2
         - comma: ','
         - column_reference:
-          - identifier: column3
+          - naked_identifier: column3
         - end_bracket: )
       - values_clause:
         - keyword: VALUES

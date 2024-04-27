@@ -31,7 +31,7 @@ file:
               - keyword: WHEN
               - expression:
                 - column_reference:
-                  - identifier: some_var
+                  - naked_identifier: some_var
                 - keyword: IN
                 - bracketed:
                   - start_bracket: (
@@ -53,7 +53,7 @@ file:
             - keyword: END
         - alias_expression:
           - keyword: as
-          - identifier: a_case_statement
+          - naked_identifier: a_case_statement
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -61,4 +61,4 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: boo
+                - naked_identifier: boo

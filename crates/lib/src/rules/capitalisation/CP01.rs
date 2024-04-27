@@ -24,7 +24,12 @@ impl Default for RuleCP01 {
         Self {
             capitalisation_policy: "consistent".into(),
             skip_literals: true,
-            exclude_parent_types: &["data_type", "datetime_type_identifier", "primitive_type"],
+            exclude_parent_types: &[
+                "data_type",
+                "datetime_type_identifier",
+                "primitive_type",
+                "naked_identifier",
+            ],
         }
     }
 }
@@ -118,7 +123,6 @@ pub fn handle_segment(
 
         if !possible_cases.is_empty() {
             context.memory.borrow_mut().insert(LatestPossibleCase(possible_cases[0].to_owned()));
-            dbg!("RETURN");
             return LintResult::new(None, Vec::new(), None, None, None);
         } else {
             context

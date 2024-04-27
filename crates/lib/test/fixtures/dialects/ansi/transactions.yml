@@ -9,19 +9,19 @@ file:
     - keyword: UPDATE
     - table_reference:
       - object_reference:
-        - identifier: tbl
+        - naked_identifier: tbl
     - set_clause_list:
       - keyword: SET
       - set_clause:
         - column_reference:
-          - identifier: foo
+          - naked_identifier: foo
         - remove me: =
         - numeric_literal: '1'
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
-          - identifier: bar
+          - naked_identifier: bar
         - remove me: =
         - numeric_literal: '2'
 - statement_terminator: ;

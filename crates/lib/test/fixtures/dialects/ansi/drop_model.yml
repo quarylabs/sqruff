@@ -6,4 +6,4 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-      - identifier: model3
+      - naked_identifier: model3

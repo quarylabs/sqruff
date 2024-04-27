@@ -8,7 +8,7 @@ file:
           - numeric_literal: '1'
           - alias_expression:
             - keyword: AS
-            - identifier: a
+            - naked_identifier: a
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -19,9 +19,9 @@ file:
           - numeric_literal: '1'
           - alias_expression:
             - keyword: AS
-            - identifier: a
+            - naked_identifier: a
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-        - identifier: a
+        - naked_identifier: a

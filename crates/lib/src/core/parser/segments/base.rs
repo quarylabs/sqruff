@@ -1400,8 +1400,8 @@ impl Segment for SymbolSegment {
         Vec::new()
     }
 
-    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        todo!()
+    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        SymbolSegment::create(&raw.unwrap(), &self.position_maker, <_>::default())
     }
 
     fn instance_types(&self) -> AHashSet<String> {

@@ -432,7 +432,7 @@ pub fn ansi_dialect() -> Dialect {
                         CodeSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
-                            CodeSegmentNewArgs::default(),
+                            CodeSegmentNewArgs { code_type: "bare_function", ..Default::default() },
                         )
                     },
                     None,
@@ -459,7 +459,10 @@ pub fn ansi_dialect() -> Dialect {
                         IdentifierSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
-                            <_>::default(),
+                            CodeSegmentNewArgs {
+                                code_type: "naked_identifier",
+                                ..Default::default()
+                            },
                         )
                     },
                     None,

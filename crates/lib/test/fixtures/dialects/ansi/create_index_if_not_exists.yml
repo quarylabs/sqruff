@@ -7,14 +7,14 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - database_reference:
-      - identifier: transaction_updated
+      - naked_identifier: transaction_updated
     - keyword: ON
     - table_reference:
       - object_reference:
-        - identifier: transaction_master
+        - naked_identifier: transaction_master
     - bracketed:
       - start_bracket: (
       - index_column_definition:
-        - identifier: last_updated
+        - naked_identifier: last_updated
       - end_bracket: )
 - statement_terminator: ;

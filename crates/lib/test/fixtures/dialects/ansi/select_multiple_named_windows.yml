@@ -5,15 +5,15 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: item
+          - naked_identifier: item
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: purchases
+          - naked_identifier: purchases
       - comma: ','
       - select_clause_element:
         - column_reference:
-          - identifier: category
+          - naked_identifier: category
       - comma: ','
       - select_clause_element:
         - function:
@@ -23,18 +23,18 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: item
+                - naked_identifier: item
             - end_bracket: )
           - over_clause:
             - keyword: OVER
             - bracketed:
               - start_bracket: (
               - window_specification:
-                - identifier: d
+                - naked_identifier: d
               - end_bracket: )
         - alias_expression:
           - keyword: AS
-          - identifier: most_popular
+          - naked_identifier: most_popular
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -42,11 +42,11 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: Produce
+                - naked_identifier: Produce
     - named_window:
       - keyword: WINDOW
       - named_window_expression:
-        - identifier: a
+        - naked_identifier: a
         - keyword: AS
         - bracketed:
           - start_bracket: (
@@ -56,30 +56,30 @@ file:
               - keyword: BY
               - expression:
                 - column_reference:
-                  - identifier: category
+                  - naked_identifier: category
           - end_bracket: )
       - comma: ','
       - named_window_expression:
-        - identifier: b
+        - naked_identifier: b
         - keyword: AS
         - bracketed:
           - start_bracket: (
           - window_specification:
-            - identifier: a
+            - naked_identifier: a
             - orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                - identifier: purchases
+                - naked_identifier: purchases
           - end_bracket: )
       - comma: ','
       - named_window_expression:
-        - identifier: c
+        - naked_identifier: c
         - keyword: AS
         - bracketed:
           - start_bracket: (
           - window_specification:
-            - identifier: b
+            - naked_identifier: b
             - frame_clause:
               - keyword: ROWS
               - keyword: BETWEEN
@@ -91,10 +91,10 @@ file:
           - end_bracket: )
       - comma: ','
       - named_window_expression:
-        - identifier: d
+        - naked_identifier: d
         - keyword: AS
         - bracketed:
           - start_bracket: (
           - window_specification:
-            - identifier: c
+            - naked_identifier: c
           - end_bracket: )

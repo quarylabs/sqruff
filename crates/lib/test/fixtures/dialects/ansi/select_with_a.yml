@@ -3,7 +3,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-      - identifier: cte
+      - naked_identifier: cte
       - keyword: as
       - bracketed:
         - start_bracket: (
@@ -12,7 +12,7 @@ file:
             - keyword: select
             - select_clause_element:
               - column_reference:
-                - identifier: a
+                - naked_identifier: a
           - from_clause:
             - keyword: from
             - from_expression:
@@ -20,14 +20,14 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - identifier: tbla
+                      - naked_identifier: tbla
         - end_bracket: )
     - select_statement:
       - select_clause:
         - keyword: select
         - select_clause_element:
           - column_reference:
-            - identifier: a
+            - naked_identifier: a
       - from_clause:
         - keyword: from
         - from_expression:
@@ -35,4 +35,4 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: cte
+                  - naked_identifier: cte

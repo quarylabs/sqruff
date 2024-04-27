@@ -14,7 +14,7 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: year_number
+                      - naked_identifier: year_number
                     - remove me: '%'
                     - numeric_literal: '400'
                     - remove me: =
@@ -25,14 +25,14 @@ file:
                   - start_bracket: (
                   - expression:
                     - column_reference:
-                      - identifier: year_number
+                      - naked_identifier: year_number
                     - remove me: '%'
                     - numeric_literal: '4'
                     - remove me: =
                     - numeric_literal: '0'
                     - remove me: AND
                     - column_reference:
-                      - identifier: year_number
+                      - naked_identifier: year_number
                     - remove me: '%'
                     - numeric_literal: '100'
                     - not_equal_to:
@@ -50,7 +50,7 @@ file:
             - keyword: END
         - alias_expression:
           - keyword: AS
-          - identifier: is_leap_year
+          - naked_identifier: is_leap_year
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -58,4 +58,4 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: mytable
+                - naked_identifier: mytable

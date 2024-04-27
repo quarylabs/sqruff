@@ -11,16 +11,16 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: zendesk
+                - naked_identifier: zendesk
                 - dot: .
-                - identifier: created_at
+                - naked_identifier: created_at
             - comma: ','
             - expression:
               - remove me: '''America/New_York'''
             - end_bracket: )
         - alias_expression:
           - keyword: AS
-          - identifier: date
+          - naked_identifier: date
       - comma: ','
       - select_clause_element:
         - function:
@@ -35,9 +35,9 @@ file:
                   - keyword: WHEN
                   - expression:
                     - column_reference:
-                      - identifier: zendesk
+                      - naked_identifier: zendesk
                       - dot: .
-                      - identifier: support_team
+                      - naked_identifier: support_team
                     - keyword: IN
                     - bracketed:
                       - start_bracket: (
@@ -54,7 +54,7 @@ file:
             - end_bracket: )
         - alias_expression:
           - keyword: AS
-          - identifier: tech_support
+          - naked_identifier: tech_support
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -62,4 +62,4 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: zendesk
+                - naked_identifier: zendesk

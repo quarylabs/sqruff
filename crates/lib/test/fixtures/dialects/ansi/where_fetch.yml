@@ -14,12 +14,12 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: Persons
+                - naked_identifier: Persons
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
-          - identifier: Country
+          - naked_identifier: Country
         - remove me: =
         - remove me: '''France'''
     - fetch_clause:

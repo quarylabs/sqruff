@@ -7,13 +7,13 @@ file:
         - expression:
           - cast_expression:
             - column_reference:
-              - identifier: my_var
+              - naked_identifier: my_var
             - remove me: '::'
             - data_type:
               - '': date
         - alias_expression:
           - keyword: as
-          - identifier: casted_variable
+          - naked_identifier: casted_variable
       - comma: ','
       - select_clause_element:
         - expression:
@@ -24,7 +24,7 @@ file:
               - '': bigint
         - alias_expression:
           - keyword: as
-          - identifier: another_casted_number
+          - naked_identifier: another_casted_number
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -32,4 +32,4 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: boo
+                - naked_identifier: boo

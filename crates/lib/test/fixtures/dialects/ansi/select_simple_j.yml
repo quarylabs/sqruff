@@ -5,7 +5,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - identifier: count_correctly_substituted
+          - naked_identifier: count_correctly_substituted
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -13,7 +13,7 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: correctly_substituted
+                - naked_identifier: correctly_substituted
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
@@ -21,7 +21,7 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: needs_substitution
+                  - naked_identifier: needs_substitution
         - join_clause:
           - keyword: LEFT
           - keyword: OUTER
@@ -30,4 +30,4 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: some_other_table
+                  - naked_identifier: some_other_table

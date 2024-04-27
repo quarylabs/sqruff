@@ -5,7 +5,7 @@ file:
     - keyword: all
     - keyword: on
     - object_reference:
-      - identifier: mytable
+      - naked_identifier: mytable
     - keyword: to
     - role_reference:
-      - identifier: public
+      - naked_identifier: public

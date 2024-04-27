@@ -5,11 +5,11 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: b
+        - naked_identifier: b
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: b
+        - naked_identifier: b
         - data_type:
           - '': INT
         - column_constraint_segment:
@@ -17,7 +17,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: c
+        - naked_identifier: c
         - data_type:
           - '': INT
         - column_constraint_segment:
@@ -25,7 +25,7 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-        - identifier: d
+        - naked_identifier: d
         - data_type:
           - '': INT
         - column_constraint_segment:
@@ -35,22 +35,22 @@ file:
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-          - identifier: c_b
+          - naked_identifier: c_b
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
           - start_bracket: (
           - column_reference:
-            - identifier: b
+            - naked_identifier: b
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
           - object_reference:
-            - identifier: a
+            - naked_identifier: a
         - bracketed:
           - start_bracket: (
           - column_reference:
-            - identifier: b
+            - naked_identifier: b
           - end_bracket: )
         - keyword: ON
         - keyword: DELETE
@@ -63,22 +63,22 @@ file:
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-          - identifier: c_d
+          - naked_identifier: c_d
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
           - start_bracket: (
           - column_reference:
-            - identifier: d
+            - naked_identifier: d
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
           - object_reference:
-            - identifier: a
+            - naked_identifier: a
         - bracketed:
           - start_bracket: (
           - column_reference:
-            - identifier: d
+            - naked_identifier: d
           - end_bracket: )
         - keyword: ON
         - keyword: UPDATE
@@ -91,22 +91,22 @@ file:
       - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
-          - identifier: c_c
+          - naked_identifier: c_c
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
           - start_bracket: (
           - column_reference:
-            - identifier: c
+            - naked_identifier: c
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
           - object_reference:
-            - identifier: a
+            - naked_identifier: a
         - bracketed:
           - start_bracket: (
           - column_reference:
-            - identifier: c
+            - naked_identifier: c
           - end_bracket: )
         - keyword: ON
         - keyword: DELETE

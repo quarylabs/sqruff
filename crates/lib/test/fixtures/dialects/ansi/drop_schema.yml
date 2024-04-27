@@ -5,7 +5,7 @@ file:
     - keyword: schema
     - table_reference:
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
@@ -13,7 +13,7 @@ file:
     - keyword: schema
     - table_reference:
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
     - keyword: cascade
 - statement_terminator: ;
 - statement:
@@ -22,7 +22,7 @@ file:
     - keyword: schema
     - table_reference:
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
     - keyword: restrict
 - statement_terminator: ;
 - statement:
@@ -33,7 +33,7 @@ file:
     - keyword: exists
     - table_reference:
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - drop_schema_statement:
@@ -43,7 +43,7 @@ file:
     - keyword: exists
     - table_reference:
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
     - keyword: cascade
 - statement_terminator: ;
 - statement:
@@ -54,6 +54,6 @@ file:
     - keyword: exists
     - table_reference:
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema
     - keyword: restrict
 - statement_terminator: ;

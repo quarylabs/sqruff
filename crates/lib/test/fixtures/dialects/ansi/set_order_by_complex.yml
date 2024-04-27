@@ -17,7 +17,7 @@ file:
               - table_expression:
                 - table_reference:
                   - object_reference:
-                    - identifier: a
+                    - naked_identifier: a
         - orderby_clause:
           - keyword: ORDER
           - keyword: BY
@@ -45,7 +45,7 @@ file:
               - table_expression:
                 - table_reference:
                   - object_reference:
-                    - identifier: b
+                    - naked_identifier: b
         - orderby_clause:
           - keyword: ORDER
           - keyword: BY

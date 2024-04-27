@@ -11,7 +11,7 @@ file:
             - start_bracket: (
             - expression:
               - column_reference:
-                - identifier: DAY
+                - naked_identifier: DAY
             - comma: ','
             - expression:
               - function:
@@ -29,7 +29,7 @@ file:
                         - keyword: ORDER
                         - keyword: BY
                         - column_reference:
-                          - identifier: DateCD
+                          - naked_identifier: DateCD
                         - keyword: ASC
                     - end_bracket: )
             - comma: ','
@@ -38,7 +38,7 @@ file:
             - end_bracket: )
         - alias_expression:
           - keyword: AS
-          - identifier: dt
+          - naked_identifier: dt
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -46,4 +46,4 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: boo
+                - naked_identifier: boo

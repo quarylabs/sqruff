@@ -14,51 +14,51 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: a
+                - naked_identifier: a
           - alias_expression:
             - keyword: as
-            - identifier: foo
+            - naked_identifier: foo
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: b
+                  - naked_identifier: b
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: c
+                  - naked_identifier: c
             - alias_expression:
               - keyword: as
-              - identifier: foobar
+              - naked_identifier: foobar
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: d
+                  - naked_identifier: d
       - comma: ','
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: e
+                - naked_identifier: e
           - alias_expression:
             - keyword: as
-            - identifier: bar
+            - naked_identifier: bar
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: f
+                  - naked_identifier: f
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
@@ -73,21 +73,21 @@ file:
                   - end_bracket: )
             - alias_expression:
               - keyword: as
-              - identifier: tbl_func
+              - naked_identifier: tbl_func
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: h
+                  - naked_identifier: h
       - comma: ','
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: baz
+                - naked_identifier: baz
           - alias_expression:
             - keyword: as
-            - identifier: buzz
+            - naked_identifier: buzz

@@ -5,10 +5,10 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: old_table_name
+        - naked_identifier: old_table_name
     - keyword: RENAME
     - keyword: TO
     - table_reference:
       - object_reference:
-        - identifier: new_table_name
+        - naked_identifier: new_table_name
 - statement_terminator: ;

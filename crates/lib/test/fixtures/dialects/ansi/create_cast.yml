@@ -94,7 +94,7 @@ file:
     - keyword: WITH
     - keyword: FUNCTION
     - function_name:
-      - identifier: sch
+      - naked_identifier: sch
       - dot: .
       - function_name_identifier: fname
     - function_parameter_list:
@@ -136,7 +136,7 @@ file:
         - end_bracket: )
     - keyword: FOR
     - object_reference:
-      - identifier: udt_3
+      - naked_identifier: udt_3
 - statement_terminator: ;
 - statement:
   - create_cast_statement:
@@ -145,39 +145,39 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - identifier: sch
+        - naked_identifier: sch
         - dot: .
         - '': udt_1
       - keyword: AS
       - data_type:
-        - identifier: sch
+        - naked_identifier: sch
         - dot: .
         - '': udt_2
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
     - function_name:
-      - identifier: sch
+      - naked_identifier: sch
       - dot: .
       - function_name_identifier: fname
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - identifier: sch
+          - naked_identifier: sch
           - dot: .
           - '': udt_1
         - comma: ','
         - data_type:
-          - identifier: sch
+          - naked_identifier: sch
           - dot: .
           - '': udt_2
         - end_bracket: )
     - keyword: FOR
     - object_reference:
-      - identifier: sch
+      - naked_identifier: sch
       - dot: .
-      - identifier: udt_3
+      - naked_identifier: udt_3
 - statement_terminator: ;
 - statement:
   - create_cast_statement:

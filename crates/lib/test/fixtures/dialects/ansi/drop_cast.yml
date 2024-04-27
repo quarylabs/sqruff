@@ -60,12 +60,12 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - identifier: sch
+        - naked_identifier: sch
         - dot: .
         - '': udt_1
       - keyword: AS
       - data_type:
-        - identifier: sch
+        - naked_identifier: sch
         - dot: .
         - '': udt_2
       - end_bracket: )

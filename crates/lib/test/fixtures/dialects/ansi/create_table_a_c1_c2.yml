@@ -5,16 +5,16 @@ file:
     - keyword: table
     - table_reference:
       - object_reference:
-        - identifier: table1
+        - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: c1
+        - naked_identifier: c1
         - data_type:
           - '': SMALLINT
       - comma: ','
       - column_definition:
-        - identifier: c2
+        - naked_identifier: c2
         - data_type:
           - '': DATE
       - end_bracket: )

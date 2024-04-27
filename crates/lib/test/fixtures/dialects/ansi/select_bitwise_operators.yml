@@ -6,45 +6,45 @@ file:
       - select_clause_element:
         - expression:
           - column_reference:
-            - identifier: c1
+            - naked_identifier: c1
           - bitwise_and:
             - remove me: '&'
           - column_reference:
-            - identifier: c2
+            - naked_identifier: c2
       - comma: ','
       - select_clause_element:
         - expression:
           - column_reference:
-            - identifier: c3
+            - naked_identifier: c3
           - bitwise_or:
             - pipe: '|'
           - column_reference:
-            - identifier: c4
+            - naked_identifier: c4
       - comma: ','
       - select_clause_element:
         - expression:
           - column_reference:
-            - identifier: c5
+            - naked_identifier: c5
           - remove me: ^
           - column_reference:
-            - identifier: c6
+            - naked_identifier: c6
       - comma: ','
       - select_clause_element:
         - expression:
           - column_reference:
-            - identifier: c7
+            - naked_identifier: c7
           - bitwise_lshift:
             - remove me: <
             - remove me: <
           - column_reference:
-            - identifier: c8
+            - naked_identifier: c8
       - comma: ','
       - select_clause_element:
         - expression:
           - column_reference:
-            - identifier: c9
+            - naked_identifier: c9
           - bitwise_rshift:
             - remove me: '>'
             - remove me: '>'
           - column_reference:
-            - identifier: c10
+            - naked_identifier: c10

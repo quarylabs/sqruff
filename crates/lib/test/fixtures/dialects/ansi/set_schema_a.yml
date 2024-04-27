@@ -5,4 +5,4 @@ file:
     - keyword: schema
     - table_reference:
       - object_reference:
-        - identifier: my_schema
+        - naked_identifier: my_schema

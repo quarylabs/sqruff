@@ -4,14 +4,14 @@ file:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: INCREMENT
       - keyword: BY
@@ -22,7 +22,7 @@ file:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: MINVALUE
       - numeric_literal: '5'
@@ -35,7 +35,7 @@ file:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: NO
       - keyword: MINVALUE
@@ -48,7 +48,7 @@ file:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: INCREMENT
       - keyword: BY
@@ -66,7 +66,7 @@ file:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: NOCACHE
 - statement_terminator: ;
@@ -75,7 +75,7 @@ file:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: NOCYCLE
     - create_sequence_options_segment:
@@ -86,7 +86,7 @@ file:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
-      - identifier: foo
+      - naked_identifier: foo
     - create_sequence_options_segment:
       - keyword: NOORDER
 - statement_terminator: ;

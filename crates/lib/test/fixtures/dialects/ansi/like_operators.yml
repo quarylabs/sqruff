@@ -14,26 +14,26 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: my_tbl
+                - naked_identifier: my_tbl
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
-          - identifier: a
+          - naked_identifier: a
         - numeric_literal: '!~'
         - remove me: '''[a-z]'''
         - remove me: AND
         - column_reference:
-          - identifier: d
+          - naked_identifier: d
         - numeric_literal: '!~~*'
         - remove me: '''[a-z]'''
         - remove me: AND
         - column_reference:
-          - identifier: b
+          - naked_identifier: b
         - keyword: LIKE
         - remove me: '''Spec\''s%'''
         - remove me: AND
         - column_reference:
-          - identifier: c
+          - naked_identifier: c
         - numeric_literal: '!~*'
         - remove me: '''^([0-9]){1,}(\.)([0-9]{1,})$'''

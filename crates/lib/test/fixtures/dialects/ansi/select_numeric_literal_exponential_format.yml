@@ -40,7 +40,7 @@ file:
         - expression:
           - sign_indicator: '-'
           - column_reference:
-            - identifier: col1
+            - naked_identifier: col1
       - comma: ','
       - select_clause_element:
         - expression:
@@ -48,4 +48,4 @@ file:
           - sign_indicator: +
           - sign_indicator: '-'
           - column_reference:
-            - identifier: col2
+            - naked_identifier: col2

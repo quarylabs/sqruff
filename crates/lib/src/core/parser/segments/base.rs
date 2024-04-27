@@ -963,7 +963,7 @@ impl Segment for IdentifierSegment {
     }
 
     fn get_type(&self) -> &'static str {
-        "identifier"
+        "naked_identifier"
     }
     fn is_code(&self) -> bool {
         true

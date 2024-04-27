@@ -4,4 +4,4 @@ file:
     - keyword: CREATE
     - keyword: ROLE
     - role_reference:
-      - identifier: foo_role
+      - naked_identifier: foo_role

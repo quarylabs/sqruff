@@ -5,11 +5,11 @@ file:
     - keyword: TABLE
     - table_reference:
       - object_reference:
-        - identifier: a
+        - naked_identifier: a
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - identifier: id
+        - naked_identifier: id
         - data_type:
           - '': VARCHAR
           - bracketed_arguments:

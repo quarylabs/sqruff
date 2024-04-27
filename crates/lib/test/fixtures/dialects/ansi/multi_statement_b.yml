@@ -5,7 +5,7 @@ file:
       - keyword: Select
       - select_clause_element:
         - column_reference:
-          - identifier: A
+          - naked_identifier: A
     - from_clause:
       - keyword: from
       - from_expression:
@@ -13,14 +13,14 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: Sys
+                - naked_identifier: Sys
                 - dot: .
-                - identifier: dual
+                - naked_identifier: dual
     - where_clause:
       - keyword: where
       - expression:
         - column_reference:
-          - identifier: a
+          - naked_identifier: a
         - keyword: in
         - bracketed:
           - start_bracket: (
@@ -46,7 +46,7 @@ file:
           - table_expression:
             - table_reference:
               - object_reference:
-                - identifier: tbl_b
+                - naked_identifier: tbl_b
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -54,13 +54,13 @@ file:
     - keyword: into
     - table_reference:
       - object_reference:
-        - identifier: sch
+        - naked_identifier: sch
         - dot: .
-        - identifier: tbl_b
+        - naked_identifier: tbl_b
     - bracketed:
       - start_bracket: (
       - column_reference:
-        - identifier: col1
+        - naked_identifier: col1
       - end_bracket: )
     - values_clause:
       - keyword: values
@@ -73,7 +73,7 @@ file:
   - with_compound_statement:
     - keyword: with
     - common_table_expression:
-      - identifier: tmp
+      - naked_identifier: tmp
       - keyword: as
       - bracketed:
         - start_bracket: (
@@ -91,18 +91,18 @@ file:
                 - table_expression:
                   - table_reference:
                     - object_reference:
-                      - identifier: blah
+                      - naked_identifier: blah
         - end_bracket: )
     - select_statement:
       - select_clause:
         - keyword: select
         - select_clause_element:
           - column_reference:
-            - identifier: a
+            - naked_identifier: a
         - comma: ','
         - select_clause_element:
           - column_reference:
-            - identifier: b
+            - naked_identifier: b
       - from_clause:
         - keyword: from
         - from_expression:
@@ -110,5 +110,5 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: tmp
+                  - naked_identifier: tmp
 - statement_terminator: ;

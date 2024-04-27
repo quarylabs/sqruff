@@ -6,10 +6,10 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - column_reference:
-            - identifier: col_a
+            - naked_identifier: col_a
           - alias_expression:
             - keyword: as
-            - identifier: foo
+            - naked_identifier: foo
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -17,7 +17,7 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: some_table
+                  - naked_identifier: some_table
     - set_operator:
       - keyword: UNION
     - select_statement:
@@ -25,10 +25,10 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - column_reference:
-            - identifier: col_b
+            - naked_identifier: col_b
           - alias_expression:
             - keyword: as
-            - identifier: foo
+            - naked_identifier: foo
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -36,7 +36,7 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: another_table
+                  - naked_identifier: another_table
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -45,10 +45,10 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - column_reference:
-            - identifier: col_c
+            - naked_identifier: col_c
           - alias_expression:
             - keyword: as
-            - identifier: foo
+            - naked_identifier: foo
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -56,7 +56,7 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: this_other_table
+                  - naked_identifier: this_other_table
     - set_operator:
       - keyword: INTERSECT
     - select_statement:
@@ -64,10 +64,10 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - column_reference:
-            - identifier: col_d
+            - naked_identifier: col_d
           - alias_expression:
             - keyword: as
-            - identifier: foo
+            - naked_identifier: foo
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -75,4 +75,4 @@ file:
             - table_expression:
               - table_reference:
                 - object_reference:
-                  - identifier: the_last_table
+                  - naked_identifier: the_last_table

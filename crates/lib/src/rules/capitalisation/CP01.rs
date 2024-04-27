@@ -9,9 +9,9 @@ use crate::helpers::capitalize;
 
 #[derive(Debug, Clone)]
 pub struct RuleCP01 {
-    capitalisation_policy: String,
-    skip_literals: bool,
-    exclude_parent_types: &'static [&'static str],
+    pub(crate) capitalisation_policy: String,
+    pub(crate) skip_literals: bool,
+    pub(crate) exclude_parent_types: &'static [&'static str],
 }
 
 impl Default for RuleCP01 {
@@ -39,8 +39,10 @@ impl Rule for RuleCP01 {
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
+
         if (self.skip_literals && context.segment.is_type("literal"))
-            || self.exclude_parent_types.iter().all(|it| parent.is_type(it))
+            || !self.exclude_parent_types.is_empty()
+                && self.exclude_parent_types.iter().all(|it| parent.is_type(it))
         {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
@@ -75,10 +77,17 @@ pub fn handle_segment(
         "upper" => fixed_raw.to_uppercase(),
         "lower" => fixed_raw.to_lowercase(),
         "capitalise" => capitalize(&fixed_raw),
-        "pascal" => regex::Regex::new(r"(?:\b|_)([a-z])")
-            .unwrap()
-            .replace_all(&fixed_raw, |caps: &regex::Captures| caps[1].to_uppercase())
-            .to_string(),
+        "pascal" => {
+            let re = lazy_regex::regex!(r"([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)");
+            re.replace_all(&fixed_raw, |caps: &regex::Captures| {
+                let mut replacement_string = String::from(&caps[1]);
+                let capitalized = caps[2].to_uppercase();
+                replacement_string.push_str(&capitalized);
+                replacement_string.push_str(&caps[3]);
+                replacement_string
+            })
+            .into()
+        }
         _ => fixed_raw,
     };
 

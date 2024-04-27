@@ -43,7 +43,7 @@ file:
         - greater_than_or_equal_to:
           - remove me: '>'
           - remove me: =
-        - '': current_date
+        - bare_function: current_date
         - remove me: AND
         - function:
           - function_name:

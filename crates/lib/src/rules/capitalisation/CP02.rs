@@ -21,7 +21,7 @@ impl Rule for RuleCP02 {
         "Inconsistent capitalisation of unquoted identifiers."
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn eval(&self, _context: RuleContext) -> Vec<LintResult> {
         todo!()
     }
 

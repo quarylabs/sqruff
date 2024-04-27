@@ -20,22 +20,21 @@ uuid = { version = "1", features = ["v4"] }
 enum_dispatch = "0.3.12"
 indexmap = "2.2.2"
 common-path = "1.0.0"
-anymap = "0.12.1"
 configparser = "3.0.4"
 phf = { version = "0.11.2", features = ["macros", "unicase"] }
 unicase = "2.7.0"
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9.32"
 anstyle = "1.0"
 tracing = "0.1.40"
 pretty_assertions = "1.4.0"
-rayon = "1.9.0"
 slyce = "0.3.1"
 ahash = "0.8.11"
 stacker = "0.1.15"
 
 [dev-dependencies]
+rayon = "1.10.0"
 expect-test = "1.5"
 glob = "0.3"
 serde_json = "1"
 tempdir = "0.3"
+serde_yaml = "0.9.33"

@@ -29,7 +29,7 @@ pub struct LintArgs {
 pub struct FixArgs {
     pub paths: Vec<PathBuf>,
     /// Skip the confirmation prompt and go straight to applying fixes.
-    #[arg(short, long)]
+    #[arg(long)]
     pub force: bool,
     #[arg(default_value = "human", short, long)]
     pub format: Format,

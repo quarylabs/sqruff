@@ -30,7 +30,9 @@ impl RuleAL06 {
             };
 
             if let Some(min_alias_lenght) = self.min_alias_lenght {
-                if let Some(alias_identifier_ref) = alias_exp_ref.child(&["identifier"]) {
+                if let Some(alias_identifier_ref) =
+                    alias_exp_ref.child(&["identifier", "naked_identifier"])
+                {
                     let alias_identifier = alias_identifier_ref.get_raw().unwrap();
                     if alias_identifier.len() < min_alias_lenght {
                         violation_buff.push(LintResult::new(
@@ -49,7 +51,9 @@ impl RuleAL06 {
             }
 
             if let Some(max_alias_lenght) = self.max_alias_lenght {
-                if let Some(alias_identifier_ref) = alias_exp_ref.child(&["identifier"]) {
+                if let Some(alias_identifier_ref) =
+                    alias_exp_ref.child(&["identifier", "naked_identifier"])
+                {
                     let alias_identifier = alias_identifier_ref.get_raw().unwrap();
 
                     if alias_identifier.len() > max_alias_lenght {

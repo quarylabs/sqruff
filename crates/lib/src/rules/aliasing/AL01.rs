@@ -244,7 +244,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser bug"]
     fn test_pass_implicit_alias_merge() {
         let sql = "MERGE dataset.inventory t\nUSING dataset.newarrivals s\n    ON t.product = \
                    s.product\nWHEN MATCHED THEN\n    UPDATE SET quantity = t.quantity + \

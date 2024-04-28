@@ -128,21 +128,18 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_templated_plus_raw_newlines() {
         let lints = lint("{{ '\n\n' }}\n".into(), "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(lints, []);
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_templated_plus_raw_newlines() {
         let fixed = fix("{{ '\n\n' }}".into(), rules());
         assert_eq!(fixed, "{{ '\n\n' }}\n");
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_templated_plus_raw_newlines_extra_newline() {
         let fixed = fix("{{ '\n\n' }}\n\n".into(), rules());
         assert_eq!(fixed, "{{ '\n\n' }}\n");
@@ -158,7 +155,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_templated_no_newline() {
         let fixed = fix("{% if true %}\nSELECT 1 + 1\n{%- endif %}".into(), rules());
         assert_eq!(fixed, "{% if true %}\nSELECT 1 + 1\n{%- endif %}\n");

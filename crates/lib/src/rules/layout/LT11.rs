@@ -49,7 +49,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_fail_simple_fix_union_all_before() {
         let sql = r#"SELECT a UNION ALL SELECT b"#;
 

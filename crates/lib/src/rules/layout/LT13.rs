@@ -108,7 +108,6 @@ mod tests {
     fn test_pass_leading_whitespace_inline_comment_hash() {}
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_leading_whitespace_jinja_comment() {
         let lints = lint(
             "{# I am a comment #}\nSELECT foo FROM bar\n".into(),
@@ -122,7 +121,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_leading_whitespace_jinja_if() {
         let lints = lint(
             "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n".into(),
@@ -136,7 +134,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_pass_leading_whitespace_jinja_for() {
         let lints = lint(
             "{% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n".into(),
@@ -168,21 +165,18 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_leading_whitespace_jinja_comment() {
         let fixed = fix("\n  {# I am a comment #}\nSELECT foo FROM bar\n".into(), rules());
         assert_eq!(fixed, "{# I am a comment #}\nSELECT foo FROM bar\n");
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_leading_whitespace_jinja_if() {
         let fixed = fix("\n  {% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n".into(), rules());
         assert_eq!(fixed, "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n");
     }
 
     #[test]
-    #[ignore = "parser needs further development"]
     fn test_fail_leading_whitespace_jinja_for() {
         let fixed = fix(
             "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"

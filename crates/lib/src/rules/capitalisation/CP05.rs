@@ -40,6 +40,7 @@ impl Rule for RuleCP05 {
 
                 results.push(handle_segment(
                     &self.extended_capitalisation_policy,
+                    "extended_capitalisation_policy",
                     seg.clone(),
                     &context,
                 ));

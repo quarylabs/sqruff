@@ -15,7 +15,13 @@ pub struct RuleCP02 {
 
 impl Default for RuleCP02 {
     fn default() -> Self {
-        Self { base: RuleCP01::default(), unquoted_identifiers_policy: "all".into() }
+        Self {
+            base: RuleCP01 {
+                cap_policy_name: "extended_capitalisation_policy".into(),
+                ..Default::default()
+            },
+            unquoted_identifiers_policy: "all".into(),
+        }
     }
 }
 
@@ -124,8 +130,8 @@ mod tests {
     fn test_fail_inconsistent_capitalisation_2() {
         let fail_str = "SELECT B,   a";
         let expected = "SELECT B,   A";
+
         let actual = fix(fail_str.into(), vec![RuleCP02::default().erased()]);
-        println!("{actual}");
-        // assert_eq!(expected, actual);
+        assert_eq!(expected, actual);
     }
 }

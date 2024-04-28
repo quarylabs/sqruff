@@ -15,6 +15,7 @@ fn is_capitalizable(character: char) -> bool {
 #[derive(Debug, Clone)]
 pub struct RuleCP01 {
     pub(crate) capitalisation_policy: String,
+    pub(crate) cap_policy_name: String,
     pub(crate) skip_literals: bool,
     pub(crate) exclude_parent_types: &'static [&'static str],
 }
@@ -23,6 +24,7 @@ impl Default for RuleCP01 {
     fn default() -> Self {
         Self {
             capitalisation_policy: "consistent".into(),
+            cap_policy_name: "capitalisation_policy".into(),
             skip_literals: true,
             exclude_parent_types: &[
                 "data_type",
@@ -61,7 +63,12 @@ impl Rule for RuleCP01 {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
 
-        vec![handle_segment(&self.capitalisation_policy, context.segment.clone(), &context)]
+        vec![handle_segment(
+            &self.capitalisation_policy,
+            &self.cap_policy_name,
+            context.segment.clone(),
+            &context,
+        )]
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -77,6 +84,7 @@ struct LatestPossibleCase(String);
 
 pub fn handle_segment(
     extended_capitalisation_policy: &str,
+    cap_policy_name: &str,
     seg: ErasedSegment,
     context: &RuleContext,
 ) -> LintResult {
@@ -87,8 +95,14 @@ pub fn handle_segment(
     let mut refuted_cases =
         context.memory.borrow().get::<RefutedCases>().cloned().unwrap_or_default().0;
 
-    let first_letter_is_lowercase =
-        seg.get_raw().unwrap().chars().next().is_some_and(is_capitalizable);
+    let mut first_letter_is_lowercase = false;
+    for ch in seg.get_raw().unwrap().chars() {
+        if is_capitalizable(ch) {
+            first_letter_is_lowercase = Some(ch).into_iter().ne(ch.to_uppercase());
+            break;
+        }
+        first_letter_is_lowercase = false;
+    }
 
     if first_letter_is_lowercase {
         refuted_cases.extend(["upper", "capitalise", "pascal"]);
@@ -106,7 +120,7 @@ pub fn handle_segment(
             != segment_raw.to_uppercase().chars().next().unwrap().to_string()
                 + segment_raw[1..].to_lowercase().as_str()
         {
-            refuted_cases.insert("capitalize");
+            refuted_cases.insert("capitalise");
         }
         if !segment_raw.chars().all(|c| c.is_alphanumeric()) {
             refuted_cases.insert("pascal");
@@ -116,13 +130,23 @@ pub fn handle_segment(
     context.memory.borrow_mut().insert(RefutedCases(refuted_cases.clone()));
 
     let concrete_policy = if extended_capitalisation_policy == "consistent" {
-        let cap_policy_opts = ["upper", "lower", "capitalise"];
+        let cap_policy_opts = match cap_policy_name {
+            "capitalisation_policy" => ["upper", "lower", "capitalise"].as_slice(),
+            "extended_capitalisation_policy" => {
+                ["upper", "lower", "pascal", "capitalise"].as_slice()
+            }
+            _ => unimplemented!(),
+        };
 
         let possible_cases =
-            cap_policy_opts.into_iter().filter(|it| !refuted_cases.contains(it)).collect_vec();
+            cap_policy_opts.iter().filter(|&it| !refuted_cases.contains(it)).collect_vec();
+
+        dbg!(&refuted_cases);
+        dbg!(&cap_policy_opts);
+        dbg!(&possible_cases);
 
         if !possible_cases.is_empty() {
-            context.memory.borrow_mut().insert(LatestPossibleCase(possible_cases[0].to_owned()));
+            context.memory.borrow_mut().insert(LatestPossibleCase(possible_cases[0].to_string()));
             return LintResult::new(None, Vec::new(), None, None, None);
         } else {
             context
@@ -138,6 +162,8 @@ pub fn handle_segment(
     };
 
     let concrete_policy = concrete_policy.as_str();
+
+    dbg!(concrete_policy);
 
     let mut fixed_raw = seg.get_raw().unwrap();
     fixed_raw = match concrete_policy {

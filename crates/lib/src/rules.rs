@@ -1,4 +1,6 @@
-use crate::core::rules::base::{RuleManifest, RuleSet};
+use itertools::{chain, Itertools};
+
+use crate::core::rules::base::{ErasedRule, RuleManifest, RuleSet};
 use crate::helpers::IndexMap;
 
 pub mod aliasing;
@@ -9,10 +11,22 @@ pub mod l001;
 pub mod layout;
 pub mod structure;
 
+pub fn rules() -> Vec<ErasedRule> {
+    chain!(
+        aliasing::rules(),
+        ambiguous::rules(),
+        capitalisation::rules(),
+        convention::rules(),
+        layout::rules(),
+        structure::rules()
+    )
+    .collect_vec()
+}
+
 pub fn get_ruleset() -> RuleSet {
     let mut register = IndexMap::default();
 
-    let rules = layout::get_rules();
+    let rules = rules();
     register.reserve(rules.len());
 
     for rule in rules {

@@ -42,10 +42,7 @@ pub fn get_select_statement_info(
         ["where_clause", "groupby_clause", "having_clause", "orderby_clause", "qualify_clause"]
     {
         let clause = segment.child(&[potential_clause]);
-        if let Some(_clause) = clause {
-            unimplemented!();
-            // reference_buffer.extend(iter)
-        }
+        if let Some(_clause) = clause {}
     }
 
     let select_clause = segment.child(&["select_clause"]).unwrap();

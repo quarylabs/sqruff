@@ -4,7 +4,7 @@ use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceLevel;
@@ -23,7 +23,7 @@ pub struct RuleAL05 {}
 
 impl Rule for RuleAL05 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        unimplemented!()
+        RuleAL05::default().erased()
     }
 
     fn name(&self) -> &'static str {

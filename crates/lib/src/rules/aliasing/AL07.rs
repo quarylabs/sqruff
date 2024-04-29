@@ -18,7 +18,7 @@ struct TableAliasInfo {
     alias_identifier_ref: Option<ErasedSegment>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct RuleAL07 {
     force_enable: bool,
 }

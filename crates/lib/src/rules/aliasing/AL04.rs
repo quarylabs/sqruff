@@ -2,7 +2,7 @@ use ahash::{AHashMap, AHashSet};
 
 use crate::core::config::Value;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::rules::base::{ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::IndexSet;
@@ -13,7 +13,7 @@ pub struct RuleAL04 {}
 
 impl Rule for RuleAL04 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        unimplemented!()
+        RuleAL04::default().erased()
     }
 
     fn name(&self) -> &'static str {

@@ -38,7 +38,7 @@ impl Linter {
         formatter: Option<OutputStreamFormatter>,
         templater: Option<Box<dyn Templater>>,
     ) -> Linter {
-        let rules = crate::rules::layout::get_rules();
+        let rules = crate::rules::layout::rules();
         match templater {
             Some(templater) => Linter { config, formatter, templater, _rules: rules },
             None => Linter {

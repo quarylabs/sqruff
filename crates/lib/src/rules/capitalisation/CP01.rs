@@ -3,7 +3,7 @@ use itertools::Itertools;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::capitalize;
@@ -38,7 +38,7 @@ impl Default for RuleCP01 {
 
 impl Rule for RuleCP01 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        todo!()
+        RuleCP01::default().erased()
     }
 
     fn name(&self) -> &'static str {
@@ -141,10 +141,6 @@ pub fn handle_segment(
         let possible_cases =
             cap_policy_opts.iter().filter(|&it| !refuted_cases.contains(it)).collect_vec();
 
-        dbg!(&refuted_cases);
-        dbg!(&cap_policy_opts);
-        dbg!(&possible_cases);
-
         if !possible_cases.is_empty() {
             context.memory.borrow_mut().insert(LatestPossibleCase(possible_cases[0].to_string()));
             return LintResult::new(None, Vec::new(), None, None, None);
@@ -162,8 +158,6 @@ pub fn handle_segment(
     };
 
     let concrete_policy = concrete_policy.as_str();
-
-    dbg!(concrete_policy);
 
     let mut fixed_raw = seg.get_raw().unwrap();
     fixed_raw = match concrete_policy {

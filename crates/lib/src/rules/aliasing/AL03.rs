@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -20,8 +20,11 @@ impl Default for RuleAL03 {
 }
 
 impl Rule for RuleAL03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        unimplemented!()
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleAL03 {
+            allow_scalar: config.get("allow_scalar").and_then(Value::as_bool).unwrap_or_default(),
+        }
+        .erased()
     }
 
     fn name(&self) -> &'static str {

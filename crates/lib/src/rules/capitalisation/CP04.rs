@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use super::CP01::RuleCP01;
 use crate::core::config::Value;
-use crate::core::rules::base::{ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -25,7 +25,7 @@ impl Default for RuleCP04 {
 
 impl Rule for RuleCP04 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        todo!()
+        RuleCP04::default().erased()
     }
 
     fn name(&self) -> &'static str {

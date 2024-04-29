@@ -2,18 +2,24 @@ use ahash::AHashMap;
 
 use super::CP01::handle_segment;
 use crate::core::config::Value;
-use crate::core::rules::base::{ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct RuleCP05 {
     extended_capitalisation_policy: String,
 }
 
 impl Rule for RuleCP05 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        todo!()
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleCP05 {
+            extended_capitalisation_policy: config["extended_capitalisation_policy"]
+                .as_string()
+                .unwrap()
+                .to_string(),
+        }
+        .erased()
     }
 
     fn name(&self) -> &'static str {
@@ -21,7 +27,7 @@ impl Rule for RuleCP05 {
     }
 
     fn description(&self) -> &'static str {
-        todo!()
+        "Inconsistent capitalisation of datatypes."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

@@ -1,7 +1,7 @@
 [package]
 name = "sqruff"
 description = "A high-speed SQL linter."
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 license = "MIT"
 
@@ -13,7 +13,7 @@ harness = false
 jemalloc = ["jemallocator"]
 
 [dependencies]
-sqruff-lib = { version = "0.1.2", path = "../lib" }
+sqruff-lib = { version = "0.1.3", path = "../lib" }
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"
 

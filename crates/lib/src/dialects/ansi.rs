@@ -3221,11 +3221,20 @@ impl Node<FromExpressionElementSegment> {
             }
         }
 
-        let reference =
-            tbl_expression.and_then(|tbl_expression| tbl_expression.child(&["object_reference"]));
+        let reference = tbl_expression.and_then(|tbl_expression| {
+            tbl_expression.child(&["object_reference", "table_reference"])
+        });
+
+        let mut node = Node::new();
 
         let reference = reference.as_ref().map(|reference| {
-            reference.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap()
+            if reference.is_type("table_reference") {
+                let tr = reference.as_any().downcast_ref::<Node<TableReferenceSegment>>().unwrap();
+                node.segments.clone_from(&tr.segments);
+                &node
+            } else {
+                reference.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap()
+            }
         });
 
         let alias_expression = self.child(&["alias_expression"]);
@@ -3243,8 +3252,19 @@ impl Node<FromExpressionElementSegment> {
             }
         }
 
-        if let Some(_reference) = reference {
-            unimplemented!()
+        if let Some(reference) = reference {
+            let references = reference.iter_raw_references();
+            if !references.is_empty() {
+                let penultimate_ref = references.last().unwrap();
+                return AliasInfo {
+                    ref_str: penultimate_ref.part.clone(),
+                    segment: penultimate_ref.segments[0].clone().into(),
+                    aliased: false,
+                    from_expression_element: self.clone_box(),
+                    alias_expression: None,
+                    object_reference: reference.clone().to_erased_segment().into(),
+                };
+            }
         }
 
         AliasInfo {
@@ -3290,6 +3310,7 @@ impl NodeTrait for ObjectReferenceSegment {
     }
 }
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub enum ObjectReferenceLevel {
     Object = 1,
     Table = 2,
@@ -3310,13 +3331,32 @@ impl Node<ObjectReferenceSegment> {
         let level = level as usize;
         let refs = self.iter_raw_references();
 
-        if refs.len() >= level {
-            let index = -(level as isize);
-            let slice = slyce::Slice { start: index.into(), end: <_>::default(), step: None };
-            slice.apply(&refs).cloned().collect()
+        if refs.len() >= level && level > 0 {
+            refs.get(refs.len() - level).cloned().into_iter().collect()
         } else {
-            Vec::new()
+            vec![]
         }
+    }
+
+    pub fn extract_possible_multipart_references(
+        &self,
+        levels: &[ObjectReferenceLevel],
+    ) -> Vec<Vec<ObjectReferencePart>> {
+        let refs = self.iter_raw_references();
+        let mut sorted_levels = levels.to_vec();
+        sorted_levels.sort_unstable();
+
+        if let (Some(&min_level), Some(&max_level)) = (sorted_levels.first(), sorted_levels.last())
+        {
+            if refs.len() >= max_level as usize {
+                let start = refs.len() - max_level as usize;
+                let end = refs.len() - min_level as usize + 1;
+                if start < end {
+                    return vec![refs[start..end].to_vec()];
+                }
+            }
+        }
+        vec![]
     }
 
     pub fn iter_raw_references(&self) -> Vec<ObjectReferencePart> {

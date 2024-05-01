@@ -9,6 +9,7 @@ pub mod capitalisation;
 pub mod convention;
 pub mod l001;
 pub mod layout;
+pub mod references;
 pub mod structure;
 
 pub fn rules() -> Vec<ErasedRule> {
@@ -18,6 +19,7 @@ pub fn rules() -> Vec<ErasedRule> {
         capitalisation::rules(),
         convention::rules(),
         layout::rules(),
+        references::rules(),
         structure::rules()
     )
     .collect_vec()

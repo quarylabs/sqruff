@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use ahash::AHashMap;
 
 use crate::core::config::Value;
@@ -27,8 +29,11 @@ impl Rule for RuleST03 {
         let mut result = Vec::new();
         let query: Query<'_, ()> = Query::from_root(context.segment.clone(), context.dialect);
 
-        let mut remaining_ctes: IndexMap<_, _> =
-            query.ctes.keys().map(|it| (it.to_uppercase(), it.clone())).collect();
+        let mut remaining_ctes: IndexMap<_, _> = RefCell::borrow(&query.inner)
+            .ctes
+            .keys()
+            .map(|it| (it.to_uppercase(), it.clone()))
+            .collect();
 
         for reference in context.segment.recursive_crawl(
             &["table_reference"],
@@ -40,7 +45,8 @@ impl Rule for RuleST03 {
         }
 
         for name in remaining_ctes.values() {
-            let cte = &query.ctes[name];
+            let tmp = RefCell::borrow(&query.inner);
+            let cte = RefCell::borrow(&tmp.ctes[name].inner);
             result.push(LintResult::new(
                 cte.cte_name_segment.clone(),
                 Vec::new(),

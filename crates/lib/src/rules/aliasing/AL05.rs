@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use ahash::AHashMap;
 
 use crate::core::config::Value;
@@ -12,7 +14,7 @@ use crate::utils::analysis::query::Query;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct AL05Query {
     aliases: Vec<AliasInfo>,
     tbl_refs: Vec<String>,
@@ -46,16 +48,18 @@ impl Rule for RuleAL05 {
             return Vec::new();
         }
 
-        let mut query = Query::from_segment(&context.segment, context.dialect, None);
-        self.analyze_table_aliases(&mut query, context.dialect);
+        let query = Query::from_segment(&context.segment, context.dialect, None);
+        self.analyze_table_aliases(query.clone(), context.dialect);
 
-        for alias in query.payload.aliases {
+        for alias in &RefCell::borrow(&query.inner).payload.aliases {
             if Self::is_alias_required(&alias.from_expression_element) {
                 continue;
             }
 
-            if alias.aliased && !query.payload.tbl_refs.contains(&alias.ref_str) {
-                let violation = self.report_unused_alias(alias);
+            if alias.aliased
+                && !RefCell::borrow(&query.inner).payload.tbl_refs.contains(&alias.ref_str)
+            {
+                let violation = self.report_unused_alias(alias.clone());
                 violations.push(violation);
             }
         }
@@ -70,32 +74,32 @@ impl Rule for RuleAL05 {
 
 impl RuleAL05 {
     #[allow(clippy::only_used_in_recursion)]
-    fn analyze_table_aliases(&self, query: &mut Query<AL05Query>, _dialect: &Dialect) {
-        let selectables = std::mem::take(&mut query.selectables);
+    fn analyze_table_aliases(&self, query: Query<AL05Query>, _dialect: &Dialect) {
+        let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
 
         for selectable in &selectables {
             if let Some(select_info) = selectable.select_info() {
-                query.payload.aliases.extend(select_info.table_aliases);
+                RefCell::borrow_mut(&query.inner).payload.aliases.extend(select_info.table_aliases);
 
                 for r in select_info.reference_buffer {
                     for tr in r.extract_possible_references(ObjectReferenceLevel::Table) {
-                        Self::resolve_and_mark_reference(query, tr.part);
+                        Self::resolve_and_mark_reference(query.clone(), tr.part);
                     }
                 }
             }
         }
 
-        query.selectables = selectables;
+        RefCell::borrow_mut(&query.inner).selectables = selectables;
 
-        for child in query.children_mut() {
+        for child in query.children() {
             self.analyze_table_aliases(child, _dialect);
         }
     }
 
-    fn resolve_and_mark_reference(query: &mut Query<AL05Query>, r#ref: String) {
-        if query.aliases.iter().any(|it| it.ref_str == r#ref) {
-            query.tbl_refs.push(r#ref.clone());
-        } else if let Some(parent) = &mut query.parent {
+    fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: String) {
+        if RefCell::borrow(&query.inner).payload.aliases.iter().any(|it| it.ref_str == r#ref) {
+            RefCell::borrow_mut(&query.inner).payload.tbl_refs.push(r#ref.clone());
+        } else if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
             Self::resolve_and_mark_reference(parent, r#ref);
         }
     }

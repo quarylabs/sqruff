@@ -1,11 +1,14 @@
-use std::ops::{Deref, DerefMut};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use ahash::AHashMap;
 
 use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
+use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;
+use crate::utils::functional::segments::Segments;
 
 static SELECTABLE_TYPES: &[&str] =
     &["with_compound_statement", "set_expression", "select_statement"];
@@ -21,7 +24,7 @@ static SUBSELECT_TYPES: &[&str] = &[
     "values_clause",
 ];
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum QueryType {
     Simple,
     WithCompound,
@@ -29,7 +32,7 @@ pub enum QueryType {
 
 pub enum WildcardInfo {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Selectable<'me> {
     pub selectable: ErasedSegment,
     pub dialect: &'me Dialect,
@@ -41,40 +44,81 @@ impl<'me> Selectable<'me> {
             return get_select_statement_info(&self.selectable, self.dialect.into(), false);
         }
 
-        unimplemented!()
+        let values = Segments::new(self.selectable.clone(), None);
+        let alias_expression = values
+            .children(None)
+            .find_first(Some(|it: &ErasedSegment| it.is_type("alias_expression")));
+        let name = alias_expression.children(None).find_first(Some(|it: &ErasedSegment| {
+            matches!(it.get_type(), "naked_identifier" | "quoted_identifier",)
+        }));
+
+        let alias_info = AliasInfo {
+            ref_str: if name.is_empty() {
+                String::new()
+            } else {
+                name.first().unwrap().get_raw().unwrap()
+            },
+            segment: name.first().cloned(),
+            aliased: !name.is_empty(),
+            from_expression_element: self.selectable.clone(),
+            alias_expression: alias_expression.first().cloned(),
+            object_reference: None,
+        };
+
+        SelectStatementColumnsAndTables {
+            select_statement: self.selectable.clone(),
+            table_aliases: vec![alias_info],
+            standalone_aliases: Vec::new(),
+            reference_buffer: Vec::new(),
+            select_targets: Vec::new(),
+            col_aliases: Vec::new(),
+            using_cols: Vec::new(),
+        }
+        .into()
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Query<'me, T> {
+    pub(crate) inner: Rc<RefCell<QueryInner<'me, T>>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct QueryInner<'me, T> {
     pub query_type: QueryType,
     pub dialect: &'me Dialect,
     pub selectables: Vec<Selectable<'me>>,
     pub ctes: AHashMap<String, Query<'me, T>>,
-    pub parent: Option<Box<Query<'me, T>>>,
+    pub parent: Option<Query<'me, T>>,
     pub subqueries: Vec<Query<'me, T>>,
     pub cte_definition_segment: Option<ErasedSegment>,
     pub cte_name_segment: Option<ErasedSegment>,
     pub payload: T,
 }
 
-impl<'me, T> Deref for Query<'me, T> {
-    type Target = T;
+impl<'me, T: Clone> Query<'me, T> {
+    fn post_init(&self) {
+        let parent = self.clone();
 
-    fn deref(&self) -> &Self::Target {
-        &self.payload
+        for subquery in &RefCell::borrow(&self.inner).subqueries {
+            RefCell::borrow_mut(&subquery.inner).parent = parent.clone().into();
+        }
+
+        for cte in RefCell::borrow(&self.inner).ctes.values().cloned() {
+            RefCell::borrow_mut(&cte.inner).parent = parent.clone().into();
+        }
     }
 }
 
-impl<'me, T> DerefMut for Query<'me, T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.payload
-    }
-}
-
-impl<T: Default> Query<'_, T> {
-    pub fn children_mut(&mut self) -> impl Iterator<Item = &mut Self> {
-        self.ctes.values_mut().chain(self.subqueries.iter_mut())
+impl<T: Default + Clone> Query<'_, T> {
+    pub fn children(&self) -> Vec<Self> {
+        self.inner
+            .borrow()
+            .ctes
+            .values()
+            .chain(self.inner.borrow().subqueries.iter())
+            .cloned()
+            .collect()
     }
 
     #[allow(dead_code)]
@@ -147,17 +191,21 @@ impl<T: Default> Query<'_, T> {
             subqueries.extend(Self::extract_subqueries(selectable, dialect));
         }
 
-        let mut outer_query = Query {
-            query_type,
-            dialect,
-            selectables,
-            ctes: <_>::default(),
-            parent: parent.map(Box::new),
-            subqueries,
-            cte_definition_segment: None,
-            cte_name_segment: None,
-            payload: T::default(),
+        let outer_query = Query {
+            inner: Rc::new(RefCell::new(QueryInner {
+                query_type,
+                dialect,
+                selectables,
+                ctes: <_>::default(),
+                parent,
+                subqueries,
+                cte_definition_segment: None,
+                cte_name_segment: None,
+                payload: T::default(),
+            })),
         };
+
+        outer_query.post_init();
 
         if cte_defs.is_empty() {
             return outer_query;
@@ -176,13 +224,15 @@ impl<T: Default> Query<'_, T> {
             };
 
             let query = &queries[0];
-            let mut query = Self::from_segment(query, dialect, None);
-            query.cte_definition_segment = cte.into();
-            query.cte_name_segment = name_seg.into();
+            let query = Self::from_segment(query, dialect, outer_query.clone().into());
+
+            RefCell::borrow_mut(&query.inner).cte_definition_segment = cte.into();
+            RefCell::borrow_mut(&query.inner).cte_name_segment = name_seg.into();
+
             ctes.insert(name, query);
         }
 
-        outer_query.ctes = ctes;
+        RefCell::borrow_mut(&outer_query.inner).ctes = ctes;
         outer_query
     }
 }

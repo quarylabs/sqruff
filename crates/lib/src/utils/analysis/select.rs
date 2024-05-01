@@ -19,7 +19,12 @@ pub struct SelectStatementColumnsAndTables {
 
 pub fn get_object_references(segment: &ErasedSegment) -> Vec<Node<ObjectReferenceSegment>> {
     segment
-        .recursive_crawl(&["object_reference"], true, "select_statement".into(), true)
+        .recursive_crawl(
+            &["object_reference", "column_reference"],
+            true,
+            "select_statement".into(),
+            true,
+        )
         .into_iter()
         .map(|seg| seg.as_object_reference())
         .collect()
@@ -42,7 +47,9 @@ pub fn get_select_statement_info(
         ["where_clause", "groupby_clause", "having_clause", "orderby_clause", "qualify_clause"]
     {
         let clause = segment.child(&[potential_clause]);
-        if let Some(_clause) = clause {}
+        if let Some(clause) = clause {
+            reference_buffer.extend(get_object_references(&clause));
+        }
     }
 
     let select_clause = segment.child(&["select_clause"]).unwrap();

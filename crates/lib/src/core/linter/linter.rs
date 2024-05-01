@@ -126,6 +126,11 @@ impl Linter {
         let parsed =
             self.parse_string(in_str.unwrap_or("".to_string()), f_name, None, None).unwrap();
 
+        // println!(
+        //     "{}",
+        //     serde_yaml::to_string(&parsed.tree.as_ref().unwrap().to_serialised(true,
+        // false, false).unw) );
+
         // Lint the file and return the LintedFile
         self.lint_parsed(parsed, rules, fix)
     }

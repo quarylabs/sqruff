@@ -1,20 +1,25 @@
-pub fn object_ref_matches_table(possible_references: &[&[String]], targets: &[&[String]]) -> bool {
+pub fn object_ref_matches_table(
+    possible_references: Vec<Vec<String>>,
+    targets: Vec<Vec<String>>,
+) -> bool {
     // Simple case: If there are no references, assume okay.
     if possible_references.is_empty() {
         return true;
     }
 
     // Simple case: Reference exactly matches a target.
-    for pr in possible_references {
-        if targets.contains(pr) {
+    for pr in possible_references.clone() {
+        if targets.contains(&pr) {
             return true;
         }
     }
 
     // Tricky case: If one is shorter than the other, check for a suffix match.
     for pr in possible_references {
-        for t in targets {
-            if (pr.len() < t.len() && t.ends_with(pr)) || (t.len() < pr.len() && pr.ends_with(t)) {
+        for t in targets.clone() {
+            if (pr.len() < t.len() && pr == t[t.len() - pr.len()..])
+                || (t.len() < pr.len() && t == pr[pr.len() - t.len()..])
+            {
                 return true;
             }
         }
@@ -100,9 +105,7 @@ mod tests {
         ];
 
         for (possible_references, targets, expected) in test_cases {
-            let pr_refs: Vec<&[String]> = possible_references.iter().map(AsRef::as_ref).collect();
-            let target_refs: Vec<&[String]> = targets.iter().map(AsRef::as_ref).collect();
-            assert_eq!(object_ref_matches_table(&pr_refs, &target_refs), expected);
+            assert_eq!(object_ref_matches_table(possible_references, targets), expected);
         }
     }
 }

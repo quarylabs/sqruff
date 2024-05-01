@@ -39,13 +39,18 @@ impl BaseCrawler for RootOnlyCrawler {
 
 pub struct SegmentSeekerCrawler {
     types: AHashSet<&'static str>,
-    provide_raw_stack: bool,
+    _provide_raw_stack: bool,
     allow_recurse: bool,
 }
 
 impl SegmentSeekerCrawler {
     pub fn new(types: AHashSet<&'static str>) -> Self {
-        Self { types, provide_raw_stack: false, allow_recurse: true }
+        Self { types, _provide_raw_stack: false, allow_recurse: true }
+    }
+
+    pub fn disallow_recurse(mut self) -> Self {
+        self.allow_recurse = false;
+        self
     }
 
     fn is_self_match(&self, segment: &dyn Segment) -> bool {
@@ -57,18 +62,15 @@ impl BaseCrawler for SegmentSeekerCrawler {
     fn crawl<'a>(&self, mut context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
         let mut acc = Vec::new();
 
-        let self_match = false;
+        let mut self_match = false;
 
         if self.is_self_match(&*context.segment) {
+            self_match = true;
             acc.push(context.clone());
         }
 
-        if !context.segment.segments().is_empty()
-            && (self_match && !self.allow_recurse)
-            && self.provide_raw_stack
-        {
-            unimplemented!();
-            //   return acc;
+        if context.segment.segments().is_empty() || (self_match && !self.allow_recurse) {
+            return acc;
         }
 
         self.types.is_disjoint(

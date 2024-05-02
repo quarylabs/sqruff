@@ -164,7 +164,12 @@ impl<T: Default + Clone> Query<'_, T> {
         {
             selectables.push(Selectable { selectable: segment.clone(), dialect });
         } else if segment.is_type("set_expression") {
-            unimplemented!()
+            selectables.extend(
+                segment
+                    .children(&["select_statement"])
+                    .into_iter()
+                    .map(|selectable| Selectable { selectable, dialect }),
+            )
         } else {
             query_type = QueryType::WithCompound;
 

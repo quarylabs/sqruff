@@ -3023,10 +3023,37 @@ impl NodeTrait for SelectClauseElementSegment {
 
 impl Node<SelectClauseElementSegment> {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
-        let _alias_expression_segment =
+        let alias_expression_segment =
             self.recursive_crawl(&["alias_expression"], true, None, true).first()?.clone();
 
-        unimplemented!()
+        let alias_identifier_segment = alias_expression_segment
+            .segments()
+            .iter()
+            .find(|it| matches!(it.get_type(), "naked_identifier" | "identifier"))?;
+
+        let aliased_segment = self
+            .segments
+            .iter()
+            .find(|&s| !s.is_whitespace() && !s.is_meta() && s != &alias_expression_segment)
+            .unwrap();
+
+        let mut column_reference_segments = Vec::new();
+        if aliased_segment.is_type("column_reference") {
+            column_reference_segments.push(aliased_segment.clone());
+        } else {
+            column_reference_segments.extend(aliased_segment.recursive_crawl(
+                &["column_reference"],
+                true,
+                None,
+                true,
+            ));
+        }
+
+        Some(ColumnAliasInfo {
+            alias_identifier_name: alias_identifier_segment.get_raw().unwrap(),
+            aliased_segment: aliased_segment.clone(),
+            column_reference_segments,
+        })
     }
 }
 
@@ -3324,6 +3351,14 @@ pub struct ObjectReferencePart {
 }
 
 impl Node<ObjectReferenceSegment> {
+    pub fn is_qualified(&self) -> bool {
+        self.iter_raw_references().len() > 1
+    }
+
+    pub fn qualification(&self) -> &'static str {
+        if self.is_qualified() { "qualified" } else { "unqualified" }
+    }
+
     pub fn extract_possible_references(
         &self,
         level: ObjectReferenceLevel,
@@ -3654,6 +3689,10 @@ impl NodeTrait for AliasExpressionSegment {
             MetaSegment::dedent()
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<String> {
+        ["alias_expression".into()].into()
     }
 }
 

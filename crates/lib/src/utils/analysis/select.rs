@@ -7,6 +7,7 @@ use crate::dialects::ansi::{
     FromClauseSegment, Node, ObjectReferenceSegment, SelectClauseElementSegment,
 };
 
+#[derive(Clone)]
 pub struct SelectStatementColumnsAndTables {
     pub select_statement: ErasedSegment,
     pub table_aliases: Vec<AliasInfo>,

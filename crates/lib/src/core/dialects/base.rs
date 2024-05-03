@@ -14,6 +14,7 @@ use crate::helpers::{capitalize, ToErasedSegment};
 
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
+    pub(crate) name: &'static str,
     root_segment_name: &'static str,
     lexer_matchers: Option<Vec<Box<dyn Matcher>>>,
     // TODO: Can we use PHF here? https://crates.io/crates/phf
@@ -30,7 +31,7 @@ impl PartialEq for Dialect {
 
 impl Dialect {
     pub fn new(root_segment_name: &'static str) -> Self {
-        Dialect { root_segment_name, ..Default::default() }
+        Dialect { name: "ansi", root_segment_name, ..Default::default() }
     }
 
     pub fn add(

@@ -70,9 +70,9 @@ pub struct AnchorEditInfo {
     pub create_before: usize,
     pub create_after: usize,
     pub fixes: Vec<LintFix>,
-    pub source_fixes: Vec<LintFix>,
+    pub source_fixes: Vec<SourceFix>,
     // First fix of edit_type "replace" in "fixes"
-    pub first_replace_fix: Option<LintFix>,
+    pub first_replace: Option<LintFix>,
 }
 
 impl AnchorEditInfo {
@@ -117,40 +117,17 @@ impl AnchorEditInfo {
         };
 
         if fix.is_just_source_edit() {
-            if let Some(_edit) = fix.edit {
-                todo!()
-                //     // is_just_source_edit confirms there will be a list
-                //     // so we can hint that to mypy.
-                //     self.source_fixes.push(edit[0].source_fixes.clone());
-                //
-                //     // is there already a replace?
-                //     if self.first_replace_fix.is_some() {
-                //         assert!(self.first_replace_fix.unwrap().edit.
-                // is_some());         // is_just_source_edit
-                // confirms there will be a list         // and
-                // that's the only way to get into _first_replace
-                //         // if it's populated so we can hint that to mypy.
-                //         // TODO Implement this
-                //         //                 linter_logger.info(
-                //         //                     "Multiple edits detected,
-                // condensing %s onto %s",         //
-                // fix,         //
-                // self._first_replace,         //
-                // )         self._first_replace.edit[0] =
-                // self._first_replace.edit[0].edit(&self.source_fixes.clone());
-                //         // TODO
-                //         //                 linter_logger.info("Condensed fix:
-                // %s", self._first_replace)         return;
-                //     }
-                // } else {
-                //     panic!("Fix has no edit: {:?}", fix)
-                // }
+            let edit = fix.edit.as_ref().unwrap();
+            self.source_fixes.extend(edit[0].get_source_fixes());
+
+            if let Some(_first_replace) = &self.first_replace {
+                unimplemented!();
             }
         }
 
         self.fixes.push(fix.clone());
-        if fix.edit_type == EditType::Replace && self.first_replace_fix.is_none() {
-            self.first_replace_fix = Some(fix.clone());
+        if fix.edit_type == EditType::Replace && self.first_replace.is_none() {
+            self.first_replace = Some(fix.clone());
         }
         match fix.edit_type {
             EditType::CreateBefore => self.create_before += 1,

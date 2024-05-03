@@ -498,7 +498,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
     /// Stub.
     #[allow(unused_variables)]
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        unimplemented!()
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 
     /// Group and count fixes by anchor, return dictionary.
@@ -1580,7 +1580,7 @@ mod tests {
 
         // Check the first replace
         assert_eq!(
-            anchor_info.first_replace_fix,
+            anchor_info.first_replace,
             Some(LintFix::replace(
                 raw_segs[0].clone(),
                 vec![raw_segs[0].edit(Some("a".to_string()), None)],

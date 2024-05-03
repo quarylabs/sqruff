@@ -26,6 +26,15 @@ impl Segment for LiteralSegment {
             .to_erased_segment()
     }
 
+    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        Self {
+            raw: raw.unwrap_or_else(|| self.raw.clone()),
+            position_maker: self.position_maker.clone(),
+            uuid: self.uuid,
+        }
+        .to_erased_segment()
+    }
+
     fn get_raw(&self) -> Option<String> {
         self.raw.clone().into()
     }

@@ -1,6 +1,7 @@
 use crate::core::rules::base::ErasedRule;
 
 pub mod CV02;
+pub mod CV04;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;

@@ -38,7 +38,7 @@ file:
       - select_clause_element:
         - wildcard_expression:
           - wildcard_identifier:
-            - remove me: '*'
+            - star: '*'
     - from_clause:
       - keyword: from
       - from_expression:
@@ -83,7 +83,7 @@ file:
             - select_clause_element:
               - wildcard_expression:
                 - wildcard_identifier:
-                  - remove me: '*'
+                  - star: '*'
           - from_clause:
             - keyword: from
             - from_expression:

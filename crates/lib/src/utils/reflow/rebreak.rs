@@ -470,7 +470,8 @@ mod tests {
         for (raw_sql_in, target_idx, seq_sql_in, seq_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
             let target = &root.get_raw_segments()[target_idx];
-            let seq = ReflowSequence::from_around_target(target, root, "both", &<_>::default());
+            let config = <_>::default();
+            let seq = ReflowSequence::from_around_target(target, root, "both", &config);
 
             assert_eq!(seq.raw(), seq_sql_in);
 

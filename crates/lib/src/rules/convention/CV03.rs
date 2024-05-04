@@ -136,6 +136,15 @@ mod tests {
     }
 
     #[test]
+    fn test_default_fail() {
+        let fail_str = "SELECT a, b FROM foo";
+        let fix_str = "SELECT a, b, FROM foo";
+
+        let result = fix(fail_str.into(), vec![RuleCV03::default().erased()]);
+        assert_eq!(fix_str, result);
+    }
+
+    #[test]
     fn test_forbid_pass() {
         let pass_str = "SELECT a, b FROM foo";
 

@@ -34,11 +34,11 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 /// FROM baz;
 /// ```
 #[derive(Debug, Default, Clone)]
-pub struct RuleCv02 {}
+pub struct RuleCV02 {}
 
-impl Rule for RuleCv02 {
+impl Rule for RuleCV02 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleCv02::default().erased()
+        RuleCV02::default().erased()
     }
 
     fn name(&self) -> &'static str {
@@ -94,7 +94,7 @@ mod tests {
     use crate::api::simple::{fix, lint};
     use crate::core::dialects::init::get_default_dialect;
     use crate::core::rules::base::Erased;
-    use crate::rules::convention::CV02::RuleCv02;
+    use crate::rules::convention::CV02::RuleCV02;
 
     #[test]
     fn test__rules__std_CV02_raised() {
@@ -103,7 +103,7 @@ mod tests {
         let result = lint(
             sql.to_string(),
             get_default_dialect().to_string(),
-            vec![RuleCv02::default().erased()],
+            vec![RuleCV02::default().erased()],
             None,
             None,
         )
@@ -121,7 +121,7 @@ mod tests {
         let result = lint(
             sql.to_string(),
             get_default_dialect().to_string(),
-            vec![RuleCv02::default().erased()],
+            vec![RuleCV02::default().erased()],
             None,
             None,
         )
@@ -133,14 +133,14 @@ mod tests {
     #[test]
     fn test_fail_ifnull() {
         let sql = "SELECT ifnull(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql.to_string(), vec![RuleCv02::default().erased()]);
+        let result = fix(sql.to_string(), vec![RuleCV02::default().erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 
     #[test]
     fn test_fail_nvl() {
         let sql = "SELECT nvl(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql.to_string(), vec![RuleCv02::default().erased()]);
+        let result = fix(sql.to_string(), vec![RuleCV02::default().erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 }

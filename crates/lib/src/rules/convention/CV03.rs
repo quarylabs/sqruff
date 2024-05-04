@@ -12,7 +12,7 @@ pub struct RuleCV03 {
 
 impl Default for RuleCV03 {
     fn default() -> Self {
-        RuleCV03 { select_clause_trailing_comma: "reuired".to_string() }
+        RuleCV03 { select_clause_trailing_comma: "require".to_string() }
     }
 }
 

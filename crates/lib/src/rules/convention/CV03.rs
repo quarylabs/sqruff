@@ -64,7 +64,7 @@ impl Rule for RuleCV03 {
                             }
                         } else if seg.get_position_marker().unwrap().source_position() == comma_pos
                         {
-                            if *seg != last_content.clone() {
+                            if seg != &last_content {
                                 break;
                             }
                         } else {

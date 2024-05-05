@@ -5,6 +5,7 @@ use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError, ValueError};
 use crate::core::slice_helpers::zero_slice;
+use crate::core::templaters::slicers::tracer::JinjaAnalyzer;
 
 /// A slice referring to a templated file.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -524,13 +525,13 @@ pub enum RawFileSliceType {
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub struct RawFileSlice {
     /// Source string
-    raw: String,
-    slice_type: String,
+    pub(crate) raw: String,
+    pub(crate) slice_type: String,
     /// Offset from beginning of source string
-    pub source_idx: usize,
-    slice_subtype: Option<RawFileSliceType>,
+    pub(crate) source_idx: usize,
+    pub(crate) slice_subtype: Option<RawFileSliceType>,
     /// Block index, incremented on start or end block tags, e.g. "if", "for"
-    block_idx: usize,
+    pub(crate) block_idx: usize,
 }
 
 impl RawFileSlice {
@@ -600,8 +601,21 @@ impl Templater for RawTemplater {
         _config: Option<&FluffConfig>,
         _formatter: Option<&OutputStreamFormatter>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
-        {
+        let mut env = minijinja::Environment::new();
+        env.add_function("ref", |name: String| name);
+
+        let analyzer = JinjaAnalyzer::new(in_str);
+        let tracer = analyzer.analyze().trace(env.clone(), "");
+
+        let templated_str = env.render_str(in_str, ()).unwrap();
+
+        if let Ok(tf) = TemplatedFile::new(
+            in_str.to_string(),
+            f_name.to_string(),
+            Some(templated_str),
+            tracer.sliced_file.into(),
+            tracer.raw_sliced.into(),
+        ) {
             return Ok(tf);
         }
         panic!("Not implemented")

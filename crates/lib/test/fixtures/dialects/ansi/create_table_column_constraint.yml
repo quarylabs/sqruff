@@ -24,7 +24,8 @@ file:
             - expression:
               - column_reference:
                 - naked_identifier: age
-              - remove me: '>'
+              - comparison_operator:
+                - raw_comparison_operator: '>'
               - numeric_literal: '18'
             - end_bracket: )
       - end_bracket: )
@@ -127,13 +128,14 @@ file:
               - column_reference:
                 - naked_identifier: Age
               - greater_than_or_equal_to:
-                - remove me: '>'
-                - remove me: =
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: =
               - numeric_literal: '18'
               - remove me: AND
               - column_reference:
                 - naked_identifier: City
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - remove me: '''Sandnes'''
             - end_bracket: )
       - end_bracket: )

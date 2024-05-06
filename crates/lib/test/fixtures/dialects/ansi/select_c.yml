@@ -41,8 +41,8 @@ file:
                 - naked_identifier: date_col_b
             - end_bracket: )
         - greater_than_or_equal_to:
-          - remove me: '>'
-          - remove me: =
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: =
         - bare_function: current_date
         - remove me: AND
         - function:
@@ -54,7 +54,8 @@ file:
               - column_reference:
                 - naked_identifier: col_a
             - end_bracket: )
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - numeric_literal: '4'
     - orderby_clause:
       - keyword: ORDER

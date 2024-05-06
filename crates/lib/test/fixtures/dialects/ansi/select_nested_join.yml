@@ -47,7 +47,8 @@ file:
                       - naked_identifier: customers
                       - dot: .
                       - naked_identifier: customer_id
-                    - remove me: =
+                    - comparison_operator:
+                      - raw_comparison_operator: =
                     - column_reference:
                       - naked_identifier: orders
                       - dot: .
@@ -63,7 +64,8 @@ file:
             - naked_identifier: customers
             - dot: .
             - naked_identifier: email
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
     - groupby_clause:
@@ -136,7 +138,8 @@ file:
                         - naked_identifier: customers
                         - dot: .
                         - naked_identifier: customer_id
-                      - remove me: =
+                      - comparison_operator:
+                        - raw_comparison_operator: =
                       - column_reference:
                         - naked_identifier: orders
                         - dot: .
@@ -153,7 +156,8 @@ file:
             - naked_identifier: customers
             - dot: .
             - naked_identifier: email
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
     - groupby_clause:
@@ -229,7 +233,8 @@ file:
                             - naked_identifier: customers
                             - dot: .
                             - naked_identifier: customer_id
-                          - remove me: =
+                          - comparison_operator:
+                            - raw_comparison_operator: =
                           - column_reference:
                             - naked_identifier: orders
                             - dot: .
@@ -256,7 +261,8 @@ file:
                         - naked_identifier: products
                         - dot: .
                         - naked_identifier: product_id
-                      - remove me: =
+                      - comparison_operator:
+                        - raw_comparison_operator: =
                       - column_reference:
                         - naked_identifier: orders
                         - dot: .
@@ -273,7 +279,8 @@ file:
             - naked_identifier: customers
             - dot: .
             - naked_identifier: email
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
     - groupby_clause:
@@ -352,7 +359,8 @@ file:
                                 - naked_identifier: customers
                                 - dot: .
                                 - naked_identifier: customer_id
-                              - remove me: =
+                              - comparison_operator:
+                                - raw_comparison_operator: =
                               - column_reference:
                                 - naked_identifier: orders
                                 - dot: .
@@ -379,7 +387,8 @@ file:
                             - naked_identifier: products
                             - dot: .
                             - naked_identifier: product_id
-                          - remove me: =
+                          - comparison_operator:
+                            - raw_comparison_operator: =
                           - column_reference:
                             - naked_identifier: orders
                             - dot: .
@@ -406,7 +415,8 @@ file:
                         - naked_identifier: random
                         - dot: .
                         - naked_identifier: product_id
-                      - remove me: =
+                      - comparison_operator:
+                        - raw_comparison_operator: =
                       - column_reference:
                         - naked_identifier: products
                         - dot: .
@@ -423,7 +433,8 @@ file:
             - naked_identifier: customers
             - dot: .
             - naked_identifier: email
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - remove me: '''sample@gmail.com'''
         - end_bracket: )
     - groupby_clause:

@@ -10,7 +10,8 @@ file:
       - set_clause:
         - column_reference:
           - naked_identifier: a
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - expression:
           - case_expression:
             - keyword: CASE
@@ -21,7 +22,8 @@ file:
                   - naked_identifier: t2
                   - dot: .
                   - naked_identifier: column
-                - remove me: =
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - remove me: '''T'''
               - keyword: THEN
               - expression:
@@ -33,7 +35,8 @@ file:
                   - naked_identifier: t2
                   - dot: .
                   - naked_identifier: column
-                - remove me: =
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - remove me: '''F'''
               - keyword: THEN
               - expression:

@@ -17,7 +17,8 @@ file:
                       - naked_identifier: year_number
                     - remove me: '%'
                     - numeric_literal: '400'
-                    - remove me: =
+                    - comparison_operator:
+                      - raw_comparison_operator: =
                     - numeric_literal: '0'
                   - end_bracket: )
                 - remove me: OR
@@ -28,16 +29,17 @@ file:
                       - naked_identifier: year_number
                     - remove me: '%'
                     - numeric_literal: '4'
-                    - remove me: =
+                    - comparison_operator:
+                      - raw_comparison_operator: =
                     - numeric_literal: '0'
                     - remove me: AND
                     - column_reference:
                       - naked_identifier: year_number
                     - remove me: '%'
                     - numeric_literal: '100'
-                    - not_equal_to:
+                    - comparison_operator:
                       - remove me: '!'
-                      - remove me: =
+                      - raw_comparison_operator: =
                     - numeric_literal: '0'
                   - end_bracket: )
               - keyword: THEN

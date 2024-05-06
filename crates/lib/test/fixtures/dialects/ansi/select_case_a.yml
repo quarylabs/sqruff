@@ -11,7 +11,8 @@ file:
               - keyword: WHEN
               - expression:
                 - numeric_literal: '1'
-                - remove me: =
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - numeric_literal: '2'
               - keyword: THEN
               - expression:
@@ -20,7 +21,8 @@ file:
               - keyword: WHEN
               - expression:
                 - numeric_literal: '4'
-                - remove me: '>'
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
                 - numeric_literal: '3'
               - keyword: THEN
               - expression:

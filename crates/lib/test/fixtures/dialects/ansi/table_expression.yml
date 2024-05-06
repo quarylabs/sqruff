@@ -103,7 +103,8 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: pos1
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: pos2
 - statement_terminator: ;

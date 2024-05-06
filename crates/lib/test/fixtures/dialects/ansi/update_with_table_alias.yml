@@ -15,7 +15,8 @@ file:
           - naked_identifier: tttd
           - dot: .
           - naked_identifier: days
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: ttu
           - dot: .

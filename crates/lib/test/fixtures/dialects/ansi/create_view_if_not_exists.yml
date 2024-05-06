@@ -41,7 +41,8 @@ file:
                     - naked_identifier: table1
                     - dot: .
                     - naked_identifier: id
-                  - remove me: =
+                  - comparison_operator:
+                    - raw_comparison_operator: =
                   - column_reference:
                     - naked_identifier: table2
                     - dot: .

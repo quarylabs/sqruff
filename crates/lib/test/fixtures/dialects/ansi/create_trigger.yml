@@ -122,7 +122,8 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: a
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: b
       - end_bracket: )

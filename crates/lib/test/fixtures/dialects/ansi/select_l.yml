@@ -20,8 +20,8 @@ file:
         - column_reference:
           - naked_identifier: c
         - greater_than_or_equal_to:
-          - remove me: '>'
-          - remove me: =
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: =
         - bracketed:
           - start_bracket: (
           - expression:

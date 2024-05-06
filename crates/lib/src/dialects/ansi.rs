@@ -432,7 +432,7 @@ pub fn ansi_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
-                        SymbolSegmentNewArgs { r#type: "comparison_operator" },
+                        SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
                 },
                 None,
@@ -450,7 +450,7 @@ pub fn ansi_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
-                        SymbolSegmentNewArgs { r#type: "comparison_operator" },
+                        SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
                 },
                 None,
@@ -468,7 +468,7 @@ pub fn ansi_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
-                        SymbolSegmentNewArgs { r#type: "comparison_operator" },
+                        SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
                 },
                 None,
@@ -1820,11 +1820,6 @@ pub fn ansi_dialect() -> Dialect {
     ]);
 
     ansi_dialect.add([
-        ("EqualsSegment".into(), Ref::new("RawEqualsSegment").to_matchable().into()),
-        ("GreaterThanSegment".into(), Ref::new("RawGreaterThanSegment").to_matchable().into()),
-    ]);
-
-    ansi_dialect.add([
         (
             "SelectableGrammar".into(),
             one_of(vec![
@@ -1913,7 +1908,7 @@ pub fn ansi_dialect() -> Dialect {
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
         HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
-        WithDataClauseSegment
+        WithDataClauseSegment, EqualsSegment, GreaterThanSegment
     );
 
     // This is a hook point to allow subclassing for other dialects
@@ -4114,10 +4109,29 @@ impl NodeTrait for LessThanOrEqualToSegment {
     }
 }
 
+pub struct EqualsSegment;
+
+impl NodeTrait for EqualsSegment {
+    const TYPE: &'static str = "comparison_operator";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Ref::new("RawEqualsSegment").to_matchable()
+    }
+}
+
+pub struct GreaterThanSegment;
+
+impl NodeTrait for GreaterThanSegment {
+    const TYPE: &'static str = "comparison_operator";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Ref::new("RawGreaterThanSegment").to_matchable()
+    }
+}
 pub struct NotEqualToSegment;
 
 impl NodeTrait for NotEqualToSegment {
-    const TYPE: &'static str = "not_equal_to";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec![

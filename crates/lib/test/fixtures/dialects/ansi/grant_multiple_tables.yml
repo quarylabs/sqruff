@@ -25,7 +25,7 @@ file:
       - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - remove me: '"public"'
+      - quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -57,7 +57,7 @@ file:
       - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - remove me: '"public"'
+      - quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -93,7 +93,7 @@ file:
       - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - remove me: '"public"'
+      - quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -133,5 +133,5 @@ file:
       - naked_identifier: my_table2
     - keyword: TO
     - role_reference:
-      - remove me: '"public"'
+      - quoted_identifier: '"public"'
 - statement_terminator: ;

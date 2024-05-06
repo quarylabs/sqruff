@@ -23,4 +23,4 @@ file:
               - object_reference:
                 - naked_identifier: sch
                 - dot: .
-                - remove me: '"blah"'
+                - quoted_identifier: '"blah"'

@@ -44,12 +44,12 @@ file:
               - keyword: then
               - expression:
                 - column_reference:
-                  - remove me: '"nothing"'
+                  - quoted_identifier: '"nothing"'
             - else_clause:
               - keyword: ELSE
               - expression:
                 - column_reference:
-                  - remove me: '"boo"'
+                  - quoted_identifier: '"boo"'
             - keyword: END
         - alias_expression:
           - keyword: as

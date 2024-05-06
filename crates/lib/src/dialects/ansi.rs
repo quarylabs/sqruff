@@ -426,15 +426,57 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "RawEqualsSegment".into(),
-            StringParser::new("=", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "=",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "comparison_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "RawGreaterThanSegment".into(),
-            StringParser::new(">", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ">",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "comparison_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "RawLessThanSegment".into(),
-            StringParser::new("<", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "<",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "comparison_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             // The following functions can be called without parentheses per ANSI specification

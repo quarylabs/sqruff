@@ -11,7 +11,7 @@ file:
               - keyword: when
               - expression:
                 - column_reference:
-                  - remove me: '"Spec\"s 23"'
+                  - quoted_identifier: '"Spec\"s 23"'
                 - keyword: like
                 - remove me: '''Spec\''s%'''
               - keyword: then

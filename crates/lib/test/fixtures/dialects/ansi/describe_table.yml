@@ -4,5 +4,5 @@ file:
     - keyword: describe
     - naked_identifier: table
     - object_reference:
-      - remove me: '"my_table"'
+      - quoted_identifier: '"my_table"'
 - statement_terminator: ;

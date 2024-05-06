@@ -19,7 +19,7 @@ file:
       - column_definition:
         - naked_identifier: quoted_name
         - data_type:
-          - remove me: '"custom udt"'
+          - quoted_identifier: '"custom udt"'
       - comma: ','
       - column_definition:
         - naked_identifier: qualified_name
@@ -31,22 +31,22 @@ file:
       - column_definition:
         - naked_identifier: quoted_qualified
         - data_type:
-          - remove me: '"my schema"'
+          - quoted_identifier: '"my schema"'
           - dot: .
           - '': qualified
       - comma: ','
       - column_definition:
         - naked_identifier: more_quoted
         - data_type:
-          - remove me: '"my schema"'
+          - quoted_identifier: '"my schema"'
           - dot: .
-          - remove me: '"custom udt"'
+          - quoted_identifier: '"custom udt"'
       - comma: ','
       - column_definition:
         - naked_identifier: quoted_udt
         - data_type:
           - naked_identifier: sch
           - dot: .
-          - remove me: '"custom udt"'
+          - quoted_identifier: '"custom udt"'
       - end_bracket: )
 - statement_terminator: ;

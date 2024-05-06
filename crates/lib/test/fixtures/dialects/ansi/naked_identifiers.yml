@@ -5,7 +5,7 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - remove me: '"a"'
+          - quoted_identifier: '"a"'
         - alias_expression:
           - keyword: as
           - naked_identifier: 0_is_a_legal_identifier
@@ -16,7 +16,7 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - remove me: '"a"'
+          - quoted_identifier: '"a"'
         - alias_expression:
           - keyword: as
           - naked_identifier: 00_is_a_legal_identifier
@@ -37,7 +37,7 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - remove me: '"a"'
+          - quoted_identifier: '"a"'
         - alias_expression:
           - keyword: as
           - naked_identifier: 0is_a_legal_identifier
@@ -68,7 +68,7 @@ file:
       - keyword: select
       - select_clause_element:
         - column_reference:
-          - remove me: '"a"'
+          - quoted_identifier: '"a"'
         - alias_expression:
           - keyword: as
           - naked_identifier: is_a_legal_identifier0

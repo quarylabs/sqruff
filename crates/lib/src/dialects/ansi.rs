@@ -608,9 +608,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "QuotedIdentifierSegment".into(),
-            TypedParser::new("double_quote", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                "double_quote",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "quoted_identifier" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "QuotedLiteralSegment".into(),
@@ -620,9 +632,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "SingleQuotedIdentifierSegment".into(),
-            TypedParser::new("single_quote", symbol_factory, None, false, None)
-                .to_matchable()
-                .into(),
+            TypedParser::new(
+                "single_quote",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "quoted_identifier" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "NumericLiteralSegment".into(),

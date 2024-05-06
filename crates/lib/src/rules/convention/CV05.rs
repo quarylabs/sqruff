@@ -1,9 +1,6 @@
-use itertools::Itertools;
-
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{
-    ErasedSegment, Segment, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
+    ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{ErasedRule, LintResult, Rule};
@@ -97,7 +94,7 @@ impl Rule for RuleCV05 {
 
         let sub_seg = next_code.get(0, None);
         let edit = create_base_is_null_sequence(
-            sub_seg.as_ref().unwrap().get_raw().unwrap().chars().next().unwrap() == 'N',
+            sub_seg.as_ref().unwrap().get_raw().unwrap().starts_with('N'),
             context.segment.get_raw().unwrap(),
         );
 

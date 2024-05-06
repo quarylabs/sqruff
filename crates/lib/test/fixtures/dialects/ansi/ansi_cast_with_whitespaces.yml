@@ -241,7 +241,8 @@ file:
                       - start_bracket: (
                       - numeric_literal: '512'
                       - end_bracket: )
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - cast_expression:
                 - column_reference:
                   - naked_identifier: bi
@@ -262,6 +263,7 @@ file:
           - naked_identifier: fc
           - dot: .
           - naked_identifier: favorite_cola
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - remove me: '''RC Cola'''
 - statement_terminator: ;

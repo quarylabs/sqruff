@@ -15,14 +15,16 @@ file:
       - set_clause:
         - column_reference:
           - naked_identifier: foo
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - numeric_literal: '1'
     - where_clause:
       - keyword: WHERE
       - expression:
         - column_reference:
           - naked_identifier: bar
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - numeric_literal: '2'
 - statement_terminator: ;
 - statement:

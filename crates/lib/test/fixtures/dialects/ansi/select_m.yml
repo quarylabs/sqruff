@@ -29,7 +29,8 @@ file:
                 - naked_identifier: zendesk
                 - dot: .
                 - naked_identifier: ticket_id
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: ticket
                 - dot: .
@@ -65,7 +66,8 @@ file:
                 - expression:
                   - column_reference:
                     - naked_identifier: business_type
-                  - remove me: =
+                  - comparison_operator:
+                    - raw_comparison_operator: =
                   - column_reference:
                     - naked_identifier: low_business_type
                 - end_bracket: )
@@ -75,13 +77,15 @@ file:
                 - expression:
                   - column_reference:
                     - naked_identifier: business_type
-                  - remove me: =
+                  - comparison_operator:
+                    - raw_comparison_operator: =
                   - column_reference:
                     - naked_identifier: low_business_type
                   - remove me: OR
                   - column_reference:
                     - naked_identifier: size_label
-                  - remove me: =
+                  - comparison_operator:
+                    - raw_comparison_operator: =
                   - column_reference:
                     - naked_identifier: low_size_label
                 - end_bracket: )

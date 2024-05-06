@@ -42,7 +42,8 @@ file:
               - column_reference:
                 - naked_identifier: person_id
             - end_bracket: )
-        - remove me: '>'
+        - comparison_operator:
+          - raw_comparison_operator: '>'
         - numeric_literal: '10'
     - fetch_clause:
       - keyword: FETCH

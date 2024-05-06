@@ -38,7 +38,8 @@ file:
             - naked_identifier: sometable
             - dot: .
             - naked_identifier: baz
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - column_reference:
             - naked_identifier: mycte
             - dot: .

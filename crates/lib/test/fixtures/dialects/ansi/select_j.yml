@@ -84,7 +84,8 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: order_month
-                - remove me: =
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - column_reference:
                   - naked_identifier: max_month
               - keyword: THEN

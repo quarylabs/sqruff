@@ -34,8 +34,8 @@ file:
           - column_reference:
             - naked_identifier: c7
           - bitwise_lshift:
-            - remove me: <
-            - remove me: <
+            - raw_comparison_operator: <
+            - raw_comparison_operator: <
           - column_reference:
             - naked_identifier: c8
       - comma: ','
@@ -44,7 +44,7 @@ file:
           - column_reference:
             - naked_identifier: c9
           - bitwise_rshift:
-            - remove me: '>'
-            - remove me: '>'
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '>'
           - column_reference:
             - naked_identifier: c10

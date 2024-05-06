@@ -20,7 +20,8 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: Country
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - remove me: '''France'''
     - fetch_clause:
       - keyword: FETCH

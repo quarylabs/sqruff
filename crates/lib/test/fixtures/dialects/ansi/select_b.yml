@@ -31,7 +31,8 @@ file:
                   - naked_identifier: foo
                   - dot: .
                   - naked_identifier: a
-                - remove me: =
+                - comparison_operator:
+                  - raw_comparison_operator: =
                 - column_reference:
                   - naked_identifier: bar
                   - dot: .

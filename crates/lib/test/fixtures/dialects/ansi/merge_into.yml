@@ -17,7 +17,8 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: a
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - column_reference:
             - naked_identifier: b
         - end_bracket: )
@@ -33,7 +34,8 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: a
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: b
       - merge_when_not_matched_clause:
@@ -93,7 +95,8 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: a
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - column_reference:
             - naked_identifier: b
         - end_bracket: )
@@ -109,7 +112,8 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: a
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: b
       - merge_when_not_matched_clause:
@@ -151,7 +155,8 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: a
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - column_reference:
             - naked_identifier: b
         - end_bracket: )
@@ -167,7 +172,8 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: a
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: b
       - merge_when_matched_clause:
@@ -195,7 +201,8 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: a
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - column_reference:
             - naked_identifier: b
         - end_bracket: )
@@ -207,7 +214,8 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: a
-          - remove me: '>'
+          - comparison_operator:
+            - raw_comparison_operator: '>'
           - column_reference:
             - naked_identifier: b
         - keyword: THEN
@@ -218,7 +226,8 @@ file:
             - set_clause:
               - column_reference:
                 - naked_identifier: a
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: b
       - merge_when_matched_clause:

@@ -15,8 +15,8 @@ file:
               - numeric_literal: '3'
             - end_bracket: )
           - greater_than_or_equal_to:
-            - remove me: '>'
-            - remove me: =
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: =
           - numeric_literal: '4'
           - binary_operator: +
           - numeric_literal: '6'
@@ -44,8 +44,8 @@ file:
               - numeric_literal: '3'
             - end_bracket: )
           - greater_than_or_equal_to:
-            - remove me: '>'
-            - remove me: =
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: =
           - numeric_literal: '4'
           - binary_operator: +
           - tilde: '~'

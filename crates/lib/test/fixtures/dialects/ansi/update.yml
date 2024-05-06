@@ -10,14 +10,16 @@ file:
       - set_clause:
         - column_reference:
           - naked_identifier: column1
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: value1
       - comma: ','
       - set_clause:
         - column_reference:
           - naked_identifier: column2
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: value2
     - where_clause:
@@ -25,6 +27,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: a
-        - remove me: =
+        - comparison_operator:
+          - raw_comparison_operator: =
         - numeric_literal: '1'
 - statement_terminator: ;

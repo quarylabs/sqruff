@@ -30,7 +30,8 @@ file:
                 - naked_identifier: data
                 - dot: .
                 - naked_identifier: event_id
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: data_max
                 - dot: .
@@ -55,7 +56,8 @@ file:
                 - naked_identifier: od
                 - dot: .
                 - naked_identifier: fid
-              - remove me: =
+              - comparison_operator:
+                - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: data_max
                 - dot: .

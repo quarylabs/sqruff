@@ -11,15 +11,18 @@ file:
     - bracketed:
       - start_bracket: (
       - '': MODEL_TYPE
-      - remove me: =
+      - comparison_operator:
+        - raw_comparison_operator: =
       - remove me: '''LOGISTIC_REG'''
       - comma: ','
       - '': AUTO_CLASS_WEIGHTS
-      - remove me: =
+      - comparison_operator:
+        - raw_comparison_operator: =
       - boolean_literal: 'TRUE'
       - comma: ','
       - '': INPUT_LABEL_COLS
-      - remove me: =
+      - comparison_operator:
+        - raw_comparison_operator: =
       - array_literal:
         - remove me: '['
         - remove me: '''label_str'''
@@ -49,5 +52,6 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: training
-          - remove me: =
+          - comparison_operator:
+            - raw_comparison_operator: =
           - numeric_literal: '1'

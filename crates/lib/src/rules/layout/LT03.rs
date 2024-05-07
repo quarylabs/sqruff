@@ -24,8 +24,14 @@ impl Rule for RuleLT03 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if context.segment.is_type("") {
-            unimplemented!()
+        if context.segment.is_type("comparison_operator") {
+            if self.check_trail_lead_shortcut(
+                &context.segment,
+                context.parent_stack.last().unwrap(),
+                "leading",
+            ) {
+                return Vec::new();
+            }
         } else if context.segment.is_type("binary_operator") {
             let binary_positioning = "leading";
             if self.check_trail_lead_shortcut(
@@ -35,8 +41,6 @@ impl Rule for RuleLT03 {
             ) {
                 return Vec::new();
             }
-        } else {
-            unimplemented!()
         }
 
         ReflowSequence::from_around_target(

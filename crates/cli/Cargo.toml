@@ -4,6 +4,7 @@ description = "A high-speed SQL linter."
 version = "0.1.3"
 edition = "2021"
 license = "MIT"
+default-run = "sqruff"
 
 [[test]]
 name = "ui"

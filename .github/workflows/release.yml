@@ -96,14 +96,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          REPOSITORY="quarylabs/homebrew-quary"
           
           RELEASE_VERSION=${{ github.event.release.tag_name }}
           STRIPPED_VERSION=${RELEASE_VERSION#v}
-          
-          git clone https://${GITHUB_TOKEN}@github.com/quarylabs/homebrew-quary.git
+          git clone \
+            --depth=1 \
+            --branch=main \
+            https://some-user:${{ secrets.ACCESS_TOKEN }}@github.com/$REPOSITORY \
+            
           cd homebrew-quary
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          git checkout -b update-sqruff-to-${STRIPPED_VERSION}
           
           sed -i "s/version \".*\"/version \"${STRIPPED_VERSION}\"/" sqruff.rb
           
@@ -131,6 +137,11 @@ jobs:
           
           git add sqruff.rb
           git commit -m "Update Sqruff to version ${STRIPPED_VERSION}"
-          git push https://${GITHUB_TOKEN}@github.com/quarylabs/homebrew-quary.git
+          git push origin update-sqruff-to-${STRIPPED_VERSION}
           
+          # Store the PAT in a file that can be accessed by the
+          # GitHub CLI.
+          echo "${{ secrets.HOMEBREW_ACCESS_TOKEN }}" > token.txt
+          
+          gh auth login --with-token < token.txt
           gh pr create --title "Update Sqruff to version ${STRIPPED_VERSION}" --body "Automated PR to update Sqruff to version ${STRIPPED_VERSION}" --base main

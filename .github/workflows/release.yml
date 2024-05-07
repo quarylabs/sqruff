@@ -131,6 +131,6 @@ jobs:
           
           git add sqruff.rb
           git commit -m "Update Sqruff to version ${STRIPPED_VERSION}"
-          git push
+          git push https://${GITHUB_TOKEN}@github.com/quarylabs/homebrew-quary.git
           
           gh pr create --title "Update Sqruff to version ${STRIPPED_VERSION}" --body "Automated PR to update Sqruff to version ${STRIPPED_VERSION}" --base main

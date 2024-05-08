@@ -20,31 +20,45 @@ file:
                       - naked_identifier: session_start
                       - dot: .
                       - naked_identifier: eventTimestamp
-                  - unparsable:
-                    - comma: ','
-                    - word: INTERVAL
-                    - word: cast
-                    - bracketed:
-                      - start_bracket: (
-                      - word: TIMESTAMP_DIFF
-                      - bracketed:
-                        - start_bracket: (
-                        - word: session_end
-                        - dot: .
-                        - word: eventTimestamp
-                        - comma: ','
-                        - word: session_start
-                        - dot: .
-                        - word: eventTimestamp
-                        - comma: ','
-                        - word: SECOND
-                        - end_bracket: )
-                      - divide: /
-                      - numeric_literal: '2'
-                      - word: AS
-                      - word: int64
-                      - end_bracket: )
-                    - word: second
+                  - comma: ','
+                  - expression:
+                    - interval_expression:
+                      - keyword: INTERVAL
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: cast
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: TIMESTAMP_DIFF
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: session_end
+                                      - dot: .
+                                      - naked_identifier: eventTimestamp
+                                  - comma: ','
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: session_start
+                                      - dot: .
+                                      - naked_identifier: eventTimestamp
+                                  - comma: ','
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: SECOND
+                                  - end_bracket: )
+                              - remove me: /
+                              - numeric_literal: '2'
+                            - keyword: AS
+                            - data_type:
+                              - '': int64
+                            - end_bracket: )
+                      - date_part: second
                   - end_bracket: )
             - comma: ','
             - expression:
@@ -68,7 +82,8 @@ file:
             - expression:
               - interval_expression:
                 - keyword: INTERVAL
-                - numeric_literal: '10'
+                - expression:
+                  - numeric_literal: '10'
                 - date_part: MINUTE
             - end_bracket: )
         - alias_expression:
@@ -88,7 +103,8 @@ file:
             - expression:
               - interval_expression:
                 - keyword: INTERVAL
-                - numeric_literal: '5'
+                - expression:
+                  - numeric_literal: '5'
                 - date_part: YEAR
             - end_bracket: )
         - alias_expression:

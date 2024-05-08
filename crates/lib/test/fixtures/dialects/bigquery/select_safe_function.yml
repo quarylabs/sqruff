@@ -12,7 +12,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: SAFE
+            - keyword: SAFE
             - dot: .
             - function_name_identifier: SUBSTR
           - bracketed:
@@ -35,7 +35,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: SAFE
+            - keyword: SAFE
             - dot: .
             - function_name_identifier: DATEADD
           - bracketed:
@@ -56,7 +56,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: SAFE
+            - keyword: SAFE
             - dot: .
             - function_name_identifier: MY_FUNCTION
           - bracketed:

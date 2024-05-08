@@ -414,23 +414,40 @@ impl Matchable for Sequence {
     fn copy(
         &self,
         insert: Option<Vec<Rc<dyn Matchable>>>,
-        replace_terminators: bool,
+        at: Option<usize>,
+        before: Option<Rc<dyn Matchable>>,
+        remove: Option<Vec<Rc<dyn Matchable>>>,
         terminators: Vec<Rc<dyn Matchable>>,
+        replace_terminators: bool,
     ) -> Rc<dyn Matchable> {
-        let mut new_elems = self.elements.clone();
+        let mut new_elements = self.elements.clone();
 
-        if let Some(insert) = insert {
-            new_elems.extend(insert);
+        if let Some(insert_elements) = insert {
+            if let Some(before_element) = before {
+                if let Some(index) = self.elements.iter().position(|e| e.hack_eq(&before_element)) {
+                    new_elements.splice(index..index, insert_elements.into_iter());
+                } else {
+                    panic!("Element for insertion before not found");
+                }
+            } else if let Some(at_index) = at {
+                new_elements.splice(at_index..at_index, insert_elements.into_iter());
+            } else {
+                new_elements.extend(insert_elements);
+            }
+        }
+
+        if let Some(remove_elements) = remove {
+            new_elements.retain(|elem| !remove_elements.iter().any(|r| Rc::ptr_eq(elem, r)));
         }
 
         let mut new_grammar = self.clone();
-        new_grammar.elements = new_elems;
 
-        if replace_terminators {
-            new_grammar.terminators = terminators;
+        new_grammar.elements = new_elements;
+        new_grammar.terminators = if replace_terminators {
+            terminators
         } else {
-            new_grammar.terminators.extend(terminators);
-        }
+            [self.terminators.clone(), terminators].concat()
+        };
 
         Rc::new(new_grammar)
     }
@@ -438,8 +455,8 @@ impl Matchable for Sequence {
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct Bracketed {
-    bracket_type: &'static str,
-    bracket_pairs_set: &'static str,
+    pub(crate) bracket_type: &'static str,
+    pub(crate) bracket_pairs_set: &'static str,
     allow_gaps: bool,
 
     pub this: Sequence,

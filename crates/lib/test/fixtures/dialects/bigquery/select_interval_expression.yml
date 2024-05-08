@@ -16,12 +16,15 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - end_bracket: )
-            - unparsable:
-              - comma: ','
-              - word: INTERVAL
-              - minus: '-'
-              - numeric_literal: '1'
-              - plus: +
-              - numeric_literal: '2'
-              - word: DAY
+            - comma: ','
+            - expression:
+              - interval_expression:
+                - keyword: INTERVAL
+                - expression:
+                  - qualified_numeric_literal:
+                    - sign_indicator: '-'
+                    - numeric_literal: '1'
+                  - binary_operator: +
+                  - numeric_literal: '2'
+                - date_part: DAY
             - end_bracket: )

@@ -7,6 +7,7 @@ use dyn_clone::DynClone;
 use dyn_ord::DynEq;
 
 use super::context::ParseContext;
+use super::grammar::base::Ref;
 use super::match_result::MatchResult;
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
@@ -17,6 +18,13 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn hack_eq(&self, rhs: &Rc<dyn Matchable>) -> bool {
+        let lhs = self.as_any().downcast_ref::<Ref>();
+        let rhs = rhs.as_any().downcast_ref::<Ref>();
+
+        lhs.zip(rhs).map_or(false, |(lhs, rhs)| lhs.reference == rhs.reference)
     }
 
     // Return whether this element is optional.
@@ -82,11 +90,13 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
 
     fn copy(
         &self,
-        insert: Option<Vec<Rc<dyn Matchable>>>,
-        replace_terminators: bool,
-        terminators: Vec<Rc<dyn Matchable>>,
+        _insert: Option<Vec<Rc<dyn Matchable>>>,
+        _at: Option<usize>,
+        _before: Option<Rc<dyn Matchable>>,
+        _remove: Option<Vec<Rc<dyn Matchable>>>,
+        _terminators: Vec<Rc<dyn Matchable>>,
+        _replace_terminators: bool,
     ) -> Rc<dyn Matchable> {
-        let _ = (insert, replace_terminators, terminators);
         unimplemented!()
     }
 }

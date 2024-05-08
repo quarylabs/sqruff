@@ -18,11 +18,11 @@ file:
               - numeric_literal: '''2010-01-31'''
             - comma: ','
             - expression:
-              - keyword: INTERVAL
-              - numeric_literal: '''7'''
-            - expression:
-              - column_reference:
-                - naked_identifier: DAY
+              - interval_expression:
+                - keyword: INTERVAL
+                - expression:
+                  - remove me: '''7'''
+                - date_part: DAY
             - end_bracket: )
         - alias_expression:
           - keyword: AS

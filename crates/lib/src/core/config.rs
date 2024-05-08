@@ -180,7 +180,7 @@ impl FluffConfig {
         {
             None => get_default_dialect(),
             Some(Value::String(std)) => std.as_ref(),
-            value => get_default_dialect(),
+            _value => get_default_dialect(),
         };
 
         let dialect = dialect_selector(dialect).unwrap();

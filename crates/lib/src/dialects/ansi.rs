@@ -35,6 +35,7 @@ use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Config, ToErasedSegment, ToMatchable};
 
+#[macro_export]
 macro_rules! vec_of_erased {
     ($($elem:expr),* $(,)?) => {{
         vec![$(Rc::new($elem)),*]
@@ -3035,12 +3036,15 @@ impl NodeTrait for SelectStatementSegment {
                 Ref::new("LimitClauseSegment").optional(),
                 Ref::new("NamedWindowSegment").optional()
             ]),
-            true,
+            None,
+            None,
+            None,
             vec_of_erased![
                 Ref::new("SetOperatorSegment"),
                 Ref::new("WithNoSchemaBindingClauseSegment"),
                 Ref::new("WithDataClauseSegment")
             ],
+            true,
         )
     }
 

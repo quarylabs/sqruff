@@ -1,0 +1,19 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '0'
+              - less_than: <
+              - numeric_literal: '1'
+              - remove me: AND
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '0'
+            - end_bracket: )

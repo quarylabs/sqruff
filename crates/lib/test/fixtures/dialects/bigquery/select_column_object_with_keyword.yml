@@ -1,0 +1,43 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: current
+          - dot: .
+          - naked_identifier: column
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: object
+          - dot: .
+          - naked_identifier: current
+          - dot: .
+          - naked_identifier: column
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: object
+          - dot: .
+          - naked_identifier: nested
+          - dot: .
+          - naked_identifier: current
+          - dot: .
+          - naked_identifier: column
+      - comma: ','
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: table1

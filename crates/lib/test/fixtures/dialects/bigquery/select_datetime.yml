@@ -1,0 +1,88 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: gmv
+          - dot: .
+          - naked_identifier: _merchant_key
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: gmv
+          - dot: .
+          - naked_identifier: order_created_at
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: EXTRACT
+          - bracketed:
+            - start_bracket: (
+            - date_part: DAY
+            - keyword: FROM
+            - expression:
+              - column_reference:
+                - naked_identifier: gmv
+                - dot: .
+                - naked_identifier: order_created_at
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: order_day
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_table
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: gmv
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: gmv
+          - dot: .
+          - naked_identifier: datetime
+        - greater_than_or_equal_to:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: DATE_TRUNC
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: DATE_SUB
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: CURRENT_DATE
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                  - comma: ','
+                  - expression:
+                    - interval_expression:
+                      - keyword: INTERVAL
+                      - numeric_literal: '2'
+                      - date_part: YEAR
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: year
+            - end_bracket: )
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'

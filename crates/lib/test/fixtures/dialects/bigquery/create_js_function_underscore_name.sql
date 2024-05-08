@@ -1,0 +1,8 @@
+CREATE TEMP FUNCTION
+_qs(
+    y STRING
+)
+RETURNS STRUCT<_product_id ARRAY<INT64>>
+LANGUAGE js AS """
+    CODE GOES HERE
+"""

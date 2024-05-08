@@ -1,0 +1,22 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - unparsable:
+        - back_quote: '`another-gcp-project`'
+        - dot: .
+        - back_quote: '`functions.timestamp_parsing`'
+        - bracketed:
+          - start_bracket: (
+          - word: log_tbl
+          - dot: .
+          - word: first_move
+          - end_bracket: )
+        - word: AS
+        - word: first_move
+    - unparsable:
+      - keyword: FROM
+      - back_quote: '`gcp-project.data.year_2021`'
+      - word: AS
+      - word: log_tbl

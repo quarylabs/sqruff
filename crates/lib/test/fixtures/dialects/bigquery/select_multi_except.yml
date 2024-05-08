@@ -1,0 +1,37 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: d
+            - dot: .
+            - star: '*'
+      - comma: ','
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: r
+            - dot: .
+            - star: '*'
+- unparsable:
+  - set_operator:
+    - keyword: except
+  - start_bracket: (
+  - word: date_key
+  - end_bracket: )
+  - word: from
+  - word: my_table
+  - word: as
+  - word: d
+  - word: inner
+  - word: join
+  - word: my_other_table
+  - word: as
+  - word: r
+  - word: using
+  - start_bracket: (
+  - word: date_key
+  - end_bracket: )

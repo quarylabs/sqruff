@@ -51,6 +51,53 @@ impl Dialect {
         }
     }
 
+    pub fn insert_lexer_matchers(&mut self, lexer_patch: Vec<Box<dyn Matcher>>, before: &str) {
+        let mut buff = Vec::new();
+        let mut found = false;
+
+        if self.lexer_matchers.is_none() {
+            panic!("Lexer struct must be defined before it can be patched!");
+        }
+
+        for elem in self.lexer_matchers.take().unwrap() {
+            if elem.get_name() == before {
+                found = true;
+                for patch in lexer_patch.clone() {
+                    buff.push(patch);
+                }
+                buff.push(elem);
+            } else {
+                buff.push(elem);
+            }
+        }
+
+        if !found {
+            panic!("Lexer struct insert before '{before}' failed because tag never found.");
+        }
+
+        self.lexer_matchers = Some(buff);
+    }
+
+    pub fn patch_lexer_matchers(&mut self, lexer_patch: Vec<Box<dyn Matcher>>) {
+        let mut buff = Vec::new();
+        if self.lexer_matchers.is_none() {
+            panic!("Lexer struct must be defined before it can be patched!");
+        }
+
+        let patch_dict: AHashMap<String, Box<dyn Matcher>> =
+            lexer_patch.into_iter().map(|elem| (elem.get_name(), elem)).collect();
+
+        for elem in self.lexer_matchers.take().unwrap() {
+            if let Some(patch) = patch_dict.get(&elem.get_name()) {
+                buff.push(patch.clone());
+            } else {
+                buff.push(elem);
+            }
+        }
+
+        self.lexer_matchers = Some(buff);
+    }
+
     pub fn set_lexer_matchers(&mut self, lexer_matchers: Vec<Box<dyn Matcher>>) {
         self.lexer_matchers = lexer_matchers.into();
     }

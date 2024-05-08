@@ -1,0 +1,31 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: newtable
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - '': INT64
+      - comma: ','
+      - column_definition:
+        - naked_identifier: y
+        - data_type:
+          - '': INT64
+      - end_bracket: )
+- unparsable:
+  - word: PARTITION
+  - word: BY
+  - word: y
+  - word: AS
+  - word: SELECT
+  - word: x
+  - comma: ','
+  - word: y
+  - word: FROM
+  - word: table1

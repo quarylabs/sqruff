@@ -1,0 +1,29 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - naked_identifier: gcpproject
+            - dot: .
+            - naked_identifier: functions
+            - dot: .
+            - function_name_identifier: timestamp_parsing
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: log_tbl
+                - dot: .
+                - naked_identifier: orderdate
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: orderdate
+    - unparsable:
+      - keyword: FROM
+      - back_quote: '`gcp-project.data.year_2021`'
+      - word: AS
+      - word: log_tbl

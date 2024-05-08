@@ -1,0 +1,79 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: mydataset
+        - dot: .
+        - naked_identifier: mytable
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: A
+      - data_type:
+        - '': STRING
+    - comma: ','
+    - '': ADD
+    - naked_identifier: COLUMN
+- unparsable:
+  - word: IF
+  - word: NOT
+  - word: EXISTS
+  - word: B
+  - word: GEOGRAPHY
+  - comma: ','
+  - word: ADD
+  - word: COLUMN
+  - word: C
+  - word: ARRAY
+  - less_than: <
+  - word: NUMERIC
+  - greater_than: '>'
+  - comma: ','
+  - word: ADD
+  - word: COLUMN
+  - word: D
+  - word: DATE
+  - word: OPTIONS
+  - start_bracket: (
+  - word: description
+  - equals: =
+  - double_quote: '"my description"'
+  - end_bracket: )
+  - semicolon: ;
+  - word: ALTER
+  - word: TABLE
+  - word: mydataset
+  - dot: .
+  - word: mytable
+  - word: ADD
+  - word: COLUMN
+  - word: A
+  - word: STRUCT
+  - less_than: <
+  - word: B
+  - word: GEOGRAPHY
+  - comma: ','
+  - word: C
+  - word: ARRAY
+  - less_than: <
+  - word: INT64
+  - greater_than: '>'
+  - comma: ','
+  - word: D
+  - word: INT64
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - word: E
+  - word: TIMESTAMP
+  - word: OPTIONS
+  - start_bracket: (
+  - word: description
+  - equals: =
+  - double_quote: '"creation time"'
+  - end_bracket: )
+  - greater_than: '>'
+  - semicolon: ;

@@ -1,0 +1,27 @@
+file:
+- unparsable:
+  - word: set
+  - start_bracket: (
+  - word: var2
+  - comma: ','
+  - word: var3
+  - comma: ','
+  - word: var5
+  - end_bracket: )
+  - equals: =
+  - start_bracket: (
+  - double_quote: '"y"'
+  - comma: ','
+  - start_bracket: (
+  - word: select
+  - double_quote: '"x"'
+  - end_bracket: )
+  - comma: ','
+  - word: DATE_TRUNC
+  - start_bracket: (
+  - double_quote: '"2000-01-01"'
+  - comma: ','
+  - word: month
+  - end_bracket: )
+  - end_bracket: )
+  - semicolon: ;

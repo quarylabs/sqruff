@@ -1,0 +1,21 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: mydataset
+        - dot: .
+        - naked_identifier: mytable
+    - '': DROP
+    - naked_identifier: COLUMN
+- unparsable:
+  - word: A
+  - comma: ','
+  - word: DROP
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: B
+  - semicolon: ;

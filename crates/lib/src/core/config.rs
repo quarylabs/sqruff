@@ -168,16 +168,6 @@ impl FluffConfig {
             a
         }
 
-        let _dialect = match configs.get("dialect") {
-            None => get_default_dialect(),
-            Some(Value::String(std)) => {
-                dialect_selector(std).unwrap_or_else(|| panic!("Unknown dialect {std}"));
-                std.as_ref()
-            }
-            value => unimplemented!("dialect key {value:?}"),
-        }
-        .to_string();
-
         let values = ConfigLoader
             .get_config_elems_from_file(None, include_str!("./default_config.cfg").into());
 
@@ -185,6 +175,15 @@ impl FluffConfig {
         ConfigLoader.incorporate_vals(&mut defaults, values);
 
         let mut configs = nested_combine(defaults, configs);
+
+        let dialect = match configs.get("core").and_then(|map| map.as_map().unwrap().get("dialect"))
+        {
+            None => get_default_dialect(),
+            Some(Value::String(std)) => std.as_ref(),
+            value => get_default_dialect(),
+        };
+
+        let dialect = dialect_selector(dialect).unwrap();
 
         for (in_key, out_key) in [
             // Deal with potential ignore & warning parameters
@@ -212,7 +211,7 @@ impl FluffConfig {
 
         Self {
             raw: configs,
-            dialect: dialect_selector("ansi").unwrap(),
+            dialect,
             extra_config_path,
             _configs: AHashMap::new(),
             indentation: indentation.unwrap_or_default(),

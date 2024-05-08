@@ -1,0 +1,26 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: user_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"some string"'
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: list_id
+    - unparsable:
+      - keyword: FROM
+      - back_quote: '`database.schema.benchmark_user_map`'
+      - word: WHERE
+      - word: list_id
+      - word: IS
+      - word: 'NULL'
+      - word: OR
+      - word: user_id
+      - word: IS
+      - word: 'NULL'

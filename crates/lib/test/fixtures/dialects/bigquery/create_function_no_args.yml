@@ -1,0 +1,31 @@
+file:
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: add
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - '': integer
+    - function_definition:
+      - keyword: AS
+      - remove me: '''select $1 + $2;'''
+      - keyword: LANGUAGE
+      - naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: myproject
+      - dot: .
+      - naked_identifier: mydataset
+      - dot: .
+      - function_name_identifier: addfunc
+- statement_terminator: ;

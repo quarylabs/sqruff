@@ -1,0 +1,16 @@
+file:
+- unparsable:
+  - word: set
+  - word: var1
+  - equals: =
+  - numeric_literal: '5'
+  - semicolon: ;
+  - word: set
+  - word: var1
+  - equals: =
+  - start_square_bracket: '['
+  - single_quote: '''one'''
+  - comma: ','
+  - single_quote: '''two'''
+  - end_square_bracket: ']'
+  - semicolon: ;

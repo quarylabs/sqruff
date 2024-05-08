@@ -1,0 +1,38 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: newtable
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - keyword: TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: y
+        - data_type:
+          - '': INT64
+      - end_bracket: )
+- unparsable:
+  - word: PARTITION
+  - word: BY
+  - word: DATE
+  - start_bracket: (
+  - word: x
+  - end_bracket: )
+  - word: CLUSTER
+  - word: BY
+  - word: x
+  - comma: ','
+  - word: y
+  - word: OPTIONS
+  - start_bracket: (
+  - word: description
+  - equals: =
+  - double_quote: '"foo"'
+  - end_bracket: )

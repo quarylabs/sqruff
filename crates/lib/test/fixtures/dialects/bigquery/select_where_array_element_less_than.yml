@@ -1,0 +1,30 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - unparsable:
+      - keyword: FROM
+      - back_quote: '`project.dataset.table_1`'
+      - word: WHERE
+      - word: effect_size_list
+      - start_square_bracket: '['
+      - word: ORDINAL
+      - start_bracket: (
+      - numeric_literal: '1'
+      - end_bracket: )
+      - end_square_bracket: ']'
+      - less_than: <
+      - word: effect_size_list
+      - start_square_bracket: '['
+      - word: ORDINAL
+      - start_bracket: (
+      - numeric_literal: '1'
+      - plus: +
+      - numeric_literal: '1'
+      - end_bracket: )
+      - end_square_bracket: ']'

@@ -1,0 +1,48 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: mydataset
+        - dot: .
+        - naked_identifier: mytable
+    - '': RENAME
+    - naked_identifier: COLUMN
+- unparsable:
+  - word: A
+  - word: TO
+  - word: columnA
+  - comma: ','
+  - word: RENAME
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: B
+  - word: TO
+  - word: columnB
+  - semicolon: ;
+  - word: ALTER
+  - word: TABLE
+  - word: mydataset
+  - dot: .
+  - word: mytable
+  - word: RENAME
+  - word: COLUMN
+  - word: columnA
+  - word: TO
+  - word: temp
+  - comma: ','
+  - word: RENAME
+  - word: COLUMN
+  - word: columnB
+  - word: TO
+  - word: columnA
+  - comma: ','
+  - word: RENAME
+  - word: COLUMN
+  - word: temp
+  - word: TO
+  - word: columnB
+  - semicolon: ;

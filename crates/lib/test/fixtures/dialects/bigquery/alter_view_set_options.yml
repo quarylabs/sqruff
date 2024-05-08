@@ -1,0 +1,28 @@
+file:
+- unparsable:
+  - word: ALTER
+  - word: VIEW
+  - word: mydataset
+  - dot: .
+  - word: myview
+  - word: SET
+  - word: OPTIONS
+  - start_bracket: (
+  - word: expiration_timestamp
+  - equals: =
+  - word: TIMESTAMP_ADD
+  - start_bracket: (
+  - word: CURRENT_TIMESTAMP
+  - start_bracket: (
+  - end_bracket: )
+  - comma: ','
+  - word: INTERVAL
+  - numeric_literal: '7'
+  - word: DAY
+  - end_bracket: )
+  - comma: ','
+  - word: description
+  - equals: =
+  - double_quote: '"View that expires seven days from now"'
+  - end_bracket: )
+  - semicolon: ;

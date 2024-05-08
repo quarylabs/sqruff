@@ -1,0 +1,45 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: case
+            - expression:
+              - column_reference:
+                - naked_identifier: fruit_code
+            - when_clause:
+              - keyword: when
+              - expression:
+                - numeric_literal: '0'
+              - keyword: then
+              - expression:
+                - remove me: '''apple'''
+            - when_clause:
+              - keyword: when
+              - expression:
+                - numeric_literal: '1'
+              - keyword: then
+              - expression:
+                - remove me: '''banana'''
+            - when_clause:
+              - keyword: when
+              - expression:
+                - numeric_literal: '2'
+              - keyword: then
+              - expression:
+                - remove me: '''cashew'''
+            - keyword: end
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: fruit
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: some_table

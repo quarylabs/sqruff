@@ -1,0 +1,31 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: TABLE
+  - word: t_table
+  - start_bracket: (
+  - word: col1
+  - word: STRING
+  - comma: ','
+  - end_bracket: )
+  - semicolon: ;
+  - word: CREATE
+  - word: TABLE
+  - word: t_table
+  - start_bracket: (
+  - word: col1
+  - word: STRING
+  - comma: ','
+  - word: x
+  - word: INT64
+  - word: NOT
+  - word: 'NULL'
+  - word: OPTIONS
+  - start_bracket: (
+  - word: description
+  - equals: =
+  - double_quote: '"An INTEGER field that is NOT NULL"'
+  - end_bracket: )
+  - comma: ','
+  - end_bracket: )
+  - semicolon: ;

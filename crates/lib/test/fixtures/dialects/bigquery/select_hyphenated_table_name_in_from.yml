@@ -1,0 +1,168 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: project
+    - unparsable:
+      - minus: '-'
+      - word: a
+      - dot: .
+      - word: dataset
+      - minus: '-'
+      - word: b
+      - dot: .
+      - word: table
+      - minus: '-'
+      - word: c
+      - word: JOIN
+      - word: dataset
+      - minus: '-'
+      - word: c
+      - dot: .
+      - word: table
+      - minus: '-'
+      - word: d
+      - word: USING
+      - bracketed:
+        - start_bracket: (
+        - word: a
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: a
+    - unparsable:
+      - minus: '-'
+      - word: 1a
+      - dot: .
+      - word: b
+      - dot: .
+      - word: c
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: a
+    - unparsable:
+      - minus: '-'
+      - numeric_literal: '1'
+      - dot: .
+      - word: b
+      - dot: .
+      - word: c
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: project23
+    - unparsable:
+      - minus: '-'
+      - numeric_literal: '123'
+      - dot: .
+      - word: dataset7
+      - minus: '-'
+      - word: b1
+      - dot: .
+      - word: table
+      - minus: '-'
+      - word: 2c
+      - word: JOIN
+      - word: dataset12
+      - minus: '-'
+      - word: c1
+      - dot: .
+      - word: table
+      - minus: '-'
+      - word: 1d
+      - word: USING
+      - bracketed:
+        - start_bracket: (
+        - word: a
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: col1
+          - remove me: '-'
+          - column_reference:
+            - naked_identifier: col2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: newcol1
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: col1
+          - remove me: '-'
+          - column_reference:
+            - naked_identifier: col2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: newcol2
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: table
+    - unparsable:
+      - minus: '-'
+      - word: a123
+- statement_terminator: ;

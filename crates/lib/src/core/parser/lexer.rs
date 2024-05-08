@@ -283,7 +283,7 @@ impl<SegmentArgs: Clone + Debug> Display for StringLexer<SegmentArgs> {
 
 impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
     fn get_name(&self) -> String {
-        self.template.to_string()
+        self.name.to_string()
     }
 
     /// Given a string, match what we can and return the rest.
@@ -381,7 +381,7 @@ impl<SegmentArgs: Clone + Debug> Display for RegexLexer<SegmentArgs> {
 
 impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
     fn get_name(&self) -> String {
-        self.template.as_str().to_string()
+        self.name.to_string()
     }
 
     /// Given a string, match what we can and return the rest.

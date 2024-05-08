@@ -1,0 +1,118 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: client
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: firstHtml
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: vary
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: IF
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: _cdn_provider
+              - comparison_operator:
+                - remove me: '!'
+                - raw_comparison_operator: =
+              - remove me: ''''''
+            - comma: ','
+            - expression:
+              - remove me: '''CDN'''
+            - comma: ','
+            - expression:
+              - remove me: '''Origin'''
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: source
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '0'
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: total
+    - unparsable:
+      - keyword: FROM
+      - back_quote: '`httparchive.almanac.requests`'
+      - comma: ','
+      - word: UNNEST
+      - start_bracket: (
+      - word: split
+      - start_bracket: (
+      - word: REGEXP_REPLACE
+      - start_bracket: (
+      - word: REGEXP_REPLACE
+      - start_bracket: (
+      - word: LOWER
+      - start_bracket: (
+      - word: resp_vary
+      - end_bracket: )
+      - comma: ','
+      - single_quote: '''\"'''
+      - comma: ','
+      - single_quote: ''''''
+      - end_bracket: )
+      - comma: ','
+      - single_quote: '''[, ]+|\\\\0'''
+      - comma: ','
+      - single_quote: ''','''
+      - end_bracket: )
+      - comma: ','
+      - single_quote: ''','''
+      - end_bracket: )
+      - end_bracket: )
+      - word: AS
+      - word: vary
+      - word: WHERE
+      - word: date
+      - equals: =
+      - single_quote: '''2019-07-01'''
+      - word: GROUP
+      - word: BY
+      - word: client
+      - comma: ','
+      - word: firstHtml
+      - comma: ','
+      - word: vary
+      - comma: ','
+      - word: source
+      - word: HAVING
+      - word: vary
+      - not: '!'
+      - equals: =
+      - single_quote: ''''''
+      - word: AND
+      - word: vary
+      - word: IS
+      - word: NOT
+      - word: 'NULL'
+      - word: ORDER
+      - word: BY
+      - word: client
+      - word: DESC
+      - comma: ','
+      - word: firstHtml
+      - word: DESC
+      - comma: ','
+      - word: total
+      - word: DESC

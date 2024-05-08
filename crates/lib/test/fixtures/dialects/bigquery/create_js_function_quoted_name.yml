@@ -1,0 +1,28 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: TEMP
+  - word: FUNCTION
+  - word: qs
+  - start_bracket: (
+  - word: y
+  - word: STRING
+  - end_bracket: )
+  - word: RETURNS
+  - word: STRUCT
+  - less_than: <
+  - back_quote: '`$=`'
+  - word: ARRAY
+  - less_than: <
+  - word: INT64
+  - greater_than: '>'
+  - greater_than: '>'
+  - word: LANGUAGE
+  - word: js
+  - word: AS
+  - double_quote: '""'
+  - double_quote: |-
+      "
+          CODE GOES HERE
+      "
+  - double_quote: '""'

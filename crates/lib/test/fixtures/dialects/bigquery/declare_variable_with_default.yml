@@ -1,0 +1,25 @@
+file:
+- unparsable:
+  - word: declare
+  - word: var5
+  - word: date
+  - word: default
+  - word: CURRENT_DATE
+  - start_bracket: (
+  - end_bracket: )
+  - semicolon: ;
+  - word: declare
+  - word: var4
+  - word: int64
+  - word: default
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: declare
+  - word: var3
+  - word: string
+  - word: default
+  - start_bracket: (
+  - word: SELECT
+  - double_quote: '"x"'
+  - end_bracket: )
+  - semicolon: ;

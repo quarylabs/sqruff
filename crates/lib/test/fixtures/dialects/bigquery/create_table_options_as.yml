@@ -1,0 +1,20 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: OR
+  - word: REPLACE
+  - word: TABLE
+  - word: foo
+  - word: OPTIONS
+  - start_bracket: (
+  - word: description
+  - equals: =
+  - single_quote: '''copy of bar'''
+  - end_bracket: )
+  - word: AS
+  - start_bracket: (
+  - word: SELECT
+  - star: '*'
+  - word: from
+  - word: bar
+  - end_bracket: )

@@ -1,0 +1,66 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: is_sensitive
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: breach_date
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: total_number_of_affected_accounts
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: SUM
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: total_number_of_affected_accounts
+            - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: is_sensitive
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: is_sensitive
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: breach_date
+                - frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - keyword: UNBOUNDED
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+              - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: cumulative_number_of_affected_accounts
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: table1

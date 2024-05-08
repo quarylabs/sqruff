@@ -1,0 +1,95 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: number1
+- unparsable:
+  - set_operator:
+    - keyword: EXCEPT
+  - word: DISTINCT
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number2
+  - semicolon: ;
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number1
+  - end_bracket: )
+  - word: INTERSECT
+  - word: DISTINCT
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number2
+  - end_bracket: )
+  - semicolon: ;
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number1
+  - end_bracket: )
+  - word: UNION
+  - word: DISTINCT
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number2
+  - end_bracket: )
+  - semicolon: ;
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number1
+  - word: UNION
+  - word: ALL
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number2
+  - end_bracket: )
+  - semicolon: ;
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number1
+  - word: UNION
+  - word: ALL
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number2
+  - end_bracket: )
+  - word: UNION
+  - word: ALL
+  - start_bracket: (
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number3
+  - word: UNION
+  - word: ALL
+  - word: SELECT
+  - word: c
+  - word: FROM
+  - word: number4
+  - end_bracket: )
+  - semicolon: ;

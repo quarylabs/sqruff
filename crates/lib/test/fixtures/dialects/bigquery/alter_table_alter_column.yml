@@ -1,0 +1,71 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: mydataset
+        - dot: .
+        - naked_identifier: mytable
+    - '': ALTER
+    - naked_identifier: COLUMN
+- unparsable:
+  - word: IF
+  - word: EXISTS
+  - word: A
+  - word: SET
+  - word: OPTIONS
+  - start_bracket: (
+  - word: description
+  - equals: =
+  - single_quote: '''some description here'''
+  - end_bracket: )
+  - comma: ','
+  - word: ALTER
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: B
+  - word: DROP
+  - word: NOT
+  - word: 'NULL'
+  - comma: ','
+  - word: ALTER
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: C
+  - word: DROP
+  - word: DEFAULT
+  - comma: ','
+  - word: ALTER
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: D
+  - word: SET
+  - word: DATA
+  - word: TYPE
+  - word: FLOAT64
+  - comma: ','
+  - word: ALTER
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: E
+  - word: SET
+  - word: DEFAULT
+  - numeric_literal: '0'
+  - comma: ','
+  - word: ALTER
+  - word: COLUMN
+  - word: IF
+  - word: EXISTS
+  - word: F
+  - word: SET
+  - word: DEFAULT
+  - word: CURRENT_TIMESTAMP
+  - start_bracket: (
+  - end_bracket: )
+  - semicolon: ;

@@ -1,0 +1,21 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ST_GEOGFROMGEOJSON
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - remove me: '''{"type":"LineString","coordinates":[[1,2],[4,5]]}'''
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: make_valid
+            - unparsable:
+              - '': =>
+              - word: 'true'
+            - end_bracket: )

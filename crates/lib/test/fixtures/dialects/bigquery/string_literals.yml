@@ -1,0 +1,156 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '""'
+      - comma: ','
+      - select_clause_element:
+        - remove me: ''''''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"abc"'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"it''s"'
+      - comma: ','
+      - select_clause_element:
+        - remove me: '''it\''s'''
+      - comma: ','
+      - select_clause_element:
+        - remove me: '''Title: "Boy"'''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"test \"escaped\""'
+      - comma: ','
+      - select_clause_element:
+        - remove me: '''test \''escaped\'''''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"test \\\"escaped"'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"test \"escaped\\\""'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: r
+        - alias_expression:
+          - quoted_identifier: '""'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': r
+          - remove me: ''''''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: r
+        - alias_expression:
+          - quoted_identifier: '"abc+"'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: R
+        - alias_expression:
+          - quoted_identifier: '"abc+"'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': r
+          - remove me: '''abc+'''
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': R
+          - remove me: '''abc+'''
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': r
+          - remove me: '''f\(abc, (.*),def\)'''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: r
+        - alias_expression:
+          - quoted_identifier: '"f\(abc, (.*),def\)"'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': b
+          - remove me: '''abc'''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: B
+        - alias_expression:
+          - quoted_identifier: '"abc"'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: rb
+        - alias_expression:
+          - quoted_identifier: '"abc*"'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: rB
+        - alias_expression:
+          - quoted_identifier: '"abc*"'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': Rb
+          - remove me: '''abc*'''
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': br
+          - remove me: '''abc+'''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: RB
+        - alias_expression:
+          - quoted_identifier: '"abc+"'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': r
+          - remove me: ''''''' as foo ''''  bar '''''''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: B
+        - alias_expression:
+          - quoted_identifier: '""'
+      - unparsable:
+        - double_quote: '" triple '''''' quoted '''' "'
+        - double_quote: '" string are "'
+        - double_quote: '""'
+        - word: as
+        - word: hard
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dummy

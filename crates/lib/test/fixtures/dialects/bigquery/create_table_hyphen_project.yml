@@ -1,0 +1,30 @@
+file:
+- unparsable:
+  - word: CREATE
+  - word: OR
+  - word: REPLACE
+  - word: TABLE
+  - word: project
+  - minus: '-'
+  - word: name
+  - dot: .
+  - word: dataset_name
+  - dot: .
+  - word: table_name
+  - start_bracket: (
+  - word: x
+  - word: INT64
+  - word: OPTIONS
+  - start_bracket: (
+  - word: description
+  - equals: =
+  - double_quote: '"An INTEGER field"'
+  - end_bracket: )
+  - end_bracket: )
+  - word: PARTITION
+  - word: BY
+  - word: DATE
+  - start_bracket: (
+  - word: import_ts
+  - end_bracket: )
+  - semicolon: ;

@@ -1,0 +1,38 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: i
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: offset
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: UNNEST
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - array_literal:
+                    - remove me: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - numeric_literal: '3'
+                    - remove me: ']'
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: i
+    - unparsable:
+      - word: WITH
+      - word: OFFSET

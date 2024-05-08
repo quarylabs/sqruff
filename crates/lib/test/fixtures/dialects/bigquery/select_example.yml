@@ -1,0 +1,266 @@
+file:
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - naked_identifier: age_buckets_bit_array
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: bucket_id
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: num_ranges
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: min_age
+            - comma: ','
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: ARRAY
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: CAST
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: num
+                              - keyword: AS
+                              - data_type:
+                                - '': INT64
+                              - end_bracket: )
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression_element:
+                            - table_expression:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: UNNEST
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - function:
+                                      - function_name:
+                                        - function_name_identifier: SPLIT
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - expression:
+                                          - column_reference:
+                                            - naked_identifier: binary
+                                        - comma: ','
+                                        - expression:
+                                          - remove me: ''''''
+                                        - end_bracket: )
+                                  - end_bracket: )
+                            - alias_expression:
+                              - keyword: AS
+                              - naked_identifier: num
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: bits
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: age_label
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: age_buckets
+        - end_bracket: )
+    - comma: ','
+    - common_table_expression:
+      - naked_identifier: bucket_abundance
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: bucket_id
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: count_18_24
+                      - remove me: '*'
+                      - column_reference:
+                        - naked_identifier: bits
+                      - array_accessor:
+                        - remove me: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '0'
+                              - end_bracket: )
+                        - remove me: ']'
+                      - binary_operator: +
+                      - column_reference:
+                        - naked_identifier: count_25_34
+                      - remove me: '*'
+                      - column_reference:
+                        - naked_identifier: bits
+                      - array_accessor:
+                        - remove me: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '1'
+                              - end_bracket: )
+                        - remove me: ']'
+                      - binary_operator: +
+                      - column_reference:
+                        - naked_identifier: count_35_44
+                      - remove me: '*'
+                      - column_reference:
+                        - naked_identifier: bits
+                      - array_accessor:
+                        - remove me: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '2'
+                              - end_bracket: )
+                        - remove me: ']'
+                      - binary_operator: +
+                      - column_reference:
+                        - naked_identifier: count_45_54
+                      - remove me: '*'
+                      - column_reference:
+                        - naked_identifier: bits
+                      - array_accessor:
+                        - remove me: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '3'
+                              - end_bracket: )
+                        - remove me: ']'
+                      - binary_operator: +
+                      - column_reference:
+                        - naked_identifier: count_55_64
+                      - remove me: '*'
+                      - column_reference:
+                        - naked_identifier: bits
+                      - array_accessor:
+                        - remove me: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '4'
+                              - end_bracket: )
+                        - remove me: ']'
+                      - binary_operator: +
+                      - column_reference:
+                        - naked_identifier: count_65_plus
+                      - remove me: '*'
+                      - column_reference:
+                        - naked_identifier: bits
+                      - array_accessor:
+                        - remove me: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - numeric_literal: '5'
+                              - end_bracket: )
+                        - remove me: ']'
+                    - end_bracket: )
+                - remove me: /
+                - column_reference:
+                  - naked_identifier: audience_size
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: relative_abundance
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: audience_counts_gender_age
+              - join_clause:
+                - keyword: CROSS
+                - keyword: JOIN
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: age_buckets_bit_array
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: age_buckets_bit_array
+          - join_clause:
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: bucket_abundance
+            - keyword: USING
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: bucket_id
+              - end_bracket: )

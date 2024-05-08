@@ -1,0 +1,16 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: mydataset
+        - dot: .
+        - naked_identifier: mytable
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: mynewtable
+- statement_terminator: ;

@@ -1,0 +1,29 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: GENERATE_DATE_ARRAY
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - keyword: DATE
+              - numeric_literal: '''2010-01-01'''
+            - comma: ','
+            - expression:
+              - keyword: DATE
+              - numeric_literal: '''2010-01-31'''
+            - comma: ','
+            - expression:
+              - keyword: INTERVAL
+              - numeric_literal: '''7'''
+            - expression:
+              - column_reference:
+                - naked_identifier: DAY
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: my_array

@@ -1,0 +1,130 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: testFunction
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: a
+            - end_bracket: )
+      - unparsable:
+        - dot: .
+        - word: b
+        - word: AS
+        - word: field
+        - comma: ','
+        - word: testFunction
+        - bracketed:
+          - start_bracket: (
+          - word: a
+          - end_bracket: )
+        - dot: .
+        - star: '*'
+        - word: AS
+        - word: wildcard
+        - comma: ','
+        - word: testFunction
+        - bracketed:
+          - start_bracket: (
+          - word: a
+          - end_bracket: )
+        - dot: .
+        - word: b
+        - dot: .
+        - word: c
+        - word: AS
+        - word: field_with_field
+        - comma: ','
+        - word: testFunction
+        - bracketed:
+          - start_bracket: (
+          - word: a
+          - end_bracket: )
+        - dot: .
+        - word: b
+        - dot: .
+        - star: '*'
+        - word: AS
+        - word: field_with_wildcard
+        - comma: ','
+        - word: testFunction
+        - bracketed:
+          - start_bracket: (
+          - word: a
+          - end_bracket: )
+        - remove me: '['
+        - word: OFFSET
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0'
+          - end_bracket: )
+        - remove me: ']'
+        - dot: .
+        - star: '*'
+        - word: AS
+        - word: field_with_offset_wildcard
+        - comma: ','
+        - word: testFunction
+        - bracketed:
+          - start_bracket: (
+          - word: a
+          - end_bracket: )
+        - remove me: '['
+        - word: SAFE_OFFSET
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '0'
+          - end_bracket: )
+        - remove me: ']'
+        - dot: .
+        - star: '*'
+        - word: AS
+        - word: field_with_safe_offset_wildcard
+        - comma: ','
+        - word: testFunction
+        - bracketed:
+          - start_bracket: (
+          - word: a
+          - end_bracket: )
+        - remove me: '['
+        - word: ORDINAL
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - end_bracket: )
+        - remove me: ']'
+        - dot: .
+        - star: '*'
+        - word: AS
+        - word: field_with_ordinal_wildcard
+        - comma: ','
+        - word: testFunction
+        - bracketed:
+          - start_bracket: (
+          - word: a
+          - end_bracket: )
+        - remove me: '['
+        - word: ORDINAL
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - end_bracket: )
+        - remove me: ']'
+        - dot: .
+        - word: a
+        - word: AS
+        - word: field_with_ordinal_field
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: table1

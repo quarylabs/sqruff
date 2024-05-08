@@ -1,0 +1,76 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+- unparsable:
+  - set_operator:
+    - keyword: EXCEPT
+  - start_bracket: (
+  - word: seqnum
+  - end_bracket: )
+  - word: REPLACE
+  - start_bracket: (
+  - word: foo
+  - word: as
+  - word: bar
+  - comma: ','
+  - word: baz
+  - word: foobar
+  - end_bracket: )
+  - word: FROM
+  - word: my_tbl
+  - semicolon: ;
+  - word: select
+  - star: '*'
+  - word: except
+  - start_bracket: (
+  - word: foo
+  - end_bracket: )
+  - word: from
+  - word: some_table
+  - word: union
+  - word: all
+  - word: select
+  - star: '*'
+  - word: from
+  - word: another_table
+  - semicolon: ;
+  - word: select
+  - numeric_literal: '1'
+  - plus: +
+  - numeric_literal: '2'
+  - word: as
+  - word: calculated
+  - comma: ','
+  - star: '*'
+  - word: except
+  - start_bracket: (
+  - word: irrelevant
+  - end_bracket: )
+  - word: from
+  - word: my_tbl
+  - semicolon: ;
+  - word: select
+  - word: foo
+  - dot: .
+  - star: '*'
+  - word: except
+  - start_bracket: (
+  - word: some_column
+  - end_bracket: )
+  - comma: ','
+  - word: bar
+  - dot: .
+  - star: '*'
+  - word: except
+  - start_bracket: (
+  - word: other_column
+  - end_bracket: )
+  - word: from
+  - word: my_tbl
+  - semicolon: ;

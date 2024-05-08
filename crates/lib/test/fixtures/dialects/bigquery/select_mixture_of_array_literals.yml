@@ -1,0 +1,138 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - array_literal:
+          - remove me: '['
+          - remove me: ']'
+      - comma: ','
+      - select_clause_element:
+        - array_literal:
+          - remove me: '['
+          - boolean_literal: 'false'
+          - remove me: ']'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: ARRAY
+          - less_than: <
+          - column_reference:
+            - naked_identifier: BOOLEAN
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - array_literal:
+            - remove me: '['
+            - boolean_literal: 'false'
+            - remove me: ']'
+      - comma: ','
+      - select_clause_element:
+        - array_literal:
+          - remove me: '['
+          - remove me: '''a'''
+          - remove me: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: strcol1
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: ARRAY
+          - less_than: <
+          - column_reference:
+            - naked_identifier: string
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - array_literal:
+            - remove me: '['
+            - remove me: '''b'''
+            - remove me: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: strcol2
+      - comma: ','
+      - select_clause_element:
+        - array_literal:
+          - remove me: '['
+          - numeric_literal: '1.0'
+          - remove me: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: numcol1
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: ARRAY
+          - less_than: <
+          - column_reference:
+            - naked_identifier: NUMERIC
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - array_literal:
+            - remove me: '['
+            - numeric_literal: '1.4'
+            - remove me: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: numcol2
+      - comma: ','
+      - select_clause_element:
+        - array_literal:
+          - remove me: '['
+          - function:
+            - function_name:
+              - function_name_identifier: STRUCT
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - quoted_identifier: '"Rudisha"'
+              - keyword: AS
+              - data_type:
+                - '': name
+              - unparsable:
+                - comma: ','
+                - remove me: '['
+                - numeric_literal: '23.4'
+                - comma: ','
+                - numeric_literal: '26.3'
+                - comma: ','
+                - numeric_literal: '26.4'
+                - comma: ','
+                - numeric_literal: '26.1'
+                - remove me: ']'
+                - word: AS
+                - word: splits
+              - end_bracket: )
+          - remove me: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: struct1
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: col1
+            - dot: .
+            - naked_identifier: obj1
+          - array_accessor:
+            - remove me: '['
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: safe_offset
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                  - end_bracket: )
+            - remove me: ']'
+      - unparsable:
+        - dot: .
+        - word: a
+        - word: AS
+        - word: struct_safe_offset

@@ -75,7 +75,8 @@ file:
                   - expression:
                     - interval_expression:
                       - keyword: INTERVAL
-                      - numeric_literal: '2'
+                      - expression:
+                        - numeric_literal: '2'
                       - date_part: YEAR
                   - end_bracket: )
             - comma: ','

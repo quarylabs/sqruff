@@ -1,7 +1,7 @@
 file:
 - statement:
   - set_expression:
-    - select_statement:
+    - unordered_select_statement:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
@@ -54,16 +54,19 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - remove me: '''vegetable'''
-      - unparsable:
-        - word: QUALIFY
-        - word: rank
-        - less_than: <
-        - equals: =
-        - numeric_literal: '3'
+      - qualify_clause:
+        - keyword: QUALIFY
+        - expression:
+          - column_reference:
+            - naked_identifier: rank
+          - less_than_or_equal_to:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: =
+          - numeric_literal: '3'
     - set_operator:
       - keyword: UNION
       - keyword: ALL
-    - select_statement:
+    - unordered_select_statement:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
@@ -116,9 +119,12 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - remove me: '''vegetable'''
-      - unparsable:
-        - word: QUALIFY
-        - word: rank
-        - less_than: <
-        - equals: =
-        - numeric_literal: '3'
+      - qualify_clause:
+        - keyword: QUALIFY
+        - expression:
+          - column_reference:
+            - naked_identifier: rank
+          - less_than_or_equal_to:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: =
+          - numeric_literal: '3'

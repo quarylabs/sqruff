@@ -106,7 +106,7 @@ impl Matchable for BaseGrammar {
 #[derive(Clone)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Ref {
-    reference: Cow<'static, str>,
+    pub(crate) reference: Cow<'static, str>,
     exclude: Option<Rc<dyn Matchable>>,
     terminators: Vec<Rc<dyn Matchable>>,
     reset_terminators: bool,

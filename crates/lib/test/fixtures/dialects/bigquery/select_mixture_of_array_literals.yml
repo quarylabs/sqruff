@@ -15,14 +15,13 @@ file:
           - remove me: ']'
       - comma: ','
       - select_clause_element:
-        - expression:
-          - column_reference:
-            - naked_identifier: ARRAY
-          - less_than: <
-          - column_reference:
-            - naked_identifier: BOOLEAN
-          - comparison_operator:
-            - raw_comparison_operator: '>'
+        - typed_array_literal:
+          - array_type:
+            - keyword: ARRAY
+            - remove me: <
+            - data_type:
+              - '': BOOLEAN
+            - remove me: '>'
           - array_literal:
             - remove me: '['
             - boolean_literal: 'false'
@@ -38,14 +37,13 @@ file:
           - naked_identifier: strcol1
       - comma: ','
       - select_clause_element:
-        - expression:
-          - column_reference:
-            - naked_identifier: ARRAY
-          - less_than: <
-          - column_reference:
-            - naked_identifier: string
-          - comparison_operator:
-            - raw_comparison_operator: '>'
+        - typed_array_literal:
+          - array_type:
+            - keyword: ARRAY
+            - remove me: <
+            - data_type:
+              - '': string
+            - remove me: '>'
           - array_literal:
             - remove me: '['
             - remove me: '''b'''
@@ -64,14 +62,13 @@ file:
           - naked_identifier: numcol1
       - comma: ','
       - select_clause_element:
-        - expression:
-          - column_reference:
-            - naked_identifier: ARRAY
-          - less_than: <
-          - column_reference:
-            - naked_identifier: NUMERIC
-          - comparison_operator:
-            - raw_comparison_operator: '>'
+        - typed_array_literal:
+          - array_type:
+            - keyword: ARRAY
+            - remove me: <
+            - data_type:
+              - '': NUMERIC
+            - remove me: '>'
           - array_literal:
             - remove me: '['
             - numeric_literal: '1.4'

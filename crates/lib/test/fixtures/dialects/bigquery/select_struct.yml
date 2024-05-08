@@ -19,13 +19,13 @@ file:
               - select_statement:
                 - select_clause:
                   - keyword: select
+                  - select_clause_modifier:
+                    - keyword: as
+                    - keyword: struct
                   - select_clause_element:
-                    - column_reference:
-                      - naked_identifier: as
-                    - alias_expression:
-                      - naked_identifier: struct
-                  - unparsable:
-                    - star: '*'
+                    - wildcard_expression:
+                      - wildcard_identifier:
+                        - star: '*'
                 - from_clause:
                   - keyword: from
                   - from_expression:
@@ -61,19 +61,20 @@ file:
   - select_statement:
     - select_clause:
       - keyword: select
+      - select_clause_modifier:
+        - keyword: as
+        - keyword: struct
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: as
+        - remove me: '''1'''
         - alias_expression:
-          - naked_identifier: struct
-      - unparsable:
-        - single_quote: '''1'''
-        - word: as
-        - word: bb
-        - comma: ','
+          - keyword: as
+          - naked_identifier: bb
+      - comma: ','
+      - select_clause_element:
         - numeric_literal: '2'
-        - word: as
-        - word: aa
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: aa
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -81,19 +82,19 @@ file:
       - keyword: select
       - select_clause_modifier:
         - keyword: distinct
+        - keyword: as
+        - keyword: struct
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: as
+        - remove me: '''1'''
         - alias_expression:
-          - naked_identifier: struct
-      - unparsable:
-        - single_quote: '''1'''
-        - word: as
-        - word: bb
-        - comma: ','
+          - keyword: as
+          - naked_identifier: bb
+      - comma: ','
+      - select_clause_element:
         - numeric_literal: '2'
-        - word: as
-        - word: aa
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: aa
 - statement_terminator: ;
 - statement:
   - select_statement:

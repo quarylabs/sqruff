@@ -38,9 +38,6 @@ impl Dialect {
         &mut self,
         iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)> + Clone,
     ) {
-        #[cfg(debug_assertions)]
-        check_unique_names(self, &iter.clone().into_iter().collect::<Vec<_>>());
-
         self.library.extend(iter);
     }
 
@@ -235,17 +232,6 @@ impl Dialect {
 
     pub fn get_root_segment(&self) -> Rc<dyn Matchable> {
         self.r#ref(self.root_segment_name())
-    }
-}
-
-#[cfg(debug_assertions)]
-fn check_unique_names(dialect: &Dialect, xs: &[(Cow<'static, str>, DialectElementType)]) {
-    let mut names = AHashSet::new();
-
-    for (name, _) in xs {
-        assert!(names.insert(name), "ERROR: the name {name} is already registered.");
-
-        assert!(!dialect.library.contains_key(name), "ERROR: the name '{}' is repeated.", name);
     }
 }
 

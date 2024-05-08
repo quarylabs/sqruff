@@ -7,70 +7,136 @@ file:
         - wildcard_expression:
           - wildcard_identifier:
             - star: '*'
-- unparsable:
-  - set_operator:
-    - keyword: EXCEPT
-  - start_bracket: (
-  - word: seqnum
-  - end_bracket: )
-  - word: REPLACE
-  - start_bracket: (
-  - word: foo
-  - word: as
-  - word: bar
-  - comma: ','
-  - word: baz
-  - word: foobar
-  - end_bracket: )
-  - word: FROM
-  - word: my_tbl
-  - semicolon: ;
-  - word: select
-  - star: '*'
-  - word: except
-  - start_bracket: (
-  - word: foo
-  - end_bracket: )
-  - word: from
-  - word: some_table
-  - word: union
-  - word: all
-  - word: select
-  - star: '*'
-  - word: from
-  - word: another_table
-  - semicolon: ;
-  - word: select
-  - numeric_literal: '1'
-  - plus: +
-  - numeric_literal: '2'
-  - word: as
-  - word: calculated
-  - comma: ','
-  - star: '*'
-  - word: except
-  - start_bracket: (
-  - word: irrelevant
-  - end_bracket: )
-  - word: from
-  - word: my_tbl
-  - semicolon: ;
-  - word: select
-  - word: foo
-  - dot: .
-  - star: '*'
-  - word: except
-  - start_bracket: (
-  - word: some_column
-  - end_bracket: )
-  - comma: ','
-  - word: bar
-  - dot: .
-  - star: '*'
-  - word: except
-  - start_bracket: (
-  - word: other_column
-  - end_bracket: )
-  - word: from
-  - word: my_tbl
-  - semicolon: ;
+      - unparsable:
+        - word: EXCEPT
+        - bracketed:
+          - start_bracket: (
+          - word: seqnum
+          - end_bracket: )
+        - word: REPLACE
+        - bracketed:
+          - start_bracket: (
+          - word: foo
+          - word: as
+          - word: bar
+          - comma: ','
+          - word: baz
+          - word: foobar
+          - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_tbl
+- statement_terminator: ;
+- statement:
+  - set_expression:
+    - unordered_select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+        - unparsable:
+          - word: except
+          - bracketed:
+            - start_bracket: (
+            - word: foo
+            - end_bracket: )
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: some_table
+    - set_operator:
+      - keyword: union
+      - keyword: all
+    - unordered_select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: another_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: calculated
+      - comma: ','
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+      - unparsable:
+        - word: except
+        - bracketed:
+          - start_bracket: (
+          - word: irrelevant
+          - end_bracket: )
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_tbl
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - naked_identifier: foo
+          - dot: .
+          - star: '*'
+        - alias_expression:
+          - naked_identifier: except
+      - unparsable:
+        - bracketed:
+          - start_bracket: (
+          - word: some_column
+          - end_bracket: )
+        - comma: ','
+        - word: bar
+        - dot: .
+        - star: '*'
+        - word: except
+        - bracketed:
+          - start_bracket: (
+          - word: other_column
+          - end_bracket: )
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_tbl
+- statement_terminator: ;

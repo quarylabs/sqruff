@@ -12,7 +12,7 @@ file:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
-                - remove me: '''Kale'''
+                - numeric_literal: '''Kale'''
                 - alias_expression:
                   - keyword: as
                   - naked_identifier: product
@@ -47,7 +47,7 @@ file:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
-                - remove me: '''Apple'''
+                - numeric_literal: '''Apple'''
               - comma: ','
               - select_clause_element:
                 - numeric_literal: '77'
@@ -75,332 +75,218 @@ file:
             - table_expression:
               - table_reference:
                 - naked_identifier: Produce
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: Produce
-          - alias_expression:
-            - naked_identifier: UNPIVOT
-    - unparsable:
-      - bracketed:
+      - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - star: '*'
+        - word: FROM
+        - word: Produce
+        - word: UNPIVOT
         - start_bracket: (
         - word: sales
         - word: FOR
         - word: quarter
         - word: IN
-        - bracketed:
-          - start_bracket: (
-          - word: Q1
-          - comma: ','
-          - word: Q2
-          - comma: ','
-          - word: Q3
-          - comma: ','
-          - word: Q4
-          - end_bracket: )
+        - start_bracket: (
+        - word: Q1
+        - comma: ','
+        - word: Q2
+        - comma: ','
+        - word: Q3
+        - comma: ','
+        - word: Q4
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: Produce
-          - alias_expression:
-            - naked_identifier: UNPIVOT
-    - unparsable:
-      - bracketed:
+        - end_bracket: )
+        - semicolon: ;
+        - word: SELECT
+        - star: '*'
+        - word: FROM
+        - word: Produce
+        - word: UNPIVOT
         - start_bracket: (
         - word: sales
         - word: FOR
         - word: quarter
         - word: IN
-        - bracketed:
-          - start_bracket: (
-          - word: Q1
-          - word: AS
-          - numeric_literal: '1'
-          - comma: ','
-          - word: Q2
-          - word: AS
-          - numeric_literal: '2'
-          - comma: ','
-          - word: Q3
-          - word: AS
-          - numeric_literal: '3'
-          - comma: ','
-          - word: Q4
-          - word: AS
-          - numeric_literal: '4'
-          - end_bracket: )
+        - start_bracket: (
+        - word: Q1
+        - word: AS
+        - numeric_literal: '1'
+        - comma: ','
+        - word: Q2
+        - word: AS
+        - numeric_literal: '2'
+        - comma: ','
+        - word: Q3
+        - word: AS
+        - numeric_literal: '3'
+        - comma: ','
+        - word: Q4
+        - word: AS
+        - numeric_literal: '4'
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: Produce
-          - alias_expression:
-            - naked_identifier: UNPIVOT
-    - unparsable:
-      - word: INCLUDE
-      - word: NULLS
-      - bracketed:
+        - end_bracket: )
+        - semicolon: ;
+        - word: SELECT
+        - star: '*'
+        - word: FROM
+        - word: Produce
+        - word: UNPIVOT
+        - word: INCLUDE
+        - word: NULLS
         - start_bracket: (
         - word: sales
         - word: FOR
         - word: quarter
         - word: IN
-        - bracketed:
-          - start_bracket: (
-          - word: Q1
-          - comma: ','
-          - word: Q2
-          - comma: ','
-          - word: Q3
-          - comma: ','
-          - word: Q4
-          - end_bracket: )
+        - start_bracket: (
+        - word: Q1
+        - comma: ','
+        - word: Q2
+        - comma: ','
+        - word: Q3
+        - comma: ','
+        - word: Q4
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: Produce
-          - alias_expression:
-            - naked_identifier: UNPIVOT
-    - unparsable:
-      - word: EXCLUDE
-      - word: NULLS
-      - bracketed:
+        - end_bracket: )
+        - semicolon: ;
+        - word: SELECT
+        - star: '*'
+        - word: FROM
+        - word: Produce
+        - word: UNPIVOT
+        - word: EXCLUDE
+        - word: NULLS
         - start_bracket: (
         - word: sales
         - word: FOR
         - word: quarter
         - word: IN
-        - bracketed:
-          - start_bracket: (
-          - word: Q1
-          - comma: ','
-          - word: Q2
-          - comma: ','
-          - word: Q3
-          - comma: ','
-          - word: Q4
-          - end_bracket: )
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: Produce
-          - alias_expression:
-            - naked_identifier: UNPIVOT
-    - unparsable:
-      - bracketed:
         - start_bracket: (
-        - bracketed:
-          - start_bracket: (
-          - word: first_half_sales
-          - comma: ','
-          - word: second_half_sales
-          - end_bracket: )
+        - word: Q1
+        - comma: ','
+        - word: Q2
+        - comma: ','
+        - word: Q3
+        - comma: ','
+        - word: Q4
+        - end_bracket: )
+        - end_bracket: )
+        - semicolon: ;
+        - word: SELECT
+        - star: '*'
+        - word: FROM
+        - word: Produce
+        - word: UNPIVOT
+        - start_bracket: (
+        - start_bracket: (
+        - word: first_half_sales
+        - comma: ','
+        - word: second_half_sales
+        - end_bracket: )
         - word: FOR
         - word: semesters
         - word: IN
-        - bracketed:
-          - start_bracket: (
-          - bracketed:
-            - start_bracket: (
-            - word: Q1
-            - comma: ','
-            - word: Q2
-            - end_bracket: )
-          - word: AS
-          - single_quote: '''semester_1'''
-          - comma: ','
-          - bracketed:
-            - start_bracket: (
-            - word: Q3
-            - comma: ','
-            - word: Q4
-            - end_bracket: )
-          - word: AS
-          - single_quote: '''semester_2'''
-          - end_bracket: )
+        - start_bracket: (
+        - start_bracket: (
+        - word: Q1
+        - comma: ','
+        - word: Q2
         - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: a
-      - unparsable:
+        - word: AS
+        - single_quote: '''semester_1'''
+        - comma: ','
+        - start_bracket: (
+        - word: Q3
+        - comma: ','
+        - word: Q4
+        - end_bracket: )
+        - word: AS
+        - single_quote: '''semester_2'''
+        - end_bracket: )
+        - end_bracket: )
+        - semicolon: ;
+        - word: SELECT
+        - word: a
         - word: AS
         - single_quote: '''barry'''
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: model
-          - alias_expression:
-            - naked_identifier: UNPIVOT
-    - unparsable:
-      - bracketed:
+        - word: FROM
+        - word: model
+        - word: UNPIVOT
         - start_bracket: (
-        - bracketed:
-          - start_bracket: (
-          - word: A
-          - comma: ','
-          - word: B
-          - end_bracket: )
+        - start_bracket: (
+        - word: A
+        - comma: ','
+        - word: B
+        - end_bracket: )
         - word: FOR
         - word: year
         - word: IN
-        - bracketed:
-          - start_bracket: (
-          - bracketed:
-            - start_bracket: (
-            - word: C
-            - comma: ','
-            - word: D
-            - end_bracket: )
-          - word: AS
-          - double_quote: '"year_2011"'
-          - comma: ','
-          - bracketed:
-            - start_bracket: (
-            - word: E
-            - comma: ','
-            - word: F
-            - end_bracket: )
-          - word: AS
-          - double_quote: '"year_2012"'
-          - end_bracket: )
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: foo
-          - alias_expression:
-            - naked_identifier: UNPIVOT
-    - unparsable:
-      - bracketed:
         - start_bracket: (
-        - bracketed:
-          - start_bracket: (
-          - word: bar2
-          - comma: ','
-          - word: bar3
-          - comma: ','
-          - word: bar4
-          - end_bracket: )
+        - start_bracket: (
+        - word: C
+        - comma: ','
+        - word: D
+        - end_bracket: )
+        - word: AS
+        - double_quote: '"year_2011"'
+        - comma: ','
+        - start_bracket: (
+        - word: E
+        - comma: ','
+        - word: F
+        - end_bracket: )
+        - word: AS
+        - double_quote: '"year_2012"'
+        - end_bracket: )
+        - end_bracket: )
+        - semicolon: ;
+        - word: SELECT
+        - star: '*'
+        - word: FROM
+        - word: foo
+        - word: UNPIVOT
+        - start_bracket: (
+        - start_bracket: (
+        - word: bar2
+        - comma: ','
+        - word: bar3
+        - comma: ','
+        - word: bar4
+        - end_bracket: )
         - word: FOR
         - word: year
         - word: IN
-        - bracketed:
-          - start_bracket: (
-          - bracketed:
-            - start_bracket: (
-            - word: foo1
-            - comma: ','
-            - word: foo2
-            - comma: ','
-            - word: foo3
-            - end_bracket: )
-          - word: AS
-          - numeric_literal: '1'
-          - comma: ','
-          - bracketed:
-            - start_bracket: (
-            - word: foo4
-            - comma: ','
-            - word: foo5
-            - comma: ','
-            - word: foo6
-            - end_bracket: )
-          - word: AS
-          - numeric_literal: '2'
-          - comma: ','
-          - bracketed:
-            - start_bracket: (
-            - word: foo7
-            - comma: ','
-            - word: foo8
-            - comma: ','
-            - word: foo9
-            - end_bracket: )
-          - word: AS
-          - numeric_literal: '3'
-          - end_bracket: )
+        - start_bracket: (
+        - start_bracket: (
+        - word: foo1
+        - comma: ','
+        - word: foo2
+        - comma: ','
+        - word: foo3
         - end_bracket: )
-- statement_terminator: ;
+        - word: AS
+        - numeric_literal: '1'
+        - comma: ','
+        - start_bracket: (
+        - word: foo4
+        - comma: ','
+        - word: foo5
+        - comma: ','
+        - word: foo6
+        - end_bracket: )
+        - word: AS
+        - numeric_literal: '2'
+        - comma: ','
+        - start_bracket: (
+        - word: foo7
+        - comma: ','
+        - word: foo8
+        - comma: ','
+        - word: foo9
+        - end_bracket: )
+        - word: AS
+        - numeric_literal: '3'
+        - end_bracket: )
+        - end_bracket: )
+        - semicolon: ;

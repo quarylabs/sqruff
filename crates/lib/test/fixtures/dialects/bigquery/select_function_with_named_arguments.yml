@@ -10,12 +10,11 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - remove me: '''{"type":"LineString","coordinates":[[1,2],[4,5]]}'''
+              - numeric_literal: '''{"type":"LineString","coordinates":[[1,2],[4,5]]}'''
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: make_valid
-            - unparsable:
-              - '': =>
-              - word: 'true'
+            - named_argument:
+              - naked_identifier: make_valid
+              - remove me: =>
+              - expression:
+                - boolean_literal: 'true'
             - end_bracket: )

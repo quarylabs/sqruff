@@ -66,7 +66,7 @@ file:
                                             - naked_identifier: binary
                                         - comma: ','
                                         - expression:
-                                          - remove me: ''''''
+                                          - numeric_literal: ''''''
                                         - end_bracket: )
                                   - end_bracket: )
                             - alias_expression:

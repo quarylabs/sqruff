@@ -3,43 +3,31 @@ file:
   - select_statement:
     - select_clause:
       - keyword: SELECT
-      - unparsable:
-        - word: _01
-    - unparsable:
-      - keyword: FROM
-      - word: _2010_01
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
       - select_clause_element:
         - column_reference:
-          - naked_identifier: col_a
-      - unparsable:
-        - word: AS
-        - word: _
+          - naked_identifier: _01
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - naked_identifier: table1
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
+              - naked_identifier: _2010_01
     - unparsable:
-      - keyword: FROM
+      - semicolon: ;
+      - word: SELECT
+      - word: col_a
+      - word: AS
+      - word: _
+      - word: FROM
+      - word: table1
+      - semicolon: ;
+      - word: SELECT
+      - star: '*'
+      - word: FROM
       - back_quote: '`data-customers-287`'
       - dot: .
       - word: mydatabase
       - dot: .
       - word: mytable
-- statement_terminator: ;
+      - semicolon: ;

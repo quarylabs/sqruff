@@ -17,10 +17,10 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': description
+        - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''some description here'''
+        - numeric_literal: '''some description here'''
         - end_bracket: )
     - comma: ','
     - keyword: ALTER

@@ -48,9 +48,7 @@ file:
                                       - dot: .
                                       - naked_identifier: eventTimestamp
                                   - comma: ','
-                                  - expression:
-                                    - column_reference:
-                                      - naked_identifier: SECOND
+                                  - date_part: SECOND
                                   - end_bracket: )
                               - remove me: /
                               - numeric_literal: '2'
@@ -61,9 +59,7 @@ file:
                       - date_part: second
                   - end_bracket: )
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: HOUR
+            - date_part: HOUR
             - end_bracket: )
         - alias_expression:
           - keyword: AS
@@ -117,4 +113,5 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: dummy
-- statement_terminator: ;
+    - unparsable:
+      - semicolon: ;

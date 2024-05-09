@@ -12,19 +12,19 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': format
+        - parameter: format
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''CSV'''
+        - numeric_literal: '''CSV'''
         - comma: ','
-        - '': uris
+        - parameter: uris
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
           - remove me: '['
-          - remove me: '''gs://bucket/path1.csv'''
+          - numeric_literal: '''gs://bucket/path1.csv'''
           - comma: ','
-          - remove me: '''gs://bucket/path2.csv'''
+          - numeric_literal: '''gs://bucket/path2.csv'''
           - remove me: ']'
         - end_bracket: )
 - statement_terminator: ;
@@ -55,25 +55,25 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': format
+        - parameter: format
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''CSV'''
+        - numeric_literal: '''CSV'''
         - comma: ','
-        - '': uris
+        - parameter: uris
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
           - remove me: '['
-          - remove me: '''gs://bucket/path1.csv'''
+          - numeric_literal: '''gs://bucket/path1.csv'''
           - remove me: ']'
         - comma: ','
-        - '': field_delimiter
+        - parameter: field_delimiter
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''|'''
+        - numeric_literal: '''|'''
         - comma: ','
-        - '': max_bad_records
+        - parameter: max_bad_records
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '5'
@@ -95,24 +95,24 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': uris
+        - parameter: uris
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
           - remove me: '['
-          - remove me: '''gs://bucket/path/*'''
+          - numeric_literal: '''gs://bucket/path/*'''
           - remove me: ']'
         - comma: ','
-        - '': format
+        - parameter: format
         - comparison_operator:
           - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: csv
         - comma: ','
-        - '': hive_partition_uri_prefix
+        - parameter: hive_partition_uri_prefix
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''gs://bucket/path'''
+        - numeric_literal: '''gs://bucket/path'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -143,24 +143,24 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': uris
+        - parameter: uris
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
           - remove me: '['
-          - remove me: '''gs://bucket/path/*'''
+          - numeric_literal: '''gs://bucket/path/*'''
           - remove me: ']'
         - comma: ','
-        - '': format
+        - parameter: format
         - comparison_operator:
           - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: csv
         - comma: ','
-        - '': hive_partition_uri_prefix
+        - parameter: hive_partition_uri_prefix
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''gs://bucket/path'''
+        - numeric_literal: '''gs://bucket/path'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -176,24 +176,24 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': uris
+        - parameter: uris
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
           - remove me: '['
-          - remove me: '''gs://bucket/path/*'''
+          - numeric_literal: '''gs://bucket/path/*'''
           - remove me: ']'
         - comma: ','
-        - '': format
+        - parameter: format
         - comparison_operator:
           - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: csv
         - comma: ','
-        - '': hive_partition_uri_prefix
+        - parameter: hive_partition_uri_prefix
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''gs://bucket/path'''
+        - numeric_literal: '''gs://bucket/path'''
         - end_bracket: )
     - keyword: WITH
     - keyword: PARTITION

@@ -30,7 +30,7 @@ file:
       - select_clause_element:
         - array_literal:
           - remove me: '['
-          - remove me: '''a'''
+          - numeric_literal: '''a'''
           - remove me: ']'
         - alias_expression:
           - keyword: AS
@@ -46,7 +46,7 @@ file:
             - remove me: '>'
           - array_literal:
             - remove me: '['
-            - remove me: '''b'''
+            - numeric_literal: '''b'''
             - remove me: ']'
         - alias_expression:
           - keyword: AS
@@ -86,8 +86,7 @@ file:
             - bracketed:
               - start_bracket: (
               - expression:
-                - column_reference:
-                  - quoted_identifier: '"Rudisha"'
+                - numeric_literal: '"Rudisha"'
               - keyword: AS
               - data_type:
                 - '': name
@@ -116,20 +115,21 @@ file:
             - naked_identifier: col1
             - dot: .
             - naked_identifier: obj1
-          - array_accessor:
-            - remove me: '['
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: safe_offset
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '1'
-                  - end_bracket: )
-            - remove me: ']'
-      - unparsable:
-        - dot: .
-        - word: a
-        - word: AS
-        - word: struct_safe_offset
+          - semi_structured_expression:
+            - array_accessor:
+              - remove me: '['
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: safe_offset
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
+              - remove me: ']'
+            - dot: .
+            - naked_identifier: a
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: struct_safe_offset

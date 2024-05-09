@@ -1909,11 +1909,14 @@ pub fn ansi_dialect() -> Dialect {
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
         HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
-        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment
+        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment
     );
 
     // This is a hook point to allow subclassing for other dialects
-    ansi_dialect.add([("PostTableExpressionGrammar".into(), Nothing::new().to_matchable().into())]);
+    ansi_dialect.add([
+        ("FileSegment".into(), FileSegment::default().to_matchable().into()),
+        ("PostTableExpressionGrammar".into(), Nothing::new().to_matchable().into()),
+    ]);
 
     ansi_dialect.expand();
     ansi_dialect
@@ -2634,7 +2637,8 @@ impl FileSegment {
         let match_result = parse_context.progress_bar(|this| {
             // NOTE: Don't call .match() on the segment class itself, but go
             // straight to the match grammar inside.
-            self.match_grammar().unwrap().match_segments(&segments[start_idx..end_idx], this)
+            let cls = this.dialect().r#ref("FileSegment");
+            cls.match_grammar().unwrap().match_segments(&segments[start_idx..end_idx], this)
         })?;
 
         let has_match = match_result.has_match();
@@ -3278,6 +3282,16 @@ impl NodeTrait for FromExpressionSegment {
     }
 }
 
+pub struct DatePartFunctionNameSegment;
+
+impl NodeTrait for DatePartFunctionNameSegment {
+    const TYPE: &'static str = "function_name";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Ref::new("DatePartFunctionName").to_matchable().into()
+    }
+}
+
 pub struct FromExpressionElementSegment;
 
 impl NodeTrait for FromExpressionElementSegment {
@@ -3762,9 +3776,15 @@ impl NodeTrait for AliasExpressionSegment {
         Sequence::new(vec_of_erased![
             MetaSegment::indent(),
             Ref::keyword("AS").optional(),
-            one_of(vec_of_erased![Sequence::new(vec_of_erased![Ref::new(
-                "SingleIdentifierGrammar"
-            )])]),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    // Column alias in VALUES clause
+                    Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierListSegment")])
+                        .config(|this| this.optional())
+                ]),
+                Ref::new("SingleQuotedIdentifierSegment")
+            ]),
             MetaSegment::dedent()
         ])
         .to_matchable()

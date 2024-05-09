@@ -1,36 +1,67 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: TEMP
-  - word: FUNCTION
-  - word: URLDECODE
-  - start_bracket: (
-  - word: url
-  - word: STRING
-  - end_bracket: )
-  - word: RETURNS
-  - word: STRING
-  - word: AS
-  - start_bracket: (
-  - start_bracket: (
-  - word: SELECT
-  - numeric_literal: '1'
-  - word: FROM
-  - word: UNNEST
-  - start_bracket: (
-  - word: REGEXP_EXTRACT_ALL
-  - start_bracket: (
-  - word: url
-  - comma: ','
-  - word: r
-  - double_quote: '"%[0-9a-fA-F]{2}|[^%]+"'
-  - end_bracket: )
-  - end_bracket: )
-  - word: AS
-  - word: y
-  - word: WITH
-  - word: OFFSET
-  - word: AS
-  - word: i
-  - end_bracket: )
-  - end_bracket: )
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: URLDECODE
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: url
+        - data_type:
+          - '': STRING
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - '': STRING
+    - function_definition:
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - numeric_literal: '1'
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: UNNEST
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: REGEXP_EXTRACT_ALL
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - column_reference:
+                                      - naked_identifier: url
+                                  - comma: ','
+                                  - expression:
+                                    - data_type:
+                                      - '': r
+                                    - numeric_literal: '"%[0-9a-fA-F]{2}|[^%]+"'
+                                  - end_bracket: )
+                            - end_bracket: )
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: y
+                      - keyword: WITH
+                      - keyword: OFFSET
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: i
+            - end_bracket: )
+        - end_bracket: )

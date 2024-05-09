@@ -3,18 +3,28 @@ file:
   - select_statement:
     - select_clause:
       - keyword: SELECT
-      - unparsable:
-        - back_quote: '`another-gcp-project.functions.timestamp_parsing`'
-        - bracketed:
-          - start_bracket: (
-          - word: log_tbl
-          - dot: .
-          - word: orderdate
-          - end_bracket: )
-        - word: AS
-        - word: orderdate
-    - unparsable:
+      - select_clause_element:
+        - function:
+          - function_name:
+            - naked_identifier: '`another-gcp-project.functions.timestamp_parsing`'
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: log_tbl
+                - dot: .
+                - naked_identifier: orderdate
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: orderdate
+    - from_clause:
       - keyword: FROM
-      - back_quote: '`gcp-project.data.year_2021`'
-      - word: AS
-      - word: log_tbl
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: '`gcp-project.data.year_2021`'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: log_tbl

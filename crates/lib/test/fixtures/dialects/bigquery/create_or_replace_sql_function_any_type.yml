@@ -1,49 +1,84 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: OR
-  - word: REPLACE
-  - word: FUNCTION
-  - word: qs
-  - start_bracket: (
-  - word: y
-  - word: ANY
-  - word: TYPE
-  - end_bracket: )
-  - word: AS
-  - start_bracket: (
-  - word: CASE
-  - word: WHEN
-  - word: y
-  - equals: =
-  - numeric_literal: '1'
-  - word: THEN
-  - single_quote: '''low'''
-  - word: WHEN
-  - word: y
-  - equals: =
-  - numeric_literal: '2'
-  - word: THEN
-  - single_quote: '''midlow'''
-  - word: WHEN
-  - word: y
-  - equals: =
-  - numeric_literal: '3'
-  - word: THEN
-  - single_quote: '''mid'''
-  - word: WHEN
-  - word: y
-  - equals: =
-  - numeric_literal: '4'
-  - word: THEN
-  - single_quote: '''midhigh'''
-  - word: WHEN
-  - word: y
-  - equals: =
-  - numeric_literal: '5'
-  - word: THEN
-  - single_quote: '''high'''
-  - word: ELSE
-  - double_quote: '"unknown"'
-  - word: END
-  - end_bracket: )
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: qs
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: y
+        - keyword: ANY
+        - keyword: TYPE
+        - end_bracket: )
+    - function_definition:
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: y
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '''low'''
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: y
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '2'
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '''midlow'''
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: y
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '3'
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '''mid'''
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: y
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '4'
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '''midhigh'''
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: y
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '5'
+              - keyword: THEN
+              - expression:
+                - numeric_literal: '''high'''
+            - else_clause:
+              - keyword: ELSE
+              - expression:
+                - numeric_literal: '"unknown"'
+            - keyword: END
+        - end_bracket: )

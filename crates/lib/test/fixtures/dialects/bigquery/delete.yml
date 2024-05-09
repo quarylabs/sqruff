@@ -6,60 +6,105 @@ file:
       - naked_identifier: dataset
       - dot: .
       - naked_identifier: Inventory
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: quantity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: Inventory
     - alias_expression:
-      - naked_identifier: WHERE
-- unparsable:
-  - word: quantity
-  - equals: =
-  - numeric_literal: '0'
-  - semicolon: ;
-  - word: DELETE
-  - word: dataset
-  - dot: .
-  - word: Inventory
-  - word: i
-  - word: WHERE
-  - word: i
-  - dot: .
-  - word: product
-  - word: NOT
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: product
-  - word: from
-  - word: dataset
-  - dot: .
-  - word: NewArrivals
-  - end_bracket: )
-  - semicolon: ;
-  - word: DELETE
-  - word: dataset
-  - dot: .
-  - word: Inventory
-  - word: WHERE
-  - word: NOT
-  - word: EXISTS
-  - start_bracket: (
-  - word: SELECT
-  - star: '*'
-  - word: from
-  - word: dataset
-  - dot: .
-  - word: NewArrivals
-  - word: WHERE
-  - word: Inventory
-  - dot: .
-  - word: product
-  - equals: =
-  - word: NewArrivals
-  - dot: .
-  - word: product
-  - end_bracket: )
-  - semicolon: ;
-  - word: DELETE
-  - word: FROM
-  - back_quote: '`project_id.dataset_id.target_name`'
-  - word: WHERE
-  - word: 'TRUE'
-  - semicolon: ;
+      - naked_identifier: i
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: i
+          - dot: .
+          - naked_identifier: product
+        - keyword: NOT
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: product
+            - from_clause:
+              - keyword: from
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: dataset
+                      - dot: .
+                      - naked_identifier: NewArrivals
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: Inventory
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - remove me: NOT
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - wildcard_expression:
+                  - wildcard_identifier:
+                    - star: '*'
+            - from_clause:
+              - keyword: from
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: dataset
+                      - dot: .
+                      - naked_identifier: NewArrivals
+            - where_clause:
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: Inventory
+                  - dot: .
+                  - naked_identifier: product
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: NewArrivals
+                  - dot: .
+                  - naked_identifier: product
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+      - naked_identifier: '`project_id.dataset_id.target_name`'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - boolean_literal: 'TRUE'
+- statement_terminator: ;

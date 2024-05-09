@@ -203,16 +203,12 @@ file:
             - function_name_identifier: EXTRACT
           - bracketed:
             - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: WEEK
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: SUNDAY
-                  - end_bracket: )
+            - date_part_week:
+              - keyword: WEEK
+              - bracketed:
+                - start_bracket: (
+                - keyword: SUNDAY
+                - end_bracket: )
             - keyword: FROM
             - expression:
               - column_reference:
@@ -241,9 +237,7 @@ file:
             - function_name_identifier: EXTRACT
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DATE
+            - date_part: DATE
             - keyword: FROM
             - expression:
               - column_reference:
@@ -259,9 +253,7 @@ file:
             - function_name_identifier: EXTRACT
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DATE
+            - date_part: DATE
             - keyword: FROM
             - expression:
               - function:
@@ -284,9 +276,7 @@ file:
               - column_reference:
                 - naked_identifier: col1
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: MONTH
+            - date_part: MONTH
             - end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -299,9 +289,7 @@ file:
               - column_reference:
                 - naked_identifier: col1
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: WEEK
+            - date_part: WEEK
             - end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -314,16 +302,12 @@ file:
               - column_reference:
                 - naked_identifier: col1
             - comma: ','
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: WEEK
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: SUNDAY
-                  - end_bracket: )
+            - date_part_week:
+              - keyword: WEEK
+              - bracketed:
+                - start_bracket: (
+                - keyword: SUNDAY
+                - end_bracket: )
             - end_bracket: )
       - comma: ','
     - from_clause:
@@ -333,4 +317,5 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: tbl1
-- statement_terminator: ;
+    - unparsable:
+      - semicolon: ;

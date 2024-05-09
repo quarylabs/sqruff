@@ -28,7 +28,7 @@ file:
                         - naked_identifier: fruit
                     - comma: ','
                     - expression:
-                      - remove me: '''berry'''
+                      - numeric_literal: '''berry'''
                     - end_bracket: )
                 - alias_expression:
                   - keyword: as

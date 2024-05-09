@@ -54,298 +54,157 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: another_table
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_modifier:
-        - keyword: as
-        - keyword: struct
-      - select_clause_element:
-        - remove me: '''1'''
-        - alias_expression:
-          - keyword: as
-          - naked_identifier: bb
+    - unparsable:
+      - semicolon: ;
+      - word: select
+      - word: as
+      - word: struct
+      - single_quote: '''1'''
+      - word: as
+      - word: bb
       - comma: ','
-      - select_clause_element:
-        - numeric_literal: '2'
-        - alias_expression:
-          - keyword: as
-          - naked_identifier: aa
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_modifier:
-        - keyword: distinct
-        - keyword: as
-        - keyword: struct
-      - select_clause_element:
-        - remove me: '''1'''
-        - alias_expression:
-          - keyword: as
-          - naked_identifier: bb
+      - numeric_literal: '2'
+      - word: as
+      - word: aa
+      - semicolon: ;
+      - word: select
+      - word: distinct
+      - word: as
+      - word: struct
+      - single_quote: '''1'''
+      - word: as
+      - word: bb
       - comma: ','
-      - select_clause_element:
-        - numeric_literal: '2'
-        - alias_expression:
-          - keyword: as
-          - naked_identifier: aa
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: struct
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-                - dot: .
-                - naked_identifier: bar_id
-            - keyword: as
-            - data_type:
-              - '': id
-            - unparsable:
-              - comma: ','
-              - word: bar
-              - dot: .
-              - word: bar_name
-              - word: as
-              - word: bar
-            - end_bracket: )
-        - alias_expression:
-          - keyword: as
-          - naked_identifier: bar
-    - from_clause:
-      - keyword: from
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: foo
-        - join_clause:
-          - keyword: left
-          - keyword: join
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - naked_identifier: bar
-          - join_on_condition:
-            - keyword: on
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-                - dot: .
-                - naked_identifier: foo_id
-              - comparison_operator:
-                - raw_comparison_operator: =
-              - column_reference:
-                - naked_identifier: foo
-                - dot: .
-                - naked_identifier: foo_id
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: col_1
+      - numeric_literal: '2'
+      - word: as
+      - word: aa
+      - semicolon: ;
+      - word: select
+      - word: struct
+      - start_bracket: (
+      - word: bar
+      - dot: .
+      - word: bar_id
+      - word: as
+      - word: id
       - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: col_2
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - function:
-              - function_name:
-                - function_name_identifier: UNNEST
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - typed_array_literal:
-                    - array_type:
-                      - keyword: ARRAY
-                      - remove me: <
-                      - data_type:
-                        - struct_type:
-                          - keyword: STRUCT
-                          - struct_type_schema:
-                            - remove me: <
-                            - '': col_1
-                            - data_type:
-                              - '': STRING
-                            - comma: ','
-                            - '': col_2
-                            - data_type:
-                              - '': STRING
-                            - remove me: '>'
-                      - remove me: '>'
-                    - array_literal:
-                      - remove me: '['
-                      - expression:
-                        - bracketed:
-                          - start_bracket: (
-                          - remove me: '''hello'''
-                          - comma: ','
-                          - remove me: '''world'''
-                          - end_bracket: )
-                      - comma: ','
-                      - expression:
-                        - bracketed:
-                          - start_bracket: (
-                          - remove me: '''hi'''
-                          - comma: ','
-                          - remove me: '''there'''
-                          - end_bracket: )
-                      - remove me: ']'
-                - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - typed_struct_literal:
-            - struct_type:
-              - keyword: STRUCT
-              - struct_type_schema:
-                - remove me: <
-                - data_type:
-                  - '': int64
-                - remove me: '>'
-            - struct_literal:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '5'
-                - end_bracket: )
+      - word: bar
+      - dot: .
+      - word: bar_name
+      - word: as
+      - word: bar
+      - end_bracket: )
+      - word: as
+      - word: bar
+      - word: from
+      - word: foo
+      - word: left
+      - word: join
+      - word: bar
+      - word: on
+      - word: bar
+      - dot: .
+      - word: foo_id
+      - equals: =
+      - word: foo
+      - dot: .
+      - word: foo_id
+      - semicolon: ;
+      - word: SELECT
+      - word: col_1
       - comma: ','
-      - select_clause_element:
-        - expression:
-          - typed_struct_literal:
-            - struct_type:
-              - keyword: STRUCT
-              - struct_type_schema:
-                - remove me: <
-                - data_type:
-                  - '': date
-                - remove me: '>'
-            - struct_literal:
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - quoted_identifier: '"2011-05-05"'
-                - end_bracket: )
+      - word: col_2
+      - word: FROM
+      - word: UNNEST
+      - start_bracket: (
+      - word: ARRAY
+      - less_than: <
+      - word: STRUCT
+      - less_than: <
+      - word: col_1
+      - word: STRING
       - comma: ','
-      - select_clause_element:
-        - expression:
-          - typed_struct_literal:
-            - struct_type:
-              - keyword: STRUCT
-              - struct_type_schema:
-                - remove me: <
-                - '': x
-                - data_type:
-                  - '': int64
-                - comma: ','
-                - '': y
-                - data_type:
-                  - '': string
-                - remove me: '>'
-            - struct_literal:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '1'
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: str_col
-                - end_bracket: )
+      - word: col_2
+      - word: STRING
+      - greater_than: '>'
+      - greater_than: '>'
+      - start_square_bracket: '['
+      - start_bracket: (
+      - single_quote: '''hello'''
       - comma: ','
-      - select_clause_element:
-        - expression:
-          - typed_struct_literal:
-            - struct_type:
-              - keyword: STRUCT
-              - struct_type_schema:
-                - remove me: <
-                - data_type:
-                  - '': int64
-                - remove me: '>'
-            - struct_literal:
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - naked_identifier: int_col
-                - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: STRUCT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: some_field
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: some_other_field
-            - end_bracket: )
-        - alias_expression:
-          - keyword: AS
-          - naked_identifier: col
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: table
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: TO_JSON
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: STRUCT
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-            - end_bracket: )
-        - alias_expression:
-          - keyword: AS
-          - naked_identifier: col
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: table
-- statement_terminator: ;
+      - single_quote: '''world'''
+      - end_bracket: )
+      - comma: ','
+      - start_bracket: (
+      - single_quote: '''hi'''
+      - comma: ','
+      - single_quote: '''there'''
+      - end_bracket: )
+      - end_square_bracket: ']'
+      - end_bracket: )
+      - semicolon: ;
+      - word: SELECT
+      - word: STRUCT
+      - less_than: <
+      - word: int64
+      - greater_than: '>'
+      - start_bracket: (
+      - numeric_literal: '5'
+      - end_bracket: )
+      - comma: ','
+      - word: STRUCT
+      - less_than: <
+      - word: date
+      - greater_than: '>'
+      - start_bracket: (
+      - double_quote: '"2011-05-05"'
+      - end_bracket: )
+      - comma: ','
+      - word: STRUCT
+      - less_than: <
+      - word: x
+      - word: int64
+      - comma: ','
+      - word: y
+      - word: string
+      - greater_than: '>'
+      - start_bracket: (
+      - numeric_literal: '1'
+      - comma: ','
+      - word: t
+      - dot: .
+      - word: str_col
+      - end_bracket: )
+      - comma: ','
+      - word: STRUCT
+      - less_than: <
+      - word: int64
+      - greater_than: '>'
+      - start_bracket: (
+      - word: int_col
+      - end_bracket: )
+      - semicolon: ;
+      - word: SELECT
+      - word: STRUCT
+      - start_bracket: (
+      - word: some_field
+      - comma: ','
+      - word: some_other_field
+      - end_bracket: )
+      - word: AS
+      - word: col
+      - word: FROM
+      - word: table
+      - semicolon: ;
+      - word: SELECT
+      - word: TO_JSON
+      - start_bracket: (
+      - word: STRUCT
+      - start_bracket: (
+      - end_bracket: )
+      - end_bracket: )
+      - word: AS
+      - word: col
+      - word: FROM
+      - word: table
+      - semicolon: ;

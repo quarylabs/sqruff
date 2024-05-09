@@ -15,11 +15,10 @@ file:
           - keyword: OPTIONS
           - bracketed:
             - start_bracket: (
-            - '': description
+            - parameter: description
             - comparison_operator:
               - raw_comparison_operator: =
-            - column_reference:
-              - quoted_identifier: '"An INTEGER field"'
+            - numeric_literal: '"An INTEGER field"'
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -42,11 +41,10 @@ file:
           - keyword: OPTIONS
           - bracketed:
             - start_bracket: (
-            - '': description
+            - parameter: description
             - comparison_operator:
               - raw_comparison_operator: =
-            - column_reference:
-              - quoted_identifier: '"An INTEGER field that is NOT NULL"'
+            - numeric_literal: '"An INTEGER field that is NOT NULL"'
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -65,18 +63,17 @@ file:
             - keyword: STRUCT
             - struct_type_schema:
               - remove me: <
-              - '': col1
+              - parameter: col1
               - data_type:
                 - '': INT64
               - options_segment:
                 - keyword: OPTIONS
                 - bracketed:
                   - start_bracket: (
-                  - '': description
+                  - parameter: description
                   - comparison_operator:
                     - raw_comparison_operator: =
-                  - column_reference:
-                    - quoted_identifier: '"An INTEGER field in a STRUCT"'
+                  - numeric_literal: '"An INTEGER field in a STRUCT"'
                   - end_bracket: )
               - remove me: '>'
       - comma: ','
@@ -91,18 +88,17 @@ file:
                 - keyword: STRUCT
                 - struct_type_schema:
                   - remove me: <
-                  - '': col1
+                  - parameter: col1
                   - data_type:
                     - '': INT64
                   - options_segment:
                     - keyword: OPTIONS
                     - bracketed:
                       - start_bracket: (
-                      - '': description
+                      - parameter: description
                       - comparison_operator:
                         - raw_comparison_operator: =
-                      - column_reference:
-                        - quoted_identifier: '"An INTEGER field in a REPEATED STRUCT"'
+                      - numeric_literal: '"An INTEGER field in a REPEATED STRUCT"'
                       - end_bracket: )
                   - remove me: '>'
             - remove me: '>'

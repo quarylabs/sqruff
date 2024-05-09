@@ -27,7 +27,7 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-        - remove me: '''someAccountId'''
+        - numeric_literal: '''someAccountId'''
       - comma: ','
       - expression:
         - column_reference:
@@ -41,4 +41,5 @@ file:
       - select_clause_element:
         - column_reference:
           - naked_identifier: retCode
-- statement_terminator: ;
+      - unparsable:
+        - semicolon: ;

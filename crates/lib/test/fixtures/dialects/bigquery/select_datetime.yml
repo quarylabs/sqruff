@@ -79,9 +79,7 @@ file:
                       - date_part: YEAR
                   - end_bracket: )
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: year
+            - date_part: year
             - end_bracket: )
     - limit_clause:
       - keyword: LIMIT

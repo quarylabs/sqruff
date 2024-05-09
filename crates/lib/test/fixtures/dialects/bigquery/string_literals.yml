@@ -4,142 +4,136 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '""'
+        - numeric_literal: '""'
       - comma: ','
       - select_clause_element:
-        - remove me: ''''''
+        - numeric_literal: ''''''
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"abc"'
+        - numeric_literal: '"abc"'
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"it''s"'
+        - numeric_literal: '"it''s"'
       - comma: ','
       - select_clause_element:
-        - remove me: '''it\''s'''
+        - numeric_literal: '''it\''s'''
       - comma: ','
       - select_clause_element:
-        - remove me: '''Title: "Boy"'''
+        - numeric_literal: '''Title: "Boy"'''
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"test \"escaped\""'
+        - numeric_literal: '"test \"escaped\""'
       - comma: ','
       - select_clause_element:
-        - remove me: '''test \''escaped\'''''
+        - numeric_literal: '''test \''escaped\'''''
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"test \\\"escaped"'
+        - numeric_literal: '"test \\\"escaped"'
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"test \"escaped\\\""'
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: r
-        - alias_expression:
-          - quoted_identifier: '""'
+        - numeric_literal: '"test \"escaped\\\""'
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': r
-          - remove me: ''''''
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: r
-        - alias_expression:
-          - quoted_identifier: '"abc+"'
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: R
-        - alias_expression:
-          - quoted_identifier: '"abc+"'
+          - numeric_literal: '""'
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': r
-          - remove me: '''abc+'''
+          - numeric_literal: ''''''
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': r
+          - numeric_literal: '"abc+"'
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': R
-          - remove me: '''abc+'''
+          - numeric_literal: '"abc+"'
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': r
-          - remove me: '''f\(abc, (.*),def\)'''
+          - numeric_literal: '''abc+'''
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: r
-        - alias_expression:
-          - quoted_identifier: '"f\(abc, (.*),def\)"'
+        - expression:
+          - data_type:
+            - '': R
+          - numeric_literal: '''abc+'''
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': r
+          - numeric_literal: '''f\(abc, (.*),def\)'''
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - '': r
+          - numeric_literal: '"f\(abc, (.*),def\)"'
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': b
-          - remove me: '''abc'''
+          - numeric_literal: '''abc'''
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: B
-        - alias_expression:
-          - quoted_identifier: '"abc"'
+        - expression:
+          - data_type:
+            - '': B
+          - numeric_literal: '"abc"'
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: rb
-        - alias_expression:
-          - quoted_identifier: '"abc*"'
+        - expression:
+          - data_type:
+            - '': rb
+          - numeric_literal: '"abc*"'
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: rB
-        - alias_expression:
-          - quoted_identifier: '"abc*"'
+        - expression:
+          - data_type:
+            - '': rB
+          - numeric_literal: '"abc*"'
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': Rb
-          - remove me: '''abc*'''
+          - numeric_literal: '''abc*'''
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': br
-          - remove me: '''abc+'''
+          - numeric_literal: '''abc+'''
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: RB
-        - alias_expression:
-          - quoted_identifier: '"abc+"'
+        - expression:
+          - data_type:
+            - '': RB
+          - numeric_literal: '"abc+"'
       - comma: ','
       - select_clause_element:
         - expression:
           - data_type:
             - '': r
-          - remove me: ''''''' as foo ''''  bar '''''''
+          - numeric_literal: ''''''' as foo ''''  bar '''''''
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: B
-        - alias_expression:
-          - quoted_identifier: '""'
+        - expression:
+          - data_type:
+            - '': B
+          - numeric_literal: '""'
       - unparsable:
         - double_quote: '" triple '''''' quoted '''' "'
         - double_quote: '" string are "'

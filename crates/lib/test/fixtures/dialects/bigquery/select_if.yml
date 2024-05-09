@@ -27,13 +27,13 @@ file:
               - comparison_operator:
                 - remove me: '!'
                 - raw_comparison_operator: =
-              - remove me: ''''''
+              - numeric_literal: ''''''
             - comma: ','
             - expression:
-              - remove me: '''CDN'''
+              - numeric_literal: '''CDN'''
             - comma: ','
             - expression:
-              - remove me: '''Origin'''
+              - numeric_literal: '''Origin'''
             - end_bracket: )
         - alias_expression:
           - keyword: AS
@@ -51,68 +51,120 @@ file:
         - alias_expression:
           - keyword: AS
           - naked_identifier: total
-    - unparsable:
+    - from_clause:
       - keyword: FROM
-      - back_quote: '`httparchive.almanac.requests`'
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: '`httparchive.almanac.requests`'
       - comma: ','
-      - word: UNNEST
-      - start_bracket: (
-      - word: split
-      - start_bracket: (
-      - word: REGEXP_REPLACE
-      - start_bracket: (
-      - word: REGEXP_REPLACE
-      - start_bracket: (
-      - word: LOWER
-      - start_bracket: (
-      - word: resp_vary
-      - end_bracket: )
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: UNNEST
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: split
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: REGEXP_REPLACE
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: REGEXP_REPLACE
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - function:
+                                      - function_name:
+                                        - function_name_identifier: LOWER
+                                      - bracketed:
+                                        - start_bracket: (
+                                        - expression:
+                                          - column_reference:
+                                            - naked_identifier: resp_vary
+                                        - end_bracket: )
+                                  - comma: ','
+                                  - expression:
+                                    - numeric_literal: '''\"'''
+                                  - comma: ','
+                                  - expression:
+                                    - numeric_literal: ''''''
+                                  - end_bracket: )
+                            - comma: ','
+                            - expression:
+                              - numeric_literal: '''[, ]+|\\\\0'''
+                            - comma: ','
+                            - expression:
+                              - numeric_literal: ''','''
+                            - end_bracket: )
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: ''','''
+                      - end_bracket: )
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: vary
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: date
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '''2019-07-01'''
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: client
       - comma: ','
-      - single_quote: '''\"'''
+      - column_reference:
+        - naked_identifier: firstHtml
       - comma: ','
-      - single_quote: ''''''
-      - end_bracket: )
+      - column_reference:
+        - naked_identifier: vary
       - comma: ','
-      - single_quote: '''[, ]+|\\\\0'''
+      - column_reference:
+        - naked_identifier: source
+    - having_clause:
+      - keyword: HAVING
+      - expression:
+        - column_reference:
+          - naked_identifier: vary
+        - comparison_operator:
+          - remove me: '!'
+          - raw_comparison_operator: =
+        - numeric_literal: ''''''
+        - remove me: AND
+        - column_reference:
+          - naked_identifier: vary
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: client
+      - keyword: DESC
       - comma: ','
-      - single_quote: ''','''
-      - end_bracket: )
+      - column_reference:
+        - naked_identifier: firstHtml
+      - keyword: DESC
       - comma: ','
-      - single_quote: ''','''
-      - end_bracket: )
-      - end_bracket: )
-      - word: AS
-      - word: vary
-      - word: WHERE
-      - word: date
-      - equals: =
-      - single_quote: '''2019-07-01'''
-      - word: GROUP
-      - word: BY
-      - word: client
-      - comma: ','
-      - word: firstHtml
-      - comma: ','
-      - word: vary
-      - comma: ','
-      - word: source
-      - word: HAVING
-      - word: vary
-      - not: '!'
-      - equals: =
-      - single_quote: ''''''
-      - word: AND
-      - word: vary
-      - word: IS
-      - word: NOT
-      - word: 'NULL'
-      - word: ORDER
-      - word: BY
-      - word: client
-      - word: DESC
-      - comma: ','
-      - word: firstHtml
-      - word: DESC
-      - comma: ','
-      - word: total
-      - word: DESC
+      - column_reference:
+        - naked_identifier: total
+      - keyword: DESC

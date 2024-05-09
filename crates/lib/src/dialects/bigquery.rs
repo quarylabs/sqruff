@@ -1,19 +1,24 @@
 use std::rc::Rc;
 
+use itertools::Itertools;
+
 use super::ansi::{self, ansi_dialect, Node, NodeTrait};
 use super::bigquery_keywords::{BIGQUERY_RESERVED_KEYWORDS, BIGQUERY_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
-use crate::core::parser::grammar::base::Ref;
+use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{RegexLexer, StringLexer};
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, IdentifierSegment, SymbolSegment, SymbolSegmentNewArgs,
+    CodeSegment, CodeSegmentNewArgs, IdentifierSegment, Segment, SymbolSegment,
+    SymbolSegmentNewArgs,
 };
+use crate::core::parser::segments::common::LiteralSegment;
+use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Config, ToMatchable};
@@ -80,7 +85,63 @@ pub fn bigquery_dialect() -> Dialect {
             "DoubleQuotedLiteralSegment".into(),
             TypedParser::new(
                 "double_quote",
-                |_| unimplemented!(),
+                |seg| {
+                    LiteralSegment::create(
+                        &seg.get_raw().unwrap(),
+                        &seg.get_position_marker().unwrap(),
+                    )
+                },
+                "quoted_literal".to_owned().into(),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SingleQuotedLiteralSegment".into(),
+            TypedParser::new(
+                "single_quote",
+                |seg| {
+                    LiteralSegment::create(
+                        &seg.get_raw().unwrap(),
+                        &seg.get_position_marker().unwrap(),
+                    )
+                },
+                "quoted_literal".to_owned().into(),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DoubleQuotedUDFBody".into(),
+            TypedParser::new(
+                "double_quote",
+                |seg| {
+                    LiteralSegment::create(
+                        &seg.get_raw().unwrap(),
+                        &seg.get_position_marker().unwrap(),
+                    )
+                },
+                "quoted_literal".to_owned().into(),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SingleQuotedUDFBody".into(),
+            TypedParser::new(
+                "single_quote",
+                |seg| {
+                    LiteralSegment::create(
+                        &seg.get_raw().unwrap(),
+                        &seg.get_position_marker().unwrap(),
+                    )
+                },
                 "quoted_literal".to_owned().into(),
                 false,
                 None,
@@ -125,6 +186,24 @@ pub fn bigquery_dialect() -> Dialect {
             .into(),
         ),
         (
+            "RightArrowSegment".into(),
+            StringParser::new(
+                "=>",
+                |segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "remove me" },
+                    )
+                },
+                "right_arrow".to_owned().into(),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DashSegment".into(),
             StringParser::new(
                 "-",
@@ -153,6 +232,41 @@ pub fn bigquery_dialect() -> Dialect {
             .into(),
         ),
         (
+            "QuestionMarkSegment".into(),
+            StringParser::new(
+                "?",
+                |segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "question_mark" },
+                    )
+                },
+                "dash".to_owned().into(),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AtSignLiteralSegment".into(),
+            TypedParser::new(
+                "at_sign_literal",
+                |seg| {
+                    LiteralSegment::create(
+                        &seg.get_raw().unwrap(),
+                        &seg.get_position_marker().unwrap(),
+                    )
+                },
+                "quoted_literal".to_owned().into(),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DefaultDeclareOptionsGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("DEFAULT"),
@@ -170,6 +284,29 @@ pub fn bigquery_dialect() -> Dialect {
                 })
             ])
             .to_matchable()
+            .into(),
+        ),
+        (
+            "ExtendedDatetimeUnitSegment".into(),
+            SegmentGenerator::new(|dialect| {
+                Rc::new(MultiStringParser::new(
+                    dialect
+                        .sets("extended_datetime_units")
+                        .into_iter()
+                        .map(Into::into)
+                        .collect_vec(),
+                    |segment| {
+                        CodeSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs { code_type: "date_part", ..Default::default() },
+                        )
+                    },
+                    None,
+                    false,
+                    None,
+                ))
+            })
             .into(),
         ),
         (
@@ -254,6 +391,175 @@ pub fn bigquery_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "ProcedureParameterGrammar".into(),
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("IN"),
+                        Ref::keyword("OUT"),
+                        Ref::keyword("INOUT"),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::new("ParameterNameSegment").optional(),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("TYPE")]),
+                        Ref::new("DatatypeSegment")
+                    ])
+                ]),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("TYPE")]),
+                    Ref::new("DatatypeSegment")
+                ])
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    dialect.add([
+        (
+            "NakedIdentifierSegment".into(),
+            SegmentGenerator::new(|dialect| {
+                // Generate the anti template from the set of reserved keywords
+                let reserved_keywords = dialect.sets("reserved_keywords");
+                let pattern = reserved_keywords.iter().join("|");
+                let anti_template = format!("^({})$", pattern);
+
+                Rc::new(RegexParser::new(
+                    "[A-Z_][A-Z0-9_]*",
+                    |segment| {
+                        IdentifierSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs {
+                                code_type: "naked_identifier",
+                                ..Default::default()
+                            },
+                        )
+                    },
+                    None,
+                    false,
+                    anti_template.into(),
+                    None,
+                ))
+            })
+            .into(),
+        ),
+        (
+            "FunctionContentsExpressionGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::new("DatetimeUnitSegment"),
+                Ref::new("DatePartWeekSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("IGNORE"), Ref::keyword("RESPECT")]),
+                        Ref::keyword("NULLS")
+                    ])
+                    .config(|this| this.optional())
+                ]),
+                Ref::new("NamedArgumentSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        ("TrimParametersGrammar".into(), Nothing::new().to_matchable().into()),
+        (
+            "ParameterNameSegment".into(),
+            one_of(vec_of_erased![
+                RegexParser::new(
+                    "[A-Z_][A-Z0-9_]*",
+                    |segment| {
+                        CodeSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs { code_type: "parameter", ..Default::default() },
+                        )
+                    },
+                    None,
+                    false,
+                    None,
+                    None,
+                ),
+                RegexParser::new(
+                    "`[^`]*`",
+                    |segment| {
+                        CodeSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs { code_type: "parameter", ..Default::default() },
+                        )
+                    },
+                    None,
+                    false,
+                    None,
+                    None,
+                )
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DateTimeLiteralGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DATE"),
+                    Ref::keyword("DATETIME"),
+                    Ref::keyword("TIME"),
+                    Ref::keyword("TIMESTAMP")
+                ]),
+                TypedParser::new(
+                    "single_quote",
+                    |segment| {
+                        IdentifierSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs {
+                                code_type: "date_constructor_literal",
+                                ..Default::default()
+                            },
+                        )
+                    },
+                    "quoted_identifier".to_owned().into(),
+                    false,
+                    vec!['`'].into(),
+                )
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JoinLikeClauseGrammar".into(),
+            Sequence::new(vec_of_erased![
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("FromPivotExpressionSegment"),
+                    Ref::new("FromUnpivotExpressionSegment")
+                ])
+                .config(|this| this.min_times = 1),
+                Ref::new("AliasExpressionSegment").optional()
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        ("NaturalJoinKeywordsGrammar".into(), Nothing::new().to_matchable().into()),
+        (
+            "AccessorGrammar".into(),
+            AnyNumberOf::new(vec_of_erased![
+                Ref::new("ArrayAccessorSegment"),
+                Ref::new("SemiStructuredAccessorSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MergeIntoLiteralGrammar".into(),
+            Sequence::new(vec_of_erased![Ref::keyword("MERGE"), Ref::keyword("INTO").optional()])
+                .to_matchable()
+                .into(),
+        ),
+        ("PrimaryKeyGrammar".into(), Nothing::new().to_matchable().into()),
+        ("ForeignKeyGrammar".into(), Nothing::new().to_matchable().into()),
     ]);
 
     // Set Keywords
@@ -350,9 +656,13 @@ pub fn bigquery_dialect() -> Dialect {
         WhileStatementSegment,
         SelectClauseModifierSegment,
         IntervalExpressionSegment,
+        ExtractFunctionNameSegment,
         ArrayFunctionNameSegment,
         DatePartWeekSegment,
-        FunctionNameSegment, // FunctionSegment
+        NormalizeFunctionNameSegment,
+        FunctionNameSegment,
+        FunctionSegment,
+        FunctionDefinitionGrammar,
         WildcardExpressionSegment,
         ExceptClauseSegment,
         ReplaceClauseSegment,
@@ -389,6 +699,7 @@ pub fn bigquery_dialect() -> Dialect {
         MergeMatchedClauseSegment,
         MergeInsertClauseSegment,
         DeleteStatementSegment,
+        ExportStatementSegment,
         ProcedureNameSegment,
         ProcedureParameterListSegment,
         ProcedureStatements,
@@ -397,8 +708,39 @@ pub fn bigquery_dialect() -> Dialect {
         BreakStatementSegment,
         LeaveStatementSegment,
         ContinueStatementSegment,
-        RaiseStatementSegment
+        RaiseStatementSegment,
+        CreateProcedureStatementSegment
     );
+
+    dialect.add([
+        (
+            "QuotedIdentifierSegment".into(),
+            TypedParser::new(
+                "back_quote",
+                |segment| {
+                    IdentifierSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
+                    )
+                },
+                "quoted_identifier".to_owned().into(),
+                false,
+                vec!['`'].into(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "QuotedLiteralSegment".into(),
+            one_of(vec_of_erased![
+                Ref::new("SingleQuotedLiteralSegment"),
+                Ref::new("DoubleQuotedLiteralSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     dialect.expand();
     dialect
@@ -568,7 +910,7 @@ impl NodeTrait for StatementSegment {
             Some(vec_of_erased![
                 Ref::new("DeclareStatementSegment"),
                 Ref::new("SetStatementSegment"),
-                // Ref::new("ExportStatementSegment"),
+                Ref::new("ExportStatementSegment"),
                 Ref::new("CreateExternalTableStatementSegment"),
                 Ref::new("AssertStatementSegment"),
                 Ref::new("CallStatementSegment"),
@@ -877,7 +1219,20 @@ impl NodeTrait for ExtractFunctionNameSegment {
     const TYPE: &'static str = "function_name";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        unimplemented!()
+        StringParser::new(
+            "EXTRACT",
+            |segment| {
+                SymbolSegment::create(
+                    &segment.get_raw().unwrap(),
+                    &segment.get_position_marker().unwrap(),
+                    SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                )
+            },
+            "function_name_identifier".to_owned().into(),
+            false,
+            None,
+        )
+        .to_matchable()
     }
 }
 
@@ -928,6 +1283,43 @@ impl NodeTrait for DatePartWeekSegment {
 
 pub struct NormalizeFunctionNameSegment;
 
+impl NodeTrait for NormalizeFunctionNameSegment {
+    const TYPE: &'static str = "function";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        one_of(vec_of_erased![
+            StringParser::new(
+                "NORMALIZE",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                    )
+                },
+                None,
+                false,
+                None,
+            ),
+            StringParser::new(
+                "NORMALIZE_AND_CASEFOLD",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                    )
+                },
+                None,
+                false,
+                None,
+            ),
+        ])
+        .to_matchable()
+        .into()
+    }
+}
+
 pub struct FunctionNameSegment;
 
 impl NodeTrait for FunctionNameSegment {
@@ -964,11 +1356,111 @@ impl NodeTrait for FunctionSegment {
     const TYPE: &'static str = "function";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        unimplemented!()
+        Sequence::new(vec_of_erased![one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                // BigQuery EXTRACT allows optional TimeZone
+                Ref::new("ExtractFunctionNameSegment"),
+                Bracketed::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("DatetimeUnitSegment"),
+                        Ref::new("DatePartWeekSegment"),
+                        Ref::new("ExtendedDatetimeUnitSegment")
+                    ]),
+                    Ref::keyword("FROM"),
+                    Ref::new("ExpressionSegment")
+                ])
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::new("NormalizeFunctionNameSegment"),
+                Bracketed::new(vec_of_erased![
+                    Ref::new("ExpressionSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("NFC"),
+                            Ref::keyword("NFKC"),
+                            Ref::keyword("NFD"),
+                            Ref::keyword("NFKD")
+                        ])
+                    ])
+                    .config(|this| this.optional())
+                ])
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::new("DatePartFunctionNameSegment")
+                    .exclude(Ref::new("ExtractFunctionNameSegment")),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::new("DatetimeUnitSegment"),
+                    Ref::new("DatePartWeekSegment"),
+                    Ref::new("FunctionContentsGrammar")
+                ])])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+            ]),
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Ref::new("NormalizeFunctionNameSegment"),
+                        Ref::new("ValuesClauseSegment"),
+                    ])),
+                    Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
+                        .config(|this| this.parse_mode(ParseMode::Greedy))
+                ]),
+                Ref::new("ArrayAccessorSegment").optional(),
+                Ref::new("SemiStructuredAccessorSegment").optional(),
+                Ref::new("PostFunctionGrammar").optional()
+            ]),
+        ])])
+        .config(|this| this.allow_gaps = false)
+        .to_matchable()
+        .into()
     }
 }
 
 pub struct FunctionDefinitionGrammar;
+
+impl NodeTrait for FunctionDefinitionGrammar {
+    const TYPE: &'static str = "function_definition";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![AnyNumberOf::new(vec_of_erased![
+            Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                Ref::keyword("DETERMINISTIC"),
+                Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DETERMINISTIC")])
+            ])])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("LANGUAGE"),
+                Ref::new("NakedIdentifierSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("OPTIONS"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("ParameterNameSegment"),
+                            Ref::new("EqualsSegment"),
+                            Anything::new()
+                        ]),
+                        Ref::new("CommaSegment")
+                    ])])
+                ])
+                .config(|this| this.optional())
+            ]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("AS"),
+                one_of(vec_of_erased![
+                    Ref::new("DoubleQuotedUDFBody"),
+                    Ref::new("SingleQuotedUDFBody"),
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("ExpressionSegment"),
+                        Ref::new("SelectStatementSegment")
+                    ])])
+                ])
+            ]),
+        ])])
+        .to_matchable()
+        .into()
+    }
+}
 
 pub struct WildcardExpressionSegment;
 
@@ -1882,6 +2374,132 @@ impl NodeTrait for DeleteStatementSegment {
 
 pub struct ExportStatementSegment;
 
+impl NodeTrait for ExportStatementSegment {
+    const TYPE: &'static str = "export_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("EXPORT"),
+            Ref::keyword("DATA"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("CONNECTION"),
+                Ref::new("ObjectReferenceSegment")
+            ])
+            .config(|this| this.optional()),
+            Ref::keyword("OPTIONS"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new(
+                            "compression",
+                            |segment: &dyn Segment| {
+                                SymbolSegment::create(
+                                    &segment.get_raw().unwrap(),
+                                    &segment.get_position_marker().unwrap(),
+                                    SymbolSegmentNewArgs { r#type: "export_option" },
+                                )
+                            },
+                            None,
+                            false,
+                            None,
+                        ),
+                        StringParser::new(
+                            "field_delimiter",
+                            |segment: &dyn Segment| {
+                                SymbolSegment::create(
+                                    &segment.get_raw().unwrap(),
+                                    &segment.get_position_marker().unwrap(),
+                                    SymbolSegmentNewArgs { r#type: "export_option" },
+                                )
+                            },
+                            None,
+                            false,
+                            None,
+                        ),
+                        StringParser::new(
+                            "format",
+                            |segment: &dyn Segment| {
+                                SymbolSegment::create(
+                                    &segment.get_raw().unwrap(),
+                                    &segment.get_position_marker().unwrap(),
+                                    SymbolSegmentNewArgs { r#type: "export_option" },
+                                )
+                            },
+                            None,
+                            false,
+                            None,
+                        ),
+                        StringParser::new(
+                            "uri",
+                            |segment: &dyn Segment| {
+                                SymbolSegment::create(
+                                    &segment.get_raw().unwrap(),
+                                    &segment.get_position_marker().unwrap(),
+                                    SymbolSegmentNewArgs { r#type: "export_option" },
+                                )
+                            },
+                            None,
+                            false,
+                            None,
+                        )
+                    ]),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("QuotedLiteralSegment"),
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        StringParser::new(
+                            "header",
+                            |segment: &dyn Segment| {
+                                SymbolSegment::create(
+                                    &segment.get_raw().unwrap(),
+                                    &segment.get_position_marker().unwrap(),
+                                    SymbolSegmentNewArgs { r#type: "export_option" },
+                                )
+                            },
+                            None,
+                            false,
+                            None,
+                        ),
+                        StringParser::new(
+                            "overwrite",
+                            |segment: &dyn Segment| {
+                                SymbolSegment::create(
+                                    &segment.get_raw().unwrap(),
+                                    &segment.get_position_marker().unwrap(),
+                                    SymbolSegmentNewArgs { r#type: "export_option" },
+                                )
+                            },
+                            None,
+                            false,
+                            None,
+                        ),
+                        StringParser::new(
+                            "use_avro_logical_types",
+                            |segment: &dyn Segment| {
+                                SymbolSegment::create(
+                                    &segment.get_raw().unwrap(),
+                                    &segment.get_position_marker().unwrap(),
+                                    SymbolSegmentNewArgs { r#type: "export_option" },
+                                )
+                            },
+                            None,
+                            false,
+                            None,
+                        )
+                    ]),
+                    Ref::new("EqualsSegment"),
+                    one_of(vec_of_erased![Ref::keyword("TRUE"), Ref::keyword("FALSE"),])
+                ]),
+            ])]),
+            Ref::keyword("AS"),
+            Ref::new("SelectableGrammar")
+        ])
+        .to_matchable()
+    }
+}
+
 pub struct ProcedureNameSegment;
 
 impl NodeTrait for ProcedureNameSegment {
@@ -1933,6 +2551,48 @@ impl NodeTrait for ProcedureStatements {
             this.terminators = vec_of_erased![Ref::keyword("END")];
             this.parse_mode = ParseMode::Greedy;
         })
+        .to_matchable()
+    }
+}
+
+pub struct CreateProcedureStatementSegment;
+
+impl NodeTrait for CreateProcedureStatementSegment {
+    const TYPE: &'static str = "create_procedure_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("OrReplaceGrammar").optional(),
+            Ref::keyword("PROCEDURE"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("ProcedureNameSegment"),
+            Ref::new("ProcedureParameterListSegment"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OPTIONS"),
+                Ref::keyword("strict_mode"),
+                StringParser::new(
+                    "strict_mode",
+                    |segment| {
+                        SymbolSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            SymbolSegmentNewArgs { r#type: "remove me" },
+                        )
+                    },
+                    "start_angle_bracket".to_owned().into(),
+                    false,
+                    None,
+                ),
+                Ref::new("EqualsSegment"),
+                Ref::new("BooleanLiteralGrammar").optional(),
+            ]),
+            Ref::keyword("BEGIN"),
+            MetaSegment::indent(),
+            Ref::new("ProcedureStatements"),
+            MetaSegment::dedent(),
+            Ref::keyword("END")
+        ])
         .to_matchable()
     }
 }

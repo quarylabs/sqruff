@@ -16,21 +16,21 @@ file:
                 - numeric_literal: '0'
               - keyword: then
               - expression:
-                - remove me: '''apple'''
+                - numeric_literal: '''apple'''
             - when_clause:
               - keyword: when
               - expression:
                 - numeric_literal: '1'
               - keyword: then
               - expression:
-                - remove me: '''banana'''
+                - numeric_literal: '''banana'''
             - when_clause:
               - keyword: when
               - expression:
                 - numeric_literal: '2'
               - keyword: then
               - expression:
-                - remove me: '''cashew'''
+                - numeric_literal: '''cashew'''
             - keyword: end
         - alias_expression:
           - keyword: as

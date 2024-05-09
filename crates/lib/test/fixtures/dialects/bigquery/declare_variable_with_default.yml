@@ -35,7 +35,6 @@ file:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
-            - column_reference:
-              - quoted_identifier: '"x"'
+            - numeric_literal: '"x"'
       - end_bracket: )
 - statement_terminator: ;

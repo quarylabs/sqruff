@@ -52,7 +52,7 @@ file:
           - numeric_literal: '5'
         - end_bracket: )
     - keyword: AS
-    - remove me: '''Table must contain more than 5 rows.'''
+    - numeric_literal: '''Table must contain more than 5 rows.'''
 - statement_terminator: ;
 - statement:
   - assert_statement:
@@ -104,5 +104,5 @@ file:
               - numeric_literal: '7919'
         - end_bracket: )
     - keyword: AS
-    - remove me: '''Column X must contain the value 7919'''
+    - numeric_literal: '''Column X must contain the value 7919'''
 - statement_terminator: ;

@@ -15,8 +15,8 @@ file:
       - raw_comparison_operator: =
     - array_literal:
       - remove me: '['
-      - remove me: '''one'''
+      - numeric_literal: '''one'''
       - comma: ','
-      - remove me: '''two'''
+      - numeric_literal: '''two'''
       - remove me: ']'
 - statement_terminator: ;

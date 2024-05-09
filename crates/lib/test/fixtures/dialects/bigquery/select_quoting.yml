@@ -8,19 +8,26 @@ file:
           - naked_identifier: user_id
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"some string"'
+        - numeric_literal: '"some string"'
         - alias_expression:
           - keyword: as
           - naked_identifier: list_id
-    - unparsable:
+    - from_clause:
       - keyword: FROM
-      - back_quote: '`database.schema.benchmark_user_map`'
-      - word: WHERE
-      - word: list_id
-      - word: IS
-      - word: 'NULL'
-      - word: OR
-      - word: user_id
-      - word: IS
-      - word: 'NULL'
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: '`database.schema.benchmark_user_map`'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: list_id
+        - keyword: IS
+        - null_literal: 'NULL'
+        - remove me: OR
+        - column_reference:
+          - naked_identifier: user_id
+        - keyword: IS
+        - null_literal: 'NULL'

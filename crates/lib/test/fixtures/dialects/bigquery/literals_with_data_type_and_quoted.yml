@@ -7,399 +7,196 @@ file:
         - expression:
           - data_type:
             - '': NUMERIC
-          - remove me: '''0'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': NUMERIC
-          - remove me: '''0'''
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - data_type:
-            - '': NUMERIC
-          - remove me: '''0'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: NUMERIC
-        - alias_expression:
-          - quoted_identifier: '"0"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: NUMERIC
-        - alias_expression:
-          - quoted_identifier: '"0"'
+          - numeric_literal: '''0'''
       - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - word: NUMERIC
+        - single_quote: '''0'''
+        - equals: =
+        - word: NUMERIC
+        - single_quote: '''0'''
+        - semicolon: ;
+        - word: SELECT
+        - word: NUMERIC
+        - double_quote: '"0"'
+        - semicolon: ;
+        - word: SELECT
+        - word: NUMERIC
+        - double_quote: '"0"'
         - equals: =
         - word: NUMERIC
         - double_quote: '"0"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': BIGNUMERIC
-          - remove me: '''0'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': BIGNUMERIC
-          - remove me: '''0'''
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - data_type:
-            - '': BIGNUMERIC
-          - remove me: '''0'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: BIGNUMERIC
-        - alias_expression:
-          - quoted_identifier: '"0"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: BIGNUMERIC
-        - alias_expression:
-          - quoted_identifier: '"0"'
-      - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - word: BIGNUMERIC
+        - single_quote: '''0'''
+        - semicolon: ;
+        - word: SELECT
+        - word: BIGNUMERIC
+        - single_quote: '''0'''
+        - equals: =
+        - word: BIGNUMERIC
+        - single_quote: '''0'''
+        - semicolon: ;
+        - word: SELECT
+        - word: BIGNUMERIC
+        - double_quote: '"0"'
+        - semicolon: ;
+        - word: SELECT
+        - word: BIGNUMERIC
+        - double_quote: '"0"'
         - equals: =
         - word: BIGNUMERIC
         - double_quote: '"0"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - keyword: DATE
-        - numeric_literal: '''2014-09-27'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - keyword: DATE
-          - numeric_literal: '''2014-09-27'''
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - keyword: DATE
-          - numeric_literal: '''2014-09-27'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: DATE
-        - alias_expression:
-          - quoted_identifier: '"2014-09-27"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: DATE
-        - alias_expression:
-          - quoted_identifier: '"2014-09-27"'
-      - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - word: DATE
+        - single_quote: '''2014-09-27'''
+        - semicolon: ;
+        - word: SELECT
+        - word: DATE
+        - single_quote: '''2014-09-27'''
+        - equals: =
+        - word: DATE
+        - single_quote: '''2014-09-27'''
+        - semicolon: ;
+        - word: SELECT
+        - word: DATE
+        - double_quote: '"2014-09-27"'
+        - semicolon: ;
+        - word: SELECT
+        - word: DATE
+        - double_quote: '"2014-09-27"'
         - equals: =
         - word: DATE
         - double_quote: '"2014-09-27"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - keyword: TIME
-        - numeric_literal: '''12:30:00.45'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - keyword: TIME
-          - numeric_literal: '''12:30:00.45'''
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - keyword: TIME
-          - numeric_literal: '''12:30:00.45'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: TIME
-        - alias_expression:
-          - quoted_identifier: '"12:30:00.45"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: TIME
-        - alias_expression:
-          - quoted_identifier: '"12:30:00.45"'
-      - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - word: TIME
+        - single_quote: '''12:30:00.45'''
+        - semicolon: ;
+        - word: SELECT
+        - word: TIME
+        - single_quote: '''12:30:00.45'''
+        - equals: =
+        - word: TIME
+        - single_quote: '''12:30:00.45'''
+        - semicolon: ;
+        - word: SELECT
+        - word: TIME
+        - double_quote: '"12:30:00.45"'
+        - semicolon: ;
+        - word: SELECT
+        - word: TIME
+        - double_quote: '"12:30:00.45"'
         - equals: =
         - word: TIME
         - double_quote: '"12:30:00.45"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': DATETIME
-          - remove me: '''2014-09-27 12:30:00.45'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': DATETIME
-          - remove me: '''2014-09-27 12:30:00.45'''
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - data_type:
-            - '': DATETIME
-          - remove me: '''2014-09-27 12:30:00.45'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: DATETIME
-        - alias_expression:
-          - quoted_identifier: '"2014-09-27 12:30:00.45"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: DATETIME
-        - alias_expression:
-          - quoted_identifier: '"2014-09-27 12:30:00.45"'
-      - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - word: DATETIME
+        - single_quote: '''2014-09-27 12:30:00.45'''
+        - semicolon: ;
+        - word: SELECT
+        - word: DATETIME
+        - single_quote: '''2014-09-27 12:30:00.45'''
+        - equals: =
+        - word: DATETIME
+        - single_quote: '''2014-09-27 12:30:00.45'''
+        - semicolon: ;
+        - word: SELECT
+        - word: DATETIME
+        - double_quote: '"2014-09-27 12:30:00.45"'
+        - semicolon: ;
+        - word: SELECT
+        - word: DATETIME
+        - double_quote: '"2014-09-27 12:30:00.45"'
         - equals: =
         - word: DATETIME
         - double_quote: '"2014-09-27 12:30:00.45"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - keyword: TIMESTAMP
-        - numeric_literal: '''2014-09-27 12:30:00.45-08'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - keyword: TIMESTAMP
-          - numeric_literal: '''2014-09-27 12:30:00.45-08'''
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - keyword: TIMESTAMP
-          - numeric_literal: '''2014-09-27 12:30:00.45-08'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: TIMESTAMP
-        - alias_expression:
-          - quoted_identifier: '"2014-09-27 12:30:00.45-08"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: TIMESTAMP
-        - alias_expression:
-          - quoted_identifier: '"2014-09-27 12:30:00.45-08"'
-      - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - word: TIMESTAMP
+        - single_quote: '''2014-09-27 12:30:00.45-08'''
+        - semicolon: ;
+        - word: SELECT
+        - word: TIMESTAMP
+        - single_quote: '''2014-09-27 12:30:00.45-08'''
+        - equals: =
+        - word: TIMESTAMP
+        - single_quote: '''2014-09-27 12:30:00.45-08'''
+        - semicolon: ;
+        - word: SELECT
+        - word: TIMESTAMP
+        - double_quote: '"2014-09-27 12:30:00.45-08"'
+        - semicolon: ;
+        - word: SELECT
+        - word: TIMESTAMP
+        - double_quote: '"2014-09-27 12:30:00.45-08"'
         - equals: =
         - word: TIMESTAMP
         - double_quote: '"2014-09-27 12:30:00.45-08"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - interval_expression:
-          - keyword: INTERVAL
-          - expression:
-            - remove me: '''10:20:30.52'''
-          - date_part: HOUR
-          - keyword: TO
-          - date_part: SECOND
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - interval_expression:
-            - keyword: INTERVAL
-            - expression:
-              - remove me: '''10:20:30.52'''
-            - date_part: HOUR
-            - keyword: TO
-            - date_part: SECOND
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - interval_expression:
-            - keyword: INTERVAL
-            - expression:
-              - remove me: '''10:20:30.52'''
-            - date_part: HOUR
-            - keyword: TO
-            - date_part: SECOND
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - interval_expression:
-          - keyword: INTERVAL
-          - expression:
-            - column_reference:
-              - quoted_identifier: '"10:20:30.52"'
-          - date_part: HOUR
-          - keyword: TO
-          - date_part: SECOND
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - interval_expression:
-            - keyword: INTERVAL
-            - expression:
-              - column_reference:
-                - quoted_identifier: '"10:20:30.52"'
-            - date_part: HOUR
-            - keyword: TO
-            - date_part: SECOND
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - interval_expression:
-            - keyword: INTERVAL
-            - expression:
-              - column_reference:
-                - quoted_identifier: '"10:20:30.52"'
-            - date_part: HOUR
-            - keyword: TO
-            - date_part: SECOND
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': JSON
-          - remove me: '''{}'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': JSON
-          - remove me: '''{}'''
-          - keyword: IS
-          - keyword: NOT
-          - null_literal: 'NULL'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: JSON
-        - alias_expression:
-          - quoted_identifier: '"{}"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: JSON
-        - alias_expression:
-          - quoted_identifier: '"{}"'
-      - unparsable:
+        - semicolon: ;
+        - word: SELECT
+        - word: INTERVAL
+        - single_quote: '''10:20:30.52'''
+        - word: HOUR
+        - word: TO
+        - word: SECOND
+        - semicolon: ;
+        - word: SELECT
+        - word: INTERVAL
+        - single_quote: '''10:20:30.52'''
+        - word: HOUR
+        - word: TO
+        - word: SECOND
+        - equals: =
+        - word: INTERVAL
+        - single_quote: '''10:20:30.52'''
+        - word: HOUR
+        - word: TO
+        - word: SECOND
+        - semicolon: ;
+        - word: SELECT
+        - word: INTERVAL
+        - double_quote: '"10:20:30.52"'
+        - word: HOUR
+        - word: TO
+        - word: SECOND
+        - semicolon: ;
+        - word: SELECT
+        - word: INTERVAL
+        - double_quote: '"10:20:30.52"'
+        - word: HOUR
+        - word: TO
+        - word: SECOND
+        - equals: =
+        - word: INTERVAL
+        - double_quote: '"10:20:30.52"'
+        - word: HOUR
+        - word: TO
+        - word: SECOND
+        - semicolon: ;
+        - word: SELECT
+        - word: JSON
+        - single_quote: '''{}'''
+        - semicolon: ;
+        - word: SELECT
+        - word: JSON
+        - single_quote: '''{}'''
         - word: IS
         - word: NOT
         - word: 'NULL'
-- statement_terminator: ;
+        - semicolon: ;
+        - word: SELECT
+        - word: JSON
+        - double_quote: '"{}"'
+        - semicolon: ;
+        - word: SELECT
+        - word: JSON
+        - double_quote: '"{}"'
+        - word: IS
+        - word: NOT
+        - word: 'NULL'
+        - semicolon: ;

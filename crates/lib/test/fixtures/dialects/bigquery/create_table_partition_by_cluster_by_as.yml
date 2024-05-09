@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: newtable
+      - naked_identifier: newtable
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -18,19 +17,37 @@ file:
         - data_type:
           - '': INT64
       - end_bracket: )
-- unparsable:
-  - word: PARTITION
-  - word: BY
-  - word: y
-  - word: CLUSTER
-  - word: BY
-  - word: x
-  - comma: ','
-  - word: y
-  - word: AS
-  - word: SELECT
-  - word: x
-  - comma: ','
-  - word: y
-  - word: FROM
-  - word: table1
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+        - column_reference:
+          - naked_identifier: y
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+        - column_reference:
+          - naked_identifier: x
+      - comma: ','
+      - expression:
+        - column_reference:
+          - naked_identifier: y
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: x
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: y
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: table1

@@ -4,58 +4,71 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mydataset
-        - dot: .
-        - naked_identifier: newtable
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: newtable
     - keyword: LIKE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mydataset
-        - dot: .
-        - naked_identifier: sourcetable
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: sourcetable
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mydataset
-        - dot: .
-        - naked_identifier: newtable
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: newtable
     - keyword: LIKE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mydataset
-        - dot: .
-        - naked_identifier: sourcetable
-- unparsable:
-  - word: AS
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: mydataset
-  - dot: .
-  - word: myothertable
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - word: mydataset
-  - dot: .
-  - word: newtable
-  - word: COPY
-  - word: mydataset
-  - dot: .
-  - word: sourcetable
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - word: mydataset
-  - dot: .
-  - word: newtable_clone
-  - word: CLONE
-  - word: mydataset
-  - dot: .
-  - word: sourcetable
-  - semicolon: ;
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: sourcetable
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: myothertable
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: newtable
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: sourcetable
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: newtable_clone
+    - keyword: CLONE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: sourcetable
+- statement_terminator: ;

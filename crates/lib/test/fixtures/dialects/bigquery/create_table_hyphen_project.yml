@@ -1,30 +1,46 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: OR
-  - word: REPLACE
-  - word: TABLE
-  - word: project
-  - minus: '-'
-  - word: name
-  - dot: .
-  - word: dataset_name
-  - dot: .
-  - word: table_name
-  - start_bracket: (
-  - word: x
-  - word: INT64
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - double_quote: '"An INTEGER field"'
-  - end_bracket: )
-  - end_bracket: )
-  - word: PARTITION
-  - word: BY
-  - word: DATE
-  - start_bracket: (
-  - word: import_ts
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: project
+      - remove me: '-'
+      - naked_identifier: name
+      - dot: .
+      - naked_identifier: dataset_name
+      - dot: .
+      - naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - '': INT64
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - '': description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - quoted_identifier: '"An INTEGER field"'
+            - end_bracket: )
+      - end_bracket: )
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: import_ts
+            - end_bracket: )
+- statement_terminator: ;

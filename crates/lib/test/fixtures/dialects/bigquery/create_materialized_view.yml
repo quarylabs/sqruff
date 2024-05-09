@@ -1,78 +1,144 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - word: AS
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: anotherdataset
-  - dot: .
-  - word: mv_base_table
-  - semicolon: ;
-  - word: CREATE
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: IF
-  - word: NOT
-  - word: EXISTS
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - word: AS
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: anotherdataset
-  - dot: .
-  - word: mv_base_table
-  - semicolon: ;
-  - word: CREATE
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - word: OPTIONS
-  - start_bracket: (
-  - word: friendly_name
-  - equals: =
-  - double_quote: '"my_mv"'
-  - end_bracket: )
-  - word: AS
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: anotherdataset
-  - dot: .
-  - word: mv_base_table
-  - semicolon: ;
-  - word: CREATE
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - word: PARTITION
-  - word: BY
-  - word: DATE
-  - start_bracket: (
-  - word: x
-  - end_bracket: )
-  - word: CLUSTER
-  - word: BY
-  - word: y
-  - word: AS
-  - word: SELECT
-  - word: x
-  - comma: ','
-  - word: y
-  - word: FROM
-  - word: anotherdataset
-  - dot: .
-  - word: mv_base_table
-  - semicolon: ;
+- statement:
+  - create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: anotherdataset
+                - dot: .
+                - naked_identifier: mv_base_table
+- statement_terminator: ;
+- statement:
+  - create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: anotherdataset
+                - dot: .
+                - naked_identifier: mv_base_table
+- statement_terminator: ;
+- statement:
+  - create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': friendly_name
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - quoted_identifier: '"my_mv"'
+        - end_bracket: )
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: anotherdataset
+                - dot: .
+                - naked_identifier: mv_base_table
+- statement_terminator: ;
+- statement:
+  - create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: x
+            - end_bracket: )
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+        - column_reference:
+          - naked_identifier: y
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: x
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: y
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: anotherdataset
+                - dot: .
+                - naked_identifier: mv_base_table
+- statement_terminator: ;

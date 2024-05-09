@@ -1909,7 +1909,7 @@ pub fn ansi_dialect() -> Dialect {
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
         HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
-        WithDataClauseSegment, EqualsSegment, GreaterThanSegment
+        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment
     );
 
     // This is a hook point to allow subclassing for other dialects

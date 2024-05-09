@@ -12,8 +12,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: lists_emails
+              - naked_identifier: lists_emails
           - alias_expression:
             - keyword: AS
             - naked_identifier: list_emails

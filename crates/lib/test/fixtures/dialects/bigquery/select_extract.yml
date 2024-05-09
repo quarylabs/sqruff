@@ -126,6 +126,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: Input
+                - naked_identifier: Input
 - statement_terminator: ;

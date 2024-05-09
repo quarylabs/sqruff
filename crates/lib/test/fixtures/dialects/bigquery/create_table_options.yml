@@ -1,51 +1,90 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: TABLE
-  - word: table_1
-  - word: OPTIONS
-  - start_bracket: (
-  - word: expiration_timestamp
-  - equals: =
-  - word: TIMESTAMP_ADD
-  - start_bracket: (
-  - word: CURRENT_TIMESTAMP
-  - start_bracket: (
-  - end_bracket: )
-  - comma: ','
-  - word: INTERVAL
-  - numeric_literal: '24'
-  - word: HOUR
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - word: table_1
-  - word: OPTIONS
-  - start_bracket: (
-  - word: expiration_timestamp
-  - equals: =
-  - word: TIMESTAMP
-  - start_bracket: (
-  - double_quote: '"2023-01-01 00:00:00 UTC"'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - word: table_1
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - double_quote: '"Test mixed options"'
-  - comma: ','
-  - word: expiration_timestamp
-  - equals: =
-  - word: TIMESTAMP
-  - start_bracket: (
-  - double_quote: '"2023-01-01 00:00:00 UTC"'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table_1
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': expiration_timestamp
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: TIMESTAMP_ADD
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: CURRENT_TIMESTAMP
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+              - interval_expression:
+                - keyword: INTERVAL
+                - expression:
+                  - numeric_literal: '24'
+                - date_part: HOUR
+            - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table_1
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': expiration_timestamp
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: TIMESTAMP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '"2023-01-01 00:00:00 UTC"'
+            - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table_1
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - quoted_identifier: '"Test mixed options"'
+        - comma: ','
+        - '': expiration_timestamp
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: TIMESTAMP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '"2023-01-01 00:00:00 UTC"'
+            - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;

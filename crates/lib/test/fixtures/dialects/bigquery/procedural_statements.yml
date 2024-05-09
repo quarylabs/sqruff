@@ -1,11 +1,14 @@
 file:
+- statement:
+  - declare_segment:
+    - keyword: DECLARE
+    - naked_identifier: x
+    - data_type:
+      - '': INT64
+    - keyword: DEFAULT
+    - numeric_literal: '0'
+- statement_terminator: ;
 - unparsable:
-  - word: DECLARE
-  - word: x
-  - word: INT64
-  - word: DEFAULT
-  - numeric_literal: '0'
-  - semicolon: ;
   - word: REPEAT
   - word: SET
   - word: x

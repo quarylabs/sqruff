@@ -1,26 +1,44 @@
 file:
-- unparsable:
-  - word: CALL
-  - word: mydataset
-  - dot: .
-  - word: create_customer
-  - start_bracket: (
-  - end_bracket: )
-  - semicolon: ;
-  - word: DECLARE
-  - word: retCode
-  - word: INT64
-  - semicolon: ;
-  - word: CALL
-  - word: mySchema
-  - dot: .
-  - word: UpdateSomeTables
-  - start_bracket: (
-  - single_quote: '''someAccountId'''
-  - comma: ','
-  - word: retCode
-  - end_bracket: )
-  - semicolon: ;
-  - word: SELECT
-  - word: retCode
-  - semicolon: ;
+- statement:
+  - call_statement:
+    - keyword: CALL
+    - procedure_name:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: create_customer
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: DECLARE
+    - naked_identifier: retCode
+    - data_type:
+      - '': INT64
+- statement_terminator: ;
+- statement:
+  - call_statement:
+    - keyword: CALL
+    - procedure_name:
+      - naked_identifier: mySchema
+      - dot: .
+      - naked_identifier: UpdateSomeTables
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - remove me: '''someAccountId'''
+      - comma: ','
+      - expression:
+        - column_reference:
+          - naked_identifier: retCode
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: retCode
+- statement_terminator: ;

@@ -27,8 +27,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: Produce
+                          - naked_identifier: Produce
               - end_bracket: )
           - alias_expression:
             - naked_identifier: PIVOT
@@ -86,8 +85,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: Produce
+                          - naked_identifier: Produce
               - end_bracket: )
           - alias_expression:
             - naked_identifier: PIVOT
@@ -142,8 +140,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: Produce
+                          - naked_identifier: Produce
               - end_bracket: )
           - alias_expression:
             - naked_identifier: PIVOT
@@ -199,8 +196,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: Produce
+                          - naked_identifier: Produce
               - end_bracket: )
           - alias_expression:
             - naked_identifier: PIVOT
@@ -256,8 +252,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: Produce
+                          - naked_identifier: Produce
               - end_bracket: )
           - alias_expression:
             - naked_identifier: PIVOT
@@ -305,8 +300,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
           - alias_expression:
             - naked_identifier: PIVOT
     - unparsable:
@@ -369,8 +363,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
           - alias_expression:
             - naked_identifier: PIVOT
     - unparsable:
@@ -421,8 +414,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
           - alias_expression:
             - naked_identifier: PIVOT
     - unparsable:

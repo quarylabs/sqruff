@@ -1,66 +1,110 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: TABLE
-  - word: t_table1
-  - start_bracket: (
-  - word: x
-  - word: INT64
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - double_quote: '"An INTEGER field"'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - word: t_table1
-  - start_bracket: (
-  - word: x
-  - word: INT64
-  - word: NOT
-  - word: 'NULL'
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - double_quote: '"An INTEGER field that is NOT NULL"'
-  - end_bracket: )
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - word: t_table1
-  - start_bracket: (
-  - word: x
-  - word: STRUCT
-  - less_than: <
-  - word: col1
-  - word: INT64
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - double_quote: '"An INTEGER field in a STRUCT"'
-  - end_bracket: )
-  - greater_than: '>'
-  - comma: ','
-  - word: y
-  - word: ARRAY
-  - less_than: <
-  - word: STRUCT
-  - less_than: <
-  - word: col1
-  - word: INT64
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - double_quote: '"An INTEGER field in a REPEATED STRUCT"'
-  - end_bracket: )
-  - greater_than: '>'
-  - greater_than: '>'
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - '': INT64
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - '': description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - quoted_identifier: '"An INTEGER field"'
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - '': INT64
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - '': description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - quoted_identifier: '"An INTEGER field that is NOT NULL"'
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - struct_type:
+            - keyword: STRUCT
+            - struct_type_schema:
+              - remove me: <
+              - '': col1
+              - data_type:
+                - '': INT64
+              - options_segment:
+                - keyword: OPTIONS
+                - bracketed:
+                  - start_bracket: (
+                  - '': description
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - column_reference:
+                    - quoted_identifier: '"An INTEGER field in a STRUCT"'
+                  - end_bracket: )
+              - remove me: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: y
+        - data_type:
+          - array_type:
+            - keyword: ARRAY
+            - remove me: <
+            - data_type:
+              - struct_type:
+                - keyword: STRUCT
+                - struct_type_schema:
+                  - remove me: <
+                  - '': col1
+                  - data_type:
+                    - '': INT64
+                  - options_segment:
+                    - keyword: OPTIONS
+                    - bracketed:
+                      - start_bracket: (
+                      - '': description
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - column_reference:
+                        - quoted_identifier: '"An INTEGER field in a REPEATED STRUCT"'
+                      - end_bracket: )
+                  - remove me: '>'
+            - remove me: '>'
+      - end_bracket: )
+- statement_terminator: ;

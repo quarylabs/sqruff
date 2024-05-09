@@ -1,40 +1,58 @@
 file:
-- unparsable:
-  - word: ALTER
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - word: SET
-  - word: OPTIONS
-  - start_bracket: (
-  - word: enable_refresh
-  - equals: =
-  - word: 'false'
-  - end_bracket: )
-  - semicolon: ;
-  - word: ALTER
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - word: SET
-  - word: OPTIONS
-  - start_bracket: (
-  - word: friendly_name
-  - equals: =
-  - double_quote: '"my_mv"'
-  - comma: ','
-  - word: labels
-  - equals: =
-  - start_square_bracket: '['
-  - start_bracket: (
-  - double_quote: '"org_unit"'
-  - comma: ','
-  - double_quote: '"development"'
-  - end_bracket: )
-  - end_square_bracket: ']'
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - alter_materialized_view_set_options_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - keyword: SET
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': enable_refresh
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'false'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_set_options_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - keyword: SET
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': friendly_name
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - quoted_identifier: '"my_mv"'
+        - comma: ','
+        - '': labels
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - array_literal:
+          - remove me: '['
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - quoted_identifier: '"org_unit"'
+              - comma: ','
+              - column_reference:
+                - quoted_identifier: '"development"'
+              - end_bracket: )
+          - remove me: ']'
+        - end_bracket: )
+- statement_terminator: ;

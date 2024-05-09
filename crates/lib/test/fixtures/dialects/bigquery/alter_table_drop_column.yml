@@ -4,18 +4,16 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mydataset
-        - dot: .
-        - naked_identifier: mytable
-    - '': DROP
-    - naked_identifier: COLUMN
-- unparsable:
-  - word: A
-  - comma: ','
-  - word: DROP
-  - word: COLUMN
-  - word: IF
-  - word: EXISTS
-  - word: B
-  - semicolon: ;
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: mytable
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: A
+    - comma: ','
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: B
+- statement_terminator: ;

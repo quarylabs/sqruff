@@ -110,9 +110,9 @@ fn position_metas(
 pub struct Sequence {
     elements: Vec<Rc<dyn Matchable>>,
     parse_mode: ParseMode,
-    allow_gaps: bool,
+    pub(crate) allow_gaps: bool,
     is_optional: bool,
-    terminators: Vec<Rc<dyn Matchable>>,
+    pub(crate) terminators: Vec<Rc<dyn Matchable>>,
     cache_key: String,
 }
 

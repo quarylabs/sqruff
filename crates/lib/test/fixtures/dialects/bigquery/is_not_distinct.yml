@@ -22,8 +22,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table
+              - naked_identifier: t_table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -49,8 +48,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table
+              - naked_identifier: t_table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -65,8 +63,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table
+              - naked_identifier: t_table
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -91,8 +88,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table
+              - naked_identifier: t_table
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -120,16 +116,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table_1
+              - naked_identifier: t_table_1
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t_table_2
+                - naked_identifier: t_table_2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -160,16 +154,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table_1
+              - naked_identifier: t_table_1
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t_table_2
+                - naked_identifier: t_table_2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -191,12 +183,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t_table_1
+      - naked_identifier: t_table_1
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: t_table_2
+      - naked_identifier: t_table_2
     - join_on_condition:
       - keyword: ON
       - expression:
@@ -238,12 +228,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t_table_1
+      - naked_identifier: t_table_1
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: t_table_2
+      - naked_identifier: t_table_2
     - join_on_condition:
       - keyword: ON
       - expression:

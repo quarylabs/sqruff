@@ -265,12 +265,12 @@ impl Matchable for AnyNumberOf {
         if let Some(insert_elements) = insert {
             if let Some(before_element) = before {
                 if let Some(index) = self.elements.iter().position(|e| e.hack_eq(&before_element)) {
-                    new_elements.splice(index..index, insert_elements.into_iter());
+                    new_elements.splice(index..index, insert_elements);
                 } else {
                     panic!("Element for insertion before not found");
                 }
             } else if let Some(at_index) = at {
-                new_elements.splice(at_index..at_index, insert_elements.into_iter());
+                new_elements.splice(at_index..at_index, insert_elements);
             } else {
                 new_elements.extend(insert_elements);
             }

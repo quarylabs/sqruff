@@ -4,8 +4,7 @@ file:
     - select_clause:
       - keyword: select
       - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"1"'
+        - numeric_literal: '"1"'
     - from_clause:
       - keyword: from
       - from_expression:
@@ -21,179 +20,92 @@ file:
     - unparsable:
       - equals: =
       - '': '@z_test1'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: datetime_trunc
-          - bracketed:
-            - start_bracket: (
-            - unparsable:
-              - '': '@z2'
-              - comma: ','
-              - word: week
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: datetime_trunc
-          - bracketed:
-            - start_bracket: (
-            - unparsable:
-              - '': '@_ab'
-              - comma: ','
-              - word: week
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: datetime_trunc
-          - bracketed:
-            - start_bracket: (
-            - unparsable:
-              - '': '@a'
-              - comma: ','
-              - word: week
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: parse_date
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '"%Y%m"'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: year
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '"1"'
-    - from_clause:
-      - keyword: from
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: x
-    - where_clause:
-      - keyword: where
-      - expression:
-        - column_reference:
-          - naked_identifier: y
-    - unparsable:
+      - semicolon: ;
+      - word: select
+      - word: datetime_trunc
+      - start_bracket: (
+      - '': '@z2'
+      - comma: ','
+      - word: week
+      - end_bracket: )
+      - semicolon: ;
+      - word: select
+      - word: datetime_trunc
+      - start_bracket: (
+      - '': '@_ab'
+      - comma: ','
+      - word: week
+      - end_bracket: )
+      - semicolon: ;
+      - word: select
+      - word: datetime_trunc
+      - start_bracket: (
+      - '': '@a'
+      - comma: ','
+      - word: week
+      - end_bracket: )
+      - semicolon: ;
+      - word: select
+      - word: parse_date
+      - start_bracket: (
+      - double_quote: '"%Y%m"'
+      - comma: ','
+      - word: year
+      - end_bracket: )
+      - semicolon: ;
+      - word: select
+      - double_quote: '"1"'
+      - word: from
+      - word: x
+      - word: where
+      - word: y
       - equals: =
       - '': '?'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: concat
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '"1"'
-            - unparsable:
-              - comma: ','
-              - '': '?'
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: id
+      - semicolon: ;
+      - word: select
+      - word: concat
+      - start_bracket: (
+      - double_quote: '"1"'
       - comma: ','
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: datetime_trunc
-          - bracketed:
-            - start_bracket: (
-            - unparsable:
-              - '': '@z2'
-              - comma: ','
-              - word: week
-            - end_bracket: )
+      - '': '?'
+      - end_bracket: )
+      - semicolon: ;
+      - word: select
+      - word: id
       - comma: ','
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: sum
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: something
-            - end_bracket: )
-        - alias_expression:
-          - naked_identifier: over
-      - unparsable:
-        - bracketed:
-          - start_bracket: (
-          - word: partition
-          - word: by
-          - word: some_id
-          - word: order
-          - word: by
-          - word: some_date
-          - word: rows
-          - word: BETWEEN
-          - '': '@query_parameter'
-          - word: PRECEDING
-          - word: AND
-          - word: CURRENT
-          - word: ROW
-          - end_bracket: )
-        - word: as
-        - word: some_sum
-    - from_clause:
-      - keyword: from
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: some_table
-    - where_clause:
-      - keyword: where
-      - expression:
-        - column_reference:
-          - naked_identifier: some_column
-    - unparsable:
+      - word: datetime_trunc
+      - start_bracket: (
+      - '': '@z2'
+      - comma: ','
+      - word: week
+      - end_bracket: )
+      - comma: ','
+      - word: sum
+      - start_bracket: (
+      - word: something
+      - end_bracket: )
+      - word: over
+      - start_bracket: (
+      - word: partition
+      - word: by
+      - word: some_id
+      - word: order
+      - word: by
+      - word: some_date
+      - word: rows
+      - word: BETWEEN
+      - '': '@query_parameter'
+      - word: PRECEDING
+      - word: AND
+      - word: CURRENT
+      - word: ROW
+      - end_bracket: )
+      - word: as
+      - word: some_sum
+      - word: from
+      - word: some_table
+      - word: where
+      - word: some_column
       - equals: =
       - '': '@query_parameter2'
-- statement_terminator: ;
+      - semicolon: ;

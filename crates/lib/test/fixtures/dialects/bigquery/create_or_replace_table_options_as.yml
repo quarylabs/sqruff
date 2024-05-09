@@ -11,10 +11,10 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': description
+        - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''copy of bar'''
+        - numeric_literal: '''copy of bar'''
         - end_bracket: )
     - keyword: AS
     - bracketed:

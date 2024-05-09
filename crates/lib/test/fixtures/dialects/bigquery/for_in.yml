@@ -1,115 +1,173 @@
 file:
-- unparsable:
-  - word: FOR
-  - word: record
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: word
-  - comma: ','
-  - word: word_count
-  - word: FROM
-  - word: bigquery
-  - minus: '-'
-  - word: public
-  - minus: '-'
-  - word: data
-  - dot: .
-  - word: samples
-  - dot: .
-  - word: shakespeare
-  - word: LIMIT
-  - numeric_literal: '5'
-  - end_bracket: )
-  - word: DO
-  - word: SELECT
-  - word: record
-  - dot: .
-  - word: word
-  - comma: ','
-  - word: record
-  - dot: .
-  - word: word_count
-  - semicolon: ;
-  - word: END
-  - word: FOR
-  - semicolon: ;
-  - word: FOR
-  - word: record
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: word
-  - comma: ','
-  - word: word_count
-  - word: FROM
-  - word: bigquery
-  - minus: '-'
-  - word: public
-  - minus: '-'
-  - word: data
-  - dot: .
-  - word: samples
-  - dot: .
-  - word: shakespeare
-  - word: LIMIT
-  - numeric_literal: '5'
-  - end_bracket: )
-  - word: DO
-  - word: SELECT
-  - word: record
-  - dot: .
-  - word: word
-  - comma: ','
-  - word: record
-  - dot: .
-  - word: word_count
-  - semicolon: ;
-  - word: SELECT
-  - word: record
-  - dot: .
-  - word: word
-  - comma: ','
-  - word: record
-  - dot: .
-  - word: word_count
-  - semicolon: ;
-  - word: SELECT
-  - word: record
-  - dot: .
-  - word: word
-  - comma: ','
-  - word: record
-  - dot: .
-  - word: word_count
-  - semicolon: ;
-  - word: END
-  - word: FOR
-  - semicolon: ;
-  - word: FOR
-  - word: user
-  - word: IN
-  - start_bracket: (
-  - word: SELECT
-  - word: group1
-  - comma: ','
-  - word: count
-  - start_bracket: (
-  - star: '*'
-  - end_bracket: )
-  - word: as
-  - word: count
-  - word: FROM
-  - back_quote: '`database.user`'
-  - end_bracket: )
-  - word: DO
-  - word: ASSERT
-  - start_bracket: (
-  - word: COUNT
-  - greater_than: '>'
-  - numeric_literal: '0'
-  - end_bracket: )
-  - semicolon: ;
-  - word: END
-  - word: FOR
-  - semicolon: ;
+- multi_statement_segment:
+  - for_in_statement:
+    - keyword: FOR
+    - naked_identifier: record
+    - keyword: IN
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: word
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: word_count
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: bigquery
+                  - remove me: '-'
+                  - naked_identifier: public
+                  - remove me: '-'
+                  - naked_identifier: data
+                  - dot: .
+                  - naked_identifier: samples
+                  - dot: .
+                  - naked_identifier: shakespeare
+        - limit_clause:
+          - keyword: LIMIT
+          - numeric_literal: '5'
+      - end_bracket: )
+    - keyword: DO
+    - for_in_statements:
+      - unparsable:
+        - word: SELECT
+        - word: record
+        - dot: .
+        - word: word
+        - comma: ','
+        - word: record
+        - dot: .
+        - word: word_count
+        - semicolon: ;
+    - keyword: END
+    - keyword: FOR
+- statement_terminator: ;
+- multi_statement_segment:
+  - for_in_statement:
+    - keyword: FOR
+    - naked_identifier: record
+    - keyword: IN
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: word
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: word_count
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: bigquery
+                  - remove me: '-'
+                  - naked_identifier: public
+                  - remove me: '-'
+                  - naked_identifier: data
+                  - dot: .
+                  - naked_identifier: samples
+                  - dot: .
+                  - naked_identifier: shakespeare
+        - limit_clause:
+          - keyword: LIMIT
+          - numeric_literal: '5'
+      - end_bracket: )
+    - keyword: DO
+    - for_in_statements:
+      - unparsable:
+        - word: SELECT
+        - word: record
+        - dot: .
+        - word: word
+        - comma: ','
+        - word: record
+        - dot: .
+        - word: word_count
+        - semicolon: ;
+        - word: SELECT
+        - word: record
+        - dot: .
+        - word: word
+        - comma: ','
+        - word: record
+        - dot: .
+        - word: word_count
+        - semicolon: ;
+        - word: SELECT
+        - word: record
+        - dot: .
+        - word: word
+        - comma: ','
+        - word: record
+        - dot: .
+        - word: word_count
+        - semicolon: ;
+    - keyword: END
+    - keyword: FOR
+- statement_terminator: ;
+- multi_statement_segment:
+  - for_in_statement:
+    - keyword: FOR
+    - naked_identifier: user
+    - keyword: IN
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: group1
+          - comma: ','
+          - select_clause_element:
+            - function:
+              - function_name:
+                - function_name_identifier: count
+              - bracketed:
+                - start_bracket: (
+                - star: '*'
+                - end_bracket: )
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: count
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: '`database.user`'
+      - end_bracket: )
+    - keyword: DO
+    - for_in_statements:
+      - statement:
+        - assert_statement:
+          - keyword: ASSERT
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: COUNT
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                - numeric_literal: '0'
+              - end_bracket: )
+      - statement_terminator: ;
+    - keyword: END
+    - keyword: FOR
+- statement_terminator: ;

@@ -46,11 +46,10 @@ file:
         - keyword: OPTIONS
         - bracketed:
           - start_bracket: (
-          - '': description
+          - parameter: description
           - comparison_operator:
             - raw_comparison_operator: =
-          - column_reference:
-            - quoted_identifier: '"my description"'
+          - numeric_literal: '"my description"'
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -70,11 +69,11 @@ file:
           - keyword: STRUCT
           - struct_type_schema:
             - remove me: <
-            - '': B
+            - parameter: B
             - data_type:
               - '': GEOGRAPHY
             - comma: ','
-            - '': C
+            - parameter: C
             - data_type:
               - array_type:
                 - keyword: ARRAY
@@ -83,25 +82,24 @@ file:
                   - '': INT64
                 - remove me: '>'
             - comma: ','
-            - '': D
+            - parameter: D
             - data_type:
               - '': INT64
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
             - comma: ','
-            - '': E
+            - parameter: E
             - data_type:
               - '': TIMESTAMP
             - options_segment:
               - keyword: OPTIONS
               - bracketed:
                 - start_bracket: (
-                - '': description
+                - parameter: description
                 - comparison_operator:
                   - raw_comparison_operator: =
-                - column_reference:
-                  - quoted_identifier: '"creation time"'
+                - numeric_literal: '"creation time"'
                 - end_bracket: )
             - remove me: '>'
 - statement_terminator: ;

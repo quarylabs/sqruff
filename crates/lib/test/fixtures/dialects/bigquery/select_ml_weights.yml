@@ -22,8 +22,9 @@ file:
                 - expression:
                   - column_reference:
                     - naked_identifier: MODEL
-                - unparsable:
-                  - back_quote: '`project.dataset.model`'
+                - expression:
+                  - column_reference:
+                    - naked_identifier: '`project.dataset.model`'
                 - end_bracket: )
     - orderby_clause:
       - keyword: ORDER

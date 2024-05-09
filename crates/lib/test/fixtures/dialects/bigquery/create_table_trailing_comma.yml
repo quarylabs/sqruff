@@ -38,11 +38,10 @@ file:
           - keyword: OPTIONS
           - bracketed:
             - start_bracket: (
-            - '': description
+            - parameter: description
             - comparison_operator:
               - raw_comparison_operator: =
-            - column_reference:
-              - quoted_identifier: '"An INTEGER field that is NOT NULL"'
+            - numeric_literal: '"An INTEGER field that is NOT NULL"'
             - end_bracket: )
       - comma: ','
       - end_bracket: )

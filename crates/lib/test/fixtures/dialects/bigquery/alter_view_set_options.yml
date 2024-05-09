@@ -12,7 +12,7 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': expiration_timestamp
+        - parameter: expiration_timestamp
         - comparison_operator:
           - raw_comparison_operator: =
         - function:
@@ -36,10 +36,9 @@ file:
                 - date_part: DAY
             - end_bracket: )
         - comma: ','
-        - '': description
+        - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - column_reference:
-          - quoted_identifier: '"View that expires seven days from now"'
+        - numeric_literal: '"View that expires seven days from now"'
         - end_bracket: )
 - statement_terminator: ;

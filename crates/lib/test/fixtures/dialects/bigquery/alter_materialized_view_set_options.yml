@@ -13,7 +13,7 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': enable_refresh
+        - parameter: enable_refresh
         - comparison_operator:
           - raw_comparison_operator: =
         - boolean_literal: 'false'
@@ -33,13 +33,12 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': friendly_name
+        - parameter: friendly_name
         - comparison_operator:
           - raw_comparison_operator: =
-        - column_reference:
-          - quoted_identifier: '"my_mv"'
+        - numeric_literal: '"my_mv"'
         - comma: ','
-        - '': labels
+        - parameter: labels
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
@@ -47,11 +46,9 @@ file:
           - expression:
             - bracketed:
               - start_bracket: (
-              - column_reference:
-                - quoted_identifier: '"org_unit"'
+              - numeric_literal: '"org_unit"'
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '"development"'
+              - numeric_literal: '"development"'
               - end_bracket: )
           - remove me: ']'
         - end_bracket: )

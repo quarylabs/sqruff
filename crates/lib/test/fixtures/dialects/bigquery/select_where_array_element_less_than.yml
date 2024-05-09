@@ -7,24 +7,44 @@ file:
         - wildcard_expression:
           - wildcard_identifier:
             - star: '*'
-    - unparsable:
+    - from_clause:
       - keyword: FROM
-      - back_quote: '`project.dataset.table_1`'
-      - word: WHERE
-      - word: effect_size_list
-      - start_square_bracket: '['
-      - word: ORDINAL
-      - start_bracket: (
-      - numeric_literal: '1'
-      - end_bracket: )
-      - end_square_bracket: ']'
-      - less_than: <
-      - word: effect_size_list
-      - start_square_bracket: '['
-      - word: ORDINAL
-      - start_bracket: (
-      - numeric_literal: '1'
-      - plus: +
-      - numeric_literal: '1'
-      - end_bracket: )
-      - end_square_bracket: ']'
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: '`project.dataset.table_1`'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: effect_size_list
+        - array_accessor:
+          - remove me: '['
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: ORDINAL
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
+          - remove me: ']'
+        - less_than: <
+        - column_reference:
+          - naked_identifier: effect_size_list
+        - array_accessor:
+          - remove me: '['
+          - expression:
+            - function:
+              - function_name:
+                - function_name_identifier: ORDINAL
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '1'
+                  - binary_operator: +
+                  - numeric_literal: '1'
+                - end_bracket: )
+          - remove me: ']'

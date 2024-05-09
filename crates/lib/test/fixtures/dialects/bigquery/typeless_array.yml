@@ -32,4 +32,5 @@ file:
               - word: FROM
               - word: number2
             - end_bracket: )
-- statement_terminator: ;
+      - unparsable:
+        - semicolon: ;

@@ -1,39 +1,55 @@
 file:
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: parseTopSellers
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: arr_str
+        - data_type:
+          - '': STRING
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - array_type:
+        - keyword: ARRAY
+        - remove me: <
+        - data_type:
+          - struct_type:
+            - keyword: STRUCT
+            - struct_type_schema:
+              - remove me: <
+              - parameter: product_id
+              - data_type:
+                - '': INT64
+              - comma: ','
+              - parameter: rating
+              - data_type:
+                - '': FLOAT64
+              - remove me: '>'
+        - remove me: '>'
+    - function_definition:
+      - keyword: LANGUAGE
+      - naked_identifier: js
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: library
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '['
+        - double_quote: '"gs://my-bucket/path/to/lib1.js"'
+        - comma: ','
+        - double_quote: '"gs://my-bucket/path/to/lib2.js"'
+        - remove me: ']'
+        - end_bracket: )
+      - keyword: AS
+      - numeric_literal: '""'
 - unparsable:
-  - word: CREATE
-  - word: TEMP
-  - word: FUNCTION
-  - word: parseTopSellers
-  - start_bracket: (
-  - word: arr_str
-  - word: STRING
-  - end_bracket: )
-  - word: RETURNS
-  - word: ARRAY
-  - less_than: <
-  - word: STRUCT
-  - less_than: <
-  - word: product_id
-  - word: INT64
-  - comma: ','
-  - word: rating
-  - word: FLOAT64
-  - greater_than: '>'
-  - greater_than: '>'
-  - word: LANGUAGE
-  - word: js
-  - word: OPTIONS
-  - start_bracket: (
-  - word: library
-  - equals: =
-  - start_square_bracket: '['
-  - double_quote: '"gs://my-bucket/path/to/lib1.js"'
-  - comma: ','
-  - double_quote: '"gs://my-bucket/path/to/lib2.js"'
-  - end_square_bracket: ']'
-  - end_bracket: )
-  - word: AS
-  - double_quote: '""'
   - double_quote: |-
       "
           CODE GOES HERE

@@ -44,9 +44,8 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': description
+        - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - column_reference:
-          - quoted_identifier: '"foo"'
+        - numeric_literal: '"foo"'
         - end_bracket: )

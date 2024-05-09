@@ -43,32 +43,25 @@ file:
                 - naked_identifier: mydataset
                 - dot: .
                 - naked_identifier: myothertable
-- statement_terminator: ;
-- statement:
-  - create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: mydataset
-      - dot: .
-      - naked_identifier: newtable
-    - keyword: COPY
-    - table_reference:
-      - naked_identifier: mydataset
-      - dot: .
-      - naked_identifier: sourcetable
-- statement_terminator: ;
-- statement:
-  - create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - naked_identifier: mydataset
-      - dot: .
-      - naked_identifier: newtable_clone
-    - keyword: CLONE
-    - table_reference:
-      - naked_identifier: mydataset
-      - dot: .
-      - naked_identifier: sourcetable
-- statement_terminator: ;
+      - unparsable:
+        - semicolon: ;
+        - word: CREATE
+        - word: TABLE
+        - word: mydataset
+        - dot: .
+        - word: newtable
+        - word: COPY
+        - word: mydataset
+        - dot: .
+        - word: sourcetable
+        - semicolon: ;
+        - word: CREATE
+        - word: TABLE
+        - word: mydataset
+        - dot: .
+        - word: newtable_clone
+        - word: CLONE
+        - word: mydataset
+        - dot: .
+        - word: sourcetable
+        - semicolon: ;

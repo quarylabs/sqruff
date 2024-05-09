@@ -22,8 +22,13 @@ file:
         - alias_expression:
           - keyword: AS
           - naked_identifier: orderdate
-    - unparsable:
+    - from_clause:
       - keyword: FROM
-      - back_quote: '`gcp-project.data.year_2021`'
-      - word: AS
-      - word: log_tbl
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: '`gcp-project.data.year_2021`'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: log_tbl

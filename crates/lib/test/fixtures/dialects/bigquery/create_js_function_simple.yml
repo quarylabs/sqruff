@@ -1,13 +1,19 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: FUNCTION
-  - word: qs
-  - start_bracket: (
-  - word: y
-  - word: STRING
-  - end_bracket: )
-  - word: LANGUAGE
-  - word: js
-  - word: AS
-  - double_quote: '" return y; "'
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: qs
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: y
+        - data_type:
+          - '': STRING
+        - end_bracket: )
+    - function_definition:
+      - keyword: LANGUAGE
+      - naked_identifier: js
+      - keyword: AS
+      - numeric_literal: '" return y; "'

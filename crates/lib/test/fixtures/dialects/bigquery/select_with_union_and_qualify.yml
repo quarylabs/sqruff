@@ -52,7 +52,7 @@ file:
             - naked_identifier: category
           - comparison_operator:
             - raw_comparison_operator: =
-          - remove me: '''vegetable'''
+          - numeric_literal: '''vegetable'''
       - qualify_clause:
         - keyword: QUALIFY
         - expression:
@@ -116,7 +116,7 @@ file:
             - naked_identifier: category
           - comparison_operator:
             - raw_comparison_operator: =
-          - remove me: '''vegetable'''
+          - numeric_literal: '''vegetable'''
       - qualify_clause:
         - keyword: QUALIFY
         - expression:

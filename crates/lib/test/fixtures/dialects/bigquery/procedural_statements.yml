@@ -8,177 +8,255 @@ file:
     - keyword: DEFAULT
     - numeric_literal: '0'
 - statement_terminator: ;
-- unparsable:
-  - word: REPEAT
-  - word: SET
-  - word: x
-  - equals: =
-  - word: x
-  - plus: +
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: SELECT
-  - word: x
-  - semicolon: ;
-  - word: UNTIL
-  - word: x
-  - greater_than: '>'
-  - equals: =
-  - numeric_literal: '3'
-  - word: END
-  - word: REPEAT
-  - semicolon: ;
-  - word: WHILE
-  - word: 'true'
-  - word: DO
-  - word: SELECT
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: CONTINUE
-  - semicolon: ;
-  - word: END
-  - word: WHILE
-  - semicolon: ;
-  - word: IF
-  - word: x
-  - greater_than: '>'
-  - equals: =
-  - numeric_literal: '10'
-  - word: THEN
-  - word: SELECT
-  - word: x
-  - semicolon: ;
-  - word: END
-  - word: IF
-  - semicolon: ;
-  - word: IF
-  - word: x
-  - greater_than: '>'
-  - equals: =
-  - numeric_literal: '10'
-  - word: THEN
-  - word: SET
-  - word: x
-  - equals: =
-  - word: x
-  - minus: '-'
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: ELSEIF
-  - word: x
-  - less_than: <
-  - numeric_literal: '0'
-  - word: THEN
-  - word: SET
-  - word: x
-  - equals: =
-  - word: x
-  - plus: +
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: ELSEIF
-  - word: x
-  - equals: =
-  - numeric_literal: '0'
-  - word: THEN
-  - word: SET
-  - word: x
-  - equals: =
-  - word: x
-  - plus: +
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: ELSE
-  - word: SELECT
-  - word: x
-  - semicolon: ;
-  - word: END
-  - word: IF
-  - semicolon: ;
-  - word: LOOP
-  - word: SET
-  - word: x
-  - equals: =
-  - word: x
-  - plus: +
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: IF
-  - word: x
-  - greater_than: '>'
-  - equals: =
-  - numeric_literal: '10'
-  - word: THEN
-  - word: LEAVE
-  - semicolon: ;
-  - word: ELSE
-  - word: CONTINUE
-  - semicolon: ;
-  - word: END
-  - word: IF
-  - semicolon: ;
-  - word: END
-  - word: LOOP
-  - semicolon: ;
-  - word: SELECT
-  - word: x
-  - semicolon: ;
-  - word: DECLARE
-  - word: heads
-  - word: BOOL
-  - semicolon: ;
-  - word: DECLARE
-  - word: heads_count
-  - word: INT64
-  - word: DEFAULT
-  - numeric_literal: '0'
-  - semicolon: ;
-  - word: LOOP
-  - word: SET
-  - word: heads
-  - equals: =
-  - word: RAND
-  - start_bracket: (
-  - end_bracket: )
-  - less_than: <
-  - numeric_literal: '0.5'
-  - semicolon: ;
-  - word: IF
-  - word: heads
-  - word: THEN
-  - word: SELECT
-  - single_quote: '''Heads!'''
-  - semicolon: ;
-  - word: SET
-  - word: heads_count
-  - equals: =
-  - word: heads_count
-  - plus: +
-  - numeric_literal: '1'
-  - semicolon: ;
-  - word: CONTINUE
-  - semicolon: ;
-  - word: END
-  - word: IF
-  - semicolon: ;
-  - word: SELECT
-  - single_quote: '''Tails!'''
-  - semicolon: ;
-  - word: BREAK
-  - semicolon: ;
-  - word: END
-  - word: LOOP
-  - semicolon: ;
-  - word: SELECT
-  - word: CONCAT
-  - start_bracket: (
-  - word: CAST
-  - start_bracket: (
-  - word: heads_count
-  - word: AS
-  - word: STRING
-  - end_bracket: )
-  - comma: ','
-  - single_quote: ''' heads in a row'''
-  - end_bracket: )
-  - semicolon: ;
+- multi_statement_segment:
+  - repeat_statement:
+    - keyword: REPEAT
+    - repeat_statements:
+      - statement:
+        - set_segment:
+          - keyword: SET
+          - naked_identifier: x
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: x
+            - binary_operator: +
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - unparsable:
+        - word: SELECT
+        - word: x
+        - semicolon: ;
+    - keyword: UNTIL
+    - expression:
+      - column_reference:
+        - naked_identifier: x
+      - greater_than_or_equal_to:
+        - raw_comparison_operator: '>'
+        - raw_comparison_operator: =
+      - numeric_literal: '3'
+    - keyword: END
+    - keyword: REPEAT
+- statement_terminator: ;
+- multi_statement_segment:
+  - while_statement:
+    - keyword: WHILE
+    - expression:
+      - boolean_literal: 'true'
+    - keyword: DO
+    - while_statements:
+      - unparsable:
+        - word: SELECT
+        - numeric_literal: '1'
+        - semicolon: ;
+        - word: CONTINUE
+        - semicolon: ;
+    - keyword: END
+    - keyword: WHILE
+- statement_terminator: ;
+- multi_statement_segment:
+  - if_statement:
+    - keyword: IF
+    - expression:
+      - column_reference:
+        - naked_identifier: x
+      - greater_than_or_equal_to:
+        - raw_comparison_operator: '>'
+        - raw_comparison_operator: =
+      - numeric_literal: '10'
+    - keyword: THEN
+    - if_statements:
+      - unparsable:
+        - word: SELECT
+        - word: x
+        - semicolon: ;
+    - keyword: END
+    - keyword: IF
+- statement_terminator: ;
+- multi_statement_segment:
+  - if_statement:
+    - keyword: IF
+    - expression:
+      - column_reference:
+        - naked_identifier: x
+      - greater_than_or_equal_to:
+        - raw_comparison_operator: '>'
+        - raw_comparison_operator: =
+      - numeric_literal: '10'
+    - keyword: THEN
+    - if_statements:
+      - statement:
+        - set_segment:
+          - keyword: SET
+          - naked_identifier: x
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: x
+            - remove me: '-'
+            - numeric_literal: '1'
+      - statement_terminator: ;
+    - keyword: ELSEIF
+    - expression:
+      - column_reference:
+        - naked_identifier: x
+      - less_than: <
+      - numeric_literal: '0'
+    - keyword: THEN
+    - if_statements:
+      - statement:
+        - set_segment:
+          - keyword: SET
+          - naked_identifier: x
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: x
+            - binary_operator: +
+            - numeric_literal: '1'
+      - statement_terminator: ;
+    - keyword: ELSEIF
+    - expression:
+      - column_reference:
+        - naked_identifier: x
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '0'
+    - keyword: THEN
+    - if_statements:
+      - statement:
+        - set_segment:
+          - keyword: SET
+          - naked_identifier: x
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: x
+            - binary_operator: +
+            - numeric_literal: '1'
+      - statement_terminator: ;
+    - keyword: ELSE
+    - if_statements:
+      - unparsable:
+        - word: SELECT
+        - word: x
+        - semicolon: ;
+    - keyword: END
+    - keyword: IF
+- statement_terminator: ;
+- multi_statement_segment:
+  - loop_statement:
+    - keyword: LOOP
+    - loop_statements:
+      - statement:
+        - set_segment:
+          - keyword: SET
+          - naked_identifier: x
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: x
+            - binary_operator: +
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - multi_statement_segment:
+        - if_statement:
+          - keyword: IF
+          - expression:
+            - column_reference:
+              - naked_identifier: x
+            - greater_than_or_equal_to:
+              - raw_comparison_operator: '>'
+              - raw_comparison_operator: =
+            - numeric_literal: '10'
+          - keyword: THEN
+          - if_statements:
+            - statement:
+              - leave_statement:
+                - keyword: LEAVE
+            - statement_terminator: ;
+          - keyword: ELSE
+          - if_statements:
+            - statement:
+              - continue_statement:
+                - keyword: CONTINUE
+            - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+    - keyword: END
+    - keyword: LOOP
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: x
+      - unparsable:
+        - semicolon: ;
+        - word: DECLARE
+        - word: heads
+        - word: BOOL
+        - semicolon: ;
+        - word: DECLARE
+        - word: heads_count
+        - word: INT64
+        - word: DEFAULT
+        - numeric_literal: '0'
+        - semicolon: ;
+        - word: LOOP
+        - word: SET
+        - word: heads
+        - equals: =
+        - word: RAND
+        - start_bracket: (
+        - end_bracket: )
+        - less_than: <
+        - numeric_literal: '0.5'
+        - semicolon: ;
+        - word: IF
+        - word: heads
+        - word: THEN
+        - word: SELECT
+        - single_quote: '''Heads!'''
+        - semicolon: ;
+        - word: SET
+        - word: heads_count
+        - equals: =
+        - word: heads_count
+        - plus: +
+        - numeric_literal: '1'
+        - semicolon: ;
+        - word: CONTINUE
+        - semicolon: ;
+        - word: END
+        - word: IF
+        - semicolon: ;
+        - word: SELECT
+        - single_quote: '''Tails!'''
+        - semicolon: ;
+        - word: BREAK
+        - semicolon: ;
+        - word: END
+        - word: LOOP
+        - semicolon: ;
+        - word: SELECT
+        - word: CONCAT
+        - start_bracket: (
+        - word: CAST
+        - start_bracket: (
+        - word: heads_count
+        - word: AS
+        - word: STRING
+        - end_bracket: )
+        - comma: ','
+        - single_quote: ''' heads in a row'''
+        - end_bracket: )
+        - semicolon: ;

@@ -20,7 +20,7 @@ file:
     - keyword: declare
     - naked_identifier: var4
     - keyword: default
-    - remove me: '''value'''
+    - numeric_literal: '''value'''
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -79,9 +79,9 @@ file:
     - keyword: default
     - array_literal:
       - remove me: '['
-      - remove me: '''one'''
+      - numeric_literal: '''one'''
       - comma: ','
-      - remove me: '''two'''
+      - numeric_literal: '''two'''
       - remove me: ']'
 - statement_terminator: ;
 - statement:
@@ -107,9 +107,9 @@ file:
     - keyword: default
     - array_literal:
       - remove me: '['
-      - remove me: '''one'''
+      - numeric_literal: '''one'''
       - comma: ','
-      - remove me: '''two'''
+      - numeric_literal: '''two'''
       - remove me: ']'
 - statement_terminator: ;
 - statement:
@@ -138,11 +138,11 @@ file:
         - keyword: struct
         - struct_type_schema:
           - remove me: <
-          - '': f1
+          - parameter: f1
           - data_type:
             - '': string
           - comma: ','
-          - '': f2
+          - parameter: f2
           - data_type:
             - '': string
           - remove me: '>'
@@ -156,11 +156,11 @@ file:
         - keyword: struct
         - struct_type_schema:
           - remove me: <
-          - '': f1
+          - parameter: f1
           - data_type:
             - '': string
           - comma: ','
-          - '': f2
+          - parameter: f2
           - data_type:
             - '': string
           - remove me: '>'
@@ -171,10 +171,10 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-          - remove me: '''one'''
+          - numeric_literal: '''one'''
         - comma: ','
         - expression:
-          - remove me: '''two'''
+          - numeric_literal: '''two'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -188,10 +188,10 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-          - remove me: '''one'''
+          - numeric_literal: '''one'''
         - comma: ','
         - expression:
-          - remove me: '''two'''
+          - numeric_literal: '''two'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -203,11 +203,11 @@ file:
         - keyword: struct
         - struct_type_schema:
           - remove me: <
-          - '': f1
+          - parameter: f1
           - data_type:
             - '': string
           - comma: ','
-          - '': f2
+          - parameter: f2
           - data_type:
             - '': string
           - remove me: '>'
@@ -215,9 +215,9 @@ file:
     - tuple:
       - bracketed:
         - start_bracket: (
-        - remove me: '''one'''
+        - numeric_literal: '''one'''
         - comma: ','
-        - remove me: '''two'''
+        - numeric_literal: '''two'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -229,7 +229,7 @@ file:
         - keyword: struct
         - struct_type_schema:
           - remove me: <
-          - '': f1
+          - parameter: f1
           - data_type:
             - '': string
             - bracketed_arguments:
@@ -238,7 +238,7 @@ file:
                 - numeric_literal: '10'
                 - end_bracket: )
           - comma: ','
-          - '': f2
+          - parameter: f2
           - data_type:
             - '': string
             - bracketed_arguments:
@@ -248,34 +248,48 @@ file:
                 - end_bracket: )
           - remove me: '>'
 - statement_terminator: ;
-- unparsable:
-  - word: declare
-  - back_quote: '`var1`'
-  - word: string
-  - semicolon: ;
-  - word: declare
-  - back_quote: '`var1`'
-  - word: string
-  - word: default
-  - single_quote: '''value'''
-  - semicolon: ;
-  - word: declare
-  - back_quote: '`var1`'
-  - comma: ','
-  - back_quote: '`var1`'
-  - word: string
-  - semicolon: ;
-  - word: declare
-  - word: var1
-  - comma: ','
-  - back_quote: '`var2`'
-  - word: string
-  - semicolon: ;
-  - word: declare
-  - word: var1
-  - comma: ','
-  - back_quote: '`var2`'
-  - word: string
-  - word: default
-  - single_quote: '''value'''
-  - semicolon: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: '`var1`'
+    - data_type:
+      - '': string
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: '`var1`'
+    - data_type:
+      - '': string
+    - keyword: default
+    - numeric_literal: '''value'''
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: '`var1`'
+    - comma: ','
+    - naked_identifier: '`var1`'
+    - data_type:
+      - '': string
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var1
+    - comma: ','
+    - naked_identifier: '`var2`'
+    - data_type:
+      - '': string
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var1
+    - comma: ','
+    - naked_identifier: '`var2`'
+    - data_type:
+      - '': string
+    - keyword: default
+    - numeric_literal: '''value'''
+- statement_terminator: ;

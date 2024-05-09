@@ -17,9 +17,9 @@ file:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - remove me: '''The Great Gatsby'''
+        - numeric_literal: '''The Great Gatsby'''
         - comma: ','
-        - remove me: '''F. Scott Fitzgerald'''
+        - numeric_literal: '''F. Scott Fitzgerald'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -39,19 +39,32 @@ file:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - remove me: '''The Great Gatsby'''
+        - numeric_literal: '''The Great Gatsby'''
         - comma: ','
-        - remove me: '''F. Scott Fitzgerald'''
+        - numeric_literal: '''F. Scott Fitzgerald'''
         - end_bracket: )
 - statement_terminator: ;
-- unparsable:
-  - word: INSERT
-  - word: INTO
-  - back_quote: '`project.dataset.table`'
-  - start_bracket: (
-  - word: SELECT
-  - star: '*'
-  - word: FROM
-  - word: table1
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: '`project.dataset.table`'
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: table1
+      - end_bracket: )
+- statement_terminator: ;

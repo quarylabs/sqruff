@@ -9,7 +9,7 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': expiration_timestamp
+        - parameter: expiration_timestamp
         - comparison_operator:
           - raw_comparison_operator: =
         - function:
@@ -44,7 +44,7 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': expiration_timestamp
+        - parameter: expiration_timestamp
         - comparison_operator:
           - raw_comparison_operator: =
         - function:
@@ -53,8 +53,7 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - column_reference:
-                - quoted_identifier: '"2023-01-01 00:00:00 UTC"'
+              - numeric_literal: '"2023-01-01 00:00:00 UTC"'
             - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;
@@ -68,13 +67,12 @@ file:
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
-        - '': description
+        - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - column_reference:
-          - quoted_identifier: '"Test mixed options"'
+        - numeric_literal: '"Test mixed options"'
         - comma: ','
-        - '': expiration_timestamp
+        - parameter: expiration_timestamp
         - comparison_operator:
           - raw_comparison_operator: =
         - function:
@@ -83,8 +81,7 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - column_reference:
-                - quoted_identifier: '"2023-01-01 00:00:00 UTC"'
+              - numeric_literal: '"2023-01-01 00:00:00 UTC"'
             - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;

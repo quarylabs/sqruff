@@ -1,18 +1,23 @@
 file:
-- unparsable:
-  - word: DROP
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - semicolon: ;
-  - word: DROP
-  - word: MATERIALIZED
-  - word: VIEW
-  - word: IF
-  - word: EXISTS
-  - word: mydataset
-  - dot: .
-  - word: my_mv
-  - semicolon: ;
+- statement:
+  - drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+- statement_terminator: ;
+- statement:
+  - drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+- statement_terminator: ;

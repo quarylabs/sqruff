@@ -1,151 +1,213 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: dataset
-  - dot: .
-  - word: CsvTable
-  - word: OPTIONS
-  - start_bracket: (
-  - word: format
-  - equals: =
-  - single_quote: '''CSV'''
-  - comma: ','
-  - word: uris
-  - equals: =
-  - start_square_bracket: '['
-  - single_quote: '''gs://bucket/path1.csv'''
-  - comma: ','
-  - single_quote: '''gs://bucket/path2.csv'''
-  - end_square_bracket: ']'
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: OR
-  - word: REPLACE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: dataset
-  - dot: .
-  - word: CsvTable
-  - start_bracket: (
-  - word: x
-  - word: INT64
-  - comma: ','
-  - word: y
-  - word: STRING
-  - end_bracket: )
-  - word: OPTIONS
-  - start_bracket: (
-  - word: format
-  - equals: =
-  - single_quote: '''CSV'''
-  - comma: ','
-  - word: uris
-  - equals: =
-  - start_square_bracket: '['
-  - single_quote: '''gs://bucket/path1.csv'''
-  - end_square_bracket: ']'
-  - comma: ','
-  - word: field_delimiter
-  - equals: =
-  - single_quote: '''|'''
-  - comma: ','
-  - word: max_bad_records
-  - equals: =
-  - numeric_literal: '5'
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: dataset
-  - dot: .
-  - word: AutoHivePartitionedTable
-  - word: WITH
-  - word: PARTITION
-  - word: COLUMNS
-  - word: OPTIONS
-  - start_bracket: (
-  - word: uris
-  - equals: =
-  - start_square_bracket: '['
-  - single_quote: '''gs://bucket/path/*'''
-  - end_square_bracket: ']'
-  - comma: ','
-  - word: format
-  - equals: =
-  - word: csv
-  - comma: ','
-  - word: hive_partition_uri_prefix
-  - equals: =
-  - single_quote: '''gs://bucket/path'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: dataset
-  - dot: .
-  - word: CustomHivePartitionedTable
-  - word: WITH
-  - word: PARTITION
-  - word: COLUMNS
-  - start_bracket: (
-  - word: field_1
-  - word: STRING
-  - comma: ','
-  - word: field_2
-  - word: INT64
-  - end_bracket: )
-  - word: OPTIONS
-  - start_bracket: (
-  - word: uris
-  - equals: =
-  - start_square_bracket: '['
-  - single_quote: '''gs://bucket/path/*'''
-  - end_square_bracket: ']'
-  - comma: ','
-  - word: format
-  - equals: =
-  - word: csv
-  - comma: ','
-  - word: hive_partition_uri_prefix
-  - equals: =
-  - single_quote: '''gs://bucket/path'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: EXTERNAL
-  - word: TABLE
-  - word: dataset
-  - dot: .
-  - word: CustomHivePartitionedTable
-  - word: OPTIONS
-  - start_bracket: (
-  - word: uris
-  - equals: =
-  - start_square_bracket: '['
-  - single_quote: '''gs://bucket/path/*'''
-  - end_square_bracket: ']'
-  - comma: ','
-  - word: format
-  - equals: =
-  - word: csv
-  - comma: ','
-  - word: hive_partition_uri_prefix
-  - equals: =
-  - single_quote: '''gs://bucket/path'''
-  - end_bracket: )
-  - word: WITH
-  - word: PARTITION
-  - word: COLUMNS
-  - start_bracket: (
-  - word: field_1
-  - word: STRING
-  - comma: ','
-  - word: field_2
-  - word: INT64
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: CsvTable
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': format
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''CSV'''
+        - comma: ','
+        - '': uris
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - array_literal:
+          - remove me: '['
+          - remove me: '''gs://bucket/path1.csv'''
+          - comma: ','
+          - remove me: '''gs://bucket/path2.csv'''
+          - remove me: ']'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_external_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: CsvTable
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - '': INT64
+      - comma: ','
+      - column_definition:
+        - naked_identifier: y
+        - data_type:
+          - '': STRING
+      - end_bracket: )
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': format
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''CSV'''
+        - comma: ','
+        - '': uris
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - array_literal:
+          - remove me: '['
+          - remove me: '''gs://bucket/path1.csv'''
+          - remove me: ']'
+        - comma: ','
+        - '': field_delimiter
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''|'''
+        - comma: ','
+        - '': max_bad_records
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '5'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: AutoHivePartitionedTable
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': uris
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - array_literal:
+          - remove me: '['
+          - remove me: '''gs://bucket/path/*'''
+          - remove me: ']'
+        - comma: ','
+        - '': format
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: csv
+        - comma: ','
+        - '': hive_partition_uri_prefix
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''gs://bucket/path'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: CustomHivePartitionedTable
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: field_1
+        - data_type:
+          - '': STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: field_2
+        - data_type:
+          - '': INT64
+      - end_bracket: )
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': uris
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - array_literal:
+          - remove me: '['
+          - remove me: '''gs://bucket/path/*'''
+          - remove me: ']'
+        - comma: ','
+        - '': format
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: csv
+        - comma: ','
+        - '': hive_partition_uri_prefix
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''gs://bucket/path'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: CustomHivePartitionedTable
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': uris
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - array_literal:
+          - remove me: '['
+          - remove me: '''gs://bucket/path/*'''
+          - remove me: ']'
+        - comma: ','
+        - '': format
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: csv
+        - comma: ','
+        - '': hive_partition_uri_prefix
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''gs://bucket/path'''
+        - end_bracket: )
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: field_1
+        - data_type:
+          - '': STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: field_2
+        - data_type:
+          - '': INT64
+      - end_bracket: )
+- statement_terminator: ;

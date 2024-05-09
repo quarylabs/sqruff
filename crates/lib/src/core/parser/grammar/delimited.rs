@@ -22,9 +22,9 @@ use crate::helpers::ToMatchable;
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Delimited {
     base: AnyNumberOf,
-    allow_trailing: bool,
+    pub(crate) allow_trailing: bool,
     delimiter: Rc<dyn Matchable>,
-    min_delimiters: Option<usize>,
+    pub(crate) min_delimiters: Option<usize>,
     optional: bool,
     cache_key: String,
 }

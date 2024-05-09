@@ -32,8 +32,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: another_table
+                          - naked_identifier: another_table
                 - where_clause:
                   - keyword: where
                   - expression:
@@ -54,8 +53,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: another_table
+              - naked_identifier: another_table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -131,16 +129,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
         - join_clause:
           - keyword: left
           - keyword: join
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: bar
+                - naked_identifier: bar
           - join_on_condition:
             - keyword: on
             - expression:
@@ -177,45 +173,42 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                  - column_reference:
-                    - naked_identifier: ARRAY
-                  - less_than: <
-                  - column_reference:
-                    - naked_identifier: STRUCT
-                  - less_than: <
-                  - column_reference:
-                    - naked_identifier: col_1
-                - expression:
-                  - column_reference:
-                    - naked_identifier: STRING
-                - comma: ','
-                - expression:
-                  - column_reference:
-                    - naked_identifier: col_2
-                - expression:
-                  - column_reference:
-                    - naked_identifier: STRING
-                  - bitwise_rshift:
-                    - raw_comparison_operator: '>'
-                    - raw_comparison_operator: '>'
-                  - array_literal:
-                    - remove me: '['
-                    - expression:
-                      - bracketed:
-                        - start_bracket: (
-                        - remove me: '''hello'''
-                        - comma: ','
-                        - remove me: '''world'''
-                        - end_bracket: )
-                    - comma: ','
-                    - expression:
-                      - bracketed:
-                        - start_bracket: (
-                        - remove me: '''hi'''
-                        - comma: ','
-                        - remove me: '''there'''
-                        - end_bracket: )
-                    - remove me: ']'
+                  - typed_array_literal:
+                    - array_type:
+                      - keyword: ARRAY
+                      - remove me: <
+                      - data_type:
+                        - struct_type:
+                          - keyword: STRUCT
+                          - struct_type_schema:
+                            - remove me: <
+                            - '': col_1
+                            - data_type:
+                              - '': STRING
+                            - comma: ','
+                            - '': col_2
+                            - data_type:
+                              - '': STRING
+                            - remove me: '>'
+                      - remove me: '>'
+                    - array_literal:
+                      - remove me: '['
+                      - expression:
+                        - bracketed:
+                          - start_bracket: (
+                          - remove me: '''hello'''
+                          - comma: ','
+                          - remove me: '''world'''
+                          - end_bracket: )
+                      - comma: ','
+                      - expression:
+                        - bracketed:
+                          - start_bracket: (
+                          - remove me: '''hi'''
+                          - comma: ','
+                          - remove me: '''there'''
+                          - end_bracket: )
+                      - remove me: ']'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -224,69 +217,79 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: STRUCT
-          - less_than: <
-          - column_reference:
-            - naked_identifier: int64
-          - comparison_operator:
-            - raw_comparison_operator: '>'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '5'
-            - end_bracket: )
+          - typed_struct_literal:
+            - struct_type:
+              - keyword: STRUCT
+              - struct_type_schema:
+                - remove me: <
+                - data_type:
+                  - '': int64
+                - remove me: '>'
+            - struct_literal:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - end_bracket: )
       - comma: ','
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: STRUCT
-          - less_than: <
-          - column_reference:
-            - naked_identifier: date
-          - comparison_operator:
-            - raw_comparison_operator: '>'
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - quoted_identifier: '"2011-05-05"'
-            - end_bracket: )
+          - typed_struct_literal:
+            - struct_type:
+              - keyword: STRUCT
+              - struct_type_schema:
+                - remove me: <
+                - data_type:
+                  - '': date
+                - remove me: '>'
+            - struct_literal:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - quoted_identifier: '"2011-05-05"'
+                - end_bracket: )
       - comma: ','
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: STRUCT
-          - less_than: <
-          - column_reference:
-            - naked_identifier: x
-        - alias_expression:
-          - naked_identifier: int64
+          - typed_struct_literal:
+            - struct_type:
+              - keyword: STRUCT
+              - struct_type_schema:
+                - remove me: <
+                - '': x
+                - data_type:
+                  - '': int64
+                - comma: ','
+                - '': y
+                - data_type:
+                  - '': string
+                - remove me: '>'
+            - struct_literal:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '1'
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: str_col
+                - end_bracket: )
       - comma: ','
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: y
-        - alias_expression:
-          - naked_identifier: string
-      - unparsable:
-        - greater_than: '>'
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '1'
-          - comma: ','
-          - word: t
-          - dot: .
-          - word: str_col
-          - end_bracket: )
-        - comma: ','
-        - word: STRUCT
-        - less_than: <
-        - word: int64
-        - greater_than: '>'
-        - bracketed:
-          - start_bracket: (
-          - word: int_col
-          - end_bracket: )
+        - expression:
+          - typed_struct_literal:
+            - struct_type:
+              - keyword: STRUCT
+              - struct_type_schema:
+                - remove me: <
+                - data_type:
+                  - '': int64
+                - remove me: '>'
+            - struct_literal:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: int_col
+                - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -315,8 +318,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table
+              - naked_identifier: table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -345,6 +347,5 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table
+              - naked_identifier: table
 - statement_terminator: ;

@@ -5,12 +5,14 @@ use super::bigquery_keywords::{BIGQUERY_RESERVED_KEYWORDS, BIGQUERY_UNRESERVED_K
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::Ref;
+use crate::core::parser::grammar::conditional::Conditional;
+use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{RegexLexer, StringLexer};
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::parsers::{StringParser, TypedParser};
+use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, SymbolSegment, SymbolSegmentNewArgs,
+    CodeSegment, CodeSegmentNewArgs, IdentifierSegment, SymbolSegment, SymbolSegmentNewArgs,
 };
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -122,6 +124,136 @@ pub fn bigquery_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "DashSegment".into(),
+            StringParser::new(
+                "-",
+                |segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "remove me" },
+                    )
+                },
+                "dash".to_owned().into(),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SingleIdentifierFullGrammar".into(),
+            one_of(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),
+                Ref::new("QuotedIdentifierSegment"),
+                Ref::new("NakedIdentifierFullSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DefaultDeclareOptionsGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DEFAULT"),
+                one_of(vec_of_erased![
+                    Ref::new("LiteralGrammar"),
+                    Bracketed::new(vec_of_erased![Ref::new("SelectStatementSegment")]),
+                    Ref::new("BareFunctionSegment"),
+                    Ref::new("FunctionSegment"),
+                    Ref::new("ArrayLiteralSegment"),
+                    Ref::new("TupleSegment"),
+                    Ref::new("BaseExpressionElementGrammar")
+                ])
+                .config(|this| {
+                    this.terminators = vec_of_erased![Ref::new("SemicolonSegment")];
+                })
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "NakedIdentifierFullSegment".into(),
+            RegexParser::new(
+                "[A-Z_][A-Z0-9_]*",
+                |segment| {
+                    IdentifierSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        CodeSegmentNewArgs {
+                            code_type: "naked_identifier_all",
+                            ..Default::default()
+                        },
+                    )
+                },
+                None,
+                false,
+                None,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "NakedIdentifierPart".into(),
+            RegexParser::new(
+                "[A-Z0-9_]+",
+                |segment| {
+                    IdentifierSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
+                    )
+                },
+                None,
+                false,
+                None,
+                None,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProcedureNameIdentifierSegment".into(),
+            one_of(vec_of_erased![
+                RegexParser::new(
+                    "[A-Z_][A-Z0-9_]*",
+                    |segment| {
+                        IdentifierSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs {
+                                code_type: "procedure_name_identifier",
+                                ..Default::default()
+                            },
+                        )
+                    },
+                    "STRUCT".to_owned().into(),
+                    false,
+                    None,
+                    None,
+                ),
+                RegexParser::new(
+                    "`[^`]*`",
+                    |segment| {
+                        IdentifierSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs {
+                                code_type: "procedure_name_identifier",
+                                ..Default::default()
+                            },
+                        )
+                    },
+                    None,
+                    false,
+                    None,
+                    None,
+                ),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // Set Keywords
@@ -218,9 +350,54 @@ pub fn bigquery_dialect() -> Dialect {
         WhileStatementSegment,
         SelectClauseModifierSegment,
         IntervalExpressionSegment,
-        // ???
+        ArrayFunctionNameSegment,
         DatePartWeekSegment,
-        FunctionNameSegment // FunctionSegment
+        FunctionNameSegment, // FunctionSegment
+        WildcardExpressionSegment,
+        ExceptClauseSegment,
+        ReplaceClauseSegment,
+        DatatypeSegment,
+        StructTypeSegment,
+        StructTypeSchemaSegment,
+        ArrayExpressionSegment,
+        TupleSegment,
+        NamedArgumentSegment,
+        SemiStructuredAccessorSegment,
+        ColumnReferenceSegment,
+        TableReferenceSegment,
+        DeclareStatementSegment,
+        SetStatementSegment,
+        PartitionBySegment,
+        ClusterBySegment,
+        OptionsSegment,
+        ColumnDefinitionSegment,
+        CreateTableStatementSegment,
+        AlterTableStatementSegment,
+        CreateExternalTableStatementSegment,
+        CreateViewStatementSegment,
+        AlterViewStatementSegment,
+        CreateMaterializedViewStatementSegment,
+        AlterMaterializedViewStatementSegment,
+        DropMaterializedViewStatementSegment,
+        ParameterizedSegment,
+        PivotForClauseSegment,
+        FromPivotExpressionSegment,
+        UnpivotAliasExpressionSegment,
+        FromUnpivotExpressionSegment,
+        InsertStatementSegment,
+        MergeStatementSegment,
+        MergeMatchedClauseSegment,
+        MergeInsertClauseSegment,
+        DeleteStatementSegment,
+        ProcedureNameSegment,
+        ProcedureParameterListSegment,
+        ProcedureStatements,
+        CallStatementSegment,
+        ReturnStatementSegment,
+        BreakStatementSegment,
+        LeaveStatementSegment,
+        ContinueStatementSegment,
+        RaiseStatementSegment
     );
 
     dialect.expand();
@@ -389,21 +566,21 @@ impl NodeTrait for StatementSegment {
     fn match_grammar() -> Rc<dyn Matchable> {
         ansi::StatementSegment::match_grammar().copy(
             Some(vec_of_erased![
-                // Ref::new("DeclareStatementSegment"),
-                // Ref::new("SetStatementSegment"),
+                Ref::new("DeclareStatementSegment"),
+                Ref::new("SetStatementSegment"),
                 // Ref::new("ExportStatementSegment"),
-                // Ref::new("CreateExternalTableStatementSegment"),
+                Ref::new("CreateExternalTableStatementSegment"),
                 Ref::new("AssertStatementSegment"),
-                // Ref::new("CallStatementSegment"),
-                // Ref::new("ReturnStatementSegment"),
-                // Ref::new("BreakStatementSegment"),
-                // Ref::new("LeaveStatementSegment"),
-                // Ref::new("ContinueStatementSegment"),
-                // Ref::new("RaiseStatementSegment"),
-                // Ref::new("AlterViewStatementSegment"),
-                // Ref::new("CreateMaterializedViewStatementSegment"),
-                // Ref::new("AlterMaterializedViewStatementSegment"),
-                // Ref::new("DropMaterializedViewStatementSegment"),
+                Ref::new("CallStatementSegment"),
+                Ref::new("ReturnStatementSegment"),
+                Ref::new("BreakStatementSegment"),
+                Ref::new("LeaveStatementSegment"),
+                Ref::new("ContinueStatementSegment"),
+                Ref::new("RaiseStatementSegment"),
+                Ref::new("AlterViewStatementSegment"),
+                Ref::new("CreateMaterializedViewStatementSegment"),
+                Ref::new("AlterMaterializedViewStatementSegment"),
+                Ref::new("DropMaterializedViewStatementSegment"),
             ]),
             None,
             None,
@@ -710,7 +887,20 @@ impl NodeTrait for ArrayFunctionNameSegment {
     const TYPE: &'static str = "function_name";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        unimplemented!()
+        StringParser::new(
+            "ARRAY",
+            |segment| {
+                SymbolSegment::create(
+                    &segment.get_raw().unwrap(),
+                    &segment.get_position_marker().unwrap(),
+                    SymbolSegmentNewArgs { r#type: "remove me" },
+                )
+            },
+            "function_name_identifier".to_owned().into(),
+            false,
+            None,
+        )
+        .to_matchable()
     }
 }
 
@@ -779,6 +969,1051 @@ impl NodeTrait for FunctionSegment {
 }
 
 pub struct FunctionDefinitionGrammar;
+
+pub struct WildcardExpressionSegment;
+
+impl NodeTrait for WildcardExpressionSegment {
+    const TYPE: &'static str = "wildcard_expression";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        ansi::WildcardExpressionSegment::match_grammar().copy(
+            Some(vec_of_erased![
+                Ref::new("ExceptClauseSegment").optional(),
+                Ref::new("ReplaceClauseSegment").optional(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        )
+    }
+}
+
+pub struct ExceptClauseSegment;
+
+impl NodeTrait for ExceptClauseSegment {
+    const TYPE: &'static str = "select_except_clause";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("EXCEPT"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "SingleIdentifierGrammar"
+            )])])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ReplaceClauseSegment;
+
+impl NodeTrait for ReplaceClauseSegment {
+    const TYPE: &'static str = "select_replace_clause";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("REPLACE"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                "SelectClauseElementSegment"
+            )])])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct DatatypeSegment;
+
+impl NodeTrait for DatatypeSegment {
+    const TYPE: &'static str = "data_type";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("DatatypeIdentifierSegment"),
+                Ref::new("BracketedArguments").optional(),
+            ]),
+            Sequence::new(vec_of_erased![Ref::keyword("ANY"), Ref::keyword("TYPE")]),
+            Ref::new("ArrayTypeSegment"),
+            Ref::new("StructTypeSegment"),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct StructTypeSegment;
+
+impl NodeTrait for StructTypeSegment {
+    const TYPE: &'static str = "struct_type";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("STRUCT"),
+            Ref::new("StructTypeSchemaSegment").optional(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct StructTypeSchemaSegment;
+
+impl NodeTrait for StructTypeSchemaSegment {
+    const TYPE: &'static str = "struct_type_schema";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+            vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("DatatypeSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ParameterNameSegment"),
+                        Ref::new("DatatypeSegment"),
+                    ]),
+                ]),
+                AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")]),
+                Ref::new("OptionsSegment").optional(),
+            ]
+        )])])
+        .config(|this| {
+            this.bracket_type = "angle";
+            this.bracket_pairs_set = "angle_bracket_pairs";
+        })
+        .to_matchable()
+    }
+}
+
+pub struct ArrayExpressionSegment;
+
+impl NodeTrait for ArrayExpressionSegment {
+    const TYPE: &'static str = "array_expression";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("ArrayFunctionNameSegment"),
+            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct TupleSegment;
+
+impl NodeTrait for TupleSegment {
+    const TYPE: &'static str = "tuple";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+            "BaseExpressionElementGrammar"
+        )])])
+        .to_matchable()
+    }
+}
+
+pub struct NamedArgumentSegment;
+
+impl NodeTrait for NamedArgumentSegment {
+    const TYPE: &'static str = "named_argument";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("NakedIdentifierSegment"),
+            Ref::new("RightArrowSegment"),
+            Ref::new("ExpressionSegment"),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct SemiStructuredAccessorSegment;
+
+impl NodeTrait for SemiStructuredAccessorSegment {
+    const TYPE: &'static str = "semi_structured_expression";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            AnyNumberOf::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::new("DotSegment"),
+                    one_of(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("StarSegment")
+                    ])
+                ]),
+                Ref::new("ArrayAccessorSegment").optional()
+            ])
+            .config(|this| this.min_times(1))
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ColumnReferenceSegment;
+
+impl NodeTrait for ColumnReferenceSegment {
+    const TYPE: &'static str = "column_reference";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar"),
+            Sequence::new(vec_of_erased![
+                Ref::new("ObjectReferenceDelimiterGrammar"),
+                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierFullGrammar")]).config(
+                    |this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.terminators = vec_of_erased![
+                            Ref::keyword("ON"),
+                            Ref::keyword("AS"),
+                            Ref::keyword("USING"),
+                            Ref::new("CommaSegment"),
+                            Ref::new("CastOperatorSegment"),
+                            Ref::new("StartSquareBracketSegment"),
+                            Ref::new("StartBracketSegment"),
+                            Ref::new("BinaryOperatorGrammar"),
+                            Ref::new("ColonSegment"),
+                            Ref::new("DelimiterGrammar"),
+                            Ref::new("BracketedSegment")
+                        ];
+                        this.allow_gaps = false;
+                    }
+                )
+            ])
+            .allow_gaps(false)
+            .config(|this| this.optional())
+        ])
+        .allow_gaps(false)
+        .to_matchable()
+    }
+}
+
+pub struct TableReferenceSegment;
+
+impl NodeTrait for TableReferenceSegment {
+    const TYPE: &'static str = "table_reference";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Delimited::new(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DashSegment"),
+                        Ref::new("NakedIdentifierPart")
+                    ])
+                    .config(|this| this.allow_gaps = false)
+                ])
+                .config(|this| this.optional())
+            ])
+            .config(|this| this.allow_gaps = false)
+        ])
+        .config(|this| {
+            this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+            this.terminators = vec_of_erased![
+                Ref::keyword("ON"),
+                Ref::keyword("AS"),
+                Ref::keyword("USING"),
+                Ref::new("CommaSegment"),
+                Ref::new("CastOperatorSegment"),
+                Ref::new("StartSquareBracketSegment"),
+                Ref::new("StartBracketSegment"),
+                Ref::new("ColonSegment"),
+                Ref::new("DelimiterGrammar"),
+                Ref::new("JoinLikeClauseGrammar"),
+                Ref::new("BracketedSegment")
+            ];
+            this.allow_gaps = false;
+        })
+        .to_matchable()
+    }
+}
+
+pub struct DeclareStatementSegment;
+
+impl NodeTrait for DeclareStatementSegment {
+    const TYPE: &'static str = "declare_segment";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DECLARE"),
+            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierFullGrammar")]),
+            one_of(vec_of_erased![
+                Ref::new("DefaultDeclareOptionsGrammar"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("DatatypeSegment"),
+                    Ref::new("DefaultDeclareOptionsGrammar").optional()
+                ])
+            ])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct SetStatementSegment;
+
+impl NodeTrait for SetStatementSegment {
+    const TYPE: &'static str = "set_segment";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("SET"),
+            one_of(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "NakedIdentifierSegment"
+                )])])
+            ]),
+            Ref::new("EqualsSegment"),
+            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                Ref::new("LiteralGrammar"),
+                Bracketed::new(vec_of_erased![Ref::new("SelectStatementSegment")]),
+                Ref::new("BareFunctionSegment"),
+                Ref::new("FunctionSegment"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![
+                        Ref::new("LiteralGrammar"),
+                        Bracketed::new(vec_of_erased![Ref::new("SelectStatementSegment")]),
+                        Ref::new("BareFunctionSegment"),
+                        Ref::new("FunctionSegment")
+                    ]
+                )])]),
+                Ref::new("ArrayLiteralSegment"),
+                Ref::new("ExpressionSegment")
+            ])])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct PartitionBySegment;
+
+impl NodeTrait for PartitionBySegment {
+    const TYPE: &'static str = "partition_by_segment";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("PARTITION"),
+            Ref::keyword("BY"),
+            Ref::new("ExpressionSegment")
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ClusterBySegment;
+
+impl NodeTrait for ClusterBySegment {
+    const TYPE: &'static str = "cluster_by_segment";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CLUSTER"),
+            Ref::keyword("BY"),
+            Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct OptionsSegment;
+
+impl NodeTrait for OptionsSegment {
+    const TYPE: &'static str = "options_segment";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("OPTIONS"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+                vec_of_erased![
+                    Ref::new("ParameterNameSegment"),
+                    Ref::new("EqualsSegment"),
+                    Ref::new("BaseExpressionElementGrammar")
+                ]
+            )])])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ColumnDefinitionSegment;
+
+impl NodeTrait for ColumnDefinitionSegment {
+    const TYPE: &'static str = "column_definition";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("SingleIdentifierGrammar"), // Column name
+            Ref::new("DatatypeSegment"),         // Column type
+            AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")]),
+            Ref::new("OptionsSegment").optional()
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct CreateTableStatementSegment;
+
+impl NodeTrait for CreateTableStatementSegment {
+    const TYPE: &'static str = "create_table_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("OrReplaceGrammar").optional(),
+            Ref::new("TemporaryTransientGrammar").optional(),
+            Ref::keyword("TABLE"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("COPY"),
+                    Ref::keyword("LIKE"),
+                    Ref::keyword("CLONE")
+                ]),
+                Ref::new("TableReferenceSegment"),
+            ])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")],)
+                    .config(|this| this.allow_trailing())
+            ])])
+            .config(|this| this.optional()),
+            Ref::new("PartitionBySegment").optional(),
+            Ref::new("ClusterBySegment").optional(),
+            Ref::new("OptionsSegment").optional(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("AS"),
+                optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+            ])
+            .config(|this| this.optional()),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct AlterTableStatementSegment;
+
+impl NodeTrait for AlterTableStatementSegment {
+    const TYPE: &'static str = "alter_table_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("TABLE"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            one_of(vec_of_erased![
+                // SET OPTIONS
+                Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::new("OptionsSegment"),]),
+                // ADD COLUMN
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::keyword("ADD"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("ColumnDefinitionSegment"),
+                ])])
+                .config(|this| this.allow_trailing = true),
+                // RENAME TO
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("TO"),
+                    Ref::new("TableReferenceSegment"),
+                ]),
+                // RENAME COLUMN
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::keyword("RENAME"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("TO"),
+                    Ref::new("SingleIdentifierGrammar"),
+                ])])
+                .config(|this| this.allow_trailing = true),
+                // DROP COLUMN
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                ])]),
+                // ALTER COLUMN SET OPTIONS
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("COLUMN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("SingleIdentifierGrammar"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            one_of(vec_of_erased![
+                                Ref::new("OptionsSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("DATA"),
+                                    Ref::keyword("TYPE"),
+                                    Ref::new("DatatypeSegment"),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("DEFAULT"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("LiteralGrammar"),
+                                        Ref::new("FunctionSegment"),
+                                    ]),
+                                ]),
+                            ])
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DROP"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("NOT"),
+                                    Ref::keyword("NULL"),
+                                ]),
+                            ]),
+                        ]),
+                    ]),
+                ])])
+            ])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct CreateExternalTableStatementSegment;
+
+impl NodeTrait for CreateExternalTableStatementSegment {
+    const TYPE: &'static str = "create_external_table_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("OR").optional(),
+                Ref::keyword("REPLACE").optional()
+            ])
+            .config(|this| this.optional()),
+            Ref::keyword("EXTERNAL"),
+            Ref::keyword("TABLE"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("IF").optional(),
+                Ref::keyword("NOT").optional(),
+                Ref::keyword("EXISTS").optional()
+            ])
+            .config(|this| this.optional()),
+            Ref::new("TableReferenceSegment"),
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
+                    .config(|this| this.allow_trailing = true)
+            ])
+            .config(|this| this.optional()),
+            AnyNumberOf::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("CONNECTION"),
+                    Ref::new("TableReferenceSegment")
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("PARTITION"),
+                    Ref::keyword("COLUMNS"),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("ColumnDefinitionSegment")])
+                            .config(|this| this.allow_trailing = true)
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .config(|this| this.optional()),
+                Ref::new("OptionsSegment").optional()
+            ])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct CreateViewStatementSegment;
+
+impl NodeTrait for CreateViewStatementSegment {
+    const TYPE: &'static str = "create_view_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("OrReplaceGrammar").optional(),
+            Ref::keyword("VIEW"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("BracketedColumnReferenceListGrammar").optional(),
+            Ref::new("OptionsSegment").optional(),
+            Ref::keyword("AS"),
+            optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct AlterViewStatementSegment;
+
+impl NodeTrait for AlterViewStatementSegment {
+    const TYPE: &'static str = "alter_view_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("VIEW"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::keyword("SET"),
+            Ref::new("OptionsSegment"),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct CreateMaterializedViewStatementSegment;
+
+impl NodeTrait for CreateMaterializedViewStatementSegment {
+    const TYPE: &'static str = "create_materialized_view_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CREATE"),
+            Ref::new("OrReplaceGrammar").optional(),
+            Ref::keyword("MATERIALIZED"),
+            Ref::keyword("VIEW"),
+            Ref::new("IfNotExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("PartitionBySegment").optional(),
+            Ref::new("ClusterBySegment").optional(),
+            Ref::new("OptionsSegment").optional(),
+            Ref::keyword("AS"),
+            optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct AlterMaterializedViewStatementSegment;
+
+impl NodeTrait for AlterMaterializedViewStatementSegment {
+    const TYPE: &'static str = "alter_materialized_view_set_options_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ALTER"),
+            Ref::keyword("MATERIALIZED"),
+            Ref::keyword("VIEW"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::keyword("SET"),
+            Ref::new("OptionsSegment"),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct DropMaterializedViewStatementSegment;
+
+impl NodeTrait for DropMaterializedViewStatementSegment {
+    const TYPE: &'static str = "drop_materialized_view_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("DROP"),
+            Ref::keyword("MATERIALIZED"),
+            Ref::keyword("VIEW"),
+            Ref::new("IfExistsGrammar").optional(),
+            Ref::new("TableReferenceSegment"),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ParameterizedSegment;
+
+impl NodeTrait for ParameterizedSegment {
+    const TYPE: &'static str = "parameterized_expression";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        one_of(vec_of_erased![Ref::new("AtSignLiteralSegment"), Ref::new("QuestionMarkSegment"),])
+            .to_matchable()
+    }
+}
+
+pub struct PivotForClauseSegment;
+
+impl NodeTrait for PivotForClauseSegment {
+    const TYPE: &'static str = "pivot_for_clause";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![Ref::new("BaseExpressionElementGrammar"),])
+            .config(|this| {
+                this.terminators = vec_of_erased![Ref::keyword("IN")];
+                this.parse_mode(ParseMode::Greedy);
+            })
+            .to_matchable()
+    }
+}
+
+pub struct FromPivotExpressionSegment;
+
+impl NodeTrait for FromPivotExpressionSegment {
+    const TYPE: &'static str = "from_pivot_expression";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("PIVOT"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+                vec_of_erased![
+                    Ref::new("FunctionSegment"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]
+            )])]),
+            Ref::keyword("FOR"),
+            Ref::new("PivotForClauseSegment"),
+            Ref::keyword("IN"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+                vec_of_erased![
+                    Ref::new("LiteralGrammar"),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ]
+            )])])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct UnpivotAliasExpressionSegment;
+
+impl NodeTrait for UnpivotAliasExpressionSegment {
+    const TYPE: &'static str = "alias_expression";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
+            Ref::new("AS").optional(),
+            one_of(vec_of_erased![
+                Ref::new("QuotedLiteralSegment"),
+                Ref::new("NumericLiteralSegment"),
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct FromUnpivotExpressionSegment;
+
+impl NodeTrait for FromUnpivotExpressionSegment {
+    const TYPE: &'static str = "from_unpivot_expression";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("UNPIVOT"),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("INCLUDE"), Ref::keyword("EXCLUDE")]),
+                Ref::keyword("NULLS"),
+            ])
+            .config(|this| this.optional()),
+            one_of(vec_of_erased![
+                // Single column unpivot
+                Bracketed::new(vec_of_erased![
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("FOR"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("IN"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+                        vec_of_erased![
+                            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]),
+                            Ref::new("UnpivotAliasExpressionSegment").optional(),
+                        ]
+                    )])])
+                ]),
+                // Multi column unpivot
+                Bracketed::new(vec_of_erased![
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+                            .config(|this| this.min_delimiters = 1.into()),
+                    ]),
+                    Ref::keyword("FOR"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Ref::keyword("IN"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+                        vec_of_erased![
+                            Bracketed::new(vec_of_erased![
+                                Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
+                                    .config(|this| this.min_delimiters = 1.into()),
+                            ]),
+                            Ref::new("UnpivotAliasExpressionSegment").optional(),
+                        ]
+                    )])])
+                ])
+            ])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct InsertStatementSegment;
+
+impl NodeTrait for InsertStatementSegment {
+    const TYPE: &'static str = "insert_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("INSERT"),
+            Ref::keyword("INTO").optional(),
+            Ref::new("TableReferenceSegment"),
+            Ref::new("BracketedColumnReferenceListGrammar").optional(),
+            Ref::new("SelectableGrammar")
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeStatementSegment;
+
+impl NodeTrait for MergeStatementSegment {
+    const TYPE: &'static str = "merge_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::new("MergeIntoLiteralGrammar"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("TableReferenceSegment"),
+                Ref::new("AliasedTableReferenceGrammar"),
+            ]),
+            MetaSegment::dedent(),
+            Ref::keyword("USING"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("TableReferenceSegment"),
+                Ref::new("AliasedTableReferenceGrammar"),
+                Sequence::new(vec_of_erased![
+                    Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
+                    Ref::new("AliasExpressionSegment").optional(),
+                ])
+            ]),
+            MetaSegment::dedent(),
+            Conditional::new(MetaSegment::indent()).indented_using_on(),
+            Ref::new("JoinOnConditionSegment"),
+            Conditional::new(MetaSegment::dedent()).indented_using_on(),
+            Ref::new("MergeMatchSegment"),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeMatchSegment;
+
+impl NodeTrait for MergeMatchSegment {
+    const TYPE: &'static str = "merge_match";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        AnyNumberOf::new(vec_of_erased![
+            Ref::new("MergeMatchedClauseSegment"),
+            Ref::new("MergeNotMatchedClauseSegment"),
+        ])
+        .config(|this| this.min_times = 1)
+        .to_matchable()
+    }
+}
+
+pub struct MergeMatchedClauseSegment;
+
+impl NodeTrait for MergeMatchedClauseSegment {
+    const TYPE: &'static str = "merge_when_matched_clause";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WHEN"),
+            Ref::keyword("MATCHED"),
+            Sequence::new(vec_of_erased![Ref::keyword("AND"), Ref::new("ExpressionSegment")])
+                .config(|this| this.optional()),
+            Ref::keyword("THEN"),
+            MetaSegment::indent(),
+            one_of(vec_of_erased![
+                Ref::new("MergeUpdateClauseSegment"),
+                Ref::new("MergeDeleteClauseSegment"),
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeInsertClauseSegment;
+
+impl NodeTrait for MergeInsertClauseSegment {
+    const TYPE: &'static str = "merge_insert_clause";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("INSERT"),
+            MetaSegment::indent(),
+            Ref::new("BracketedColumnReferenceListGrammar").optional(),
+            MetaSegment::dedent(),
+            Ref::new("ValuesClauseSegment").optional(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct DeleteStatementSegment;
+
+impl NodeTrait for DeleteStatementSegment {
+    const TYPE: &'static str = "delete_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            // The DELETE keyword
+            Ref::keyword("DELETE"),
+            // The optional FROM keyword
+            Ref::keyword("FROM").optional(),
+            // Table reference
+            Ref::new("TableReferenceSegment"),
+            // Optional alias expression
+            Ref::new("AliasExpressionSegment").optional(),
+            // Optional WHERE clause
+            Ref::new("WhereClauseSegment").optional(),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ExportStatementSegment;
+
+pub struct ProcedureNameSegment;
+
+impl NodeTrait for ProcedureNameSegment {
+    const TYPE: &'static str = "procedure_name";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            // Project name, schema identifier, etc.
+            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("SingleIdentifierGrammar"),
+                Ref::new("DotSegment"),
+            ])]),
+            // Base procedure name
+            one_of(vec_of_erased![
+                Ref::new("ProcedureNameIdentifierSegment"),
+                Ref::new("QuotedIdentifierSegment"),
+            ])
+        ])
+        .config(|this| this.allow_gaps = false)
+        .to_matchable()
+    }
+}
+
+pub struct ProcedureParameterListSegment;
+
+impl NodeTrait for ProcedureParameterListSegment {
+    const TYPE: &'static str = "procedure_parameter_list";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Bracketed::new(vec_of_erased![
+            Delimited::new(vec_of_erased![Ref::new("ProcedureParameterGrammar")])
+                .config(|this| this.optional())
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ProcedureStatements;
+
+impl NodeTrait for ProcedureStatements {
+    const TYPE: &'static str = "procedure_statements";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+            Ref::new("StatementSegment"),
+            Ref::new("DelimiterGrammar")
+        ])])
+        .config(|this| {
+            this.terminators = vec_of_erased![Ref::keyword("END")];
+            this.parse_mode = ParseMode::Greedy;
+        })
+        .to_matchable()
+    }
+}
+
+pub struct CallStatementSegment;
+
+impl NodeTrait for CallStatementSegment {
+    const TYPE: &'static str = "call_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("CALL"),
+            Ref::new("ProcedureNameSegment"),
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                    .config(|this| this.optional())
+            ])
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct ReturnStatementSegment;
+
+impl NodeTrait for ReturnStatementSegment {
+    const TYPE: &'static str = "return_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![Ref::keyword("RETURN")]).to_matchable()
+    }
+}
+
+pub struct BreakStatementSegment;
+
+impl NodeTrait for BreakStatementSegment {
+    const TYPE: &'static str = "break_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![Ref::keyword("BREAK")]).to_matchable()
+    }
+}
+
+pub struct LeaveStatementSegment;
+
+impl NodeTrait for LeaveStatementSegment {
+    const TYPE: &'static str = "leave_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![Ref::keyword("LEAVE")]).to_matchable()
+    }
+}
+
+pub struct ContinueStatementSegment;
+
+impl NodeTrait for ContinueStatementSegment {
+    const TYPE: &'static str = "continue_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        one_of(vec_of_erased![Ref::keyword("CONTINUE"), Ref::keyword("ITERATE")]).to_matchable()
+    }
+}
+
+pub struct RaiseStatementSegment;
+
+impl NodeTrait for RaiseStatementSegment {
+    const TYPE: &'static str = "raise_statement";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("RAISE"),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("USING"),
+                Ref::keyword("MESSAGE"),
+                Ref::new("EqualsSegment"),
+                Ref::new("ExpressionSegment").optional(),
+            ])
+            .config(|this| this.optional())
+        ])
+        .to_matchable()
+    }
+}
 
 #[cfg(test)]
 mod tests {

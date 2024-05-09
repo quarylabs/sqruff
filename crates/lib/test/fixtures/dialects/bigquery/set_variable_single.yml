@@ -1,16 +1,22 @@
 file:
-- unparsable:
-  - word: set
-  - word: var1
-  - equals: =
-  - numeric_literal: '5'
-  - semicolon: ;
-  - word: set
-  - word: var1
-  - equals: =
-  - start_square_bracket: '['
-  - single_quote: '''one'''
-  - comma: ','
-  - single_quote: '''two'''
-  - end_square_bracket: ']'
-  - semicolon: ;
+- statement:
+  - set_segment:
+    - keyword: set
+    - naked_identifier: var1
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - set_segment:
+    - keyword: set
+    - naked_identifier: var1
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - array_literal:
+      - remove me: '['
+      - remove me: '''one'''
+      - comma: ','
+      - remove me: '''two'''
+      - remove me: ']'
+- statement_terminator: ;

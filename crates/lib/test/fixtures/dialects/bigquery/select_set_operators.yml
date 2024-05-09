@@ -13,8 +13,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: number1
+                - naked_identifier: number1
     - set_operator:
       - keyword: EXCEPT
       - keyword: DISTINCT
@@ -30,8 +29,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: number2
+                - naked_identifier: number2
 - statement_terminator: ;
 - statement:
   - set_expression:
@@ -49,8 +47,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: number1
+                  - naked_identifier: number1
       - end_bracket: )
     - set_operator:
       - keyword: INTERSECT
@@ -69,8 +66,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: number2
+                  - naked_identifier: number2
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -89,8 +85,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: number1
+                  - naked_identifier: number1
       - end_bracket: )
     - set_operator:
       - keyword: UNION
@@ -109,8 +104,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: number2
+                  - naked_identifier: number2
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -127,8 +121,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: number1
+                - naked_identifier: number1
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -146,8 +139,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: number2
+                  - naked_identifier: number2
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -167,8 +159,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: number1
+                    - naked_identifier: number1
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -184,8 +175,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: number2
+                    - naked_identifier: number2
       - end_bracket: )
     - set_operator:
       - keyword: UNION
@@ -205,8 +195,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: number3
+                    - naked_identifier: number3
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -222,7 +211,6 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: number4
+                    - naked_identifier: number4
       - end_bracket: )
 - statement_terminator: ;

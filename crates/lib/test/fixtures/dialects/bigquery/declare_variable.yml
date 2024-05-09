@@ -1,162 +1,254 @@
 file:
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var1
+    - data_type:
+      - '': int64
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var2
+    - comma: ','
+    - naked_identifier: var3
+    - data_type:
+      - '': string
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var4
+    - keyword: default
+    - remove me: '''value'''
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var5
+    - data_type:
+      - '': int64
+    - keyword: default
+    - expression:
+      - numeric_literal: '1'
+      - binary_operator: +
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var6
+    - data_type:
+      - '': string
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: var7
+    - data_type:
+      - '': numeric
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '5'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: arr1
+    - data_type:
+      - array_type:
+        - keyword: array
+        - remove me: <
+        - data_type:
+          - '': string
+        - remove me: '>'
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: arr2
+    - keyword: default
+    - array_literal:
+      - remove me: '['
+      - remove me: '''one'''
+      - comma: ','
+      - remove me: '''two'''
+      - remove me: ']'
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: arr3
+    - keyword: default
+    - array_literal:
+      - remove me: '['
+      - remove me: ']'
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: arr4
+    - data_type:
+      - array_type:
+        - keyword: array
+        - remove me: <
+        - data_type:
+          - '': string
+        - remove me: '>'
+    - keyword: default
+    - array_literal:
+      - remove me: '['
+      - remove me: '''one'''
+      - comma: ','
+      - remove me: '''two'''
+      - remove me: ']'
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: arr5
+    - data_type:
+      - array_type:
+        - keyword: array
+        - remove me: <
+        - data_type:
+          - '': string
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )
+        - remove me: '>'
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: str1
+    - data_type:
+      - struct_type:
+        - keyword: struct
+        - struct_type_schema:
+          - remove me: <
+          - '': f1
+          - data_type:
+            - '': string
+          - comma: ','
+          - '': f2
+          - data_type:
+            - '': string
+          - remove me: '>'
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: str2
+    - data_type:
+      - struct_type:
+        - keyword: struct
+        - struct_type_schema:
+          - remove me: <
+          - '': f1
+          - data_type:
+            - '': string
+          - comma: ','
+          - '': f2
+          - data_type:
+            - '': string
+          - remove me: '>'
+    - keyword: default
+    - function:
+      - function_name:
+        - function_name_identifier: struct
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - remove me: '''one'''
+        - comma: ','
+        - expression:
+          - remove me: '''two'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: str3
+    - keyword: default
+    - function:
+      - function_name:
+        - function_name_identifier: struct
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - remove me: '''one'''
+        - comma: ','
+        - expression:
+          - remove me: '''two'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: str4
+    - data_type:
+      - struct_type:
+        - keyword: struct
+        - struct_type_schema:
+          - remove me: <
+          - '': f1
+          - data_type:
+            - '': string
+          - comma: ','
+          - '': f2
+          - data_type:
+            - '': string
+          - remove me: '>'
+    - keyword: default
+    - tuple:
+      - bracketed:
+        - start_bracket: (
+        - remove me: '''one'''
+        - comma: ','
+        - remove me: '''two'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - declare_segment:
+    - keyword: declare
+    - naked_identifier: str5
+    - data_type:
+      - struct_type:
+        - keyword: struct
+        - struct_type_schema:
+          - remove me: <
+          - '': f1
+          - data_type:
+            - '': string
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - end_bracket: )
+          - comma: ','
+          - '': f2
+          - data_type:
+            - '': string
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - end_bracket: )
+          - remove me: '>'
+- statement_terminator: ;
 - unparsable:
-  - word: declare
-  - word: var1
-  - word: int64
-  - semicolon: ;
-  - word: declare
-  - word: var2
-  - comma: ','
-  - word: var3
-  - word: string
-  - semicolon: ;
-  - word: declare
-  - word: var4
-  - word: default
-  - single_quote: '''value'''
-  - semicolon: ;
-  - word: declare
-  - word: var5
-  - word: int64
-  - word: default
-  - numeric_literal: '1'
-  - plus: +
-  - numeric_literal: '2'
-  - semicolon: ;
-  - word: declare
-  - word: var6
-  - word: string
-  - start_bracket: (
-  - numeric_literal: '10'
-  - end_bracket: )
-  - semicolon: ;
-  - word: declare
-  - word: var7
-  - word: numeric
-  - start_bracket: (
-  - numeric_literal: '5'
-  - comma: ','
-  - numeric_literal: '2'
-  - end_bracket: )
-  - semicolon: ;
-  - word: declare
-  - word: arr1
-  - word: array
-  - less_than: <
-  - word: string
-  - greater_than: '>'
-  - semicolon: ;
-  - word: declare
-  - word: arr2
-  - word: default
-  - start_square_bracket: '['
-  - single_quote: '''one'''
-  - comma: ','
-  - single_quote: '''two'''
-  - end_square_bracket: ']'
-  - semicolon: ;
-  - word: declare
-  - word: arr3
-  - word: default
-  - start_square_bracket: '['
-  - end_square_bracket: ']'
-  - semicolon: ;
-  - word: declare
-  - word: arr4
-  - word: array
-  - less_than: <
-  - word: string
-  - greater_than: '>'
-  - word: default
-  - start_square_bracket: '['
-  - single_quote: '''one'''
-  - comma: ','
-  - single_quote: '''two'''
-  - end_square_bracket: ']'
-  - semicolon: ;
-  - word: declare
-  - word: arr5
-  - word: array
-  - less_than: <
-  - word: string
-  - start_bracket: (
-  - numeric_literal: '10'
-  - end_bracket: )
-  - greater_than: '>'
-  - semicolon: ;
-  - word: declare
-  - word: str1
-  - word: struct
-  - less_than: <
-  - word: f1
-  - word: string
-  - comma: ','
-  - word: f2
-  - word: string
-  - greater_than: '>'
-  - semicolon: ;
-  - word: declare
-  - word: str2
-  - word: struct
-  - less_than: <
-  - word: f1
-  - word: string
-  - comma: ','
-  - word: f2
-  - word: string
-  - greater_than: '>'
-  - word: default
-  - word: struct
-  - start_bracket: (
-  - single_quote: '''one'''
-  - comma: ','
-  - single_quote: '''two'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: declare
-  - word: str3
-  - word: default
-  - word: struct
-  - start_bracket: (
-  - single_quote: '''one'''
-  - comma: ','
-  - single_quote: '''two'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: declare
-  - word: str4
-  - word: struct
-  - less_than: <
-  - word: f1
-  - word: string
-  - comma: ','
-  - word: f2
-  - word: string
-  - greater_than: '>'
-  - word: default
-  - start_bracket: (
-  - single_quote: '''one'''
-  - comma: ','
-  - single_quote: '''two'''
-  - end_bracket: )
-  - semicolon: ;
-  - word: declare
-  - word: str5
-  - word: struct
-  - less_than: <
-  - word: f1
-  - word: string
-  - start_bracket: (
-  - numeric_literal: '10'
-  - end_bracket: )
-  - comma: ','
-  - word: f2
-  - word: string
-  - start_bracket: (
-  - numeric_literal: '10'
-  - end_bracket: )
-  - greater_than: '>'
-  - semicolon: ;
   - word: declare
   - back_quote: '`var1`'
   - word: string

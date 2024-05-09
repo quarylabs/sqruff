@@ -13,10 +13,9 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: dataset
-                - dot: .
-                - naked_identifier: my_table
+              - naked_identifier: dataset
+              - dot: .
+              - naked_identifier: my_table
           - alias_expression:
             - naked_identifier: TABLESAMPLE
     - unparsable:

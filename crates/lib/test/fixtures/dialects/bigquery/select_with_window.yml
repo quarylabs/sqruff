@@ -41,8 +41,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: Produce
+              - naked_identifier: Produce
     - named_window:
       - keyword: WINDOW
       - named_window_expression:
@@ -114,8 +113,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: Produce
+              - naked_identifier: Produce
     - named_window:
       - keyword: WINDOW
       - named_window_expression:
@@ -222,8 +220,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: Produce
+              - naked_identifier: Produce
     - named_window:
       - keyword: WINDOW
       - named_window_expression:
@@ -295,8 +292,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: raw_data_1
+                - naked_identifier: raw_data_1
       - named_window:
         - keyword: window
         - named_window_expression:
@@ -349,8 +345,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: raw_data_2
+                - naked_identifier: raw_data_2
       - named_window:
         - keyword: window
         - named_window_expression:

@@ -1,20 +1,36 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: OR
-  - word: REPLACE
-  - word: TABLE
-  - word: foo
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - single_quote: '''copy of bar'''
-  - end_bracket: )
-  - word: AS
-  - start_bracket: (
-  - word: SELECT
-  - star: '*'
-  - word: from
-  - word: bar
-  - end_bracket: )
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''copy of bar'''
+        - end_bracket: )
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: bar
+      - end_bracket: )

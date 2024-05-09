@@ -4,68 +4,73 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mydataset
-        - dot: .
-        - naked_identifier: mytable
-    - '': ALTER
-    - naked_identifier: COLUMN
-- unparsable:
-  - word: IF
-  - word: EXISTS
-  - word: A
-  - word: SET
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - single_quote: '''some description here'''
-  - end_bracket: )
-  - comma: ','
-  - word: ALTER
-  - word: COLUMN
-  - word: IF
-  - word: EXISTS
-  - word: B
-  - word: DROP
-  - word: NOT
-  - word: 'NULL'
-  - comma: ','
-  - word: ALTER
-  - word: COLUMN
-  - word: IF
-  - word: EXISTS
-  - word: C
-  - word: DROP
-  - word: DEFAULT
-  - comma: ','
-  - word: ALTER
-  - word: COLUMN
-  - word: IF
-  - word: EXISTS
-  - word: D
-  - word: SET
-  - word: DATA
-  - word: TYPE
-  - word: FLOAT64
-  - comma: ','
-  - word: ALTER
-  - word: COLUMN
-  - word: IF
-  - word: EXISTS
-  - word: E
-  - word: SET
-  - word: DEFAULT
-  - numeric_literal: '0'
-  - comma: ','
-  - word: ALTER
-  - word: COLUMN
-  - word: IF
-  - word: EXISTS
-  - word: F
-  - word: SET
-  - word: DEFAULT
-  - word: CURRENT_TIMESTAMP
-  - start_bracket: (
-  - end_bracket: )
-  - semicolon: ;
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: mytable
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: A
+    - keyword: SET
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - '': description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - remove me: '''some description here'''
+        - end_bracket: )
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: B
+    - keyword: DROP
+    - keyword: NOT
+    - keyword: 'NULL'
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: C
+    - keyword: DROP
+    - keyword: DEFAULT
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: D
+    - keyword: SET
+    - keyword: DATA
+    - keyword: TYPE
+    - data_type:
+      - '': FLOAT64
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: E
+    - keyword: SET
+    - keyword: DEFAULT
+    - numeric_literal: '0'
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: F
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+      - function_name:
+        - function_name_identifier: CURRENT_TIMESTAMP
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;

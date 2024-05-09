@@ -4,8 +4,29 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: books
+      - naked_identifier: books
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: title
+      - comma: ','
+      - column_reference:
+        - naked_identifier: author
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - remove me: '''The Great Gatsby'''
+        - comma: ','
+        - remove me: '''F. Scott Fitzgerald'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - table_reference:
+      - naked_identifier: books
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -24,20 +45,6 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - unparsable:
-  - word: INSERT
-  - word: books
-  - start_bracket: (
-  - word: title
-  - comma: ','
-  - word: author
-  - end_bracket: )
-  - word: VALUES
-  - start_bracket: (
-  - single_quote: '''The Great Gatsby'''
-  - comma: ','
-  - single_quote: '''F. Scott Fitzgerald'''
-  - end_bracket: )
-  - semicolon: ;
   - word: INSERT
   - word: INTO
   - back_quote: '`project.dataset.table`'

@@ -1,10 +1,14 @@
 file:
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - table_reference:
+      - naked_identifier: dataset
+      - dot: .
+      - naked_identifier: Inventory
+    - alias_expression:
+      - naked_identifier: WHERE
 - unparsable:
-  - word: DELETE
-  - word: dataset
-  - dot: .
-  - word: Inventory
-  - word: WHERE
   - word: quantity
   - equals: =
   - numeric_literal: '0'

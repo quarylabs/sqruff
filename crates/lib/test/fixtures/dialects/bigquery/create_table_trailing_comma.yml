@@ -1,31 +1,49 @@
 file:
-- unparsable:
-  - word: CREATE
-  - word: TABLE
-  - word: t_table
-  - start_bracket: (
-  - word: col1
-  - word: STRING
-  - comma: ','
-  - end_bracket: )
-  - semicolon: ;
-  - word: CREATE
-  - word: TABLE
-  - word: t_table
-  - start_bracket: (
-  - word: col1
-  - word: STRING
-  - comma: ','
-  - word: x
-  - word: INT64
-  - word: NOT
-  - word: 'NULL'
-  - word: OPTIONS
-  - start_bracket: (
-  - word: description
-  - equals: =
-  - double_quote: '"An INTEGER field that is NOT NULL"'
-  - end_bracket: )
-  - comma: ','
-  - end_bracket: )
-  - semicolon: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - '': STRING
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - '': STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - '': INT64
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - '': description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - quoted_identifier: '"An INTEGER field that is NOT NULL"'
+            - end_bracket: )
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;

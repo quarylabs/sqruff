@@ -6,13 +6,13 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: DATE_ADD
+            - naked_identifier: DATE_ADD
           - bracketed:
             - start_bracket: (
             - expression:
               - function:
                 - function_name:
-                  - function_name_identifier: CURRENT_DATE
+                  - naked_identifier: CURRENT_DATE
                 - bracketed:
                   - start_bracket: (
                   - end_bracket: )

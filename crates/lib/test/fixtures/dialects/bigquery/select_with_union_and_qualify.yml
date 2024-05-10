@@ -11,7 +11,7 @@ file:
         - select_clause_element:
           - function:
             - function_name:
-              - function_name_identifier: RANK
+              - naked_identifier: RANK
             - bracketed:
               - start_bracket: (
               - end_bracket: )
@@ -52,7 +52,7 @@ file:
             - naked_identifier: category
           - comparison_operator:
             - raw_comparison_operator: =
-          - numeric_literal: '''vegetable'''
+          - quoted_literal: '''vegetable'''
       - qualify_clause:
         - keyword: QUALIFY
         - expression:
@@ -75,7 +75,7 @@ file:
         - select_clause_element:
           - function:
             - function_name:
-              - function_name_identifier: RANK
+              - naked_identifier: RANK
             - bracketed:
               - start_bracket: (
               - end_bracket: )
@@ -116,7 +116,7 @@ file:
             - naked_identifier: category
           - comparison_operator:
             - raw_comparison_operator: =
-          - numeric_literal: '''vegetable'''
+          - quoted_literal: '''vegetable'''
       - qualify_clause:
         - keyword: QUALIFY
         - expression:

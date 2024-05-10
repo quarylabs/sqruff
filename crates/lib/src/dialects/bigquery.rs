@@ -7,7 +7,6 @@ use super::bigquery_keywords::{BIGQUERY_RESERVED_KEYWORDS, BIGQUERY_UNRESERVED_K
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
-use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{RegexLexer, StringLexer};
@@ -17,7 +16,6 @@ use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, IdentifierSegment, Segment, SymbolSegment,
     SymbolSegmentNewArgs,
 };
-use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -34,7 +32,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "right_arrow",
                 "=>",
                 &CodeSegment::create,
-                CodeSegmentNewArgs::default(),
+                CodeSegmentNewArgs { code_type: "right_arrow", ..Default::default() },
                 None,
                 None,
             )),
@@ -42,7 +40,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "question_mark",
                 "?",
                 &CodeSegment::create,
-                CodeSegmentNewArgs::default(),
+                CodeSegmentNewArgs { code_type: "question_mark", ..Default::default() },
                 None,
                 None,
             )),
@@ -51,7 +49,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "at_sign_literal",
                     r#"@[a-zA-Z_][\w]*"#,
                     &CodeSegment::create,
-                    CodeSegmentNewArgs::default(),
+                    CodeSegmentNewArgs { code_type: "at_sign_literal", ..Default::default() },
                     None,
                     None,
                 )
@@ -62,22 +60,25 @@ pub fn bigquery_dialect() -> Dialect {
     );
 
     dialect.patch_lexer_matchers(vec![
-        // Box::new(StringLexer::new(
-        //     "single_quote",
-        //     "([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
-        //     &CodeSegment::create,
-        //     CodeSegmentNewArgs::default(),
-        //     None,
-        //     None,
-        // )),
-        // Box::new(StringLexer::new(
-        //     "double_quote",
-        //     r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
-        //     &CodeSegment::create,
-        //     CodeSegmentNewArgs::default(),
-        //     None,
-        //     None,
-        // )),
+        Box::new(RegexLexer::new(
+            "single_quote",
+            r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
+            &CodeSegment::create,
+            CodeSegmentNewArgs { code_type: "single_quote", ..Default::default() },
+            None,
+            None,
+        ).unwrap()),
+        Box::new(
+            RegexLexer::new(
+                "double_quote",
+                r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
+                &CodeSegment::create,
+                CodeSegmentNewArgs { code_type: "double_quote", ..Default::default() },
+                None,
+                None,
+            )
+            .unwrap(),
+        ),
     ]);
 
     dialect.add([
@@ -85,13 +86,14 @@ pub fn bigquery_dialect() -> Dialect {
             "DoubleQuotedLiteralSegment".into(),
             TypedParser::new(
                 "double_quote",
-                |seg| {
-                    LiteralSegment::create(
-                        &seg.get_raw().unwrap(),
-                        &seg.get_position_marker().unwrap(),
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "quoted_literal" },
                     )
                 },
-                "quoted_literal".to_owned().into(),
+                None,
                 false,
                 None,
             )
@@ -102,10 +104,11 @@ pub fn bigquery_dialect() -> Dialect {
             "SingleQuotedLiteralSegment".into(),
             TypedParser::new(
                 "single_quote",
-                |seg| {
-                    LiteralSegment::create(
-                        &seg.get_raw().unwrap(),
-                        &seg.get_position_marker().unwrap(),
+                |segment| {
+                    CodeSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        CodeSegmentNewArgs { code_type: "quoted_literal", ..Default::default() },
                     )
                 },
                 "quoted_literal".to_owned().into(),
@@ -119,13 +122,14 @@ pub fn bigquery_dialect() -> Dialect {
             "DoubleQuotedUDFBody".into(),
             TypedParser::new(
                 "double_quote",
-                |seg| {
-                    LiteralSegment::create(
-                        &seg.get_raw().unwrap(),
-                        &seg.get_position_marker().unwrap(),
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "udf_body" },
                     )
                 },
-                "quoted_literal".to_owned().into(),
+                None,
                 false,
                 None,
             )
@@ -136,13 +140,14 @@ pub fn bigquery_dialect() -> Dialect {
             "SingleQuotedUDFBody".into(),
             TypedParser::new(
                 "single_quote",
-                |seg| {
-                    LiteralSegment::create(
-                        &seg.get_raw().unwrap(),
-                        &seg.get_position_marker().unwrap(),
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "udf_body" },
                     )
                 },
-                "quoted_literal".to_owned().into(),
+                None,
                 false,
                 None,
             )
@@ -157,7 +162,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
-                        SymbolSegmentNewArgs { r#type: "remove me" },
+                        SymbolSegmentNewArgs { r#type: "start_angle_bracket" },
                     )
                 },
                 "start_angle_bracket".to_owned().into(),
@@ -175,7 +180,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
-                        SymbolSegmentNewArgs { r#type: "remove me" },
+                        SymbolSegmentNewArgs { r#type: "end_angle_bracket" },
                     )
                 },
                 "end_angle_bracket".to_owned().into(),
@@ -211,7 +216,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.get_raw().unwrap(),
                         &segment.get_position_marker().unwrap(),
-                        SymbolSegmentNewArgs { r#type: "remove me" },
+                        SymbolSegmentNewArgs { r#type: "dash" },
                     )
                 },
                 "dash".to_owned().into(),
@@ -253,10 +258,11 @@ pub fn bigquery_dialect() -> Dialect {
             "AtSignLiteralSegment".into(),
             TypedParser::new(
                 "at_sign_literal",
-                |seg| {
-                    LiteralSegment::create(
-                        &seg.get_raw().unwrap(),
-                        &seg.get_position_marker().unwrap(),
+                |segment| {
+                    SymbolSegment::create(
+                        &segment.get_raw().unwrap(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "at_sign_literal" },
                     )
                 },
                 "quoted_literal".to_owned().into(),
@@ -695,8 +701,10 @@ pub fn bigquery_dialect() -> Dialect {
         UnpivotAliasExpressionSegment,
         FromUnpivotExpressionSegment,
         InsertStatementSegment,
-        MergeStatementSegment,
-        MergeMatchedClauseSegment,
+        SamplingExpressionSegment,
+        MergeMatchSegment,
+        MergeNotMatchedByTargetClauseSegment,
+        MergeNotMatchedBySourceClauseSegment,
         MergeInsertClauseSegment,
         DeleteStatementSegment,
         ExportStatementSegment,
@@ -732,10 +740,117 @@ pub fn bigquery_dialect() -> Dialect {
             .into(),
         ),
         (
+            "NumericLiteralSegment".into(),
+            one_of(vec_of_erased![
+                TypedParser::new(
+                    "numeric_literal",
+                    |segment| {
+                        CodeSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs {
+                                code_type: "numeric_literal",
+                                ..Default::default()
+                            },
+                        )
+                    },
+                    "numeric_literal".to_owned().into(),
+                    false,
+                    None,
+                ),
+                Ref::new("ParameterizedSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
                 Ref::new("SingleQuotedLiteralSegment"),
                 Ref::new("DoubleQuotedLiteralSegment")
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LiteralGrammar".into(),
+            dialect
+                .grammar("LiteralGrammar")
+                .copy(
+                    Some(vec_of_erased![Ref::new("ParameterizedSegment")]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+        (
+            "PostTableExpressionGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FOR"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("SYSTEM_TIME"),
+                        Sequence::new(vec_of_erased![Ref::keyword("SYSTEM"), Ref::keyword("TIME")]),
+                        Ref::keyword("AS"),
+                        Ref::keyword("OF"),
+                        Ref::new("ExpressionSegment")
+                    ]),
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Ref::keyword("OFFSET"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        Ref::new("SingleIdentifierGrammar")
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .config(|this| this.optional()),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FunctionNameIdentifierSegment".into(),
+            one_of(vec_of_erased![
+                RegexParser::new(
+                    "[A-Z_][A-Z0-9_]*",
+                    |segment| {
+                        IdentifierSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs {
+                                code_type: "function_name_identifier",
+                                ..Default::default()
+                            },
+                        )
+                    },
+                    "^(STRUCT|ARRAY)$".to_owned().into(),
+                    false,
+                    None,
+                    None,
+                ),
+                RegexParser::new(
+                    "`[^`]*`",
+                    |segment| {
+                        IdentifierSegment::create(
+                            &segment.get_raw().unwrap(),
+                            &segment.get_position_marker().unwrap(),
+                            CodeSegmentNewArgs {
+                                code_type: "function_name_identifier",
+                                ..Default::default()
+                            },
+                        )
+                    },
+                    None,
+                    false,
+                    None,
+                    None,
+                ),
             ])
             .to_matchable()
             .into(),
@@ -831,9 +946,9 @@ impl NodeTrait for SelectStatementSegment {
 
     fn match_grammar() -> Rc<dyn Matchable> {
         ansi::SelectStatementSegment::match_grammar().copy(
-            vec![].into(),
+            Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
             None,
-            Ref::new("OrderByClauseSegment").to_matchable().into(),
+            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
             None,
             Vec::new(),
             false,
@@ -1248,7 +1363,7 @@ impl NodeTrait for ArrayFunctionNameSegment {
                 SymbolSegment::create(
                     &segment.get_raw().unwrap(),
                     &segment.get_position_marker().unwrap(),
-                    SymbolSegmentNewArgs { r#type: "remove me" },
+                    SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                 )
             },
             "function_name_identifier".to_owned().into(),
@@ -2133,7 +2248,7 @@ impl NodeTrait for PivotForClauseSegment {
     const TYPE: &'static str = "pivot_for_clause";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        Sequence::new(vec_of_erased![Ref::new("BaseExpressionElementGrammar"),])
+        Sequence::new(vec_of_erased![Ref::new("BaseExpressionElementGrammar")])
             .config(|this| {
                 this.terminators = vec_of_erased![Ref::keyword("IN")];
                 this.parse_mode(ParseMode::Greedy);
@@ -2178,7 +2293,7 @@ impl NodeTrait for UnpivotAliasExpressionSegment {
     fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             MetaSegment::indent(),
-            Ref::new("AS").optional(),
+            Ref::keyword("AS").optional(),
             one_of(vec_of_erased![
                 Ref::new("QuotedLiteralSegment"),
                 Ref::new("NumericLiteralSegment"),
@@ -2258,35 +2373,19 @@ impl NodeTrait for InsertStatementSegment {
     }
 }
 
-pub struct MergeStatementSegment;
+pub struct SamplingExpressionSegment;
 
-impl NodeTrait for MergeStatementSegment {
-    const TYPE: &'static str = "merge_statement";
+impl NodeTrait for SamplingExpressionSegment {
+    const TYPE: &'static str = "sample_expression";
 
     fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
-            Ref::new("MergeIntoLiteralGrammar"),
-            MetaSegment::indent(),
-            one_of(vec_of_erased![
-                Ref::new("TableReferenceSegment"),
-                Ref::new("AliasedTableReferenceGrammar"),
+            Ref::keyword("TABLESAMPLE"),
+            Ref::keyword("SYSTEM"),
+            Bracketed::new(vec_of_erased![
+                Ref::new("NumericLiteralSegment"),
+                Ref::keyword("PERCENT")
             ]),
-            MetaSegment::dedent(),
-            Ref::keyword("USING"),
-            MetaSegment::indent(),
-            one_of(vec_of_erased![
-                Ref::new("TableReferenceSegment"),
-                Ref::new("AliasedTableReferenceGrammar"),
-                Sequence::new(vec_of_erased![
-                    Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")]),
-                    Ref::new("AliasExpressionSegment").optional(),
-                ])
-            ]),
-            MetaSegment::dedent(),
-            Conditional::new(MetaSegment::indent()).indented_using_on(),
-            Ref::new("JoinOnConditionSegment"),
-            Conditional::new(MetaSegment::dedent()).indented_using_on(),
-            Ref::new("MergeMatchSegment"),
         ])
         .to_matchable()
     }
@@ -2300,31 +2399,58 @@ impl NodeTrait for MergeMatchSegment {
     fn match_grammar() -> Rc<dyn Matchable> {
         AnyNumberOf::new(vec_of_erased![
             Ref::new("MergeMatchedClauseSegment"),
-            Ref::new("MergeNotMatchedClauseSegment"),
+            Ref::new("MergeNotMatchedByTargetClauseSegment"),
+            Ref::new("MergeNotMatchedBySourceClauseSegment"),
         ])
         .config(|this| this.min_times = 1)
         .to_matchable()
     }
 }
 
-pub struct MergeMatchedClauseSegment;
+pub struct MergeNotMatchedByTargetClauseSegment;
 
-impl NodeTrait for MergeMatchedClauseSegment {
+impl NodeTrait for MergeNotMatchedByTargetClauseSegment {
+    const TYPE: &'static str = "not_matched_by_target_clause";
+
+    fn match_grammar() -> Rc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("WHEN"),
+            Ref::keyword("NOT"),
+            Ref::keyword("MATCHED"),
+            Sequence::new(vec_of_erased![Ref::keyword("BY"), Ref::keyword("TARGET")])
+                .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![Ref::keyword("AND"), Ref::new("ExpressionSegment"),])
+                .config(|this| this.optional()),
+            Ref::keyword("THEN"),
+            MetaSegment::indent(),
+            Ref::new("MergeInsertClauseSegment"),
+            MetaSegment::dedent()
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct MergeNotMatchedBySourceClauseSegment;
+
+impl NodeTrait for MergeNotMatchedBySourceClauseSegment {
     const TYPE: &'static str = "merge_when_matched_clause";
 
     fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("WHEN"),
+            Ref::keyword("NOT"),
             Ref::keyword("MATCHED"),
+            Ref::keyword("BY"),
+            Ref::keyword("SOURCE"),
             Sequence::new(vec_of_erased![Ref::keyword("AND"), Ref::new("ExpressionSegment")])
-                .config(|this| this.optional()),
+                .config(|s| s.optional()),
             Ref::keyword("THEN"),
             MetaSegment::indent(),
             one_of(vec_of_erased![
                 Ref::new("MergeUpdateClauseSegment"),
-                Ref::new("MergeDeleteClauseSegment"),
+                Ref::new("MergeDeleteClauseSegment")
             ]),
-            MetaSegment::dedent(),
+            MetaSegment::dedent()
         ])
         .to_matchable()
     }
@@ -2336,12 +2462,15 @@ impl NodeTrait for MergeInsertClauseSegment {
     const TYPE: &'static str = "merge_insert_clause";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("INSERT"),
-            MetaSegment::indent(),
-            Ref::new("BracketedColumnReferenceListGrammar").optional(),
-            MetaSegment::dedent(),
-            Ref::new("ValuesClauseSegment").optional(),
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::keyword("INSERT"),
+                MetaSegment::indent(),
+                Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                MetaSegment::dedent(),
+                Ref::new("ValuesClauseSegment").optional(),
+            ]),
+            Sequence::new(vec_of_erased![Ref::keyword("INSERT"), Ref::keyword("ROW"),])
         ])
         .to_matchable()
     }
@@ -2574,16 +2703,17 @@ impl NodeTrait for CreateProcedureStatementSegment {
                         SymbolSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
-                            SymbolSegmentNewArgs { r#type: "remove me" },
+                            SymbolSegmentNewArgs { r#type: "procedure_option" },
                         )
                     },
-                    "start_angle_bracket".to_owned().into(),
+                    "procedure_option".to_owned().into(),
                     false,
                     None,
                 ),
                 Ref::new("EqualsSegment"),
                 Ref::new("BooleanLiteralGrammar").optional(),
-            ]),
+            ])
+            .config(|this| this.optional()),
             Ref::keyword("BEGIN"),
             MetaSegment::indent(),
             Ref::new("ProcedureStatements"),

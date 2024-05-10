@@ -24,7 +24,7 @@ file:
           - expression:
             - function:
               - function_name:
-                - function_name_identifier: ORDINAL
+                - naked_identifier: ORDINAL
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -39,7 +39,7 @@ file:
           - expression:
             - function:
               - function_name:
-                - function_name_identifier: ORDINAL
+                - naked_identifier: ORDINAL
               - bracketed:
                 - start_bracket: (
                 - expression:

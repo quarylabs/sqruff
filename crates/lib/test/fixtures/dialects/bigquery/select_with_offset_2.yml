@@ -6,7 +6,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: ARRAY
+            - naked_identifier: ARRAY
           - bracketed:
             - start_bracket: (
             - expression:
@@ -23,11 +23,14 @@ file:
                       - table_expression:
                         - table_reference:
                           - naked_identifier: foo
-                - unparsable:
-                  - word: WITH
-                  - word: OFFSET
-                  - word: WHERE
-                  - word: OFFSET
-                  - greater_than: '>'
-                  - numeric_literal: '1'
+                      - keyword: WITH
+                      - keyword: OFFSET
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: OFFSET
+                    - comparison_operator:
+                      - raw_comparison_operator: '>'
+                    - numeric_literal: '1'
             - end_bracket: )

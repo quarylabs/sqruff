@@ -6,13 +6,13 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: TIMESTAMP_TRUNC
+            - naked_identifier: TIMESTAMP_TRUNC
           - bracketed:
             - start_bracket: (
             - expression:
               - function:
                 - function_name:
-                  - function_name_identifier: TIMESTAMP_ADD
+                  - naked_identifier: TIMESTAMP_ADD
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -27,13 +27,13 @@ file:
                       - expression:
                         - function:
                           - function_name:
-                            - function_name_identifier: cast
+                            - naked_identifier: cast
                           - bracketed:
                             - start_bracket: (
                             - expression:
                               - function:
                                 - function_name:
-                                  - function_name_identifier: TIMESTAMP_DIFF
+                                  - naked_identifier: TIMESTAMP_DIFF
                                 - bracketed:
                                   - start_bracket: (
                                   - expression:
@@ -68,7 +68,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: TIME_ADD
+            - naked_identifier: TIME_ADD
           - bracketed:
             - start_bracket: (
             - expression:
@@ -89,7 +89,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: DATE_SUB
+            - naked_identifier: DATE_SUB
           - bracketed:
             - start_bracket: (
             - expression:
@@ -113,5 +113,4 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: dummy
-    - unparsable:
-      - semicolon: ;
+- statement_terminator: ;

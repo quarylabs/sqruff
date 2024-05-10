@@ -31,258 +31,415 @@ file:
               - end_bracket: )
     - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - word: sales
-      - end_bracket: )
-      - word: FOR
-      - word: quarter
-      - word: IN
-      - start_bracket: (
-      - single_quote: '''Q1'''
-      - comma: ','
-      - single_quote: '''Q2'''
-      - comma: ','
-      - single_quote: '''Q3'''
-      - comma: ','
-      - single_quote: '''Q4'''
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
-      - word: SELECT
-      - star: '*'
-      - word: FROM
-      - start_bracket: (
-      - word: SELECT
-      - word: sales
-      - comma: ','
-      - word: quarter
-      - word: FROM
-      - word: Produce
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - word: sales
+          - end_bracket: )
+        - word: FOR
+        - word: quarter
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - single_quote: '''Q1'''
+          - comma: ','
+          - single_quote: '''Q2'''
+          - comma: ','
+          - single_quote: '''Q3'''
+          - comma: ','
+          - single_quote: '''Q4'''
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: quarter
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - naked_identifier: Produce
+              - end_bracket: )
+    - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - word: sales
-      - end_bracket: )
-      - word: FOR
-      - word: quarter
-      - word: IN
-      - start_bracket: (
-      - single_quote: '''Q1'''
-      - comma: ','
-      - single_quote: '''Q2'''
-      - comma: ','
-      - single_quote: '''Q3'''
-      - comma: ','
-      - single_quote: '''Q4'''
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
-      - word: SELECT
-      - star: '*'
-      - word: FROM
-      - start_bracket: (
-      - word: SELECT
-      - star: '*'
-      - word: FROM
-      - word: Produce
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - word: sales
+          - end_bracket: )
+        - word: FOR
+        - word: quarter
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - single_quote: '''Q1'''
+          - comma: ','
+          - single_quote: '''Q2'''
+          - comma: ','
+          - single_quote: '''Q3'''
+          - comma: ','
+          - single_quote: '''Q4'''
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - wildcard_expression:
+                      - wildcard_identifier:
+                        - star: '*'
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - naked_identifier: Produce
+              - end_bracket: )
+    - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - word: sales
-      - end_bracket: )
-      - word: FOR
-      - word: quarter
-      - word: IN
-      - start_bracket: (
-      - single_quote: '''Q1'''
-      - comma: ','
-      - single_quote: '''Q2'''
-      - comma: ','
-      - single_quote: '''Q3'''
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
-      - word: SELECT
-      - star: '*'
-      - word: FROM
-      - start_bracket: (
-      - word: SELECT
-      - word: sales
-      - comma: ','
-      - word: quarter
-      - word: FROM
-      - word: Produce
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - word: sales
+          - end_bracket: )
+        - word: FOR
+        - word: quarter
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - single_quote: '''Q1'''
+          - comma: ','
+          - single_quote: '''Q2'''
+          - comma: ','
+          - single_quote: '''Q3'''
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: quarter
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - naked_identifier: Produce
+              - end_bracket: )
+    - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - word: sales
-      - end_bracket: )
-      - word: FOR
-      - word: quarter
-      - word: IN
-      - start_bracket: (
-      - single_quote: '''Q1'''
-      - comma: ','
-      - single_quote: '''Q2'''
-      - comma: ','
-      - single_quote: '''Q3'''
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
-      - word: SELECT
-      - star: '*'
-      - word: FROM
-      - start_bracket: (
-      - word: SELECT
-      - word: sales
-      - comma: ','
-      - word: quarter
-      - word: FROM
-      - word: Produce
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - word: sales
+          - end_bracket: )
+        - word: FOR
+        - word: quarter
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - single_quote: '''Q1'''
+          - comma: ','
+          - single_quote: '''Q2'''
+          - comma: ','
+          - single_quote: '''Q3'''
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - comma: ','
+                  - select_clause_element:
+                    - column_reference:
+                      - naked_identifier: quarter
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - naked_identifier: Produce
+              - end_bracket: )
+    - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - word: sales
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - word: sales
+          - end_bracket: )
+        - comma: ','
+        - word: COUNT
+        - bracketed:
+          - start_bracket: (
+          - word: sales
+          - end_bracket: )
+        - word: FOR
+        - word: quarter
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - single_quote: '''Q1'''
+          - comma: ','
+          - single_quote: '''Q2'''
+          - comma: ','
+          - single_quote: '''Q3'''
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
       - comma: ','
-      - word: COUNT
-      - start_bracket: (
-      - word: sales
-      - end_bracket: )
-      - word: FOR
-      - word: quarter
-      - word: IN
-      - start_bracket: (
-      - single_quote: '''Q1'''
-      - comma: ','
-      - single_quote: '''Q2'''
-      - comma: ','
-      - single_quote: '''Q3'''
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
-      - word: SELECT
-      - word: col1
-      - comma: ','
-      - word: col2
-      - word: FROM
-      - word: table1
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+    - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - back_quote: '`grand_total`'
-      - end_bracket: )
-      - word: FOR
-      - word: REPLACE
-      - start_bracket: (
-      - word: LOWER
-      - start_bracket: (
-      - back_quote: '`media_type`'
-      - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - back_quote: '`grand_total`'
+          - end_bracket: )
+        - word: FOR
+        - word: REPLACE
+        - bracketed:
+          - start_bracket: (
+          - word: LOWER
+          - bracketed:
+            - start_bracket: (
+            - back_quote: '`media_type`'
+            - end_bracket: )
+          - comma: ','
+          - double_quote: '" "'
+          - comma: ','
+          - double_quote: '"_"'
+          - end_bracket: )
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - double_quote: '"cinema"'
+          - comma: ','
+          - double_quote: '"digital"'
+          - comma: ','
+          - double_quote: '"direct_mail"'
+          - comma: ','
+          - double_quote: '"door_drops"'
+          - comma: ','
+          - double_quote: '"outdoor"'
+          - comma: ','
+          - double_quote: '"press"'
+          - comma: ','
+          - double_quote: '"radio"'
+          - comma: ','
+          - double_quote: '"tv"'
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
       - comma: ','
-      - double_quote: '" "'
-      - comma: ','
-      - double_quote: '"_"'
-      - end_bracket: )
-      - word: IN
-      - start_bracket: (
-      - double_quote: '"cinema"'
-      - comma: ','
-      - double_quote: '"digital"'
-      - comma: ','
-      - double_quote: '"direct_mail"'
-      - comma: ','
-      - double_quote: '"door_drops"'
-      - comma: ','
-      - double_quote: '"outdoor"'
-      - comma: ','
-      - double_quote: '"press"'
-      - comma: ','
-      - double_quote: '"radio"'
-      - comma: ','
-      - double_quote: '"tv"'
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
-      - word: SELECT
-      - word: col1
-      - comma: ','
-      - word: col2
-      - word: FROM
-      - word: table1
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+    - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - back_quote: '`grand_total`'
-      - end_bracket: )
-      - word: FOR
-      - back_quote: '`media_type`'
-      - word: IN
-      - start_bracket: (
-      - double_quote: '"cinema"'
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - back_quote: '`grand_total`'
+          - end_bracket: )
+        - word: FOR
+        - back_quote: '`media_type`'
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - double_quote: '"cinema"'
+          - comma: ','
+          - double_quote: '"digital"'
+          - comma: ','
+          - double_quote: '"direct_mail"'
+          - comma: ','
+          - double_quote: '"door_drops"'
+          - comma: ','
+          - double_quote: '"outdoor"'
+          - comma: ','
+          - double_quote: '"press"'
+          - comma: ','
+          - double_quote: '"radio"'
+          - comma: ','
+          - double_quote: '"tv"'
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
       - comma: ','
-      - double_quote: '"digital"'
-      - comma: ','
-      - double_quote: '"direct_mail"'
-      - comma: ','
-      - double_quote: '"door_drops"'
-      - comma: ','
-      - double_quote: '"outdoor"'
-      - comma: ','
-      - double_quote: '"press"'
-      - comma: ','
-      - double_quote: '"radio"'
-      - comma: ','
-      - double_quote: '"tv"'
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
-      - word: SELECT
-      - word: col1
-      - comma: ','
-      - word: col2
-      - word: FROM
-      - word: table1
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+    - unparsable:
       - word: PIVOT
-      - start_bracket: (
-      - word: SUM
-      - start_bracket: (
-      - back_quote: '`grand_total`'
-      - end_bracket: )
-      - word: FOR
-      - single_quote: '''2'''
-      - vertical_bar: '|'
-      - vertical_bar: '|'
-      - single_quote: '''1'''
-      - word: IN
-      - start_bracket: (
-      - double_quote: '"cinema"'
-      - comma: ','
-      - double_quote: '"digital"'
-      - comma: ','
-      - double_quote: '"direct_mail"'
-      - comma: ','
-      - double_quote: '"door_drops"'
-      - comma: ','
-      - double_quote: '"outdoor"'
-      - comma: ','
-      - double_quote: '"press"'
-      - comma: ','
-      - double_quote: '"radio"'
-      - comma: ','
-      - double_quote: '"tv"'
-      - end_bracket: )
-      - end_bracket: )
-      - semicolon: ;
+      - bracketed:
+        - start_bracket: (
+        - word: SUM
+        - bracketed:
+          - start_bracket: (
+          - back_quote: '`grand_total`'
+          - end_bracket: )
+        - word: FOR
+        - single_quote: '''2'''
+        - vertical_bar: '|'
+        - vertical_bar: '|'
+        - single_quote: '''1'''
+        - word: IN
+        - bracketed:
+          - start_bracket: (
+          - double_quote: '"cinema"'
+          - comma: ','
+          - double_quote: '"digital"'
+          - comma: ','
+          - double_quote: '"direct_mail"'
+          - comma: ','
+          - double_quote: '"door_drops"'
+          - comma: ','
+          - double_quote: '"outdoor"'
+          - comma: ','
+          - double_quote: '"press"'
+          - comma: ','
+          - double_quote: '"radio"'
+          - comma: ','
+          - double_quote: '"tv"'
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;

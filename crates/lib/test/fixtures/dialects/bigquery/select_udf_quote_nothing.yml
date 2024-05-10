@@ -10,7 +10,7 @@ file:
             - dot: .
             - naked_identifier: functions
             - dot: .
-            - function_name_identifier: timestamp_parsing
+            - naked_identifier: timestamp_parsing
           - bracketed:
             - start_bracket: (
             - expression:

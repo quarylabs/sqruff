@@ -17,7 +17,7 @@ file:
           - table_expression:
             - function:
               - function_name:
-                - function_name_identifier: UNNEST
+                - naked_identifier: UNNEST
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -33,6 +33,5 @@ file:
           - alias_expression:
             - keyword: AS
             - naked_identifier: i
-    - unparsable:
-      - word: WITH
-      - word: OFFSET
+          - keyword: WITH
+          - keyword: OFFSET

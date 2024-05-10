@@ -31,10 +31,10 @@ file:
       - data_type:
         - array_type:
           - keyword: ARRAY
-          - remove me: <
+          - start_angle_bracket: <
           - data_type:
             - '': NUMERIC
-          - remove me: '>'
+          - end_angle_bracket: '>'
     - comma: ','
     - keyword: ADD
     - keyword: COLUMN
@@ -49,7 +49,7 @@ file:
           - parameter: description
           - comparison_operator:
             - raw_comparison_operator: =
-          - numeric_literal: '"my description"'
+          - quoted_literal: '"my description"'
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -68,7 +68,7 @@ file:
         - struct_type:
           - keyword: STRUCT
           - struct_type_schema:
-            - remove me: <
+            - start_angle_bracket: <
             - parameter: B
             - data_type:
               - '': GEOGRAPHY
@@ -77,10 +77,10 @@ file:
             - data_type:
               - array_type:
                 - keyword: ARRAY
-                - remove me: <
+                - start_angle_bracket: <
                 - data_type:
                   - '': INT64
-                - remove me: '>'
+                - end_angle_bracket: '>'
             - comma: ','
             - parameter: D
             - data_type:
@@ -99,7 +99,7 @@ file:
                 - parameter: description
                 - comparison_operator:
                   - raw_comparison_operator: =
-                - numeric_literal: '"creation time"'
+                - quoted_literal: '"creation time"'
                 - end_bracket: )
-            - remove me: '>'
+            - end_angle_bracket: '>'
 - statement_terminator: ;

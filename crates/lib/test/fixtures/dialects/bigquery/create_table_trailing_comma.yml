@@ -41,7 +41,7 @@ file:
             - parameter: description
             - comparison_operator:
               - raw_comparison_operator: =
-            - numeric_literal: '"An INTEGER field that is NOT NULL"'
+            - quoted_literal: '"An INTEGER field that is NOT NULL"'
             - end_bracket: )
       - comma: ','
       - end_bracket: )

@@ -20,7 +20,7 @@ file:
               - select_clause_element:
                 - function:
                   - function_name:
-                    - function_name_identifier: concat
+                    - naked_identifier: concat
                   - bracketed:
                     - start_bracket: (
                     - expression:
@@ -28,7 +28,7 @@ file:
                         - naked_identifier: fruit
                     - comma: ','
                     - expression:
-                      - numeric_literal: '''berry'''
+                      - quoted_literal: '''berry'''
                     - end_bracket: )
                 - alias_expression:
                   - keyword: as

@@ -134,7 +134,7 @@ impl AnyNumberOf {
     ) -> Result<(MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
         let name = std::any::type_name::<Self>();
 
-        parse_context.deeper_match(name, false, &[], None, |ctx| {
+        parse_context.deeper_match(name, false, &self.terminators, None, |ctx| {
             longest_trimmed_match(segments, self.elements.clone(), ctx, false)
         })
     }

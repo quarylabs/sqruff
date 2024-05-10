@@ -18,7 +18,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: IF
+            - naked_identifier: IF
           - bracketed:
             - start_bracket: (
             - expression:
@@ -27,13 +27,13 @@ file:
               - comparison_operator:
                 - remove me: '!'
                 - raw_comparison_operator: =
-              - numeric_literal: ''''''
+              - quoted_literal: ''''''
             - comma: ','
             - expression:
-              - numeric_literal: '''CDN'''
+              - quoted_literal: '''CDN'''
             - comma: ','
             - expression:
-              - numeric_literal: '''Origin'''
+              - quoted_literal: '''Origin'''
             - end_bracket: )
         - alias_expression:
           - keyword: AS
@@ -42,7 +42,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: COUNT
+            - naked_identifier: COUNT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -64,31 +64,31 @@ file:
           - table_expression:
             - function:
               - function_name:
-                - function_name_identifier: UNNEST
+                - naked_identifier: UNNEST
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - function:
                     - function_name:
-                      - function_name_identifier: split
+                      - naked_identifier: split
                     - bracketed:
                       - start_bracket: (
                       - expression:
                         - function:
                           - function_name:
-                            - function_name_identifier: REGEXP_REPLACE
+                            - naked_identifier: REGEXP_REPLACE
                           - bracketed:
                             - start_bracket: (
                             - expression:
                               - function:
                                 - function_name:
-                                  - function_name_identifier: REGEXP_REPLACE
+                                  - naked_identifier: REGEXP_REPLACE
                                 - bracketed:
                                   - start_bracket: (
                                   - expression:
                                     - function:
                                       - function_name:
-                                        - function_name_identifier: LOWER
+                                        - naked_identifier: LOWER
                                       - bracketed:
                                         - start_bracket: (
                                         - expression:
@@ -97,21 +97,21 @@ file:
                                         - end_bracket: )
                                   - comma: ','
                                   - expression:
-                                    - numeric_literal: '''\"'''
+                                    - quoted_literal: '''\"'''
                                   - comma: ','
                                   - expression:
-                                    - numeric_literal: ''''''
+                                    - quoted_literal: ''''''
                                   - end_bracket: )
                             - comma: ','
                             - expression:
-                              - numeric_literal: '''[, ]+|\\\\0'''
+                              - quoted_literal: '''[, ]+|\\\\0'''
                             - comma: ','
                             - expression:
-                              - numeric_literal: ''','''
+                              - quoted_literal: ''','''
                             - end_bracket: )
                       - comma: ','
                       - expression:
-                        - numeric_literal: ''','''
+                        - quoted_literal: ''','''
                       - end_bracket: )
                 - end_bracket: )
           - alias_expression:
@@ -124,7 +124,7 @@ file:
           - naked_identifier: date
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: '''2019-07-01'''
+        - quoted_literal: '''2019-07-01'''
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -147,7 +147,7 @@ file:
         - comparison_operator:
           - remove me: '!'
           - raw_comparison_operator: =
-        - numeric_literal: ''''''
+        - quoted_literal: ''''''
         - remove me: AND
         - column_reference:
           - naked_identifier: vary

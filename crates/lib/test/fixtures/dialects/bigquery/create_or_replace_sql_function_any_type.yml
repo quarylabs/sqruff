@@ -6,7 +6,7 @@ file:
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
-      - function_name_identifier: qs
+      - naked_identifier: qs
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -31,7 +31,7 @@ file:
                 - numeric_literal: '1'
               - keyword: THEN
               - expression:
-                - numeric_literal: '''low'''
+                - quoted_literal: '''low'''
             - when_clause:
               - keyword: WHEN
               - expression:
@@ -42,7 +42,7 @@ file:
                 - numeric_literal: '2'
               - keyword: THEN
               - expression:
-                - numeric_literal: '''midlow'''
+                - quoted_literal: '''midlow'''
             - when_clause:
               - keyword: WHEN
               - expression:
@@ -53,7 +53,7 @@ file:
                 - numeric_literal: '3'
               - keyword: THEN
               - expression:
-                - numeric_literal: '''mid'''
+                - quoted_literal: '''mid'''
             - when_clause:
               - keyword: WHEN
               - expression:
@@ -64,7 +64,7 @@ file:
                 - numeric_literal: '4'
               - keyword: THEN
               - expression:
-                - numeric_literal: '''midhigh'''
+                - quoted_literal: '''midhigh'''
             - when_clause:
               - keyword: WHEN
               - expression:
@@ -75,10 +75,10 @@ file:
                 - numeric_literal: '5'
               - keyword: THEN
               - expression:
-                - numeric_literal: '''high'''
+                - quoted_literal: '''high'''
             - else_clause:
               - keyword: ELSE
               - expression:
-                - numeric_literal: '"unknown"'
+                - quoted_literal: '"unknown"'
             - keyword: END
         - end_bracket: )

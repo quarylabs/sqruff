@@ -6,11 +6,11 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: ST_GEOGFROMGEOJSON
+            - naked_identifier: ST_GEOGFROMGEOJSON
           - bracketed:
             - start_bracket: (
             - expression:
-              - numeric_literal: '''{"type":"LineString","coordinates":[[1,2],[4,5]]}'''
+              - quoted_literal: '''{"type":"LineString","coordinates":[[1,2],[4,5]]}'''
             - comma: ','
             - named_argument:
               - naked_identifier: make_valid

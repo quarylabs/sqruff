@@ -41,7 +41,7 @@ file:
         - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: '''copy of bar'''
+        - quoted_literal: '''copy of bar'''
         - end_bracket: )
     - keyword: AS
     - bracketed:
@@ -80,7 +80,7 @@ file:
         - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: '''copy of bar'''
+        - quoted_literal: '''copy of bar'''
         - end_bracket: )
     - keyword: AS
     - bracketed:

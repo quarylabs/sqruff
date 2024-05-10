@@ -4,7 +4,7 @@ file:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-      - function_name_identifier: qs
+      - naked_identifier: qs
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -17,4 +17,4 @@ file:
       - keyword: LANGUAGE
       - naked_identifier: js
       - keyword: AS
-      - numeric_literal: '" return y; "'
+      - udf_body: '" return y; "'

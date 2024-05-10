@@ -6,7 +6,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: ARRAY
+            - naked_identifier: ARRAY
           - bracketed:
             - start_bracket: (
             - expression:
@@ -32,5 +32,4 @@ file:
               - word: FROM
               - word: number2
             - end_bracket: )
-      - unparsable:
-        - semicolon: ;
+- statement_terminator: ;

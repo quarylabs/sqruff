@@ -147,7 +147,7 @@ pub fn ansi_dialect() -> Dialect {
                         SymbolSegmentNewArgs { r#type: "statement_terminator" },
                     )
                 },
-                None,
+                Some("statement_terminator".into()),
                 false,
                 None,
             )
@@ -3588,16 +3588,12 @@ impl NodeTrait for StructLiteralSegment {
     const TYPE: &'static str = "struct_literal";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        Bracketed::new(vec![
-            Delimited::new(vec![
-                Sequence::new(vec![
-                    Ref::new("BaseExpressionElementGrammar").boxed(),
-                    Ref::new("AliasExpressionSegment").optional().boxed(),
-                ])
-                .boxed(),
-            ])
-            .boxed(),
-        ])
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+            vec_of_erased![
+                Ref::new("BaseExpressionElementGrammar"),
+                Ref::new("AliasExpressionSegment").optional(),
+            ]
+        )])])
         .to_matchable()
     }
 }
@@ -5490,6 +5486,7 @@ impl NodeTrait for OverClauseSegment {
             one_of(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"),
                 Bracketed::new(vec_of_erased![Ref::new("WindowSpecificationSegment").optional()])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
             ]),
             MetaSegment::dedent()
         ])

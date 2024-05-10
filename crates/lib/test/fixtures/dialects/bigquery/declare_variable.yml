@@ -20,7 +20,7 @@ file:
     - keyword: declare
     - naked_identifier: var4
     - keyword: default
-    - numeric_literal: '''value'''
+    - quoted_literal: '''value'''
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -67,10 +67,10 @@ file:
     - data_type:
       - array_type:
         - keyword: array
-        - remove me: <
+        - start_angle_bracket: <
         - data_type:
           - '': string
-        - remove me: '>'
+        - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -79,9 +79,9 @@ file:
     - keyword: default
     - array_literal:
       - remove me: '['
-      - numeric_literal: '''one'''
+      - quoted_literal: '''one'''
       - comma: ','
-      - numeric_literal: '''two'''
+      - quoted_literal: '''two'''
       - remove me: ']'
 - statement_terminator: ;
 - statement:
@@ -100,16 +100,16 @@ file:
     - data_type:
       - array_type:
         - keyword: array
-        - remove me: <
+        - start_angle_bracket: <
         - data_type:
           - '': string
-        - remove me: '>'
+        - end_angle_bracket: '>'
     - keyword: default
     - array_literal:
       - remove me: '['
-      - numeric_literal: '''one'''
+      - quoted_literal: '''one'''
       - comma: ','
-      - numeric_literal: '''two'''
+      - quoted_literal: '''two'''
       - remove me: ']'
 - statement_terminator: ;
 - statement:
@@ -119,7 +119,7 @@ file:
     - data_type:
       - array_type:
         - keyword: array
-        - remove me: <
+        - start_angle_bracket: <
         - data_type:
           - '': string
           - bracketed_arguments:
@@ -127,7 +127,7 @@ file:
               - start_bracket: (
               - numeric_literal: '10'
               - end_bracket: )
-        - remove me: '>'
+        - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -137,7 +137,7 @@ file:
       - struct_type:
         - keyword: struct
         - struct_type_schema:
-          - remove me: <
+          - start_angle_bracket: <
           - parameter: f1
           - data_type:
             - '': string
@@ -145,7 +145,7 @@ file:
           - parameter: f2
           - data_type:
             - '': string
-          - remove me: '>'
+          - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -155,7 +155,7 @@ file:
       - struct_type:
         - keyword: struct
         - struct_type_schema:
-          - remove me: <
+          - start_angle_bracket: <
           - parameter: f1
           - data_type:
             - '': string
@@ -163,18 +163,18 @@ file:
           - parameter: f2
           - data_type:
             - '': string
-          - remove me: '>'
+          - end_angle_bracket: '>'
     - keyword: default
     - function:
       - function_name:
-        - function_name_identifier: struct
+        - naked_identifier: struct
       - bracketed:
         - start_bracket: (
         - expression:
-          - numeric_literal: '''one'''
+          - quoted_literal: '''one'''
         - comma: ','
         - expression:
-          - numeric_literal: '''two'''
+          - quoted_literal: '''two'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -184,14 +184,14 @@ file:
     - keyword: default
     - function:
       - function_name:
-        - function_name_identifier: struct
+        - naked_identifier: struct
       - bracketed:
         - start_bracket: (
         - expression:
-          - numeric_literal: '''one'''
+          - quoted_literal: '''one'''
         - comma: ','
         - expression:
-          - numeric_literal: '''two'''
+          - quoted_literal: '''two'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -202,7 +202,7 @@ file:
       - struct_type:
         - keyword: struct
         - struct_type_schema:
-          - remove me: <
+          - start_angle_bracket: <
           - parameter: f1
           - data_type:
             - '': string
@@ -210,14 +210,14 @@ file:
           - parameter: f2
           - data_type:
             - '': string
-          - remove me: '>'
+          - end_angle_bracket: '>'
     - keyword: default
     - tuple:
       - bracketed:
         - start_bracket: (
-        - numeric_literal: '''one'''
+        - quoted_literal: '''one'''
         - comma: ','
-        - numeric_literal: '''two'''
+        - quoted_literal: '''two'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -228,7 +228,7 @@ file:
       - struct_type:
         - keyword: struct
         - struct_type_schema:
-          - remove me: <
+          - start_angle_bracket: <
           - parameter: f1
           - data_type:
             - '': string
@@ -246,7 +246,7 @@ file:
                 - start_bracket: (
                 - numeric_literal: '10'
                 - end_bracket: )
-          - remove me: '>'
+          - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -262,7 +262,7 @@ file:
     - data_type:
       - '': string
     - keyword: default
-    - numeric_literal: '''value'''
+    - quoted_literal: '''value'''
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -291,5 +291,5 @@ file:
     - data_type:
       - '': string
     - keyword: default
-    - numeric_literal: '''value'''
+    - quoted_literal: '''value'''
 - statement_terminator: ;

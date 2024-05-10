@@ -7,7 +7,7 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: project
-      - remove me: '-'
+      - dash: '-'
       - naked_identifier: name
       - dot: .
       - naked_identifier: dataset_name
@@ -26,7 +26,7 @@ file:
             - parameter: description
             - comparison_operator:
               - raw_comparison_operator: =
-            - numeric_literal: '"An INTEGER field"'
+            - quoted_literal: '"An INTEGER field"'
             - end_bracket: )
       - end_bracket: )
     - partition_by_segment:
@@ -35,7 +35,7 @@ file:
       - expression:
         - function:
           - function_name:
-            - function_name_identifier: DATE
+            - naked_identifier: DATE
           - bracketed:
             - start_bracket: (
             - expression:

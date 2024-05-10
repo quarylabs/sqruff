@@ -16,7 +16,7 @@ file:
               - function_name:
                 - naked_identifier: ML
                 - dot: .
-                - function_name_identifier: PREDICT
+                - naked_identifier: PREDICT
               - bracketed:
                 - start_bracket: (
                 - expression:

@@ -17,13 +17,13 @@ file:
           - raw_comparison_operator: =
         - function:
           - function_name:
-            - function_name_identifier: TIMESTAMP_ADD
+            - naked_identifier: TIMESTAMP_ADD
           - bracketed:
             - start_bracket: (
             - expression:
               - function:
                 - function_name:
-                  - function_name_identifier: CURRENT_TIMESTAMP
+                  - naked_identifier: CURRENT_TIMESTAMP
                 - bracketed:
                   - start_bracket: (
                   - end_bracket: )
@@ -39,6 +39,6 @@ file:
         - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: '"View that expires seven days from now"'
+        - quoted_literal: '"View that expires seven days from now"'
         - end_bracket: )
 - statement_terminator: ;

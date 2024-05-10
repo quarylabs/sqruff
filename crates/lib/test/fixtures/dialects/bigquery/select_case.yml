@@ -16,21 +16,21 @@ file:
                 - numeric_literal: '0'
               - keyword: then
               - expression:
-                - numeric_literal: '''apple'''
+                - quoted_literal: '''apple'''
             - when_clause:
               - keyword: when
               - expression:
                 - numeric_literal: '1'
               - keyword: then
               - expression:
-                - numeric_literal: '''banana'''
+                - quoted_literal: '''banana'''
             - when_clause:
               - keyword: when
               - expression:
                 - numeric_literal: '2'
               - keyword: then
               - expression:
-                - numeric_literal: '''cashew'''
+                - quoted_literal: '''cashew'''
             - keyword: end
         - alias_expression:
           - keyword: as

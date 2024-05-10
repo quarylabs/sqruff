@@ -16,11 +16,12 @@ file:
               - naked_identifier: dataset
               - dot: .
               - naked_identifier: my_table
-    - unparsable:
-      - word: TABLESAMPLE
-      - word: SYSTEM
-      - start_bracket: (
-      - numeric_literal: '10'
-      - word: PERCENT
-      - end_bracket: )
-      - semicolon: ;
+          - sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: SYSTEM
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - keyword: PERCENT
+              - end_bracket: )
+- statement_terminator: ;

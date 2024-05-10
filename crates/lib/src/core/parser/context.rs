@@ -71,7 +71,6 @@ impl<'a> ParseContext<'a> {
 
         let (appended, terms) = self.set_terminators(clear_terminators, push_terminators);
 
-        // _append, _terms = self._set_terminators(clear_terminators, push_terminators)
         let _track_progress = self.track_progress;
 
         match track_progress {

@@ -20,7 +20,7 @@ file:
         - parameter: description
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: '''some description here'''
+        - quoted_literal: '''some description here'''
         - end_bracket: )
     - comma: ','
     - keyword: ALTER
@@ -69,7 +69,7 @@ file:
     - keyword: DEFAULT
     - function:
       - function_name:
-        - function_name_identifier: CURRENT_TIMESTAMP
+        - naked_identifier: CURRENT_TIMESTAMP
       - bracketed:
         - start_bracket: (
         - end_bracket: )

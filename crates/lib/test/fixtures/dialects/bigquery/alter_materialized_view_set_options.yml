@@ -36,7 +36,7 @@ file:
         - parameter: friendly_name
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: '"my_mv"'
+        - quoted_literal: '"my_mv"'
         - comma: ','
         - parameter: labels
         - comparison_operator:
@@ -46,9 +46,9 @@ file:
           - expression:
             - bracketed:
               - start_bracket: (
-              - numeric_literal: '"org_unit"'
+              - quoted_literal: '"org_unit"'
               - comma: ','
-              - numeric_literal: '"development"'
+              - quoted_literal: '"development"'
               - end_bracket: )
           - remove me: ']'
         - end_bracket: )

@@ -6,13 +6,13 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - function_name_identifier: STRUCT
+            - naked_identifier: STRUCT
           - bracketed:
             - start_bracket: (
             - expression:
               - function:
                 - function_name:
-                  - function_name_identifier: STRUCT
+                  - naked_identifier: STRUCT
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -28,24 +28,36 @@ file:
         - alias_expression:
           - keyword: AS
           - naked_identifier: foo
-      - unparsable:
-        - semicolon: ;
-        - word: SELECT
-        - word: ARRAY_AGG
-        - bracketed:
-          - start_bracket: (
-          - word: STRUCT
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - naked_identifier: ARRAY_AGG
           - bracketed:
             - start_bracket: (
-            - word: a
-            - word: AS
-            - word: a
-            - comma: ','
-            - word: b
-            - word: AS
-            - word: b
+            - expression:
+              - function:
+                - function_name:
+                  - naked_identifier: STRUCT
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: a
+                  - keyword: AS
+                  - data_type:
+                    - '': a
+                  - unparsable:
+                    - comma: ','
+                    - word: b
+                    - word: AS
+                    - word: b
+                  - end_bracket: )
             - end_bracket: )
-          - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -53,5 +65,4 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: foo
-    - unparsable:
-      - semicolon: ;
+- statement_terminator: ;

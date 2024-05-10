@@ -18,10 +18,10 @@ file:
         - typed_array_literal:
           - array_type:
             - keyword: ARRAY
-            - remove me: <
+            - start_angle_bracket: <
             - data_type:
               - '': BOOLEAN
-            - remove me: '>'
+            - end_angle_bracket: '>'
           - array_literal:
             - remove me: '['
             - boolean_literal: 'false'
@@ -30,7 +30,7 @@ file:
       - select_clause_element:
         - array_literal:
           - remove me: '['
-          - numeric_literal: '''a'''
+          - quoted_literal: '''a'''
           - remove me: ']'
         - alias_expression:
           - keyword: AS
@@ -40,13 +40,13 @@ file:
         - typed_array_literal:
           - array_type:
             - keyword: ARRAY
-            - remove me: <
+            - start_angle_bracket: <
             - data_type:
               - '': string
-            - remove me: '>'
+            - end_angle_bracket: '>'
           - array_literal:
             - remove me: '['
-            - numeric_literal: '''b'''
+            - quoted_literal: '''b'''
             - remove me: ']'
         - alias_expression:
           - keyword: AS
@@ -65,10 +65,10 @@ file:
         - typed_array_literal:
           - array_type:
             - keyword: ARRAY
-            - remove me: <
+            - start_angle_bracket: <
             - data_type:
               - '': NUMERIC
-            - remove me: '>'
+            - end_angle_bracket: '>'
           - array_literal:
             - remove me: '['
             - numeric_literal: '1.4'
@@ -82,11 +82,11 @@ file:
           - remove me: '['
           - function:
             - function_name:
-              - function_name_identifier: STRUCT
+              - naked_identifier: STRUCT
             - bracketed:
               - start_bracket: (
               - expression:
-                - numeric_literal: '"Rudisha"'
+                - quoted_literal: '"Rudisha"'
               - keyword: AS
               - data_type:
                 - '': name
@@ -121,7 +121,7 @@ file:
               - expression:
                 - function:
                   - function_name:
-                    - function_name_identifier: safe_offset
+                    - naked_identifier: safe_offset
                   - bracketed:
                     - start_bracket: (
                     - expression:

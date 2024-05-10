@@ -8,7 +8,7 @@ file:
           - naked_identifier: user_id
       - comma: ','
       - select_clause_element:
-        - numeric_literal: '"some string"'
+        - quoted_literal: '"some string"'
         - alias_expression:
           - keyword: as
           - naked_identifier: list_id

@@ -41,6 +41,15 @@ impl Dialect {
         self.library.extend(iter);
     }
 
+    pub fn grammar(&self, name: &str) -> Rc<dyn Matchable> {
+        match &self.library[name] {
+            DialectElementType::Matchable(matchable) => matchable.clone(),
+            DialectElementType::SegmentGenerator(_) => {
+                unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")
+            }
+        }
+    }
+
     pub fn lexer_matchers(&self) -> &[Box<dyn Matcher>] {
         match &self.lexer_matchers {
             Some(lexer_matchers) => lexer_matchers,
@@ -76,7 +85,7 @@ impl Dialect {
     }
 
     pub fn patch_lexer_matchers(&mut self, lexer_patch: Vec<Box<dyn Matcher>>) {
-        let mut buff = Vec::new();
+        let mut buff = Vec::with_capacity(self.lexer_matchers.as_ref().map_or(0, Vec::len));
         if self.lexer_matchers.is_none() {
             panic!("Lexer struct must be defined before it can be patched!");
         }

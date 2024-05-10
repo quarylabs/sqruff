@@ -5,7 +5,7 @@ file:
     - keyword: TEMP
     - keyword: FUNCTION
     - function_name:
-      - function_name_identifier: URLDECODE
+      - naked_identifier: URLDECODE
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -36,13 +36,13 @@ file:
                       - table_expression:
                         - function:
                           - function_name:
-                            - function_name_identifier: UNNEST
+                            - naked_identifier: UNNEST
                           - bracketed:
                             - start_bracket: (
                             - expression:
                               - function:
                                 - function_name:
-                                  - function_name_identifier: REGEXP_EXTRACT_ALL
+                                  - naked_identifier: REGEXP_EXTRACT_ALL
                                 - bracketed:
                                   - start_bracket: (
                                   - expression:
@@ -50,9 +50,7 @@ file:
                                       - naked_identifier: url
                                   - comma: ','
                                   - expression:
-                                    - data_type:
-                                      - '': r
-                                    - numeric_literal: '"%[0-9a-fA-F]{2}|[^%]+"'
+                                    - quoted_literal: r"%[0-9a-fA-F]{2}|[^%]+"
                                   - end_bracket: )
                             - end_bracket: )
                       - alias_expression:

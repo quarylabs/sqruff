@@ -19,71 +19,108 @@ file:
                 - keyword: TIME
                 - keyword: ZONE
                 - expression:
-                  - numeric_literal: '"UTC"'
+                  - quoted_literal: '"UTC"'
             - end_bracket: )
-      - unparsable:
-        - semicolon: ;
-        - word: SELECT
-        - word: EXTRACT
-        - bracketed:
-          - start_bracket: (
-          - word: HOUR
-          - word: FROM
-          - word: some_timestamp
-          - word: AT
-          - word: TIME
-          - word: ZONE
-          - word: timezone_column
-          - end_bracket: )
-        - semicolon: ;
-        - word: WITH
-        - word: Input
-        - word: AS
-        - bracketed:
-          - start_bracket: (
-          - word: SELECT
-          - word: TIMESTAMP
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: EXTRACT
           - bracketed:
             - start_bracket: (
-            - double_quote: '"2008-12-25 05:30:00+00"'
+            - date_part: HOUR
+            - keyword: FROM
+            - expression:
+              - column_reference:
+                - naked_identifier: some_timestamp
+              - time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: timezone_column
             - end_bracket: )
-          - word: AS
-          - word: timestamp_value
-          - end_bracket: )
-        - word: SELECT
-        - word: EXTRACT
-        - bracketed:
-          - start_bracket: (
-          - word: DAY
-          - word: FROM
-          - word: timestamp_value
-          - word: AT
-          - word: TIME
-          - word: ZONE
-          - double_quote: '"UTC"'
-          - end_bracket: )
-        - word: AS
-        - word: the_day_utc
+- statement_terminator: ;
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - naked_identifier: Input
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - naked_identifier: TIMESTAMP
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '"2008-12-25 05:30:00+00"'
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: timestamp_value
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: EXTRACT
+            - bracketed:
+              - start_bracket: (
+              - date_part: DAY
+              - keyword: FROM
+              - expression:
+                - column_reference:
+                  - naked_identifier: timestamp_value
+                - time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                    - quoted_literal: '"UTC"'
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: the_day_utc
         - comma: ','
-        - word: EXTRACT
-        - bracketed:
-          - start_bracket: (
-          - word: DAY
-          - word: FROM
-          - word: timestamp_value
-          - word: AT
-          - word: TIME
-          - word: ZONE
-          - double_quote: '"America/Los_Angeles"'
-          - end_bracket: )
-        - word: AS
-        - word: the_day_california
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: Input
-    - unparsable:
-      - semicolon: ;
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: EXTRACT
+            - bracketed:
+              - start_bracket: (
+              - date_part: DAY
+              - keyword: FROM
+              - expression:
+                - column_reference:
+                  - naked_identifier: timestamp_value
+                - time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                    - quoted_literal: '"America/Los_Angeles"'
+              - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: the_day_california
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: Input
+- statement_terminator: ;

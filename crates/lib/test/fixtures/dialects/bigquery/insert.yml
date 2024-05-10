@@ -17,9 +17,9 @@ file:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - numeric_literal: '''The Great Gatsby'''
+        - quoted_literal: '''The Great Gatsby'''
         - comma: ','
-        - numeric_literal: '''F. Scott Fitzgerald'''
+        - quoted_literal: '''F. Scott Fitzgerald'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -39,9 +39,9 @@ file:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - numeric_literal: '''The Great Gatsby'''
+        - quoted_literal: '''The Great Gatsby'''
         - comma: ','
-        - numeric_literal: '''F. Scott Fitzgerald'''
+        - quoted_literal: '''F. Scott Fitzgerald'''
         - end_bracket: )
 - statement_terminator: ;
 - statement:

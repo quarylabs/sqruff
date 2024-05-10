@@ -19,7 +19,7 @@ pub struct TypedParser {
     /* raw_class: RawSegment, // Type for raw_class */
     optional: bool,
     trim_chars: Option<Vec<char>>,
-
+    cache_key: Uuid,
     factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
@@ -55,6 +55,7 @@ impl TypedParser {
             /* raw_class, */
             optional,
             trim_chars,
+            cache_key: Uuid::new_v4(),
         }
     }
 
@@ -84,6 +85,10 @@ impl TypedParser {
 impl Segment for TypedParser {}
 
 impl Matchable for TypedParser {
+    fn cache_key(&self) -> String {
+        Uuid::new_v4().hyphenated().to_string()
+    }
+
     fn simple(
         &self,
         parse_context: &ParseContext,

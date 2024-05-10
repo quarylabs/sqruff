@@ -8,7 +8,7 @@ file:
     - keyword: default
     - function:
       - function_name:
-        - function_name_identifier: CURRENT_DATE
+        - naked_identifier: CURRENT_DATE
       - bracketed:
         - start_bracket: (
         - end_bracket: )
@@ -35,6 +35,6 @@ file:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
-            - numeric_literal: '"x"'
+            - quoted_literal: '"x"'
       - end_bracket: )
 - statement_terminator: ;

@@ -344,8 +344,8 @@ impl Matchable for Sequence {
             if first_match && self.parse_mode == ParseMode::GreedyOnceStarted {
                 // In the GREEDY_ONCE_STARTED mode, we first look ahead to find a
                 // terminator after the first match (and only the first match).
-                let mut terminators = parse_context.terminators.clone();
-                terminators.extend(self.terminators.clone());
+                let mut terminators = self.terminators.clone();
+                terminators.extend(parse_context.terminators.clone());
 
                 (unmatched_segments, tail) = trim_to_terminator(
                     unmatched_segments.clone(),

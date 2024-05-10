@@ -23,9 +23,9 @@ file:
               - table_expression:
                 - table_reference:
                   - naked_identifier: bigquery
-                  - remove me: '-'
+                  - dash: '-'
                   - naked_identifier: public
-                  - remove me: '-'
+                  - dash: '-'
                   - naked_identifier: data
                   - dot: .
                   - naked_identifier: samples
@@ -37,16 +37,22 @@ file:
       - end_bracket: )
     - keyword: DO
     - for_in_statements:
-      - unparsable:
-        - word: SELECT
-        - word: record
-        - dot: .
-        - word: word
-        - comma: ','
-        - word: record
-        - dot: .
-        - word: word_count
-        - semicolon: ;
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word_count
+      - statement_terminator: ;
     - keyword: END
     - keyword: FOR
 - statement_terminator: ;
@@ -74,9 +80,9 @@ file:
               - table_expression:
                 - table_reference:
                   - naked_identifier: bigquery
-                  - remove me: '-'
+                  - dash: '-'
                   - naked_identifier: public
-                  - remove me: '-'
+                  - dash: '-'
                   - naked_identifier: data
                   - dot: .
                   - naked_identifier: samples
@@ -88,34 +94,54 @@ file:
       - end_bracket: )
     - keyword: DO
     - for_in_statements:
-      - unparsable:
-        - word: SELECT
-        - word: record
-        - dot: .
-        - word: word
-        - comma: ','
-        - word: record
-        - dot: .
-        - word: word_count
-        - semicolon: ;
-        - word: SELECT
-        - word: record
-        - dot: .
-        - word: word
-        - comma: ','
-        - word: record
-        - dot: .
-        - word: word_count
-        - semicolon: ;
-        - word: SELECT
-        - word: record
-        - dot: .
-        - word: word
-        - comma: ','
-        - word: record
-        - dot: .
-        - word: word_count
-        - semicolon: ;
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word_count
+      - statement_terminator: ;
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word_count
+      - statement_terminator: ;
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: record
+                - dot: .
+                - naked_identifier: word_count
+      - statement_terminator: ;
     - keyword: END
     - keyword: FOR
 - statement_terminator: ;
@@ -136,7 +162,7 @@ file:
           - select_clause_element:
             - function:
               - function_name:
-                - function_name_identifier: count
+                - naked_identifier: count
               - bracketed:
                 - start_bracket: (
                 - star: '*'

@@ -1316,7 +1316,6 @@ impl NodeTrait for NormalizeFunctionNameSegment {
             ),
         ])
         .to_matchable()
-        .into()
     }
 }
 
@@ -1413,7 +1412,6 @@ impl NodeTrait for FunctionSegment {
         ])])
         .config(|this| this.allow_gaps = false)
         .to_matchable()
-        .into()
     }
 }
 
@@ -1458,7 +1456,6 @@ impl NodeTrait for FunctionDefinitionGrammar {
             ]),
         ])])
         .to_matchable()
-        .into()
     }
 }
 

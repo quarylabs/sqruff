@@ -3288,7 +3288,7 @@ impl NodeTrait for DatePartFunctionNameSegment {
     const TYPE: &'static str = "function_name";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        Ref::new("DatePartFunctionName").to_matchable().into()
+        Ref::new("DatePartFunctionName").to_matchable()
     }
 }
 

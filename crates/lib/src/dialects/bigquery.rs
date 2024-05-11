@@ -2265,21 +2265,21 @@ impl NodeTrait for FromPivotExpressionSegment {
     fn match_grammar() -> Rc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("PIVOT"),
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                vec_of_erased![
+            Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                     Ref::new("FunctionSegment"),
                     Ref::new("AliasExpressionSegment").optional(),
-                ]
-            )])]),
-            Ref::keyword("FOR"),
-            Ref::new("PivotForClauseSegment"),
-            Ref::keyword("IN"),
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                vec_of_erased![
-                    Ref::new("LiteralGrammar"),
-                    Ref::new("AliasExpressionSegment").optional(),
-                ]
-            )])])
+                ])]),
+                Ref::keyword("FOR"),
+                Ref::new("PivotForClauseSegment"),
+                Ref::keyword("IN"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+                    vec_of_erased![
+                        Ref::new("LiteralGrammar"),
+                        Ref::new("AliasExpressionSegment").optional(),
+                    ]
+                )])])
+            ]),
         ])
         .to_matchable()
     }

@@ -17,7 +17,7 @@ file:
           - table_expression:
             - function:
               - function_name:
-                - naked_identifier: UNNEST
+                - function_name_identifier: UNNEST
               - bracketed:
                 - start_bracket: (
                 - expression:

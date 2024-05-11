@@ -10,12 +10,12 @@ file:
           - naked_identifier: foo_id
       - comma: ','
       - select_clause_element:
-        - function:
-          - function_name:
-            - naked_identifier: array
-          - bracketed:
-            - start_bracket: (
-            - expression:
+        - expression:
+          - array_expression:
+            - function_name:
+              - function_name_identifier: array
+            - bracketed:
+              - start_bracket: (
               - select_statement:
                 - select_clause:
                   - keyword: select
@@ -46,7 +46,7 @@ file:
                       - naked_identifier: some_table
                       - dot: .
                       - naked_identifier: foo_id
-            - end_bracket: )
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -99,27 +99,29 @@ file:
     - select_clause:
       - keyword: select
       - select_clause_element:
-        - function:
-          - function_name:
-            - naked_identifier: struct
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-                - dot: .
-                - naked_identifier: bar_id
-            - keyword: as
-            - data_type:
-              - '': id
-            - unparsable:
-              - comma: ','
-              - word: bar
-              - dot: .
-              - word: bar_name
-              - word: as
-              - word: bar
-            - end_bracket: )
+        - expression:
+          - typed_struct_literal:
+            - struct_type:
+              - keyword: struct
+            - struct_literal:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: bar
+                  - dot: .
+                  - naked_identifier: bar_id
+                - alias_expression:
+                  - keyword: as
+                  - naked_identifier: id
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: bar
+                  - dot: .
+                  - naked_identifier: bar_name
+                - alias_expression:
+                  - keyword: as
+                  - naked_identifier: bar
+                - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: bar
@@ -169,7 +171,7 @@ file:
           - table_expression:
             - function:
               - function_name:
-                - naked_identifier: UNNEST
+                - function_name_identifier: UNNEST
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -295,19 +297,19 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - function:
-          - function_name:
-            - naked_identifier: STRUCT
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: some_field
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: some_other_field
-            - end_bracket: )
+        - expression:
+          - typed_struct_literal:
+            - struct_type:
+              - keyword: STRUCT
+            - struct_literal:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: some_field
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: some_other_field
+                - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: col
@@ -326,13 +328,13 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: TO_JSON
+            - function_name_identifier: TO_JSON
           - bracketed:
             - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - naked_identifier: STRUCT
+            - empty_struct_literal:
+              - struct_type:
+                - keyword: STRUCT
+              - empty_struct_literal_brackets:
                 - bracketed:
                   - start_bracket: (
                   - end_bracket: )

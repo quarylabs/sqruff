@@ -4,12 +4,12 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - function:
-          - function_name:
-            - naked_identifier: ARRAY
-          - bracketed:
-            - start_bracket: (
-            - expression:
+        - expression:
+          - array_expression:
+            - function_name:
+              - function_name_identifier: ARRAY
+            - bracketed:
+              - start_bracket: (
               - select_statement:
                 - select_clause:
                   - keyword: SELECT
@@ -33,4 +33,4 @@ file:
                     - comparison_operator:
                       - raw_comparison_operator: '>'
                     - numeric_literal: '1'
-            - end_bracket: )
+              - end_bracket: )

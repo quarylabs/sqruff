@@ -35,7 +35,7 @@ file:
       - expression:
         - function:
           - function_name:
-            - naked_identifier: DATE
+            - function_name_identifier: DATE
           - bracketed:
             - start_bracket: (
             - expression:

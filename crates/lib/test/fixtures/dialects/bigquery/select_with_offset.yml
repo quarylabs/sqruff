@@ -6,7 +6,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: SUM
+            - function_name_identifier: SUM
           - bracketed:
             - start_bracket: (
             - expression:
@@ -62,7 +62,7 @@ file:
                           - expression:
                             - function:
                               - function_name:
-                                - naked_identifier: LAG
+                                - function_name_identifier: LAG
                               - bracketed:
                                 - start_bracket: (
                                 - expression:
@@ -97,7 +97,7 @@ file:
                       - table_expression:
                         - function:
                           - function_name:
-                            - naked_identifier: UNNEST
+                            - function_name_identifier: UNNEST
                           - bracketed:
                             - start_bracket: (
                             - expression:

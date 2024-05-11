@@ -54,19 +54,19 @@ file:
           - raw_comparison_operator: =
         - function:
           - function_name:
-            - naked_identifier: DATE_TRUNC
+            - function_name_identifier: DATE_TRUNC
           - bracketed:
             - start_bracket: (
             - expression:
               - function:
                 - function_name:
-                  - naked_identifier: DATE_SUB
+                  - function_name_identifier: DATE_SUB
                 - bracketed:
                   - start_bracket: (
                   - expression:
                     - function:
                       - function_name:
-                        - naked_identifier: CURRENT_DATE
+                        - function_name_identifier: CURRENT_DATE
                       - bracketed:
                         - start_bracket: (
                         - end_bracket: )

@@ -6,7 +6,7 @@ file:
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
-      - naked_identifier: qs
+      - function_name_identifier: qs
     - function_parameter_list:
       - bracketed:
         - start_bracket: (

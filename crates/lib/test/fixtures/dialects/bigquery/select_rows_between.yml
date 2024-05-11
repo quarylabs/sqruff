@@ -18,7 +18,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: SUM
+            - function_name_identifier: SUM
           - bracketed:
             - start_bracket: (
             - expression:

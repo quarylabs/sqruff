@@ -18,7 +18,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: IF
+            - function_name_identifier: IF
           - bracketed:
             - start_bracket: (
             - expression:
@@ -42,7 +42,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: COUNT
+            - function_name_identifier: COUNT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -64,31 +64,31 @@ file:
           - table_expression:
             - function:
               - function_name:
-                - naked_identifier: UNNEST
+                - function_name_identifier: UNNEST
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - function:
                     - function_name:
-                      - naked_identifier: split
+                      - function_name_identifier: split
                     - bracketed:
                       - start_bracket: (
                       - expression:
                         - function:
                           - function_name:
-                            - naked_identifier: REGEXP_REPLACE
+                            - function_name_identifier: REGEXP_REPLACE
                           - bracketed:
                             - start_bracket: (
                             - expression:
                               - function:
                                 - function_name:
-                                  - naked_identifier: REGEXP_REPLACE
+                                  - function_name_identifier: REGEXP_REPLACE
                                 - bracketed:
                                   - start_bracket: (
                                   - expression:
                                     - function:
                                       - function_name:
-                                        - naked_identifier: LOWER
+                                        - function_name_identifier: LOWER
                                       - bracketed:
                                         - start_bracket: (
                                         - expression:

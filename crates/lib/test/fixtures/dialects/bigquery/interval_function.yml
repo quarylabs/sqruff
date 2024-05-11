@@ -6,13 +6,13 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: TIMESTAMP_TRUNC
+            - function_name_identifier: TIMESTAMP_TRUNC
           - bracketed:
             - start_bracket: (
             - expression:
               - function:
                 - function_name:
-                  - naked_identifier: TIMESTAMP_ADD
+                  - function_name_identifier: TIMESTAMP_ADD
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -27,13 +27,13 @@ file:
                       - expression:
                         - function:
                           - function_name:
-                            - naked_identifier: cast
+                            - function_name_identifier: cast
                           - bracketed:
                             - start_bracket: (
                             - expression:
                               - function:
                                 - function_name:
-                                  - naked_identifier: TIMESTAMP_DIFF
+                                  - function_name_identifier: TIMESTAMP_DIFF
                                 - bracketed:
                                   - start_bracket: (
                                   - expression:
@@ -68,7 +68,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: TIME_ADD
+            - function_name_identifier: TIME_ADD
           - bracketed:
             - start_bracket: (
             - expression:
@@ -89,7 +89,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: DATE_SUB
+            - function_name_identifier: DATE_SUB
           - bracketed:
             - start_bracket: (
             - expression:

@@ -1909,7 +1909,7 @@ pub fn ansi_dialect() -> Dialect {
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
         HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
-        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment
+        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment, EmptyStructLiteralBracketsSegment
     );
 
     // This is a hook point to allow subclassing for other dialects
@@ -3542,13 +3542,13 @@ impl NodeTrait for ArrayLiteralSegment {
     const TYPE: &'static str = "array_literal";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        Bracketed::new(vec![
-            Delimited::new(vec![Ref::new("BaseExpressionElementGrammar").boxed()])
-                .config(|this| {
+        Bracketed::new(vec_of_erased![
+            Delimited::new(vec_of_erased![Ref::new("BaseExpressionElementGrammar")]).config(
+                |this| {
                     this.delimiter(Ref::new("CommaSegment"));
                     this.optional();
-                })
-                .boxed(),
+                }
+            ),
         ])
         .config(|this| {
             this.bracket_type("square");
@@ -3843,14 +3843,27 @@ impl NodeTrait for FunctionSegment {
     const TYPE: &'static str = "function";
 
     fn match_grammar() -> Rc<dyn Matchable> {
-        one_of(vec_of_erased![Sequence::new(vec_of_erased![
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("DatePartFunctionNameSegment"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Ref::new("DatetimeUnitSegment"),
+                    Ref::new("FunctionContentsGrammar").optional()
+                ])])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+            ])]),
             Sequence::new(vec_of_erased![
-                Ref::new("FunctionNameSegment"),
-                Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
-            ]),
-            Ref::new("PostFunctionGrammar").optional()
-        ])])
+                Sequence::new(vec_of_erased![
+                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Ref::new("ValuesClauseSegment")
+                    ])),
+                    Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
+                        .config(|this| this.parse_mode(ParseMode::Greedy))
+                ]),
+                Ref::new("PostFunctionGrammar").optional()
+            ])
+        ])
         .to_matchable()
     }
 }

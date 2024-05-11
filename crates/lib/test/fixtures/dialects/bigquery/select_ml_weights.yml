@@ -16,7 +16,7 @@ file:
               - function_name:
                 - naked_identifier: ML
                 - dot: .
-                - naked_identifier: WEIGHTS
+                - function_name_identifier: WEIGHTS
               - bracketed:
                 - start_bracket: (
                 - expression:

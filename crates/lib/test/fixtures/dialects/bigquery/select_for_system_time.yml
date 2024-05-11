@@ -23,7 +23,7 @@ file:
           - expression:
             - function:
               - function_name:
-                - naked_identifier: CAST
+                - function_name_identifier: CAST
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -54,7 +54,7 @@ file:
           - expression:
             - function:
               - function_name:
-                - naked_identifier: CAST
+                - function_name_identifier: CAST
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -86,7 +86,7 @@ file:
           - expression:
             - function:
               - function_name:
-                - naked_identifier: CAST
+                - function_name_identifier: CAST
               - bracketed:
                 - start_bracket: (
                 - expression:

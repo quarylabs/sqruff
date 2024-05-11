@@ -246,7 +246,7 @@ file:
           - expression:
             - function:
               - function_name:
-                - naked_identifier: RAND
+                - function_name_identifier: RAND
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
@@ -308,13 +308,13 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: CONCAT
+            - function_name_identifier: CONCAT
           - bracketed:
             - start_bracket: (
             - expression:
               - function:
                 - function_name:
-                  - naked_identifier: CAST
+                  - function_name_identifier: CAST
                 - bracketed:
                   - start_bracket: (
                   - expression:

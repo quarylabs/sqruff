@@ -20,7 +20,7 @@ file:
               - select_clause_element:
                 - function:
                   - function_name:
-                    - naked_identifier: concat
+                    - function_name_identifier: concat
                   - bracketed:
                     - start_bracket: (
                     - expression:

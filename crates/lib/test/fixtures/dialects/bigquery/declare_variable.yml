@@ -165,34 +165,34 @@ file:
             - '': string
           - end_angle_bracket: '>'
     - keyword: default
-    - function:
-      - function_name:
-        - naked_identifier: struct
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''one'''
-        - comma: ','
-        - expression:
-          - quoted_literal: '''two'''
-        - end_bracket: )
+    - expression:
+      - typed_struct_literal:
+        - struct_type:
+          - keyword: struct
+        - struct_literal:
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '''one'''
+            - comma: ','
+            - quoted_literal: '''two'''
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - declare_segment:
     - keyword: declare
     - naked_identifier: str3
     - keyword: default
-    - function:
-      - function_name:
-        - naked_identifier: struct
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '''one'''
-        - comma: ','
-        - expression:
-          - quoted_literal: '''two'''
-        - end_bracket: )
+    - expression:
+      - typed_struct_literal:
+        - struct_type:
+          - keyword: struct
+        - struct_literal:
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '''one'''
+            - comma: ','
+            - quoted_literal: '''two'''
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - declare_segment:

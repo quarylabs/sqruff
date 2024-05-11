@@ -371,9 +371,9 @@ pub fn bigquery_dialect() -> Dialect {
                             },
                         )
                     },
-                    "STRUCT".to_owned().into(),
-                    false,
                     None,
+                    false,
+                    "STRUCT".to_owned().into(),
                     None,
                 ),
                 RegexParser::new(
@@ -820,7 +820,7 @@ pub fn bigquery_dialect() -> Dialect {
                 RegexParser::new(
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
-                        IdentifierSegment::create(
+                        CodeSegment::create(
                             &segment.get_raw().unwrap(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
@@ -829,9 +829,9 @@ pub fn bigquery_dialect() -> Dialect {
                             },
                         )
                     },
-                    "^(STRUCT|ARRAY)$".to_owned().into(),
-                    false,
                     None,
+                    false,
+                    "^(STRUCT|ARRAY)$".to_owned().into(),
                     None,
                 ),
                 RegexParser::new(

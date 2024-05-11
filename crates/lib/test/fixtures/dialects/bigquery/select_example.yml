@@ -23,19 +23,19 @@ file:
                 - naked_identifier: min_age
             - comma: ','
             - select_clause_element:
-              - function:
-                - function_name:
-                  - naked_identifier: ARRAY
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
+              - expression:
+                - array_expression:
+                  - function_name:
+                    - function_name_identifier: ARRAY
+                  - bracketed:
+                    - start_bracket: (
                     - select_statement:
                       - select_clause:
                         - keyword: SELECT
                         - select_clause_element:
                           - function:
                             - function_name:
-                              - naked_identifier: CAST
+                              - function_name_identifier: CAST
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -52,13 +52,13 @@ file:
                             - table_expression:
                               - function:
                                 - function_name:
-                                  - naked_identifier: UNNEST
+                                  - function_name_identifier: UNNEST
                                 - bracketed:
                                   - start_bracket: (
                                   - expression:
                                     - function:
                                       - function_name:
-                                        - naked_identifier: SPLIT
+                                        - function_name_identifier: SPLIT
                                       - bracketed:
                                         - start_bracket: (
                                         - expression:
@@ -72,7 +72,7 @@ file:
                             - alias_expression:
                               - keyword: AS
                               - naked_identifier: num
-                  - end_bracket: )
+                    - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: bits
@@ -101,7 +101,7 @@ file:
               - expression:
                 - function:
                   - function_name:
-                    - naked_identifier: bucket_id
+                    - function_name_identifier: bucket_id
                   - bracketed:
                     - start_bracket: (
                     - expression:
@@ -115,7 +115,7 @@ file:
                         - expression:
                           - function:
                             - function_name:
-                              - naked_identifier: OFFSET
+                              - function_name_identifier: OFFSET
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -133,7 +133,7 @@ file:
                         - expression:
                           - function:
                             - function_name:
-                              - naked_identifier: OFFSET
+                              - function_name_identifier: OFFSET
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -151,7 +151,7 @@ file:
                         - expression:
                           - function:
                             - function_name:
-                              - naked_identifier: OFFSET
+                              - function_name_identifier: OFFSET
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -169,7 +169,7 @@ file:
                         - expression:
                           - function:
                             - function_name:
-                              - naked_identifier: OFFSET
+                              - function_name_identifier: OFFSET
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -187,7 +187,7 @@ file:
                         - expression:
                           - function:
                             - function_name:
-                              - naked_identifier: OFFSET
+                              - function_name_identifier: OFFSET
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -205,7 +205,7 @@ file:
                         - expression:
                           - function:
                             - function_name:
-                              - naked_identifier: OFFSET
+                              - function_name_identifier: OFFSET
                             - bracketed:
                               - start_bracket: (
                               - expression:

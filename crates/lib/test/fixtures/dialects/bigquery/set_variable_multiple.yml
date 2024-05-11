@@ -27,7 +27,7 @@ file:
       - comma: ','
       - function:
         - function_name:
-          - naked_identifier: DATE_TRUNC
+          - function_name_identifier: DATE_TRUNC
         - bracketed:
           - start_bracket: (
           - expression:

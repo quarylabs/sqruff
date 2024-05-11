@@ -35,7 +35,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -98,7 +98,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -158,7 +158,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -219,7 +219,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -280,7 +280,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -290,7 +290,7 @@ file:
             - comma: ','
             - function:
               - function_name:
-                - naked_identifier: COUNT
+                - function_name_identifier: COUNT
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -336,7 +336,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -347,13 +347,13 @@ file:
             - pivot_for_clause:
               - function:
                 - function_name:
-                  - naked_identifier: REPLACE
+                  - function_name_identifier: REPLACE
                 - bracketed:
                   - start_bracket: (
                   - expression:
                     - function:
                       - function_name:
-                        - naked_identifier: LOWER
+                        - function_name_identifier: LOWER
                       - bracketed:
                         - start_bracket: (
                         - expression:
@@ -412,7 +412,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -468,7 +468,7 @@ file:
             - start_bracket: (
             - function:
               - function_name:
-                - naked_identifier: SUM
+                - function_name_identifier: SUM
               - bracketed:
                 - start_bracket: (
                 - expression:

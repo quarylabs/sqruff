@@ -80,30 +80,32 @@ file:
       - select_clause_element:
         - array_literal:
           - remove me: '['
-          - function:
-            - function_name:
-              - naked_identifier: STRUCT
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - quoted_literal: '"Rudisha"'
-              - keyword: AS
-              - data_type:
-                - '': name
-              - unparsable:
-                - comma: ','
-                - remove me: '['
-                - numeric_literal: '23.4'
-                - comma: ','
-                - numeric_literal: '26.3'
-                - comma: ','
-                - numeric_literal: '26.4'
-                - comma: ','
-                - numeric_literal: '26.1'
-                - remove me: ']'
-                - word: AS
-                - word: splits
-              - end_bracket: )
+          - expression:
+            - typed_struct_literal:
+              - struct_type:
+                - keyword: STRUCT
+              - struct_literal:
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '"Rudisha"'
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: name
+                  - comma: ','
+                  - array_literal:
+                    - remove me: '['
+                    - numeric_literal: '23.4'
+                    - comma: ','
+                    - numeric_literal: '26.3'
+                    - comma: ','
+                    - numeric_literal: '26.4'
+                    - comma: ','
+                    - numeric_literal: '26.1'
+                    - remove me: ']'
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: splits
+                  - end_bracket: )
           - remove me: ']'
         - alias_expression:
           - keyword: AS
@@ -121,7 +123,7 @@ file:
               - expression:
                 - function:
                   - function_name:
-                    - naked_identifier: safe_offset
+                    - function_name_identifier: safe_offset
                   - bracketed:
                     - start_bracket: (
                     - expression:

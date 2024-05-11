@@ -6,47 +6,47 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: IF
+            - function_name_identifier: IF
           - bracketed:
             - start_bracket: (
             - expression:
               - boolean_literal: 'TRUE'
             - comma: ','
             - expression:
-              - function:
-                - function_name:
-                  - naked_identifier: STRUCT
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
+              - typed_struct_literal:
+                - struct_type:
+                  - keyword: STRUCT
+                - struct_literal:
+                  - bracketed:
+                    - start_bracket: (
                     - quoted_literal: '''hello'''
-                  - keyword: AS
-                  - data_type:
-                    - '': greeting
-                  - unparsable:
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: greeting
                     - comma: ','
-                    - single_quote: '''world'''
-                    - word: AS
-                    - word: subject
-                  - end_bracket: )
+                    - quoted_literal: '''world'''
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: subject
+                    - end_bracket: )
             - comma: ','
             - expression:
-              - function:
-                - function_name:
-                  - naked_identifier: STRUCT
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
+              - typed_struct_literal:
+                - struct_type:
+                  - keyword: STRUCT
+                - struct_literal:
+                  - bracketed:
+                    - start_bracket: (
                     - quoted_literal: '''hi'''
-                  - keyword: AS
-                  - data_type:
-                    - '': greeting
-                  - unparsable:
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: greeting
                     - comma: ','
-                    - single_quote: '''there'''
-                    - word: AS
-                    - word: subject
-                  - end_bracket: )
+                    - quoted_literal: '''there'''
+                    - alias_expression:
+                      - keyword: AS
+                      - naked_identifier: subject
+                    - end_bracket: )
             - end_bracket: )
         - alias_expression:
           - keyword: AS
@@ -89,27 +89,28 @@ file:
                   - naked_identifier: xxx
               - keyword: THEN
               - expression:
-                - function:
-                  - function_name:
-                    - naked_identifier: STRUCT
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
+                - typed_struct_literal:
+                  - struct_type:
+                    - keyword: STRUCT
+                  - struct_literal:
+                    - bracketed:
+                      - start_bracket: (
                       - column_reference:
                         - naked_identifier: a
                         - dot: .
                         - naked_identifier: xxx
-                    - keyword: AS
-                    - data_type:
-                      - '': M
-                    - unparsable:
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: M
                       - comma: ','
-                      - word: b
-                      - dot: .
-                      - word: xxx
-                      - word: AS
-                      - word: N
-                    - end_bracket: )
+                      - column_reference:
+                        - naked_identifier: b
+                        - dot: .
+                        - naked_identifier: xxx
+                      - alias_expression:
+                        - keyword: AS
+                        - naked_identifier: N
+                      - end_bracket: )
             - keyword: END
         - alias_expression:
           - keyword: AS

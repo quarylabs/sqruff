@@ -4,7 +4,7 @@ file:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-      - naked_identifier: add
+      - function_name_identifier: add
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -27,5 +27,5 @@ file:
       - dot: .
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: addfunc
+      - function_name_identifier: addfunc
 - statement_terminator: ;

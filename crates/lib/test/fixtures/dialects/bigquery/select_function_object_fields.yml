@@ -6,7 +6,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -23,7 +23,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -40,7 +40,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -59,7 +59,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -78,7 +78,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -90,7 +90,7 @@ file:
             - expression:
               - function:
                 - function_name:
-                  - naked_identifier: OFFSET
+                  - function_name_identifier: OFFSET
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -107,7 +107,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -119,7 +119,7 @@ file:
             - expression:
               - function:
                 - function_name:
-                  - naked_identifier: SAFE_OFFSET
+                  - function_name_identifier: SAFE_OFFSET
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -136,7 +136,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -148,7 +148,7 @@ file:
             - expression:
               - function:
                 - function_name:
-                  - naked_identifier: ORDINAL
+                  - function_name_identifier: ORDINAL
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -165,7 +165,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - naked_identifier: testFunction
+            - function_name_identifier: testFunction
           - bracketed:
             - start_bracket: (
             - expression:
@@ -177,7 +177,7 @@ file:
             - expression:
               - function:
                 - function_name:
-                  - naked_identifier: ORDINAL
+                  - function_name_identifier: ORDINAL
                 - bracketed:
                   - start_bracket: (
                   - expression:

@@ -162,7 +162,7 @@ file:
           - select_clause_element:
             - function:
               - function_name:
-                - naked_identifier: count
+                - function_name_identifier: count
               - bracketed:
                 - start_bracket: (
                 - star: '*'

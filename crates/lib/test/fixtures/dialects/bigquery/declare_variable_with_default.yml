@@ -8,7 +8,7 @@ file:
     - keyword: default
     - function:
       - function_name:
-        - naked_identifier: CURRENT_DATE
+        - function_name_identifier: CURRENT_DATE
       - bracketed:
         - start_bracket: (
         - end_bracket: )

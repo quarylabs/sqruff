@@ -69,7 +69,7 @@ file:
     - keyword: DEFAULT
     - function:
       - function_name:
-        - naked_identifier: CURRENT_TIMESTAMP
+        - function_name_identifier: CURRENT_TIMESTAMP
       - bracketed:
         - start_bracket: (
         - end_bracket: )

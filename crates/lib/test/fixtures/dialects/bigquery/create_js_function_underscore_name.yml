@@ -5,7 +5,7 @@ file:
     - keyword: TEMP
     - keyword: FUNCTION
     - function_name:
-      - naked_identifier: _qs
+      - function_name_identifier: _qs
     - function_parameter_list:
       - bracketed:
         - start_bracket: (

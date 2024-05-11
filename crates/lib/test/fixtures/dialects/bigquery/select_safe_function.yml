@@ -14,7 +14,7 @@ file:
           - function_name:
             - keyword: SAFE
             - dot: .
-            - naked_identifier: SUBSTR
+            - function_name_identifier: SUBSTR
           - bracketed:
             - start_bracket: (
             - expression:
@@ -37,7 +37,7 @@ file:
           - function_name:
             - keyword: SAFE
             - dot: .
-            - naked_identifier: DATEADD
+            - function_name_identifier: DATEADD
           - bracketed:
             - start_bracket: (
             - date_part: DAY
@@ -56,7 +56,7 @@ file:
           - function_name:
             - keyword: SAFE
             - dot: .
-            - naked_identifier: MY_FUNCTION
+            - function_name_identifier: MY_FUNCTION
           - bracketed:
             - start_bracket: (
             - expression:

@@ -60,7 +60,7 @@ file:
             - select_clause_element:
               - function:
                 - function_name:
-                  - naked_identifier: TIMESTAMP
+                  - function_name_identifier: TIMESTAMP
                 - bracketed:
                   - start_bracket: (
                   - expression:

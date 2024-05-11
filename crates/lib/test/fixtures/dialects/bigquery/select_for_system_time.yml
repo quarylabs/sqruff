@@ -18,16 +18,20 @@ file:
             - naked_identifier: list_emails
           - keyword: FOR
           - keyword: SYSTEM_TIME
-    - unparsable:
-      - word: AS
-      - word: OF
-      - word: CAST
-      - bracketed:
-        - start_bracket: (
-        - single_quote: '''2019-12-02T20:52:34+00:00'''
-        - word: AS
-        - word: TIMESTAMP
-        - end_bracket: )
+          - keyword: AS
+          - keyword: OF
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: CAST
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''2019-12-02T20:52:34+00:00'''
+                - keyword: AS
+                - data_type:
+                  - '': TIMESTAMP
+                - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -45,16 +49,20 @@ file:
               - naked_identifier: '`project.dataset.table1`'
           - keyword: FOR
           - keyword: SYSTEM_TIME
-    - unparsable:
-      - word: AS
-      - word: OF
-      - word: CAST
-      - bracketed:
-        - start_bracket: (
-        - single_quote: '''2020-05-11T14:02:52+00:00'''
-        - word: AS
-        - word: TIMESTAMP
-        - end_bracket: )
+          - keyword: AS
+          - keyword: OF
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: CAST
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''2020-05-11T14:02:52+00:00'''
+                - keyword: AS
+                - data_type:
+                  - '': TIMESTAMP
+                - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -73,12 +81,17 @@ file:
           - keyword: FOR
           - keyword: SYSTEM
           - keyword: TIME
-    - unparsable:
-      - word: AS
-      - word: OF
-      - word: CAST
-      - start_bracket: (
-      - single_quote: '''2020-05-11T14:02:52+00:00'''
-      - word: AS
-      - word: TIMESTAMP
-      - end_bracket: )
+          - keyword: AS
+          - keyword: OF
+          - expression:
+            - function:
+              - function_name:
+                - naked_identifier: CAST
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''2020-05-11T14:02:52+00:00'''
+                - keyword: AS
+                - data_type:
+                  - '': TIMESTAMP
+                - end_bracket: )

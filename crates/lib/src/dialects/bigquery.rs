@@ -794,10 +794,10 @@ pub fn bigquery_dialect() -> Dialect {
                     one_of(vec_of_erased![
                         Ref::keyword("SYSTEM_TIME"),
                         Sequence::new(vec_of_erased![Ref::keyword("SYSTEM"), Ref::keyword("TIME")]),
-                        Ref::keyword("AS"),
-                        Ref::keyword("OF"),
-                        Ref::new("ExpressionSegment")
                     ]),
+                    Ref::keyword("AS"),
+                    Ref::keyword("OF"),
+                    Ref::new("ExpressionSegment")
                 ])
                 .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![

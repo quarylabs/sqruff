@@ -11,7 +11,7 @@ use crate::helpers::skip_last;
 use crate::utils::reflow::elements::IndentStats;
 
 fn has_untemplated_newline(point: &ReflowPoint) -> bool {
-    if !point.class_types().iter().any(|x| x == "newline" || x == "placeholder") {
+    if !point.class_types().into_iter().any(|x| x == "newline" || x == "placeholder") {
         return false;
     }
 
@@ -254,7 +254,7 @@ fn crawl_indent_points(
                 last_line_break_idx = idx.into();
             }
 
-            if elements[idx + 1].class_types1().contains(&"comment".to_string()) {
+            if elements[idx + 1].class_types1().contains("comment") {
                 cached_indent_stats = indent_stats.clone().into();
                 cached_point = indent_point.clone().into();
 

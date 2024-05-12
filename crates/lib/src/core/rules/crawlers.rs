@@ -73,9 +73,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
             return acc;
         }
 
-        self.types.is_disjoint(
-            &context.segment.descendant_type_set().iter().map(|it| it.as_str()).collect(),
-        );
+        self.types.is_disjoint(&context.segment.descendant_type_set().into_iter().collect());
 
         let new_parent_stack =
             chain(context.parent_stack, Some(context.segment.clone())).collect_vec();

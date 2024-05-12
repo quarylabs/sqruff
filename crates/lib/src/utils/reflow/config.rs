@@ -88,10 +88,12 @@ pub struct ReflowConfig {
 impl ReflowConfig {
     pub fn get_block_config(
         &self,
-        block_class_types: &AHashSet<String>,
+        block_class_types: &AHashSet<&str>,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
-        let configured_types = self.config_types.intersection(block_class_types);
+        let block_class_types: AHashSet<String> =
+            block_class_types.iter().map(|s| s.to_string()).collect();
+        let configured_types = self.config_types.intersection(&block_class_types);
 
         let mut block_config = BlockConfig::new();
 
@@ -115,15 +117,18 @@ impl ReflowConfig {
 
                 let parent_classes =
                     &depth_info.stack_class_types[depth_info.stack_class_types.len() - 1 - idx];
+                let parent_classes: AHashSet<String> =
+                    parent_classes.iter().map(|s| s.to_string()).collect();
 
                 let configured_parent_types =
-                    self.config_types.intersection(parent_classes).collect_vec();
+                    self.config_types.intersection(&parent_classes).collect_vec();
 
                 if parent_start {
                     for seg_type in &configured_parent_types {
+                        let seg_type = seg_type.to_string();
                         block_config.incorporate(
                             self.configs
-                                .get(*seg_type)
+                                .get(&seg_type)
                                 .and_then(|conf| conf.get("spacing_before"))
                                 .map(|it| it.as_str()),
                             None,
@@ -136,10 +141,11 @@ impl ReflowConfig {
 
                 if parent_end {
                     for seg_type in &configured_parent_types {
+                        let seg_type = seg_type.to_string();
                         block_config.incorporate(
                             None,
                             self.configs
-                                .get(*seg_type)
+                                .get(&seg_type)
                                 .and_then(|conf| conf.get("spacing_after"))
                                 .map(|it| it.as_str()),
                             None,
@@ -152,7 +158,8 @@ impl ReflowConfig {
         }
 
         for seg_type in configured_types {
-            block_config.incorporate(None, None, None, None, self.configs.get(seg_type.as_str()));
+            let seg_type = seg_type.to_string();
+            block_config.incorporate(None, None, None, None, self.configs.get(&seg_type));
         }
 
         block_config
@@ -160,7 +167,7 @@ impl ReflowConfig {
 
     pub fn from_fluff_config(config: &FluffConfig) -> ReflowConfig {
         let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
-        let config_types: AHashSet<_> = configs.keys().cloned().collect();
+        let config_types = configs.keys().map(|x| x.to_string()).collect::<AHashSet<String>>();
 
         ReflowConfig {
             configs: convert_to_config_dict(configs),

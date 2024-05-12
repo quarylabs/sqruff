@@ -284,13 +284,12 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         let mut acc = Vec::new();
         let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
 
-        let matches =
-            allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it.as_str()));
+        let matches = allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it));
         if matches {
             acc.push(self.clone_box());
         }
 
-        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty.as_str())) {
+        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty)) {
             return acc;
         }
 
@@ -355,9 +354,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         acc
     }
 
-    fn descendant_type_set(&self) -> AHashSet<String> {
+    fn descendant_type_set(&self) -> AHashSet<&'static str> {
         let mut result_set = AHashSet::new();
 
+        // TODO Could this also be AHashSet to &str
         for seg in self.segments() {
             result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
         }
@@ -513,17 +513,17 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         anchor_info
     }
 
-    fn instance_types(&self) -> AHashSet<String> {
+    fn instance_types(&self) -> AHashSet<&'static str> {
         AHashSet::new()
     }
 
-    fn combined_types(&self) -> AHashSet<String> {
+    fn combined_types(&self) -> AHashSet<&'static str> {
         let mut combined = self.instance_types();
         combined.extend(self.class_types());
         combined
     }
 
-    fn class_types(&self) -> AHashSet<String> {
+    fn class_types(&self) -> AHashSet<&'static str> {
         AHashSet::new()
     }
 
@@ -921,8 +921,8 @@ impl Segment for CodeSegment {
         )
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        Some(self.get_type().to_owned()).into_iter().collect()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        [self.get_type()].into()
     }
 }
 
@@ -1009,8 +1009,8 @@ impl Segment for IdentifierSegment {
         )
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        Some(self.get_type().to_owned()).into_iter().collect()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        [self.get_type()].into()
     }
 }
 
@@ -1094,8 +1094,8 @@ impl Segment for CommentSegment {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["comment".into()].into()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        ["comment"].into()
     }
 }
 
@@ -1182,8 +1182,8 @@ impl Segment for NewlineSegment {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["newline".into()].into()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        ["newline"].into()
     }
 }
 
@@ -1404,8 +1404,8 @@ impl Segment for SymbolSegment {
         SymbolSegment::create(&raw.unwrap(), &self.position_maker, <_>::default())
     }
 
-    fn instance_types(&self) -> AHashSet<String> {
-        [self.type_.to_string()].into()
+    fn instance_types(&self) -> AHashSet<&'static str> {
+        [self.type_].into()
     }
 }
 

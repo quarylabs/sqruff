@@ -45,7 +45,7 @@ impl ReflowPoint {
         self.segments.iter().map(|it| it.get_raw().unwrap()).join("")
     }
 
-    pub fn class_types(&self) -> AHashSet<String> {
+    pub fn class_types(&self) -> AHashSet<&str> {
         ReflowElement::class_types(&self.segments)
     }
 
@@ -99,7 +99,8 @@ impl ReflowPoint {
         self.segments
             .iter()
             .map(|seg| {
-                let newline_in_class = seg.class_types().iter().any(|ct| ct == "newline") as usize;
+                let newline_in_class =
+                    seg.class_types().into_iter().any(|ct| ct == "newline") as usize;
 
                 let consumed_whitespace = get_consumed_whitespace(seg.into()).unwrap_or_default();
                 newline_in_class + consumed_whitespace.matches('\n').count()
@@ -337,8 +338,7 @@ impl ReflowPoint {
         }
 
         if segment_buffer.iter().any(|seg| seg.is_type("newline")) && !strip_newlines
-            || (next_block.is_some()
-                && next_block.unwrap().class_types().contains(&"end_of_file".to_string()))
+            || (next_block.is_some() && next_block.unwrap().class_types().contains("end_of_file"))
         {
             if let Some(last_whitespace) = last_whitespace {
                 let ws_idx = self.segments.iter().position(|it| it == &last_whitespace).unwrap();
@@ -470,7 +470,7 @@ pub struct ReflowBlock {
 }
 
 impl ReflowBlock {
-    pub fn class_types(&self) -> AHashSet<String> {
+    pub fn class_types(&self) -> AHashSet<&str> {
         ReflowElement::class_types(&self.segments)
     }
 }
@@ -541,7 +541,7 @@ impl ReflowElement {
         }
     }
 
-    pub fn class_types1(&self) -> AHashSet<String> {
+    pub fn class_types1(&self) -> AHashSet<&str> {
         Self::class_types(self.segments())
     }
 
@@ -549,7 +549,8 @@ impl ReflowElement {
         self.segments()
             .iter()
             .map(|seg| {
-                let newline_in_class = seg.class_types().iter().any(|ct| ct == "newline") as usize;
+                let newline_in_class =
+                    seg.class_types().into_iter().any(|ct| ct == "newline") as usize;
 
                 let consumed_whitespace = get_consumed_whitespace(seg.into()).unwrap_or_default();
                 newline_in_class + consumed_whitespace.matches('\n').count()
@@ -567,7 +568,7 @@ impl ReflowElement {
 }
 
 impl ReflowElement {
-    pub fn class_types(segments: &[ErasedSegment]) -> AHashSet<String> {
+    pub fn class_types(segments: &[ErasedSegment]) -> AHashSet<&'static str> {
         segments.iter().flat_map(|seg| seg.combined_types()).collect()
     }
 }

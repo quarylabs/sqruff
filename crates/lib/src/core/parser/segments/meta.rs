@@ -227,8 +227,8 @@ impl Segment for EndOfFile {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["end_of_file".into()].into()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        ["end_of_file"].into()
     }
 }
 

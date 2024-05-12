@@ -21,7 +21,7 @@ pub fn first_trimmed_raw(seg: &dyn Segment) -> String {
         .unwrap_or_default()
 }
 
-pub fn first_non_whitespace(segments: &[ErasedSegment]) -> Option<(String, AHashSet<String>)> {
+pub fn first_non_whitespace(segments: &[ErasedSegment]) -> Option<(String, AHashSet<&str>)> {
     for segment in segments {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
@@ -94,6 +94,7 @@ pub fn prune_options(
             matched = true;
         }
 
+        let simple_types = simple_types.iter().map(|x| x.as_str()).collect::<AHashSet<_>>();
         if !matched && !first_types.intersection(&simple_types).collect_vec().is_empty() {
             available_options.push(opt.clone());
             matched = true;

@@ -67,7 +67,7 @@ impl Segment for KeywordSegment {
         Self::new(raw.unwrap(), self.get_position_marker()).to_erased_segment()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["keyword", "word"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        ["keyword", "word"].into()
     }
 }

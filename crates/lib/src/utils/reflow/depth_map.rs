@@ -97,7 +97,7 @@ pub struct DepthInfo {
     pub stack_hashes: Vec<u64>,
     /// This is a convenience cache to speed up operations.
     pub stack_hash_set: AHashSet<u64>,
-    pub stack_class_types: Vec<AHashSet<String>>,
+    pub stack_class_types: Vec<AHashSet<&'static str>>,
     pub stack_positions: AHashMap<u64, StackPosition>,
 }
 
@@ -114,7 +114,7 @@ impl DepthInfo {
 
         let stack_hash_set: AHashSet<u64> = AHashSet::from_iter(stack_hashes.clone());
 
-        let stack_class_types: Vec<AHashSet<String>> =
+        let stack_class_types: Vec<AHashSet<&str>> =
             stack.iter().map(|ps| ps.segment.class_types()).collect();
 
         let stack_positions: AHashMap<u64, StackPosition> = stack

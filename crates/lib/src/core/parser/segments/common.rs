@@ -79,8 +79,8 @@ impl Segment for LiteralSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["numeric_literal"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        ["numeric_literal"].into()
     }
 }
 
@@ -148,7 +148,7 @@ impl Segment for ComparisonOperatorSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["numeric_literal"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        ["numeric_literal"].into()
     }
 }

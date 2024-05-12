@@ -2469,7 +2469,7 @@ pub trait NodeTrait {
 
     fn match_grammar() -> Rc<dyn Matchable>;
 
-    fn class_types() -> AHashSet<String> {
+    fn class_types() -> AHashSet<&'static str> {
         <_>::default()
     }
 }
@@ -2543,7 +2543,7 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
         self.uuid.into()
     }
 
-    fn class_types(&self) -> AHashSet<String> {
+    fn class_types(&self) -> AHashSet<&'static str> {
         T::class_types()
     }
 }
@@ -2712,8 +2712,8 @@ impl Segment for FileSegment {
         &self.segments
     }
 
-    fn class_types(&self) -> AHashSet<String> {
-        ["file"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types(&self) -> AHashSet<&'static str> {
+        ["file"].into()
     }
 }
 
@@ -2812,8 +2812,8 @@ impl NodeTrait for UnorderedSelectStatementSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["select_clause"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["select_clause"].into()
     }
 }
 
@@ -2910,8 +2910,8 @@ impl NodeTrait for StatementSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["statement"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["statement"].into()
     }
 }
 
@@ -3052,8 +3052,8 @@ impl NodeTrait for SelectStatementSegment {
         )
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["select_statement".into()].into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["select_statement"].into()
     }
 }
 
@@ -3182,8 +3182,8 @@ impl NodeTrait for WildcardIdentifierSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["wildcard_identifier", "object_reference"].map(ToString::to_string).into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["wildcard_identifier", "object_reference"].into()
     }
 }
 
@@ -3321,8 +3321,8 @@ impl NodeTrait for FromExpressionElementSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["from_expression_element".into()].into()
+    fn class_types() -> AHashSet<&'static str> {
+        ["from_expression_element"].into()
     }
 }
 
@@ -3409,8 +3409,8 @@ impl NodeTrait for ColumnReferenceSegment {
             .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["object_reference", "column_reference"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["object_reference", "column_reference"].into()
     }
 }
 
@@ -3786,8 +3786,8 @@ impl NodeTrait for AliasExpressionSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["alias_expression".into()].into()
+    fn class_types() -> AHashSet<&'static str> {
+        ["alias_expression"].into()
     }
 }
 
@@ -3892,8 +3892,8 @@ impl NodeTrait for FunctionNameSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["function_name".into()].into()
+    fn class_types() -> AHashSet<&'static str> {
+        ["function_name"].into()
     }
 }
 pub struct CaseExpressionSegment;
@@ -4196,8 +4196,8 @@ impl NodeTrait for ConcatSegment {
             .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["binary_operator".into()].into()
+    fn class_types() -> AHashSet<&'static str> {
+        ["binary_operator"].into()
     }
 }
 
@@ -5410,8 +5410,8 @@ impl NodeTrait for JoinClauseSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["join_clause".into()].into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["join_clause"].into_iter().collect()
     }
 }
 
@@ -5619,8 +5619,8 @@ impl NodeTrait for WithCompoundStatementSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["with_compound_statement".into()].into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["with_compound_statement"].into_iter().collect()
     }
 }
 
@@ -5639,8 +5639,8 @@ impl NodeTrait for CTEDefinitionSegment {
         .to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["common_table_expression"].map(ToOwned::to_owned).into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["common_table_expression"].into()
     }
 }
 
@@ -5967,8 +5967,8 @@ impl NodeTrait for TableReferenceSegment {
         Ref::new("ObjectReferenceSegment").to_matchable()
     }
 
-    fn class_types() -> AHashSet<String> {
-        ["table_reference".into()].into_iter().collect()
+    fn class_types() -> AHashSet<&'static str> {
+        ["table_reference"].into_iter().collect()
     }
 }
 

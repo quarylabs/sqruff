@@ -16,7 +16,7 @@ pub struct ParseContext<'a> {
     match_depth: usize,
     track_progress: bool,
     pub(crate) terminators: Vec<Rc<dyn Matchable>>,
-    parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), String), MatchResult>,
+    parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), uuid::Uuid), MatchResult>,
     pub(crate) indentation_config: AHashMap<String, bool>,
 }
 
@@ -139,7 +139,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn check_parse_cache(
         &self,
         loc_key: (String, (usize, usize), &'static str, usize),
-        matcher_key: String,
+        matcher_key: uuid::Uuid,
     ) -> Option<MatchResult> {
         self.parse_cache.get(&(loc_key, matcher_key)).cloned()
     }
@@ -147,7 +147,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn put_parse_cache(
         &mut self,
         loc_key: (String, (usize, usize), &'static str, usize),
-        matcher_key: String,
+        matcher_key: uuid::Uuid,
         match_result: MatchResult,
     ) {
         self.parse_cache.insert((loc_key, matcher_key), match_result);

@@ -28,7 +28,7 @@ pub struct BaseGrammar {
     terminators: Vec<Rc<dyn Matchable>>,
     reset_terminators: bool,
     parse_mode: ParseMode,
-    cache_key: String,
+    cache_key: Uuid,
 }
 
 impl PartialEq for BaseGrammar {
@@ -36,7 +36,7 @@ impl PartialEq for BaseGrammar {
         // self.elements == other.elements &&
         self.allow_gaps == other.allow_gaps
             && self.optional == other.optional
-        //   && self.terminators == other.terminators
+            //   && self.terminators == other.terminators
             && self.reset_terminators == other.reset_terminators
             && self.parse_mode == other.parse_mode
             && self.cache_key == other.cache_key
@@ -52,7 +52,7 @@ impl BaseGrammar {
         reset_terminators: bool,
         parse_mode: ParseMode,
     ) -> Self {
-        let cache_key = Uuid::new_v4().to_string();
+        let cache_key = Uuid::new_v4();
 
         Self {
             elements,
@@ -98,8 +98,8 @@ impl Matchable for BaseGrammar {
         Ok(MatchResult::new(Vec::new(), Vec::new()))
     }
 
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(self.cache_key)
     }
 }
 
@@ -112,7 +112,7 @@ pub struct Ref {
     reset_terminators: bool,
     allow_gaps: bool,
     optional: bool,
-    cache_key: String,
+    cache_key: Uuid,
     simple_cache: OnceCell<Option<(AHashSet<String>, AHashSet<String>)>>,
 }
 
@@ -132,7 +132,7 @@ impl Ref {
             reset_terminators: false,
             allow_gaps: true,
             optional: false,
-            cache_key: Uuid::new_v4().hyphenated().to_string(),
+            cache_key: Uuid::new_v4(),
             simple_cache: OnceCell::new(),
         }
     }
@@ -245,8 +245,8 @@ impl Matchable for Ref {
         })
     }
 
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(self.cache_key)
     }
 }
 
@@ -363,15 +363,25 @@ pub fn longest_trimmed_match(
     for (_idx, matcher) in enumerate(available_options) {
         let matcher_key = matcher.cache_key();
 
-        let match_result = match parse_context
-            .check_parse_cache(loc_key.clone(), matcher_key.clone())
-        {
-            Some(match_result) => match_result,
-            None => {
-                let match_result = matcher.match_segments(segments, parse_context)?;
-                parse_context.put_parse_cache(loc_key.clone(), matcher_key, match_result.clone());
-                match_result
+        let match_result = if let Some(matcher_key) = matcher_key {
+            match parse_context.check_parse_cache(loc_key.clone(), matcher_key) {
+                Some(match_result) => match_result,
+                None => {
+                    let match_result = matcher.match_segments(segments, parse_context)?;
+                    parse_context.put_parse_cache(
+                        loc_key.clone(),
+                        matcher_key,
+                        match_result.clone(),
+                    );
+                    match_result
+                }
             }
+        } else {
+            let match_result = matcher.match_segments(segments, parse_context)?;
+            if let Some(matcher_key) = matcher_key {
+                parse_context.put_parse_cache(loc_key.clone(), matcher_key, match_result.clone());
+            }
+            match_result
         };
 
         // No match. Skip this one.

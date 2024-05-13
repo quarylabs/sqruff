@@ -113,7 +113,7 @@ pub struct Sequence {
     pub(crate) allow_gaps: bool,
     is_optional: bool,
     pub(crate) terminators: Vec<Rc<dyn Matchable>>,
-    cache_key: String,
+    cache_key: Uuid,
 }
 
 impl Sequence {
@@ -124,7 +124,7 @@ impl Sequence {
             is_optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
-            cache_key: Uuid::new_v4().hyphenated().to_string(),
+            cache_key: Uuid::new_v4(),
         }
     }
 
@@ -407,8 +407,8 @@ impl Matchable for Sequence {
         })
     }
 
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(self.cache_key)
     }
 
     fn copy(
@@ -698,7 +698,7 @@ impl Matchable for Bracketed {
         })
     }
 
-    fn cache_key(&self) -> String {
+    fn cache_key(&self) -> Option<Uuid> {
         self.this.cache_key()
     }
 }

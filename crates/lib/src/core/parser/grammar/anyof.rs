@@ -85,7 +85,7 @@ pub struct AnyNumberOf {
     pub allow_gaps: bool,
     pub optional: bool,
     pub parse_mode: ParseMode,
-    cache_key: String,
+    cache_key: Uuid,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -104,7 +104,7 @@ impl AnyNumberOf {
             optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
-            cache_key: Uuid::new_v4().hyphenated().to_string(),
+            cache_key: Uuid::new_v4(),
         }
     }
 
@@ -292,8 +292,8 @@ impl Matchable for AnyNumberOf {
         Rc::new(new_grammar)
     }
 
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(self.cache_key)
     }
 }
 

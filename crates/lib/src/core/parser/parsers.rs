@@ -85,8 +85,8 @@ impl TypedParser {
 impl Segment for TypedParser {}
 
 impl Matchable for TypedParser {
-    fn cache_key(&self) -> String {
-        Uuid::new_v4().hyphenated().to_string()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(Uuid::new_v4())
     }
 
     fn simple(
@@ -124,7 +124,7 @@ pub struct StringParser {
                             * Rust */
     optional: bool,
     trim_chars: Option<Vec<char>>,
-    cache_key: String,
+    cache_key: Uuid,
 }
 
 impl StringParser {
@@ -145,7 +145,7 @@ impl StringParser {
             type_,
             optional,
             trim_chars,
-            cache_key: Uuid::new_v4().hyphenated().to_string(),
+            cache_key: Uuid::new_v4(),
         }
     }
 
@@ -212,8 +212,8 @@ impl Matchable for StringParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(self.cache_key)
     }
 }
 
@@ -225,7 +225,7 @@ pub struct RegexParser {
     _template: HashableFancyRegex,
     _anti_template: HashableFancyRegex,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    cache_key: String, // Add other fields as needed
+    cache_key: Uuid, // Add other fields as needed
 }
 
 impl PartialEq for RegexParser {
@@ -257,7 +257,7 @@ impl RegexParser {
             _template: HashableFancyRegex(template_pattern),
             _anti_template: HashableFancyRegex(anti_template_pattern),
             factory, // Initialize other fields here
-            cache_key: Uuid::new_v4().hyphenated().to_string(),
+            cache_key: Uuid::new_v4(),
         }
     }
 
@@ -332,8 +332,8 @@ impl Matchable for RegexParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(self.cache_key)
     }
 }
 
@@ -432,7 +432,7 @@ impl Matchable for MultiStringParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> String {
+    fn cache_key(&self) -> Option<Uuid> {
         todo!()
     }
 }

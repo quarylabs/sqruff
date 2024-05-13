@@ -379,7 +379,8 @@ fn lint_line_starting_indent(
         deduce_line_current_indent(elements, indent_points.last().unwrap().last_line_break_idx);
     let initial_point = elements[initial_point_idx].as_point().unwrap();
     let desired_indent_units = indent_line.desired_indent_units(forced_indents);
-    let desired_starting_indent = single_indent.repeat(desired_indent_units.try_into().unwrap());
+    let desired_starting_indent =
+        desired_indent_units.try_into().map_or(String::new(), |n| single_indent.repeat(n));
 
     if current_indent == desired_starting_indent {
         return Vec::new();

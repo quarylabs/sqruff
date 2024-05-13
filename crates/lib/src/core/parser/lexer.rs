@@ -84,7 +84,7 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + 'static {
     /// The name of the matcher.
     fn get_name(self: &Self) -> String;
     /// Given a string, match what we can and return the rest.
-    fn match_(self: &Self, forward_string: String) -> Result<LexMatch, ValueError>;
+    fn match_(self: &Self, forward_string: &str) -> Result<LexMatch, ValueError>;
     /// Use regex to find a substring.
     fn search(self: &Self, forward_string: &str) -> Option<Range<usize>>;
 
@@ -287,11 +287,11 @@ impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
     }
 
     /// Given a string, match what we can and return the rest.
-    fn match_(&self, forward_string: String) -> Result<LexMatch, ValueError> {
+    fn match_(&self, forward_string: &str) -> Result<LexMatch, ValueError> {
         if forward_string.is_empty() {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
-        let matched = self._match(&forward_string);
+        let matched = self._match(forward_string);
         match matched {
             Some(matched) => {
                 let length = matched.raw.len();
@@ -385,11 +385,11 @@ impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
     }
 
     /// Given a string, match what we can and return the rest.
-    fn match_(&self, forward_string: String) -> Result<LexMatch, ValueError> {
+    fn match_(&self, forward_string: &str) -> Result<LexMatch, ValueError> {
         if forward_string.is_empty() {
             return Err(ValueError::new(String::from("Unexpected empty string!")));
         };
-        let matched = self._match(&forward_string);
+        let matched = self._match(forward_string);
         match matched {
             Some(matched) => {
                 let length = matched.raw.len();
@@ -478,7 +478,12 @@ impl<'a> Lexer<'a> {
             element_buffer.extend(res.elements);
             if !res.forward_string.is_empty() {
                 // If we STILL can't match, then just panic out.
-                let resort_res = self.last_resort_lexer.match_(str_buff.to_string())?;
+                let resort_res = self.last_resort_lexer.match_(&str_buff)?;
+
+                if !resort_res.elements.is_empty() {
+                    break;
+                }
+
                 str_buff = resort_res.forward_string;
                 element_buffer.extend(resort_res.elements);
             } else {
@@ -535,7 +540,7 @@ impl<'a> Lexer<'a> {
             let mut matched = false;
 
             for matcher in lexer_matchers {
-                let res = matcher.match_(forward_string.to_string())?;
+                let res = matcher.match_(&forward_string)?;
                 if !res.elements.is_empty() {
                     // If we have new segments then whoop!
                     elem_buff.append(res.elements.clone().as_mut());
@@ -750,7 +755,7 @@ mod tests {
     /// particular string or negative matching (that it explicitly)
     /// doesn't match.
     fn assert_matches(in_string: &str, matcher: &impl Matcher, match_string: Option<&str>) {
-        let res = matcher.match_(in_string.to_string()).unwrap();
+        let res = matcher.match_(&in_string).unwrap();
         if let Some(match_string) = match_string {
             assert_eq!(res.forward_string, in_string[match_string.len()..]);
             assert_eq!(res.elements.len(), 1);

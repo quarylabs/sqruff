@@ -36,6 +36,15 @@ jobs:
       - uses: taiki-e/install-action@nextest
       - name: Run tests
         run: cargo nextest run --locked --release
+  benchmark:
+    name: Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - name: Run benchmarks
+        run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml
   fmt:
     name: Format
     runs-on: ubuntu-latest

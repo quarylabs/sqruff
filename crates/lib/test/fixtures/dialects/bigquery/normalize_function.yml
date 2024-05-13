@@ -9,7 +9,7 @@ file:
       - comma: ','
       - select_clause_element:
         - function:
-          - function:
+          - function_name:
             - function_name_identifier: NORMALIZE
           - bracketed:
             - start_bracket: (
@@ -24,7 +24,7 @@ file:
       - comma: ','
       - select_clause_element:
         - function:
-          - function:
+          - function_name:
             - function_name_identifier: NORMALIZE
           - bracketed:
             - start_bracket: (
@@ -39,7 +39,7 @@ file:
       - comma: ','
       - select_clause_element:
         - function:
-          - function:
+          - function_name:
             - function_name_identifier: NORMALIZE_AND_CASEFOLD
           - bracketed:
             - start_bracket: (
@@ -54,7 +54,7 @@ file:
       - comma: ','
       - select_clause_element:
         - function:
-          - function:
+          - function_name:
             - function_name_identifier: NORMALIZE_AND_CASEFOLD
           - bracketed:
             - start_bracket: (
@@ -102,7 +102,7 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                     - function:
-                      - function:
+                      - function_name:
                         - function_name_identifier: NORMALIZE
                       - bracketed:
                         - start_bracket: (
@@ -115,7 +115,7 @@ file:
                   - comma: ','
                   - select_clause_element:
                     - function:
-                      - function:
+                      - function_name:
                         - function_name_identifier: NORMALIZE
                       - bracketed:
                         - start_bracket: (
@@ -174,7 +174,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE
             - bracketed:
               - start_bracket: (
@@ -226,7 +226,7 @@ file:
       - select_clause_element:
         - expression:
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE
             - bracketed:
               - start_bracket: (
@@ -237,7 +237,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE
             - bracketed:
               - start_bracket: (
@@ -252,7 +252,7 @@ file:
       - select_clause_element:
         - expression:
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -263,7 +263,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -312,7 +312,7 @@ file:
       - select_clause_element:
         - expression:
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -325,7 +325,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -342,7 +342,7 @@ file:
       - select_clause_element:
         - expression:
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -355,7 +355,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -372,7 +372,7 @@ file:
       - select_clause_element:
         - expression:
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -385,7 +385,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -402,7 +402,7 @@ file:
       - select_clause_element:
         - expression:
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (
@@ -415,7 +415,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - function:
-            - function:
+            - function_name:
               - function_name_identifier: NORMALIZE_AND_CASEFOLD
             - bracketed:
               - start_bracket: (

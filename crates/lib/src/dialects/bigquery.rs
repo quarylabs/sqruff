@@ -1399,7 +1399,7 @@ impl NodeTrait for DatePartWeekSegment {
 pub struct NormalizeFunctionNameSegment;
 
 impl NodeTrait for NormalizeFunctionNameSegment {
-    const TYPE: &'static str = "function";
+    const TYPE: &'static str = "function_name";
 
     fn match_grammar() -> Rc<dyn Matchable> {
         one_of(vec_of_erased![

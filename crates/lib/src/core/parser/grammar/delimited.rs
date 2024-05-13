@@ -2,6 +2,7 @@ use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
 use ahash::AHashSet;
+use uuid::Uuid;
 
 use super::anyof::{one_of, AnyNumberOf};
 use super::base::{longest_trimmed_match, Ref};
@@ -26,7 +27,7 @@ pub struct Delimited {
     delimiter: Rc<dyn Matchable>,
     pub(crate) min_delimiters: Option<usize>,
     optional: bool,
-    cache_key: String,
+    cache_key: Uuid,
 }
 
 impl Delimited {
@@ -37,7 +38,7 @@ impl Delimited {
             delimiter: Ref::new("CommaSegment").to_matchable(),
             min_delimiters: None,
             optional: false,
-            cache_key: uuid::Uuid::new_v4().hyphenated().to_string(),
+            cache_key: Uuid::new_v4(),
         }
     }
 
@@ -249,8 +250,8 @@ impl Matchable for Delimited {
         Ok(MatchResult { matched_segments, unmatched_segments })
     }
 
-    fn cache_key(&self) -> String {
-        self.cache_key.clone()
+    fn cache_key(&self) -> Option<Uuid> {
+        Some(self.cache_key)
     }
 }
 

@@ -1,4 +1,5 @@
 use ahash::AHashSet;
+use uuid::Uuid;
 
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
@@ -40,8 +41,8 @@ impl Matchable for NonCodeMatcher {
         Ok(MatchResult::new(segments[0..idx].to_vec(), segments[idx..].to_vec()))
     }
 
-    fn cache_key(&self) -> String {
-        "non-code-matcher".to_string()
+    fn cache_key(&self) -> Option<Uuid> {
+        None
     }
 }
 

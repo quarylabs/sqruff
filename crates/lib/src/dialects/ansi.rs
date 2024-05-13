@@ -30,6 +30,7 @@ use crate::core::parser::segments::base::{
     WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
+use crate::core::parser::segments::fix::SourceFix;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -2472,6 +2473,10 @@ pub trait NodeTrait {
     fn class_types() -> AHashSet<&'static str> {
         <_>::default()
     }
+
+    fn reference(&self) -> Node<ObjectReferenceSegment> {
+        unimplemented!()
+    }
 }
 
 pub struct Node<T> {
@@ -2480,6 +2485,7 @@ pub struct Node<T> {
     pub(crate) segments: Vec<ErasedSegment>,
     pub position_marker: Option<PositionMarker>,
     pub raw: OnceCell<String>,
+    pub source_fixes: Vec<SourceFix>,
 }
 
 impl<T> Default for Node<T> {
@@ -2496,6 +2502,7 @@ impl<T> Node<T> {
             segments: Vec::new(),
             position_marker: None,
             raw: OnceCell::new(),
+            source_fixes: Vec::new(),
         }
     }
 }
@@ -2508,8 +2515,20 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
             segments,
             position_marker: self.position_marker.clone(),
             raw: OnceCell::new(),
+            source_fixes: Vec::new(),
         }
         .to_erased_segment()
+    }
+
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        let mut cloned = self.clone();
+        cloned.raw.get_mut().zip(raw).map(|(a, b)| *a = b);
+        cloned.source_fixes = source_fixes.unwrap_or_default();
+        cloned.to_erased_segment()
+    }
+
+    fn get_source_fixes(&self) -> Vec<SourceFix> {
+        self.source_fixes.clone()
     }
 
     fn get_raw(&self) -> Option<String> {
@@ -2572,6 +2591,7 @@ impl<T> Clone for Node<T> {
             uuid: self.uuid,
             position_marker: self.position_marker.clone(),
             raw: self.raw.clone(),
+            source_fixes: Vec::new(),
         }
     }
 }
@@ -3345,17 +3365,7 @@ impl Node<FromExpressionElementSegment> {
             tbl_expression.child(&["object_reference", "table_reference"])
         });
 
-        let mut node = Node::new();
-
-        let reference = reference.as_ref().map(|reference| {
-            if reference.is_type("table_reference") {
-                let tr = reference.as_any().downcast_ref::<Node<TableReferenceSegment>>().unwrap();
-                node.segments.clone_from(&tr.segments);
-                &node
-            } else {
-                reference.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap()
-            }
-        });
+        let reference = reference.as_ref().map(|reference| reference.reference());
 
         let alias_expression = self.child(&["alias_expression"]);
         if let Some(alias_expression) = alias_expression {
@@ -3372,7 +3382,7 @@ impl Node<FromExpressionElementSegment> {
             }
         }
 
-        if let Some(reference) = reference {
+        if let Some(reference) = &reference {
             let references = reference.iter_raw_references();
             if !references.is_empty() {
                 let penultimate_ref = references.last().unwrap();

@@ -84,7 +84,6 @@ jobs:
           draft: true
           files: |
             sqruff-*
-
   update-homebrew-formula:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest
@@ -97,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           REPOSITORY="quarylabs/homebrew-quary"
-          
+
           RELEASE_VERSION=${{ github.event.release.tag_name }}
           STRIPPED_VERSION=${RELEASE_VERSION#v}
           git clone \
@@ -108,11 +107,11 @@ jobs:
           cd homebrew-quary
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          
+
           git checkout -b update-sqruff-to-${STRIPPED_VERSION}
-          
+
           sed -i "s/version \".*\"/version \"${STRIPPED_VERSION}\"/" sqruff.rb
-          
+
           for asset in ${{ steps.upload-release-asset.outputs.browser_download_urls }}; do
             if [[ $asset == *"darwin-aarch64"* ]]; then
               DARWIN_AARCH64_URL=$asset
@@ -125,23 +124,77 @@ jobs:
               LINUX_X86_64_SHA256=$(curl -sL $asset.sha256)
             fi
           done
-          
+
           sed -i "s|url \".*\"|url \"${DARWIN_AARCH64_URL}\"|" sqruff.rb
           sed -i "s/sha256 \".*\"/sha256 \"${DARWIN_AARCH64_SHA256}\"/" sqruff.rb
-          
+
           sed -i "s|url \".*\"|url \"${DARWIN_X86_64_URL}\"|" sqruff.rb
           sed -i "s/sha256 \".*\"/sha256 \"${DARWIN_X86_64_SHA256}\"/" sqruff.rb
-          
+
           sed -i "s|url \".*\"|url \"${LINUX_X86_64_URL}\"|" sqruff.rb
           sed -i "s/sha256 \".*\"/sha256 \"${LINUX_X86_64_SHA256}\"/" sqruff.rb
-          
+
           git add sqruff.rb
           git commit -m "Update Sqruff to version ${STRIPPED_VERSION}"
           git push origin update-sqruff-to-${STRIPPED_VERSION}
-          
+
           # Store the PAT in a file that can be accessed by the
           # GitHub CLI.
           echo "${{ secrets.HOMEBREW_ACCESS_TOKEN }}" > token.txt
-          
+
           gh auth login --with-token < token.txt
           gh pr create --title "Update Sqruff to version ${STRIPPED_VERSION}" --body "Automated PR to update Sqruff to version ${STRIPPED_VERSION}" --base main
+  calculate-hash:
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b # ratchet:actions/checkout@v4
+      - name: Fetch Release Assets
+        id: fetch-assets
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # ratchet:actions/github-script@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            const response = await github.rest.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id
+            });
+
+            const assets = response.data.map(asset => ({ url: asset.url, name: asset.name }));
+            fs.writeFileSync('assets.json', JSON.stringify(assets));
+
+      - name: Download and Calculate SHA-256 Hashes
+        run: |
+          mkdir -p downloads
+          echo "File Name | SHA-256 Hash" >> SHA256SUMS.txt
+          echo "--------- | ------------" >> SHA256SUMS.txt
+          jq -c '.[]' assets.json | while read -r asset; do
+            url=$(echo $asset | jq -r '.url')
+            name=$(echo $asset | jq -r '.name')
+            curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" -o "downloads/$name" "$url"
+            echo "Calculating SHA-256 for $name"
+            hash=$(sha256sum "downloads/$name" | awk '{print $1}')
+            echo "$name | $hash" >> SHA256SUMS.txt
+          done
+      - name: Update Release Description with SHA-256 Hashes
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # ratchet:actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const sha256sums = fs.readFileSync('SHA256SUMS.txt', 'utf8');
+            const { owner, repo } = context.repo;
+            const release = context.payload.release;
+            const newBody = release.body + '\n\n### SHA-256 Hashes\n' + sha256sums;
+            await github.rest.repos.updateRelease({
+              owner,
+              repo,
+              release_id: release.id,
+              body: newBody
+            });

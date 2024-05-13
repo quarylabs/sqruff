@@ -620,6 +620,7 @@ fn iter_segments(
     // let block_stack = BlockTracker()
     let templated_file_slices = &templated_file.clone().sliced_file;
 
+    dbg!(&templated_file);
     // Now work out source slices, and add in template placeholders.
     for element in lexed_elements.into_iter() {
         let consumed_element_length = 0;

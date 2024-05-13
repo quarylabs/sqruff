@@ -6,10 +6,12 @@ fn main() {
 
     let start = Instant::now();
 
-    let output = Command::new("target/release/sqruff.exe")
+    let output = Command::new("target/release/sqruff")
         .args(["lint", ".", "crates/lib/test/fixtures/dialects/ansi"])
         .output()
         .expect("Failed to execute process");
+
+    assert!(output.status.success());
 
     let duration = start.elapsed();
 

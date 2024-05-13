@@ -2522,7 +2522,9 @@ impl<T: NodeTrait + 'static> Segment for Node<T> {
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         let mut cloned = self.clone();
-        cloned.raw.get_mut().zip(raw).map(|(a, b)| *a = b);
+        if let Some((a, b)) = cloned.raw.get_mut().zip(raw) {
+            *a = b
+        };
         cloned.source_fixes = source_fixes.unwrap_or_default();
         cloned.to_erased_segment()
     }

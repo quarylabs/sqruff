@@ -13,10 +13,9 @@ mod commands;
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 fn main() {
-    let config = FluffConfig::from_root(None, false, None).unwrap();
-
     let cli = Cli::parse();
 
+    let config = FluffConfig::from_root(None, false, None).unwrap();
     match cli.command {
         Commands::Lint(LintArgs { paths, format }) => {
             let mut linter = linter(config, format);

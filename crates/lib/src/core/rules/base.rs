@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::fmt::{self, Debug};
 use std::ops::Deref;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 use anymap::AnyMap;
@@ -237,7 +238,7 @@ impl<T: Rule> CloneRule for T {
     }
 }
 
-pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static {
+pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule;
 
     fn lint_phase(&self) -> &'static str {
@@ -343,7 +344,7 @@ dyn_clone::clone_trait_object!(Rule);
 
 #[derive(Debug, Clone)]
 pub struct ErasedRule {
-    erased: Rc<dyn Rule>,
+    erased: Arc<dyn Rule>,
 }
 
 impl PartialEq for ErasedRule {
@@ -370,7 +371,7 @@ impl<T: Rule> Erased for T {
     type Erased = ErasedRule;
 
     fn erased(self) -> Self::Erased {
-        ErasedRule { erased: Rc::new(self) }
+        ErasedRule { erased: Arc::new(self) }
     }
 }
 

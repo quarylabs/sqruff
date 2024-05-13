@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::AHashMap;
 
@@ -80,7 +80,7 @@ impl<'me> Selectable<'me> {
 
 #[derive(Debug, Clone)]
 pub struct Query<'me, T> {
-    pub(crate) inner: Rc<RefCell<QueryInner<'me, T>>>,
+    pub(crate) inner: Arc<RefCell<QueryInner<'me, T>>>,
 }
 
 #[derive(Debug, Clone)]
@@ -197,7 +197,7 @@ impl<T: Default + Clone> Query<'_, T> {
         }
 
         let outer_query = Query {
-            inner: Rc::new(RefCell::new(QueryInner {
+            inner: Arc::new(RefCell::new(QueryInner {
                 query_type,
                 dialect,
                 selectables,

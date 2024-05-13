@@ -1,6 +1,6 @@
 use std::iter::zip;
 use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::AHashSet;
 use itertools::{chain, enumerate, Itertools};
@@ -26,7 +26,7 @@ use crate::helpers::ToErasedSegment;
 fn trim_to_terminator(
     mut segments: Vec<ErasedSegment>,
     mut tail: Vec<ErasedSegment>,
-    terminators: Vec<Rc<dyn Matchable>>,
+    terminators: Vec<Arc<dyn Matchable>>,
     parse_context: &mut ParseContext,
 ) -> Result<(Vec<ErasedSegment>, Vec<ErasedSegment>), SQLParseError> {
     let pruned_terms = prune_options(&terminators, &segments, parse_context);
@@ -108,16 +108,16 @@ fn position_metas(
 #[derive(Debug, Clone, Hash)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Sequence {
-    elements: Vec<Rc<dyn Matchable>>,
+    elements: Vec<Arc<dyn Matchable>>,
     parse_mode: ParseMode,
     pub(crate) allow_gaps: bool,
     is_optional: bool,
-    pub(crate) terminators: Vec<Rc<dyn Matchable>>,
+    pub(crate) terminators: Vec<Arc<dyn Matchable>>,
     cache_key: Uuid,
 }
 
 impl Sequence {
-    pub fn new(elements: Vec<Rc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
         Self {
             elements,
             allow_gaps: true,
@@ -132,7 +132,7 @@ impl Sequence {
         self.is_optional = true;
     }
 
-    pub fn terminators(mut self, terminators: Vec<Rc<dyn Matchable>>) -> Self {
+    pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
         self.terminators = terminators;
         self
     }
@@ -413,13 +413,13 @@ impl Matchable for Sequence {
 
     fn copy(
         &self,
-        insert: Option<Vec<Rc<dyn Matchable>>>,
+        insert: Option<Vec<Arc<dyn Matchable>>>,
         at: Option<usize>,
-        before: Option<Rc<dyn Matchable>>,
-        remove: Option<Vec<Rc<dyn Matchable>>>,
-        terminators: Vec<Rc<dyn Matchable>>,
+        before: Option<Arc<dyn Matchable>>,
+        remove: Option<Vec<Arc<dyn Matchable>>>,
+        terminators: Vec<Arc<dyn Matchable>>,
         replace_terminators: bool,
-    ) -> Rc<dyn Matchable> {
+    ) -> Arc<dyn Matchable> {
         let mut new_elements = self.elements.clone();
 
         if let Some(insert_elements) = insert {
@@ -437,7 +437,7 @@ impl Matchable for Sequence {
         }
 
         if let Some(remove_elements) = remove {
-            new_elements.retain(|elem| !remove_elements.iter().any(|r| Rc::ptr_eq(elem, r)));
+            new_elements.retain(|elem| !remove_elements.iter().any(|r| Arc::ptr_eq(elem, r)));
         }
 
         let mut new_grammar = self.clone();
@@ -449,7 +449,7 @@ impl Matchable for Sequence {
             [self.terminators.clone(), terminators].concat()
         };
 
-        Rc::new(new_grammar)
+        Arc::new(new_grammar)
     }
 }
 
@@ -463,7 +463,7 @@ pub struct Bracketed {
 }
 
 impl Bracketed {
-    pub fn new(args: Vec<Rc<dyn Matchable>>) -> Self {
+    pub fn new(args: Vec<Arc<dyn Matchable>>) -> Self {
         Self {
             bracket_type: "round",
             bracket_pairs_set: "bracket_pairs",
@@ -481,7 +481,7 @@ impl Bracketed {
     fn get_bracket_from_dialect(
         &self,
         parse_context: &ParseContext,
-    ) -> Result<(Rc<dyn Matchable>, Rc<dyn Matchable>, bool), String> {
+    ) -> Result<(Arc<dyn Matchable>, Arc<dyn Matchable>, bool), String> {
         let bracket_pairs = parse_context.dialect().bracket_sets(self.bracket_pairs_set);
         for (bracket_type, start_ref, end_ref, persists) in bracket_pairs {
             if bracket_type == self.bracket_type {
@@ -705,7 +705,7 @@ impl Matchable for Bracketed {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
+    use std::sync::Arc;
 
     use itertools::Itertools;
     use serde_json::{json, Value};
@@ -724,7 +724,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_sequence() {
-        let bs = Rc::new(StringParser::new(
+        let bs = Arc::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
@@ -738,7 +738,7 @@ mod tests {
             None,
         ));
 
-        let fs = Rc::new(StringParser::new(
+        let fs = Arc::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
@@ -775,7 +775,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_sequence_nested() {
-        let bs = Rc::new(StringParser::new(
+        let bs = Arc::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
@@ -787,9 +787,9 @@ mod tests {
             None,
             false,
             None,
-        )) as Rc<dyn Matchable>;
+        )) as Arc<dyn Matchable>;
 
-        let fs = Rc::new(StringParser::new(
+        let fs = Arc::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
@@ -801,9 +801,9 @@ mod tests {
             None,
             false,
             None,
-        )) as Rc<dyn Matchable>;
+        )) as Arc<dyn Matchable>;
 
-        let bas = Rc::new(StringParser::new(
+        let bas = Arc::new(StringParser::new(
             "baar",
             |segment| {
                 KeywordSegment::new(
@@ -815,9 +815,9 @@ mod tests {
             None,
             false,
             None,
-        )) as Rc<dyn Matchable>;
+        )) as Arc<dyn Matchable>;
 
-        let g = Sequence::new(vec![Rc::new(Sequence::new(vec![bs, fs])), bas]);
+        let g = Sequence::new(vec![Arc::new(Sequence::new(vec![bs, fs])), bas]);
 
         let dialect = fresh_ansi_dialect();
         let mut ctx = ParseContext::new(&dialect, <_>::default());
@@ -837,7 +837,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar_sequence_indent() {
-        let bs = Rc::new(StringParser::new(
+        let bs = Arc::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
@@ -851,7 +851,7 @@ mod tests {
             None,
         ));
 
-        let fs = Rc::new(StringParser::new(
+        let fs = Arc::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
@@ -865,7 +865,7 @@ mod tests {
             None,
         ));
 
-        let g = Sequence::new(vec![Rc::new(MetaSegment::indent()), bs, fs]);
+        let g = Sequence::new(vec![Arc::new(MetaSegment::indent()), bs, fs]);
         let dialect = fresh_ansi_dialect();
         let mut ctx = ParseContext::new(&dialect, <_>::default());
         let segments = g.match_segments(&test_segments(), &mut ctx).unwrap().matched_segments;
@@ -1083,7 +1083,7 @@ mod tests {
             seq.terminators = terminators
                 .iter()
                 .map(|it| {
-                    Rc::new(StringParser::new(
+                    Arc::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
@@ -1095,7 +1095,7 @@ mod tests {
                         None,
                         false,
                         None,
-                    )) as Rc<dyn Matchable>
+                    )) as Arc<dyn Matchable>
                 })
                 .collect();
             seq.parse_mode = *parse_mode;

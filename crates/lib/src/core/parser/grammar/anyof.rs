@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
@@ -52,7 +52,7 @@ fn parse_mode_match_result(
 }
 
 pub fn simple(
-    elements: &[Rc<dyn Matchable>],
+    elements: &[Arc<dyn Matchable>],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
 ) -> Option<(AHashSet<String>, AHashSet<String>)> {
@@ -78,8 +78,8 @@ pub fn simple(
 #[derive(Debug, Clone, Hash)]
 #[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
 pub struct AnyNumberOf {
-    pub elements: Vec<Rc<dyn Matchable>>,
-    pub terminators: Vec<Rc<dyn Matchable>>,
+    pub elements: Vec<Arc<dyn Matchable>>,
+    pub terminators: Vec<Arc<dyn Matchable>>,
     pub max_times: Option<usize>,
     pub min_times: usize,
     pub allow_gaps: bool,
@@ -95,7 +95,7 @@ impl PartialEq for AnyNumberOf {
 }
 
 impl AnyNumberOf {
-    pub fn new(elements: Vec<Rc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
         Self {
             elements,
             max_times: None,
@@ -131,7 +131,7 @@ impl AnyNumberOf {
         &self,
         segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
-    ) -> Result<(MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
+    ) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
         let name = std::any::type_name::<Self>();
 
         parse_context.deeper_match(name, false, &self.terminators, None, |ctx| {
@@ -253,13 +253,13 @@ impl Matchable for AnyNumberOf {
 
     fn copy(
         &self,
-        insert: Option<Vec<Rc<dyn Matchable>>>,
+        insert: Option<Vec<Arc<dyn Matchable>>>,
         at: Option<usize>,
-        before: Option<Rc<dyn Matchable>>,
-        remove: Option<Vec<Rc<dyn Matchable>>>,
-        terminators: Vec<Rc<dyn Matchable>>,
+        before: Option<Arc<dyn Matchable>>,
+        remove: Option<Vec<Arc<dyn Matchable>>>,
+        terminators: Vec<Arc<dyn Matchable>>,
         replace_terminators: bool,
-    ) -> Rc<dyn Matchable> {
+    ) -> Arc<dyn Matchable> {
         let mut new_elements = self.elements.clone();
 
         if let Some(insert_elements) = insert {
@@ -277,7 +277,7 @@ impl Matchable for AnyNumberOf {
         }
 
         if let Some(remove_elements) = remove {
-            new_elements.retain(|elem| !remove_elements.iter().any(|r| Rc::ptr_eq(elem, r)));
+            new_elements.retain(|elem| !remove_elements.iter().any(|r| Arc::ptr_eq(elem, r)));
         }
 
         let mut new_grammar = self.clone();
@@ -289,7 +289,7 @@ impl Matchable for AnyNumberOf {
             [self.terminators.clone(), terminators].concat()
         };
 
-        Rc::new(new_grammar)
+        Arc::new(new_grammar)
     }
 
     fn cache_key(&self) -> Option<Uuid> {
@@ -297,14 +297,14 @@ impl Matchable for AnyNumberOf {
     }
 }
 
-pub fn one_of(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
+pub fn one_of(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
     let mut matcher = AnyNumberOf::new(elements);
     matcher.max_times(1);
     matcher.min_times(1);
     matcher
 }
 
-pub fn optionally_bracketed(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
+pub fn optionally_bracketed(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
     let mut args = vec![Bracketed::new(elements.clone()).to_matchable()];
 
     if elements.len() == 1 {
@@ -318,7 +318,7 @@ pub fn optionally_bracketed(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
+    use std::sync::Arc;
 
     use itertools::Itertools;
     use pretty_assertions::assert_eq;
@@ -372,7 +372,7 @@ mod tests {
                 None,
             );
 
-            let mut g = one_of(vec![Rc::new(fs), Rc::new(bs)]);
+            let mut g = one_of(vec![Arc::new(fs), Arc::new(bs)]);
 
             if allow_gaps {
                 g.disallow_gaps();
@@ -425,7 +425,7 @@ mod tests {
             None,
         );
 
-        let g = one_of(vec![Rc::new(bs), Rc::new(fs)]);
+        let g = one_of(vec![Arc::new(bs), Arc::new(fs)]);
 
         assert!(!g.match_segments(&test_segments()[5..], &mut ctx).unwrap().has_match());
     }
@@ -495,7 +495,7 @@ mod tests {
             let terms = terminators
                 .iter()
                 .map(|it| {
-                    Rc::new(StringParser::new(
+                    Arc::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
@@ -507,7 +507,7 @@ mod tests {
                         None,
                         false,
                         None,
-                    )) as Rc<dyn Matchable>
+                    )) as Arc<dyn Matchable>
                 })
                 .collect_vec();
 
@@ -565,7 +565,7 @@ mod tests {
 
         let ansi = fresh_ansi_dialect();
         let mut ctx = ParseContext::new(&ansi, <_>::default());
-        let g = AnyNumberOf::new(vec![Rc::new(bar), Rc::new(foo)]);
+        let g = AnyNumberOf::new(vec![Arc::new(bar), Arc::new(foo)]);
         let result = g.match_segments(&segments, &mut ctx).unwrap().matched_segments;
 
         assert_eq!(result[0].get_raw().unwrap(), "bar");
@@ -605,8 +605,8 @@ mod tests {
             None,
         );
 
-        let g1 = one_of(vec![Rc::new(foo_regex.clone()), Rc::new(foo.clone())]);
-        let g2 = one_of(vec![Rc::new(foo), Rc::new(foo_regex)]);
+        let g1 = one_of(vec![Arc::new(foo_regex.clone()), Arc::new(foo.clone())]);
+        let g2 = one_of(vec![Arc::new(foo), Arc::new(foo_regex)]);
 
         let dialect = fresh_ansi_dialect();
         let mut ctx = ParseContext::new(&dialect, <_>::default());

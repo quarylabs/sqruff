@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::AHashMap;
 
@@ -15,7 +15,7 @@ pub struct ParseContext<'a> {
     match_stack: Vec<String>,
     match_depth: usize,
     track_progress: bool,
-    pub(crate) terminators: Vec<Rc<dyn Matchable>>,
+    pub(crate) terminators: Vec<Arc<dyn Matchable>>,
     parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), uuid::Uuid), MatchResult>,
     pub(crate) indentation_config: AHashMap<String, bool>,
 }
@@ -61,7 +61,7 @@ impl<'a> ParseContext<'a> {
         &mut self,
         name: impl ToString,
         clear_terminators: bool,
-        push_terminators: &[Rc<dyn Matchable>],
+        push_terminators: &[Arc<dyn Matchable>],
         track_progress: Option<bool>,
         f: impl FnOnce(&mut Self) -> T,
     ) -> T {
@@ -99,8 +99,8 @@ impl<'a> ParseContext<'a> {
     fn set_terminators(
         &mut self,
         clear_terminators: bool,
-        push_terminators: &[Rc<dyn Matchable>],
-    ) -> (usize, Vec<Rc<dyn Matchable>>) {
+        push_terminators: &[Arc<dyn Matchable>],
+    ) -> (usize, Vec<Arc<dyn Matchable>>) {
         let mut appended = 0;
         let terminators = self.terminators.clone();
 
@@ -125,7 +125,7 @@ impl<'a> ParseContext<'a> {
     fn reset_terminators(
         &mut self,
         appended: usize,
-        terminators: Vec<Rc<dyn Matchable>>,
+        terminators: Vec<Arc<dyn Matchable>>,
         clear_terminators: bool,
     ) {
         if clear_terminators {

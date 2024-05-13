@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::AHashSet;
 use itertools::{chain, enumerate, multiunzip, Itertools};
@@ -58,10 +58,10 @@ impl BracketInfo {
 /// Works in the context of a grammar making choices between options
 /// such as AnyOf or the content of Delimited.
 pub fn prune_options(
-    options: &[Rc<dyn Matchable>],
+    options: &[Arc<dyn Matchable>],
     segments: &[ErasedSegment],
     parse_context: &mut ParseContext,
-) -> Vec<Rc<dyn Matchable>> {
+) -> Vec<Arc<dyn Matchable>> {
     let mut available_options = vec![];
     let mut prune_buff = vec![];
 
@@ -118,9 +118,9 @@ pub fn prune_options(
 //  `tuple` of (unmatched_segments, match_object, matcher).
 pub fn look_ahead_match(
     segments: &[ErasedSegment],
-    matchers: Vec<Rc<dyn Matchable>>,
+    matchers: Vec<Arc<dyn Matchable>>,
     parse_context: &mut ParseContext,
-) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
+) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
     // Have we been passed an empty tuple?
     if segments.is_empty() {
         return Ok((Vec::new(), MatchResult::from_empty(), None));
@@ -205,12 +205,12 @@ pub fn look_ahead_match(
 //    `tuple` of (unmatched_segments, match_object, matcher).
 pub fn bracket_sensitive_look_ahead_match(
     segments: Vec<ErasedSegment>,
-    matchers: Vec<Rc<dyn Matchable>>,
+    matchers: Vec<Arc<dyn Matchable>>,
     parse_cx: &mut ParseContext,
-    start_bracket: Option<Rc<dyn Matchable>>,
-    end_bracket: Option<Rc<dyn Matchable>>,
+    start_bracket: Option<Arc<dyn Matchable>>,
+    end_bracket: Option<Arc<dyn Matchable>>,
     bracket_pairs_set: Option<&'static str>,
-) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
+) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
     let bracket_pairs_set = bracket_pairs_set.unwrap_or("bracket_pairs");
 
     // Have we been passed an empty tuple?
@@ -445,7 +445,7 @@ pub fn bracket_sensitive_look_ahead_match(
 pub fn greedy_match(
     segments: Vec<ErasedSegment>,
     parse_context: &mut ParseContext,
-    matchers: Vec<Rc<dyn Matchable>>,
+    matchers: Vec<Arc<dyn Matchable>>,
     include_terminator: bool,
 ) -> Result<MatchResult, SQLParseError> {
     let mut seg_buff = segments.clone();
@@ -527,7 +527,7 @@ pub fn greedy_match(
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
+    use std::sync::Arc;
 
     use itertools::Itertools;
 
@@ -551,7 +551,7 @@ mod tests {
             let matchers = matcher_keywords
                 .iter()
                 .map(|kw| {
-                    Rc::new(StringParser::new(
+                    Arc::new(StringParser::new(
                         kw,
                         |segment| {
                             KeywordSegment::new(
@@ -563,7 +563,7 @@ mod tests {
                         None,
                         false,
                         None,
-                    )) as Rc<dyn Matchable>
+                    )) as Arc<dyn Matchable>
                 })
                 .collect_vec();
 
@@ -587,7 +587,7 @@ mod tests {
     // Test the bracket_sensitive_look_ahead_match method of the BaseGrammar.
     #[test]
     fn test__parser__algorithms__bracket_sensitive_look_ahead_match() {
-        let bs = Rc::new(StringParser::new(
+        let bs = Arc::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
@@ -601,7 +601,7 @@ mod tests {
             None,
         ));
 
-        let fs = Rc::new(StringParser::new(
+        let fs = Arc::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
@@ -667,8 +667,8 @@ mod tests {
     #[test]
     fn test__parser__algorithms__bracket_fail_with_open_paren_close_square_mismatch() {
         // Assuming 'StringParser' and 'KeywordSegment' are defined elsewhere
-        let fs = Rc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None))
-            as Rc<dyn Matchable>;
+        let fs = Arc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None))
+            as Arc<dyn Matchable>;
 
         // Assuming 'ParseContext' is defined elsewhere and requires a dialect
         let dialect = fresh_ansi_dialect();
@@ -698,7 +698,7 @@ mod tests {
     fn test__parser__algorithms__bracket_fail_with_unexpected_end_bracket() {
         // Assuming 'StringParser', 'KeywordSegment', 'ParseContext', and other
         // necessary types are defined elsewhere
-        let fs = Rc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None));
+        let fs = Arc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None));
 
         // Creating a ParseContext with a dialect
         let dialect = fresh_ansi_dialect();

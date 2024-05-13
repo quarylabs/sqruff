@@ -1,6 +1,7 @@
 use std::borrow::Cow;
-use std::cell::Cell;
 use std::io::{IsTerminal, Write};
+use std::sync::atomic::AtomicBool;
+use std::sync::Mutex;
 
 use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
@@ -52,18 +53,18 @@ pub trait Formatter {
 }
 
 pub struct OutputStreamFormatter {
-    output_stream: Box<dyn Write>,
+    output_stream: Mutex<Box<dyn Write + Send + Sync>>,
     plain_output: bool,
     filter_empty: bool,
     verbosity: i32,
     output_line_length: usize,
-    pub has_fail: Cell<bool>,
+    pub has_fail: AtomicBool,
 }
 
 impl OutputStreamFormatter {
-    pub fn new(output_stream: Box<dyn Write>, nocolor: bool) -> Self {
+    pub fn new(output_stream: Box<dyn Write + Send + Sync>, nocolor: bool) -> Self {
         Self {
-            output_stream,
+            output_stream: output_stream.into(),
             plain_output: Self::should_produce_plain_output(nocolor),
             filter_empty: true,
             verbosity: 0,
@@ -76,9 +77,9 @@ impl OutputStreamFormatter {
         nocolor || !std::io::stdout().is_terminal()
     }
 
-    fn dispatch(&mut self, s: &str) {
+    fn dispatch(&self, s: &str) {
         if !self.filter_empty || !s.trim().is_empty() {
-            _ = self.output_stream.write(s.as_bytes()).unwrap();
+            _ = self.output_stream.lock().unwrap().write(s.as_bytes()).unwrap();
         }
     }
 
@@ -117,7 +118,7 @@ impl OutputStreamFormatter {
     #[allow(dead_code)]
     fn dispatch_dialect_warning(&self) {}
 
-    fn format_file_violations(&mut self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
+    fn format_file_violations(&self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
         let mut text_buffer = String::new();
 
         let fails =
@@ -147,7 +148,7 @@ impl OutputStreamFormatter {
     }
     #[allow(unused_variables)]
     pub fn dispatch_file_violations(
-        &mut self,
+        &self,
         linted_file: &LintedFile,
         only_fixable: bool,
         warn_unused_ignores: bool,
@@ -184,7 +185,7 @@ impl OutputStreamFormatter {
         let color = match status {
             Status::Pass | Status::Fixed => AnsiColor::Green,
             Status::Fail | Status::Error => {
-                self.has_fail.set(true);
+                self.has_fail.store(true, std::sync::atomic::Ordering::SeqCst);
                 AnsiColor::Red
             }
         }

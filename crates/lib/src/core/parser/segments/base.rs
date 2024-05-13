@@ -2,7 +2,7 @@ use std::any::Any;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Deref;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 use dyn_clone::DynClone;
@@ -37,7 +37,7 @@ pub struct PathStep {
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
-    &'static dyn Fn(&str, &PositionMarker, SegmentArgs) -> ErasedSegment;
+    &'static (dyn Fn(&str, &PositionMarker, SegmentArgs) -> ErasedSegment + Sync + Send);
 
 pub trait CloneSegment {
     fn clone_box(&self) -> ErasedSegment;
@@ -84,7 +84,7 @@ impl TupleSerialisedSegment {
 #[derive(Debug, Hash, Clone)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct ErasedSegment {
-    value: Rc<dyn Segment>,
+    value: Arc<dyn Segment>,
 }
 
 impl ErasedSegment {
@@ -94,7 +94,7 @@ impl ErasedSegment {
 
     #[track_caller]
     pub fn get_mut(&mut self) -> &mut dyn Segment {
-        Rc::get_mut(&mut self.value).unwrap()
+        Arc::get_mut(&mut self.value).unwrap()
     }
 }
 
@@ -114,11 +114,11 @@ impl PartialEq for ErasedSegment {
 
 impl ErasedSegment {
     pub fn of<T: Segment>(value: T) -> Self {
-        Self { value: Rc::new(value) }
+        Self { value: Arc::new(value) }
     }
 }
 
-pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
+pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
@@ -372,7 +372,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
     }
 
     // TODO: remove &self?
-    fn match_grammar(&self) -> Option<Rc<dyn Matchable>> {
+    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
         None
     }
 

@@ -1,5 +1,5 @@
 use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::AHashSet;
 use uuid::Uuid;
@@ -24,14 +24,14 @@ use crate::helpers::ToMatchable;
 pub struct Delimited {
     base: AnyNumberOf,
     pub(crate) allow_trailing: bool,
-    delimiter: Rc<dyn Matchable>,
+    delimiter: Arc<dyn Matchable>,
     pub(crate) min_delimiters: Option<usize>,
     optional: bool,
     cache_key: Uuid,
 }
 
 impl Delimited {
-    pub fn new(elements: Vec<Rc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
         Self {
             base: one_of(elements),
             allow_trailing: false,
@@ -271,7 +271,7 @@ impl DerefMut for Delimited {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
+    use std::sync::Arc;
 
     use itertools::Itertools;
 
@@ -316,7 +316,7 @@ mod tests {
 
         for (min_delimiters, allow_gaps, allow_trailing, token_list, match_len) in cases {
             let test_segments = generate_test_segments_func(token_list);
-            let mut g = Delimited::new(vec![Rc::new(StringParser::new(
+            let mut g = Delimited::new(vec![Arc::new(StringParser::new(
                 "bar",
                 |segment| {
                     KeywordSegment::new(
@@ -370,7 +370,7 @@ mod tests {
             false,
             None,
         );
-        let matcher = Anything::new().terminators(vec![Rc::new(foo)]);
+        let matcher = Anything::new().terminators(vec![Arc::new(foo)]);
 
         let match_result = matcher.match_segments(&bracket_segments(), &mut ctx).unwrap();
         assert_eq!(match_result.len(), 4);
@@ -405,7 +405,7 @@ mod tests {
             let terms = terminators
                 .iter()
                 .map(|it| {
-                    Rc::new(StringParser::new(
+                    Arc::new(StringParser::new(
                         it,
                         |segment| {
                             KeywordSegment::new(
@@ -417,7 +417,7 @@ mod tests {
                         None,
                         false,
                         None,
-                    )) as Rc<dyn Matchable>
+                    )) as Arc<dyn Matchable>
                 })
                 .collect_vec();
 

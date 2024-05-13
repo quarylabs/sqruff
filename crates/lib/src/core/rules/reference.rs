@@ -73,7 +73,7 @@ mod tests {
             ),
             // Multi-part references and targets. Checks for a suffix match.
             (
-                vec![vec!["rc".to_string(), "tbl1".to_string()]],
+                vec![vec!["Arc".to_string(), "tbl1".to_string()]],
                 vec![vec!["db".to_string(), "sc".to_string(), "tbl1".to_string()]],
                 false,
             ),

@@ -43,7 +43,13 @@ fn main() {
                 }
             }
 
-            std::process::exit(if linter.formatter.unwrap().has_fail.get() { 1 } else { 0 })
+            std::process::exit(
+                if linter.formatter.unwrap().has_fail.load(std::sync::atomic::Ordering::SeqCst) {
+                    1
+                } else {
+                    0
+                },
+            )
         }
         Commands::Fix(FixArgs { paths, force, format }) => {
             let mut linter = linter(config, format);
@@ -75,7 +81,7 @@ fn main() {
 }
 
 fn linter(config: FluffConfig, format: Format) -> Linter {
-    let output_stream: Box<dyn std::io::Write> = match format {
+    let output_stream: Box<dyn std::io::Write + Send + Sync> = match format {
         Format::Human => Box::new(std::io::stderr()),
         Format::GithubAnnotationNative => Box::new(std::io::sink()),
     };

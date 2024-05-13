@@ -124,6 +124,12 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn reference(&self) -> Node<ObjectReferenceSegment> {
+        let mut node = Node::new();
+        node.segments = self.segments().to_vec();
+        node
+    }
+
     fn type_name(&self) -> &'static str {
         std::any::type_name::<Self>()
     }

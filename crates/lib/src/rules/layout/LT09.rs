@@ -62,7 +62,7 @@ impl Rule for RuleLT09 {
             return self.eval_multiple_select_target_elements(select_targets_info, context.segment);
         }
 
-        unimplemented!()
+        Vec::new()
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -81,7 +81,7 @@ impl RuleLT09 {
             None,
         );
 
-        let first_select_target_idx = children.find(&select_targets.get(0, None).unwrap());
+        let first_select_target_idx = select_targets.get(0, None).and_then(|it| children.find(&it));
 
         let selects = children.select(
             Some(|segment| {

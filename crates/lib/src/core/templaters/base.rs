@@ -608,7 +608,7 @@ impl Templater for RawTemplater {
     }
 }
 
-pub trait Templater {
+pub trait Templater: Send + Sync {
     /// The name of the templater.
     fn name(&self) -> &str;
 

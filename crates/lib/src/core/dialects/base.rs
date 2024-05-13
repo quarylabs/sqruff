@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::fmt::Debug;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 
@@ -41,7 +41,7 @@ impl Dialect {
         self.library.extend(iter);
     }
 
-    pub fn grammar(&self, name: &str) -> Rc<dyn Matchable> {
+    pub fn grammar(&self, name: &str) -> Arc<dyn Matchable> {
         match &self.library[name] {
             DialectElementType::Matchable(matchable) => matchable.clone(),
             DialectElementType::SegmentGenerator(_) => {
@@ -166,7 +166,7 @@ impl Dialect {
         }
     }
 
-    pub fn r#ref(&self, name: &str) -> Rc<dyn Matchable> {
+    pub fn r#ref(&self, name: &str) -> Arc<dyn Matchable> {
         // TODO:
         // if !self.expanded {
         //     panic!("Dialect must be expanded before use.");
@@ -228,7 +228,7 @@ impl Dialect {
                         );
 
                         self.library
-                            .insert(n.into(), DialectElementType::Matchable(Rc::new(parser)));
+                            .insert(n.into(), DialectElementType::Matchable(Arc::new(parser)));
                     }
                 }
             }
@@ -239,7 +239,7 @@ impl Dialect {
         self.root_segment_name
     }
 
-    pub fn get_root_segment(&self) -> Rc<dyn Matchable> {
+    pub fn get_root_segment(&self) -> Arc<dyn Matchable> {
         self.r#ref(self.root_segment_name())
     }
 }

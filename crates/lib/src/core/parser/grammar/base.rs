@@ -1,7 +1,6 @@
 use std::borrow::Cow;
-use std::cell::OnceCell;
 use std::ops::Deref;
-use std::rc::Rc;
+use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
 use itertools::enumerate;
@@ -22,10 +21,10 @@ use crate::stack::ensure_sufficient_stack;
 #[derive(Clone, Debug, Hash)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct BaseGrammar {
-    elements: Vec<Rc<dyn Matchable>>,
+    elements: Vec<Arc<dyn Matchable>>,
     allow_gaps: bool,
     optional: bool,
-    terminators: Vec<Rc<dyn Matchable>>,
+    terminators: Vec<Arc<dyn Matchable>>,
     reset_terminators: bool,
     parse_mode: ParseMode,
     cache_key: Uuid,
@@ -45,10 +44,10 @@ impl PartialEq for BaseGrammar {
 
 impl BaseGrammar {
     pub fn new(
-        elements: Vec<Rc<dyn Matchable>>,
+        elements: Vec<Arc<dyn Matchable>>,
         allow_gaps: bool,
         optional: bool,
-        terminators: Vec<Rc<dyn Matchable>>,
+        terminators: Vec<Arc<dyn Matchable>>,
         reset_terminators: bool,
         parse_mode: ParseMode,
     ) -> Self {
@@ -66,7 +65,7 @@ impl BaseGrammar {
     }
 
     // Placeholder for the _resolve_ref method
-    fn _resolve_ref(elem: Rc<dyn Matchable>) -> Rc<dyn Matchable> {
+    fn _resolve_ref(elem: Arc<dyn Matchable>) -> Arc<dyn Matchable> {
         // Placeholder implementation
         elem
     }
@@ -107,13 +106,13 @@ impl Matchable for BaseGrammar {
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Ref {
     pub(crate) reference: Cow<'static, str>,
-    exclude: Option<Rc<dyn Matchable>>,
-    terminators: Vec<Rc<dyn Matchable>>,
+    exclude: Option<Arc<dyn Matchable>>,
+    terminators: Vec<Arc<dyn Matchable>>,
     reset_terminators: bool,
     allow_gaps: bool,
     optional: bool,
     cache_key: Uuid,
-    simple_cache: OnceCell<Option<(AHashSet<String>, AHashSet<String>)>>,
+    simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<String>)>>,
 }
 
 impl std::fmt::Debug for Ref {
@@ -133,7 +132,7 @@ impl Ref {
             allow_gaps: true,
             optional: false,
             cache_key: Uuid::new_v4(),
-            simple_cache: OnceCell::new(),
+            simple_cache: OnceLock::new(),
         }
     }
 
@@ -148,7 +147,7 @@ impl Ref {
     }
 
     // Method to get the referenced element
-    fn _get_elem(&self, dialect: &Dialect) -> Rc<dyn Matchable> {
+    fn _get_elem(&self, dialect: &Dialect) -> Arc<dyn Matchable> {
         dialect.r#ref(&self.reference)
     }
 
@@ -253,7 +252,7 @@ impl Matchable for Ref {
 #[derive(Clone, Debug, Hash)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Anything {
-    terminators: Vec<Rc<dyn Matchable>>,
+    terminators: Vec<Arc<dyn Matchable>>,
 }
 
 impl PartialEq for Anything {
@@ -274,7 +273,7 @@ impl Anything {
         Self { terminators: Vec::new() }
     }
 
-    pub fn terminators(mut self, terminators: Vec<Rc<dyn Matchable>>) -> Self {
+    pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
         self.terminators = terminators;
         self
     }
@@ -325,10 +324,10 @@ impl Matchable for Nothing {
 
 pub fn longest_trimmed_match(
     mut segments: &[ErasedSegment],
-    matchers: Vec<Rc<dyn Matchable>>,
+    matchers: Vec<Arc<dyn Matchable>>,
     parse_context: &mut ParseContext,
     trim_noncode: bool,
-) -> Result<(MatchResult, Option<Rc<dyn Matchable>>), SQLParseError> {
+) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
     // Have we been passed an empty list?
     if segments.is_empty() {
         return Ok((MatchResult::from_empty(), None));
@@ -564,7 +563,7 @@ mod tests {
 
     #[test]
     fn test__parser__grammar__base__longest_trimmed_match__adv() {
-        let bs = Rc::new(StringParser::new(
+        let bs = Arc::new(StringParser::new(
             "bar",
             |segment| {
                 KeywordSegment::new(
@@ -576,9 +575,9 @@ mod tests {
             None,
             false,
             None,
-        )) as Rc<dyn Matchable>;
+        )) as Arc<dyn Matchable>;
 
-        let fs = Rc::new(StringParser::new(
+        let fs = Arc::new(StringParser::new(
             "foo",
             |segment| {
                 KeywordSegment::new(
@@ -590,14 +589,14 @@ mod tests {
             None,
             false,
             None,
-        )) as Rc<dyn Matchable>;
+        )) as Arc<dyn Matchable>;
 
-        let matchers: Vec<Rc<dyn Matchable>> = vec![
+        let matchers: Vec<Arc<dyn Matchable>> = vec![
             bs.clone(),
             fs.clone(),
-            Rc::new(Sequence::new(vec![bs.clone(), fs.clone()])),
-            Rc::new(one_of(vec![bs.clone(), fs.clone()])),
-            Rc::new(Sequence::new(vec![bs, fs])),
+            Arc::new(Sequence::new(vec![bs.clone(), fs.clone()])),
+            Arc::new(one_of(vec![bs.clone(), fs.clone()])),
+            Arc::new(Sequence::new(vec![bs, fs])),
         ];
 
         let dialect = fresh_ansi_dialect();

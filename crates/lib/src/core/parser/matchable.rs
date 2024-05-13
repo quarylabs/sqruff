@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::fmt::Debug;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use ahash::AHashSet;
 use dyn_clone::DynClone;
@@ -20,7 +20,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
-    fn hack_eq(&self, rhs: &Rc<dyn Matchable>) -> bool {
+    fn hack_eq(&self, rhs: &Arc<dyn Matchable>) -> bool {
         let lhs = self.as_any().downcast_ref::<Ref>();
         let rhs = rhs.as_any().downcast_ref::<Ref>();
 
@@ -92,13 +92,13 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
 
     fn copy(
         &self,
-        _insert: Option<Vec<Rc<dyn Matchable>>>,
+        _insert: Option<Vec<Arc<dyn Matchable>>>,
         _at: Option<usize>,
-        _before: Option<Rc<dyn Matchable>>,
-        _remove: Option<Vec<Rc<dyn Matchable>>>,
-        _terminators: Vec<Rc<dyn Matchable>>,
+        _before: Option<Arc<dyn Matchable>>,
+        _remove: Option<Vec<Arc<dyn Matchable>>>,
+        _terminators: Vec<Arc<dyn Matchable>>,
         _replace_terminators: bool,
-    ) -> Rc<dyn Matchable> {
+    ) -> Arc<dyn Matchable> {
         unimplemented!()
     }
 }

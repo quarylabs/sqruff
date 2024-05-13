@@ -80,7 +80,7 @@ impl<T: Matcher + DynClone> CloneMatcher for T {
 }
 
 #[allow(clippy::needless_arbitrary_self_type)]
-pub trait Matcher: Debug + DynClone + CloneMatcher + 'static {
+pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
     /// The name of the matcher.
     fn get_name(self: &Self) -> String;
     /// Given a string, match what we can and return the rest.
@@ -203,7 +203,7 @@ pub struct StringLexer<SegmentArgs: 'static + Clone> {
     trim_post_subdivide: Option<Box<dyn Matcher>>,
 }
 
-impl<SegmentArgs: Clone + Debug> StringLexer<SegmentArgs> {
+impl<SegmentArgs: Clone + Debug + Sync> StringLexer<SegmentArgs> {
     pub fn new(
         name: &'static str,
         template: &'static str,
@@ -281,7 +281,7 @@ impl<SegmentArgs: Clone + Debug> Display for StringLexer<SegmentArgs> {
     }
 }
 
-impl<SegmentArgs: Clone + Debug> Matcher for StringLexer<SegmentArgs> {
+impl<SegmentArgs: Clone + Debug + Sync> Matcher for StringLexer<SegmentArgs> {
     fn get_name(&self) -> String {
         self.name.to_string()
     }
@@ -333,7 +333,7 @@ pub struct RegexLexer<SegmentArgs: 'static + Clone> {
     trim_post_subdivide: Option<Box<dyn Matcher>>,
 }
 
-impl<SegmentArgs: Clone + Debug> RegexLexer<SegmentArgs> {
+impl<SegmentArgs: Clone + Debug + Sync> RegexLexer<SegmentArgs> {
     #[allow(clippy::result_large_err)]
     pub fn new(
         name: &'static str,
@@ -373,13 +373,13 @@ impl<SegmentArgs: Debug + Clone> Debug for RegexLexer<SegmentArgs> {
     }
 }
 
-impl<SegmentArgs: Clone + Debug> Display for RegexLexer<SegmentArgs> {
+impl<SegmentArgs: Clone + Debug + Sync> Display for RegexLexer<SegmentArgs> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "RegexLexer({})", self.get_name())
     }
 }
 
-impl<SegmentArgs: Clone + Debug> Matcher for RegexLexer<SegmentArgs> {
+impl<SegmentArgs: Clone + Debug + Sync> Matcher for RegexLexer<SegmentArgs> {
     fn get_name(&self) -> String {
         self.name.to_string()
     }

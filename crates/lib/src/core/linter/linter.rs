@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::time::Instant;
 
 use ahash::{AHashMap, AHashSet};
@@ -28,7 +29,7 @@ use crate::rules::get_ruleset;
 pub struct Linter {
     config: FluffConfig,
     pub formatter: Option<OutputStreamFormatter>,
-    templater: Box<dyn Templater>,
+    templater: Arc<dyn Templater>,
     _rules: Vec<ErasedRule>,
 }
 
@@ -36,7 +37,7 @@ impl Linter {
     pub fn new(
         config: FluffConfig,
         formatter: Option<OutputStreamFormatter>,
-        templater: Option<Box<dyn Templater>>,
+        templater: Option<Arc<dyn Templater>>,
     ) -> Linter {
         let rules = crate::rules::layout::rules();
         match templater {
@@ -44,7 +45,7 @@ impl Linter {
             None => Linter {
                 config,
                 formatter,
-                templater: Box::<RawTemplater>::default(),
+                templater: Arc::<RawTemplater>::default(),
                 _rules: rules,
             },
         }
@@ -169,13 +170,13 @@ impl Linter {
         rs.get_rulepack(&self.config)
     }
 
-    pub fn render_file(&mut self, fname: String) -> RenderedFile {
+    pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
         self.render_string(in_str, fname, &self.config, None).unwrap()
     }
 
     pub fn lint_rendered(
-        &mut self,
+        &self,
         rendered: RenderedFile,
         rule_pack: &RulePack,
         fix: bool,
@@ -185,7 +186,7 @@ impl Linter {
     }
 
     pub fn lint_parsed(
-        &mut self,
+        &self,
         parsed_string: ParsedString,
         rules: Vec<ErasedRule>,
         fix: bool,
@@ -206,7 +207,7 @@ impl Linter {
             violations: initial_linting_errors,
         };
 
-        if let Some(formatter) = &mut self.formatter {
+        if let Some(formatter) = &self.formatter {
             formatter.dispatch_file_violations(&linted_file, false, false);
         }
 

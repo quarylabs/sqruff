@@ -74,7 +74,7 @@ impl<M: MetaSegmentKind> Deref for MetaSegment<M> {
     }
 }
 
-impl<M: MetaSegmentKind> Segment for MetaSegment<M> {
+impl<M: MetaSegmentKind + Send + Sync> Segment for MetaSegment<M> {
     fn get_type(&self) -> &'static str {
         self.kind.kind()
     }
@@ -108,7 +108,7 @@ impl<M: MetaSegmentKind> Segment for MetaSegment<M> {
     }
 }
 
-impl<M: MetaSegmentKind> Matchable for MetaSegment<M> {
+impl<M: MetaSegmentKind + Send + Sync> Matchable for MetaSegment<M> {
     fn simple(
         &self,
         _parse_context: &ParseContext,

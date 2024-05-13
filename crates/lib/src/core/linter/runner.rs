@@ -1,3 +1,5 @@
+use std::sync::Mutex;
+
 use super::linted_file::LintedFile;
 use super::linter::Linter;
 
@@ -10,9 +12,9 @@ pub struct RunnerContext<'me, R> {
     runner: R,
 }
 
-impl<'me> RunnerContext<'me, SequentialRunner> {
+impl<'me> RunnerContext<'me, ParallelRunner> {
     pub fn sequential(linter: &'me mut Linter) -> Self {
-        Self { linter, runner: SequentialRunner }
+        Self { linter, runner: ParallelRunner }
     }
 }
 
@@ -22,20 +24,21 @@ impl<R: Runner> RunnerContext<'_, R> {
     }
 }
 
-pub struct SequentialRunner;
+pub struct ParallelRunner;
 
-impl Runner for SequentialRunner {
+impl Runner for ParallelRunner {
     fn run(&mut self, paths: Vec<String>, fix: bool, linter: &mut Linter) -> Vec<LintedFile> {
-        let mut acc = Vec::with_capacity(paths.len());
+        use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
+
+        let acc = Mutex::new(Vec::with_capacity(paths.len()));
         let rule_pack = linter.get_rulepack();
 
-        for path in paths {
-            let rendered = linter.render_file(path);
+        paths.par_iter().for_each(|path| {
+            let rendered = linter.render_file(path.clone());
             let linted_file = linter.lint_rendered(rendered, &rule_pack, fix);
+            acc.lock().unwrap().push(linted_file);
+        });
 
-            acc.push(linted_file);
-        }
-
-        acc
+        acc.into_inner().unwrap()
     }
 }

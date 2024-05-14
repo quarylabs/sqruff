@@ -103,7 +103,7 @@ jobs:
           git clone \
             --depth=1 \
             --branch=main \
-            https://some-user:${{ secrets.ACCESS_TOKEN }}@github.com/$REPOSITORY \
+            https://quarylabs:${{ secrets.HOMEBREW_ACCESS_TOKEN }}@github.com/$REPOSITORY \
             
           cd homebrew-quary
           git config --global user.name "GitHub Actions"

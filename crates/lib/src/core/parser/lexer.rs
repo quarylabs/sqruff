@@ -136,7 +136,7 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
 
         if let Some(trim_post_subdivide) = self.get_trim_post_subdivide() {
             while !str_buff.is_empty() {
-                if let Some(trim_pos) = trim_post_subdivide.clone().search(&str_buff) {
+                if let Some(trim_pos) = trim_post_subdivide.clone().search(str_buff) {
                     let start = trim_pos.start;
                     let end = trim_pos.end;
 

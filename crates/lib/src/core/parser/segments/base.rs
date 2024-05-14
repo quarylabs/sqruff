@@ -912,7 +912,7 @@ impl Segment for CodeSegment {
     /// From RawSegment implementation
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         CodeSegment::create(
-            raw.unwrap_or(self.raw.to_string()).as_str().into(),
+            raw.unwrap_or(self.raw.to_string()).as_str(),
             &self.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
                 code_type: self.code_type,
@@ -1000,7 +1000,7 @@ impl Segment for IdentifierSegment {
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         IdentifierSegment::create(
-            raw.unwrap_or(self.base.raw.to_string()).as_str().into(),
+            raw.unwrap_or(self.base.raw.to_string()).as_str(),
             &self.base.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
                 code_type: self.base.code_type,

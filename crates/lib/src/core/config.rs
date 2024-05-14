@@ -440,9 +440,11 @@ impl ConfigLoader {
         config.read(content).unwrap();
 
         for section in config.sections() {
-            let key = if section == "sqlfluff" {
+            let key = if section == "sqlfluff" || section == "sqruff" {
                 vec!["core".to_owned()]
-            } else if let Some(key) = section.strip_prefix("sqlfluff:") {
+            } else if let Some(key) =
+                section.strip_prefix("sqlfluff:").or_else(|| section.strip_prefix("sqruff:"))
+            {
                 key.split(':').map(ToOwned::to_owned).collect()
             } else {
                 continue;

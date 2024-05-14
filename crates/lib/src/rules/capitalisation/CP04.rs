@@ -24,8 +24,14 @@ impl Default for RuleCP04 {
 }
 
 impl Rule for RuleCP04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleCP04::default().erased()
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleCP04 {
+            base: RuleCP01 {
+                capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
+                ..Default::default()
+            },
+        }
+        .erased()
     }
 
     fn name(&self) -> &'static str {

@@ -3311,6 +3311,10 @@ impl NodeTrait for DatePartFunctionNameSegment {
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("DatePartFunctionName").to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["function_name"].into()
+    }
 }
 
 pub struct FromExpressionElementSegment;
@@ -6106,6 +6110,10 @@ impl NodeTrait for RollupFunctionNameSegment {
         )
         .boxed()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["function_name"].into_iter().collect()
+    }
 }
 
 pub struct CubeFunctionNameSegment;
@@ -6128,6 +6136,10 @@ impl NodeTrait for CubeFunctionNameSegment {
             None,
         )
         .boxed()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["function_name"].into_iter().collect()
     }
 }
 

@@ -94,57 +94,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Update Homebrew Formula
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          REPOSITORY="quarylabs/homebrew-quary"
-          
-          RELEASE_VERSION=${{ github.event.release.tag_name }}
-          STRIPPED_VERSION=${RELEASE_VERSION#v}
-          git clone \
-            --depth=1 \
-            --branch=main \
-            https://quarylabs:${{ secrets.HOMEBREW_ACCESS_TOKEN }}@github.com/$REPOSITORY \
-            
-          cd homebrew-quary
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          
-          git checkout -b update-sqruff-to-${STRIPPED_VERSION}
-          
-          sed -i "s/version \".*\"/version \"${STRIPPED_VERSION}\"/" sqruff.rb
-          
-          for asset in ${{ steps.upload-release-asset.outputs.browser_download_urls }}; do
-            if [[ $asset == *"darwin-aarch64"* ]]; then
-              DARWIN_AARCH64_URL=$asset
-              DARWIN_AARCH64_SHA256=$(curl -sL $asset.sha256)
-            elif [[ $asset == *"darwin-x86_64"* ]]; then
-              DARWIN_X86_64_URL=$asset
-              DARWIN_X86_64_SHA256=$(curl -sL $asset.sha256)
-            elif [[ $asset == *"linux-x86_64-musl"* ]]; then
-              LINUX_X86_64_URL=$asset
-              LINUX_X86_64_SHA256=$(curl -sL $asset.sha256)
-            fi
-          done
-          
-          sed -i "s|url \".*\"|url \"${DARWIN_AARCH64_URL}\"|" sqruff.rb
-          sed -i "s/sha256 \".*\"/sha256 \"${DARWIN_AARCH64_SHA256}\"/" sqruff.rb
-          
-          sed -i "s|url \".*\"|url \"${DARWIN_X86_64_URL}\"|" sqruff.rb
-          sed -i "s/sha256 \".*\"/sha256 \"${DARWIN_X86_64_SHA256}\"/" sqruff.rb
-          
-          sed -i "s|url \".*\"|url \"${LINUX_X86_64_URL}\"|" sqruff.rb
-          sed -i "s/sha256 \".*\"/sha256 \"${LINUX_X86_64_SHA256}\"/" sqruff.rb
-          
-          git add sqruff.rb
-          git commit -m "Update Sqruff to version ${STRIPPED_VERSION}"
-          git push origin update-sqruff-to-${STRIPPED_VERSION}
-          
-          # Store the PAT in a file that can be accessed by the
-          # GitHub CLI.
-          echo "${{ secrets.HOMEBREW_ACCESS_TOKEN }}" > token.txt
-          
-          gh auth login --with-token < token.txt
-          gh pr create --title "Update Sqruff to version ${STRIPPED_VERSION}" --body "Automated PR to update Sqruff to version ${STRIPPED_VERSION}" --base main
+          HOMEBREW_ACCESS_TOKEN: ${{ secrets.HOMEBREW_ACCESS_TOKEN }}
+          VERSION: ${{ github.event.release.tag_name }}
+        run: ./hacking/update_homebrew_pr.sh
   publish-to-cargo:
     name: Publish to Cargo
     runs-on: ubuntu-latest

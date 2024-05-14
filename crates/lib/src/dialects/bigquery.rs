@@ -1349,6 +1349,10 @@ impl NodeTrait for ExtractFunctionNameSegment {
         )
         .to_matchable()
     }
+
+    fn class_types() -> ahash::AHashSet<&'static str> {
+        ["function_name"].into()
+    }
 }
 
 pub struct ArrayFunctionNameSegment;
@@ -1371,6 +1375,10 @@ impl NodeTrait for ArrayFunctionNameSegment {
             None,
         )
         .to_matchable()
+    }
+
+    fn class_types() -> ahash::AHashSet<&'static str> {
+        ["function_name"].into()
     }
 }
 
@@ -1432,6 +1440,10 @@ impl NodeTrait for NormalizeFunctionNameSegment {
         ])
         .to_matchable()
     }
+
+    fn class_types() -> ahash::AHashSet<&'static str> {
+        ["function_name"].into()
+    }
 }
 
 pub struct FunctionNameSegment;
@@ -1461,6 +1473,10 @@ impl NodeTrait for FunctionNameSegment {
         ])
         .allow_gaps(true)
         .to_matchable()
+    }
+
+    fn class_types() -> ahash::AHashSet<&'static str> {
+        ["function_name"].into()
     }
 }
 

@@ -73,24 +73,24 @@ impl Rule for RuleAL01 {
                 .find(|seg| seg.get_raw_upper() == Some("AS".into()))
                 .cloned();
 
-            if let Some(as_keyword) = as_keyword
-                && self.aliasing == Aliasing::Implicit
-            {
-                return vec![LintResult::new(
-                    as_keyword.clone().into(),
-                    ReflowSequence::from_around_target(
-                        &as_keyword,
-                        rule_cx.parent_stack[0].clone(),
-                        "both",
-                        rule_cx.config.unwrap(),
-                    )
-                    .without(&as_keyword)
-                    .respace(false, Filter::All)
-                    .fixes(),
-                    None,
-                    None,
-                    None,
-                )];
+            if let Some(as_keyword) = as_keyword {
+                if self.aliasing == Aliasing::Implicit {
+                    return vec![LintResult::new(
+                        as_keyword.clone().into(),
+                        ReflowSequence::from_around_target(
+                            &as_keyword,
+                            rule_cx.parent_stack[0].clone(),
+                            "both",
+                            rule_cx.config.unwrap(),
+                        )
+                        .without(&as_keyword)
+                        .respace(false, Filter::All)
+                        .fixes(),
+                        None,
+                        None,
+                        None,
+                    )];
+                }
             } else if self.aliasing != Aliasing::Implicit {
                 let identifier = rule_cx
                     .segment

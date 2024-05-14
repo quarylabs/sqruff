@@ -123,7 +123,9 @@ pub fn get_aliases_from_select(
     let mut table_aliases = Vec::new();
     for (table_expr, alias_info) in aliases {
         if has_value_table_function(table_expr, dialect) {
-            standalone_aliases.push(alias_info.ref_str);
+            if !standalone_aliases.contains(&alias_info.ref_str) {
+                standalone_aliases.push(alias_info.ref_str);
+            }
         } else if !table_aliases.contains(&alias_info) {
             table_aliases.push(alias_info);
         }

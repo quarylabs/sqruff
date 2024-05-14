@@ -153,11 +153,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
+          toolchain: stable
           profile: minimal
       - name: Publish sqruff-lib to Cargo
         uses: actions-rs/cargo@v1
         with:
-         toolchain: stable
          command: publish
          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib
 

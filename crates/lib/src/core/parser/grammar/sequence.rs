@@ -728,7 +728,7 @@ mod tests {
             "bar",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -742,7 +742,7 @@ mod tests {
             "foo",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -760,12 +760,9 @@ mod tests {
 
         let match_result = g.match_segments(&test_segments(), &mut ctx).unwrap();
 
-        assert_eq!(match_result.matched_segments[0].get_raw().unwrap(), "bar");
-        assert_eq!(
-            match_result.matched_segments[1].get_raw().unwrap(),
-            test_segments()[1].get_raw().unwrap()
-        );
-        assert_eq!(match_result.matched_segments[2].get_raw().unwrap(), "foo");
+        assert_eq!(match_result.matched_segments[0].raw(), "bar");
+        assert_eq!(match_result.matched_segments[1].raw(), test_segments()[1].raw());
+        assert_eq!(match_result.matched_segments[2].raw(), "foo");
         assert_eq!(match_result.len(), 3);
 
         assert!(!gc.match_segments(&test_segments(), &mut ctx).unwrap().has_match());
@@ -779,7 +776,7 @@ mod tests {
             "bar",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -793,7 +790,7 @@ mod tests {
             "foo",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -807,7 +804,7 @@ mod tests {
             "baar",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -828,10 +825,10 @@ mod tests {
         );
 
         let segments = g.match_segments(&test_segments(), &mut ctx).unwrap().matched_segments;
-        assert_eq!(segments[0].get_raw().unwrap(), "bar");
-        assert_eq!(segments[1].get_raw().unwrap(), test_segments()[1].get_raw().unwrap());
-        assert_eq!(segments[2].get_raw().unwrap(), "foo");
-        assert_eq!(segments[3].get_raw().unwrap(), "baar");
+        assert_eq!(segments[0].raw(), "bar");
+        assert_eq!(segments[1].raw(), test_segments()[1].raw());
+        assert_eq!(segments[2].raw(), "foo");
+        assert_eq!(segments[3].raw(), "baar");
         assert_eq!(segments.len(), 4);
     }
 
@@ -841,7 +838,7 @@ mod tests {
             "bar",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -855,7 +852,7 @@ mod tests {
             "foo",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -1066,7 +1063,7 @@ mod tests {
                         it,
                         |it| {
                             KeywordSegment::new(
-                                it.get_raw().unwrap(),
+                                it.raw().into(),
                                 it.get_position_marker().unwrap().into(),
                             )
                             .to_erased_segment()
@@ -1087,7 +1084,7 @@ mod tests {
                         it,
                         |segment| {
                             KeywordSegment::new(
-                                segment.get_raw().unwrap(),
+                                segment.raw().into(),
                                 segment.get_position_marker().unwrap().into(),
                             )
                             .to_erased_segment()

@@ -1,7 +1,7 @@
 use super::segments::base::ErasedSegment;
 
 pub fn join_segments_raw(segments: &[ErasedSegment]) -> String {
-    segments.iter().filter_map(|s| s.get_raw()).collect::<Vec<_>>().concat()
+    segments.iter().map(|s| s.raw()).collect::<Vec<_>>().concat()
 }
 
 pub fn check_still_complete(
@@ -61,28 +61,19 @@ mod test {
             assert_eq!((pre.len(), mid.len(), post.len()), (pre_len, mid_len, post_len));
 
             // Assert content
-            let pre_raw: Vec<_> = pre.iter().map(|s| s.get_raw()).collect();
-            assert_eq!(
-                pre_raw,
-                seg_list[..pre_len].iter().map(|s| s.get_raw()).collect::<Vec<_>>()
-            );
+            let pre_raw: Vec<_> = pre.iter().map(|s| s.raw()).collect();
+            assert_eq!(pre_raw, seg_list[..pre_len].iter().map(|s| s.raw()).collect::<Vec<_>>());
 
-            let mid_raw: Vec<_> = mid.iter().map(|s| s.get_raw()).collect();
+            let mid_raw: Vec<_> = mid.iter().map(|s| s.raw()).collect();
             assert_eq!(
                 mid_raw,
-                seg_list[pre_len..pre_len + mid_len]
-                    .iter()
-                    .map(|s| s.get_raw())
-                    .collect::<Vec<_>>()
+                seg_list[pre_len..pre_len + mid_len].iter().map(|s| s.raw()).collect::<Vec<_>>()
             );
 
-            let post_raw: Vec<_> = post.iter().map(|s| s.get_raw()).collect();
+            let post_raw: Vec<_> = post.iter().map(|s| s.raw()).collect();
             assert_eq!(
                 post_raw,
-                seg_list[seg_list.len() - post_len..]
-                    .iter()
-                    .map(|s| s.get_raw())
-                    .collect::<Vec<_>>()
+                seg_list[seg_list.len() - post_len..].iter().map(|s| s.raw()).collect::<Vec<_>>()
             );
         }
     }

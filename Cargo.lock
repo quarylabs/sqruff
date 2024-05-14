@@ -1012,6 +1012,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "046d1c67b37db818d93f1d04a924ddbd7396c96cf9cfaa593d038259ae484729"
 
 [[package]]
+name = "smol_str"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6845563ada680337a52d43bb0b29f396f2d911616f6573012645b9e3d048a49"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "spanned"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1059,6 +1068,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "slyce",
+ "smol_str",
  "stacker",
  "tempdir",
  "tracing",

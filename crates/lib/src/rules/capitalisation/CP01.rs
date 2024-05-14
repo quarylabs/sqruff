@@ -92,7 +92,7 @@ pub fn handle_segment(
     seg: ErasedSegment,
     context: &RuleContext,
 ) -> LintResult {
-    if seg.get_raw().unwrap().is_empty() {
+    if seg.raw().is_empty() {
         return LintResult::new(None, Vec::new(), None, None, None);
     }
 
@@ -100,7 +100,7 @@ pub fn handle_segment(
         context.memory.borrow().get::<RefutedCases>().cloned().unwrap_or_default().0;
 
     let mut first_letter_is_lowercase = false;
-    for ch in seg.get_raw().unwrap().chars() {
+    for ch in seg.raw().chars() {
         if is_capitalizable(ch) {
             first_letter_is_lowercase = Some(ch).into_iter().ne(ch.to_uppercase());
             break;
@@ -110,13 +110,13 @@ pub fn handle_segment(
 
     if first_letter_is_lowercase {
         refuted_cases.extend(["upper", "capitalise", "pascal"]);
-        if seg.get_raw().unwrap() != seg.get_raw().unwrap().to_lowercase() {
+        if seg.raw() != seg.raw().to_lowercase() {
             refuted_cases.insert("lower");
         }
     } else {
         refuted_cases.insert("lower");
 
-        let segment_raw = seg.get_raw().unwrap();
+        let segment_raw = seg.raw();
         if segment_raw != segment_raw.to_uppercase() {
             refuted_cases.insert("upper");
         }
@@ -163,7 +163,7 @@ pub fn handle_segment(
 
     let concrete_policy = concrete_policy.as_str();
 
-    let mut fixed_raw = seg.get_raw().unwrap();
+    let mut fixed_raw = seg.raw().to_string();
     fixed_raw = match concrete_policy {
         "upper" => fixed_raw.to_uppercase(),
         "lower" => fixed_raw.to_lowercase(),
@@ -182,7 +182,7 @@ pub fn handle_segment(
         _ => fixed_raw,
     };
 
-    if fixed_raw == seg.get_raw().unwrap() {
+    if fixed_raw == seg.raw() {
         LintResult::new(None, Vec::new(), None, None, None)
     } else {
         let consistency = if concrete_policy == "consistent" { "consistently " } else { "" };
@@ -195,7 +195,11 @@ pub fn handle_segment(
 
         LintResult::new(
             seg.clone().into(),
-            vec![LintFix::replace(seg.clone(), vec![seg.edit(fixed_raw.into(), None)], None)],
+            vec![LintFix::replace(
+                seg.clone(),
+                vec![seg.edit(fixed_raw.to_string().into(), None)],
+                None,
+            )],
             None,
             format!("{} must be {}{}", "Datatypes", consistency, policy).into(),
             None,

@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::marker::PhantomData;
@@ -5,6 +6,7 @@ use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
+use smol_str::SmolStr;
 use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
@@ -127,7 +129,7 @@ pub fn ansi_dialect() -> Dialect {
 
     let symbol_factory = |segment: &dyn Segment| {
         SymbolSegment::create(
-            &segment.get_raw().unwrap(),
+            &segment.raw(),
             &segment.get_position_marker().unwrap(),
             SymbolSegmentNewArgs { r#type: "remove me" },
         )
@@ -142,7 +144,7 @@ pub fn ansi_dialect() -> Dialect {
                 ";",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "statement_terminator" },
                     )
@@ -178,7 +180,7 @@ pub fn ansi_dialect() -> Dialect {
                 "(",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "start_bracket" },
                     )
@@ -196,7 +198,7 @@ pub fn ansi_dialect() -> Dialect {
                 ")",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "end_bracket" },
                     )
@@ -230,7 +232,7 @@ pub fn ansi_dialect() -> Dialect {
                 ",",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "comma" },
                     )
@@ -248,7 +250,7 @@ pub fn ansi_dialect() -> Dialect {
                 ".",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "dot" },
                     )
@@ -266,7 +268,7 @@ pub fn ansi_dialect() -> Dialect {
                 "*",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "star" },
                     )
@@ -284,7 +286,7 @@ pub fn ansi_dialect() -> Dialect {
                 "~",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "tilde" },
                     )
@@ -310,7 +312,7 @@ pub fn ansi_dialect() -> Dialect {
                 "+",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
@@ -332,7 +334,7 @@ pub fn ansi_dialect() -> Dialect {
                 "+",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "sign_indicator" },
                     )
@@ -350,7 +352,7 @@ pub fn ansi_dialect() -> Dialect {
                 "-",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "sign_indicator" },
                     )
@@ -388,7 +390,7 @@ pub fn ansi_dialect() -> Dialect {
                 "|",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "pipe" },
                     )
@@ -409,10 +411,7 @@ pub fn ansi_dialect() -> Dialect {
             TypedParser::new(
                 "like_operator",
                 |it| {
-                    ComparisonOperatorSegment::create(
-                        &it.get_raw().unwrap(),
-                        &it.get_position_marker().unwrap(),
-                    )
+                    ComparisonOperatorSegment::create(&it.raw(), &it.get_position_marker().unwrap())
                 },
                 None,
                 false,
@@ -431,7 +430,7 @@ pub fn ansi_dialect() -> Dialect {
                 "=",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
@@ -449,7 +448,7 @@ pub fn ansi_dialect() -> Dialect {
                 ">",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
@@ -467,7 +466,7 @@ pub fn ansi_dialect() -> Dialect {
                 "<",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
@@ -487,7 +486,7 @@ pub fn ansi_dialect() -> Dialect {
                     dialect.sets("bare_functions").into_iter().map(Into::into).collect_vec(),
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs { code_type: "bare_function", ..Default::default() },
                         )
@@ -514,7 +513,7 @@ pub fn ansi_dialect() -> Dialect {
                     "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
                     |segment| {
                         IdentifierSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "naked_identifier",
@@ -540,7 +539,7 @@ pub fn ansi_dialect() -> Dialect {
                     pattern,
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs::default(),
                         )
@@ -560,7 +559,7 @@ pub fn ansi_dialect() -> Dialect {
                 "word",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                     )
@@ -585,7 +584,7 @@ pub fn ansi_dialect() -> Dialect {
                         "[A-Z_][A-Z0-9_]*",
                         |segment| {
                             CodeSegment::create(
-                                &segment.get_raw().unwrap(),
+                                &segment.raw(),
                                 &segment.get_position_marker().unwrap(),
                                 CodeSegmentNewArgs::default(),
                             )
@@ -612,7 +611,7 @@ pub fn ansi_dialect() -> Dialect {
                     dialect.sets("datetime_units").into_iter().map(Into::into).collect_vec(),
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs { code_type: "date_part", ..Default::default() },
                         )
@@ -636,7 +635,7 @@ pub fn ansi_dialect() -> Dialect {
                         .collect::<Vec<_>>(),
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs::default(),
                         )
@@ -655,7 +654,7 @@ pub fn ansi_dialect() -> Dialect {
                 "double_quote",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "quoted_identifier" },
                     )
@@ -679,7 +678,7 @@ pub fn ansi_dialect() -> Dialect {
                 "single_quote",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "quoted_identifier" },
                     )
@@ -697,7 +696,7 @@ pub fn ansi_dialect() -> Dialect {
                 "numeric_literal",
                 |seg| {
                     LiteralSegment {
-                        raw: seg.get_raw().unwrap(),
+                        raw: seg.raw().into(),
                         position_maker: seg.get_position_marker().unwrap(),
                         uuid: seg.get_uuid().unwrap(),
                     }
@@ -718,7 +717,7 @@ pub fn ansi_dialect() -> Dialect {
                 "null",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "null_literal" },
                     )
@@ -736,7 +735,7 @@ pub fn ansi_dialect() -> Dialect {
                 "nan",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "null_literal" },
                     )
@@ -754,7 +753,7 @@ pub fn ansi_dialect() -> Dialect {
                 "true",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "boolean_literal" },
                     )
@@ -772,7 +771,7 @@ pub fn ansi_dialect() -> Dialect {
                 "false",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "boolean_literal" },
                     )
@@ -879,10 +878,7 @@ pub fn ansi_dialect() -> Dialect {
                 ]),
                 TypedParser::new(
                     "single_quote",
-                    |seg| LiteralSegment::create(
-                        &seg.get_raw().unwrap(),
-                        &seg.get_position_marker().unwrap()
-                    ),
+                    |seg| LiteralSegment::create(&seg.raw(), &seg.get_position_marker().unwrap()),
                     None,
                     false,
                     None
@@ -2522,7 +2518,7 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         let mut cloned = self.clone();
         if let Some((a, b)) = cloned.raw.get_mut().zip(raw) {
-            *a = b
+            *a = b;
         };
         cloned.source_fixes = source_fixes.unwrap_or_default();
         cloned.to_erased_segment()
@@ -2532,11 +2528,8 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
         self.source_fixes.clone()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        self.raw
-            .get_or_init(|| self.segments().iter().filter_map(|segment| segment.get_raw()).join(""))
-            .clone()
-            .into()
+    fn raw(&self) -> Cow<str> {
+        self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
     }
 
     fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
@@ -3154,7 +3147,7 @@ impl Node<SelectClauseElementSegment> {
         }
 
         Some(ColumnAliasInfo {
-            alias_identifier_name: alias_identifier_segment.get_raw().unwrap(),
+            alias_identifier_name: alias_identifier_segment.raw().into(),
             aliased_segment: aliased_segment.clone(),
             column_reference_segments,
         })
@@ -3377,7 +3370,7 @@ impl Node<FromExpressionElementSegment> {
             let segment = alias_expression.child(&["identifier", "naked_identifier"]);
             if let Some(segment) = segment {
                 return AliasInfo {
-                    ref_str: segment.get_raw().unwrap(),
+                    ref_str: segment.raw().into(),
                     segment: segment.into(),
                     aliased: true,
                     from_expression_element: self.clone_box(),
@@ -3392,7 +3385,7 @@ impl Node<FromExpressionElementSegment> {
             if !references.is_empty() {
                 let penultimate_ref = references.last().unwrap();
                 return AliasInfo {
-                    ref_str: penultimate_ref.part.clone(),
+                    ref_str: penultimate_ref.part.clone().into(),
                     segment: penultimate_ref.segments[0].clone().into(),
                     aliased: false,
                     from_expression_element: self.clone_box(),
@@ -3403,7 +3396,7 @@ impl Node<FromExpressionElementSegment> {
         }
 
         AliasInfo {
-            ref_str: String::new(),
+            ref_str: SmolStr::new_static(""),
             segment: None,
             aliased: false,
             from_expression_element: self.clone_box(),
@@ -3515,7 +3508,7 @@ impl Node<ObjectReferenceSegment> {
     fn iter_reference_parts(&self, elem: ErasedSegment) -> Vec<ObjectReferencePart> {
         let mut acc = Vec::new();
 
-        let raw = elem.get_raw().unwrap();
+        let raw = elem.raw();
         let parts = raw.split('.');
 
         for part in parts {
@@ -6099,7 +6092,7 @@ impl NodeTrait for RollupFunctionNameSegment {
             "ROLLUP",
             |segment| {
                 CodeSegment::create(
-                    &segment.get_raw().unwrap(),
+                    &segment.raw(),
                     &segment.get_position_marker().unwrap(),
                     CodeSegmentNewArgs::default(),
                 )
@@ -6126,7 +6119,7 @@ impl NodeTrait for CubeFunctionNameSegment {
             "CUBE",
             |segment| {
                 CodeSegment::create(
-                    &segment.get_raw().unwrap(),
+                    &segment.raw(),
                     &segment.get_position_marker().unwrap(),
                     CodeSegmentNewArgs::default(),
                 )
@@ -6257,14 +6250,12 @@ mod tests {
             assert_eq!(errors.len(), 0, "Lexing failed for input: {}", raw);
 
             // Check if the raw components of the tokens match the expected result
-            let raw_list: Vec<String> =
-                tokens.iter().map(|token| token.get_raw().unwrap()).collect();
+            let raw_list: Vec<_> = tokens.iter().map(|token| token.raw()).collect();
             assert_eq!(raw_list, res, "Mismatch for input: {:?}", raw);
 
             // Check if the concatenated raw components of the tokens match the original raw
             // string
-            let concatenated: String =
-                tokens.iter().map(|token| token.get_raw().unwrap()).collect();
+            let concatenated: String = tokens.iter().map(|token| token.raw()).collect();
             assert_eq!(concatenated, raw, "Concatenation mismatch for input: {}", raw);
         }
     }
@@ -6367,7 +6358,7 @@ mod tests {
             assert_eq!(match_result.len(), 1, "failed {segment_ref}, {sql_string}");
 
             let parsed = match_result.matched_segments.pop().unwrap();
-            assert_eq!(sql_string, parsed.get_raw().unwrap());
+            assert_eq!(sql_string, parsed.raw());
         }
     }
 

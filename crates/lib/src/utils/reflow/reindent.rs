@@ -3,6 +3,7 @@ use std::mem::take;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::{enumerate, Itertools};
+use smol_str::SmolStr;
 
 use super::elements::{ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::rebreak::RebreakSpan;
@@ -321,7 +322,7 @@ fn map_line_buffers(
 fn deduce_line_current_indent(
     elements: &ReflowSequenceType,
     last_line_break_idx: Option<usize>,
-) -> Cow<'static, str> {
+) -> SmolStr {
     let mut indent_seg = None;
 
     if elements[0].segments().is_empty() {
@@ -358,7 +359,7 @@ fn deduce_line_current_indent(
     if indent_seg.is_type("placeholder") {
         unimplemented!()
     } else if indent_seg.get_position_marker().is_none() || !indent_seg.is_templated() {
-        return indent_seg.get_raw().unwrap().into();
+        return indent_seg.raw().into();
     } else {
         unimplemented!()
     }

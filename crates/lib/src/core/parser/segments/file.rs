@@ -22,10 +22,6 @@ struct BaseFileSegmentNewArgs {
 }
 
 impl Segment for BaseFileSegment {
-    fn get_raw(&self) -> Option<String> {
-        todo!()
-    }
-
     fn get_type(&self) -> &'static str {
         "file"
     }

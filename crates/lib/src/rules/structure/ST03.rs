@@ -53,7 +53,7 @@ impl Rule for RuleST03 {
                 None,
                 Some(format!(
                     "Query defines CTE \"{}\" but does not use it.",
-                    cte.cte_name_segment.as_ref().unwrap().get_raw().unwrap()
+                    cte.cte_name_segment.as_ref().unwrap().raw()
                 )),
                 None,
             ));

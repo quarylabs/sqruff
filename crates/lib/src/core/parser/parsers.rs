@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use ahash::AHashSet;
 use fancy_regex::Regex;
+use smol_str::SmolStr;
 use uuid::Uuid;
 
 use super::context::ParseContext;
@@ -262,12 +263,13 @@ impl RegexParser {
     }
 
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
-        if segment.get_raw().unwrap().is_empty() {
+        if segment.raw().is_empty() {
             // TODO: Handle this case
             return false;
         }
 
-        let segment_raw_upper = segment.get_raw().unwrap().to_ascii_uppercase();
+        let segment_raw_upper =
+            SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
         if let Some(result) = self._template.find(&segment_raw_upper).ok().flatten() {
             if result.as_str() == segment_raw_upper {
                 if let Some(_anti_template) = &self.anti_template {
@@ -379,8 +381,7 @@ impl MultiStringParser {
 
     fn is_first_match(&self, segment: &dyn Segment) -> bool {
         // Check if the segment is code and its raw_upper is in the templates
-        segment.is_code()
-            && self.templates.contains(&segment.get_raw().unwrap().to_ascii_uppercase())
+        segment.is_code() && self.templates.contains(&segment.raw().to_ascii_uppercase())
     }
 
     fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
@@ -498,7 +499,7 @@ mod tests {
             /* KeywordSegment */
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -517,7 +518,7 @@ mod tests {
         let result = parser.match_segments(&segments[0..1], &mut ctx).unwrap();
         let result1 = &result.matched_segments[0];
 
-        assert_eq!(result1.get_raw().unwrap(), "foo");
+        assert_eq!(result1.raw(), "foo");
 
         // Doesn't match when it shouldn't
         let result = parser.match_segments(&segments[1..], &mut ctx).unwrap();

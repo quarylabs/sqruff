@@ -39,13 +39,7 @@ impl Rule for RuleAL02 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if FunctionalContext::new(context.clone())
-            .segment()
-            .children(None)
-            .last()
-            .unwrap()
-            .get_raw()
-            .unwrap()
+        if FunctionalContext::new(context.clone()).segment().children(None).last().unwrap().raw()
             == "="
         {
             return Vec::new();

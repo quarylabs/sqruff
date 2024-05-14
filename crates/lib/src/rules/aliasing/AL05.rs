@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 
 use ahash::AHashMap;
+use smol_str::SmolStr;
 
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
@@ -17,7 +18,7 @@ use crate::utils::functional::segments::Segments;
 #[derive(Default, Clone)]
 struct AL05Query {
     aliases: Vec<AliasInfo>,
-    tbl_refs: Vec<String>,
+    tbl_refs: Vec<SmolStr>,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -98,7 +99,7 @@ impl RuleAL05 {
 
     fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: String) {
         if RefCell::borrow(&query.inner).payload.aliases.iter().any(|it| it.ref_str == r#ref) {
-            RefCell::borrow_mut(&query.inner).payload.tbl_refs.push(r#ref.clone());
+            RefCell::borrow_mut(&query.inner).payload.tbl_refs.push(r#ref.into());
         } else if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
             Self::resolve_and_mark_reference(parent, r#ref);
         }

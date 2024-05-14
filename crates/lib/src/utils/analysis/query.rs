@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::sync::Arc;
 
 use ahash::AHashMap;
+use smol_str::SmolStr;
 
 use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
@@ -54,9 +55,9 @@ impl<'me> Selectable<'me> {
 
         let alias_info = AliasInfo {
             ref_str: if name.is_empty() {
-                String::new()
+                SmolStr::new_static("")
             } else {
-                name.first().unwrap().get_raw().unwrap()
+                name.first().unwrap().raw().into()
             },
             segment: name.first().cloned(),
             aliased: !name.is_empty(),

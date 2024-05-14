@@ -2,6 +2,7 @@ use std::cell::RefCell;
 
 use ahash::AHashMap;
 use itertools::Itertools;
+use smol_str::SmolStr;
 
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
@@ -20,7 +21,7 @@ use crate::utils::analysis::query::{Query, Selectable};
 #[derive(Debug, Default, Clone)]
 struct RF01Query {
     aliases: Vec<AliasInfo>,
-    standalone_aliases: Vec<String>,
+    standalone_aliases: Vec<SmolStr>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -31,8 +32,8 @@ impl RuleRF01 {
     fn resolve_reference(
         &self,
         r: &Node<ObjectReferenceSegment>,
-        tbl_refs: Vec<(ObjectReferencePart, Vec<String>)>,
-        dml_target_table: &[String],
+        tbl_refs: Vec<(ObjectReferencePart, Vec<SmolStr>)>,
+        dml_target_table: &[SmolStr],
         query: Query<RF01Query>,
     ) -> Option<LintResult> {
         let possible_references: Vec<_> =
@@ -52,7 +53,7 @@ impl RuleRF01 {
                     .unwrap()
                     .iter_raw_references()
                     .into_iter()
-                    .map(|it| it.part)
+                    .map(|it| it.part.into())
                     .collect_vec();
 
                 targets.push(references);
@@ -76,7 +77,7 @@ impl RuleRF01 {
                     format!(
                         "Reference '{}' refers to table/view not found in the FROM clause or \
                          found in ancestor statement.",
-                        r.get_raw().unwrap()
+                        r.raw()
                     )
                     .into(),
                     None,
@@ -91,22 +92,24 @@ impl RuleRF01 {
         &self,
         r: &Node<ObjectReferenceSegment>,
         _dialect: &Dialect,
-    ) -> Vec<(ObjectReferencePart, Vec<String>)> {
+    ) -> Vec<(ObjectReferencePart, Vec<SmolStr>)> {
         let mut tbl_refs = Vec::new();
 
         for values in r.extract_possible_multipart_references(&[
             ObjectReferenceLevel::Schema,
             ObjectReferenceLevel::Table,
         ]) {
-            tbl_refs
-                .push((values[1].clone(), vec![values[0].part.clone(), values[1].part.clone()]));
+            tbl_refs.push((
+                values[1].clone(),
+                vec![values[0].part.clone().into(), values[1].part.clone().into()],
+            ));
         }
 
         if tbl_refs.is_empty() {
             tbl_refs.extend(
                 r.extract_possible_references(ObjectReferenceLevel::Table)
                     .into_iter()
-                    .map(|it| (it.clone(), vec![it.part])),
+                    .map(|it| (it.clone(), vec![it.part.into()])),
             );
         }
 
@@ -116,7 +119,7 @@ impl RuleRF01 {
     fn analyze_table_references(
         &self,
         query: Query<RF01Query>,
-        dml_target_table: &[String],
+        dml_target_table: &[SmolStr],
         violations: &mut Vec<LintResult>,
     ) {
         let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
@@ -197,7 +200,11 @@ impl Rule for RuleRF01 {
                     reference.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap()
                 };
 
-                tmp = reference.iter_raw_references().into_iter().map(|it| it.part).collect_vec();
+                tmp = reference
+                    .iter_raw_references()
+                    .into_iter()
+                    .map(|it| it.part.into())
+                    .collect_vec();
                 &tmp
             } else {
                 [].as_slice()

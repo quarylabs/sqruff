@@ -350,7 +350,7 @@ pub fn longest_trimmed_match(
     }
 
     let loc_key = (
-        segments[0].get_raw().unwrap(),
+        segments[0].raw().to_string(),
         segments[0].get_position_marker().unwrap().working_loc(),
         segments[0].get_type(),
         segments.len(),
@@ -534,7 +534,7 @@ mod tests {
                     matcher_keyword,
                     |segment| {
                         KeywordSegment::new(
-                            segment.get_raw().unwrap(),
+                            segment.raw().into(),
                             segment.get_position_marker().unwrap().into(),
                         )
                         .to_erased_segment()
@@ -567,7 +567,7 @@ mod tests {
             "bar",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -581,7 +581,7 @@ mod tests {
             "foo",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()

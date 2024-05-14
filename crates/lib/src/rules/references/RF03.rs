@@ -2,6 +2,7 @@ use std::cell::RefCell;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
+use smol_str::SmolStr;
 
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
@@ -79,7 +80,7 @@ impl RuleRF03 {
     }
 }
 
-fn iter_available_targets(query: Query<()>) -> Vec<String> {
+fn iter_available_targets(query: Query<()>) -> Vec<SmolStr> {
     RefCell::borrow(&query.inner)
         .selectables
         .iter()
@@ -98,7 +99,7 @@ fn iter_available_targets(query: Query<()>) -> Vec<String> {
 #[allow(clippy::too_many_arguments)]
 fn check_references(
     table_aliases: Vec<AliasInfo>,
-    standalone_aliases: Vec<String>,
+    standalone_aliases: Vec<SmolStr>,
     references: Vec<Node<ObjectReferenceSegment>>,
     col_aliases: Vec<ColumnAliasInfo>,
     single_table_references: &str,
@@ -166,10 +167,10 @@ fn validate_one_reference(
     single_table_references: &str,
     ref_: Node<ObjectReferenceSegment>,
     this_ref_type: &str,
-    standalone_aliases: &[String],
+    standalone_aliases: &[SmolStr],
     table_ref_str: &str,
     _table_ref_str_source: Option<ErasedSegment>,
-    col_alias_names: &[String],
+    col_alias_names: &[SmolStr],
     seen_ref_types: &AHashSet<&str>,
     fixable: bool,
 ) -> Option<LintResult> {
@@ -177,7 +178,7 @@ fn validate_one_reference(
         return None;
     }
 
-    if standalone_aliases.contains(&ref_.get_raw().unwrap()) {
+    if standalone_aliases.contains(&ref_.raw().into()) {
         return None;
     }
 
@@ -185,7 +186,7 @@ fn validate_one_reference(
         return None;
     }
 
-    if col_alias_names.contains(&ref_.get_raw().unwrap()) {
+    if col_alias_names.contains(&ref_.raw().into()) {
         return None;
     }
 
@@ -199,7 +200,7 @@ fn validate_one_reference(
                     "{} reference '{}' found in single table select which is inconsistent with \
                      previous references.",
                     capitalize(this_ref_type),
-                    ref_.get_raw().unwrap()
+                    ref_.raw()
                 )
                 .into(),
                 None,
@@ -228,7 +229,7 @@ fn validate_one_reference(
             format!(
                 "{} reference '{}' found in single table select.",
                 capitalize(this_ref_type),
-                ref_.get_raw().unwrap()
+                ref_.raw()
             )
             .into(),
             None,
@@ -256,7 +257,7 @@ fn validate_one_reference(
         format!(
             "{} reference '{}' found in single table select.",
             capitalize(this_ref_type),
-            ref_.get_raw().unwrap()
+            ref_.raw()
         )
         .into(),
         None,

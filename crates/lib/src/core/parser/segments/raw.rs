@@ -1,3 +1,4 @@
+use smol_str::SmolStr;
 use uuid::Uuid;
 
 use super::base::ErasedSegment;
@@ -7,7 +8,7 @@ use crate::core::parser::segments::fix::SourceFix;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct RawSegment {
-    raw: Option<String>,
+    raw: Option<SmolStr>,
     position_marker: Option<PositionMarker>,
 
     // From BaseSegment
@@ -32,13 +33,13 @@ impl RawSegment {
         // we suggest using the `instance_types` option.
         _args: RawSegmentArgs,
     ) -> Self {
-        Self { position_marker, raw, uuid: Uuid::new_v4() }
+        Self { position_marker, raw: raw.map(Into::into), uuid: Uuid::new_v4() }
     }
 }
 
 impl Segment for RawSegment {
-    fn get_raw(&self) -> Option<String> {
-        self.raw.clone()
+    fn raw(&self) -> std::borrow::Cow<str> {
+        self.raw.as_ref().unwrap().as_str().into()
     }
 
     fn get_type(&self) -> &'static str {

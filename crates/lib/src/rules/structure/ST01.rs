@@ -29,9 +29,7 @@ impl Rule for RuleST01 {
         let children = FunctionalContext::new(context).segment().children(None);
         let else_clause = children.find_first(Some(|it: &ErasedSegment| it.is_type("else_clause")));
 
-        if !else_clause
-            .children(Some(|child| child.get_raw().unwrap().eq_ignore_ascii_case("NULL")))
-            .is_empty()
+        if !else_clause.children(Some(|child| child.raw().eq_ignore_ascii_case("NULL"))).is_empty()
         {
             let before_else = children.reversed().select(
                 None,

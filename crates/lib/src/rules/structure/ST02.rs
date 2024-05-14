@@ -30,7 +30,7 @@ impl Rule for RuleST02 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if context.segment.segments()[0].get_raw().unwrap().eq_ignore_ascii_case("CASE") {
+        if context.segment.segments()[0].raw().eq_ignore_ascii_case("CASE") {
             let children = FunctionalContext::new(context.clone()).segment().children(None);
 
             let when_clauses =
@@ -163,7 +163,7 @@ impl Rule for RuleST02 {
                         None,
                         format!(
                             "Unnecessary CASE statement. Just use column '{}'.",
-                            column_reference_segment.get_raw().unwrap()
+                            column_reference_segment.raw()
                         )
                         .into(),
                         None,

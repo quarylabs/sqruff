@@ -473,7 +473,11 @@ impl RuleSet {
         let mut expanded_rule_set = AHashSet::new();
 
         for r in glob_list {
-            expanded_rule_set.extend(reference_map[r.as_str()].clone());
+            if reference_map.contains_key(r.as_str()) {
+                expanded_rule_set.extend(reference_map[r.as_str()].clone());
+            } else {
+                panic!("Rule {r} not found in rule reference map");
+            }
         }
 
         expanded_rule_set

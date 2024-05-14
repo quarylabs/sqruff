@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::borrow::Cow;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Deref;
@@ -10,6 +11,7 @@ use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
+use smol_str::SmolStr;
 use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;
@@ -155,7 +157,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
             return node;
         }
 
-        unimplemented!("{} = {:?}", self.get_type(), self.get_raw())
+        unimplemented!("{} = {:?}", self.get_type(), self.raw())
     }
 
     fn get_start_loc(&self) -> (usize, usize) {
@@ -167,7 +169,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
 
     fn get_end_loc(&self) -> (usize, usize) {
         match self.get_position_marker() {
-            Some(pos_marker) => pos_marker.working_loc_after(&self.get_raw().unwrap()),
+            Some(pos_marker) => pos_marker.working_loc_after(&self.raw()),
             None => {
                 unreachable!("{self:?} has no PositionMarker")
             }
@@ -181,7 +183,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         include_meta: bool,
     ) -> TupleSerialisedSegment {
         if show_raw && self.segments().is_empty() {
-            TupleSerialisedSegment::sinlge(self.get_type().into(), self.get_raw().unwrap())
+            TupleSerialisedSegment::sinlge(self.get_type().into(), self.raw().to_string())
         } else if code_only {
             let segments = self
                 .segments()
@@ -346,7 +348,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(
                 self.get_position_marker().unwrap().templated_slice,
-                self.get_raw().unwrap(),
+                self.raw().into(),
                 "literal".into(),
                 self.get_position_marker().unwrap().source_slice,
                 templated_file.templated_str.as_ref().unwrap()
@@ -376,12 +378,12 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         None
     }
 
-    fn get_raw(&self) -> Option<String> {
-        self.segments().iter().filter_map(|segment| segment.get_raw()).join("").into()
+    fn raw(&self) -> Cow<str> {
+        self.segments().iter().map(|segment| segment.raw()).join("").into()
     }
 
     fn get_raw_upper(&self) -> Option<String> {
-        self.get_raw()?.to_uppercase().into()
+        self.raw().to_uppercase().into()
     }
 
     // Assuming `raw_segments` is a field that holds a collection of segments
@@ -441,10 +443,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
 
     /// Return the length of the segment in characters.
     fn get_matched_length(&self) -> usize {
-        match self.get_raw() {
-            None => 0,
-            Some(raw) => raw.len(),
-        }
+        self.raw().len()
     }
 
     /// Are we able to have non-code at the start or end?
@@ -702,7 +701,7 @@ impl PartialEq for dyn Segment {
         let pos_other = other.get_position_marker();
         if let (Some(pos_self), Some(pos_other)) = (pos_self, pos_other) {
             self.get_type() == other.get_type()
-                && self.get_raw() == other.get_raw()
+                && self.raw() == other.raw()
                 && pos_self == pos_other
         } else {
             false
@@ -716,9 +715,7 @@ impl Hash for dyn Segment {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.type_name().hash(state);
 
-        if let Some(marker) = &self.get_raw() {
-            marker.hash(state);
-        }
+        self.raw().hash(state);
 
         if let Some(marker) = &self.get_position_marker() {
             marker.source_position().hash(state);
@@ -758,7 +755,7 @@ pub fn position_segments(
         if metas_only && !segment.is_meta() {
             segment_buffer.push(segment.clone());
             (line_no, line_pos) =
-                PositionMarker::infer_next_position(&segment.get_raw().unwrap(), line_no, line_pos);
+                PositionMarker::infer_next_position(&segment.raw(), line_no, line_pos);
             continue;
         }
 
@@ -817,7 +814,7 @@ pub fn position_segments(
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CodeSegment {
-    raw: String,
+    raw: SmolStr,
     position_marker: Option<PositionMarker>,
     pub code_type: &'static str,
 
@@ -846,7 +843,7 @@ impl CodeSegment {
         args: CodeSegmentNewArgs,
     ) -> ErasedSegment {
         CodeSegment {
-            raw: raw.to_string(),
+            raw: raw.into(),
             position_marker: Some(position_maker.clone()),
             code_type: args.code_type,
             instance_types: vec![],
@@ -864,8 +861,8 @@ impl Segment for CodeSegment {
         self.clone().to_erased_segment()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        Some(self.raw.clone())
+    fn raw(&self) -> Cow<str> {
+        self.raw.as_str().into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -915,7 +912,7 @@ impl Segment for CodeSegment {
     /// From RawSegment implementation
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         CodeSegment::create(
-            raw.unwrap_or(self.raw.clone()).as_str(),
+            raw.unwrap_or(self.raw.to_string()).as_str().into(),
             &self.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
                 code_type: self.code_type,
@@ -945,7 +942,7 @@ impl IdentifierSegment {
     ) -> ErasedSegment {
         IdentifierSegment {
             base: CodeSegment {
-                raw: raw.to_string(),
+                raw: raw.into(),
                 position_marker: Some(position_maker.clone()),
                 code_type: args.code_type,
                 instance_types: vec![],
@@ -964,8 +961,8 @@ impl Segment for IdentifierSegment {
         self.clone().to_erased_segment()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        Some(self.base.raw.clone())
+    fn raw(&self) -> Cow<str> {
+        self.base.raw.as_str().into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -1003,7 +1000,7 @@ impl Segment for IdentifierSegment {
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         IdentifierSegment::create(
-            raw.unwrap_or(self.base.raw.clone()).as_str(),
+            raw.unwrap_or(self.base.raw.to_string()).as_str().into(),
             &self.base.position_marker.clone().unwrap(),
             CodeSegmentNewArgs {
                 code_type: self.base.code_type,
@@ -1023,7 +1020,7 @@ impl Segment for IdentifierSegment {
 /// Segment containing a comment.
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct CommentSegment {
-    raw: String,
+    raw: SmolStr,
     position_maker: Option<PositionMarker>,
     r#type: &'static str,
     trim_start: Vec<&'static str>,
@@ -1043,7 +1040,7 @@ impl CommentSegment {
         args: CommentSegmentNewArgs,
     ) -> ErasedSegment {
         Self {
-            raw: raw.to_string(),
+            raw: raw.into(),
             position_maker: position_maker.clone().into(),
             r#type: args.r#type,
             trim_start: args.trim_start.unwrap_or_default(),
@@ -1058,8 +1055,8 @@ impl Segment for CommentSegment {
         self.clone_box()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        self.raw.clone().into()
+    fn raw(&self) -> Cow<str> {
+        self.raw.as_str().into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -1108,7 +1105,7 @@ impl Segment for CommentSegment {
 // Segment containing a newline.
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct NewlineSegment {
-    raw: String,
+    raw: SmolStr,
     position_maker: PositionMarker,
     uuid: Uuid,
 }
@@ -1123,7 +1120,7 @@ impl NewlineSegment {
         _args: NewlineSegmentNewArgs,
     ) -> ErasedSegment {
         NewlineSegment {
-            raw: raw.to_string(),
+            raw: raw.into(),
             position_maker: position_maker.clone(),
             uuid: Uuid::new_v4(),
         }
@@ -1136,8 +1133,8 @@ impl Segment for NewlineSegment {
         self.clone().to_erased_segment()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        Some(self.raw.clone())
+    fn raw(&self) -> Cow<str> {
+        self.raw.as_str().into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -1196,7 +1193,7 @@ impl Segment for NewlineSegment {
 /// Segment containing whitespace.
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct WhitespaceSegment {
-    raw: String,
+    raw: SmolStr,
     position_marker: PositionMarker,
     uuid: Uuid,
 }
@@ -1211,7 +1208,7 @@ impl WhitespaceSegment {
         _args: WhitespaceSegmentNewArgs,
     ) -> ErasedSegment {
         WhitespaceSegment {
-            raw: raw.to_string(),
+            raw: raw.into(),
             position_marker: position_maker.clone(),
             uuid: Uuid::new_v4(),
         }
@@ -1222,15 +1219,15 @@ impl WhitespaceSegment {
 impl Segment for WhitespaceSegment {
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self {
-            raw: self.get_raw().unwrap(),
+            raw: self.raw().into(),
             position_marker: self.position_marker.clone(),
             uuid: self.uuid,
         }
         .to_erased_segment()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        Some(self.raw.clone())
+    fn raw(&self) -> Cow<str> {
+        self.raw.as_str().into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -1303,9 +1300,10 @@ impl UnlexableSegment {
 }
 
 impl Segment for UnlexableSegment {
-    fn get_raw(&self) -> Option<String> {
+    fn raw(&self) -> Cow<str> {
         todo!()
     }
+
     fn get_type(&self) -> &'static str {
         "unlexable"
     }
@@ -1344,7 +1342,7 @@ impl Segment for UnlexableSegment {
 ///     but don't end up being labelled as a `keyword` later.
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SymbolSegment {
-    raw: String,
+    raw: SmolStr,
     position_maker: PositionMarker,
     uuid: Uuid,
     type_: &'static str,
@@ -1361,8 +1359,8 @@ impl Segment for SymbolSegment {
         .to_erased_segment()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        self.raw.clone().into()
+    fn raw(&self) -> Cow<str> {
+        self.raw.as_str().into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -1427,7 +1425,7 @@ impl SymbolSegment {
         args: SymbolSegmentNewArgs,
     ) -> ErasedSegment {
         SymbolSegment {
-            raw: raw.to_string(),
+            raw: raw.into(),
             position_maker: position_maker.clone(),
             uuid: Uuid::new_v4(),
             type_: args.r#type,
@@ -1527,7 +1525,7 @@ mod tests {
     fn test__parser__base_segments_raw() {
         let raw_seg = raw_seg();
 
-        assert_eq!(raw_seg.get_raw().unwrap(), "foobar");
+        assert_eq!(raw_seg.raw(), "foobar");
     }
 
     #[test]

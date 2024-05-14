@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{
     ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
@@ -21,7 +23,7 @@ type CorrectionList = Vec<CorrectionListItem>;
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV05 {}
 
-fn create_base_is_null_sequence(is_upper: bool, operator_raw: String) -> CorrectionList {
+fn create_base_is_null_sequence(is_upper: bool, operator_raw: Cow<str>) -> CorrectionList {
     let is_seg = CorrectionListItem::KeywordSegment(if is_upper { "IS" } else { "is" }.to_string());
     let not_seg =
         CorrectionListItem::KeywordSegment(if is_upper { "NOT" } else { "not" }.to_string());
@@ -75,10 +77,9 @@ impl Rule for RuleCV05 {
             return Vec::new();
         }
 
-        if let Some(raw_consist) = context.segment.get_raw() {
-            if !["=", "!=", "<>"].contains(&raw_consist.as_str()) {
-                return Vec::new();
-            }
+        let raw_consist = context.segment.raw();
+        if !["=", "!=", "<>"].contains(&&*raw_consist) {
+            return Vec::new();
         }
 
         let segment = context.parent_stack.last().unwrap().segments().to_vec();
@@ -94,8 +95,8 @@ impl Rule for RuleCV05 {
 
         let sub_seg = next_code.get(0, None);
         let edit = create_base_is_null_sequence(
-            sub_seg.as_ref().unwrap().get_raw().unwrap().starts_with('N'),
-            context.segment.get_raw().unwrap(),
+            sub_seg.as_ref().unwrap().raw().starts_with('N'),
+            context.segment.raw(),
         );
 
         let mut seg = Vec::with_capacity(edit.len());
@@ -103,7 +104,7 @@ impl Rule for RuleCV05 {
         for item in edit {
             match item {
                 CorrectionListItem::KeywordSegment(keyword) => {
-                    seg.push(KeywordSegment::new(keyword, None).to_erased_segment());
+                    seg.push(KeywordSegment::new(keyword.into(), None).to_erased_segment());
                 }
                 CorrectionListItem::WhitespaceSegment => {
                     seg.push(WhitespaceSegment::create(

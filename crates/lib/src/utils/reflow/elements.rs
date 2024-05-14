@@ -42,7 +42,7 @@ impl ReflowPoint {
     }
 
     pub fn raw(&self) -> String {
-        self.segments.iter().map(|it| it.get_raw().unwrap()).join("")
+        self.segments.iter().map(|it| it.raw()).join("")
     }
 
     pub fn class_types(&self) -> AHashSet<&str> {
@@ -120,7 +120,7 @@ impl ReflowPoint {
             return consumed_whitespace.split('\n').last().unwrap().to_owned().into();
         }
 
-        if let Some(seg) = seg { seg.get_raw() } else { String::new().into() }
+        if let Some(seg) = seg { Some(seg.raw().into()) } else { String::new().into() }
     }
 
     pub fn indent_to(
@@ -141,7 +141,7 @@ impl ReflowPoint {
             unimplemented!()
         } else if self.num_newlines() != 0 {
             if let Some(indent_seg) = indent_seg {
-                if indent_seg.get_raw().unwrap() == desired_indent {
+                if indent_seg.raw() == desired_indent {
                     unimplemented!()
                 } else if desired_indent.is_empty() {
                     // unimplemented!()
@@ -206,13 +206,13 @@ impl ReflowPoint {
                     format!(
                         "Expected line break and {} before {:?}.",
                         indent_description(desired_indent),
-                        before_seg.get_raw().unwrap()
+                        before_seg.raw()
                     )
                 } else if let Some(after_seg) = after {
                     format!(
                         "Expected line break and {} after {:?}.",
                         indent_description(desired_indent),
-                        after_seg.get_raw().unwrap()
+                        after_seg.raw()
                     )
                 } else {
                     format!("Expected line break and {}.", indent_description(desired_indent))
@@ -287,7 +287,7 @@ impl ReflowPoint {
                     let description = format!(
                         "Expected line break and {} after {:?}.",
                         indent_description(desired_indent),
-                        after.get_raw().unwrap()
+                        after.raw()
                     );
 
                     return (
@@ -531,7 +531,7 @@ pub enum ReflowElement {
 
 impl ReflowElement {
     pub fn raw(&self) -> String {
-        self.segments().iter().map(|it| it.get_raw().unwrap()).join("")
+        self.segments().iter().map(|it| it.raw()).join("")
     }
 
     pub fn segments(&self) -> &[ErasedSegment] {

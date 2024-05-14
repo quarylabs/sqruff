@@ -32,16 +32,16 @@ impl Rule for RuleAM02 {
             return Vec::new();
         }
 
-        let raw = rule_cx.segment.get_raw().unwrap();
+        let raw = rule_cx.segment.raw();
         let raw_upper = raw.to_uppercase();
 
-        if rule_cx.segment.get_raw().unwrap().contains("union")
+        if rule_cx.segment.raw().contains("union")
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                KeywordSegment::new("union".to_owned(), None).to_erased_segment(),
+                KeywordSegment::new("union".into(), None).to_erased_segment(),
                 WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
-                KeywordSegment::new("distinct".to_owned(), None).to_erased_segment(),
+                KeywordSegment::new("distinct".into(), None).to_erased_segment(),
             ];
 
             let segments = rule_cx.segment.clone();
@@ -52,9 +52,9 @@ impl Rule for RuleAM02 {
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                KeywordSegment::new("UNION".to_owned(), None).to_erased_segment(),
+                KeywordSegment::new("UNION".into(), None).to_erased_segment(),
                 WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
-                KeywordSegment::new("DISTINCT".to_owned(), None).to_erased_segment(),
+                KeywordSegment::new("DISTINCT".into(), None).to_erased_segment(),
             ];
 
             let segments = rule_cx.segment.clone();

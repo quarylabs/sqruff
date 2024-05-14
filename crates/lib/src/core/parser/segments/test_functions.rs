@@ -162,15 +162,14 @@ pub fn make_result_tuple(
         None => vec![],
         Some(slice) => test_segments[slice]
             .iter()
-            .filter_map(|elem| {
-                elem.get_raw().map(|raw| {
-                    if matcher_keywords.contains(&raw.as_str()) {
-                        KeywordSegment::new(raw, elem.get_position_marker().unwrap().into())
-                            .to_erased_segment() as ErasedSegment
-                    } else {
-                        elem.clone()
-                    }
-                })
+            .map(|elem| {
+                let raw = elem.raw();
+                if matcher_keywords.contains(&&*raw) {
+                    KeywordSegment::new(raw.into(), elem.get_position_marker().unwrap().into())
+                        .to_erased_segment() as ErasedSegment
+                } else {
+                    elem.clone()
+                }
             })
             .collect(),
     }

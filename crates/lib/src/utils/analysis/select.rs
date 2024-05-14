@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use smol_str::SmolStr;
 
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
@@ -11,11 +12,11 @@ use crate::dialects::ansi::{
 pub struct SelectStatementColumnsAndTables {
     pub select_statement: ErasedSegment,
     pub table_aliases: Vec<AliasInfo>,
-    pub standalone_aliases: Vec<String>,
+    pub standalone_aliases: Vec<SmolStr>,
     pub reference_buffer: Vec<Node<ObjectReferenceSegment>>,
     pub select_targets: Vec<Node<SelectClauseElementSegment>>,
     pub col_aliases: Vec<ColumnAliasInfo>,
-    pub using_cols: Vec<String>,
+    pub using_cols: Vec<SmolStr>,
 }
 
 pub fn get_object_references(segment: &ErasedSegment) -> Vec<Node<ObjectReferenceSegment>> {
@@ -62,7 +63,7 @@ pub fn get_select_statement_info(
 
     let col_aliases = select_targets.iter().flat_map(|s| s.alias()).collect_vec();
 
-    let mut using_cols = Vec::new();
+    let mut using_cols: Vec<SmolStr> = Vec::new();
     let fc = segment.child(&["from_clause"]);
 
     if let Some(fc) = fc {
@@ -83,7 +84,7 @@ pub fn get_select_statement_info(
                 } else if seen_using && seg.is_type("bracketed") {
                     for subseg in seg.segments() {
                         if subseg.is_type("identifier") || subseg.is_type("naked_identifier") {
-                            using_cols.push(subseg.get_raw().unwrap());
+                            using_cols.push(subseg.raw().into());
                         }
                     }
                     seen_using = false;
@@ -107,7 +108,7 @@ pub fn get_select_statement_info(
 pub fn get_aliases_from_select(
     segment: &ErasedSegment,
     dialect: Option<&Dialect>,
-) -> (Vec<AliasInfo>, Vec<String>) {
+) -> (Vec<AliasInfo>, Vec<SmolStr>) {
     let fc = segment.child(&["from_clause"]);
     let Some(fc) = fc else {
         return (Vec::new(), Vec::new());
@@ -140,7 +141,7 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
     };
 
     for function_name in table_expr.recursive_crawl(&["function_name"], true, None, true) {
-        if dialect.sets("value_table_functions").contains(function_name.get_raw().unwrap().trim()) {
+        if dialect.sets("value_table_functions").contains(function_name.raw().trim()) {
             return true;
         }
     }
@@ -148,7 +149,7 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
     false
 }
 
-fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<String> {
+fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<SmolStr> {
     let Some(_dialect) = dialect else {
         return Vec::new();
     };
@@ -162,7 +163,7 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
     for pivot_table_column_alias in
         segment.recursive_crawl(&["pivot_column_reference"], true, None, true)
     {
-        let raw = pivot_table_column_alias.get_raw().unwrap();
+        let raw = pivot_table_column_alias.raw().into();
         if !pivot_table_column_aliases.contains(&raw) {
             pivot_table_column_aliases.push(raw);
         }
@@ -174,6 +175,6 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
 fn get_lambda_argument_columns(
     _segment: &ErasedSegment,
     _dialect: Option<&Dialect>,
-) -> Vec<String> {
+) -> Vec<SmolStr> {
     Vec::new()
 }

@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Deref;
@@ -179,8 +180,8 @@ impl Segment for EndOfFile {
         Self { uuid: self.uuid, position_maker: self.position_maker.clone() }.to_erased_segment()
     }
 
-    fn get_raw(&self) -> Option<String> {
-        Some(String::new())
+    fn raw(&self) -> Cow<str> {
+        "".into()
     }
 
     fn get_type(&self) -> &'static str {

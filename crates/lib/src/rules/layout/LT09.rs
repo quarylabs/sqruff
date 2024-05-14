@@ -85,8 +85,7 @@ impl RuleLT09 {
 
         let selects = children.select(
             Some(|segment| {
-                segment.get_type() == "keyword"
-                    && segment.get_raw().unwrap().eq_ignore_ascii_case("select")
+                segment.get_type() == "keyword" && segment.raw().eq_ignore_ascii_case("select")
             }),
             None,
             None,

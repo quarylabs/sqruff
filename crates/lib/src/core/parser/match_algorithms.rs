@@ -555,7 +555,7 @@ mod tests {
                         kw,
                         |segment| {
                             KeywordSegment::new(
-                                segment.get_raw().unwrap(),
+                                segment.raw().into(),
                                 segment.get_position_marker().unwrap().into(),
                             )
                             .to_erased_segment()
@@ -591,7 +591,7 @@ mod tests {
             "bar",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -605,7 +605,7 @@ mod tests {
             "foo",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -634,7 +634,7 @@ mod tests {
         // matcher.unwrap().dyn_eq(&*fs);
 
         // NB the middle element is a match object
-        assert_eq!(match_result.matched_segments[0].get_raw().unwrap(), "bar");
+        assert_eq!(match_result.matched_segments[0].raw(), "bar");
         assert_eq!(match_result.len(), 1);
 
         // Look ahead for foo, we should find the one AFTER the brackets, not the
@@ -660,7 +660,7 @@ mod tests {
         // assert!(matcher.unwrap() == fs);
 
         // We shouldn't match the whitespace with the keyword
-        assert_eq!(match_result.matched_segments[0].get_raw().unwrap(), "foo");
+        assert_eq!(match_result.matched_segments[0].raw(), "foo");
         assert_eq!(match_result.matched_segments.len(), 1);
     }
 
@@ -728,12 +728,12 @@ mod tests {
                 let segs = match_result.unmatched_segments;
 
                 // Check the first bracket pair have been mutated
-                assert_eq!(segs[1].get_raw().unwrap(), "()");
+                assert_eq!(segs[1].raw(), "()");
                 // assert!(segs[1].is_bracketed());
                 assert_eq!(segs[1].segments().len(), 2);
 
                 // Check the trailing 'foo' hasn't been mutated
-                assert_eq!(segs[5].get_raw().unwrap(), "foo");
+                assert_eq!(segs[5].raw(), "foo");
                 // assert!(!segs[5].is_keyword_segment());
             }
             Err(_) => panic!("Test failed due to an unexpected error"),

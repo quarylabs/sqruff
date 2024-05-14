@@ -48,7 +48,7 @@ impl RuleAL04 {
         table_aliases: Vec<AliasInfo>,
     ) -> Option<Vec<LintResult>> {
         let mut duplicates = IndexSet::default();
-        let mut seen: AHashSet<String> = AHashSet::new();
+        let mut seen: AHashSet<_> = AHashSet::new();
 
         for alias in table_aliases.iter() {
             if seen.contains(&alias.ref_str) && !alias.ref_str.is_empty() {

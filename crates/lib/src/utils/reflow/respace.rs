@@ -209,7 +209,7 @@ pub fn handle_respace_inline_with_space(
         segment_buffer.remove(ws_idx);
 
         let description = if let Some(next_block) = next_block {
-            format!("Unexpected whitespace before {:?}.", next_block.segments[0].get_raw().unwrap())
+            format!("Unexpected whitespace before {:?}.", next_block.segments[0].raw())
         } else {
             "Unexpected whitespace".to_string()
         };
@@ -231,17 +231,17 @@ pub fn handle_respace_inline_with_space(
         let desc = if let Some(next_block) = next_block {
             format!(
                 "Expected only single space before {:?}. Found {:?}.",
-                &next_block.segments[0].get_raw().unwrap(),
-                last_whitespace.get_raw().unwrap()
+                &next_block.segments[0].raw(),
+                last_whitespace.raw()
             )
         } else {
-            format!("Expected only single space. Found {:?}.", last_whitespace.get_raw().unwrap())
+            format!("Expected only single space. Found {:?}.", last_whitespace.raw())
         };
 
         let desired_space = " ";
         let mut new_results = Vec::new();
 
-        if last_whitespace.get_raw().unwrap() != desired_space {
+        if last_whitespace.raw() != desired_space {
             let new_seg = last_whitespace.edit(desired_space.to_owned().into(), None);
             new_results.push(LintResult::new(
                 last_whitespace.clone().into(),
@@ -348,8 +348,8 @@ pub fn handle_respace_inline_without_space(
     let desc = if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
         format!(
             "Expected single whitespace between {:?} and {:?}.",
-            prev_block.segments.last().unwrap().get_raw().unwrap(),
-            next_block.segments[0].get_raw().unwrap()
+            prev_block.segments.last().unwrap().raw(),
+            next_block.segments[0].raw()
         )
     } else {
         "Expected single whitespace.".to_owned()
@@ -390,6 +390,7 @@ pub fn handle_respace_inline_without_space(
 mod tests {
     use itertools::Itertools;
     use pretty_assertions::assert_eq;
+    use smol_str::ToSmolStr;
 
     use crate::core::parser::segments::test_functions::parse_ansi_string;
     use crate::core::rules::base::EditType;
@@ -425,23 +426,23 @@ mod tests {
     fn test_reflow__point_respace_point() {
         let cases = [
             // Basic cases
-            ("select    1", 1, false, " ", vec![(EditType::Replace, "    ".to_owned())]),
-            ("select 1+2", 3, false, " ", vec![(EditType::CreateAfter, "1".to_owned())]),
+            ("select    1", 1, false, " ", vec![(EditType::Replace, "    ".into())]),
+            ("select 1+2", 3, false, " ", vec![(EditType::CreateAfter, "1".into())]),
             ("select (1+2)", 3, false, "", vec![]),
-            ("select (  1+2)", 3, false, "", vec![(EditType::Delete, "  ".to_owned())]),
+            ("select (  1+2)", 3, false, "", vec![(EditType::Delete, "  ".into())]),
             // Newline handling
             ("select\n1", 1, false, "\n", vec![]),
             ("select\n  1", 1, false, "\n  ", vec![]),
-            ("select  \n  1", 1, false, "\n  ", vec![(EditType::Delete, "  ".to_owned())]),
+            ("select  \n  1", 1, false, "\n  ", vec![(EditType::Delete, "  ".into())]),
             (
                 "select  \n 1",
                 1,
                 true,
                 " ",
                 vec![
-                    (EditType::Delete, "\n".to_owned()),
-                    (EditType::Delete, " ".to_owned()),
-                    (EditType::Replace, "  ".to_owned()),
+                    (EditType::Delete, "\n".into()),
+                    (EditType::Delete, " ".into()),
+                    (EditType::Replace, "  ".into()),
                 ],
             ),
             (
@@ -450,9 +451,9 @@ mod tests {
                 true,
                 "",
                 vec![
-                    (EditType::Delete, "\n".to_owned()),
-                    (EditType::Delete, "  ".to_owned()),
-                    (EditType::Delete, " ".to_owned()),
+                    (EditType::Delete, "\n".into()),
+                    (EditType::Delete, "  ".into()),
+                    (EditType::Delete, " ".into()),
                 ],
             ),
         ];
@@ -475,7 +476,7 @@ mod tests {
 
             let fixes = fixes_from_results(results.into_iter())
                 .into_iter()
-                .map(|fix| (fix.edit_type, fix.anchor.get_raw().unwrap()))
+                .map(|fix| (fix.edit_type, fix.anchor.raw().to_smolstr()))
                 .collect_vec();
 
             assert_eq!(fixes, fixes_out);

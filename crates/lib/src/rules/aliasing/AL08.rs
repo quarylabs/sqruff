@@ -52,7 +52,7 @@ impl Rule for RuleAL08 {
                 Entry::Occupied(entry) => {
                     let previous: &ErasedSegment = entry.get();
 
-                    let alias = column_alias.get_raw().unwrap();
+                    let alias = column_alias.raw();
                     let line_no = previous.get_position_marker().unwrap().source_position().0;
 
                     violations.push(LintResult::new(

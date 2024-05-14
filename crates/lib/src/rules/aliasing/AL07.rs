@@ -2,6 +2,7 @@ use std::iter::once;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::chain;
+use smol_str::ToSmolStr;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, IdentifierSegment, SymbolSegment};
@@ -36,18 +37,18 @@ impl RuleAL07 {
 
         let mut table_counts = AHashMap::new();
         for ai in &to_check {
-            *table_counts.entry(ai.table_ref.get_raw().unwrap()).or_insert(0) += 1;
+            *table_counts.entry(ai.table_ref.raw().to_smolstr()).or_insert(0) += 1;
         }
 
-        let mut table_aliases: AHashMap<String, AHashSet<String>> = AHashMap::new();
+        let mut table_aliases: AHashMap<_, AHashSet<_>> = AHashMap::new();
         for ai in &to_check {
             if let (table_ref, Some(alias_identifier_ref)) =
                 (&ai.table_ref, &ai.alias_identifier_ref)
             {
                 table_aliases
-                    .entry(table_ref.get_raw().unwrap())
+                    .entry(table_ref.raw().to_smolstr())
                     .or_default()
-                    .insert(alias_identifier_ref.get_raw().unwrap());
+                    .insert(alias_identifier_ref.raw().to_smolstr());
             }
         }
 
@@ -56,7 +57,7 @@ impl RuleAL07 {
                 (&alias_info.table_ref, &alias_info.alias_identifier_ref)
             {
                 // Skip processing if table appears more than once with different aliases
-                let raw_table = table_ref.get_raw().unwrap();
+                let raw_table = table_ref.raw().to_smolstr();
                 if table_counts.get(&raw_table).unwrap_or(&0) > &1
                     && table_aliases.get(&raw_table).map_or(false, |aliases| aliases.len() > 1)
                 {
@@ -66,7 +67,8 @@ impl RuleAL07 {
                 let select_clause = segment.child(&["select_clause"]).unwrap();
                 let mut ids_refs = Vec::new();
 
-                if let Some(alias_name) = alias_identifier_ref.get_raw() {
+                let alias_name = alias_identifier_ref.raw();
+                if !alias_name.is_empty() {
                     // Find all references to alias in select clause
                     for alias_with_column in
                         select_clause.recursive_crawl(&["object_reference"], true, None, true)
@@ -74,7 +76,7 @@ impl RuleAL07 {
                         if let Some(used_alias_ref) =
                             alias_with_column.child(&["identifier", "naked_identifier"])
                         {
-                            if used_alias_ref.get_raw().unwrap() == alias_name {
+                            if used_alias_ref.raw() == alias_name {
                                 ids_refs.push(used_alias_ref);
                             }
                         }
@@ -85,7 +87,7 @@ impl RuleAL07 {
                         if let Some(used_alias_ref) =
                             exp_ref.child(&["identifier", "naked_identifier"])
                         {
-                            if used_alias_ref.get_raw().unwrap() == alias_name
+                            if used_alias_ref.raw() == alias_name
                                 && exp_ref.child(&["dot"]).is_some()
                             {
                                 ids_refs.push(used_alias_ref);
@@ -104,7 +106,7 @@ impl RuleAL07 {
                 }
 
                 for alias in ids_refs.iter().chain(once(alias_identifier_ref)) {
-                    let tmp = table_ref.get_raw().unwrap();
+                    let tmp = table_ref.raw();
                     let identifier_parts: Vec<_> = tmp.split('.').collect();
                     let mut edits = Vec::new();
                     for (i, part) in identifier_parts.iter().enumerate() {
@@ -156,7 +158,7 @@ impl RuleAL07 {
             };
 
             if let Some(ref base_table) = base_table {
-                if base_table.get_raw() == table_ref.get_raw() && base_table != &table_ref {
+                if base_table.raw() == table_ref.raw() && base_table != &table_ref {
                     continue;
                 }
             }

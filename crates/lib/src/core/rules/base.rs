@@ -178,7 +178,7 @@ impl LintFix {
         if let Some(edit) = &self.edit {
             self.edit_type == EditType::Replace
                 && edit.len() == 1
-                && edit[0].get_raw() == self.anchor.get_raw()
+                && edit[0].raw() == self.anchor.raw()
         } else {
             false
         }
@@ -208,7 +208,7 @@ impl PartialEq for LintFix {
                 }
                 // Compare raw and source_fixes for each corresponding BaseSegment
                 for (self_base_segment, other_base_segment) in self_edit.iter().zip(other_edit) {
-                    if self_base_segment.get_raw() != other_base_segment.get_raw()
+                    if self_base_segment.raw() != other_base_segment.raw()
                         || self_base_segment.get_source_fixes()
                             != other_base_segment.get_source_fixes()
                     {

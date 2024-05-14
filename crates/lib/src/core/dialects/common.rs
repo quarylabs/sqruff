@@ -1,3 +1,5 @@
+use smol_str::SmolStr;
+
 use crate::core::parser::segments::base::ErasedSegment;
 
 /// Details about a table alias.
@@ -5,7 +7,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 #[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
 pub struct AliasInfo {
     /// Name given to the alias
-    pub ref_str: String,
+    pub ref_str: SmolStr,
     /// Identifier segment containing the name
     pub segment: Option<ErasedSegment>,
     pub aliased: bool,
@@ -29,7 +31,7 @@ impl PartialEq for AliasInfo {
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct ColumnAliasInfo {
-    pub alias_identifier_name: String,
+    pub alias_identifier_name: SmolStr,
     pub aliased_segment: ErasedSegment,
     pub column_reference_segments: Vec<ErasedSegment>,
 }

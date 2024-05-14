@@ -1,12 +1,17 @@
+use std::borrow::Cow;
+use std::sync::OnceLock;
+
+use itertools::Itertools;
 use uuid::Uuid;
 
 use super::base::{pos_marker, ErasedSegment, Segment};
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::ToErasedSegment;
 
-#[derive(Hash, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct BracketedSegment {
+    raw: OnceLock<String>,
     pub segments: Vec<ErasedSegment>,
     pub start_bracket: Vec<ErasedSegment>,
     pub end_bracket: Vec<ErasedSegment>,
@@ -34,6 +39,7 @@ impl BracketedSegment {
             end_bracket,
             pos_marker: None,
             uuid: Uuid::new_v4(),
+            raw: OnceLock::new(),
         };
         this.pos_marker = pos_marker(&this).into();
         this
@@ -44,7 +50,12 @@ impl Segment for BracketedSegment {
     fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let mut this = self.clone();
         this.segments = segments;
+        this.raw = OnceLock::new();
         this.to_erased_segment()
+    }
+
+    fn raw(&self) -> Cow<str> {
+        self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
     }
 
     fn get_type(&self) -> &'static str {

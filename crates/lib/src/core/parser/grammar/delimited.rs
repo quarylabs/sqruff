@@ -320,7 +320,7 @@ mod tests {
                 "bar",
                 |segment| {
                     KeywordSegment::new(
-                        segment.get_raw().unwrap(),
+                        segment.raw().into(),
                         segment.get_position_marker().unwrap().into(),
                     )
                     .to_erased_segment()
@@ -332,7 +332,7 @@ mod tests {
 
             let symbol_factory = |segment: &dyn Segment| {
                 SymbolSegment::create(
-                    &segment.get_raw().unwrap(),
+                    &segment.raw(),
                     &segment.get_position_marker().unwrap(),
                     SymbolSegmentNewArgs { r#type: "remove me" },
                 )
@@ -361,7 +361,7 @@ mod tests {
             "foo",
             |segment| {
                 KeywordSegment::new(
-                    segment.get_raw().unwrap(),
+                    segment.raw().into(),
                     segment.get_position_marker().unwrap().into(),
                 )
                 .to_erased_segment()
@@ -375,7 +375,7 @@ mod tests {
         let match_result = matcher.match_segments(&bracket_segments(), &mut ctx).unwrap();
         assert_eq!(match_result.len(), 4);
         assert_eq!(match_result.matched_segments[2].get_type(), "bracketed");
-        assert_eq!(match_result.matched_segments[2].get_raw().unwrap(), "(foo    )");
+        assert_eq!(match_result.matched_segments[2].raw(), "(foo    )");
         assert_eq!(match_result.unmatched_segments.len(), 2);
     }
 
@@ -409,7 +409,7 @@ mod tests {
                         it,
                         |segment| {
                             KeywordSegment::new(
-                                segment.get_raw().unwrap(),
+                                segment.raw().into(),
                                 segment.get_position_marker().unwrap().into(),
                             )
                             .to_erased_segment()

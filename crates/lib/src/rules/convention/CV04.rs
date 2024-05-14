@@ -88,14 +88,14 @@ impl Rule for RuleCV04 {
                 let expression_content =
                     f_content[0].segments().iter().filter(|it| !it.is_meta()).collect_vec();
 
-                let raw = expression_content[0].get_raw().unwrap();
+                let raw = expression_content[0].raw();
                 if expression_content.len() == 1
                     && matches!(expression_content[0].get_type(), "numeric_literal" | "literal")
                     && (raw == "0" || raw == "1")
                     && raw != preferred
                 {
                     let first_expression = expression_content[0].clone();
-                    let first_expression_raw = first_expression.get_raw().unwrap();
+                    let first_expression_raw = first_expression.raw();
 
                     return vec![LintResult::new(
                         context.segment.into(),
@@ -104,9 +104,8 @@ impl Rule for RuleCV04 {
                             vec![
                                 first_expression.edit(
                                     first_expression
-                                        .get_raw()
-                                        .unwrap()
-                                        .replace(&first_expression_raw, preferred)
+                                        .raw()
+                                        .replace(&*first_expression_raw, preferred)
                                         .into(),
                                     None,
                                 ),

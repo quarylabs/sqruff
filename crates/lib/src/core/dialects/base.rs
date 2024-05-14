@@ -217,7 +217,7 @@ impl Dialect {
                             &kw.to_lowercase(),
                             |segment| {
                                 KeywordSegment::new(
-                                    segment.get_raw().unwrap().clone(),
+                                    segment.raw().into(),
                                     segment.get_position_marker().unwrap().into(),
                                 )
                                 .to_erased_segment()

@@ -3,6 +3,7 @@ use std::ops::Range;
 
 use dyn_clone::DynClone;
 use fancy_regex::{Error, Regex};
+use smol_str::SmolStr;
 
 use super::markers::PositionMarker;
 use super::segments::base::ErasedSegment;
@@ -19,12 +20,12 @@ use crate::core::templaters::base::TemplatedFile;
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
 pub struct LexedElement {
-    raw: String,
+    raw: SmolStr,
     matcher: Box<dyn Matcher>,
 }
 
 impl LexedElement {
-    pub fn new(raw: String, matcher: Box<dyn Matcher>) -> Self {
+    pub fn new(raw: SmolStr, matcher: Box<dyn Matcher>) -> Self {
         LexedElement { raw, matcher }
     }
 }
@@ -32,7 +33,7 @@ impl LexedElement {
 /// A LexedElement, bundled with it's position in the templated file.
 #[derive(Debug)]
 pub struct TemplateElement {
-    raw: String,
+    raw: SmolStr,
     template_slice: Range<usize>,
     matcher: Box<dyn Matcher>,
 }
@@ -48,7 +49,7 @@ impl TemplateElement {
         pos_marker: PositionMarker,
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
-        let slice = subslice.map_or_else(|| self.raw.clone(), |slice| self.raw[slice].to_string());
+        let slice = subslice.map_or_else(|| self.raw.clone(), |slice| self.raw[slice].into());
         self.matcher.construct_segment(slice, pos_marker)
     }
 }
@@ -108,12 +109,12 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
                     let trimmed_elems =
                         self._trim_match(str_buff[..div_pos.start].to_string().as_str());
                     let div_elem = LexedElement::new(
-                        str_buff[div_pos.start..div_pos.end].to_string(),
+                        str_buff[div_pos.start..div_pos.end].into(),
                         sub_divider.clone(),
                     );
                     elem_buff.extend_from_slice(&trimmed_elems);
                     elem_buff.push(div_elem);
-                    str_buff = str_buff[div_pos.end..].to_string();
+                    str_buff = str_buff[div_pos.end..].into();
                 } else {
                     // No more division matches. Trim?
                     let trimmed_elems = self._trim_match(&str_buff);
@@ -131,7 +132,7 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
     fn _trim_match(self: &Self, matched_str: &str) -> Vec<LexedElement> {
         let mut elem_buff = Vec::new();
         let mut content_buff = String::new();
-        let mut str_buff = String::from(matched_str);
+        let mut str_buff = matched_str;
 
         if let Some(trim_post_subdivide) = self.get_trim_post_subdivide() {
             while !str_buff.is_empty() {
@@ -141,24 +142,24 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
 
                     if start == 0 {
                         elem_buff.push(LexedElement::new(
-                            str_buff[..end].to_string(),
+                            str_buff[..end].into(),
                             trim_post_subdivide.clone(),
                         ));
-                        str_buff = str_buff[end..].to_string();
+                        str_buff = str_buff[end..].into();
                     } else if end == str_buff.len() {
                         elem_buff.push(LexedElement::new(
-                            format!("{}{}", content_buff, &str_buff[..start]),
+                            format!("{}{}", content_buff, &str_buff[..start]).into(),
                             trim_post_subdivide.clone(),
                         ));
                         elem_buff.push(LexedElement::new(
-                            str_buff[start..end].to_string(),
+                            str_buff[start..end].into(),
                             trim_post_subdivide.clone(),
                         ));
                         content_buff.clear();
-                        str_buff.clear();
+                        str_buff = "";
                     } else {
                         content_buff.push_str(&str_buff[..end]);
-                        str_buff = str_buff[end..].to_string();
+                        str_buff = &str_buff[end..];
                     }
                 } else {
                     break;
@@ -166,7 +167,7 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
             }
             if !content_buff.is_empty() || !str_buff.is_empty() {
                 elem_buff.push(LexedElement::new(
-                    format!("{}{}", content_buff, str_buff),
+                    format!("{}{}", content_buff, str_buff).into(),
                     self.clone_box(),
                 ));
             }
@@ -175,7 +176,7 @@ pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
         elem_buff
     }
 
-    fn construct_segment(&self, _raw: String, _pos_marker: PositionMarker) -> ErasedSegment {
+    fn construct_segment(&self, _raw: SmolStr, _pos_marker: PositionMarker) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>());
     }
 }
@@ -225,14 +226,14 @@ impl<SegmentArgs: Clone + Debug + Sync> StringLexer<SegmentArgs> {
     /// The private match function. Just look for a literal string.
     fn _match(&self, forward_string: &str) -> Option<LexedElement> {
         if forward_string.starts_with(self.template) {
-            Some(LexedElement { raw: self.template.to_string(), matcher: Box::new(self.clone()) })
+            Some(LexedElement { raw: self.template.into(), matcher: Box::new(self.clone()) })
         } else {
             None
         }
     }
 
     /// Given a string, trim if we are allowed to.
-    fn _trim_match(&self, _matched_string: String) -> Vec<LexedElement> {
+    fn _trim_match(&self, _matched_string: &str) -> Vec<LexedElement> {
         panic!("Not implemented")
     }
 
@@ -247,17 +248,17 @@ impl<SegmentArgs: Clone + Debug + Sync> StringLexer<SegmentArgs> {
                 let div_pos = self.sub_divider.clone().unwrap().search(&str_buff);
                 if let Some(div_pos) = div_pos {
                     // Found a division
-                    let trimmed_elems = self._trim_match(str_buff[..div_pos.start].to_string());
+                    let trimmed_elems = self._trim_match(&str_buff[..div_pos.start]);
                     let div_elem = LexedElement::new(
-                        str_buff[div_pos.start..div_pos.end].to_string(),
+                        str_buff[div_pos.start..div_pos.end].into(),
                         sub_divider.clone(),
                     );
                     elem_buff.extend_from_slice(&trimmed_elems);
                     elem_buff.push(div_elem);
-                    str_buff = str_buff[div_pos.end..].to_string();
+                    str_buff = str_buff[div_pos.end..].into();
                 } else {
                     // No more division matches. Trim?
-                    let trimmed_elems = self._trim_match(str_buff);
+                    let trimmed_elems = self._trim_match(&str_buff);
                     elem_buff.extend_from_slice(&trimmed_elems);
                     break;
                 }
@@ -317,7 +318,7 @@ impl<SegmentArgs: Clone + Debug + Sync> Matcher for StringLexer<SegmentArgs> {
         self.trim_post_subdivide.clone()
     }
 
-    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> ErasedSegment {
+    fn construct_segment(&self, raw: SmolStr, pos_marker: PositionMarker) -> ErasedSegment {
         (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
     }
 }
@@ -358,7 +359,7 @@ impl<SegmentArgs: Clone + Debug + Sync> RegexLexer<SegmentArgs> {
         if let Ok(Some(matched)) = self.template.find(forward_string) {
             if matched.start() == 0 {
                 return Some(LexedElement {
-                    raw: matched.as_str().to_string(),
+                    raw: matched.as_str().into(),
                     matcher: Box::new(self.clone()),
                 });
             }
@@ -428,7 +429,7 @@ impl<SegmentArgs: Clone + Debug + Sync> Matcher for RegexLexer<SegmentArgs> {
         self.trim_post_subdivide.clone()
     }
 
-    fn construct_segment(&self, raw: String, pos_marker: PositionMarker) -> ErasedSegment {
+    fn construct_segment(&self, raw: SmolStr, pos_marker: PositionMarker) -> ErasedSegment {
         (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
     }
 }
@@ -513,7 +514,7 @@ impl<'a> Lexer<'a> {
                 SQLLexError::new(
                     format!(
                         "Unable to lex characters: {}",
-                        s.get_raw().unwrap().chars().take(10).collect::<String>()
+                        s.raw().chars().take(10).collect::<String>()
                     ),
                     s.get_position_marker().unwrap(),
                 )

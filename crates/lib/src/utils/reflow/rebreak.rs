@@ -97,7 +97,7 @@ impl RebreakLocation {
     }
 
     fn pretty_target_name(&self) -> String {
-        format!("{} {}", self.target.get_type(), self.target.get_raw().unwrap_or_default())
+        format!("{} {}", self.target.get_type(), self.target.raw())
     }
 }
 

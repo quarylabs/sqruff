@@ -88,7 +88,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "double_quote",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "quoted_literal" },
                     )
@@ -106,7 +106,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "single_quote",
                 |segment| {
                     CodeSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         CodeSegmentNewArgs { code_type: "quoted_literal", ..Default::default() },
                     )
@@ -124,7 +124,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "double_quote",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "udf_body" },
                     )
@@ -142,7 +142,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "single_quote",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "udf_body" },
                     )
@@ -160,7 +160,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "<",
                 |segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "start_angle_bracket" },
                     )
@@ -178,7 +178,7 @@ pub fn bigquery_dialect() -> Dialect {
                 ">",
                 |segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "end_angle_bracket" },
                     )
@@ -196,7 +196,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "=>",
                 |segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "remove me" },
                     )
@@ -214,7 +214,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "-",
                 |segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "dash" },
                     )
@@ -242,7 +242,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "?",
                 |segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "question_mark" },
                     )
@@ -260,7 +260,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "at_sign_literal",
                 |segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "at_sign_literal" },
                     )
@@ -303,7 +303,7 @@ pub fn bigquery_dialect() -> Dialect {
                         .collect_vec(),
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs { code_type: "date_part", ..Default::default() },
                         )
@@ -321,7 +321,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "[A-Z_][A-Z0-9_]*",
                 |segment| {
                     IdentifierSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         CodeSegmentNewArgs {
                             code_type: "naked_identifier_all",
@@ -343,7 +343,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "[A-Z0-9_]+",
                 |segment| {
                     IdentifierSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
                     )
@@ -363,7 +363,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
                         IdentifierSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "procedure_name_identifier",
@@ -380,7 +380,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "`[^`]*`",
                     |segment| {
                         IdentifierSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "procedure_name_identifier",
@@ -436,7 +436,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
                         IdentifierSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "naked_identifier",
@@ -478,7 +478,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs { code_type: "parameter", ..Default::default() },
                         )
@@ -492,7 +492,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "`[^`]*`",
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs { code_type: "parameter", ..Default::default() },
                         )
@@ -519,7 +519,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "single_quote",
                     |segment| {
                         IdentifierSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "date_constructor_literal",
@@ -727,7 +727,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "back_quote",
                 |segment| {
                     IdentifierSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
                     )
@@ -746,7 +746,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "numeric_literal",
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "numeric_literal",
@@ -821,7 +821,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
                         CodeSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "function_name_identifier",
@@ -838,7 +838,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "`[^`]*`",
                     |segment| {
                         IdentifierSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             CodeSegmentNewArgs {
                                 code_type: "function_name_identifier",
@@ -1338,7 +1338,7 @@ impl NodeTrait for ExtractFunctionNameSegment {
             "EXTRACT",
             |segment| {
                 SymbolSegment::create(
-                    &segment.get_raw().unwrap(),
+                    &segment.raw(),
                     &segment.get_position_marker().unwrap(),
                     SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                 )
@@ -1365,7 +1365,7 @@ impl NodeTrait for ArrayFunctionNameSegment {
             "ARRAY",
             |segment| {
                 SymbolSegment::create(
-                    &segment.get_raw().unwrap(),
+                    &segment.raw(),
                     &segment.get_position_marker().unwrap(),
                     SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                 )
@@ -1415,7 +1415,7 @@ impl NodeTrait for NormalizeFunctionNameSegment {
                 "NORMALIZE",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                     )
@@ -1428,7 +1428,7 @@ impl NodeTrait for NormalizeFunctionNameSegment {
                 "NORMALIZE_AND_CASEFOLD",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
-                        &segment.get_raw().unwrap(),
+                        &segment.raw(),
                         &segment.get_position_marker().unwrap(),
                         SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                     )
@@ -2537,7 +2537,7 @@ impl NodeTrait for ExportStatementSegment {
                             "compression",
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
-                                    &segment.get_raw().unwrap(),
+                                    &segment.raw(),
                                     &segment.get_position_marker().unwrap(),
                                     SymbolSegmentNewArgs { r#type: "export_option" },
                                 )
@@ -2550,7 +2550,7 @@ impl NodeTrait for ExportStatementSegment {
                             "field_delimiter",
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
-                                    &segment.get_raw().unwrap(),
+                                    &segment.raw(),
                                     &segment.get_position_marker().unwrap(),
                                     SymbolSegmentNewArgs { r#type: "export_option" },
                                 )
@@ -2563,7 +2563,7 @@ impl NodeTrait for ExportStatementSegment {
                             "format",
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
-                                    &segment.get_raw().unwrap(),
+                                    &segment.raw(),
                                     &segment.get_position_marker().unwrap(),
                                     SymbolSegmentNewArgs { r#type: "export_option" },
                                 )
@@ -2576,7 +2576,7 @@ impl NodeTrait for ExportStatementSegment {
                             "uri",
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
-                                    &segment.get_raw().unwrap(),
+                                    &segment.raw(),
                                     &segment.get_position_marker().unwrap(),
                                     SymbolSegmentNewArgs { r#type: "export_option" },
                                 )
@@ -2595,7 +2595,7 @@ impl NodeTrait for ExportStatementSegment {
                             "header",
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
-                                    &segment.get_raw().unwrap(),
+                                    &segment.raw(),
                                     &segment.get_position_marker().unwrap(),
                                     SymbolSegmentNewArgs { r#type: "export_option" },
                                 )
@@ -2608,7 +2608,7 @@ impl NodeTrait for ExportStatementSegment {
                             "overwrite",
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
-                                    &segment.get_raw().unwrap(),
+                                    &segment.raw(),
                                     &segment.get_position_marker().unwrap(),
                                     SymbolSegmentNewArgs { r#type: "export_option" },
                                 )
@@ -2621,7 +2621,7 @@ impl NodeTrait for ExportStatementSegment {
                             "use_avro_logical_types",
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
-                                    &segment.get_raw().unwrap(),
+                                    &segment.raw(),
                                     &segment.get_position_marker().unwrap(),
                                     SymbolSegmentNewArgs { r#type: "export_option" },
                                 )
@@ -2717,7 +2717,7 @@ impl NodeTrait for CreateProcedureStatementSegment {
                     "strict_mode",
                     |segment| {
                         SymbolSegment::create(
-                            &segment.get_raw().unwrap(),
+                            &segment.raw(),
                             &segment.get_position_marker().unwrap(),
                             SymbolSegmentNewArgs { r#type: "procedure_option" },
                         )

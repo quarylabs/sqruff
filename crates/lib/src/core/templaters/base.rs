@@ -1,6 +1,8 @@
 use std::cmp::Ordering;
 use std::ops::{Deref, Range};
 
+use smol_str::SmolStr;
+
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLFluffSkipFile, SQLFluffUserError, ValueError};
@@ -237,9 +239,9 @@ impl TemplatedFileInner {
     }
 
     /// Create TemplatedFile from a string.
-    pub fn from_string(raw: String) -> TemplatedFile {
+    pub fn from_string(raw: SmolStr) -> TemplatedFile {
         // TODO: Might need to deal with this unwrap
-        TemplatedFile::new(raw.clone(), "<string>".to_string(), None, None, None).unwrap()
+        TemplatedFile::new(raw.into(), "<string>".to_string(), None, None, None).unwrap()
     }
 
     /// Get templated string

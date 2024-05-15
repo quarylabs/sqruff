@@ -69,14 +69,14 @@ echo "LINUX_X86_64_URL: $LINUX_X86_64_URL"
 echo "LINUX_X86_64_SHA256: $LINUX_X86_64_SHA256"
 
 
-sed -i "s|url \".*\"|url \"${DARWIN_AARCH64_URL}\"|" sqruff.rb
-sed -i "s/sha256 \".*\"/sha256 \"${DARWIN_AARCH64_SHA256}\"/" sqruff.rb
+sed -i.bak "/if OS.mac? && Hardware::CPU.arm?/,/elsif/ s|url \".*\"|url \"${DARWIN_AARCH64_URL}\"|" sqruff.rb
+sed -i.bak "/if OS.mac? && Hardware::CPU.arm?/,/elsif/ s/sha256 \".*\"/sha256 \"${DARWIN_AARCH64_SHA256}\"/" sqruff.rb
 
-sed -i "s|url \".*\"|url \"${DARWIN_X86_64_URL}\"|" sqruff.rb
-sed -i "s/sha256 \".*\"/sha256 \"${DARWIN_X86_64_SHA256}\"/" sqruff.rb
+sed -i.bak "/elsif OS.mac? && Hardware::CPU.intel?/,/elsif/ s|url \".*\"|url \"${DARWIN_X86_64_URL}\"|" sqruff.rb
+sed -i.bak "/elsif OS.mac? && Hardware::CPU.intel?/,/elsif/ s/sha256 \".*\"/sha256 \"${DARWIN_X86_64_SHA256}\"/" sqruff.rb
 
-sed -i "s|url \".*\"|url \"${LINUX_X86_64_URL}\"|" sqruff.rb
-sed -i "s/sha256 \".*\"/sha256 \"${LINUX_X86_64_SHA256}\"/" sqruff.rb
+sed -i.bak "/elsif OS.linux? && Hardware::CPU.intel?/,/end/ s|url \".*\"|url \"${LINUX_X86_64_URL}\"|" sqruff.rb
+sed -i.bak "/elsif OS.linux? && Hardware::CPU.intel?/,/end/ s/sha256 \".*\"/sha256 \"${LINUX_X86_64_SHA256}\"/" sqruff.rb
 
 git add sqruff.rb
 git commit -m "Update Sqruff to version ${STRIPPED_VERSION}"

@@ -126,6 +126,8 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
 
     fn reference(&self) -> Node<ObjectReferenceSegment> {
         let mut node = Node::new();
+        node.uuid = self.get_uuid().unwrap();
+        node.position_marker.clone_from(&self.get_position_marker());
         node.segments = self.segments().to_vec();
         node
     }

@@ -229,11 +229,18 @@ impl FluffConfig {
     pub fn from_root(
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-        _overrides: Option<AHashMap<String, String>>,
+        overrides: Option<AHashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
         let loader = ConfigLoader {};
-        let config =
+        let mut config =
             loader.load_config_up_to_path(".", extra_config_path.clone(), ignore_local_config);
+
+        if let Some(overrides) = overrides {
+            let core = config.entry("core".into()).or_insert_with(|| Value::Map(AHashMap::new()));
+            core.as_map_mut()
+                .unwrap()
+                .insert("dialect".into(), Value::String(overrides["dialect"].clone().into()));
+        }
 
         Ok(FluffConfig::new(config, extra_config_path, None))
     }

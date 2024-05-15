@@ -3463,14 +3463,35 @@ impl Node<ObjectReferenceSegment> {
     pub fn extract_possible_references(
         &self,
         level: ObjectReferenceLevel,
+        dialect: &str,
     ) -> Vec<ObjectReferencePart> {
-        let level = level as usize;
         let refs = self.iter_raw_references();
 
-        if refs.len() >= level && level > 0 {
-            refs.get(refs.len() - level).cloned().into_iter().collect()
-        } else {
-            vec![]
+        match dialect {
+            "ansi" => {
+                let level = level as usize;
+                if refs.len() >= level && level > 0 {
+                    refs.get(refs.len() - level).cloned().into_iter().collect()
+                } else {
+                    vec![]
+                }
+            }
+            "bigquery" => {
+                if level == ObjectReferenceLevel::Schema && refs.len() >= 3 {
+                    return vec![refs[0].clone()];
+                }
+
+                if level == ObjectReferenceLevel::Table {
+                    return refs.into_iter().take(3).collect_vec();
+                }
+
+                if level == ObjectReferenceLevel::Object && refs.len() >= 3 {
+                    return vec![refs[1].clone(), refs[2].clone()];
+                }
+
+                self.extract_possible_references(level, "ansi")
+            }
+            _ => unimplemented!(),
         }
     }
 

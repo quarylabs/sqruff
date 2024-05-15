@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use ahash::AHashSet;
 use itertools::Itertools;
 
 use super::ansi::{self, ansi_dialect, Node, NodeTrait};
@@ -1350,7 +1351,7 @@ impl NodeTrait for ExtractFunctionNameSegment {
         .to_matchable()
     }
 
-    fn class_types() -> ahash::AHashSet<&'static str> {
+    fn class_types() -> AHashSet<&'static str> {
         ["function_name"].into()
     }
 }
@@ -1377,7 +1378,7 @@ impl NodeTrait for ArrayFunctionNameSegment {
         .to_matchable()
     }
 
-    fn class_types() -> ahash::AHashSet<&'static str> {
+    fn class_types() -> AHashSet<&'static str> {
         ["function_name"].into()
     }
 }
@@ -1441,7 +1442,7 @@ impl NodeTrait for NormalizeFunctionNameSegment {
         .to_matchable()
     }
 
-    fn class_types() -> ahash::AHashSet<&'static str> {
+    fn class_types() -> AHashSet<&'static str> {
         ["function_name"].into()
     }
 }
@@ -1475,7 +1476,7 @@ impl NodeTrait for FunctionNameSegment {
         .to_matchable()
     }
 
-    fn class_types() -> ahash::AHashSet<&'static str> {
+    fn class_types() -> AHashSet<&'static str> {
         ["function_name"].into()
     }
 }
@@ -1803,6 +1804,10 @@ impl NodeTrait for ColumnReferenceSegment {
         .allow_gaps(false)
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["object_reference", "column_reference"].into()
+    }
 }
 
 pub struct TableReferenceSegment;
@@ -1843,6 +1848,10 @@ impl NodeTrait for TableReferenceSegment {
             this.allow_gaps = false;
         })
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["table_reference"].into_iter().collect()
     }
 }
 
@@ -2317,6 +2326,10 @@ impl NodeTrait for UnpivotAliasExpressionSegment {
             MetaSegment::dedent(),
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["alias_expression"].into()
     }
 }
 

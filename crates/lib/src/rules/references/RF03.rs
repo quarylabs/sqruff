@@ -279,6 +279,12 @@ impl Rule for RuleRF03 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+        let dialects_with_structs = ["bigquery", "hive", "redshift"];
+
+        if dialects_with_structs.contains(&context.dialect.name) {
+            return Vec::new();
+        }
+
         let query: Query<()> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
 

@@ -4,8 +4,11 @@ set -e
 
 #VERSION="v0.4.1"
 #HOMEBREW_ACCESS_TOKEN="${ACCESS_TOKEN}"
-RELEASE_VERSION=$1
-HOMEBREW_ACCESS_TOKEN=$2
+HOMEBREW_ACCESS_TOKEN=$1
+
+# Extract version from Cargo.toml
+VERSION="v$(grep "^version" crates/cli/Cargo.toml | awk -F '"' '{print $2}')"
+echo "VERSION: $VERSION"
 
 REPOSITORY="quarylabs/sqruff"
 HOMEBREW_URL="quarylabs/homebrew-quary"

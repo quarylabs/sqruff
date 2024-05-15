@@ -4,12 +4,12 @@ set -e
 
 #VERSION="v0.4.1"
 #HOMEBREW_ACCESS_TOKEN="${ACCESS_TOKEN}"
+RELEASE_VERSION=$1
+HOMEBREW_ACCESS_TOKEN=$2
 
 REPOSITORY="quarylabs/sqruff"
 HOMEBREW_URL="quarylabs/homebrew-quary"
 API_URL="https://api.github.com/repos/$REPOSITORY/releases/tags/$VERSION"
-
-RELEASE_VERSION=$VERSION
 STRIPPED_VERSION=${RELEASE_VERSION#v}
 
 git clone \

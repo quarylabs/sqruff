@@ -400,7 +400,8 @@ impl ConfigLoader {
 
         let filename_options = [
             /* "setup.cfg", "tox.ini", "pep8.ini", */
-            ".sqlfluff", /* "pyproject.toml" */
+            ".sqlfluff",
+            ".sqruff", /* "pyproject.toml" */
         ];
 
         let path = if path.is_dir() { path } else { path.parent().unwrap() };

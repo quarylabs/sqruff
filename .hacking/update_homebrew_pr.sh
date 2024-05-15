@@ -13,7 +13,7 @@ echo "VERSION: $VERSION"
 REPOSITORY="quarylabs/sqruff"
 HOMEBREW_URL="quarylabs/homebrew-quary"
 API_URL="https://api.github.com/repos/$REPOSITORY/releases/tags/$VERSION"
-STRIPPED_VERSION=${RELEASE_VERSION#v}
+STRIPPED_VERSION=${VERSION#v}
 
 git clone \
   --depth=1 \

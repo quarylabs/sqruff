@@ -90,9 +90,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: release
     permissions: write-all
+    env:
+      HOMEBREW_ACCESS_TOKEN: ${{ secrets.HOMEBREW_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - run: HOMEBREW_ACCESS_TOKEN=${{ secrets.HOMEBREW_ACCESS_TOKEN }} ./.hacking/update_homebrew_pr.sh $HOMEBREW_ACCESS_TOKEN
+      - run: ./.hacking/update_homebrew_pr.sh $HOMEBREW_ACCESS_TOKEN
   publish-to-cargo:
     name: Publish to Cargo
     runs-on: ubuntu-latest

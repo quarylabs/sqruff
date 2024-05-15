@@ -91,7 +91,7 @@ impl RuleRF01 {
     fn get_table_refs(
         &self,
         r: &Node<ObjectReferenceSegment>,
-        _dialect: &Dialect,
+        dialect: &Dialect,
     ) -> Vec<(ObjectReferencePart, Vec<SmolStr>)> {
         let mut tbl_refs = Vec::new();
 
@@ -107,7 +107,7 @@ impl RuleRF01 {
 
         if tbl_refs.is_empty() {
             tbl_refs.extend(
-                r.extract_possible_references(ObjectReferenceLevel::Table)
+                r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name)
                     .into_iter()
                     .map(|it| (it.clone(), vec![it.part.into()])),
             );

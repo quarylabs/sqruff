@@ -28,7 +28,7 @@ pub fn get_object_references(segment: &ErasedSegment) -> Vec<Node<ObjectReferenc
             true,
         )
         .into_iter()
-        .map(|seg| seg.as_object_reference())
+        .map(|seg| seg.reference())
         .collect()
 }
 
@@ -141,7 +141,8 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
     };
 
     for function_name in table_expr.recursive_crawl(&["function_name"], true, None, true) {
-        if dialect.sets("value_table_functions").contains(function_name.raw().trim()) {
+        if dialect.sets("value_table_functions").contains(function_name.raw().to_uppercase().trim())
+        {
             return true;
         }
     }

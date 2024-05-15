@@ -75,7 +75,7 @@ impl Rule for RuleAL05 {
 
 impl RuleAL05 {
     #[allow(clippy::only_used_in_recursion)]
-    fn analyze_table_aliases(&self, query: Query<AL05Query>, _dialect: &Dialect) {
+    fn analyze_table_aliases(&self, query: Query<AL05Query>, dialect: &Dialect) {
         let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
 
         for selectable in &selectables {
@@ -83,7 +83,9 @@ impl RuleAL05 {
                 RefCell::borrow_mut(&query.inner).payload.aliases.extend(select_info.table_aliases);
 
                 for r in select_info.reference_buffer {
-                    for tr in r.extract_possible_references(ObjectReferenceLevel::Table) {
+                    for tr in
+                        r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name)
+                    {
                         Self::resolve_and_mark_reference(query.clone(), tr.part);
                     }
                 }
@@ -93,7 +95,7 @@ impl RuleAL05 {
         RefCell::borrow_mut(&query.inner).selectables = selectables;
 
         for child in query.children() {
-            self.analyze_table_aliases(child, _dialect);
+            self.analyze_table_aliases(child, dialect);
         }
     }
 
@@ -215,6 +217,17 @@ mod tests {
     }
 
     #[test]
+    fn test_ignore_bigquery_value_table_functions() {
+        let sql = r#"
+            select *
+            from unnest(generate_timestamp_array(
+                '2020-01-01', '2020-01-30', interval 1 day)) as ts
+        "#;
+        let violations = lint(sql.into(), "bigquery".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
     fn test_fail_table_alias_not_referenced_2() {
         let fail_str = "SELECT * FROM my_tbl foo";
         let fix_str = "SELECT * FROM my_tbl";
@@ -242,6 +255,26 @@ mod tests {
             None,
         )
         .unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_bigquery_unaliased_table_with_hyphens() {
+        let sql = r#"
+            select *
+            from project-a.dataset-b.table-c
+        "#;
+        let violations = lint(sql.into(), "bigquery".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_bigquery_aliased_table_with_ticks_referenced() {
+        let sql = r#"
+            SELECT et2.txn.amount
+            FROM `example_dataset2.example_table2` AS et2
+        "#;
+        let violations = lint(sql.into(), "bigquery".into(), rules(), None, None).unwrap();
         assert_eq!(violations, []);
     }
 
@@ -297,6 +330,45 @@ mod tests {
     }
 
     #[test]
+    fn test_pass_bigquery_qualify_clause() {
+        let pass_str = r#"
+            SELECT *
+            FROM
+                table1 AS tbl1
+            INNER JOIN tbl2 AS tbl2
+            WHERE TRUE
+            QUALIFY ROW_NUMBER() OVER (
+                PARTITION BY tbl1.col1
+                ORDER BY tbl2.col3
+                ) = 1
+        "#;
+
+        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
+        assert_eq!(result, []);
+    }
+
+    #[test]
+    fn test_pass_bigquery_nested_inner_join() {
+        let pass_str = r#"
+            with abh as (
+                select
+                    ceb.emailaddresskey,
+                    dac.accountkey
+                from table2 as dac
+                inner join table3 as ceb
+                    on ceb.col2 = dac.col2
+            )
+            select col1
+            from table1 as abg
+            inner join abh
+            on abg.col1 = abh.col1
+        "#;
+
+        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
+        assert_eq!(result, []);
+    }
+
+    #[test]
     fn test_ansi_function_not_table_parameter() {
         let fail_str = r#"
             SELECT TO_JSON_STRING(t)
@@ -310,5 +382,27 @@ mod tests {
 
         let result = fix(fail_str.into(), rules());
         assert_eq!(fix_str, result);
+    }
+
+    #[test]
+    fn test_bigquery_function_takes_tablealias_column_parameter() {
+        let pass_str = r#"
+            SELECT TO_JSON_STRING(t)
+            FROM my_table AS t
+        "#;
+
+        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
+        assert_eq!(result, []);
+    }
+
+    #[test]
+    fn test_bigquery_function_takes_tablealias_column_struct_parameter() {
+        let pass_str = r#"
+            SELECT TO_JSON_STRING(t.c.structure)
+            FROM my_table AS t
+        "#;
+
+        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
+        assert_eq!(result, []);
     }
 }

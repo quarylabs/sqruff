@@ -20,9 +20,7 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::{
-    ColumnReferenceSegment, Node, ObjectReferenceSegment, WildcardIdentifierSegment,
-};
+use crate::dialects::ansi::{Node, ObjectReferenceSegment};
 use crate::helpers::ToErasedSegment;
 
 /// An element of the response to BaseSegment.path_to().
@@ -134,30 +132,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
 
     fn type_name(&self) -> &'static str {
         std::any::type_name::<Self>()
-    }
-
-    fn as_object_reference(&self) -> Node<ObjectReferenceSegment> {
-        if let Some(value) = self.as_any().downcast_ref::<Node<ObjectReferenceSegment>>() {
-            return value.clone();
-        }
-
-        if let Some(value) = self.as_any().downcast_ref::<Node<WildcardIdentifierSegment>>() {
-            let mut node = Node::new();
-            node.uuid = value.uuid;
-            node.position_marker.clone_from(&value.position_marker);
-            node.segments.clone_from(&value.segments);
-            return node;
-        }
-
-        if let Some(value) = self.as_any().downcast_ref::<Node<ColumnReferenceSegment>>() {
-            let mut node = Node::new();
-            node.uuid = value.uuid;
-            node.position_marker.clone_from(&value.position_marker);
-            node.segments.clone_from(&value.segments);
-            return node;
-        }
-
-        unimplemented!("{} = {:?}", self.get_type(), self.raw())
     }
 
     fn get_start_loc(&self) -> (usize, usize) {

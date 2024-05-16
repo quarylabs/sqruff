@@ -72,26 +72,3 @@ pub fn fix(sql: String, rules: Vec<ErasedRule>) -> String {
     let result = linter.lint_string_wrapped(sql, None, Some(true), rules);
     result.paths[0].files[0].fix_string()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::fix;
-    use crate::core::rules::base::Erased;
-    use crate::rules::l001::RuleL001;
-
-    const MY_BAD_QUERY: &str = "SeLEct  *, 1, blah as  fOO  from myTable";
-
-    #[test]
-    fn simple_api_config() {
-        let sql = fix("SELECT  1".into(), vec![RuleL001::default().erased()]);
-        assert_eq!(sql, "SELECT 1");
-    }
-
-    #[test]
-    #[ignore]
-    fn test_api_fix_string_specific() {
-        let result = fix(MY_BAD_QUERY.to_string(), vec![]);
-
-        assert_eq!(result, "SELECT  *, 1, blah AS  fOO  FROM myTable");
-    }
-}

@@ -26,6 +26,15 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@nightly
       - run: cargo build --locked --release --all-features
+  compile-wasm:
+    name: Compile wasm32-unknown-unknown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Add WASM target
+        run: rustup target add wasm32-unknown-unknown
+      - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
   test:
     name: Test
     runs-on: ubuntu-latest

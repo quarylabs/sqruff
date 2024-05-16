@@ -6,6 +6,7 @@ edition = "2021"
 license = "Apache-2.0"
 
 [lib]
+crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [dependencies]
@@ -16,7 +17,7 @@ fancy-regex = "0.13"
 itertools = "0.12.0"
 regex = "1"
 walkdir = "2.4.0"
-uuid = { version = "1", features = ["v4"] }
+uuid = { version = "1", features = ["v4", "js"] }
 enum_dispatch = "0.3.12"
 indexmap = "2.2.2"
 common-path = "1.0.0"
@@ -28,7 +29,7 @@ anstyle = "1.0"
 tracing = "0.1.40"
 pretty_assertions = "1.4.0"
 slyce = "0.3.1"
-ahash = "0.8.11"
+ahash = { version = "0.8.11", features = ["compile-time-rng"] }
 stacker = "0.1.15"
 lazy-regex = "3.1.0"
 anymap = "0.12.1"

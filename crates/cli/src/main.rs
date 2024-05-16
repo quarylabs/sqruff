@@ -20,27 +20,28 @@ fn main() {
         Commands::Lint(LintArgs { paths, format }) => {
             let mut linter = linter(config, format);
             let result = linter.lint_paths(paths, false);
+            let count: usize = result.paths.iter().map(|path| path.files.len()).sum();
 
             if let Format::GithubAnnotationNative = format {
                 for path in result.paths {
                     for file in path.files {
                         for violation in file.violations {
-                            let mut line = "::error ".to_string();
-                            line.push_str("title=SQLFluff,");
-                            line.push_str(&format!("file={},", file.path));
-                            line.push_str(&format!("line={},", violation.line_no));
-                            line.push_str(&format!("col={}", violation.line_pos));
-                            line.push_str("::");
-                            line.push_str(&format!(
-                                "{}: {}",
+                            let line = format!(
+                                "::error title=SQLFluff,file={},line={},col={}::{}: {}",
+                                file.path,
+                                violation.line_no,
+                                violation.line_pos,
                                 violation.rule.as_ref().unwrap().code(),
                                 violation.description
-                            ));
+                            );
                             eprintln!("{line}");
                         }
                     }
                 }
             }
+
+            println!("The linter processed {count} file(s).");
+            linter.formatter.as_mut().unwrap().completion_message();
 
             std::process::exit(
                 if linter.formatter.unwrap().has_fail.load(std::sync::atomic::Ordering::SeqCst) {

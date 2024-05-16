@@ -102,7 +102,7 @@ cargo publish -p sqruff
 
 ## Community
 
-Join the Quary community on [Slack](https://quarylabs.slack.com/) to ask questions, suggest features, or share your projects. Also feel free to raise any issues in the repository.
+Join the Quary community on [Slack](https://join.slack.com/t/quarylabs/shared_invite/zt-2dlbfnztw-dMLXJVL38NcbhqRuM5gUcw) to ask questions, suggest features, or share your projects. Also feel free to raise any issues in the repository.
 
 ## Contributing 
 

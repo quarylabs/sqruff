@@ -107,11 +107,11 @@ file:
                     - expression:
                       - column_reference:
                         - naked_identifier: count_18_24
-                      - remove me: '*'
+                      - binary_operator: '*'
                       - column_reference:
                         - naked_identifier: bits
                       - array_accessor:
-                        - remove me: '['
+                        - start_square_bracket: '['
                         - expression:
                           - function:
                             - function_name:
@@ -121,15 +121,15 @@ file:
                               - expression:
                                 - numeric_literal: '0'
                               - end_bracket: )
-                        - remove me: ']'
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
                         - naked_identifier: count_25_34
-                      - remove me: '*'
+                      - binary_operator: '*'
                       - column_reference:
                         - naked_identifier: bits
                       - array_accessor:
-                        - remove me: '['
+                        - start_square_bracket: '['
                         - expression:
                           - function:
                             - function_name:
@@ -139,15 +139,15 @@ file:
                               - expression:
                                 - numeric_literal: '1'
                               - end_bracket: )
-                        - remove me: ']'
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
                         - naked_identifier: count_35_44
-                      - remove me: '*'
+                      - binary_operator: '*'
                       - column_reference:
                         - naked_identifier: bits
                       - array_accessor:
-                        - remove me: '['
+                        - start_square_bracket: '['
                         - expression:
                           - function:
                             - function_name:
@@ -157,15 +157,15 @@ file:
                               - expression:
                                 - numeric_literal: '2'
                               - end_bracket: )
-                        - remove me: ']'
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
                         - naked_identifier: count_45_54
-                      - remove me: '*'
+                      - binary_operator: '*'
                       - column_reference:
                         - naked_identifier: bits
                       - array_accessor:
-                        - remove me: '['
+                        - start_square_bracket: '['
                         - expression:
                           - function:
                             - function_name:
@@ -175,15 +175,15 @@ file:
                               - expression:
                                 - numeric_literal: '3'
                               - end_bracket: )
-                        - remove me: ']'
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
                         - naked_identifier: count_55_64
-                      - remove me: '*'
+                      - binary_operator: '*'
                       - column_reference:
                         - naked_identifier: bits
                       - array_accessor:
-                        - remove me: '['
+                        - start_square_bracket: '['
                         - expression:
                           - function:
                             - function_name:
@@ -193,15 +193,15 @@ file:
                               - expression:
                                 - numeric_literal: '4'
                               - end_bracket: )
-                        - remove me: ']'
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
                         - naked_identifier: count_65_plus
-                      - remove me: '*'
+                      - binary_operator: '*'
                       - column_reference:
                         - naked_identifier: bits
                       - array_accessor:
-                        - remove me: '['
+                        - start_square_bracket: '['
                         - expression:
                           - function:
                             - function_name:
@@ -211,9 +211,9 @@ file:
                               - expression:
                                 - numeric_literal: '5'
                               - end_bracket: )
-                        - remove me: ']'
+                        - end_square_bracket: ']'
                     - end_bracket: )
-                - remove me: /
+                - binary_operator: /
                 - column_reference:
                   - naked_identifier: audience_size
               - alias_expression:

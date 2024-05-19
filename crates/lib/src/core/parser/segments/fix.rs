@@ -3,7 +3,7 @@ use std::ops::Range;
 use crate::core::rules::base::{EditType, LintFix};
 
 /// A stored reference to a fix in the non-templated file.
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Hash, Debug, Clone, PartialEq, Eq)]
 pub struct SourceFix {
     pub(crate) edit: String,
     pub(crate) source_slice: Range<usize>,

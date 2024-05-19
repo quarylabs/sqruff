@@ -6,7 +6,8 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - less_than: <
+          - comparison_operator:
+            - raw_comparison_operator: <
           - numeric_literal: '2'
       - comma: ','
       - select_clause_element:

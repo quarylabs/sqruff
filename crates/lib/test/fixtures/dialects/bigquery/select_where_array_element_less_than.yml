@@ -20,7 +20,7 @@ file:
         - column_reference:
           - naked_identifier: effect_size_list
         - array_accessor:
-          - remove me: '['
+          - start_square_bracket: '['
           - expression:
             - function:
               - function_name:
@@ -30,12 +30,13 @@ file:
                 - expression:
                   - numeric_literal: '1'
                 - end_bracket: )
-          - remove me: ']'
-        - less_than: <
+          - end_square_bracket: ']'
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: effect_size_list
         - array_accessor:
-          - remove me: '['
+          - start_square_bracket: '['
           - expression:
             - function:
               - function_name:
@@ -47,4 +48,4 @@ file:
                   - binary_operator: +
                   - numeric_literal: '1'
                 - end_bracket: )
-          - remove me: ']'
+          - end_square_bracket: ']'

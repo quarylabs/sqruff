@@ -148,7 +148,7 @@ file:
           - remove me: '!'
           - raw_comparison_operator: =
         - quoted_literal: ''''''
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: vary
         - keyword: IS

@@ -22,17 +22,17 @@ file:
           - naked_identifier: a
         - numeric_literal: '!~'
         - remove me: '''[a-z]'''
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: d
         - numeric_literal: '!~~*'
         - remove me: '''[a-z]'''
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: b
         - keyword: LIKE
         - remove me: '''Spec\''s%'''
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: c
         - numeric_literal: '!~*'

@@ -37,7 +37,7 @@ file:
               - naked_identifier: foo
               - dot: .
               - naked_identifier: value
-            - remove me: '*'
+            - binary_operator: '*'
             - column_reference:
               - naked_identifier: constants
               - dot: .

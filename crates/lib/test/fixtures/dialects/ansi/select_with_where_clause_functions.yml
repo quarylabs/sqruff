@@ -58,7 +58,7 @@ file:
                     - start_bracket: (
                     - end_bracket: )
               - end_bracket: )
-          - remove me: '-'
+          - binary_operator: '-'
           - numeric_literal: '1'
           - end_bracket: )
 - statement_terminator: ;

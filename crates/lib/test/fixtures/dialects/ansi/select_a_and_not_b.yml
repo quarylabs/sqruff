@@ -7,8 +7,8 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: a
-          - remove me: AND
-          - remove me: NOT
+          - binary_operator: AND
+          - keyword: NOT
           - column_reference:
             - naked_identifier: i
             - dot: .

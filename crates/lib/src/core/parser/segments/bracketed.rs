@@ -73,4 +73,8 @@ impl Segment for BracketedSegment {
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }
+
+    fn class_types(&self) -> ahash::AHashSet<&'static str> {
+        ["bracketed"].into()
+    }
 }

@@ -5,14 +5,14 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - array_literal:
-          - remove me: '['
-          - remove me: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - boolean_literal: 'false'
-          - remove me: ']'
+          - end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
         - typed_array_literal:
@@ -23,15 +23,15 @@ file:
               - '': BOOLEAN
             - end_angle_bracket: '>'
           - array_literal:
-            - remove me: '['
+            - start_square_bracket: '['
             - boolean_literal: 'false'
-            - remove me: ']'
+            - end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - quoted_literal: '''a'''
-          - remove me: ']'
+          - end_square_bracket: ']'
         - alias_expression:
           - keyword: AS
           - naked_identifier: strcol1
@@ -45,18 +45,18 @@ file:
               - '': string
             - end_angle_bracket: '>'
           - array_literal:
-            - remove me: '['
+            - start_square_bracket: '['
             - quoted_literal: '''b'''
-            - remove me: ']'
+            - end_square_bracket: ']'
         - alias_expression:
           - keyword: AS
           - naked_identifier: strcol2
       - comma: ','
       - select_clause_element:
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - numeric_literal: '1.0'
-          - remove me: ']'
+          - end_square_bracket: ']'
         - alias_expression:
           - keyword: AS
           - naked_identifier: numcol1
@@ -70,16 +70,16 @@ file:
               - '': NUMERIC
             - end_angle_bracket: '>'
           - array_literal:
-            - remove me: '['
+            - start_square_bracket: '['
             - numeric_literal: '1.4'
-            - remove me: ']'
+            - end_square_bracket: ']'
         - alias_expression:
           - keyword: AS
           - naked_identifier: numcol2
       - comma: ','
       - select_clause_element:
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - expression:
             - typed_struct_literal:
               - struct_type:
@@ -93,7 +93,7 @@ file:
                     - naked_identifier: name
                   - comma: ','
                   - array_literal:
-                    - remove me: '['
+                    - start_square_bracket: '['
                     - numeric_literal: '23.4'
                     - comma: ','
                     - numeric_literal: '26.3'
@@ -101,12 +101,12 @@ file:
                     - numeric_literal: '26.4'
                     - comma: ','
                     - numeric_literal: '26.1'
-                    - remove me: ']'
+                    - end_square_bracket: ']'
                   - alias_expression:
                     - keyword: AS
                     - naked_identifier: splits
                   - end_bracket: )
-          - remove me: ']'
+          - end_square_bracket: ']'
         - alias_expression:
           - keyword: AS
           - naked_identifier: struct1
@@ -119,7 +119,7 @@ file:
             - naked_identifier: obj1
           - semi_structured_expression:
             - array_accessor:
-              - remove me: '['
+              - start_square_bracket: '['
               - expression:
                 - function:
                   - function_name:
@@ -129,7 +129,7 @@ file:
                     - expression:
                       - numeric_literal: '1'
                     - end_bracket: )
-              - remove me: ']'
+              - end_square_bracket: ']'
             - dot: .
             - naked_identifier: a
         - alias_expression:

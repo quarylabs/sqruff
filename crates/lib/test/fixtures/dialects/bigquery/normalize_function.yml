@@ -153,7 +153,7 @@ file:
                       - start_bracket: (
                       - expression:
                         - array_literal:
-                          - remove me: '['
+                          - start_square_bracket: '['
                           - quoted_literal: '''Jane\u2004Doe'''
                           - comma: ','
                           - quoted_literal: '''John\u2004Smith'''
@@ -163,7 +163,7 @@ file:
                           - quoted_literal: '''Jane\u2006Doe'''
                           - comma: ','
                           - quoted_literal: '''John Smith'''
-                          - remove me: ']'
+                          - end_square_bracket: ']'
                       - end_bracket: )
                 - alias_expression:
                   - keyword: AS

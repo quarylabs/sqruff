@@ -32,7 +32,7 @@ file:
                             - start_bracket: (
                             - expression:
                               - array_literal:
-                                - remove me: '['
+                                - start_square_bracket: '['
                                 - numeric_literal: '1'
                                 - comma: ','
                                 - numeric_literal: '2'
@@ -44,7 +44,7 @@ file:
                                 - numeric_literal: '5'
                                 - comma: ','
                                 - numeric_literal: '6'
-                                - remove me: ']'
+                                - end_square_bracket: ']'
                             - end_bracket: )
             - end_bracket: )
           - comparison_operator:
@@ -79,7 +79,7 @@ file:
                       - start_bracket: (
                       - expression:
                         - array_literal:
-                          - remove me: '['
+                          - start_square_bracket: '['
                           - numeric_literal: '7877'
                           - comma: ','
                           - numeric_literal: '7879'
@@ -89,7 +89,7 @@ file:
                           - numeric_literal: '7901'
                           - comma: ','
                           - numeric_literal: '7907'
-                          - remove me: ']'
+                          - end_square_bracket: ']'
                       - end_bracket: )
                 - alias_expression:
                   - keyword: AS

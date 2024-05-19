@@ -57,7 +57,9 @@ impl Rule for RuleLT08 {
                     line_blank = true;
                     line_idx += 1;
                     line_starts.insert(line_idx, seg_idx + 1);
-                } else if forward_slice[seg_idx].is_type("comment") {
+                } else if forward_slice[seg_idx].is_type("comment")
+                    || forward_slice[seg_idx].is_type("inline_comment")
+                {
                     // Lines with comments aren't blank
                     line_blank = false;
                     comment_lines.push(line_idx);

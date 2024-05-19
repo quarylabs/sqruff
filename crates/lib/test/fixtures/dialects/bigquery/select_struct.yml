@@ -194,7 +194,7 @@ file:
                             - end_angle_bracket: '>'
                       - end_angle_bracket: '>'
                     - array_literal:
-                      - remove me: '['
+                      - start_square_bracket: '['
                       - expression:
                         - bracketed:
                           - start_bracket: (
@@ -210,7 +210,7 @@ file:
                           - comma: ','
                           - quoted_literal: '''there'''
                           - end_bracket: )
-                      - remove me: ']'
+                      - end_square_bracket: ']'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:

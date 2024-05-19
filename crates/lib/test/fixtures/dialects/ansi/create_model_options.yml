@@ -24,9 +24,9 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - array_literal:
-        - remove me: '['
+        - start_square_bracket: '['
         - remove me: '''label_str'''
-        - remove me: ']'
+        - end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS
     - select_statement:

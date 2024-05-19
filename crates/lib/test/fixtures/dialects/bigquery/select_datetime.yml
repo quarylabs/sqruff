@@ -49,7 +49,7 @@ file:
           - naked_identifier: gmv
           - dot: .
           - naked_identifier: datetime
-        - greater_than_or_equal_to:
+        - comparison_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: =
         - function:

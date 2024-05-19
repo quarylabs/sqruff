@@ -29,7 +29,7 @@ fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct ReflowPoint {
     pub segments: Vec<ErasedSegment>,
     pub stats: IndentStats,
@@ -418,8 +418,8 @@ impl ReflowPoint {
         (existing_results, ReflowPoint::new(segment_buffer))
     }
 
-    pub fn indent_impulse(&self) -> IndentStats {
-        self.stats.clone()
+    pub fn indent_impulse(&self) -> &IndentStats {
+        &self.stats
     }
 }
 
@@ -439,7 +439,7 @@ fn indent_description(indent: &str) -> String {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct IndentStats {
     pub impulse: isize,
     pub trough: isize,
@@ -447,12 +447,12 @@ pub struct IndentStats {
 }
 
 impl IndentStats {
-    pub fn from_combination(first: Option<IndentStats>, second: IndentStats) -> Self {
+    pub fn from_combination(first: Option<IndentStats>, second: &IndentStats) -> Self {
         match first {
             Some(first_stats) => IndentStats {
                 impulse: first_stats.impulse + second.impulse,
                 trough: std::cmp::min(first_stats.trough, first_stats.impulse + second.trough),
-                implicit_indents: second.implicit_indents,
+                implicit_indents: second.implicit_indents.clone(),
             },
             None => second.clone(),
         }
@@ -467,6 +467,7 @@ pub struct ReflowBlock {
     pub line_position: Option<String>,
     pub depth_info: DepthInfo,
     pub stack_spacing_configs: AHashMap<u64, String>,
+    pub line_position_configs: AHashMap<u64, String>,
 }
 
 impl ReflowBlock {
@@ -495,7 +496,7 @@ impl ReflowBlock {
             }
 
             if let Some(line_position) = cfg.line_position {
-                line_position_configs.insert(hash, line_position);
+                line_position_configs.insert(*hash, line_position);
             }
         }
 
@@ -505,6 +506,7 @@ impl ReflowBlock {
             spacing_after: block_config.spacing_after,
             line_position: block_config.line_position,
             stack_spacing_configs,
+            line_position_configs,
             depth_info,
         }
     }
@@ -522,7 +524,7 @@ impl From<ReflowPoint> for ReflowElement {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(clippy::large_enum_variant)]
 pub enum ReflowElement {
     Block(ReflowBlock),

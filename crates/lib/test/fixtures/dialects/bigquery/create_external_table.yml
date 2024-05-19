@@ -21,11 +21,11 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - quoted_literal: '''gs://bucket/path1.csv'''
           - comma: ','
           - quoted_literal: '''gs://bucket/path2.csv'''
-          - remove me: ']'
+          - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -64,9 +64,9 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - quoted_literal: '''gs://bucket/path1.csv'''
-          - remove me: ']'
+          - end_square_bracket: ']'
         - comma: ','
         - parameter: field_delimiter
         - comparison_operator:
@@ -99,9 +99,9 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - quoted_literal: '''gs://bucket/path/*'''
-          - remove me: ']'
+          - end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:
@@ -147,9 +147,9 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - quoted_literal: '''gs://bucket/path/*'''
-          - remove me: ']'
+          - end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:
@@ -180,9 +180,9 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - quoted_literal: '''gs://bucket/path/*'''
-          - remove me: ']'
+          - end_square_bracket: ']'
         - comma: ','
         - parameter: format
         - comparison_operator:

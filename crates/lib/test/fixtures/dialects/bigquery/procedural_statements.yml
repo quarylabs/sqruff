@@ -36,7 +36,7 @@ file:
     - expression:
       - column_reference:
         - naked_identifier: x
-      - greater_than_or_equal_to:
+      - comparison_operator:
         - raw_comparison_operator: '>'
         - raw_comparison_operator: =
       - numeric_literal: '3'
@@ -70,7 +70,7 @@ file:
     - expression:
       - column_reference:
         - naked_identifier: x
-      - greater_than_or_equal_to:
+      - comparison_operator:
         - raw_comparison_operator: '>'
         - raw_comparison_operator: =
       - numeric_literal: '10'
@@ -93,7 +93,7 @@ file:
     - expression:
       - column_reference:
         - naked_identifier: x
-      - greater_than_or_equal_to:
+      - comparison_operator:
         - raw_comparison_operator: '>'
         - raw_comparison_operator: =
       - numeric_literal: '10'
@@ -108,14 +108,15 @@ file:
           - expression:
             - column_reference:
               - naked_identifier: x
-            - remove me: '-'
+            - binary_operator: '-'
             - numeric_literal: '1'
       - statement_terminator: ;
     - keyword: ELSEIF
     - expression:
       - column_reference:
         - naked_identifier: x
-      - less_than: <
+      - comparison_operator:
+        - raw_comparison_operator: <
       - numeric_literal: '0'
     - keyword: THEN
     - if_statements:
@@ -187,7 +188,7 @@ file:
           - expression:
             - column_reference:
               - naked_identifier: x
-            - greater_than_or_equal_to:
+            - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: =
             - numeric_literal: '10'
@@ -250,7 +251,8 @@ file:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-            - less_than: <
+            - comparison_operator:
+              - raw_comparison_operator: <
             - numeric_literal: '0.5'
       - statement_terminator: ;
       - multi_statement_segment:

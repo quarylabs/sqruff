@@ -7,7 +7,7 @@ file:
         - numeric_literal: '1e-9'
       - comma: ','
       - select_clause_element:
-        - qualified_numeric_literal:
+        - numeric_literal:
           - sign_indicator: '-'
           - numeric_literal: '12.345e12'
       - comma: ','
@@ -18,7 +18,7 @@ file:
         - numeric_literal: '25'
       - comma: ','
       - select_clause_element:
-        - qualified_numeric_literal:
+        - numeric_literal:
           - sign_indicator: +
           - numeric_literal: '6.34'
       - comma: ','
@@ -29,7 +29,7 @@ file:
         - numeric_literal: '25e-03'
       - comma: ','
       - select_clause_element:
-        - qualified_numeric_literal:
+        - numeric_literal:
           - sign_indicator: '-'
           - numeric_literal: '1'
       - comma: ','

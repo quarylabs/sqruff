@@ -24,7 +24,7 @@ file:
               - numeric_literal: '0'
             - comma: ','
             - expression:
-              - qualified_numeric_literal:
+              - numeric_literal:
                 - sign_indicator: '-'
                 - numeric_literal: '2'
             - end_bracket: )
@@ -43,7 +43,7 @@ file:
             - date_part: DAY
             - comma: ','
             - expression:
-              - qualified_numeric_literal:
+              - numeric_literal:
                 - sign_indicator: '-'
                 - numeric_literal: '2'
             - comma: ','

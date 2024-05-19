@@ -26,7 +26,7 @@ file:
         - keyword: IS
         - keyword: NOT
         - null_literal: 'NULL'
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: col_b
         - keyword: NOT

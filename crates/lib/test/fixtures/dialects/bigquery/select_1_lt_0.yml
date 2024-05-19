@@ -9,6 +9,7 @@ file:
             - start_bracket: (
             - expression:
               - numeric_literal: '1'
-              - less_than: <
+              - comparison_operator:
+                - raw_comparison_operator: <
               - numeric_literal: '0'
             - end_bracket: )

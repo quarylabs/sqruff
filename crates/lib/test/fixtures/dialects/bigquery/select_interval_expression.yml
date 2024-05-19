@@ -21,7 +21,7 @@ file:
               - interval_expression:
                 - keyword: INTERVAL
                 - expression:
-                  - qualified_numeric_literal:
+                  - numeric_literal:
                     - sign_indicator: '-'
                     - numeric_literal: '1'
                   - binary_operator: +

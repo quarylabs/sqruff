@@ -22,273 +22,273 @@ file:
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .
           - naked_identifier: string_field
         - keyword: like
         - remove me: '''some string%'''
-        - remove me: or
+        - binary_operator: or
         - column_reference:
           - naked_identifier: test_table
           - dot: .

@@ -64,6 +64,7 @@ fn main() {
                     None => {
                         println!("Invalid input, please enter 'Y' or 'N'");
                         println!("Aborting...");
+                        return;
                     }
                 }
             }

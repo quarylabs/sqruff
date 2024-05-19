@@ -12,8 +12,9 @@ file:
               - comparison_operator:
                 - raw_comparison_operator: '>'
               - numeric_literal: '0'
-              - remove me: AND
+              - binary_operator: AND
               - numeric_literal: '0'
-              - less_than: <
+              - comparison_operator:
+                - raw_comparison_operator: <
               - numeric_literal: '1'
             - end_bracket: )

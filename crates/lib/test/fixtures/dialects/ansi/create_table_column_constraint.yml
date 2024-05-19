@@ -127,11 +127,11 @@ file:
             - expression:
               - column_reference:
                 - naked_identifier: Age
-              - greater_than_or_equal_to:
+              - comparison_operator:
                 - raw_comparison_operator: '>'
                 - raw_comparison_operator: =
               - numeric_literal: '18'
-              - remove me: AND
+              - binary_operator: AND
               - column_reference:
                 - naked_identifier: City
               - comparison_operator:

@@ -15,27 +15,27 @@ file:
                   - expression:
                     - column_reference:
                       - naked_identifier: year_number
-                    - remove me: '%'
+                    - binary_operator: '%'
                     - numeric_literal: '400'
                     - comparison_operator:
                       - raw_comparison_operator: =
                     - numeric_literal: '0'
                   - end_bracket: )
-                - remove me: OR
+                - binary_operator: OR
                 - bracketed:
                   - start_bracket: (
                   - expression:
                     - column_reference:
                       - naked_identifier: year_number
-                    - remove me: '%'
+                    - binary_operator: '%'
                     - numeric_literal: '4'
                     - comparison_operator:
                       - raw_comparison_operator: =
                     - numeric_literal: '0'
-                    - remove me: AND
+                    - binary_operator: AND
                     - column_reference:
                       - naked_identifier: year_number
-                    - remove me: '%'
+                    - binary_operator: '%'
                     - numeric_literal: '100'
                     - comparison_operator:
                       - remove me: '!'

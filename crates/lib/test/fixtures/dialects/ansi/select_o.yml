@@ -29,19 +29,19 @@ file:
         - binary_operator: +
         - column_reference:
           - naked_identifier: some_value
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: some_other_thing
         - keyword: BETWEEN
         - numeric_literal: '0'
-        - remove me: '-'
+        - binary_operator: '-'
         - numeric_literal: '1'
-        - remove me: '*'
+        - binary_operator: '*'
         - column_reference:
           - naked_identifier: another_value
         - keyword: and
         - numeric_literal: '1'
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: another_thing
         - keyword: BETWEEN

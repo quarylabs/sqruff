@@ -1036,7 +1036,7 @@ impl Segment for CommentSegment {
     }
 
     fn get_type(&self) -> &'static str {
-        "comment"
+        self.r#type
     }
 
     fn is_code(&self) -> bool {
@@ -1382,6 +1382,10 @@ impl Segment for SymbolSegment {
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         SymbolSegment::create(&raw.unwrap(), &self.position_maker, <_>::default())
+    }
+
+    fn class_types(&self) -> AHashSet<&'static str> {
+        [self.get_type()].into()
     }
 
     fn instance_types(&self) -> AHashSet<&'static str> {

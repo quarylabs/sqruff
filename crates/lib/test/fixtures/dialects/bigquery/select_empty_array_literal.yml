@@ -5,5 +5,5 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - array_literal:
-          - remove me: '['
-          - remove me: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'

@@ -6,8 +6,8 @@ file:
       - select_clause_element:
         - expression:
           - boolean_literal: 'TRUE'
-          - remove me: AND
-          - remove me: NOT
+          - binary_operator: AND
+          - keyword: NOT
           - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
@@ -24,7 +24,7 @@ file:
       - select_clause_element:
         - expression:
           - boolean_literal: 'TRUE'
-          - remove me: AND
+          - binary_operator: AND
           - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
@@ -33,7 +33,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - remove me: NOT
+          - keyword: NOT
           - boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
@@ -42,8 +42,8 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - remove me: NOT
+          - keyword: NOT
           - boolean_literal: 'TRUE'
-          - remove me: AND
+          - binary_operator: AND
           - boolean_literal: 'FALSE'
 - statement_terminator: ;

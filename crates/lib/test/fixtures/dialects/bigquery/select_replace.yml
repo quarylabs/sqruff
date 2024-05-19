@@ -86,7 +86,7 @@ file:
                 - expression:
                   - column_reference:
                     - naked_identifier: quantity
-                  - remove me: /
+                  - binary_operator: /
                   - numeric_literal: '2'
                 - alias_expression:
                   - keyword: AS

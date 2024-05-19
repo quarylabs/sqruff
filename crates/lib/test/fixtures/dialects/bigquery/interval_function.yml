@@ -50,7 +50,7 @@ file:
                                   - comma: ','
                                   - date_part: SECOND
                                   - end_bracket: )
-                              - remove me: /
+                              - binary_operator: /
                               - numeric_literal: '2'
                             - keyword: AS
                             - data_type:

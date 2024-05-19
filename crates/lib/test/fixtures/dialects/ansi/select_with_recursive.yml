@@ -45,7 +45,8 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: a
-                - less_than: <
+                - comparison_operator:
+                  - raw_comparison_operator: <
                 - numeric_literal: '5'
         - end_bracket: )
     - select_statement:

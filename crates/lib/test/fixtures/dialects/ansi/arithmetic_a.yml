@@ -11,10 +11,10 @@ file:
             - start_bracket: (
             - expression:
               - numeric_literal: '2'
-              - remove me: '*'
+              - binary_operator: '*'
               - numeric_literal: '3'
             - end_bracket: )
-          - greater_than_or_equal_to:
+          - comparison_operator:
             - raw_comparison_operator: '>'
             - raw_comparison_operator: =
           - numeric_literal: '4'
@@ -40,10 +40,10 @@ file:
             - expression:
               - tilde: '~'
               - numeric_literal: '2'
-              - remove me: '*'
+              - binary_operator: '*'
               - numeric_literal: '3'
             - end_bracket: )
-          - greater_than_or_equal_to:
+          - comparison_operator:
             - raw_comparison_operator: '>'
             - raw_comparison_operator: =
           - numeric_literal: '4'
@@ -61,7 +61,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - qualified_numeric_literal:
+        - numeric_literal:
           - sign_indicator: '-'
           - numeric_literal: '1'
 - statement_terminator: ;
@@ -71,7 +71,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - qualified_numeric_literal:
+          - numeric_literal:
             - sign_indicator: '-'
             - numeric_literal: '1'
           - binary_operator: +
@@ -92,7 +92,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - qualified_numeric_literal:
+          - numeric_literal:
             - sign_indicator: '-'
             - numeric_literal: '1'
           - binary_operator: +
@@ -106,11 +106,11 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '4'
-          - bitwise_and:
+          - comparison_operator:
             - remove me: '&'
           - tilde: '~'
           - numeric_literal: '8'
-          - bitwise_or:
+          - comparison_operator:
             - pipe: '|'
           - numeric_literal: '16'
 - statement_terminator: ;
@@ -136,7 +136,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '8'
-          - bitwise_or:
+          - comparison_operator:
             - pipe: '|'
           - tilde: '~'
           - tilde: '~'
@@ -150,7 +150,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - sign_indicator: '-'
           - bracketed:
             - start_bracket: (
@@ -165,8 +165,8 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
-          - qualified_numeric_literal:
+          - binary_operator: '*'
+          - numeric_literal:
             - sign_indicator: '-'
             - numeric_literal: '5'
 - statement_terminator: ;
@@ -177,10 +177,10 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - sign_indicator: '-'
           - sign_indicator: '-'
-          - qualified_numeric_literal:
+          - numeric_literal:
             - sign_indicator: '-'
             - numeric_literal: '5'
 - statement_terminator: ;
@@ -191,7 +191,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - sign_indicator: '-'
           - sign_indicator: '-'
           - sign_indicator: '-'
@@ -208,7 +208,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - sign_indicator: +
           - sign_indicator: +
           - bracketed:
@@ -224,7 +224,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - sign_indicator: '-'
           - sign_indicator: '-'
           - sign_indicator: '-'
@@ -244,7 +244,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - tilde: '~'
           - tilde: '~'
           - tilde: '~'
@@ -264,7 +264,7 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - sign_indicator: +
           - bracketed:
             - start_bracket: (
@@ -279,8 +279,8 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
-          - qualified_numeric_literal:
+          - binary_operator: '*'
+          - numeric_literal:
             - sign_indicator: +
             - numeric_literal: '5'
 - statement_terminator: ;
@@ -291,9 +291,9 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '1'
-          - remove me: '*'
+          - binary_operator: '*'
           - sign_indicator: +
-          - qualified_numeric_literal:
+          - numeric_literal:
             - sign_indicator: +
             - numeric_literal: '5'
 - statement_terminator: ;
@@ -304,8 +304,8 @@ file:
       - select_clause_element:
         - expression:
           - boolean_literal: 'FALSE'
-          - remove me: AND
-          - remove me: NOT
+          - binary_operator: AND
+          - keyword: NOT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -319,10 +319,10 @@ file:
       - select_clause_element:
         - expression:
           - boolean_literal: 'FALSE'
-          - remove me: AND
-          - remove me: NOT
-          - remove me: NOT
-          - remove me: NOT
+          - binary_operator: AND
+          - keyword: NOT
+          - keyword: NOT
+          - keyword: NOT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -336,8 +336,8 @@ file:
       - select_clause_element:
         - expression:
           - boolean_literal: 'FALSE'
-          - remove me: AND
-          - remove me: NOT
+          - binary_operator: AND
+          - keyword: NOT
           - bracketed:
             - start_bracket: (
             - expression:
@@ -351,8 +351,8 @@ file:
       - select_clause_element:
         - expression:
           - boolean_literal: 'FALSE'
-          - remove me: AND
-          - remove me: NOT
+          - binary_operator: AND
+          - keyword: NOT
           - function:
             - function_name:
               - function_name_identifier: func
@@ -371,7 +371,7 @@ file:
           - remove me: '''abc'''
           - keyword: LIKE
           - sign_indicator: '-'
-          - qualified_numeric_literal:
+          - numeric_literal:
             - sign_indicator: '-'
             - numeric_literal: '5'
 - statement_terminator: ;

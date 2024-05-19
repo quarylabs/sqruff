@@ -1,16 +1,16 @@
 use super::elements::{ReflowElement, ReflowSequenceType};
-use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::parser::segments::base::{ErasedSegment, SegmentExt};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::helpers::capitalize;
 use crate::utils::reflow::elements::ReflowPoint;
 
 #[derive(Debug)]
 pub struct RebreakSpan {
-    target: ErasedSegment,
-    start_idx: usize,
-    end_idx: usize,
-    line_position: String,
-    strict: bool,
+    pub(crate) target: ErasedSegment,
+    pub(crate) start_idx: usize,
+    pub(crate) end_idx: usize,
+    pub(crate) line_position: String,
+    pub(crate) strict: bool,
 }
 
 #[derive(Debug)]
@@ -22,10 +22,14 @@ pub struct RebreakIndices {
 }
 
 impl RebreakIndices {
-    fn from_elements(elements: &ReflowSequenceType, start_idx: usize, dir: i32) -> Self {
+    fn from_elements(elements: &ReflowSequenceType, start_idx: usize, dir: i32) -> Option<Self> {
         assert!(dir == 1 || dir == -1);
         let limit = if dir == -1 { 0 } else { elements.len() };
         let adj_point_idx = start_idx as isize + dir as isize;
+
+        if adj_point_idx < 0 || adj_point_idx >= elements.len() as isize {
+            return None;
+        }
 
         let mut newline_point_idx = adj_point_idx;
         while (dir == 1 && newline_point_idx < limit as isize)
@@ -62,6 +66,7 @@ impl RebreakIndices {
             newline_pt_idx: newline_point_idx,
             pre_code_pt_idx: pre_code_point_idx,
         }
+        .into()
     }
 }
 
@@ -76,14 +81,15 @@ pub struct RebreakLocation {
 
 impl RebreakLocation {
     /// Expand a span to a location.
-    pub fn from_span(span: RebreakSpan, elements: &ReflowSequenceType) -> Self {
+    pub fn from_span(span: RebreakSpan, elements: &ReflowSequenceType) -> Option<Self> {
         Self {
             target: span.target,
-            prev: RebreakIndices::from_elements(elements, span.start_idx, -1),
-            next: RebreakIndices::from_elements(elements, span.end_idx, 1),
+            prev: RebreakIndices::from_elements(elements, span.start_idx, -1)?,
+            next: RebreakIndices::from_elements(elements, span.end_idx, 1)?,
             line_position: span.line_position,
             strict: span.strict,
         }
+        .into()
     }
 
     fn has_inappropriate_newlines(&self, elements: &ReflowSequenceType, strict: bool) -> bool {
@@ -103,7 +109,7 @@ impl RebreakLocation {
 
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    _root_segment: ErasedSegment,
+    root_segment: ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
@@ -122,45 +128,49 @@ pub fn identify_rebreak_spans(
             });
         }
 
-        // for (key, config) in elem.line_position_configs.iter() {
-        //     if elem.depth_info.stack_positions[key].idx != 0 {
-        //         continue;
-        //     }
+        for key in block.line_position_configs.keys() {
+            let mut final_idx = None;
+            if block.depth_info.stack_positions[key].idx != 0 {
+                continue;
+            }
 
-        //     let mut final_idx = None;
-        //     for end_idx in idx..element_buffer.len() {
-        //         let end_elem = &element_buffer[end_idx];
+            for end_idx in idx..element_buffer.len() {
+                let end_elem = &element_buffer[end_idx];
+                let ReflowElement::Block(end_block) = end_elem else {
+                    continue;
+                };
 
-        //         if !end_elem.is_reflow_block() {
-        //             continue;
-        //         }
+                if !end_block.depth_info.stack_positions.contains_key(key) {
+                    final_idx = (end_idx - 2).into();
+                } else if matches!(end_block.depth_info.stack_positions[key].type_, "end" | "solo")
+                {
+                    final_idx = end_idx.into();
+                }
 
-        //         if let Some(position) =
-        // end_elem.depth_info.stack_positions.get(key) {             if
-        // position.type == "end" || position.type == "solo" {
-        //                 final_idx = Some(end_idx);
-        //                 break;
-        //             }
-        //         } else {
-        //             final_idx = Some(end_idx - 2);
-        //             break;
-        //         }
-        //     }
+                if let Some(final_idx) = final_idx {
+                    let target_depth =
+                        block.depth_info.stack_hashes.iter().position(|it| it == key).unwrap();
+                    let target = root_segment.path_to(&element_buffer[idx].segments()[0])
+                        [target_depth]
+                        .segment
+                        .clone();
 
-        //     if let Some(final_idx) = final_idx {
-        //         let target_depth =
-        // elem.depth_info.stack_hashes.iter().position(|&h| h ==
-        // *key).unwrap_or_default();         let target =
-        // root_segment.path_to(&element_buffer[idx].segments[0])[target_depth].
-        // segment;         spans.push(_RebreakSpan::new(
-        //             target,
-        //             idx,
-        //             final_idx,
-        //             config.split(":").next().unwrap_or_default(),
-        //             config.ends_with("strict"),
-        //         ));
-        //     }
-        // }
+                    spans.push(RebreakSpan {
+                        target,
+                        start_idx: idx,
+                        end_idx: final_idx,
+                        line_position: block.line_position_configs[key]
+                            .split(':')
+                            .next()
+                            .unwrap()
+                            .into(),
+                        strict: block.line_position_configs[key].ends_with("strict"),
+                    });
+
+                    break;
+                }
+            }
+        }
     }
 
     spans
@@ -186,7 +196,9 @@ pub fn rebreak_sequence(
 
     let mut locations = Vec::new();
     for span in spans {
-        locations.push(RebreakLocation::from_span(span, &elements));
+        if let Some(loc) = RebreakLocation::from_span(span, &elements) {
+            locations.push(loc);
+        }
     }
 
     // Handle each span:

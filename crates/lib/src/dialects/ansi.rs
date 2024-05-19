@@ -212,19 +212,75 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "StartSquareBracketSegment".into(),
-            StringParser::new("[", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "[",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "start_square_bracket" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "EndSquareBracketSegment".into(),
-            StringParser::new("]", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "]",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "end_square_bracket" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "StartCurlyBracketSegment".into(),
-            StringParser::new("{", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "{",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "start_curly_bracket" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "EndCurlyBracketSegment".into(),
-            StringParser::new("}", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "}",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "end_curly_bracket" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "CommaSegment".into(),
@@ -326,7 +382,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "MinusSegment".into(),
-            StringParser::new("-", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "-",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "PositiveSegment".into(),
@@ -366,15 +436,57 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "DivideSegment".into(),
-            StringParser::new("/", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "/",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "MultiplySegment".into(),
-            StringParser::new("*", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "*",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "ModuloSegment".into(),
-            StringParser::new("%", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "%",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "SlashSegment".into(),
@@ -404,7 +516,21 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "BitwiseXorSegment".into(),
-            StringParser::new("^", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "^",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "LikeOperatorSegment".into(),
@@ -915,15 +1041,57 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "AndOperatorGrammar".into(),
-            StringParser::new("AND", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "AND",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "OrOperatorGrammar".into(),
-            StringParser::new("OR", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "OR",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "NotOperatorGrammar".into(),
-            StringParser::new("NOT", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                "NOT",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        &segment.get_position_marker().unwrap(),
+                        SymbolSegmentNewArgs { r#type: "keyword" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             // This is a placeholder for other dialects.
@@ -1905,7 +2073,7 @@ pub fn ansi_dialect() -> Dialect {
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
         HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
-        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment, EmptyStructLiteralBracketsSegment
+        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment, EmptyStructLiteralBracketsSegment, ObjectLiteralElementSegment
     );
 
     // This is a hook point to allow subclassing for other dialects
@@ -2871,6 +3039,10 @@ impl NodeTrait for SelectClauseSegment {
         })
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["select_clause"].into()
+    }
 }
 
 pub struct StatementSegment;
@@ -2992,6 +3164,10 @@ impl NodeTrait for FromClauseSegment {
             Delimited::new(vec_of_erased![Ref::new("FromExpressionSegment")]),
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["from_clause"].into()
     }
 }
 
@@ -3116,6 +3292,10 @@ impl NodeTrait for SelectClauseElementSegment {
         ])
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["select_clause_element"].into()
+    }
 }
 
 impl Node<SelectClauseElementSegment> {
@@ -3231,6 +3411,10 @@ impl NodeTrait for OrderByClauseSegment {
         ])
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["orderby_clause"].into()
+    }
 }
 
 pub struct TruncateStatementSegment;
@@ -3255,6 +3439,10 @@ impl NodeTrait for ExpressionSegment {
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("Expression_A_Grammar").to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["expression"].into()
     }
 }
 
@@ -3436,6 +3624,10 @@ impl NodeTrait for ObjectReferenceSegment {
             })
             .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["object_reference"].into()
+    }
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
@@ -3562,6 +3754,10 @@ impl NodeTrait for ArrayAccessorSegment {
             this.parse_mode(ParseMode::Greedy);
         })
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["array_accessor"].into()
     }
 }
 
@@ -3845,7 +4041,7 @@ impl NodeTrait for ShorthandCastSegment {
 pub struct QualifiedNumericLiteralSegment;
 
 impl NodeTrait for QualifiedNumericLiteralSegment {
-    const TYPE: &'static str = "qualified_numeric_literal";
+    const TYPE: &'static str = "numeric_literal";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
@@ -3894,6 +4090,10 @@ impl NodeTrait for FunctionSegment {
             ])
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["function"].into()
     }
 }
 
@@ -4015,6 +4215,10 @@ impl NodeTrait for WhereClauseSegment {
         ])
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["where_clause"].into()
+    }
 }
 
 pub struct SetOperatorSegment;
@@ -4084,27 +4288,35 @@ impl NodeTrait for IndexColumnDefinitionSegment {
 pub struct BitwiseAndSegment;
 
 impl NodeTrait for BitwiseAndSegment {
-    const TYPE: &'static str = "bitwise_and";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("AmpersandSegment").to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
     }
 }
 
 pub struct BitwiseOrSegment;
 
 impl NodeTrait for BitwiseOrSegment {
-    const TYPE: &'static str = "bitwise_or";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("PipeSegment").to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
     }
 }
 
 pub struct BitwiseLShiftSegment;
 
 impl NodeTrait for BitwiseLShiftSegment {
-    const TYPE: &'static str = "bitwise_lshift";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
@@ -4113,13 +4325,17 @@ impl NodeTrait for BitwiseLShiftSegment {
         ])
         .allow_gaps(false)
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
     }
 }
 
 pub struct BitwiseRShiftSegment;
 
 impl NodeTrait for BitwiseRShiftSegment {
-    const TYPE: &'static str = "bitwise_rshift";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
@@ -4129,22 +4345,30 @@ impl NodeTrait for BitwiseRShiftSegment {
         .allow_gaps(false)
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
+    }
 }
 
 pub struct LessThanSegment;
 
 impl NodeTrait for LessThanSegment {
-    const TYPE: &'static str = "less_than";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("RawLessThanSegment").to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
     }
 }
 
 pub struct GreaterThanOrEqualToSegment;
 
 impl NodeTrait for GreaterThanOrEqualToSegment {
-    const TYPE: &'static str = "greater_than_or_equal_to";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
@@ -4154,12 +4378,16 @@ impl NodeTrait for GreaterThanOrEqualToSegment {
         .allow_gaps(false)
         .to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
+    }
 }
 
 pub struct LessThanOrEqualToSegment;
 
 impl NodeTrait for LessThanOrEqualToSegment {
-    const TYPE: &'static str = "less_than_or_equal_to";
+    const TYPE: &'static str = "comparison_operator";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
@@ -4168,6 +4396,10 @@ impl NodeTrait for LessThanOrEqualToSegment {
         ])
         .allow_gaps(false)
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
     }
 }
 
@@ -4179,6 +4411,10 @@ impl NodeTrait for EqualsSegment {
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("RawEqualsSegment").to_matchable()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
+    }
 }
 
 pub struct GreaterThanSegment;
@@ -4188,6 +4424,10 @@ impl NodeTrait for GreaterThanSegment {
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("RawGreaterThanSegment").to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
     }
 }
 pub struct NotEqualToSegment;
@@ -4211,6 +4451,10 @@ impl NodeTrait for NotEqualToSegment {
             .boxed(),
         ])
         .to_matchable()
+    }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["comparison_operator"].into()
     }
 }
 

@@ -19,7 +19,7 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: id
-        - greater_than_or_equal_to:
+        - comparison_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: =
         - numeric_literal: '4'
@@ -33,5 +33,6 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: id
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - numeric_literal: '5'

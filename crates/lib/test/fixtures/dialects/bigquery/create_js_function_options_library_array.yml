@@ -41,11 +41,11 @@ file:
         - parameter: library
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '['
+        - start_square_bracket: '['
         - double_quote: '"gs://my-bucket/path/to/lib1.js"'
         - comma: ','
         - double_quote: '"gs://my-bucket/path/to/lib2.js"'
-        - remove me: ']'
+        - end_square_bracket: ']'
         - end_bracket: )
       - keyword: AS
       - udf_body: |-

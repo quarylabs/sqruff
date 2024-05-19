@@ -76,13 +76,13 @@ pub struct ReflowConfig {
     /// In production, these values are almost _always_ set because we
     /// use `.from_fluff_config`, but the defaults are here to aid in
     /// testing.
-    tab_space_size: usize,
-    indent_unit: String,
-    max_line_length: usize,
-    hanging_indents: bool,
-    skip_indentation_in: AHashSet<String>,
-    allow_implicit_indents: bool,
-    trailing_comments: String,
+    pub(crate) tab_space_size: usize,
+    pub(crate) indent_unit: String,
+    pub(crate) max_line_length: usize,
+    pub(crate) hanging_indents: bool,
+    pub(crate) skip_indentation_in: AHashSet<String>,
+    pub(crate) allow_implicit_indents: bool,
+    pub(crate) trailing_comments: String,
 }
 
 impl ReflowConfig {
@@ -174,7 +174,7 @@ impl ReflowConfig {
             config_types,
             tab_space_size: config.raw["indentation"]["tab_space_size"].as_int().unwrap() as usize,
             indent_unit: config.raw["indentation"]["indent_unit"].as_string().unwrap().into(),
-            max_line_length: config.raw["indentation"]["tab_space_size"].as_int().unwrap() as usize,
+            max_line_length: config.raw["core"]["max_line_length"].as_int().unwrap() as usize,
             hanging_indents: config.raw["indentation"]["hanging_indents"]
                 .as_bool()
                 .unwrap_or_default(),

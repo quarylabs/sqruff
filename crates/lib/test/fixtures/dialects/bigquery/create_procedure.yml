@@ -200,7 +200,7 @@ file:
                   - raw_comparison_operator: =
                 - column_reference:
                   - naked_identifier: target_date
-                - remove me: AND
+                - binary_operator: AND
                 - column_reference:
                   - naked_identifier: t2
                   - dot: .

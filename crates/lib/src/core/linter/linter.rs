@@ -7,6 +7,7 @@ use std::time::Instant;
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use regex::Regex;
+use smol_str::{SmolStr, ToSmolStr};
 use uuid::Uuid;
 use walkdir::WalkDir;
 
@@ -21,7 +22,7 @@ use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::parser::segments::fix::AnchorEditInfo;
+use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use crate::rules::get_ruleset;
@@ -222,9 +223,10 @@ impl Linter {
         fix: bool,
     ) -> (ErasedSegment, Vec<SQLLintError>) {
         let mut tmp;
-
         let mut initial_linting_errors = Vec::new();
         let phases: &[_] = if fix { &["main", "post"] } else { &["main"] };
+        let mut previous_versions: AHashSet<(SmolStr, Vec<SourceFix>)> =
+            [(tree.raw().to_smolstr(), vec![])].into_iter().collect();
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
         // once for linting.
@@ -287,8 +289,14 @@ impl Linter {
                             );
                         }
 
-                        tree = new_tree;
-                        changed = true;
+                        let loop_check_tuple =
+                            (new_tree.raw().to_smolstr(), new_tree.get_source_fixes());
+
+                        if previous_versions.insert(loop_check_tuple) {
+                            tree = new_tree;
+                            changed = true;
+                            continue;
+                        }
                     }
                 }
 

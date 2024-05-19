@@ -42,7 +42,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - array_literal:
-          - remove me: '['
+          - start_square_bracket: '['
           - expression:
             - bracketed:
               - start_bracket: (
@@ -50,6 +50,6 @@ file:
               - comma: ','
               - quoted_literal: '"development"'
               - end_bracket: )
-          - remove me: ']'
+          - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;

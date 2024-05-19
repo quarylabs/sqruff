@@ -137,7 +137,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: col1
-          - remove me: '-'
+          - binary_operator: '-'
           - column_reference:
             - naked_identifier: col2
         - alias_expression:
@@ -148,7 +148,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: col1
-          - remove me: '-'
+          - binary_operator: '-'
           - column_reference:
             - naked_identifier: col2
         - alias_expression:

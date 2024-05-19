@@ -86,7 +86,7 @@ file:
                 - naked_identifier: a
             - end_bracket: )
           - array_accessor:
-            - remove me: '['
+            - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
@@ -96,7 +96,7 @@ file:
                   - expression:
                     - numeric_literal: '0'
                   - end_bracket: )
-            - remove me: ']'
+            - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
             - star: '*'
@@ -115,7 +115,7 @@ file:
                 - naked_identifier: a
             - end_bracket: )
           - array_accessor:
-            - remove me: '['
+            - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
@@ -125,7 +125,7 @@ file:
                   - expression:
                     - numeric_literal: '0'
                   - end_bracket: )
-            - remove me: ']'
+            - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
             - star: '*'
@@ -144,7 +144,7 @@ file:
                 - naked_identifier: a
             - end_bracket: )
           - array_accessor:
-            - remove me: '['
+            - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
@@ -154,7 +154,7 @@ file:
                   - expression:
                     - numeric_literal: '1'
                   - end_bracket: )
-            - remove me: ']'
+            - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
             - star: '*'
@@ -173,7 +173,7 @@ file:
                 - naked_identifier: a
             - end_bracket: )
           - array_accessor:
-            - remove me: '['
+            - start_square_bracket: '['
             - expression:
               - function:
                 - function_name:
@@ -183,7 +183,7 @@ file:
                   - expression:
                     - numeric_literal: '1'
                   - end_bracket: )
-            - remove me: ']'
+            - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
             - naked_identifier: a

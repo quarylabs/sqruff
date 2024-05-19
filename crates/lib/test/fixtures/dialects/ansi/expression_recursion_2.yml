@@ -20,204 +20,238 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b
-        - remove me: AND
+        - binary_operator: AND
         - column_reference:
           - naked_identifier: a
-        - less_than: <
+        - comparison_operator:
+          - raw_comparison_operator: <
         - column_reference:
           - naked_identifier: b

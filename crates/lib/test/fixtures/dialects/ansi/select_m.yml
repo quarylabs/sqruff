@@ -71,7 +71,7 @@ file:
                   - column_reference:
                     - naked_identifier: low_business_type
                 - end_bracket: )
-              - remove me: AND
+              - binary_operator: AND
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -81,7 +81,7 @@ file:
                     - raw_comparison_operator: =
                   - column_reference:
                     - naked_identifier: low_business_type
-                  - remove me: OR
+                  - binary_operator: OR
                   - column_reference:
                     - naked_identifier: size_label
                   - comparison_operator:

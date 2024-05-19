@@ -78,11 +78,11 @@ file:
     - naked_identifier: arr2
     - keyword: default
     - array_literal:
-      - remove me: '['
+      - start_square_bracket: '['
       - quoted_literal: '''one'''
       - comma: ','
       - quoted_literal: '''two'''
-      - remove me: ']'
+      - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -90,8 +90,8 @@ file:
     - naked_identifier: arr3
     - keyword: default
     - array_literal:
-      - remove me: '['
-      - remove me: ']'
+      - start_square_bracket: '['
+      - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -106,11 +106,11 @@ file:
         - end_angle_bracket: '>'
     - keyword: default
     - array_literal:
-      - remove me: '['
+      - start_square_bracket: '['
       - quoted_literal: '''one'''
       - comma: ','
       - quoted_literal: '''two'''
-      - remove me: ']'
+      - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
   - declare_segment:

@@ -74,6 +74,10 @@ impl PositionMarker {
         }
     }
 
+    pub fn source_str(&self) -> &str {
+        &self.templated_file.source_str[self.source_slice.clone()]
+    }
+
     pub fn line_no(&self) -> usize {
         self.source_position().0
     }

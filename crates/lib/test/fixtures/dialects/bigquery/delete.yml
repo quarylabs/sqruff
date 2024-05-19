@@ -62,7 +62,7 @@ file:
     - where_clause:
       - keyword: WHERE
       - expression:
-        - remove me: NOT
+        - keyword: NOT
         - keyword: EXISTS
         - bracketed:
           - start_bracket: (

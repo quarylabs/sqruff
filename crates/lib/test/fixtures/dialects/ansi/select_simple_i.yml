@@ -38,7 +38,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: an_explicitly
-          - remove me: '-'
+          - binary_operator: '-'
           - column_reference:
             - naked_identifier: aliased
         - alias_expression:
@@ -52,7 +52,7 @@ file:
         - numeric_literal: '123.6'
       - comma: ','
       - select_clause_element:
-        - qualified_numeric_literal:
+        - numeric_literal:
           - sign_indicator: '-'
           - numeric_literal: '786'
         - alias_expression:

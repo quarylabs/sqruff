@@ -40,11 +40,11 @@ file:
               - column_reference:
                 - naked_identifier: date_col_b
             - end_bracket: )
-        - greater_than_or_equal_to:
+        - comparison_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: =
         - bare_function: current_date
-        - remove me: AND
+        - binary_operator: AND
         - function:
           - function_name:
             - function_name_identifier: length

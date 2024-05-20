@@ -915,8 +915,6 @@ pub fn lint_line_length(
             let matched_indents =
                 match_indents(line_elements, rebreak_priorities, i, allow_implicit_indents);
 
-            dbg!(matched_indents.iter().map(|(k, v)| (k.into_f64(), v.clone())).collect_vec());
-
             let desc = format!("Line is too long ({line_len} > {line_length_limit}).");
 
             if line_buffer.len() > 1

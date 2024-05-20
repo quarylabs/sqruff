@@ -6712,14 +6712,15 @@ mod tests {
         }
     }
 
-    fn parse_sql(sql: &str) -> ErasedSegment {
-        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+    fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
         let parsed = linter.parse_string(sql.into(), None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 
     #[test]
     fn base_parse_struct() {
+        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
+
         let files =
             glob::glob("test/fixtures/dialects/ansi/*.sql").unwrap().flatten().collect_vec();
 
@@ -6731,7 +6732,7 @@ mod tests {
 
             let actual = {
                 let sql = std::fs::read_to_string(file).unwrap();
-                let tree = parse_sql(&sql);
+                let tree = parse_sql(&linter, &sql);
                 let tree = tree.to_serialised(true, true, false);
 
                 serde_yaml::to_string(&tree).unwrap()

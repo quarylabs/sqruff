@@ -40,7 +40,7 @@ fn main() {
                 }
             }
 
-            println!("The linter processed {count} file(s).");
+            eprintln!("The linter processed {count} file(s).");
             linter.formatter.as_mut().unwrap().completion_message();
 
             std::process::exit(
@@ -58,12 +58,12 @@ fn main() {
             if !force {
                 match check_user_input() {
                     Some(true) => {
-                        println!("Attempting fixes...");
+                        eprintln!("Attempting fixes...");
                     }
                     Some(false) => return,
                     None => {
-                        println!("Invalid input, please enter 'Y' or 'N'");
-                        println!("Aborting...");
+                        eprintln!("Invalid input, please enter 'Y' or 'N'");
+                        eprintln!("Aborting...");
                         return;
                     }
                 }

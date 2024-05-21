@@ -233,7 +233,7 @@ impl Linter {
         let loop_limit = if fix { 10 } else { 1 };
 
         for &phase in phases {
-            let rules_this_phase = if phases.len() > 1 {
+            let mut rules_this_phase = if phases.len() > 1 {
                 tmp = rules
                     .clone()
                     .into_iter()
@@ -250,8 +250,7 @@ impl Linter {
                 let mut changed = false;
 
                 if is_first_linter_pass {
-                    // TODO:
-                    // rules_this_phase = rule_pack.rules
+                    rules_this_phase = &rules;
                 }
 
                 let last_fixes = Vec::new();

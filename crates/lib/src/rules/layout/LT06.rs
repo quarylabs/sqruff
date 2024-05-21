@@ -16,6 +16,10 @@ impl Rule for RuleLT06 {
         RuleLT06::default().erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "layout.functions"
     }

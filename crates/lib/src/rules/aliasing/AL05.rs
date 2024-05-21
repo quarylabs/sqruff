@@ -37,6 +37,10 @@ impl Rule for RuleAL05 {
         "Tables should not be aliased if that alias is not used."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut violations = Vec::new();
         let select_info = get_select_statement_info(&context.segment, context.dialect.into(), true);

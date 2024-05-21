@@ -18,6 +18,10 @@ impl Rule for RuleLT10 {
         RuleLT10::default().erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "layout.select_modifiers"
     }

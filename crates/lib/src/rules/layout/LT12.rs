@@ -45,6 +45,10 @@ impl Rule for RuleLT12 {
         RuleLT12::default().erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "layout.end_of_file"
     }

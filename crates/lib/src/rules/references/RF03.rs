@@ -278,6 +278,10 @@ impl Rule for RuleRF03 {
         "References should be consistent in statements with a single table."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let dialects_with_structs = ["bigquery", "hive", "redshift"];
 

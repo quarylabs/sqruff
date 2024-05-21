@@ -193,6 +193,10 @@ impl Rule for RuleAL07 {
         "Avoid table aliases in from clauses and join conditions."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if !self.force_enable {
             return Vec::new();

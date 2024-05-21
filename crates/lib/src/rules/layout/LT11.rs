@@ -14,6 +14,10 @@ impl Rule for RuleLT11 {
         RuleLT11.erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "layout.set_operators"
     }

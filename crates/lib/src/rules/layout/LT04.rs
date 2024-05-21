@@ -27,6 +27,10 @@ impl Rule for RuleLT04 {
         "Leading/Trailing comma enforcement."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if self.check_trail_lead_shortcut(
             &context.segment,

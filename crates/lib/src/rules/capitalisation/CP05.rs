@@ -30,6 +30,10 @@ impl Rule for RuleCP05 {
         "Inconsistent capitalisation of datatypes."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut results = Vec::new();
 

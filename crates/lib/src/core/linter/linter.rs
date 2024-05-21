@@ -254,6 +254,7 @@ impl Linter {
                     // rules_this_phase = rule_pack.rules
                 }
 
+                let last_fixes = Vec::new();
                 for rule in rules_this_phase {
                     // Performance: After first loop pass, skip rules that don't do fixes. Any
                     // results returned won't be seen by the user anyway (linting errors ADDED by
@@ -276,7 +277,14 @@ impl Linter {
                         // let anchor_info = BaseSegment.compute_anchor_edit_info(fixes);
 
                         // This is the happy path. We have fixes, now we want to apply them.
-                        let _last_fixes = fixes;
+
+                        if fixes == last_fixes {
+                            tracing::warn!(
+                                "One fix for {} not applied, it would re-cause the same error.",
+                                rule.code()
+                            );
+                            continue;
+                        }
 
                         let (new_tree, _, _, valid) =
                             tree.apply_fixes(&self.config.dialect, anchor_info);

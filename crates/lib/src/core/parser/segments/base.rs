@@ -1449,6 +1449,10 @@ impl Segment for UnparsableSegment {
         self.clone().to_erased_segment()
     }
 
+    fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
+        self.segments = segments;
+    }
+
     fn get_type(&self) -> &'static str {
         "unparsable"
     }

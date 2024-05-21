@@ -9,22 +9,11 @@ use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
 #[derive(Debug, Clone)]
-pub struct RuleAL03 {
-    allow_scalar: bool,
-}
-
-impl Default for RuleAL03 {
-    fn default() -> Self {
-        Self { allow_scalar: true }
-    }
-}
+pub struct RuleAL03;
 
 impl Rule for RuleAL03 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL03 {
-            allow_scalar: config.get("allow_scalar").and_then(Value::as_bool).unwrap_or_default(),
-        }
-        .erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+        RuleAL03.erased()
     }
 
     fn name(&self) -> &'static str {
@@ -44,13 +33,15 @@ impl Rule for RuleAL03 {
             return Vec::new();
         }
 
-        // # Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
-        // if (
-        //     children.select(sp.is_type("function"))
-        //     .children()
-        //     .select(sp.is_type("emits_segment"))
-        // ):
-        //     return None
+        // Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
+        if !children
+            .select(Some(|sp: &ErasedSegment| sp.is_type("function")), None, None, None)
+            .children(None)
+            .select(Some(|sp: &ErasedSegment| sp.is_type("emits_segment")), None, None, None)
+            .is_empty()
+        {
+            return Vec::new();
+        }
 
         if !children
             .children(None)
@@ -83,7 +74,7 @@ impl Rule for RuleAL03 {
             return Vec::new();
         }
 
-        if self.allow_scalar {
+        if context.config.unwrap().get("allow_scalar", "rules").as_bool().unwrap() {
             let immediate_parent = parent_stack.find_last(None);
             let elements =
                 immediate_parent.children(Some(|it| it.is_type("select_clause_element")));
@@ -91,6 +82,7 @@ impl Rule for RuleAL03 {
             if elements.len() > 1 {
                 return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
             }
+
             return Vec::new();
         }
 
@@ -133,7 +125,7 @@ mod tests {
     use crate::rules::aliasing::AL03::RuleAL03;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleAL03::default().erased()]
+        vec![RuleAL03.erased()]
     }
 
     #[test]

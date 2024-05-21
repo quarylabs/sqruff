@@ -530,10 +530,16 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
             // Look for uuid match.
             // This handles potential positioning ambiguity.
 
-            let Some(anchor_info) = fixes.remove(&seg.get_uuid().unwrap()) else {
+            let Some(mut anchor_info) = fixes.remove(&seg.get_uuid().unwrap()) else {
                 seg_buffer.push(seg.clone());
                 continue;
             };
+
+            if anchor_info.fixes.len() == 2
+                && anchor_info.fixes[0].edit_type == EditType::CreateAfter
+            {
+                anchor_info.fixes.reverse();
+            }
 
             let fixes_count = anchor_info.fixes.len();
             for mut f in anchor_info.fixes {
@@ -595,6 +601,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         let mut seg_buffer = Vec::new();
         for seg in seg_queue {
             let (s, pre, post, validated) = seg.apply_fixes(dialect, fixes.clone());
+
             seg_buffer.extend(pre);
             seg_buffer.push(s);
             seg_buffer.extend(post);

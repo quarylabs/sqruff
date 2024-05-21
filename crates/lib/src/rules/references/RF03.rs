@@ -7,7 +7,7 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::parser::segments::base::{
-    ErasedSegment, IdentifierSegment, Segment, SymbolSegment,
+    CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, Segment, SymbolSegment,
 };
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
@@ -240,9 +240,16 @@ fn validate_one_reference(
     let ref_ = ref_.to_erased_segment();
     let fixes = if fixable {
         vec![LintFix::create_before(
-            if ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
+            if !ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
             vec![
-                IdentifierSegment::create(table_ref_str, None, <_>::default()),
+                IdentifierSegment::create(
+                    table_ref_str,
+                    None,
+                    CodeSegmentNewArgs {
+                        code_type: "naked_identifier",
+                        ..CodeSegmentNewArgs::default()
+                    },
+                ),
                 SymbolSegment::create(".", None, <_>::default()),
             ],
         )]

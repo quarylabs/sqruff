@@ -40,6 +40,10 @@ impl Rule for RuleCP02 {
         .erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "capitalisation.identifiers"
     }

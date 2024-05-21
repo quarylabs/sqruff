@@ -15,6 +15,10 @@ impl Rule for RuleLT07 {
         RuleLT07::default().erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        false
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_bracket"
     }

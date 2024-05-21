@@ -18,6 +18,10 @@ impl Rule for RuleLT08 {
         RuleLT08::default().erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "layout.cte_newline"
     }

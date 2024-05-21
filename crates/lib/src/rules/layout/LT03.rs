@@ -23,6 +23,10 @@ impl Rule for RuleLT03 {
         "Operators should follow a standard for being before/after newlines."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if context.segment.is_type("comparison_operator") {
             if self.check_trail_lead_shortcut(

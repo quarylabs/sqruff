@@ -18,6 +18,10 @@ impl Rule for RuleAM02 {
         "ambiguous.union"
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn description(&self) -> &'static str {
         "Look for UNION keyword not immediately followed by DISTINCT or ALL"
     }

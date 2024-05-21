@@ -22,6 +22,10 @@ impl Rule for RuleLT02 {
         "Incorrect Indentation."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_root(context.segment, context.config.unwrap()).reindent().results()
     }

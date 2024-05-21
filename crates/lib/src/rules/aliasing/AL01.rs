@@ -61,6 +61,10 @@ impl Rule for RuleAL01 {
         "Implicit/explicit aliasing of table."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
         let last_seg = rule_cx.parent_stack.last().unwrap();
         let last_seg_ty = last_seg.get_type();

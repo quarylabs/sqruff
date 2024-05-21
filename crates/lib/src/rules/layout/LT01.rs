@@ -22,6 +22,10 @@ impl Rule for RuleLT01 {
         "Inappropriate Spacing."
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment, context.config.unwrap());
         sequence.respace(false, Filter::All).results()

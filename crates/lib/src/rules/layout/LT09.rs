@@ -35,6 +35,10 @@ impl Rule for RuleLT09 {
             .erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "layout.select_targets"
     }

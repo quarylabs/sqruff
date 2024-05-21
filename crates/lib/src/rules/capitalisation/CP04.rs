@@ -34,6 +34,10 @@ impl Rule for RuleCP04 {
         .erased()
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn name(&self) -> &'static str {
         "capitalisation.literals"
     }

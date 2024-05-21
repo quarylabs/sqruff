@@ -5939,6 +5939,10 @@ impl NodeTrait for SequenceReferenceSegment {
     fn match_grammar() -> Arc<dyn Matchable> {
         ObjectReferenceSegment::match_grammar()
     }
+
+    fn class_types() -> AHashSet<&'static str> {
+        ["object_reference", "column_reference"].into()
+    }
 }
 
 pub struct TriggerReferenceSegment;

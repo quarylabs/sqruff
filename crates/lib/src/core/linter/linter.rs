@@ -278,7 +278,7 @@ impl Linter {
                         // This is the happy path. We have fixes, now we want to apply them.
 
                         if fixes == last_fixes {
-                            tracing::warn!(
+                            eprintln!(
                                 "One fix for {} not applied, it would re-cause the same error.",
                                 rule.code()
                             );

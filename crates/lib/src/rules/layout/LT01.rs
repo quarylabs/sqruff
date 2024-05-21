@@ -23,7 +23,7 @@ impl Rule for RuleLT01 {
     }
 
     fn is_fix_compatible(&self) -> bool {
-        true
+        false
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

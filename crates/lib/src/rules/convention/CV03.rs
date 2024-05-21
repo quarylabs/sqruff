@@ -82,7 +82,7 @@ impl Rule for RuleCV03 {
                 )];
             }
         } else if self.select_clause_trailing_comma == "require" && !last_content.is_type("comma") {
-            let new_comma = SymbolSegment::create(",", &<_>::default(), <_>::default());
+            let new_comma = SymbolSegment::create(",", None, <_>::default());
 
             let fix: Vec<LintFix> = vec![LintFix::replace(
                 last_content.clone(),

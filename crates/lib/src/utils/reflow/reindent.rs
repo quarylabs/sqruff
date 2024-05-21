@@ -737,14 +737,13 @@ fn fix_long_line_with_comment(
 
     if let Some(idx) = last_indent_idx {
         new_point = ReflowPoint::new(vec![
-            NewlineSegment::create("\n", &<_>::default(), <_>::default()),
-            WhitespaceSegment::create(current_indent, &<_>::default(), WhitespaceSegmentNewArgs),
+            NewlineSegment::create("\n", None, <_>::default()),
+            WhitespaceSegment::create(current_indent, None, WhitespaceSegmentNewArgs),
         ]);
         prev_elems = elements[..=idx].to_vec();
         anchor = elements[idx + 1].segments()[0].clone();
     } else {
-        new_point =
-            ReflowPoint::new(vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())]);
+        new_point = ReflowPoint::new(vec![NewlineSegment::create("\n", None, <_>::default())]);
         prev_elems = Vec::new();
         anchor = first_seg.clone();
     }

@@ -190,20 +190,20 @@ impl RuleST02 {
         preceding_not: bool,
     ) -> Vec<LintFix> {
         let mut edits = vec![
-            SymbolSegment::create("coalesce", &<_>::default(), <_>::default()),
-            SymbolSegment::create("(", &<_>::default(), <_>::default()),
+            SymbolSegment::create("coalesce", None, <_>::default()),
+            SymbolSegment::create("(", None, <_>::default()),
             coalesce_arg_1,
-            SymbolSegment::create(",", &<_>::default(), <_>::default()),
-            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+            SymbolSegment::create(",", None, <_>::default()),
+            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
             coalesce_arg_2,
-            SymbolSegment::create(")", &<_>::default(), <_>::default()),
+            SymbolSegment::create(")", None, <_>::default()),
         ];
 
         if preceding_not {
             edits = chain(
                 [
                     KeywordSegment::new("not".into(), None).to_erased_segment(),
-                    WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+                    WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
                 ],
                 edits,
             )

@@ -37,7 +37,7 @@ pub struct PathStep {
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
-    &'static (dyn Fn(&str, &PositionMarker, SegmentArgs) -> ErasedSegment + Sync + Send);
+    &'static (dyn Fn(&str, Option<PositionMarker>, SegmentArgs) -> ErasedSegment + Sync + Send);
 
 pub trait CloneSegment {
     fn clone_box(&self) -> ErasedSegment;
@@ -411,6 +411,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         unimplemented!()
     }
 
+    fn set_segments(&mut self, _segments: Vec<ErasedSegment>) {
+        unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
     // get_segments is the way the segment returns its children 'self.segments' in
     // Python.
     fn gather_segments(&self) -> Vec<ErasedSegment> {
@@ -531,7 +535,8 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
                 continue;
             };
 
-            for f in &anchor_info.fixes {
+            let fixes_count = anchor_info.fixes.len();
+            for mut f in anchor_info.fixes {
                 // assert f.anchor.uuid == seg.uuid
                 fixes_applied.push(f.clone());
 
@@ -550,15 +555,22 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
                     EditType::Replace | EditType::CreateBefore | EditType::CreateAfter
                 ));
 
-                if f.edit_type == EditType::CreateAfter && anchor_info.fixes.len() == 1 {
+                if f.edit_type == EditType::CreateAfter && fixes_count == 1 {
                     // In the case of a creation after that is not part
                     // of a create_before/create_after pair, also add
                     // this segment before the edit.
                     seg_buffer.push(seg.clone());
                 }
 
-                for s in f.edit.as_ref().unwrap() {
-                    seg_buffer.push(s.clone());
+                let mut consumed_pos = false;
+                for s in std::mem::take(f.edit.as_mut().unwrap()) {
+                    let mut s = s.deep_clone();
+                    if f.edit_type == EditType::Replace && !consumed_pos && s.raw() == seg.raw() {
+                        consumed_pos = true;
+                        s.get_mut().set_position_marker(seg.get_position_marker().clone());
+                    }
+
+                    seg_buffer.push(s);
                 }
 
                 #[allow(unused_assignments)]
@@ -573,6 +585,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
                     seg_buffer.push(seg.clone());
                 }
             }
+        }
+
+        if !fixes_applied.is_empty() {
+            seg_buffer = position_segments(&seg_buffer, self.get_position_marker().as_ref(), false);
         }
 
         let seg_queue = seg_buffer.clone();
@@ -710,23 +726,18 @@ pub fn position_segments(
         return Vec::new();
     }
 
-    let (mut line_no, mut line_pos) = match parent_pos {
-        Some(pos) => (pos.working_line_no, pos.working_line_pos),
-        None => {
-            // Infer from first segment with a position
-            segments
-                .iter()
-                .find_map(|seg| {
-                    seg.get_position_marker()
-                        .as_ref()
-                        .map(|pm| (pm.working_line_no, pm.working_line_pos))
-                })
-                .expect("Unable to find working position")
-        }
+    let (mut line_no, mut line_pos) = if let Some(parent_pos) = parent_pos {
+        (parent_pos.working_line_no, parent_pos.working_line_pos)
+    } else {
+        segments
+            .iter()
+            .filter_map(|fwd_seg| fwd_seg.get_position_marker())
+            .map(|pos_marker| (pos_marker.working_line_no, pos_marker.working_line_pos))
+            .next()
+            .unwrap()
     };
 
     let mut segment_buffer = Vec::new();
-
     for (idx, segment) in enumerate(segments) {
         if metas_only && !segment.is_meta() {
             segment_buffer.push(segment.clone());
@@ -736,54 +747,66 @@ pub fn position_segments(
         }
 
         let old_position = segment.get_position_marker();
-        let mut new_position = segment.get_position_marker();
+        let mut new_position = match old_position.clone() {
+            Some(pos_marker) => pos_marker.clone(),
+            None => {
+                let start_point = if idx > 0 {
+                    let prev_seg = segment_buffer[idx - 1].clone();
+                    prev_seg.get_position_marker().unwrap().end_point_marker().into()
+                } else if let Some(parent_pos) = parent_pos {
+                    parent_pos.start_point_marker().into()
+                } else {
+                    None
+                };
 
-        if old_position.is_none() {
-            let mut start_point = None;
+                let mut end_point = None;
+                for fwd_seg in &segments[idx + 1..] {
+                    if fwd_seg.get_position_marker().is_some() {
+                        end_point = Some(
+                            fwd_seg.get_raw_segments()[0]
+                                .get_position_marker()
+                                .unwrap()
+                                .start_point_marker(),
+                        );
+                        break;
+                    }
+                }
 
-            if idx > 0 {
-                let prev_seg = segment_buffer[idx - 1].clone();
-                start_point = prev_seg.get_position_marker().unwrap().into();
-            } else if let Some(parent_pos) = parent_pos {
-                start_point = parent_pos.start_point_marker().into();
+                if let Some((start_point, end_point)) = start_point.as_ref().zip(end_point.as_ref())
+                    && start_point != end_point
+                {
+                    PositionMarker::from_points(start_point, end_point)
+                } else if let Some(start_point) = start_point.as_ref() {
+                    start_point.clone()
+                } else if let Some(end_point) = end_point.as_ref() {
+                    end_point.clone()
+                } else {
+                    unimplemented!("Unable to position new segment")
+                }
             }
-
-            let end_point = segments.iter().skip(idx + 1).find_map(|fwd_seg| {
-                fwd_seg.get_position_marker().map(|_| {
-                    fwd_seg.get_raw_segments()[0]
-                        .get_position_marker()
-                        .unwrap()
-                        .start_point_marker()
-                })
-            });
-
-            if let Some((start_point, end_point)) = start_point.as_ref().zip(end_point.as_ref())
-                && start_point != end_point
-            {
-                new_position = PositionMarker::from_points(start_point, end_point).into();
-            } else if let Some(start_point) = start_point.as_ref() {
-                new_position = start_point.clone().into();
-            } else if let Some(end_point) = end_point.as_ref() {
-                new_position = end_point.clone().into();
-            } else {
-                unimplemented!("Unable to position new segment");
-            }
-
-            assert_ne!(new_position, None);
-        }
-
-        let new_seg = if !segment.segments().is_empty() && old_position != new_position {
-            unimplemented!()
-        } else {
-            let mut new_seg = segment.deep_clone();
-            new_seg.get_mut().set_position_marker(new_position);
-            new_seg
         };
 
+        new_position = new_position.with_working_position(line_no, line_pos);
+        (line_no, line_pos) =
+            PositionMarker::infer_next_position(&segment.raw(), line_no, line_pos);
+
+        let mut new_seg = if let Some(old_position) = old_position
+            && old_position != new_position
+            && !segment.segments().is_empty()
+        {
+            let mut new_seg = segment.deep_clone();
+            let child_segments =
+                position_segments(segment.segments(), (&new_position).into(), false);
+
+            new_seg.get_mut().set_segments(child_segments);
+            new_seg
+        } else {
+            segment.deep_clone()
+        };
+
+        new_seg.get_mut().set_position_marker(new_position.into());
         segment_buffer.push(new_seg);
     }
-
-    pretty_assertions::assert_eq!(segments, segment_buffer);
 
     segment_buffer
 }
@@ -815,12 +838,12 @@ pub struct CodeSegmentNewArgs {
 impl CodeSegment {
     pub fn create(
         raw: &str,
-        position_maker: &PositionMarker,
+        position_maker: Option<PositionMarker>,
         args: CodeSegmentNewArgs,
     ) -> ErasedSegment {
         CodeSegment {
             raw: raw.into(),
-            position_marker: Some(position_maker.clone()),
+            position_marker: position_maker,
             code_type: args.code_type,
             instance_types: vec![],
             trim_start: None,
@@ -889,7 +912,7 @@ impl Segment for CodeSegment {
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         CodeSegment::create(
             raw.unwrap_or(self.raw.to_string()).as_str(),
-            &self.position_marker.clone().unwrap(),
+            self.position_marker.clone(),
             CodeSegmentNewArgs {
                 code_type: self.code_type,
                 instance_types: vec![],
@@ -913,13 +936,13 @@ pub struct IdentifierSegment {
 impl IdentifierSegment {
     pub fn create(
         raw: &str,
-        position_maker: &PositionMarker,
+        position_maker: Option<PositionMarker>,
         args: CodeSegmentNewArgs,
     ) -> ErasedSegment {
         IdentifierSegment {
             base: CodeSegment {
                 raw: raw.into(),
-                position_marker: Some(position_maker.clone()),
+                position_marker: position_maker.clone(),
                 code_type: args.code_type,
                 instance_types: vec![],
                 trim_start: None,
@@ -977,7 +1000,7 @@ impl Segment for IdentifierSegment {
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         IdentifierSegment::create(
             raw.unwrap_or(self.base.raw.to_string()).as_str(),
-            &self.base.position_marker.clone().unwrap(),
+            self.base.position_marker.clone(),
             CodeSegmentNewArgs {
                 code_type: self.base.code_type,
                 instance_types: vec![],
@@ -1012,12 +1035,12 @@ pub struct CommentSegmentNewArgs {
 impl CommentSegment {
     pub fn create(
         raw: &str,
-        position_maker: &PositionMarker,
+        position_maker: Option<PositionMarker>,
         args: CommentSegmentNewArgs,
     ) -> ErasedSegment {
         Self {
             raw: raw.into(),
-            position_maker: position_maker.clone().into(),
+            position_maker,
             r#type: args.r#type,
             trim_start: args.trim_start.unwrap_or_default(),
             uuid: Uuid::new_v4(),
@@ -1082,7 +1105,7 @@ impl Segment for CommentSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct NewlineSegment {
     raw: SmolStr,
-    position_maker: PositionMarker,
+    position_maker: Option<PositionMarker>,
     uuid: Uuid,
 }
 
@@ -1092,7 +1115,7 @@ pub struct NewlineSegmentNewArgs {}
 impl NewlineSegment {
     pub fn create(
         raw: &str,
-        position_maker: &PositionMarker,
+        position_maker: Option<PositionMarker>,
         _args: NewlineSegmentNewArgs,
     ) -> ErasedSegment {
         NewlineSegment {
@@ -1134,15 +1157,11 @@ impl Segment for NewlineSegment {
         Some("\n")
     }
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone().into()
+        self.position_maker.clone()
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        let Some(_position_marker) = position_marker else {
-            return;
-        };
-
-        dbg!("self.position_marker = position_marker;");
+        self.position_maker = position_marker;
     }
 
     fn segments(&self) -> &[ErasedSegment] {
@@ -1170,7 +1189,7 @@ impl Segment for NewlineSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct WhitespaceSegment {
     raw: SmolStr,
-    position_marker: PositionMarker,
+    position_marker: Option<PositionMarker>,
     uuid: Uuid,
 }
 
@@ -1180,15 +1199,11 @@ pub struct WhitespaceSegmentNewArgs;
 impl WhitespaceSegment {
     pub fn create(
         raw: &str,
-        position_maker: &PositionMarker,
+        position_maker: Option<PositionMarker>,
         _args: WhitespaceSegmentNewArgs,
     ) -> ErasedSegment {
-        WhitespaceSegment {
-            raw: raw.into(),
-            position_marker: position_maker.clone(),
-            uuid: Uuid::new_v4(),
-        }
-        .to_erased_segment()
+        WhitespaceSegment { raw: raw.into(), position_marker: position_maker, uuid: Uuid::new_v4() }
+            .to_erased_segment()
     }
 }
 
@@ -1224,13 +1239,9 @@ impl Segment for WhitespaceSegment {
         Some(" ")
     }
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone().into()
+        self.position_marker.clone()
     }
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        let Some(position_marker) = position_marker else {
-            return;
-        };
-
         self.position_marker = position_marker;
     }
 
@@ -1251,7 +1262,11 @@ impl Segment for WhitespaceSegment {
     }
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        Self::create(&raw.unwrap_or_default(), &self.position_marker, WhitespaceSegmentNewArgs {})
+        Self::create(
+            &raw.unwrap_or_default(),
+            self.position_marker.clone(),
+            WhitespaceSegmentNewArgs {},
+        )
     }
 }
 
@@ -1268,7 +1283,7 @@ pub struct UnlexableSegmentNewArgs {
 impl UnlexableSegment {
     pub fn create(
         _raw: &str,
-        _position_maker: &PositionMarker,
+        _position_maker: Option<PositionMarker>,
         args: UnlexableSegmentNewArgs,
     ) -> ErasedSegment {
         UnlexableSegment { expected: args.expected.unwrap_or("".to_string()) }.to_erased_segment()
@@ -1319,7 +1334,7 @@ impl Segment for UnlexableSegment {
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct SymbolSegment {
     raw: SmolStr,
-    position_maker: PositionMarker,
+    position_maker: Option<PositionMarker>,
     uuid: Uuid,
     type_: &'static str,
 }
@@ -1356,11 +1371,10 @@ impl Segment for SymbolSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone().into()
+        self.position_maker.clone()
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        let Some(position_marker) = position_marker else { return };
         self.position_maker = position_marker;
     }
 
@@ -1381,7 +1395,7 @@ impl Segment for SymbolSegment {
     }
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        SymbolSegment::create(&raw.unwrap(), &self.position_maker, <_>::default())
+        SymbolSegment::create(&raw.unwrap(), self.position_maker.clone(), <_>::default())
     }
 
     fn class_types(&self) -> AHashSet<&'static str> {
@@ -1401,7 +1415,7 @@ pub struct SymbolSegmentNewArgs {
 impl SymbolSegment {
     pub fn create(
         raw: &str,
-        position_maker: &PositionMarker,
+        position_maker: Option<PositionMarker>,
         args: SymbolSegmentNewArgs,
     ) -> ErasedSegment {
         SymbolSegment {
@@ -1581,7 +1595,7 @@ mod tests {
     #[test]
     fn test__parser__base_segments_type() {
         let args = UnlexableSegmentNewArgs { expected: None };
-        let segment = UnlexableSegment::create("", &PositionMarker::default(), args);
+        let segment = UnlexableSegment::create("", PositionMarker::default().into(), args);
 
         assert!(segment.is_type("unlexable"));
         assert!(!segment.is_type("whitespace"));

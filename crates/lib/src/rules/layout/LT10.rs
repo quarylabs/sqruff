@@ -77,12 +77,12 @@ impl Rule for RuleLT10 {
 
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
-            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
             select_clause_modifier.clone_box(),
         ];
 
         if trailing_newline_segments.is_empty() {
-            edit_segments.push(NewlineSegment::create("\n", &<_>::default(), <_>::default()));
+            edit_segments.push(NewlineSegment::create("\n", None, <_>::default()));
         }
 
         let mut fixes = Vec::new();

@@ -114,10 +114,10 @@ impl Rule for RuleST08 {
             let mut edits = vec![
                 SymbolSegment::create(
                     "DISTINCT",
-                    &<_>::default(),
+                    None,
                     SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                 ),
-                WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
             ];
             edits.extend(Self::filter_meta(
                 &bracketed.segments()[1..bracketed.segments().len() - 1],

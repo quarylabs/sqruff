@@ -130,7 +130,7 @@ pub fn ansi_dialect() -> Dialect {
     let symbol_factory = |segment: &dyn Segment| {
         SymbolSegment::create(
             &segment.raw(),
-            &segment.get_position_marker().unwrap(),
+            segment.get_position_marker(),
             SymbolSegmentNewArgs { r#type: "remove me" },
         )
     };
@@ -145,7 +145,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "statement_terminator" },
                     )
                 },
@@ -181,7 +181,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker().unwrap().into(),
                         SymbolSegmentNewArgs { r#type: "start_bracket" },
                     )
                 },
@@ -199,7 +199,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker().unwrap().into(),
                         SymbolSegmentNewArgs { r#type: "end_bracket" },
                     )
                 },
@@ -217,7 +217,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker().unwrap().into(),
                         SymbolSegmentNewArgs { r#type: "start_square_bracket" },
                     )
                 },
@@ -235,7 +235,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "end_square_bracket" },
                     )
                 },
@@ -253,7 +253,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "start_curly_bracket" },
                     )
                 },
@@ -271,7 +271,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "end_curly_bracket" },
                     )
                 },
@@ -289,7 +289,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "comma" },
                     )
                 },
@@ -307,7 +307,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "dot" },
                     )
                 },
@@ -325,7 +325,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "star" },
                     )
                 },
@@ -343,7 +343,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "tilde" },
                     )
                 },
@@ -369,7 +369,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -387,7 +387,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -405,7 +405,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "sign_indicator" },
                     )
                 },
@@ -423,7 +423,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "sign_indicator" },
                     )
                 },
@@ -441,7 +441,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -459,7 +459,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -477,7 +477,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -503,7 +503,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "pipe" },
                     )
                 },
@@ -521,7 +521,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -557,7 +557,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
                 },
@@ -575,7 +575,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
                 },
@@ -593,7 +593,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
                     )
                 },
@@ -613,7 +613,7 @@ pub fn ansi_dialect() -> Dialect {
                     |segment| {
                         CodeSegment::create(
                             &segment.raw(),
-                            &segment.get_position_marker().unwrap(),
+                            segment.get_position_marker(),
                             CodeSegmentNewArgs { code_type: "bare_function", ..Default::default() },
                         )
                     },
@@ -640,7 +640,7 @@ pub fn ansi_dialect() -> Dialect {
                     |segment| {
                         IdentifierSegment::create(
                             &segment.raw(),
-                            &segment.get_position_marker().unwrap(),
+                            segment.get_position_marker(),
                             CodeSegmentNewArgs {
                                 code_type: "naked_identifier",
                                 ..Default::default()
@@ -666,7 +666,7 @@ pub fn ansi_dialect() -> Dialect {
                     |segment| {
                         CodeSegment::create(
                             &segment.raw(),
-                            &segment.get_position_marker().unwrap(),
+                            segment.get_position_marker(),
                             CodeSegmentNewArgs::default(),
                         )
                     },
@@ -686,7 +686,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                     )
                 },
@@ -711,7 +711,7 @@ pub fn ansi_dialect() -> Dialect {
                         |segment| {
                             CodeSegment::create(
                                 &segment.raw(),
-                                &segment.get_position_marker().unwrap(),
+                                segment.get_position_marker(),
                                 CodeSegmentNewArgs::default(),
                             )
                         },
@@ -738,7 +738,7 @@ pub fn ansi_dialect() -> Dialect {
                     |segment| {
                         CodeSegment::create(
                             &segment.raw(),
-                            &segment.get_position_marker().unwrap(),
+                            segment.get_position_marker(),
                             CodeSegmentNewArgs { code_type: "date_part", ..Default::default() },
                         )
                     },
@@ -762,7 +762,7 @@ pub fn ansi_dialect() -> Dialect {
                     |segment| {
                         CodeSegment::create(
                             &segment.raw(),
-                            &segment.get_position_marker().unwrap(),
+                            segment.get_position_marker(),
                             CodeSegmentNewArgs::default(),
                         )
                     },
@@ -781,7 +781,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "quoted_identifier" },
                     )
                 },
@@ -805,7 +805,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "quoted_identifier" },
                     )
                 },
@@ -844,7 +844,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "null_literal" },
                     )
                 },
@@ -862,7 +862,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "null_literal" },
                     )
                 },
@@ -880,7 +880,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "boolean_literal" },
                     )
                 },
@@ -898,7 +898,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "boolean_literal" },
                     )
                 },
@@ -1046,7 +1046,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -1064,7 +1064,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "binary_operator" },
                     )
                 },
@@ -1082,7 +1082,7 @@ pub fn ansi_dialect() -> Dialect {
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
-                        &segment.get_position_marker().unwrap(),
+                        segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: "keyword" },
                     )
                 },
@@ -2718,6 +2718,10 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
 
     fn segments(&self) -> &[ErasedSegment] {
         &self.segments
+    }
+
+    fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
+        self.segments = segments;
     }
 
     fn get_uuid(&self) -> Option<Uuid> {
@@ -6358,7 +6362,7 @@ impl NodeTrait for RollupFunctionNameSegment {
             |segment| {
                 CodeSegment::create(
                     &segment.raw(),
-                    &segment.get_position_marker().unwrap(),
+                    segment.get_position_marker(),
                     CodeSegmentNewArgs::default(),
                 )
             },
@@ -6385,7 +6389,7 @@ impl NodeTrait for CubeFunctionNameSegment {
             |segment| {
                 CodeSegment::create(
                     &segment.raw(),
-                    &segment.get_position_marker().unwrap(),
+                    segment.get_position_marker(),
                     CodeSegmentNewArgs::default(),
                 )
             },

@@ -66,7 +66,7 @@ impl Rule for RuleCV02 {
             context.segment.clone(),
             vec![SymbolSegment::create(
                 "COALESCE",
-                &<_>::default(),
+                None,
                 SymbolSegmentNewArgs { r#type: "function_name_identifier" },
             )],
             None,

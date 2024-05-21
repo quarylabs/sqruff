@@ -208,8 +208,8 @@ impl Segment for EndOfFile {
         self.position_maker.clone().into()
     }
 
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_maker = position_marker.unwrap();
     }
 
     fn segments(&self) -> &[ErasedSegment] {

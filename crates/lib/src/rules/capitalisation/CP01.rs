@@ -45,6 +45,10 @@ impl Rule for RuleCP01 {
         .erased()
     }
 
+    fn lint_phase(&self) -> &'static str {
+        "post"
+    }
+
     fn name(&self) -> &'static str {
         "capitalisation.keywords"
     }

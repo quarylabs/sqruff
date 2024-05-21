@@ -19,6 +19,10 @@ impl Rule for RuleLT13 {
         "layout.start_of_file"
     }
 
+    fn lint_phase(&self) -> &'static str {
+        "post"
+    }
+
     fn description(&self) -> &'static str {
         "Files must not begin with newlines or whitespace."
     }

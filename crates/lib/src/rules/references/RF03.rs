@@ -242,8 +242,8 @@ fn validate_one_reference(
         vec![LintFix::create_before(
             if ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
             vec![
-                IdentifierSegment::create(table_ref_str, &<_>::default(), <_>::default()),
-                SymbolSegment::create(".", &<_>::default(), <_>::default()),
+                IdentifierSegment::create(table_ref_str, None, <_>::default()),
+                SymbolSegment::create(".", None, <_>::default()),
             ],
         )]
     } else {

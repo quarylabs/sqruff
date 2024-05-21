@@ -319,7 +319,7 @@ impl<SegmentArgs: Clone + Debug + Sync> Matcher for StringLexer<SegmentArgs> {
     }
 
     fn construct_segment(&self, raw: SmolStr, pos_marker: PositionMarker) -> ErasedSegment {
-        (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
+        (self.segment_constructor)(&raw, pos_marker.into(), self.segment_args.clone())
     }
 }
 
@@ -430,7 +430,7 @@ impl<SegmentArgs: Clone + Debug + Sync> Matcher for RegexLexer<SegmentArgs> {
     }
 
     fn construct_segment(&self, raw: SmolStr, pos_marker: PositionMarker) -> ErasedSegment {
-        (self.segment_constructor)(&raw, &pos_marker, self.segment_args.clone())
+        (self.segment_constructor)(&raw, pos_marker.into(), self.segment_args.clone())
     }
 }
 

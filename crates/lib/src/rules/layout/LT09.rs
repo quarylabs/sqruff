@@ -194,7 +194,7 @@ impl RuleLT09 {
                 fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone_box(),
-                    vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
+                    vec![NewlineSegment::create("\n", None, <_>::default())],
                 ));
             }
 
@@ -213,7 +213,7 @@ impl RuleLT09 {
 
                     fixes.push(LintFix::create_before(
                         from_segment.clone_box(),
-                        vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())],
+                        vec![NewlineSegment::create("\n", None, <_>::default())],
                     ));
                 }
             }
@@ -252,7 +252,7 @@ impl RuleLT09 {
         }
 
         let mut insert_buff = vec![
-            WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
 
@@ -271,7 +271,7 @@ impl RuleLT09 {
             let buff = std::mem::take(&mut insert_buff);
 
             insert_buff = vec![
-                WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
                 modifier[0].clone(),
             ];
 
@@ -336,7 +336,7 @@ impl RuleLT09 {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone_box(),
                             if add_newline {
-                                vec![NewlineSegment::create("\n", &<_>::default(), <_>::default())]
+                                vec![NewlineSegment::create("\n", None, <_>::default())]
                             } else {
                                 vec![]
                             }

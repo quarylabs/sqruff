@@ -283,8 +283,7 @@ pub fn handle_respace_inline_without_space(
         return (segment_buffer, existing_results, false);
     }
 
-    let added_whitespace =
-        WhitespaceSegment::create(" ", &PositionMarker::default(), WhitespaceSegmentNewArgs {});
+    let added_whitespace = WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {});
 
     // Add it to the buffer first (the easy bit). The hard bit is to then determine
     // how to generate the appropriate LintFix objects.

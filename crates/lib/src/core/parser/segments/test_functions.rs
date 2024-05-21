@@ -71,25 +71,29 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         );
 
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
-            WhitespaceSegment::create(elem, &position_marker, WhitespaceSegmentNewArgs)
+            WhitespaceSegment::create(
+                elem,
+                position_marker.clone().into(),
+                WhitespaceSegmentNewArgs,
+            )
         } else if elem.chars().all(|c| c == '\n') {
-            NewlineSegment::create(elem, &position_marker, NewlineSegmentNewArgs {})
+            NewlineSegment::create(elem, position_marker.clone().into(), NewlineSegmentNewArgs {})
         } else if elem == "(" || elem == ")" {
             SymbolSegment::create(
                 elem,
-                &position_marker,
+                position_marker.clone().into(),
                 SymbolSegmentNewArgs { r#type: "remove me" },
             )
         } else if elem.starts_with("--") {
             CommentSegment::create(
                 elem,
-                &position_marker,
+                position_marker.into(),
                 CommentSegmentNewArgs { r#type: "inline", trim_start: None },
             )
         } else if elem.starts_with('\"') {
             CodeSegment::create(
                 elem,
-                &position_marker,
+                position_marker.clone().into(),
                 CodeSegmentNewArgs {
                     code_type: "double_quote",
                     instance_types: vec![],
@@ -101,7 +105,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         } else if elem.starts_with('\'') {
             CodeSegment::create(
                 elem,
-                &position_marker,
+                position_marker.clone().into(),
                 CodeSegmentNewArgs {
                     code_type: "single_quote",
                     instance_types: vec![],
@@ -113,7 +117,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         } else {
             CodeSegment::create(
                 elem,
-                &position_marker,
+                position_marker.clone().into(),
                 CodeSegmentNewArgs {
                     code_type: "",
                     instance_types: vec![],

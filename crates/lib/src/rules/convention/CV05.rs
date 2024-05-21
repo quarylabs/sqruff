@@ -107,11 +107,7 @@ impl Rule for RuleCV05 {
                     seg.push(KeywordSegment::new(keyword.into(), None).to_erased_segment());
                 }
                 CorrectionListItem::WhitespaceSegment => {
-                    seg.push(WhitespaceSegment::create(
-                        " ",
-                        &<_>::default(),
-                        WhitespaceSegmentNewArgs,
-                    ));
+                    seg.push(WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs));
                 }
             };
         }

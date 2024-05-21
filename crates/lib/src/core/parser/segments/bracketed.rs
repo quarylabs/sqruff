@@ -70,6 +70,14 @@ impl Segment for BracketedSegment {
         &self.segments
     }
 
+    fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
+        self.segments = segments;
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.pos_marker = position_marker;
+    }
+
     fn get_uuid(&self) -> Option<Uuid> {
         self.uuid.into()
     }

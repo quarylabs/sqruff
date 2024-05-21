@@ -40,7 +40,7 @@ impl Rule for RuleAM02 {
         {
             let edits = vec![
                 KeywordSegment::new("union".into(), None).to_erased_segment(),
-                WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
                 KeywordSegment::new("distinct".into(), None).to_erased_segment(),
             ];
 
@@ -53,7 +53,7 @@ impl Rule for RuleAM02 {
         {
             let edits = vec![
                 KeywordSegment::new("UNION".into(), None).to_erased_segment(),
-                WhitespaceSegment::create(" ", &<_>::default(), WhitespaceSegmentNewArgs),
+                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
                 KeywordSegment::new("DISTINCT".into(), None).to_erased_segment(),
             ];
 

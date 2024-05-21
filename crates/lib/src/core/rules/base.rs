@@ -42,6 +42,7 @@ impl LintResult {
 
     pub fn to_linting_error(&self, rule: ErasedRule) -> Option<SQLLintError> {
         let anchor = self.anchor.clone()?;
+
         let description =
             self.description.clone().unwrap_or_else(|| rule.description().to_string());
 
@@ -293,15 +294,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         let mut fixes = Vec::new();
 
         for context in self.crawl_behaviour().crawl(root_context) {
-            let resp = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                self.eval(context)
-            })) {
-                Ok(t) => t,
-                Err(_) => {
-                    vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone()));
-                    return (vs, fixes);
-                }
-            };
+            let resp = self.eval(context);
 
             let mut new_lerrs = Vec::new();
             let mut new_fixes = Vec::new();

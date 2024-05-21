@@ -111,13 +111,9 @@ impl RuleAL07 {
                     let mut edits = Vec::new();
                     for (i, part) in identifier_parts.iter().enumerate() {
                         if i > 0 {
-                            edits.push(SymbolSegment::create(".", &<_>::default(), <_>::default()));
+                            edits.push(SymbolSegment::create(".", None, <_>::default()));
                         }
-                        edits.push(IdentifierSegment::create(
-                            part,
-                            &<_>::default(),
-                            <_>::default(),
-                        ));
+                        edits.push(IdentifierSegment::create(part, None, <_>::default()));
                     }
                     fixes.push(LintFix::replace(
                         alias.clone(),

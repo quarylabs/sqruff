@@ -74,6 +74,7 @@ impl PositionMarker {
         }
     }
 
+    #[track_caller]
     pub fn source_str(&self) -> &str {
         &self.templated_file.source_str[self.source_slice.clone()]
     }
@@ -177,8 +178,7 @@ impl PositionMarker {
         )
     }
 
-    #[allow(dead_code)]
-    fn end_point_marker(&self) -> PositionMarker {
+    pub fn end_point_marker(&self) -> PositionMarker {
         // Assuming PositionMarker is a struct and from_point is an associated function
         PositionMarker::from_point(
             self.source_slice.end,
@@ -221,6 +221,10 @@ impl PositionMarker {
             working_line_no: start_point_marker.working_line_no,
             working_line_pos: start_point_marker.working_line_pos,
         }
+    }
+
+    pub(crate) fn with_working_position(self, line_no: usize, line_pos: usize) -> PositionMarker {
+        Self { working_line_no: line_no, working_line_pos: line_pos, ..self }
     }
 }
 

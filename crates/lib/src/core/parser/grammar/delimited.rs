@@ -333,7 +333,7 @@ mod tests {
             let symbol_factory = |segment: &dyn Segment| {
                 SymbolSegment::create(
                     &segment.raw(),
-                    &segment.get_position_marker().unwrap(),
+                    segment.get_position_marker(),
                     SymbolSegmentNewArgs { r#type: "remove me" },
                 )
             };

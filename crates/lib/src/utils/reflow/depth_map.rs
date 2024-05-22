@@ -1,6 +1,7 @@
 use std::hash::{Hash, Hasher};
 
 use ahash::{AHashMap, AHashSet};
+use nohash_hasher::{IntMap, IntSet};
 use uuid::Uuid;
 
 use crate::core::parser::segments::base::{ErasedSegment, PathStep, SegmentExt as _};
@@ -96,9 +97,9 @@ pub struct DepthInfo {
     pub stack_depth: usize,
     pub stack_hashes: Vec<u64>,
     /// This is a convenience cache to speed up operations.
-    pub stack_hash_set: AHashSet<u64>,
+    pub stack_hash_set: IntSet<u64>,
     pub stack_class_types: Vec<AHashSet<&'static str>>,
-    pub stack_positions: AHashMap<u64, StackPosition>,
+    pub stack_positions: IntMap<u64, StackPosition>,
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {
@@ -112,12 +113,12 @@ impl DepthInfo {
     fn from_raw_and_stack(raw: ErasedSegment, stack: Vec<PathStep>) -> DepthInfo {
         let stack_hashes: Vec<u64> = stack.iter().map(|ps| calculate_hash(&ps.segment)).collect();
 
-        let stack_hash_set: AHashSet<u64> = AHashSet::from_iter(stack_hashes.clone());
+        let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
 
         let stack_class_types: Vec<AHashSet<&str>> =
             stack.iter().map(|ps| ps.segment.class_types()).collect();
 
-        let stack_positions: AHashMap<u64, StackPosition> = stack
+        let stack_positions: IntMap<u64, StackPosition> = stack
             .into_iter()
             .map(|ps| {
                 let hash = calculate_hash(&ps.segment);
@@ -141,13 +142,11 @@ impl DepthInfo {
             return self.clone();
         }
 
-        let mut slice_set: AHashSet<_> = AHashSet::new();
-        for &hash in &self.stack_hashes[self.stack_hashes.len() - amount..] {
-            slice_set.insert(hash);
-        }
+        let slice_set: IntSet<_> = IntSet::from_iter(
+            self.stack_hashes[self.stack_hashes.len() - amount..].iter().copied(),
+        );
 
-        let new_hash_set: AHashSet<_> =
-            self.stack_hash_set.difference(&slice_set).cloned().collect();
+        let new_hash_set: IntSet<_> = self.stack_hash_set.difference(&slice_set).cloned().collect();
 
         DepthInfo {
             stack_depth: self.stack_depth - amount,

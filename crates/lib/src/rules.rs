@@ -7,7 +7,6 @@ pub mod aliasing;
 pub mod ambiguous;
 pub mod capitalisation;
 pub mod convention;
-pub mod l001;
 pub mod layout;
 pub mod references;
 pub mod structure;

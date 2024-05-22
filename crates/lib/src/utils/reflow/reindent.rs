@@ -393,7 +393,6 @@ fn lint_line_starting_indent(
 
     if initial_point_idx > 0 && initial_point_idx < elements.len() - 1 {
         if elements[initial_point_idx + 1].class_types1().contains("comment") {
-            dbg!(());
             let last_indent =
                 deduce_line_current_indent(elements, indent_points[0].last_line_break_idx);
             if current_indent.len() == last_indent.len() {

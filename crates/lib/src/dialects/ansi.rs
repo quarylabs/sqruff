@@ -6615,8 +6615,8 @@ mod tests {
             ("SelectStatementSegment", "select * from my_cte cross join other_cte"),
         ];
 
+        let dialect = fresh_ansi_dialect();
         for (segment_ref, sql_string) in cases {
-            let dialect = fresh_ansi_dialect();
             let mut ctx = ParseContext::new(&dialect, <_>::default());
 
             let segment = dialect.r#ref(segment_ref);

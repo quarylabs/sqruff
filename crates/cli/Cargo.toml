@@ -8,6 +8,7 @@ default-run = "sqruff"
 
 [[bin]]
 name = "bench"
+path = "src/bin/bench.rs"
 bench = false
 
 [[test]]

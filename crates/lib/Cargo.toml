@@ -10,6 +10,10 @@ crate-type = ["cdylib", "rlib"]
 bench = false
 doctest = false
 
+[[bench]]
+name = "parsing"
+harness = false
+
 [dependencies]
 dyn-clone = "1"
 dyn_ord = "0.2.1"

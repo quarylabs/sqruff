@@ -1,7 +1,8 @@
 use std::iter::zip;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashSet;
 use itertools::{chain, Itertools};
+use nohash_hasher::IntMap;
 
 use super::config::ReflowConfig;
 use super::depth_map::DepthInfo;
@@ -460,8 +461,8 @@ pub struct ReflowBlock {
     pub spacing_after: String,
     pub line_position: Option<String>,
     pub depth_info: DepthInfo,
-    pub stack_spacing_configs: AHashMap<u64, String>,
-    pub line_position_configs: AHashMap<u64, String>,
+    pub stack_spacing_configs: IntMap<u64, String>,
+    pub line_position_configs: IntMap<u64, String>,
 }
 
 impl ReflowBlock {
@@ -479,8 +480,8 @@ impl ReflowBlock {
         let block_config =
             config.get_block_config(&ReflowElement::class_types(&segments), Some(&depth_info));
 
-        let mut stack_spacing_configs = AHashMap::new();
-        let mut line_position_configs = AHashMap::new();
+        let mut stack_spacing_configs = IntMap::default();
+        let mut line_position_configs = IntMap::default();
 
         for (hash, class_types) in zip(&depth_info.stack_hashes, &depth_info.stack_class_types) {
             let cfg = config.get_block_config(class_types, None);

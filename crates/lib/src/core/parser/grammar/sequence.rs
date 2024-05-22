@@ -9,7 +9,7 @@ use uuid::Uuid;
 use super::conditional::Conditional;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
-use crate::core::parser::helpers::{check_still_complete, trim_non_code_segments};
+use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_algorithms::{
     bracket_sensitive_look_ahead_match, greedy_match, prune_options,
 };
@@ -399,7 +399,11 @@ impl Matchable for Sequence {
         unmatched_segments.extend(tail);
 
         #[cfg(debug_assertions)]
-        check_still_complete(segments, &matched_segments, &unmatched_segments);
+        crate::core::parser::helpers::check_still_complete(
+            segments,
+            &matched_segments,
+            &unmatched_segments,
+        );
 
         Ok(MatchResult {
             matched_segments: position_segments(&matched_segments, None, true),

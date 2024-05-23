@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::ops::{Deref, Range};
+use std::sync::Arc;
 
 use smol_str::SmolStr;
 
@@ -33,7 +34,7 @@ impl TemplatedFileSlice {
 /// the capability to split up that file when lexing.
 #[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub struct TemplatedFile {
-    inner: TemplatedFileInner,
+    inner: Arc<TemplatedFileInner>,
 }
 
 impl TemplatedFile {
@@ -45,20 +46,22 @@ impl TemplatedFile {
         input_raw_sliced: Option<Vec<RawFileSlice>>,
     ) -> Result<TemplatedFile, SQLFluffSkipFile> {
         Ok(TemplatedFile {
-            inner: TemplatedFileInner::new(
+            inner: Arc::new(TemplatedFileInner::new(
                 source_str,
                 f_name,
                 input_templated_str,
                 sliced_file,
                 input_raw_sliced,
-            )?,
+            )?),
         })
     }
 
     pub fn from_string(raw: String) -> TemplatedFile {
         TemplatedFile {
-            inner: TemplatedFileInner::new(raw.clone(), "<string>".to_string(), None, None, None)
-                .unwrap(),
+            inner: Arc::new(
+                TemplatedFileInner::new(raw.clone(), "<string>".to_string(), None, None, None)
+                    .unwrap(),
+            ),
         }
     }
 }

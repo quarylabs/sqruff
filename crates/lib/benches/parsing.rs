@@ -76,9 +76,9 @@ fn parse(c: &mut Criterion) {
     let dialect = fresh_ansi_dialect();
 
     let passes = [
-        ("bench_simple_query", SIMPLE_QUERY),
-        ("bench_expression_recursion", EXPRESSION_RECURSION),
-        ("bench_complex_query", COMPLEX_QUERY),
+        ("parse_simple_query", SIMPLE_QUERY),
+        ("parse_expression_recursion", EXPRESSION_RECURSION),
+        ("parse_complex_query", COMPLEX_QUERY),
     ];
 
     for (name, source) in passes {

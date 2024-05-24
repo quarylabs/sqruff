@@ -31,7 +31,7 @@ pub struct Linter {
     config: FluffConfig,
     pub formatter: Option<OutputStreamFormatter>,
     templater: Arc<dyn Templater>,
-    _rules: Vec<ErasedRule>,
+    pub _rules: Vec<ErasedRule>,
 }
 
 impl Linter {
@@ -457,7 +457,7 @@ impl Linter {
             violations,
             time_dict,
             templated_file: rendered.templated_file,
-            config: rendered.config,
+
             f_name: rendered.f_name,
             source_str: rendered.source_str,
         }

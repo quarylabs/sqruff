@@ -14,6 +14,14 @@ doctest = false
 name = "parsing"
 harness = false
 
+[[bench]]
+name = "fix"
+harness = false
+
+[[bench]]
+name = "depth_map"
+harness = false
+
 [dependencies]
 dyn-clone = "1"
 dyn_ord = "0.2.1"

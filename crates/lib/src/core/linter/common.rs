@@ -42,18 +42,12 @@ pub struct RenderedFile {
 }
 
 /// An object to store the result of parsing a string.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ParsedString {
     pub tree: Option<ErasedSegment>,
     pub violations: Vec<SQLBaseError>,
-    // TODO Implement time dict
-    /// `time_dict` is a :obj:`dict` containing timings for how long each step
-    /// took in the process.
     pub time_dict: AHashMap<String, f64>,
-    /// `templated_file` is a :obj:`TemplatedFile` containing the details of the
-    /// templated file.
     pub templated_file: TemplatedFile,
-    pub config: FluffConfig,
     pub f_name: String,
     pub source_str: String,
 }

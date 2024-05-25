@@ -1,9 +1,9 @@
-use std::fmt::{Debug, Display, Formatter};
+use std::borrow::Cow;
+use std::fmt::Debug;
 use std::ops::Range;
+use std::sync::OnceLock;
 
-use dyn_clone::DynClone;
-use fancy_regex::{Error, Regex};
-use smol_str::SmolStr;
+use fancy_regex::Regex;
 
 use super::markers::PositionMarker;
 use super::segments::base::ErasedSegment;
@@ -11,37 +11,50 @@ use super::segments::meta::EndOfFile;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
-use crate::core::parser::segments::base::{
-    Segment, SegmentConstructorFn, UnlexableSegment, UnlexableSegmentNewArgs,
-};
+use crate::core::parser::segments::base::Segment;
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
-pub struct LexedElement {
-    raw: SmolStr,
-    matcher: Box<dyn Matcher>,
+pub struct Element<'a> {
+    name: &'static str,
+    text: Cow<'a, str>,
+    value: fn(&str, PositionMarker) -> ErasedSegment,
 }
 
-impl LexedElement {
-    pub fn new(raw: SmolStr, matcher: Box<dyn Matcher>) -> Self {
-        LexedElement { raw, matcher }
+impl<'a> Element<'a> {
+    fn new(
+        name: &'static str,
+        value: fn(&str, PositionMarker) -> ErasedSegment,
+        text: impl Into<Cow<'a, str>>,
+    ) -> Self {
+        Self { name, value, text: text.into() }
     }
 }
 
 /// A LexedElement, bundled with it's position in the templated file.
 #[derive(Debug)]
-pub struct TemplateElement {
-    raw: SmolStr,
+pub struct TemplateElement<'a> {
+    raw: Cow<'a, str>,
     template_slice: Range<usize>,
-    matcher: Box<dyn Matcher>,
+    matcher: Info,
 }
 
-impl TemplateElement {
+#[derive(Debug)]
+struct Info {
+    name: &'static str,
+    constructor: fn(&str, PositionMarker) -> ErasedSegment,
+}
+
+impl<'a> TemplateElement<'a> {
     /// Make a TemplateElement from a LexedElement.
-    pub fn from_element(element: LexedElement, template_slice: Range<usize>) -> Self {
-        TemplateElement { raw: element.raw, template_slice, matcher: element.matcher }
+    pub fn from_element(element: Element<'a>, template_slice: Range<usize>) -> Self {
+        TemplateElement {
+            raw: element.text,
+            template_slice,
+            matcher: Info { name: element.name, constructor: element.value },
+        }
     }
 
     pub fn to_segment(
@@ -49,20 +62,20 @@ impl TemplateElement {
         pos_marker: PositionMarker,
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
-        let slice = subslice.map_or_else(|| self.raw.clone(), |slice| self.raw[slice].into());
-        self.matcher.construct_segment(slice, pos_marker)
+        let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
+        (self.matcher.constructor)(slice, pos_marker)
     }
 }
 
 /// A class to hold matches from the lexer.
 #[derive(Debug)]
-pub struct LexMatch {
-    forward_string: String,
-    pub elements: Vec<LexedElement>,
+pub struct Match<'a> {
+    pub forward_string: &'a str,
+    pub elements: Vec<Element<'a>>,
 }
 
 #[allow(clippy::needless_arbitrary_self_type)]
-impl LexMatch {
+impl Match<'_> {
     /// A LexMatch is truthy if it contains a non-zero number of matched
     /// elements.
     pub fn is_non_empty(self: &Self) -> bool {
@@ -70,394 +83,245 @@ impl LexMatch {
     }
 }
 
-pub trait CloneMatcher {
-    fn clone_box(&self) -> Box<dyn Matcher>;
+#[derive(Debug, Clone)]
+pub struct LazyRegex {
+    regex: &'static str,
+    compiled: OnceLock<Regex>,
 }
 
-impl<T: Matcher + DynClone> CloneMatcher for T {
-    fn clone_box(&self) -> Box<dyn Matcher> {
-        Box::new(dyn_clone::clone(self))
+impl LazyRegex {
+    const fn new(regex: &'static str) -> Self {
+        Self { regex, compiled: OnceLock::new() }
+    }
+
+    fn get(&self) -> &Regex {
+        self.compiled.get_or_init(|| Regex::new(self.regex).unwrap())
     }
 }
 
-#[allow(clippy::needless_arbitrary_self_type)]
-pub trait Matcher: Debug + DynClone + CloneMatcher + Sync + 'static {
-    /// The name of the matcher.
-    fn get_name(self: &Self) -> String;
-    /// Given a string, match what we can and return the rest.
-    fn match_(self: &Self, forward_string: &str) -> Result<LexMatch, ValueError>;
-    /// Use regex to find a substring.
-    fn search(self: &Self, forward_string: &str) -> Option<Range<usize>>;
+#[derive(Debug, Clone)]
+pub struct Matcher {
+    pattern: Pattern,
+    subdivider: Option<Pattern>,
+    trim_post_subdivide: Option<Pattern>,
+}
 
-    /// Access methods that need to be implemented by the subclass.
+impl Matcher {
+    pub const fn new(pattern: Pattern) -> Self {
+        Self { pattern, subdivider: None, trim_post_subdivide: None }
+    }
 
-    /// Get the sub-divider for this matcher.
-    fn get_sub_divider(self: &Self) -> Option<Box<dyn Matcher>>;
+    pub const fn string(
+        name: &'static str,
+        pattern: &'static str,
+        constructor: fn(&str, PositionMarker) -> ErasedSegment,
+    ) -> Self {
+        Self::new(Pattern::string(name, pattern, constructor))
+    }
 
-    fn get_trim_post_subdivide(self: &Self) -> Option<Box<dyn Matcher>>;
+    pub const fn regex(
+        name: &'static str,
+        pattern: &'static str,
+        constructor: fn(&str, PositionMarker) -> ErasedSegment,
+    ) -> Self {
+        Self::new(Pattern::regex(name, pattern, constructor))
+    }
 
-    fn _subdivide(self: &Self, matched: LexedElement) -> Vec<LexedElement> {
-        if let Some(sub_divider) = &self.get_sub_divider() {
-            let mut elem_buff: Vec<LexedElement> = vec![];
+    pub fn subdivider(mut self, subdivider: Pattern) -> Self {
+        self.subdivider = Some(subdivider);
+        self
+    }
 
-            let mut str_buff = matched.raw;
-            while !str_buff.is_empty() {
-                // Iterate through subdividing as appropriate
-                let div_pos = sub_divider.clone().search(&str_buff);
-                if let Some(div_pos) = div_pos {
-                    // Found a division
-                    let trimmed_elems =
-                        self._trim_match(str_buff[..div_pos.start].to_string().as_str());
-                    let div_elem = LexedElement::new(
-                        str_buff[div_pos.start..div_pos.end].into(),
-                        sub_divider.clone(),
-                    );
-                    elem_buff.extend_from_slice(&trimmed_elems);
-                    elem_buff.push(div_elem);
-                    str_buff = str_buff[div_pos.end..].into();
-                } else {
-                    // No more division matches. Trim?
-                    let trimmed_elems = self._trim_match(&str_buff);
-                    elem_buff.extend_from_slice(&trimmed_elems);
-                    break;
-                }
+    pub fn post_subdivide(mut self, trim_post_subdivide: Pattern) -> Self {
+        self.trim_post_subdivide = Some(trim_post_subdivide);
+        self
+    }
+
+    pub fn name(&self) -> &'static str {
+        self.pattern.name
+    }
+
+    pub fn matches<'a>(&self, forward_string: &'a str) -> Match<'a> {
+        match self.pattern.matches(forward_string) {
+            Some(matched) => {
+                let new_elements = self.subdivide(matched, self.pattern.value);
+
+                Match { forward_string: &forward_string[matched.len()..], elements: new_elements }
             }
-            elem_buff
-        } else {
-            vec![matched]
+            None => Match { forward_string, elements: Vec::new() },
         }
     }
 
-    /// Given a string, trim if we are allowed to.
-    fn _trim_match(self: &Self, matched_str: &str) -> Vec<LexedElement> {
+    fn subdivide<'a>(
+        &self,
+        matched: &'a str,
+        matched_kind: fn(&str, PositionMarker) -> ErasedSegment,
+    ) -> Vec<Element<'a>> {
+        match &self.subdivider {
+            Some(subdivider) => {
+                let mut elem_buff = Vec::new();
+                let mut str_buff = matched;
+
+                while !str_buff.is_empty() {
+                    let Some(div_pos) = subdivider.search(str_buff) else {
+                        let mut trimmed_elems = self.trim_match(str_buff);
+                        elem_buff.append(&mut trimmed_elems);
+                        break;
+                    };
+
+                    let mut trimmed_elems = self.trim_match(&str_buff[..div_pos.start]);
+                    let div_elem = Element::new(
+                        subdivider.name,
+                        subdivider.value,
+                        &str_buff[div_pos.start..div_pos.end],
+                    );
+
+                    elem_buff.append(&mut trimmed_elems);
+                    elem_buff.push(div_elem);
+
+                    str_buff = &str_buff[div_pos.end..];
+                }
+
+                elem_buff
+            }
+            None => {
+                vec![Element::new(self.name(), matched_kind, matched)]
+            }
+        }
+    }
+
+    fn trim_match<'a>(&self, matched_str: &'a str) -> Vec<Element<'a>> {
+        let Some(trim_post_subdivide) = &self.trim_post_subdivide else {
+            return Vec::new();
+        };
+
+        let mk_element =
+            |text| Element::new(trim_post_subdivide.name, trim_post_subdivide.value, text);
+
         let mut elem_buff = Vec::new();
         let mut content_buff = String::new();
         let mut str_buff = matched_str;
 
-        if let Some(trim_post_subdivide) = self.get_trim_post_subdivide() {
-            while !str_buff.is_empty() {
-                if let Some(trim_pos) = trim_post_subdivide.clone().search(str_buff) {
-                    let start = trim_pos.start;
-                    let end = trim_pos.end;
+        while !str_buff.is_empty() {
+            let Some(trim_pos) = trim_post_subdivide.search(str_buff) else {
+                break;
+            };
 
-                    if start == 0 {
-                        elem_buff.push(LexedElement::new(
-                            str_buff[..end].into(),
-                            trim_post_subdivide.clone(),
-                        ));
-                        str_buff = str_buff[end..].into();
-                    } else if end == str_buff.len() {
-                        elem_buff.push(LexedElement::new(
-                            format!("{}{}", content_buff, &str_buff[..start]).into(),
-                            trim_post_subdivide.clone(),
-                        ));
-                        elem_buff.push(LexedElement::new(
-                            str_buff[start..end].into(),
-                            trim_post_subdivide.clone(),
-                        ));
-                        content_buff.clear();
-                        str_buff = "";
-                    } else {
-                        content_buff.push_str(&str_buff[..end]);
-                        str_buff = &str_buff[end..];
-                    }
-                } else {
-                    break;
-                }
-            }
-            if !content_buff.is_empty() || !str_buff.is_empty() {
-                elem_buff.push(LexedElement::new(
-                    format!("{}{}", content_buff, str_buff).into(),
-                    self.clone_box(),
+            let start = trim_pos.start;
+            let end = trim_pos.end;
+
+            if start == 0 {
+                elem_buff.push(mk_element(&str_buff[..end]));
+                str_buff = str_buff[end..].into();
+            } else if end == str_buff.len() {
+                let raw = format!("{}{}", content_buff, &str_buff[..start]);
+
+                elem_buff.push(Element::new(
+                    trim_post_subdivide.name,
+                    trim_post_subdivide.value,
+                    raw,
                 ));
+                elem_buff.push(mk_element(&str_buff[start..end]));
+
+                content_buff.clear();
+                str_buff = "";
+            } else {
+                content_buff.push_str(&str_buff[..end]);
+                str_buff = &str_buff[end..];
             }
+        }
+
+        if !content_buff.is_empty() || !str_buff.is_empty() {
+            let raw = format!("{}{}", content_buff, str_buff);
+            elem_buff.push(Element::new(self.pattern.name, self.pattern.value, raw));
         }
 
         elem_buff
     }
-
-    fn construct_segment(&self, _raw: SmolStr, _pos_marker: PositionMarker) -> ErasedSegment {
-        unimplemented!("{}", std::any::type_name::<Self>());
-    }
 }
 
-dyn_clone::clone_trait_object!(Matcher);
-
-impl Display for dyn Matcher {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Matcher({})", self.get_name())
-    }
-}
-
-/// This singleton matcher matches strings exactly.
-/// This is the simplest usable matcher, but it also defines some of the
-/// mechanisms for more complicated matchers, which may simply override the
-/// `_match` function rather than the public `match` function.  This acts as
-/// the base class for matchers.
-#[derive(Clone)]
-pub struct StringLexer<SegmentArgs: 'static + Clone> {
+#[derive(Debug, Clone)]
+pub struct Pattern {
     name: &'static str,
-    template: &'static str,
-    segment_constructor: SegmentConstructorFn<SegmentArgs>,
-    segment_args: SegmentArgs,
-    sub_divider: Option<Box<dyn Matcher>>,
-    trim_post_subdivide: Option<Box<dyn Matcher>>,
+    value: fn(&str, PositionMarker) -> ErasedSegment,
+    kind: SearchPatternKind,
 }
 
-impl<SegmentArgs: Clone + Debug + Sync> StringLexer<SegmentArgs> {
-    pub fn new(
+#[derive(Debug, Clone)]
+pub enum SearchPatternKind {
+    String(&'static str),
+    LazyRegex(LazyRegex),
+}
+
+impl Pattern {
+    pub const fn string(
         name: &'static str,
         template: &'static str,
-        segment_constructor: SegmentConstructorFn<SegmentArgs>,
-        segment_args: SegmentArgs,
-        sub_divider: Option<Box<dyn Matcher>>,
-        trim_post_subdivide: Option<Box<dyn Matcher>>,
+        constructor: fn(&str, PositionMarker) -> ErasedSegment,
     ) -> Self {
-        StringLexer {
-            name,
-            template,
-            segment_constructor,
-            segment_args,
-            sub_divider,
-            trim_post_subdivide,
-        }
+        Self { name, value: constructor, kind: SearchPatternKind::String(template) }
     }
 
-    /// The private match function. Just look for a literal string.
-    fn _match(&self, forward_string: &str) -> Option<LexedElement> {
-        if forward_string.starts_with(self.template) {
-            Some(LexedElement { raw: self.template.into(), matcher: Box::new(self.clone()) })
-        } else {
-            None
-        }
+    pub const fn regex(
+        name: &'static str,
+        regex: &'static str,
+        constructor: fn(&str, PositionMarker) -> ErasedSegment,
+    ) -> Self {
+        Self { name, value: constructor, kind: SearchPatternKind::LazyRegex(LazyRegex::new(regex)) }
     }
 
-    /// Given a string, trim if we are allowed to.
-    fn _trim_match(&self, _matched_string: &str) -> Vec<LexedElement> {
-        panic!("Not implemented")
-    }
-
-    /// Given a string, subdivide if we area allowed to.
-    fn _subdivide(&self, matched: LexedElement) -> Vec<LexedElement> {
-        if let Some(sub_divider) = &self.sub_divider {
-            let mut elem_buff: Vec<LexedElement> = vec![];
-
-            let mut str_buff = matched.raw;
-            while !str_buff.is_empty() {
-                // Iterate through subdividing as appropriate
-                let div_pos = self.sub_divider.clone().unwrap().search(&str_buff);
-                if let Some(div_pos) = div_pos {
-                    // Found a division
-                    let trimmed_elems = self._trim_match(&str_buff[..div_pos.start]);
-                    let div_elem = LexedElement::new(
-                        str_buff[div_pos.start..div_pos.end].into(),
-                        sub_divider.clone(),
-                    );
-                    elem_buff.extend_from_slice(&trimmed_elems);
-                    elem_buff.push(div_elem);
-                    str_buff = str_buff[div_pos.end..].into();
-                } else {
-                    // No more division matches. Trim?
-                    let trimmed_elems = self._trim_match(&str_buff);
-                    elem_buff.extend_from_slice(&trimmed_elems);
-                    break;
+    fn matches<'a>(&self, forward_string: &'a str) -> Option<&'a str> {
+        match self.kind {
+            SearchPatternKind::String(template) => {
+                if forward_string.starts_with(template) {
+                    return Some(template);
                 }
             }
-            elem_buff
-        } else {
-            vec![matched]
-        }
-    }
-}
-
-impl<SegmentArgs: Debug + Clone> Debug for StringLexer<SegmentArgs> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "StringLexer({})", self.name)
-    }
-}
-
-impl<SegmentArgs: Clone + Debug> Display for StringLexer<SegmentArgs> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "StringLexer({})", self.template)
-    }
-}
-
-impl<SegmentArgs: Clone + Debug + Sync> Matcher for StringLexer<SegmentArgs> {
-    fn get_name(&self) -> String {
-        self.name.to_string()
-    }
-
-    /// Given a string, match what we can and return the rest.
-    fn match_(&self, forward_string: &str) -> Result<LexMatch, ValueError> {
-        if forward_string.is_empty() {
-            return Err(ValueError::new(String::from("Unexpected empty string!")));
+            SearchPatternKind::LazyRegex(ref template) => {
+                if let Ok(Some(matched)) = template.get().find(forward_string) {
+                    if matched.start() == 0 {
+                        return Some(matched.as_str());
+                    }
+                }
+            }
         };
-        let matched = self._match(forward_string);
-        match matched {
-            Some(matched) => {
-                let length = matched.raw.len();
-                let new_elements = self._subdivide(matched);
-                Ok(LexMatch {
-                    forward_string: forward_string[length..].to_string(),
-                    elements: new_elements,
-                })
-            }
-            None => Ok(LexMatch { forward_string: forward_string.to_string(), elements: vec![] }),
-        }
-    }
 
-    fn search(&self, forward_string: &str) -> Option<Range<usize>> {
-        forward_string.find(self.template).map(|start| start..start + self.template.len())
-    }
-
-    fn get_sub_divider(&self) -> Option<Box<dyn Matcher>> {
-        self.sub_divider.clone()
-    }
-
-    fn get_trim_post_subdivide(&self) -> Option<Box<dyn Matcher>> {
-        self.trim_post_subdivide.clone()
-    }
-
-    fn construct_segment(&self, raw: SmolStr, pos_marker: PositionMarker) -> ErasedSegment {
-        (self.segment_constructor)(&raw, pos_marker.into(), self.segment_args.clone())
-    }
-}
-
-/// This RegexLexer matches based on regular expressions.
-#[derive(Clone)]
-pub struct RegexLexer<SegmentArgs: 'static + Clone> {
-    name: &'static str,
-    template: Regex,
-    segment_constructor: SegmentConstructorFn<SegmentArgs>,
-    segment_args: SegmentArgs,
-    sub_divider: Option<Box<dyn Matcher>>,
-    trim_post_subdivide: Option<Box<dyn Matcher>>,
-}
-
-impl<SegmentArgs: Clone + Debug + Sync> RegexLexer<SegmentArgs> {
-    #[allow(clippy::result_large_err)]
-    pub fn new(
-        name: &'static str,
-        regex: &str,
-        segment_constructor: SegmentConstructorFn<SegmentArgs>,
-        segment_args: SegmentArgs,
-        sub_divider: Option<Box<dyn Matcher>>,
-        trim_post_subdivide: Option<Box<dyn Matcher>>,
-    ) -> Result<Self, Error> {
-        Ok(RegexLexer {
-            name,
-            template: Regex::new(regex)?,
-            segment_constructor,
-            segment_args,
-            sub_divider,
-            trim_post_subdivide,
-        })
-    }
-
-    /// Use regexes to match chunks.
-    pub fn _match(&self, forward_string: &str) -> Option<LexedElement> {
-        if let Ok(Some(matched)) = self.template.find(forward_string) {
-            if matched.start() == 0 {
-                return Some(LexedElement {
-                    raw: matched.as_str().into(),
-                    matcher: Box::new(self.clone()),
-                });
-            }
-        }
-        None
-    }
-}
-
-impl<SegmentArgs: Debug + Clone> Debug for RegexLexer<SegmentArgs> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RegexLexer({})", self.name)
-    }
-}
-
-impl<SegmentArgs: Clone + Debug + Sync> Display for RegexLexer<SegmentArgs> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RegexLexer({})", self.get_name())
-    }
-}
-
-impl<SegmentArgs: Clone + Debug + Sync> Matcher for RegexLexer<SegmentArgs> {
-    fn get_name(&self) -> String {
-        self.name.to_string()
-    }
-
-    /// Given a string, match what we can and return the rest.
-    fn match_(&self, forward_string: &str) -> Result<LexMatch, ValueError> {
-        if forward_string.is_empty() {
-            return Err(ValueError::new(String::from("Unexpected empty string!")));
-        };
-        let matched = self._match(forward_string);
-        match matched {
-            Some(matched) => {
-                let length = matched.raw.len();
-                let new_elements = self._subdivide(matched);
-
-                Ok(LexMatch {
-                    forward_string: forward_string[length..].to_string(),
-                    elements: new_elements,
-                })
-            }
-            None => Ok(LexMatch { forward_string: forward_string.to_string(), elements: vec![] }),
-        }
-    }
-
-    /// Use regex to find a substring.
-    fn search(&self, forward_string: &str) -> Option<Range<usize>> {
-        if let Ok(Some(matched)) = self.template.find(forward_string) {
-            let match_str = matched.as_str();
-            if !match_str.is_empty() {
-                return Some(matched.range());
-            } else {
-                panic!(
-                    "Zero length Lex item returned from '{}'. Report this as a bug.",
-                    self.get_name()
-                );
-            }
-        }
         None
     }
 
-    fn get_sub_divider(&self) -> Option<Box<dyn Matcher>> {
-        self.sub_divider.clone()
-    }
-
-    fn get_trim_post_subdivide(&self) -> Option<Box<dyn Matcher>> {
-        self.trim_post_subdivide.clone()
-    }
-
-    fn construct_segment(&self, raw: SmolStr, pos_marker: PositionMarker) -> ErasedSegment {
-        (self.segment_constructor)(&raw, pos_marker.into(), self.segment_args.clone())
+    fn search(&self, forward_string: &str) -> Option<Range<usize>> {
+        match &self.kind {
+            SearchPatternKind::String(template) => {
+                forward_string.find(template).map(|start| start..start + template.len())
+            }
+            SearchPatternKind::LazyRegex(template) => {
+                if let Ok(Some(matched)) = template.get().find(forward_string) {
+                    return Some(matched.range());
+                }
+                None
+            }
+        }
     }
 }
 
 /// The Lexer class actually does the lexing step.
 pub struct Lexer<'a> {
     config: &'a FluffConfig,
-    last_resort_lexer: Box<dyn Matcher>,
+    last_resort_lexer: Matcher,
 }
 
-pub enum StringOrTemplate {
-    String(String),
+pub enum StringOrTemplate<'a> {
+    String(&'a str),
     Template(TemplatedFile),
 }
 
 impl<'a> Lexer<'a> {
     /// Create a new lexer.
     pub fn new(config: &'a FluffConfig, _dialect: Option<Dialect>) -> Self {
-        let last_resort_lexer = RegexLexer::new(
-            "last_resort",
-            "[^\t\n.]*",
-            &UnlexableSegment::create,
-            UnlexableSegmentNewArgs { expected: None },
-            None,
-            None,
-        )
-        .expect("Unable to create last resort lexer");
-        Lexer { config, last_resort_lexer: Box::new(last_resort_lexer) }
+        Lexer {
+            config,
+            last_resort_lexer: Matcher::regex("<unlexable>", r"[^\t\n.]*", |_, _| unimplemented!()),
+        }
     }
 
     pub fn lex(
@@ -466,20 +330,27 @@ impl<'a> Lexer<'a> {
     ) -> Result<(Vec<ErasedSegment>, Vec<SQLLexError>), ValueError> {
         // Make sure we've got a string buffer and a template regardless of what was
         // passed in.
-        let (mut str_buff, template) = match raw {
-            StringOrTemplate::String(s) => (s.clone(), TemplatedFile::from_string(s.to_string())),
-            StringOrTemplate::Template(f) => (f.to_string(), f),
+
+        let template;
+        let mut str_buff = match raw {
+            StringOrTemplate::String(s) => {
+                template = TemplatedFile::from_string(s.into());
+                s
+            }
+            StringOrTemplate::Template(slot) => {
+                template = slot;
+                template.templated_str.as_ref().unwrap()
+            }
         };
 
         // Lex the string to get a tuple of LexedElement
-        let mut element_buffer: Vec<LexedElement> = Vec::new();
+        let mut element_buffer: Vec<Element> = Vec::new();
         loop {
-            let res =
-                Lexer::lex_match(&str_buff, self.config.get_dialect().lexer_matchers()).unwrap();
+            let res = Lexer::lex_match(&str_buff, self.config.get_dialect().lexer_matchers());
             element_buffer.extend(res.elements);
             if !res.forward_string.is_empty() {
                 // If we STILL can't match, then just panic out.
-                let resort_res = self.last_resort_lexer.match_(&str_buff)?;
+                let resort_res = self.last_resort_lexer.matches(str_buff);
 
                 if !resort_res.elements.is_empty() {
                     break;
@@ -494,9 +365,9 @@ impl<'a> Lexer<'a> {
 
         // Map tuple LexedElement to list of TemplateElement.
         // This adds the template_slice to the object.
-        let templated_buffer = Lexer::map_template_slices(element_buffer, template.clone());
+        let templated_buffer = Lexer::map_template_slices(element_buffer, &template);
         // Turn lexed elements into segments.
-        let segments = self.elements_to_segments(templated_buffer, template);
+        let segments = self.elements_to_segments(templated_buffer, &template);
 
         Ok((segments, Vec::new()))
     }
@@ -523,43 +394,24 @@ impl<'a> Lexer<'a> {
     }
 
     /// Iteratively match strings using the selection of sub-matchers.
-    fn lex_match(
-        forward_string: &str,
-        lexer_matchers: &[Box<dyn Matcher>],
-    ) -> Result<LexMatch, ValueError> {
-        let mut elem_buff: Vec<LexedElement> = vec![];
-        let mut forward_string = forward_string.to_string();
-
-        loop {
+    fn lex_match<'b>(mut forward_string: &'b str, lexer_matchers: &[Matcher]) -> Match<'b> {
+        let mut elem_buff = Vec::new();
+        'main: loop {
             if forward_string.is_empty() {
-                return Ok(LexMatch {
-                    forward_string: forward_string.to_string(),
-                    elements: elem_buff,
-                });
-            };
-
-            let mut matched = false;
+                return Match { forward_string, elements: elem_buff };
+            }
 
             for matcher in lexer_matchers {
-                let res = matcher.match_(&forward_string)?;
-                if !res.elements.is_empty() {
-                    // If we have new segments then whoop!
-                    elem_buff.append(res.elements.clone().as_mut());
-                    forward_string = res.forward_string;
-                    // Cycle back around again and start with the top
-                    // matcher again.
-                    matched = true;
-                    break;
+                let mut match_result = matcher.matches(forward_string);
+
+                if !match_result.elements.is_empty() {
+                    elem_buff.append(&mut match_result.elements);
+                    forward_string = match_result.forward_string;
+                    continue 'main;
                 }
             }
 
-            // We've got so far, but now can't match. Return
-            if !matched {
-                return Ok(LexMatch {
-                    forward_string: forward_string.to_string(),
-                    elements: elem_buff,
-                });
-            }
+            return Match { forward_string, elements: elem_buff };
         }
     }
 
@@ -570,27 +422,26 @@ impl<'a> Lexer<'a> {
     /// file.
     /// TODO Can this vec be turned into an iterator and return iterator to make
     /// lazy?
-    fn map_template_slices(
-        elements: Vec<LexedElement>,
-        template: TemplatedFile,
-    ) -> Vec<TemplateElement> {
+    fn map_template_slices<'b>(
+        elements: Vec<Element<'b>>,
+        template: &TemplatedFile,
+    ) -> Vec<TemplateElement<'b>> {
         let mut idx = 0;
         let mut templated_buff: Vec<TemplateElement> = vec![];
         for element in elements {
-            let template_slice = offset_slice(idx, element.raw.len());
-            idx += element.raw.len();
-
-            templated_buff
-                .push(TemplateElement::from_element(element.clone(), template_slice.clone()));
+            let template_slice = offset_slice(idx, element.text.len());
+            idx += element.text.len();
 
             let templated_string = template.get_templated_string().unwrap();
-            if templated_string[template_slice.clone()] != element.raw {
+            if templated_string[template_slice.clone()] != element.text {
                 panic!(
                     "Template and lexed elements do not match. This should never happen {:?} != \
                      {:?}",
-                    element.raw, &templated_string[template_slice]
+                    element.text, &templated_string[template_slice]
                 );
             }
+
+            templated_buff.push(TemplateElement::from_element(element, template_slice));
         }
         templated_buff
     }
@@ -600,15 +451,15 @@ impl<'a> Lexer<'a> {
     fn elements_to_segments(
         &self,
         elements: Vec<TemplateElement>,
-        templated_file: TemplatedFile,
+        templated_file: &TemplatedFile,
     ) -> Vec<ErasedSegment> {
-        let mut segments = iter_segments(elements, templated_file.clone());
+        let mut segments = iter_segments(elements, templated_file);
 
         // Add an end of file marker
-        let position_maker = segments
-            .last()
-            .map(|segment| segment.get_position_marker().unwrap())
-            .unwrap_or_else(|| PositionMarker::from_point(0, 0, templated_file, None, None));
+        let position_maker =
+            segments.last().map(|segment| segment.get_position_marker().unwrap()).unwrap_or_else(
+                || PositionMarker::from_point(0, 0, templated_file.clone(), None, None),
+            );
         segments.push(EndOfFile::create(position_maker));
 
         segments
@@ -617,14 +468,14 @@ impl<'a> Lexer<'a> {
 
 fn iter_segments(
     lexed_elements: Vec<TemplateElement>,
-    templated_file: TemplatedFile,
+    templated_file: &TemplatedFile,
 ) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
     // An index to track where we've got to in the templated file.
     let tfs_idx = 0;
     // We keep a map of previous block locations in case they re-occur.
     // let block_stack = BlockTracker()
-    let templated_file_slices = &templated_file.clone().sliced_file;
+    let templated_file_slices = &templated_file.sliced_file;
 
     // Now work out source slices, and add in template placeholders.
     for element in lexed_elements.into_iter() {
@@ -697,7 +548,7 @@ fn iter_segments(
                     // NOTE: We should probably make this configurable on the
                     // matcher object, but for now we're going to look for the
                     // name of the lexer.
-                    if element.matcher.get_name() == "whitespace" {
+                    if element.matcher.name == "whitespace" {
                         if stashed_source_idx.is_some() {
                             panic!("Found literal whitespace with stashed idx!")
                         }
@@ -745,9 +596,6 @@ fn _handle_zero_length_slice() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::parser::segments::base::{
-        CodeSegment, CodeSegmentNewArgs, NewlineSegment, NewlineSegmentNewArgs,
-    };
 
     /// Assert that a matcher does or doesn't work on a string.
     ///
@@ -755,67 +603,38 @@ mod tests {
     /// be None, allows to either test positive matching of a
     /// particular string or negative matching (that it explicitly)
     /// doesn't match.
-    fn assert_matches(in_string: &str, matcher: &impl Matcher, match_string: Option<&str>) {
-        let res = matcher.match_(&in_string).unwrap();
+    fn assert_matches(in_string: &str, matcher: &Matcher, match_string: Option<&str>) {
+        let res = matcher.matches(&in_string);
         if let Some(match_string) = match_string {
-            assert_eq!(res.forward_string, in_string[match_string.len()..]);
+            assert_eq!(res.forward_string, &in_string[match_string.len()..]);
             assert_eq!(res.elements.len(), 1);
-            assert_eq!(res.elements[0].raw, match_string);
+            assert_eq!(res.elements[0].text, match_string);
         } else {
             assert_eq!(res.forward_string, in_string);
             assert_eq!(res.elements.len(), 0);
         }
     }
 
-    /// Test a RegexLexer with a trim_post_subdivide function.
     #[test]
-    // TODO Implement Test
     fn test__parser__lexer_trim_post_subdivide() {
-        let matcher: Vec<Box<dyn Matcher>> = vec![Box::new(
-            RegexLexer::new(
+        let matcher: Vec<Matcher> = vec![
+            Matcher::regex(
                 "function_script_terminator",
                 r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
-                &CodeSegment::create,
-                CodeSegmentNewArgs {
-                    code_type: "function_script_terminator",
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-                Some(Box::new(StringLexer::new(
-                    "semicolon",
-                    ";",
-                    &CodeSegment::create,
-                    CodeSegmentNewArgs {
-                        code_type: "semicolon",
-                        instance_types: vec![],
-                        trim_start: None,
-                        trim_chars: None,
-                        source_fixes: None,
-                    },
-                    None,
-                    None,
-                ))),
-                Some(Box::new(
-                    RegexLexer::new(
-                        "newline",
-                        r"(\n|\r\n)+",
-                        &NewlineSegment::create,
-                        NewlineSegmentNewArgs {},
-                        None,
-                        None,
-                    )
-                    .unwrap(),
-                )),
+                |_, _| unimplemented!(),
             )
-            .unwrap(),
-        )];
+            .subdivider(Pattern::string("semicolon", ";", |_, _| unimplemented!()))
+            .post_subdivide(Pattern::regex(
+                "newline",
+                r"(\n|\r\n)+",
+                |_, _| unimplemented!(),
+            )),
+        ];
 
-        let res = Lexer::lex_match(";\n/\n", &matcher).unwrap();
-        assert_eq!(res.elements[0].raw, ";");
-        assert_eq!(res.elements[1].raw, "\n");
-        assert_eq!(res.elements[2].raw, "/");
+        let res = Lexer::lex_match(";\n/\n", &matcher);
+        assert_eq!(res.elements[0].text, ";");
+        assert_eq!(res.elements[1].text, "\n");
+        assert_eq!(res.elements[2].text, "/");
         assert_eq!(res.elements.len(), 3);
     }
 
@@ -840,21 +659,7 @@ mod tests {
         ];
 
         for (raw, reg, res) in tests {
-            let matcher = RegexLexer::new(
-                "test",
-                reg,
-                &CodeSegment::create,
-                CodeSegmentNewArgs {
-                    code_type: "",
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-                None,
-                None,
-            )
-            .unwrap();
+            let matcher = Matcher::regex("test", &reg, |_, _| unimplemented!());
 
             assert_matches(raw, &matcher, Some(res));
         }
@@ -863,20 +668,8 @@ mod tests {
     /// Test the lexer string
     #[test]
     fn test__parser__lexer_string() {
-        let matcher = StringLexer::new(
-            "dot",
-            ".",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "dot",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        );
+        let matcher = Matcher::string("dot", ".", |_, _| unimplemented!());
+
         assert_matches(".fsaljk", &matcher, Some("."));
         assert_matches("fsaljk", &matcher, None);
     }
@@ -884,44 +677,15 @@ mod tests {
     /// Test the RepeatedMultiMatcher
     #[test]
     fn test__parser__lexer_lex_match() {
-        let matchers: Vec<Box<dyn Matcher>> = vec![
-            Box::new(StringLexer::new(
-                "dot",
-                ".",
-                &CodeSegment::create,
-                CodeSegmentNewArgs {
-                    code_type: "",
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-                None,
-                None,
-            )),
-            Box::new(
-                RegexLexer::new(
-                    "test",
-                    r"#[^#]*#",
-                    &CodeSegment::create,
-                    CodeSegmentNewArgs {
-                        code_type: "",
-                        instance_types: vec![],
-                        trim_start: None,
-                        trim_chars: None,
-                        source_fixes: None,
-                    },
-                    None,
-                    None,
-                )
-                .unwrap(),
-            ),
+        let matchers: Vec<Matcher> = vec![
+            Matcher::string("dot", ".", |_, _| unimplemented!()),
+            Matcher::regex("test", "#[^#]*#", |_, _| unimplemented!()),
         ];
 
-        let res = Lexer::lex_match("..#..#..#", &matchers).unwrap();
+        let res = Lexer::lex_match("..#..#..#", &matchers);
 
         assert_eq!(res.forward_string, "#");
         assert_eq!(res.elements.len(), 5);
-        assert_eq!(res.elements[2].raw, "#..#");
+        assert_eq!(res.elements[2].text, "#..#");
     }
 }

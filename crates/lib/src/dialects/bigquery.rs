@@ -10,7 +10,7 @@ use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumbe
 use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
-use crate::core::parser::lexer::{RegexLexer, StringLexer};
+use crate::core::parser::lexer::Matcher;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
@@ -29,56 +29,53 @@ pub fn bigquery_dialect() -> Dialect {
 
     dialect.insert_lexer_matchers(
         vec![
-            Box::new(StringLexer::new(
-                "right_arrow",
-                "=>",
-                &CodeSegment::create,
-                CodeSegmentNewArgs { code_type: "right_arrow", ..Default::default() },
-                None,
-                None,
-            )),
-            Box::new(StringLexer::new(
-                "question_mark",
-                "?",
-                &CodeSegment::create,
-                CodeSegmentNewArgs { code_type: "question_mark", ..Default::default() },
-                None,
-                None,
-            )),
-            Box::new(
-                RegexLexer::new(
-                    "at_sign_literal",
-                    r#"@[a-zA-Z_][\w]*"#,
-                    &CodeSegment::create,
-                    CodeSegmentNewArgs { code_type: "at_sign_literal", ..Default::default() },
-                    None,
-                    None,
+            Matcher::string("right_arrow", "=>", |slice, marker| {
+                CodeSegment::create(
+                    slice,
+                    marker.into(),
+                    CodeSegmentNewArgs { code_type: "right_arrow", ..Default::default() },
                 )
-                .unwrap(),
-            ),
+            }),
+            Matcher::string("question_mark", "?", |slice, marker| {
+                CodeSegment::create(
+                    slice,
+                    marker.into(),
+                    CodeSegmentNewArgs { code_type: "question_mark", ..Default::default() },
+                )
+            }),
+            Matcher::regex("at_sign_literal", r"@[a-zA-Z_][\w]*", |slice, marker| {
+                CodeSegment::create(
+                    slice,
+                    marker.into(),
+                    CodeSegmentNewArgs { code_type: "at_sign_literal", ..Default::default() },
+                )
+            }),
         ],
         "equals",
     );
 
     dialect.patch_lexer_matchers(vec![
-        Box::new(RegexLexer::new(
+        Matcher::regex(
             "single_quote",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
-            &CodeSegment::create,
-            CodeSegmentNewArgs { code_type: "single_quote", ..Default::default() },
-            None,
-            None,
-        ).unwrap()),
-        Box::new(
-            RegexLexer::new(
-                "double_quote",
-                r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
-                &CodeSegment::create,
-                CodeSegmentNewArgs { code_type: "double_quote", ..Default::default() },
-                None,
-                None,
-            )
-            .unwrap(),
+            |slice, marker| {
+                CodeSegment::create(
+                    slice,
+                    marker.into(),
+                    CodeSegmentNewArgs { code_type: "single_quote", ..Default::default() },
+                )
+            }
+        ),
+        Matcher::regex(
+            "double_quote",
+            r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
+            |slice, marker| {
+                CodeSegment::create(
+                    slice,
+                    marker.into(),
+                    CodeSegmentNewArgs { code_type: "double_quote", ..Default::default() },
+                )
+            }
         ),
     ]);
 

@@ -34,7 +34,7 @@ pub fn lex(string: &str) -> Vec<ErasedSegment> {
     let config = FluffConfig::new(<_>::default(), None, None);
     let lexer = Lexer::new(&config, None);
 
-    let (segments, errors) = lexer.lex(StringOrTemplate::String(string.into())).unwrap();
+    let (segments, errors) = lexer.lex(StringOrTemplate::String(string)).unwrap();
     assert_eq!(errors, &[]);
     segments
 }

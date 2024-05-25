@@ -346,18 +346,18 @@ impl<'a> Lexer<'a> {
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
         loop {
-            let res = Lexer::lex_match(&str_buff, self.config.get_dialect().lexer_matchers());
-            element_buffer.extend(res.elements);
+            let mut res = Lexer::lex_match(str_buff, self.config.get_dialect().lexer_matchers());
+            element_buffer.append(&mut res.elements);
             if !res.forward_string.is_empty() {
                 // If we STILL can't match, then just panic out.
-                let resort_res = self.last_resort_lexer.matches(str_buff);
+                let mut resort_res = self.last_resort_lexer.matches(str_buff);
 
                 if !resort_res.elements.is_empty() {
                     break;
                 }
 
                 str_buff = resort_res.forward_string;
-                element_buffer.extend(resort_res.elements);
+                element_buffer.append(&mut resort_res.elements);
             } else {
                 break;
             }

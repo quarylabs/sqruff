@@ -345,22 +345,24 @@ impl<'a> Lexer<'a> {
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
+        let lexer_matchers = self.config.get_dialect().lexer_matchers();
+
         loop {
-            let mut res = Lexer::lex_match(str_buff, self.config.get_dialect().lexer_matchers());
+            let mut res = Lexer::lex_match(str_buff, lexer_matchers);
             element_buffer.append(&mut res.elements);
-            if !res.forward_string.is_empty() {
-                // If we STILL can't match, then just panic out.
-                let mut resort_res = self.last_resort_lexer.matches(str_buff);
 
-                if !resort_res.elements.is_empty() {
-                    break;
-                }
-
-                str_buff = resort_res.forward_string;
-                element_buffer.append(&mut resort_res.elements);
-            } else {
+            if res.forward_string.is_empty() {
                 break;
             }
+
+            // If we STILL can't match, then just panic out.
+            let mut resort_res = self.last_resort_lexer.matches(str_buff);
+            if !resort_res.elements.is_empty() {
+                break;
+            }
+
+            str_buff = resort_res.forward_string;
+            element_buffer.append(&mut resort_res.elements);
         }
 
         // Map tuple LexedElement to list of TemplateElement.
@@ -427,7 +429,8 @@ impl<'a> Lexer<'a> {
         template: &TemplatedFile,
     ) -> Vec<TemplateElement<'b>> {
         let mut idx = 0;
-        let mut templated_buff: Vec<TemplateElement> = vec![];
+        let mut templated_buff: Vec<TemplateElement> = Vec::with_capacity(elements.len());
+
         for element in elements {
             let template_slice = offset_slice(idx, element.text.len());
             idx += element.text.len();
@@ -443,6 +446,7 @@ impl<'a> Lexer<'a> {
 
             templated_buff.push(TemplateElement::from_element(element, template_slice));
         }
+
         templated_buff
     }
 
@@ -470,7 +474,7 @@ fn iter_segments(
     lexed_elements: Vec<TemplateElement>,
     templated_file: &TemplatedFile,
 ) -> Vec<ErasedSegment> {
-    let mut result = Vec::new();
+    let mut result = Vec::with_capacity(lexed_elements.len());
     // An index to track where we've got to in the templated file.
     let tfs_idx = 0;
     // We keep a map of previous block locations in case they re-occur.

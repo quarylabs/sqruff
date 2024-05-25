@@ -16,7 +16,7 @@ use crate::helpers::{capitalize, ToErasedSegment};
 pub struct Dialect {
     pub(crate) name: &'static str,
     root_segment_name: &'static str,
-    lexer_matchers: Option<Vec<Box<dyn Matcher>>>,
+    lexer_matchers: Option<Vec<Matcher>>,
     // TODO: Can we use PHF here? https://crates.io/crates/phf
     library: AHashMap<Cow<'static, str>, DialectElementType>,
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
@@ -50,14 +50,14 @@ impl Dialect {
         }
     }
 
-    pub fn lexer_matchers(&self) -> &[Box<dyn Matcher>] {
+    pub fn lexer_matchers(&self) -> &[Matcher] {
         match &self.lexer_matchers {
             Some(lexer_matchers) => lexer_matchers,
             None => panic!("Lexing struct has not been set for dialect {self:?}"),
         }
     }
 
-    pub fn insert_lexer_matchers(&mut self, lexer_patch: Vec<Box<dyn Matcher>>, before: &str) {
+    pub fn insert_lexer_matchers(&mut self, lexer_patch: Vec<Matcher>, before: &str) {
         let mut buff = Vec::new();
         let mut found = false;
 
@@ -66,7 +66,7 @@ impl Dialect {
         }
 
         for elem in self.lexer_matchers.take().unwrap() {
-            if elem.get_name() == before {
+            if elem.name() == before {
                 found = true;
                 for patch in lexer_patch.clone() {
                     buff.push(patch);
@@ -84,17 +84,17 @@ impl Dialect {
         self.lexer_matchers = Some(buff);
     }
 
-    pub fn patch_lexer_matchers(&mut self, lexer_patch: Vec<Box<dyn Matcher>>) {
+    pub fn patch_lexer_matchers(&mut self, lexer_patch: Vec<Matcher>) {
         let mut buff = Vec::with_capacity(self.lexer_matchers.as_ref().map_or(0, Vec::len));
         if self.lexer_matchers.is_none() {
             panic!("Lexer struct must be defined before it can be patched!");
         }
 
-        let patch_dict: AHashMap<String, Box<dyn Matcher>> =
-            lexer_patch.into_iter().map(|elem| (elem.get_name(), elem)).collect();
+        let patch_dict: AHashMap<&'static str, Matcher> =
+            lexer_patch.into_iter().map(|elem| (elem.name(), elem)).collect();
 
         for elem in self.lexer_matchers.take().unwrap() {
-            if let Some(patch) = patch_dict.get(&elem.get_name()) {
+            if let Some(patch) = patch_dict.get(elem.name()) {
                 buff.push(patch.clone());
             } else {
                 buff.push(elem);
@@ -104,7 +104,7 @@ impl Dialect {
         self.lexer_matchers = Some(buff);
     }
 
-    pub fn set_lexer_matchers(&mut self, lexer_matchers: Vec<Box<dyn Matcher>>) {
+    pub fn set_lexer_matchers(&mut self, lexer_matchers: Vec<Matcher>) {
         self.lexer_matchers = lexer_matchers.into();
     }
 

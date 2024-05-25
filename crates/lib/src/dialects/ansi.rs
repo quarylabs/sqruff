@@ -19,7 +19,7 @@ use crate::core::parser::grammar::base::{Nothing, Ref};
 use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
-use crate::core::parser::lexer::{Matcher, RegexLexer, StringLexer};
+use crate::core::parser::lexer::{Matcher, Pattern};
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
@@ -27,8 +27,8 @@ use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser,
 use crate::core::parser::segments::base::{
     pos_marker, CloneSegment, CodeSegment, CodeSegmentNewArgs, CommentSegment,
     CommentSegmentNewArgs, ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs,
-    Segment, SegmentConstructorFn, SymbolSegment, SymbolSegmentNewArgs, UnparsableSegment,
-    WhitespaceSegment, WhitespaceSegmentNewArgs,
+    Segment, SymbolSegment, SymbolSegmentNewArgs, UnparsableSegment, WhitespaceSegment,
+    WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::fix::SourceFix;
@@ -2086,545 +2086,258 @@ pub fn ansi_dialect() -> Dialect {
     ansi_dialect
 }
 
-fn lexer_matchers() -> Vec<Box<dyn Matcher>> {
+fn lexer_matchers() -> Vec<Matcher> {
     vec![
-        // Match all forms of whitespace except newlines and carriage returns:
-        // https://stackoverflow.com/questions/3469080/match-whitespace-but-not-newlines
-        // This pattern allows us to also match non-breaking spaces (#2189).
-        Box::new(
-            RegexLexer::new(
-                "whitespace",
-                r"[^\S\r\n]+",
-                &WhitespaceSegment::create as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
-                WhitespaceSegmentNewArgs {},
-                None,
-                None,
-            )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "inline_comment",
-                r"(--|#)[^\n]*",
-                &CommentSegment::create as SegmentConstructorFn<CommentSegmentNewArgs>,
+        Matcher::regex("whitespace", r"[^\S\r\n]+", |slice, marker| {
+            WhitespaceSegment::create(slice, marker.into(), WhitespaceSegmentNewArgs {})
+        }),
+        Matcher::regex("inline_comment", r"(--|#)[^\n]*", |slice, marker| {
+            CommentSegment::create(
+                slice,
+                marker.into(),
                 CommentSegmentNewArgs {
                     r#type: "inline_comment",
                     trim_start: Some(vec!["--", "#"]),
                 },
-                None,
-                None,
             )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "block_comment",
-                r"\/\*([^\*]|\*(?!\/))*\*\/",
-                &CommentSegment::create as SegmentConstructorFn<CommentSegmentNewArgs>,
+        }),
+        Matcher::regex("block_comment", r"\/\*([^\*]|\*(?!\/))*\*\/", |slice, marker| {
+            CommentSegment::create(
+                slice,
+                marker.into(),
                 CommentSegmentNewArgs { r#type: "block_comment", trim_start: None },
-                Some(Box::new(
-                    RegexLexer::new(
-                        "newline",
-                        r"\r\n|\n",
-                        &NewlineSegment::create as SegmentConstructorFn<NewlineSegmentNewArgs>,
-                        NewlineSegmentNewArgs {},
-                        None,
-                        None,
-                    )
-                    .unwrap(),
-                )),
-                Some(Box::new(
-                    RegexLexer::new(
-                        "whitespace",
-                        r"[^\S\r\n]+",
-                        &WhitespaceSegment::create
-                            as SegmentConstructorFn<WhitespaceSegmentNewArgs>,
-                        WhitespaceSegmentNewArgs {},
-                        None,
-                        None,
-                    )
-                    .unwrap(),
-                )),
             )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "single_quote",
-                r"'([^'\\]|\\.|'')*'",
-                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs {
-                    code_type: "single_quote",
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-                None,
-                None,
+        })
+        .subdivider(Pattern::regex("newline", r"\r\n|\n", |slice, marker| {
+            NewlineSegment::create(slice, marker.into(), NewlineSegmentNewArgs {})
+        }))
+        .post_subdivide(Pattern::regex("whitespace", r"[^\S\r\n]+", |slice, marker| {
+            WhitespaceSegment::create(slice, marker.into(), WhitespaceSegmentNewArgs {})
+        })),
+        Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "single_quote", ..Default::default() },
             )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "double_quote",
-                r#""([^"\\]|\\.)*""#,
-                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs {
-                    code_type: "double_quote",
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-                None,
-                None,
+        }),
+        Matcher::regex("double_quote", r#""([^"\\]|\\.)*""#, |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "double_quote", ..Default::default() },
             )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "back_quote",
-                r"`[^`]*`",
-                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs {
-                    code_type: "back_quote",
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-                None,
-                None,
+        }),
+        Matcher::regex("back_quote", r"`[^`]*`", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "back_quote", ..Default::default() },
             )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "dollar_quote",
-                // r"\$(\w*)\$[^\1]*?\$\1\$" is the original regex, but it doesn't work in Rust.
-                r"\$(\w*)\$[^\$]*?\$\1\$",
-                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs {
-                    code_type: "dollar_quote",
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-                None,
-                None,
+        }),
+        Matcher::regex("dollar_quote", r"\$(\w*)\$[^\$]*?\$\1\$", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "dollar_quote", ..Default::default() },
             )
-            .unwrap(),
+        }),
+        Matcher::regex(
+            "numeric_literal",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            |raw, position_maker| {
+                CodeSegment::create(
+                    raw,
+                    position_maker.into(),
+                    CodeSegmentNewArgs { code_type: "numeric_literal", ..Default::default() },
+                )
+            },
         ),
-        //
-        // NOTE: Instead of using a created LiteralSegment and ComparisonOperatorSegment in the
-        // next two, in Rust we just use a CodeSegment
-        Box::new(
-            RegexLexer::new(
-                "numeric_literal",
-                r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
-                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs {
-                    code_type: "numeric_literal",
-                    ..CodeSegmentNewArgs::default()
-                },
-                None,
-                None,
+        Matcher::regex("like_operator", r"!?~~?\*?", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "like_operator", ..Default::default() },
             )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "like_operator",
-                r"!?~~?\*?",
-                &CodeSegment::create as SegmentConstructorFn<CodeSegmentNewArgs>,
-                CodeSegmentNewArgs { code_type: "like_operator", ..CodeSegmentNewArgs::default() },
-                None,
-                None,
+        }),
+        Matcher::regex("newline", r"\r\n|\n", |slice, marker| {
+            NewlineSegment::create(slice, marker.into(), NewlineSegmentNewArgs {})
+        }),
+        Matcher::string("casting_operator", "::", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "casting_operator", ..Default::default() },
             )
-            .unwrap(),
-        ),
-        Box::new(
-            RegexLexer::new(
-                "newline",
-                r"\r\n|\n",
-                &NewlineSegment::create as SegmentConstructorFn<NewlineSegmentNewArgs>,
-                NewlineSegmentNewArgs {},
-                None,
-                None,
+        }),
+        Matcher::string("equals", "=", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "equals", ..Default::default() },
             )
-            .unwrap(),
-        ),
-        Box::new(StringLexer::new(
-            "casting_operator",
-            "::",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "casting_operator",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "equals",
-            "=",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "equals",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "greater_than",
-            ">",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "greater_than",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "less_than",
-            "<",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "less_than",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "not",
-            "!",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "not",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "dot",
-            ".",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "dot",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "comma",
-            ",",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "comma",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "plus",
-            "+",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "plus",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "minus",
-            "-",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "minus",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "divide",
-            "/",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "divide",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "percent",
-            "%",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "percent",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "question",
-            "?",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "question",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "ampersand",
-            "&",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "ampersand",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "vertical_bar",
-            "|",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "vertical_bar",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "caret",
-            "^",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "caret",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "star",
-            "*",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "star",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "start_bracket",
-            "(",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "start_bracket",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "end_bracket",
-            ")",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "end_bracket",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "start_square_bracket",
-            "[",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "start_square_bracket",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "end_square_bracket",
-            "]",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "end_square_bracket",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "start_curly_bracket",
-            "{",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "start_curly_bracket",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "end_curly_bracket",
-            "}",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "end_curly_bracket",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "colon",
-            ":",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "colon",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        Box::new(StringLexer::new(
-            "semicolon",
-            ";",
-            &CodeSegment::create,
-            CodeSegmentNewArgs {
-                code_type: "semicolon",
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-            },
-            None,
-            None,
-        )),
-        //         Numeric literal matches integers, decimals, and exponential formats,
-        // Pattern breakdown:
-        // (?>                      Atomic grouping
-        //                          (https://www.regular-expressions.info/atomic.html).
-        //     \d+\.\d+             e.g. 123.456
-        //     |\d+\.(?![\.\w])     e.g. 123.
-        //                          (N.B. negative lookahead assertion to ensure we
-        //                          don't match range operators `..` in Exasol, and
-        //                          that in bigquery we don't match the "."
-        //                          in "asd-12.foo").
-        //     |\.\d+               e.g. .456
-        //     |\d+                 e.g. 123
-        // )
-        // (\.?[eE][+-]?\d+)?          Optional exponential.
-        // (
-        //     (?<=\.)              If matched character ends with . (e.g. 123.) then
-        //                          don't worry about word boundary check.
-        //     |(?=\b)              Check that we are at word boundary to avoid matching
-        //                          valid naked identifiers (e.g. 123column).
-        // )
-
-        // This is the "fallback" lexer for anything else which looks like SQL.
-        Box::new(
-            RegexLexer::new(
-                "word",
-                "[0-9a-zA-Z_]+",
-                &CodeSegment::create,
-                CodeSegmentNewArgs { code_type: "word", ..<_>::default() },
-                None,
-                None,
+        }),
+        Matcher::string("greater_than", ">", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "greater_than", ..Default::default() },
             )
-            .unwrap(),
-        ),
+        }),
+        Matcher::string("less_than", "<", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "less_than", ..Default::default() },
+            )
+        }),
+        Matcher::string("not", "!", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "not", ..Default::default() },
+            )
+        }),
+        Matcher::string("dot", ".", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "dot", ..Default::default() },
+            )
+        }),
+        Matcher::string("comma", ",", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "comma", ..Default::default() },
+            )
+        }),
+        Matcher::string("plus", "+", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "plus", ..Default::default() },
+            )
+        }),
+        Matcher::string("minus", "-", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "minus", ..Default::default() },
+            )
+        }),
+        Matcher::string("divide", "/", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "divide", ..Default::default() },
+            )
+        }),
+        Matcher::string("percent", "%", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "percent", ..Default::default() },
+            )
+        }),
+        Matcher::string("question", "?", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "question", ..Default::default() },
+            )
+        }),
+        Matcher::string("ampersand", "&", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "ampersand", ..Default::default() },
+            )
+        }),
+        Matcher::string("vertical_bar", "|", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "vertical_bar", ..Default::default() },
+            )
+        }),
+        Matcher::string("caret", "^", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "caret", ..Default::default() },
+            )
+        }),
+        Matcher::string("star", "*", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "star", ..Default::default() },
+            )
+        }),
+        Matcher::string("start_bracket", "(", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "start_bracket", ..Default::default() },
+            )
+        }),
+        Matcher::string("end_bracket", ")", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "end_bracket", ..Default::default() },
+            )
+        }),
+        Matcher::string("start_square_bracket", "[", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "start_square_bracket", ..Default::default() },
+            )
+        }),
+        Matcher::string("end_square_bracket", "]", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "end_square_bracket", ..Default::default() },
+            )
+        }),
+        Matcher::string("start_curly_bracket", "{", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "start_curly_bracket", ..Default::default() },
+            )
+        }),
+        Matcher::string("end_curly_bracket", "}", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "end_curly_bracket", ..Default::default() },
+            )
+        }),
+        Matcher::string("colon", ":", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "colon", ..Default::default() },
+            )
+        }),
+        Matcher::string("semicolon", ";", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "semicolon", ..Default::default() },
+            )
+        }),
+        Matcher::regex("word", "[0-9a-zA-Z_]+", |slice, marker| {
+            CodeSegment::create(
+                slice,
+                marker.into(),
+                CodeSegmentNewArgs { code_type: "word", ..Default::default() },
+            )
+        }),
     ]
 }
 
@@ -6514,7 +6227,7 @@ mod tests {
             let lexer = Lexer::new(&config, None);
 
             // Assume that the lex function returns a Result with tokens
-            let tokens_result = lexer.lex(StringOrTemplate::String(raw.to_string()));
+            let tokens_result = lexer.lex(StringOrTemplate::String(raw));
 
             // Check if lexing was successful, and if not, fail the test
             assert!(tokens_result.is_ok(), "Lexing failed for input: {}", raw);

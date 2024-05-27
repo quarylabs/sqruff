@@ -9,12 +9,12 @@ use super::rules::base::ErasedRule;
 use crate::core::parser::markers::PositionMarker;
 use crate::helpers::Config;
 
-type CheckTuple = (String, usize, usize);
+type CheckTuple = (&'static str, usize, usize);
 
 pub trait SqlError {
     fn fixable(&self) -> bool;
-    fn rule_code(&self) -> Option<String>;
-    fn identifier(&self) -> String;
+    fn rule_code(&self) -> Option<&'static str>;
+    fn identifier(&self) -> &'static str;
     /// Get a tuple representing this error. Mostly for testing.
     fn check_tuple(&self) -> CheckTuple;
 }
@@ -72,16 +72,16 @@ impl SqlError for SQLBaseError {
         false
     }
 
-    fn rule_code(&self) -> Option<String> {
+    fn rule_code(&self) -> Option<&'static str> {
         None
     }
 
-    fn identifier(&self) -> String {
-        "base".to_string()
+    fn identifier(&self) -> &'static str {
+        "base"
     }
 
     fn check_tuple(&self) -> CheckTuple {
-        ("".to_string(), self.line_no, self.line_pos)
+        ("", self.line_no, self.line_pos)
     }
 }
 
@@ -261,16 +261,16 @@ impl SqlError for SQLTemplaterError {
         false
     }
 
-    fn rule_code(&self) -> Option<String> {
+    fn rule_code(&self) -> Option<&'static str> {
         None
     }
 
-    fn identifier(&self) -> String {
-        "templater".to_string()
+    fn identifier(&self) -> &'static str {
+        "templater"
     }
 
     fn check_tuple(&self) -> CheckTuple {
-        ("".to_string(), 0, 0)
+        ("", 0, 0)
     }
 }
 

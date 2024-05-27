@@ -21,7 +21,7 @@ pub struct RawSegmentArgs {
     pub _trim_start: Option<Vec<String>>,
     pub _trim_cars: Option<Vec<String>>,
     pub _source_fixes: Option<Vec<SourceFix>>,
-    pub _uuid: Option<String>,
+    pub _uuid: Option<Uuid>,
 }
 
 impl RawSegment {

@@ -449,8 +449,8 @@ impl Linter {
         // TODO Time_Dict should be a structure, it should also probably replace f64
         // with Duration type
         let mut time_dict = rendered.time_dict.clone();
-        time_dict.insert("lexing".to_string(), (t1 - t0).as_secs_f64());
-        time_dict.insert("parsing".to_string(), (Instant::now() - t1).as_secs_f64());
+        time_dict.insert("lexing", (t1 - t0).as_secs_f64());
+        time_dict.insert("parsing", (Instant::now() - t1).as_secs_f64());
 
         ParsedString {
             tree: parsed,

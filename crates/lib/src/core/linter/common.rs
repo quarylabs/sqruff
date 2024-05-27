@@ -35,7 +35,7 @@ pub struct RenderedFile {
     pub templated_file: TemplatedFile,
     pub templater_violations: Vec<SQLTemplaterError>,
     pub config: FluffConfig,
-    pub time_dict: AHashMap<String, f64>,
+    pub time_dict: AHashMap<&'static str, f64>,
     pub(crate) f_name: String,
     pub encoding: String,
     pub source_str: String,
@@ -46,7 +46,7 @@ pub struct RenderedFile {
 pub struct ParsedString {
     pub tree: Option<ErasedSegment>,
     pub violations: Vec<SQLBaseError>,
-    pub time_dict: AHashMap<String, f64>,
+    pub time_dict: AHashMap<&'static str, f64>,
     pub templated_file: TemplatedFile,
     pub f_name: String,
     pub source_str: String,

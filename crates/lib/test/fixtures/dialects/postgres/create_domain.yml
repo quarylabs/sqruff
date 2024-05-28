@@ -1,0 +1,89 @@
+file:
+- statement_segment:
+  - create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+      - naked_identifier: us_postal_code
+    - keyword: AS
+    - data_type:
+      - keyword: TEXT
+    - keyword: CHECK
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: VALUE
+          - numeric_literal: '~'
+          - quoted_literal: '''^\d{5}$'''
+          - binary_operator: OR
+          - column_reference:
+            - naked_identifier: VALUE
+          - numeric_literal: '~'
+          - quoted_literal: '''^\d{5}-\d{4}$'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_domain_statement:
+    - keyword: create
+    - keyword: domain
+    - object_reference:
+      - naked_identifier: oname
+    - keyword: as
+    - data_type:
+      - keyword: text
+- statement_terminator: ;
+- statement_segment:
+  - create_domain_statement:
+    - keyword: CREATE
+    - keyword: DOMAIN
+    - object_reference:
+      - naked_identifier: mystr
+    - keyword: AS
+    - data_type:
+      - keyword: text
+    - keyword: CONSTRAINT
+    - object_reference:
+      - naked_identifier: not_empty
+    - keyword: CHECK
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: LENGTH
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: value
+              - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '0'
+        - end_bracket: )
+    - keyword: CONSTRAINT
+    - object_reference:
+      - naked_identifier: too_big
+    - keyword: CHECK
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: LENGTH
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: value
+              - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: =
+          - numeric_literal: '50000'
+        - end_bracket: )
+- statement_terminator: ;

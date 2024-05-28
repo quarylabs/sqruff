@@ -1,0 +1,73 @@
+file:
+- statement_segment:
+  - create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: test
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+      - naked_identifier: postgres_fdw
+- statement_terminator: ;
+- statement_segment:
+  - create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - server_reference:
+      - object_reference:
+        - naked_identifier: test
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+      - naked_identifier: oracle_fdw
+- statement_terminator: ;
+- statement_segment:
+  - create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: test
+    - keyword: TYPE
+    - quoted_literal: '''test'''
+    - keyword: VERSION
+    - version_identifier:
+      - quoted_literal: '''1.0'''
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+      - naked_identifier: postgres_fdw
+- statement_terminator: ;
+- statement_segment:
+  - create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: test
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+      - naked_identifier: postgres_fdw
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: host
+      - quoted_literal: '''foo'''
+      - comma: ','
+      - naked_identifier: dbname
+      - quoted_literal: '''foodb'''
+      - comma: ','
+      - naked_identifier: port
+      - quoted_literal: '''5432'''
+      - end_bracket: )
+- statement_terminator: ;

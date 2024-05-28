@@ -1,0 +1,74 @@
+file:
+- statement_segment:
+  - create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - extension_reference:
+      - naked_identifier: amazing_extension
+    - keyword: with
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: VERSION
+    - version_identifier:
+      - quoted_literal: '''2.0.1.2'''
+    - keyword: FROM
+    - version_identifier:
+      - quoted_literal: '''1.0'''
+- statement_terminator: ;
+- statement_segment:
+  - create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - extension_reference:
+      - naked_identifier: amazing_extension
+    - keyword: with
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: VERSION
+    - version_identifier:
+      - quoted_literal: '''1.2.3a4'''
+    - keyword: FROM
+    - version_identifier:
+      - quoted_literal: '''1.0'''
+- statement_terminator: ;
+- statement_segment:
+  - create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - extension_reference:
+      - naked_identifier: amazing_extension
+    - keyword: with
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: VERSION
+    - version_identifier:
+      - naked_identifier: version_named
+    - keyword: FROM
+    - version_identifier:
+      - naked_identifier: from_named
+- statement_terminator: ;
+- statement_segment:
+  - drop_extension_statement:
+    - keyword: DROP
+    - keyword: EXTENSION
+    - extension_reference:
+      - naked_identifier: amazing_extension
+- statement_terminator: ;
+- statement_segment:
+  - drop_extension_statement:
+    - keyword: DROP
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: EXISTS
+    - extension_reference:
+      - naked_identifier: amazing_extension
+- statement_terminator: ;

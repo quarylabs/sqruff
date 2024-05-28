@@ -1,0 +1,112 @@
+file:
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: DROP
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: do_db_maintenance
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+      - function_name_identifier: insert_actor
+- statement_terminator: ;
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+      - function_name_identifier: insert_actor
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: varchar
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+      - function_name_identifier: insert_actor
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: varchar
+        - comma: ','
+        - data_type:
+          - keyword: varchar
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+      - function_name_identifier: delete_actor
+    - comma: ','
+    - function_name:
+      - function_name_identifier: update_actor
+- statement_terminator: ;
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+      - function_name_identifier: delete_actor
+    - comma: ','
+    - function_name:
+      - function_name_identifier: update_actor
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+      - function_name_identifier: delete_actor
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - keyword: in
+        - parameter: id
+        - data_type:
+          - keyword: varchar
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+      - function_name_identifier: insert_actor
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: varchar
+        - comma: ','
+        - data_type:
+          - keyword: varchar
+        - end_bracket: )
+    - comma: ','
+    - function_name:
+      - function_name_identifier: insert_actor2
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: varchar
+        - comma: ','
+        - data_type:
+          - keyword: varchar
+        - end_bracket: )
+- statement_terminator: ;

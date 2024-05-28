@@ -1,0 +1,59 @@
+file:
+- statement_segment:
+  - listen_statement:
+    - keyword: LISTEN
+    - naked_identifier: virtual
+- statement_terminator: ;
+- statement_segment:
+  - notify_statement:
+    - keyword: NOTIFY
+    - naked_identifier: virtual
+- statement_terminator: ;
+- statement_segment:
+  - unlisten_statement:
+    - keyword: UNLISTEN
+    - naked_identifier: virtual
+- statement_terminator: ;
+- statement_segment:
+  - listen_statement:
+    - keyword: LISTEN
+    - quoted_identifier: '"virtual listener"'
+- statement_terminator: ;
+- statement_segment:
+  - notify_statement:
+    - keyword: NOTIFY
+    - quoted_identifier: '"virtual listener"'
+- statement_terminator: ;
+- statement_segment:
+  - unlisten_statement:
+    - keyword: UNLISTEN
+    - quoted_identifier: '"virtual listener"'
+- statement_terminator: ;
+- statement_segment:
+  - listen_statement:
+    - keyword: LISTEN
+    - naked_identifier: listener_a
+- statement_terminator: ;
+- statement_segment:
+  - listen_statement:
+    - keyword: LISTEN
+    - naked_identifier: listener_b
+- statement_terminator: ;
+- statement_segment:
+  - notify_statement:
+    - keyword: NOTIFY
+    - naked_identifier: listener_a
+    - comma: ','
+    - quoted_literal: '''payload_a'''
+- statement_terminator: ;
+- statement_segment:
+  - notify_statement:
+    - keyword: NOTIFY
+    - naked_identifier: listener_b
+    - comma: ','
+    - quoted_literal: '''payload_b'''
+- statement_terminator: ;
+- statement_segment:
+  - unlisten_statement:
+    - keyword: UNLISTEN
+    - star: '*'

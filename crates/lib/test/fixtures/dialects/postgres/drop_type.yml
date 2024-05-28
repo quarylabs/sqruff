@@ -1,0 +1,43 @@
+file:
+- statement_segment:
+  - drop_type_statement:
+    - keyword: DROP
+    - keyword: TYPE
+    - data_type:
+      - '': foo
+- statement_terminator: ;
+- statement_segment:
+  - drop_type_statement:
+    - keyword: DROP
+    - keyword: TYPE
+    - keyword: IF
+    - keyword: EXISTS
+    - data_type:
+      - '': foo
+- statement_terminator: ;
+- statement_segment:
+  - drop_type_statement:
+    - keyword: DROP
+    - keyword: TYPE
+    - data_type:
+      - '': foo
+    - comma: ','
+    - data_type:
+      - '': bar
+- statement_terminator: ;
+- statement_segment:
+  - drop_type_statement:
+    - keyword: DROP
+    - keyword: TYPE
+    - data_type:
+      - '': foo
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_type_statement:
+    - keyword: DROP
+    - keyword: TYPE
+    - data_type:
+      - '': foo
+    - keyword: RESTRICT
+- statement_terminator: ;

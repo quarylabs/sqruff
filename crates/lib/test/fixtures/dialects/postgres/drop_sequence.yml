@@ -1,0 +1,44 @@
+file:
+- statement_segment:
+  - drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement_segment:
+  - drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement_segment:
+  - drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement_segment:
+  - drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+      - naked_identifier: foo
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_sequence_statement:
+    - keyword: DROP
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - keyword: RESTRICT
+- statement_terminator: ;

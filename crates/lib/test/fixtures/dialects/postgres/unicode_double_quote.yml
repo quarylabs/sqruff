@@ -1,0 +1,29 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_literal: U&"a"
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_literal: U&"aaaa" UESCAPE '!'
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_literal: |-
+              U&"aaaa"
+
+               UESCAPE
+               '!'
+- statement_terminator: ;

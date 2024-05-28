@@ -4,6 +4,7 @@ pub fn dialect_selector(s: &str) -> Option<Dialect> {
     match s {
         "ansi" => Some(crate::dialects::ansi::ansi_dialect()),
         "bigquery" => Some(crate::dialects::bigquery::bigquery_dialect()),
+        "postgres" => Some(crate::dialects::postgres::postgres_dialect()),
         _ => None,
     }
 }

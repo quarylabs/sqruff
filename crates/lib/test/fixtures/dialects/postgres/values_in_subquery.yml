@@ -1,0 +1,133 @@
+file:
+- statement_segment:
+  - with_compound_statement:
+    - keyword: WITH
+    - cte_definition:
+      - naked_identifier: t
+      - cte_column_list:
+        - bracketed:
+          - start_bracket: (
+          - identifier_list:
+            - naked_identifier: col_1
+            - comma: ','
+            - naked_identifier: col_2
+          - end_bracket: )
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''08RIX0'''
+            - comma: ','
+            - expression:
+              - cast_expression:
+                - numeric_literal: '0.435'
+                - remove me: '::'
+                - data_type:
+                  - keyword: NUMERIC
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '4'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - end_bracket: )
+            - end_bracket: )
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: t
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - bracketed:
+            - start_bracket: (
+            - table_expression_segment:
+              - values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                  - end_bracket: )
+            - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: t
+            - bracketed:
+              - start_bracket: (
+              - identifier_list:
+                - naked_identifier: c1
+              - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - bracketed:
+            - start_bracket: (
+            - table_expression_segment:
+              - values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '4'
+                  - end_bracket: )
+            - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: t
+            - bracketed:
+              - start_bracket: (
+              - identifier_list:
+                - naked_identifier: c1
+                - comma: ','
+                - naked_identifier: c2
+              - end_bracket: )
+- statement_terminator: ;

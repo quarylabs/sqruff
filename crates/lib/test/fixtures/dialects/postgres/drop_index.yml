@@ -1,0 +1,166 @@
+file:
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: abc
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - quoted_identifier: '"abc"'
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: abc
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - quoted_identifier: '"def"'
+    - comma: ','
+    - database_reference:
+      - naked_identifier: ghi
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - naked_identifier: def
+    - comma: ','
+    - database_reference:
+      - naked_identifier: ghi
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - naked_identifier: def
+    - comma: ','
+    - database_reference:
+      - naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - naked_identifier: def
+    - comma: ','
+    - database_reference:
+      - naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - naked_identifier: def
+    - comma: ','
+    - database_reference:
+      - naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - database_reference:
+      - naked_identifier: abc
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: abc
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - naked_identifier: def
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - naked_identifier: def
+- statement_terminator: ;
+- statement_segment:
+  - drop_index_statement_segment:
+    - keyword: DROP
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - database_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - database_reference:
+      - naked_identifier: def
+    - keyword: CASCADE
+- statement_terminator: ;

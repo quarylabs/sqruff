@@ -1,0 +1,148 @@
+file:
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+      - naked_identifier: abc
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+      - quoted_identifier: '"abc"'
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+      - naked_identifier: abc
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+      - quoted_identifier: '"def"'
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: ghi
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: def
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: ghi
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+      - naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+      - naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: def
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: def
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+      - naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+      - naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: def
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: def
+    - comma: ','
+    - publication_reference:
+      - naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;

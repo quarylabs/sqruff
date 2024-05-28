@@ -1,0 +1,26 @@
+file:
+- statement_segment:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: a
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - keyword: integer
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: |-
+          $$
+              SELECT 1;
+          $$
+      - language_clause:
+        - keyword: LANGUAGE
+        - naked_identifier: SQL
+- statement_terminator: ;

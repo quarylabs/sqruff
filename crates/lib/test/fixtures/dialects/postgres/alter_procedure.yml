@@ -1,0 +1,137 @@
+file:
+- statement_segment:
+  - alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: insert_data
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+      - function_name_identifier: insert_record
+- statement_terminator: ;
+- statement_segment:
+  - alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: insert_data
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: joe
+- statement_terminator: ;
+- statement_segment:
+  - alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: insert_data
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: CURRENT_USER
+- statement_terminator: ;
+- statement_segment:
+  - alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: insert_data
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+    - keyword: SET
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: accounting
+- statement_terminator: ;
+- statement_segment:
+  - alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: insert_data
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+    - keyword: DEPENDS
+    - keyword: ON
+    - keyword: EXTENSION
+    - extension_reference:
+      - naked_identifier: myext
+- statement_terminator: ;
+- statement_segment:
+  - alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: check_password
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: text
+        - end_bracket: )
+    - keyword: SET
+    - parameter: search_path
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: admin
+    - comma: ','
+    - parameter: pg_temp
+- statement_terminator: ;
+- statement_segment:
+  - alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: check_password
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: text
+        - end_bracket: )
+    - alter_procedure_action_segment:
+      - keyword: RESET
+      - parameter: search_path
+- statement_terminator: ;

@@ -1,0 +1,46 @@
+file:
+- statement_segment:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: my_type
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - word: int_
+      - word: INT4
+      - comma: ','
+      - word: bool_
+      - word: BOOLEAN
+      - comma: ','
+      - word: comment_
+      - word: TEXT
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - cast_expression:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - boolean_literal: 'true'
+                  - comma: ','
+                  - null_literal: 'null'
+                  - end_bracket: )
+                - remove me: '::'
+                - data_type:
+                  - '': my_type
+            - end_bracket: )
+          - semi_structured_expression:
+            - dot: .
+            - naked_identifier: int_
+- statement_terminator: ;

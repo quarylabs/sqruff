@@ -1,0 +1,8 @@
+file:
+- statement_segment:
+  - drop_domain_statement:
+    - keyword: DROP
+    - keyword: DOMAIN
+    - object_reference:
+      - naked_identifier: box
+- statement_terminator: ;

@@ -1,0 +1,10 @@
+file:
+- statement_segment:
+  - access_statement:
+    - keyword: REVOKE
+    - object_reference:
+      - naked_identifier: lc_anonymous
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: lc_api
+- statement_terminator: ;

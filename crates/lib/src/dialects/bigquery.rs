@@ -3,7 +3,7 @@ use std::sync::Arc;
 use ahash::AHashSet;
 use itertools::Itertools;
 
-use super::ansi::{self, ansi_dialect, Node, NodeTrait};
+use super::ansi::{self, ansi_raw_dialect, Node, NodeTrait};
 use super::bigquery_keywords::{BIGQUERY_RESERVED_KEYWORDS, BIGQUERY_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
@@ -24,7 +24,7 @@ use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
 pub fn bigquery_dialect() -> Dialect {
-    let mut dialect = ansi_dialect();
+    let mut dialect = ansi_raw_dialect();
     dialect.name = "bigquery";
 
     dialect.insert_lexer_matchers(

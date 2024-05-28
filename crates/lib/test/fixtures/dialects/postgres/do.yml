@@ -1,0 +1,78 @@
+file:
+- statement_segment:
+  - do_statement:
+    - keyword: DO
+    - quoted_literal: |-
+        $$DECLARE r record;
+        BEGIN
+            FOR r IN SELECT table_schema, table_name FROM information_schema.tables
+                     WHERE table_type = 'VIEW' AND table_schema = 'public'
+            LOOP
+                EXECUTE 'GRANT ALL ON ' || quote_ident(r.table_schema) || '.' || quote_ident(r.table_name) || ' TO webuser';
+            END LOOP;
+        END$$
+- statement_terminator: ;
+- statement_segment:
+  - do_statement:
+    - keyword: DO
+    - language_clause:
+      - keyword: LANGUAGE
+      - naked_identifier: plpgsql
+    - quoted_literal: |-
+        $$
+        DECLARE r record;
+        BEGIN
+            FOR r IN SELECT table_schema, table_name FROM information_schema.tables
+                     WHERE table_type = 'VIEW' AND table_schema = 'public'
+            LOOP
+                EXECUTE 'GRANT ALL ON ' || quote_ident(r.table_schema) || '.' || quote_ident(r.table_name) || ' TO webuser';
+            END LOOP;
+        END$$
+- statement_terminator: ;
+- statement_segment:
+  - do_statement:
+    - keyword: DO
+    - quoted_literal: |-
+        $$
+        DECLARE r record;
+        BEGIN
+            FOR r IN SELECT table_schema, table_name FROM information_schema.tables
+                     WHERE table_type = 'VIEW' AND table_schema = 'public'
+            LOOP
+                EXECUTE 'GRANT ALL ON ' || quote_ident(r.table_schema) || '.' || quote_ident(r.table_name) || ' TO webuser';
+            END LOOP;
+        END$$
+    - language_clause:
+      - keyword: LANGUAGE
+      - naked_identifier: plpgsql
+- statement_terminator: ;
+- statement_segment:
+  - do_statement:
+    - keyword: DO
+    - quoted_literal: |-
+        E'
+        DECLARE r record;
+        BEGIN
+            FOR r IN SELECT table_schema, table_name FROM information_schema.tables
+                     WHERE table_type = \'VIEW\' AND table_schema = \'public\'
+            LOOP
+                EXECUTE \'GRANT ALL ON \' || quote_ident(r.table_schema) || \'.\' || quote_ident(r.table_name) || \' TO webuser\';
+            END LOOP;
+        END'
+- statement_terminator: ;
+- statement_segment:
+  - do_statement:
+    - keyword: DO
+    - quoted_literal: '''DECLARE r record;'''
+- statement_terminator: ;
+- statement_segment:
+  - do_statement:
+    - keyword: DO
+    - quoted_literal: U&'\0441\043B\043E\043D'
+- statement_terminator: ;
+- statement_segment:
+  - do_statement:
+    - keyword: DO
+    - quoted_literal: '''SELECT foo'''
+    - quoted_literal: '''bar'''
+- statement_terminator: ;

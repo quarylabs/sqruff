@@ -1,11 +1,16 @@
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
+use ahash::AHashSet;
 use itertools::Itertools;
 use uuid::Uuid;
 
 use super::base::{pos_marker, ErasedSegment, Segment};
+use crate::core::errors::SQLParseError;
+use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
+use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::matchable::Matchable;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
@@ -32,6 +37,7 @@ impl BracketedSegment {
         segments: Vec<ErasedSegment>,
         start_bracket: Vec<ErasedSegment>,
         end_bracket: Vec<ErasedSegment>,
+        hack: bool,
     ) -> Self {
         let mut this = BracketedSegment {
             segments,
@@ -41,7 +47,9 @@ impl BracketedSegment {
             uuid: Uuid::new_v4(),
             raw: OnceLock::new(),
         };
-        this.pos_marker = pos_marker(&this).into();
+        if !hack {
+            this.pos_marker = pos_marker(&this).into();
+        }
         this
     }
 }
@@ -82,7 +90,31 @@ impl Segment for BracketedSegment {
         self.uuid.into()
     }
 
-    fn class_types(&self) -> ahash::AHashSet<&'static str> {
+    fn class_types(&self) -> AHashSet<&'static str> {
         ["bracketed"].into()
+    }
+}
+
+impl Matchable for BracketedSegment {
+    fn simple(
+        &self,
+        _parse_context: &ParseContext,
+        _crumbs: Option<Vec<&str>>,
+    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+        None
+    }
+
+    fn match_segments(
+        &self,
+        segments: &[ErasedSegment],
+        _parse_context: &mut ParseContext,
+    ) -> Result<MatchResult, SQLParseError> {
+        if let Some((first, rest)) = segments.split_first()
+            && first.as_any().downcast_ref::<BracketedSegment>().is_some()
+        {
+            return Ok(MatchResult::new(vec![first.clone()], rest.to_vec()));
+        }
+
+        Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 }

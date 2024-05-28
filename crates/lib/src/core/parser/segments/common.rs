@@ -132,7 +132,7 @@ impl Segment for ComparisonOperatorSegment {
     }
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
+        self.position_maker = _position_marker.unwrap();
     }
 
     fn segments(&self) -> &[ErasedSegment] {

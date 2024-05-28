@@ -1,0 +1,63 @@
+file:
+- statement_segment:
+  - import_foreign_schema_statement:
+    - keyword: IMPORT
+    - keyword: FOREIGN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: foreign_films
+    - keyword: FROM
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: film_server
+    - keyword: INTO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: films
+- statement_terminator: ;
+- statement_segment:
+  - import_foreign_schema_statement:
+    - keyword: IMPORT
+    - keyword: FOREIGN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '"TEST"'
+    - keyword: FROM
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: test_server
+    - keyword: INTO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: test
+- statement_terminator: ;
+- statement_segment:
+  - import_foreign_schema_statement:
+    - keyword: IMPORT
+    - keyword: FOREIGN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: foreign_films
+    - keyword: LIMIT
+    - keyword: TO
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: actors
+      - comma: ','
+      - naked_identifier: directors
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: film_server
+    - keyword: INTO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: films
+- statement_terminator: ;

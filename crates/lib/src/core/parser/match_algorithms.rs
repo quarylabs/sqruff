@@ -48,7 +48,8 @@ impl BracketInfo {
         BracketedSegment::new(
             self.segments.clone(),
             vec![self.bracket.clone()],
-            vec![end_bracket[0].clone()], // Assuming BaseSegment implements Clone
+            vec![end_bracket[0].clone()],
+            false,
         )
     }
 }

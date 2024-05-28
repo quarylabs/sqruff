@@ -1,0 +1,36 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - bracketed:
+            - start_bracket: (
+            - star: '*'
+            - end_bracket: )
+          - keyword: FILTER
+          - bracketed:
+            - start_bracket: (
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: c_expires
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - bare_function: CURRENT_TIMESTAMP
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: c_active
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: t_test
+- statement_terminator: ;

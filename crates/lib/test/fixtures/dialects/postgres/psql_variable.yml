@@ -1,0 +1,231 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''from'''
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: direction
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: users
+          - dot: .
+          - naked_identifier: email
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: rona_mms_charge_accounts
+          - dot: .
+          - naked_identifier: account_number
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: memberships
+        - join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: users
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: users
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: memberships
+                - dot: .
+                - naked_identifier: user_id
+        - join_clause:
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: rona_mms_charge_accounts
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: users
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: rona_mms_charge_accounts
+                - dot: .
+                - naked_identifier: customer_id
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: memberships
+          - dot: .
+          - naked_identifier: code
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - cast_expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - psql_variable:
+                - remove me: ':'
+                - parameter: m1
+            - end_bracket: )
+          - remove me: '::'
+          - data_type:
+            - keyword: text
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: rona_mms_charge_accounts
+          - dot: .
+          - naked_identifier: account_number
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: lpad
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - cast_expression:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - psql_variable:
+                      - remove me: ':'
+                      - parameter: a
+                  - end_bracket: )
+                - remove me: '::'
+                - data_type:
+                  - keyword: text
+            - comma: ','
+            - expression:
+              - numeric_literal: '10'
+            - comma: ','
+            - expression:
+              - quoted_literal: '''0'''
+            - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''from'''
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: direction
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: users
+          - dot: .
+          - naked_identifier: email
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: rona_mms_charge_accounts
+          - dot: .
+          - naked_identifier: account_number
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: memberships
+        - join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: users
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: users
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: memberships
+                - dot: .
+                - naked_identifier: user_id
+        - join_clause:
+          - keyword: LEFT
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: rona_mms_charge_accounts
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: users
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: rona_mms_charge_accounts
+                - dot: .
+                - naked_identifier: customer_id
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: memberships
+          - dot: .
+          - naked_identifier: code
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - psql_variable:
+          - remove me: ':'
+          - quoted_literal: '''m1'''
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: rona_mms_charge_accounts
+          - dot: .
+          - naked_identifier: account_number
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: lpad
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - psql_variable:
+                - remove me: ':'
+                - quoted_literal: '''a'''
+            - comma: ','
+            - expression:
+              - numeric_literal: '10'
+            - comma: ','
+            - expression:
+              - quoted_literal: '''0'''
+            - end_bracket: )
+- statement_terminator: ;

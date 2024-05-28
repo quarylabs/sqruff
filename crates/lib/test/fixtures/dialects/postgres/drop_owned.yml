@@ -1,0 +1,101 @@
+file:
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - comma: ','
+    - role_reference:
+      - naked_identifier: alice
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - comma: ','
+    - keyword: CURRENT_ROLE
+    - comma: ','
+    - role_reference:
+      - naked_identifier: alice
+    - comma: ','
+    - keyword: CURRENT_USER
+    - comma: ','
+    - role_reference:
+      - naked_identifier: ted
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - comma: ','
+    - role_reference:
+      - naked_identifier: alice
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - comma: ','
+    - role_reference:
+      - naked_identifier: alice
+    - keyword: RESTRICT
+- statement_terminator: ;

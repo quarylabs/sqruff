@@ -1,0 +1,16 @@
+file:
+- statement_segment:
+  - reset_statement:
+    - keyword: RESET
+    - parameter: timezone
+- statement_terminator: ;
+- statement_segment:
+  - reset_statement:
+    - keyword: RESET
+    - keyword: ALL
+- statement_terminator: ;
+- statement_segment:
+  - reset_statement:
+    - keyword: RESET
+    - keyword: ROLE
+- statement_terminator: ;

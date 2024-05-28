@@ -1,0 +1,76 @@
+file:
+- statement_segment:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: sqrt
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: sqrt
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+    - comma: ','
+    - function_name:
+      - function_name_identifier: sqrt
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: bigint
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: update_employee_salaries
+- statement_terminator: ;
+- statement_segment:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: update_employee_salaries
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+      - function_name_identifier: foo
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - keyword: IN
+        - parameter: my_var
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - keyword: VARIADIC
+        - parameter: my_var_2
+        - data_type:
+          - keyword: text
+        - end_bracket: )
+- statement_terminator: ;

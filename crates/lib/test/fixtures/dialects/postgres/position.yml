@@ -1,0 +1,73 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: u
+          - dot: .
+          - naked_identifier: user_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: u
+          - dot: .
+          - naked_identifier: user_email
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: product_id
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: user_tb
+          - alias_expression:
+            - keyword: as
+            - naked_identifier: u
+        - join_clause:
+          - keyword: inner
+          - keyword: join
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: product_tb
+            - alias_expression:
+              - keyword: as
+              - naked_identifier: p
+          - join_on_condition:
+            - keyword: on
+            - expression:
+              - column_reference:
+                - naked_identifier: u
+                - dot: .
+                - naked_identifier: user_id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: user_id
+              - binary_operator: and
+              - function:
+                - function_name:
+                  - function_name_identifier: position
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''@domain'''
+                  - keyword: in
+                  - column_reference:
+                    - naked_identifier: u
+                    - dot: .
+                    - naked_identifier: user_email
+                  - end_bracket: )
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '0'

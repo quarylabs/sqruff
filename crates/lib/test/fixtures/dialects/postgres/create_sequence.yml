@@ -1,0 +1,127 @@
+file:
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: AS
+      - data_type:
+        - keyword: integer
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: MINVALUE
+      - numeric_literal: '5'
+    - create_sequence_options_segment:
+      - keyword: NO
+      - keyword: MAXVALUE
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: NO
+      - keyword: MINVALUE
+    - create_sequence_options_segment:
+      - keyword: MAXVALUE
+      - numeric_literal: '12'
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - numeric_literal: '5'
+    - create_sequence_options_segment:
+      - keyword: START
+      - keyword: WITH
+      - numeric_literal: '8'
+    - create_sequence_options_segment:
+      - keyword: CACHE
+      - numeric_literal: '4'
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: NO
+      - keyword: CYCLE
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: OWNED
+      - keyword: BY
+      - keyword: NONE
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: OWNED
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: my_table
+        - dot: .
+        - naked_identifier: my_column
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - column_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement_segment:
+  - create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SEQUENCE
+    - column_reference:
+      - naked_identifier: foo
+- statement_terminator: ;

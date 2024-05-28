@@ -1,0 +1,83 @@
+file:
+- statement_segment:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement_segment:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: bar
+    - keyword: AS
+    - keyword: ENUM
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: bar
+    - keyword: AS
+    - keyword: ENUM
+    - bracketed:
+      - start_bracket: (
+      - single_quote: '''foo'''
+      - comma: ','
+      - single_quote: '''bar'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: foobar
+    - keyword: AS
+    - keyword: RANGE
+    - bracketed:
+      - start_bracket: (
+      - word: SUBTYPE
+      - equals: =
+      - word: FLOAT
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: barbar
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - word: INPUT
+      - equals: =
+      - word: foo
+      - comma: ','
+      - word: OUTPUT
+      - equals: =
+      - word: bar
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: foofoo
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - word: foo
+      - word: varchar
+      - word: collate
+      - word: utf8
+      - end_bracket: )
+- statement_terminator: ;

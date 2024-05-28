@@ -1,0 +1,336 @@
+file:
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+    - keyword: AS
+    - keyword: ASSIGNMENT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+    - keyword: AS
+    - keyword: IMPLICIT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: AS
+    - keyword: ASSIGNMENT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: AS
+    - keyword: IMPLICIT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: bool
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: sch
+      - dot: .
+      - function_name_identifier: fname
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - keyword: int
+        - comma: ','
+        - data_type:
+          - keyword: bool
+        - end_bracket: )
+    - keyword: AS
+    - keyword: ASSIGNMENT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - '': udt_1
+      - keyword: AS
+      - data_type:
+        - '': udt_2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: fname
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - '': udt_1
+        - comma: ','
+        - data_type:
+          - '': udt_2
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - naked_identifier: sch
+        - dot: .
+        - '': udt_1
+      - keyword: AS
+      - data_type:
+        - naked_identifier: sch
+        - dot: .
+        - '': udt_2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: sch
+      - dot: .
+      - function_name_identifier: fname
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - naked_identifier: sch
+          - dot: .
+          - '': udt_1
+        - comma: ','
+        - data_type:
+          - naked_identifier: sch
+          - dot: .
+          - '': udt_2
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITHOUT
+    - keyword: FUNCTION
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITHOUT
+    - keyword: FUNCTION
+    - keyword: AS
+    - keyword: ASSIGNMENT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITHOUT
+    - keyword: FUNCTION
+    - keyword: AS
+    - keyword: IMPLICIT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: INOUT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: INOUT
+    - keyword: AS
+    - keyword: ASSIGNMENT
+- statement_terminator: ;
+- statement_segment:
+  - create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: INOUT
+    - keyword: AS
+    - keyword: IMPLICIT
+- statement_terminator: ;

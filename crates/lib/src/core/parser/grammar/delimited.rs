@@ -106,7 +106,14 @@ impl Matchable for Delimited {
         // NOTE: If the configured delimiter is in parse_context.terminators then
         // treat is _only_ as a delimiter and not as a terminator. This happens
         // frequently during nested comma expressions.
-        let mut terminator_matchers = Vec::new();
+        let mut terminator_matchers = self.base.terminators.clone();
+        terminator_matchers.extend(
+            parse_context
+                .terminators
+                .iter()
+                .filter(|t| !delimiter_matchers.iter().any(|it| it.dyn_eq(t.as_ref())))
+                .cloned(),
+        );
 
         if !self.allow_gaps {
             terminator_matchers.push(NonCodeMatcher.to_matchable());

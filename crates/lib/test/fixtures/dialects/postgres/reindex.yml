@@ -1,0 +1,61 @@
+file:
+- statement_segment:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: my_index
+- statement_terminator: ;
+- statement_segment:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+- statement_terminator: ;
+- statement_segment:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: broken_db
+- statement_terminator: ;
+- statement_segment:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - keyword: TABLE
+    - keyword: CONCURRENTLY
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_broken_table
+- statement_terminator: ;
+- statement_segment:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - bracketed:
+      - start_bracket: (
+      - keyword: CONCURRENTLY
+      - boolean_literal: 'FALSE'
+      - end_bracket: )
+    - keyword: SYSTEM
+    - database_reference:
+      - naked_identifier: mydb
+- statement_terminator: ;
+- statement_segment:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - bracketed:
+      - start_bracket: (
+      - keyword: TABLESPACE
+      - tablespace_reference:
+        - naked_identifier: my_tablespace
+      - comma: ','
+      - keyword: VERBOSE
+      - boolean_literal: 'TRUE'
+      - end_bracket: )
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_schema
+- statement_terminator: ;

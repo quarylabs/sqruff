@@ -1,0 +1,162 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: id
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: tbl1
+        - join_clause:
+          - keyword: join
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: tbl2
+          - join_on_condition:
+            - keyword: on
+            - expression:
+              - column_reference:
+                - naked_identifier: tbl1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: tbl2
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: id
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: tbl1
+        - join_clause:
+          - keyword: join
+          - keyword: lateral
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: tbl2
+          - join_on_condition:
+            - keyword: on
+            - expression:
+              - column_reference:
+                - naked_identifier: tbl1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: tbl2
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: id
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: tbl1
+        - join_clause:
+          - keyword: full
+          - keyword: outer
+          - keyword: join
+          - keyword: lateral
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: tbl2
+          - join_on_condition:
+            - keyword: on
+            - expression:
+              - column_reference:
+                - naked_identifier: tbl1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: tbl2
+                - dot: .
+                - naked_identifier: id
+        - join_clause:
+          - keyword: cross
+          - keyword: join
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: tbl3
+          - join_on_condition:
+            - keyword: on
+            - expression:
+              - column_reference:
+                - naked_identifier: tbl1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: tbl3
+                - dot: .
+                - naked_identifier: id
+        - join_clause:
+          - keyword: left
+          - keyword: join
+          - keyword: lateral
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: tbl4
+          - join_on_condition:
+            - keyword: on
+            - expression:
+              - column_reference:
+                - naked_identifier: tbl1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: tbl4
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;

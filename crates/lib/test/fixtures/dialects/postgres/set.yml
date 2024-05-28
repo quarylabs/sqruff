@@ -1,0 +1,120 @@
+file:
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - parameter: search_path
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - naked_identifier: my_schema
+    - comma: ','
+    - naked_identifier: public
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - parameter: datestyle
+    - keyword: TO
+    - naked_identifier: postgres
+    - comma: ','
+    - naked_identifier: dmy
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - parameter: datestyle
+    - keyword: TO
+    - naked_identifier: postgres
+    - comma: ','
+    - quoted_literal: '''dmy'''
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - parameter: value
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: on
+    - comma: ','
+    - naked_identifier: off
+    - comma: ','
+    - naked_identifier: auto
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - parameter: value
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+    - comma: ','
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: '''PST8PDT'''
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: '''Europe/Rome'''
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - keyword: LOCAL
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: SCHEMA
+    - quoted_literal: '''my_schema'''
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: SCHEMA
+    - quoted_literal: '''public'''
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: my_role
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"my role"'
+- statement_terminator: ;
+- statement_segment:
+  - set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: NONE
+- statement_terminator: ;

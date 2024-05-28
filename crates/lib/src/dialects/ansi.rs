@@ -30,6 +30,7 @@ use crate::core::parser::segments::base::{
     Segment, SymbolSegment, SymbolSegmentNewArgs, UnparsableSegment, WhitespaceSegment,
     WhitespaceSegmentNewArgs,
 };
+use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::fix::SourceFix;
 use crate::core::parser::segments::generator::SegmentGenerator;
@@ -58,6 +59,10 @@ impl<T> BoxedE for T {
 }
 
 pub fn ansi_dialect() -> Dialect {
+    ansi_raw_dialect().config(|this| this.expand())
+}
+
+pub fn ansi_raw_dialect() -> Dialect {
     let mut ansi_dialect = Dialect::new("FileSegment");
 
     ansi_dialect.set_lexer_matchers(lexer_matchers());
@@ -360,7 +365,9 @@ pub fn ansi_dialect() -> Dialect {
         ),
         (
             "CastOperatorSegment".into(),
-            StringParser::new("::", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new("::", symbol_factory, Some("casting_operator".into()), false, None)
+                .to_matchable()
+                .into(),
         ),
         (
             "PlusSegment".into(),
@@ -1555,7 +1562,7 @@ pub fn ansi_dialect() -> Dialect {
                 Ref::new("ColonSegment").boxed(),
                 Ref::new("DelimiterGrammar").boxed(),
                 Ref::new("JoinLikeClauseGrammar").boxed(),
-                Ref::new("BracketedSegment").boxed(),
+                Bracketed::new(vec![]).boxed(),
             ])
             .to_matchable()
             .into(),
@@ -2073,16 +2080,21 @@ pub fn ansi_dialect() -> Dialect {
         IndexReferenceSegment, FunctionParameterListGrammar, SingleIdentifierListSegment, GroupByClauseSegment, CubeRollupClauseSegment, CubeFunctionNameSegment,
         RollupFunctionNameSegment, FetchClauseSegment, FunctionDefinitionGrammar, ColumnConstraintSegment, CommentClauseSegment, LimitClauseSegment,
         HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
-        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment, EmptyStructLiteralBracketsSegment, ObjectLiteralElementSegment
+        WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment, EmptyStructLiteralBracketsSegment, 
+        ObjectLiteralElementSegment, GroupingExpressionList, SizedArrayTypeSegment, TablespaceReferenceSegment, ExtensionReferenceSegment, TagReferenceSegment,
+        GroupingSetsClauseSegment, CollationReferenceSegment
     );
 
     // This is a hook point to allow subclassing for other dialects
     ansi_dialect.add([
         ("FileSegment".into(), FileSegment::default().to_matchable().into()),
         ("PostTableExpressionGrammar".into(), Nothing::new().to_matchable().into()),
+        (
+            "BracketedSegment".into(),
+            BracketedSegment::new(vec![], vec![], vec![], true).to_matchable().into(),
+        ),
     ]);
 
-    ansi_dialect.expand();
     ansi_dialect
 }
 
@@ -2135,7 +2147,7 @@ fn lexer_matchers() -> Vec<Matcher> {
                 CodeSegmentNewArgs { code_type: "back_quote", ..Default::default() },
             )
         }),
-        Matcher::regex("dollar_quote", r"\$(\w*)\$[^\$]*?\$\1\$", |slice, marker| {
+        Matcher::regex("dollar_quote", r"\$(\w*)\$[\s\S]*?\$\1\$", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
@@ -4543,15 +4555,28 @@ impl NodeTrait for AccessStatementSegment {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("GRANT"),
-                one_of(vec_of_erased![Sequence::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                        global_permissions.clone(),
-                        permissions.clone()
-                    ])])
-                    .config(|this| this.terminators = vec_of_erased![Ref::keyword("ON")]),
-                    Ref::keyword("ON"),
-                    objects.clone()
-                ])]),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            global_permissions.clone(),
+                            permissions.clone()
+                        ])])
+                        .config(|this| this.terminators = vec_of_erased![Ref::keyword("ON")]),
+                        Ref::keyword("ON"),
+                        objects.clone()
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ROLE"),
+                        Ref::new("ObjectReferenceSegment")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OWNERSHIP"),
+                        Ref::keyword("ON"),
+                        Ref::keyword("USER"),
+                        Ref::new("ObjectReferenceSegment"),
+                    ]),
+                    Ref::new("ObjectReferenceSegment")
+                ]),
                 Ref::keyword("TO"),
                 one_of(vec_of_erased![
                     Ref::keyword("GROUP"),
@@ -4582,6 +4607,16 @@ impl NodeTrait for AccessStatementSegment {
                         Ref::keyword("GRANTS"),
                     ])
                 ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("GRANTED"),
+                    Ref::keyword("BY"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("CURRENT_USER"),
+                        Ref::keyword("SESSION_USER"),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
+                ])
                 .config(|this| this.optional())
             ]),
             Sequence::new(vec_of_erased![
@@ -4592,14 +4627,28 @@ impl NodeTrait for AccessStatementSegment {
                     Ref::keyword("FOR")
                 ])
                 .config(|this| this.optional()),
-                one_of(vec_of_erased![Sequence::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        one_of(vec_of_erased![global_permissions, permissions])
-                            .config(|this| this.terminators = vec_of_erased![Ref::keyword("ON")])
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![
+                            one_of(vec_of_erased![global_permissions, permissions]).config(
+                                |this| this.terminators = vec_of_erased![Ref::keyword("ON")]
+                            )
+                        ]),
+                        Ref::keyword("ON"),
+                        objects
                     ]),
-                    Ref::keyword("ON"),
-                    objects
-                ])]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ROLE"),
+                        Ref::new("ObjectReferenceSegment")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OWNERSHIP"),
+                        Ref::keyword("ON"),
+                        Ref::keyword("USER"),
+                        Ref::new("ObjectReferenceSegment"),
+                    ]),
+                    Ref::new("ObjectReferenceSegment"),
+                ]),
                 Ref::keyword("FROM"),
                 one_of(vec_of_erased![
                     Ref::keyword("GROUP"),
@@ -5093,20 +5142,23 @@ impl NodeTrait for UseStatementSegment {
 
 pub struct ExplainStatementSegment;
 
+impl ExplainStatementSegment {
+    pub fn explainable_stmt() -> AnyNumberOf {
+        one_of(vec_of_erased![
+            Ref::new("SelectableGrammar"),
+            Ref::new("InsertStatementSegment"),
+            Ref::new("UpdateStatementSegment"),
+            Ref::new("DeleteStatementSegment")
+        ])
+    }
+}
+
 impl NodeTrait for ExplainStatementSegment {
     const TYPE: &'static str = "explain_statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("EXPLAIN"),
-            one_of(vec_of_erased![
-                Ref::new("SelectableGrammar"),
-                Ref::new("InsertStatementSegment"),
-                Ref::new("UpdateStatementSegment"),
-                Ref::new("DeleteStatementSegment")
-            ])
-        ])
-        .to_matchable()
+        Sequence::new(vec_of_erased![Ref::keyword("EXPLAIN"), Self::explainable_stmt()])
+            .to_matchable()
     }
 }
 
@@ -5476,6 +5528,24 @@ impl NodeTrait for IndexReferenceSegment {
     }
 }
 
+pub struct CollationReferenceSegment;
+
+impl NodeTrait for CollationReferenceSegment {
+    const TYPE: &'static str = "collation_reference";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        one_of(vec_of_erased![
+            Ref::new("QuotedLiteralSegment"),
+            Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]).config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                this.allow_gaps = false
+            }),
+        ])
+        .to_matchable()
+    }
+}
+
 pub struct OverClauseSegment;
 
 impl NodeTrait for OverClauseSegment {
@@ -5551,11 +5621,9 @@ impl NodeTrait for PartitionClauseSegment {
 
 pub struct FrameClauseSegment;
 
-impl NodeTrait for FrameClauseSegment {
-    const TYPE: &'static str = "frame_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        let frame_extent = one_of(vec_of_erased![
+impl FrameClauseSegment {
+    pub fn frame_extent() -> AnyNumberOf {
+        one_of(vec_of_erased![
             Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW")]),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
@@ -5568,7 +5636,15 @@ impl NodeTrait for FrameClauseSegment {
                 ]),
                 one_of(vec_of_erased![Ref::keyword("PRECEDING"), Ref::keyword("FOLLOWING")])
             ])
-        ]);
+        ])
+    }
+}
+
+impl NodeTrait for FrameClauseSegment {
+    const TYPE: &'static str = "frame_clause";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        let frame_extent = Self::frame_extent();
 
         Sequence::new(vec_of_erased![
             Ref::new("FrameClauseUnitGrammar"),
@@ -5751,6 +5827,36 @@ impl NodeTrait for RoleReferenceSegment {
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("SingleIdentifierGrammar").to_matchable()
+    }
+}
+
+pub struct TablespaceReferenceSegment;
+
+impl NodeTrait for TablespaceReferenceSegment {
+    const TYPE: &'static str = "tablespace_reference";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        ObjectReferenceSegment::match_grammar()
+    }
+}
+
+pub struct ExtensionReferenceSegment;
+
+impl NodeTrait for ExtensionReferenceSegment {
+    const TYPE: &'static str = "extension_reference";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        ObjectReferenceSegment::match_grammar()
+    }
+}
+
+pub struct TagReferenceSegment;
+
+impl NodeTrait for TagReferenceSegment {
+    const TYPE: &'static str = "tag_reference";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        ObjectReferenceSegment::match_grammar()
     }
 }
 
@@ -6119,6 +6225,47 @@ impl NodeTrait for CubeFunctionNameSegment {
 
     fn class_types() -> AHashSet<&'static str> {
         ["function_name"].into_iter().collect()
+    }
+}
+
+pub struct GroupingSetsClauseSegment;
+
+impl NodeTrait for GroupingSetsClauseSegment {
+    const TYPE: &'static str = "grouping_sets_clause";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            Ref::keyword("GROUPING"),
+            Ref::keyword("SETS"),
+            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                Ref::new("CubeRollupClauseSegment"),
+                Ref::new("GroupingExpressionList"),
+            ])]),
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct GroupingExpressionList;
+
+impl NodeTrait for GroupingExpressionList {
+    const TYPE: &'static str = "grouping_expression_list";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        Sequence::new(vec_of_erased![
+            MetaSegment::indent(),
+            Delimited::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::new("ColumnReferenceSegment"),
+                    Ref::new("NumericLiteralSegment"),
+                    Ref::new("ExpressionSegment"),
+                    Bracketed::new(vec_of_erased![]),
+                ]),
+                Ref::new("GroupByClauseTerminatorGrammar"),
+            ]),
+            MetaSegment::dedent(),
+        ])
+        .to_matchable()
     }
 }
 

@@ -1,0 +1,59 @@
+file:
+- statement_segment:
+  - lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: films
+    - keyword: IN
+    - keyword: SHARE
+    - keyword: MODE
+- statement_terminator: ;
+- statement_segment:
+  - lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: films
+    - keyword: IN
+    - keyword: SHARE
+    - keyword: ROW
+    - keyword: EXCLUSIVE
+    - keyword: MODE
+- statement_terminator: ;
+- statement_segment:
+  - lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: team
+    - keyword: IN
+    - keyword: ACCESS
+    - keyword: EXCLUSIVE
+    - keyword: MODE
+- statement_terminator: ;
+- statement_segment:
+  - lock_table_statement:
+    - keyword: lock
+    - keyword: table
+    - table_reference:
+      - object_reference:
+        - naked_identifier: stud1
+    - keyword: IN
+    - keyword: SHARE
+    - keyword: UPDATE
+    - keyword: EXCLUSIVE
+    - keyword: MODE
+- statement_terminator: ;
+- statement_segment:
+  - lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: crontable
+    - keyword: NOWAIT
+- statement_terminator: ;

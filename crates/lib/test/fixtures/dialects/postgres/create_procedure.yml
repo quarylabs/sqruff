@@ -1,0 +1,56 @@
+file:
+- statement_segment:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: create_account
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: _account_uuid
+        - data_type:
+          - keyword: UUID
+        - end_bracket: )
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: |-
+          $$
+          BEGIN
+              RETURN;
+          END;
+          $$
+      - language_clause:
+        - keyword: LANGUAGE
+        - naked_identifier: plpgsql
+- statement_terminator: ;
+- statement_segment:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: insert_data
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - parameter: b
+        - data_type:
+          - keyword: integer
+        - end_bracket: )
+    - function_definition:
+      - language_clause:
+        - keyword: LANGUAGE
+        - naked_identifier: SQL
+      - keyword: AS
+      - quoted_literal: |-
+          $$
+          INSERT INTO tbl VALUES (a);
+          INSERT INTO tbl VALUES (b);
+          $$
+- statement_terminator: ;

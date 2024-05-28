@@ -1,0 +1,72 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: foo
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: bar
+    - into_clause:
+      - keyword: INTO
+      - table_reference:
+        - object_reference:
+          - naked_identifier: baz
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: qux
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - into_clause:
+      - keyword: INTO
+      - keyword: TEMP
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: baz
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - into_clause:
+      - keyword: INTO
+      - keyword: TEMPORARY
+      - table_reference:
+        - object_reference:
+          - naked_identifier: baz
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - into_clause:
+      - keyword: INTO
+      - keyword: UNLOGGED
+      - table_reference:
+        - object_reference:
+          - naked_identifier: baz
+- statement_terminator: ;

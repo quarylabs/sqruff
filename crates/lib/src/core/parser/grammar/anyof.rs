@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use ahash::AHashSet;
+use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
 use uuid::Uuid;
 
@@ -78,13 +78,14 @@ pub fn simple(
 #[derive(Debug, Clone, Hash)]
 #[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
 pub struct AnyNumberOf {
-    pub elements: Vec<Arc<dyn Matchable>>,
-    pub terminators: Vec<Arc<dyn Matchable>>,
-    pub max_times: Option<usize>,
-    pub min_times: usize,
-    pub allow_gaps: bool,
-    pub optional: bool,
-    pub parse_mode: ParseMode,
+    pub(crate) elements: Vec<Arc<dyn Matchable>>,
+    pub(crate) terminators: Vec<Arc<dyn Matchable>>,
+    pub(crate) max_times: Option<usize>,
+    pub(crate) min_times: usize,
+    pub(crate) max_times_per_element: Option<usize>,
+    pub(crate) allow_gaps: bool,
+    pub(crate) optional: bool,
+    pub(crate) parse_mode: ParseMode,
     cache_key: Uuid,
 }
 
@@ -100,6 +101,7 @@ impl AnyNumberOf {
             elements,
             max_times: None,
             min_times: 0,
+            max_times_per_element: None,
             allow_gaps: true,
             optional: false,
             parse_mode: ParseMode::Strict,
@@ -177,6 +179,8 @@ impl Matchable for AnyNumberOf {
 
         // Keep track of the number of times each option has been matched.
         let mut n_matches = 0;
+        let mut option_counter: AHashMap<Uuid, usize> =
+            self.elements.iter().map(|item| (item.cache_key().unwrap(), 0)).collect();
 
         loop {
             if self.max_times.is_some() && Some(n_matches) >= self.max_times {
@@ -216,8 +220,26 @@ impl Matchable for AnyNumberOf {
                 Vec::new()
             };
 
-            let (match_result, _matched_option) =
+            let (match_result, matched_option) =
                 self.match_once(&unmatched_segments, parse_context)?;
+
+            if let Some(matched_option) = matched_option {
+                let matched_key = matched_option.cache_key().unwrap();
+                if let Some(counter) = option_counter.get_mut(&matched_key) {
+                    *counter += 1;
+
+                    if let Some(max_times_per_element) = self.max_times_per_element
+                        && *counter > max_times_per_element
+                    {
+                        return Ok(parse_mode_match_result(
+                            matched_segments.matched_segments,
+                            chain!(pre_seg, unmatched_segments).collect_vec(),
+                            tail,
+                            self.parse_mode,
+                        ));
+                    }
+                }
+            }
 
             if match_result.has_match() {
                 matched_segments
@@ -314,6 +336,12 @@ pub fn optionally_bracketed(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
     }
 
     one_of(args)
+}
+
+pub fn any_set_of(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
+    let mut any_number_of = AnyNumberOf::new(elements);
+    any_number_of.max_times_per_element = Some(1);
+    any_number_of
 }
 
 #[cfg(test)]

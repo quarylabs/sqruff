@@ -106,7 +106,7 @@ impl Matchable for BaseGrammar {
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Ref {
     pub(crate) reference: Cow<'static, str>,
-    exclude: Option<Arc<dyn Matchable>>,
+    pub(crate) exclude: Option<Arc<dyn Matchable>>,
     terminators: Vec<Arc<dyn Matchable>>,
     reset_terminators: bool,
     allow_gaps: bool,
@@ -252,6 +252,7 @@ impl Matchable for Ref {
 #[derive(Clone, Debug, Hash)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Anything {
+    cache: Uuid,
     terminators: Vec<Arc<dyn Matchable>>,
 }
 
@@ -270,7 +271,7 @@ impl Default for Anything {
 
 impl Anything {
     pub fn new() -> Self {
-        Self { terminators: Vec::new() }
+        Self { cache: Uuid::new_v4(), terminators: Vec::new() }
     }
 
     pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
@@ -279,9 +280,17 @@ impl Anything {
     }
 }
 
-impl Segment for Anything {}
+impl Segment for Anything {
+    fn get_uuid(&self) -> Option<Uuid> {
+        self.cache.into()
+    }
+}
 
 impl Matchable for Anything {
+    fn cache_key(&self) -> Option<Uuid> {
+        self.get_uuid()
+    }
+
     fn match_segments(
         &self,
         segments: &[ErasedSegment],

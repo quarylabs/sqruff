@@ -1,0 +1,151 @@
+file:
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: some_schema
+        - dot: .
+        - naked_identifier: bigtable
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: ONLY
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - keyword: ONLY
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - star: '*'
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - star: '*'
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: fattable
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: fattable
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: ONLY
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: fattable
+    - star: '*'
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - keyword: RESTART
+    - keyword: IDENTITY
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - keyword: CONTINUE
+    - keyword: IDENTITY
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - truncate_statement:
+    - keyword: TRUNCATE
+    - keyword: TABLE
+    - keyword: ONLY
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bigtable
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: fattable
+    - star: '*'
+    - comma: ','
+    - keyword: ONLY
+    - table_reference:
+      - object_reference:
+        - naked_identifier: slimtable
+    - keyword: CONTINUE
+    - keyword: IDENTITY
+    - keyword: CASCADE
+- statement_terminator: ;

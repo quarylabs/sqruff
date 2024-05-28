@@ -109,7 +109,7 @@ fn position_metas(
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Sequence {
     elements: Vec<Arc<dyn Matchable>>,
-    parse_mode: ParseMode,
+    pub(crate) parse_mode: ParseMode,
     pub(crate) allow_gaps: bool,
     is_optional: bool,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
@@ -637,6 +637,7 @@ impl Matchable for Bracketed {
                 .collect_vec(),
                 start_match.matched_segments,
                 end_match.matched_segments,
+                false,
             );
             trailing_segments = end_match.unmatched_segments;
         }

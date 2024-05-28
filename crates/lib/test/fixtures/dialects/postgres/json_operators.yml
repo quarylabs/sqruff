@@ -1,0 +1,126 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: COALESCE
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: doc
+              - binary_operator: '#>>'
+              - quoted_literal: '''{fields}'''
+            - comma: ','
+            - expression:
+              - quoted_literal: ''''''
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: field
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: mytable
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: doc
+        - binary_operator: ->>
+        - quoted_literal: '''some_field'''
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''some_value'''
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'''
+            - remove me: '::'
+            - data_type:
+              - keyword: json
+          - binary_operator: ->
+          - numeric_literal: '2'
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''{"a": {"b":"foo"}}'''
+            - remove me: '::'
+            - data_type:
+              - keyword: json
+          - binary_operator: ->
+          - quoted_literal: '''a'''
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''[1,2,3]'''
+            - remove me: '::'
+            - data_type:
+              - keyword: json
+          - binary_operator: ->>
+          - numeric_literal: '2'
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''{"a":1,"b":2}'''
+            - remove me: '::'
+            - data_type:
+              - keyword: json
+          - binary_operator: ->>
+          - quoted_literal: '''b'''
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''{"a": {"b":{"c": "foo"}}}'''
+            - remove me: '::'
+            - data_type:
+              - keyword: json
+          - binary_operator: '#>'
+          - quoted_literal: '''{a,b}'''
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''{"a":[1,2,3],"b":[4,5,6]}'''
+            - remove me: '::'
+            - data_type:
+              - keyword: json
+          - binary_operator: '#>>'
+          - quoted_literal: '''{a,2}'''
+- statement_terminator: ;

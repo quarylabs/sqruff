@@ -1,0 +1,174 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: word
+            - dot: .
+            - star: '*'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: id
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: paragraph_id
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: word
+        - join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression_segment:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: paragraph
+          - join_on_condition:
+            - keyword: ON
+            - expression:
+              - column_reference:
+                - naked_identifier: paragraph
+                - dot: .
+                - naked_identifier: page_id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: word
+                - dot: .
+                - naked_identifier: page_id
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: '@>'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: <@
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - remove me: '&'
+          - remove me: '&'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: <
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '>'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - remove me: '&'
+          - raw_comparison_operator: '>'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - remove me: '&'
+          - raw_comparison_operator: <
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - binary_operator: '-'
+          - pipe: '|'
+          - binary_operator: '-'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: +
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: '*'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: '-'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range

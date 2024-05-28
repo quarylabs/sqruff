@@ -1,0 +1,79 @@
+file:
+- statement_segment:
+  - reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: alice
+- statement_terminator: ;
+- statement_segment:
+  - reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - comma: ','
+    - role_reference:
+      - naked_identifier: ted
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: alice
+- statement_terminator: ;
+- statement_segment:
+  - reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - comma: ','
+    - keyword: CURRENT_ROLE
+    - comma: ','
+    - role_reference:
+      - naked_identifier: ted
+    - comma: ','
+    - keyword: CURRENT_USER
+    - comma: ','
+    - role_reference:
+      - naked_identifier: sam
+    - comma: ','
+    - keyword: SESSION_USER
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: alice
+- statement_terminator: ;
+- statement_segment:
+  - reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement_segment:
+  - reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement_segment:
+  - reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+      - naked_identifier: bob
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;

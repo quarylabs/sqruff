@@ -1,0 +1,221 @@
+file:
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - cast_expression:
+          - numeric_literal: '2'
+          - remove me: '::'
+          - data_type:
+            - keyword: TEXT
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: greatest
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '5'
+            - comma: ','
+            - expression:
+              - numeric_literal: '6'
+            - end_bracket: )
+      - comma: ','
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: least
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '7'
+            - comma: ','
+            - expression:
+              - numeric_literal: '8'
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - limit_clause:
+      - keyword: limit
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - limit_clause:
+      - keyword: limit
+      - numeric_literal: '1'
+      - keyword: offset
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - numeric_literal: '1'
+      - keyword: desc
+- statement_terminator: ;
+- statement_segment:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - numeric_literal: '1'
+      - keyword: desc
+    - limit_clause:
+      - keyword: limit
+      - numeric_literal: '1'
+- statement_terminator: ;

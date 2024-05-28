@@ -1,0 +1,63 @@
+file:
+- statement_segment:
+  - create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: numeric
+    - bracketed:
+      - start_bracket: (
+      - keyword: provider
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: icu
+      - comma: ','
+      - keyword: locale
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''en@colNumeric=yes'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: french
+    - bracketed:
+      - start_bracket: (
+      - keyword: locale
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''fr_FR.utf8'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: german_phonebook
+    - bracketed:
+      - start_bracket: (
+      - keyword: provider
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: icu
+      - comma: ','
+      - keyword: locale
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''de-u-co-phonebk'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: german
+    - keyword: FROM
+    - object_reference:
+      - quoted_identifier: '"de_DE"'
+- statement_terminator: ;

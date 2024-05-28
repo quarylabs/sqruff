@@ -1,0 +1,102 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col_a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: test_table
+    - limit_clause:
+      - keyword: LIMIT
+      - expression:
+        - numeric_literal: '2'
+        - binary_operator: '*'
+        - numeric_literal: '5'
+        - binary_operator: '*'
+        - numeric_literal: '10'
+      - keyword: OFFSET
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - numeric_literal: '5'
+            - binary_operator: +
+            - numeric_literal: '10'
+          - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col_a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: test_table
+    - limit_clause:
+      - keyword: LIMIT
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - numeric_literal: '10'
+          - binary_operator: /
+          - numeric_literal: '10'
+        - end_bracket: )
+      - keyword: OFFSET
+      - expression:
+        - numeric_literal: '10'
+        - binary_operator: '-'
+        - numeric_literal: '5'
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col_a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: test_table
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '100'
+- statement_terminator: ;
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col_a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: test_table
+    - limit_clause:
+      - keyword: LIMIT
+      - keyword: ALL
+- statement_terminator: ;

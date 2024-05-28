@@ -1,0 +1,119 @@
+file:
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - '': udt_1
+      - keyword: AS
+      - data_type:
+        - '': udt_2
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - naked_identifier: sch
+        - dot: .
+        - '': udt_1
+      - keyword: AS
+      - data_type:
+        - naked_identifier: sch
+        - dot: .
+        - '': udt_2
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_cast_statement:
+    - keyword: DROP
+    - keyword: CAST
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+        - keyword: int
+      - keyword: AS
+      - data_type:
+        - keyword: bool
+      - end_bracket: )
+    - keyword: CASCADE
+- statement_terminator: ;

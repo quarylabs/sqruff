@@ -1,0 +1,35 @@
+file:
+- statement_segment:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ARRAY_AGG
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: o_orderkey
+            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: o_orderkey
+                - keyword: ASC
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression_segment:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: orders

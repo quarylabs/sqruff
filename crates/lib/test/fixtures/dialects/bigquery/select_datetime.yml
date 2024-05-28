@@ -54,7 +54,7 @@ file:
           - raw_comparison_operator: =
         - function:
           - function_name:
-            - function_name_identifier: DATE_TRUNC
+            - '': DATE_TRUNC
           - bracketed:
             - start_bracket: (
             - expression:

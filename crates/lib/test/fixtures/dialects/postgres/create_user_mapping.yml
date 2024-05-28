@@ -1,0 +1,64 @@
+file:
+- statement_segment:
+  - create_user_mapping_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - naked_identifier: bob
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: user
+      - quoted_literal: '''bob'''
+      - comma: ','
+      - naked_identifier: password
+      - quoted_literal: '''secret'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - create_user_mapping_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: PUBLIC
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: foo
+- statement_terminator: ;
+- statement_segment:
+  - create_user_mapping_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: CURRENT_USER
+    - keyword: SERVER
+    - server_reference:
+      - object_reference:
+        - naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: user
+      - quoted_literal: '''bob'''
+      - comma: ','
+      - naked_identifier: password
+      - quoted_literal: '''secret'''
+      - comma: ','
+      - naked_identifier: option
+      - quoted_literal: '''value'''
+      - end_bracket: )
+- statement_terminator: ;

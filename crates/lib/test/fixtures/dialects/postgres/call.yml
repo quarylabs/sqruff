@@ -1,0 +1,77 @@
+file:
+- statement_segment:
+  - call_statement:
+    - keyword: CALL
+    - function:
+      - function_name:
+        - function_name_identifier: do_db_maintenance
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - call_statement:
+    - keyword: CALL
+    - function:
+      - function_name:
+        - naked_identifier: my_schema
+        - dot: .
+        - function_name_identifier: do_db_maintenance
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - call_statement:
+    - keyword: call
+    - function:
+      - function_name:
+        - function_name_identifier: procedure_name
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - call_statement:
+    - keyword: call
+    - function:
+      - function_name:
+        - function_name_identifier: procedure_name
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''param1'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '123'
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - call_statement:
+    - keyword: call
+    - function:
+      - function_name:
+        - naked_identifier: schema
+        - dot: .
+        - function_name_identifier: procedure_name
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement_segment:
+  - call_statement:
+    - keyword: call
+    - function:
+      - function_name:
+        - naked_identifier: schema
+        - dot: .
+        - function_name_identifier: procedure_name
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''param1'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '123'
+        - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,63 @@
+file:
+- statement_segment:
+  - drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: account_managers
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: accounts
+- statement_terminator: ;
+- statement_segment:
+  - drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: account_managers
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: accounts
+- statement_terminator: ;
+- statement_segment:
+  - drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: account_managers
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: accounts
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement_segment:
+  - drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: account_managers
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: accounts
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement_segment:
+  - drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: account_managers
+    - keyword: ON
+    - table_reference:
+      - object_reference:
+        - naked_identifier: accounts
+    - keyword: RESTRICT
+- statement_terminator: ;

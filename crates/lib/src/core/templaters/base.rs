@@ -329,13 +329,14 @@ impl TemplatedFileInner {
             return Ok(template_slice);
         }
 
-        let sliced_file = self.sliced_file.clone();
+        let sliced_file =   &self.sliced_file;
 
         let (ts_start_sf_start, ts_start_sf_stop) =
             self.find_slice_indices_of_templated_pos(template_slice.start, None, None)?;
 
         let ts_start_subsliced_file = &sliced_file[ts_start_sf_start..ts_start_sf_stop];
 
+        // TODO I think we can remove some of the trys and unwraps below
         // Work out the insertion point
         let mut insertion_point: isize = -1;
         for elem in ts_start_subsliced_file.iter() {

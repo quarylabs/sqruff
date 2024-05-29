@@ -65,11 +65,11 @@ impl DepthMap {
         &mut self,
         anchor: ErasedSegment,
         new_segment: ErasedSegment,
-        trim: u32,
+        trim: usize,
     ) {
         self.depth_info.insert(
             new_segment.get_uuid().unwrap(),
-            self.get_depth_info(&anchor).trim(trim.try_into().unwrap()),
+            self.get_depth_info(&anchor).trim(trim),
         );
     }
 

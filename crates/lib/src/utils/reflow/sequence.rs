@@ -289,7 +289,7 @@ impl ReflowSequence {
             self.depth_map.copy_depth_info(
                 target_raws[0].clone(),
                 edit_raw.clone(),
-                trim_amount.try_into().unwrap(),
+                trim_amount,
             );
         }
 

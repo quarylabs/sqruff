@@ -19,7 +19,7 @@ pub struct RuleTuple {
 #[derive(Debug, PartialEq, Clone)]
 pub struct NoQaDirective {
     /// Source line number
-    line_no: u32,
+    line_no: usize,
     /// Affected rule names
     rules: Option<Vec<String>>,
     /// "enable", "disable", or "None"

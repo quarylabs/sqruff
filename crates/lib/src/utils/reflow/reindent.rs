@@ -871,7 +871,7 @@ pub fn lint_line_length(
     let mut results = Vec::new();
 
     let mut last_indent_idx = None;
-    for (i, elem) in enumerate(elem_buffer.clone()) {
+    for (i, elem) in enumerate(elements) {
         if let ReflowElement::Point(point) = &elem
             && (elem_buffer[i + 1].class_types1().contains("end_of_file")
                 || has_untemplated_newline(point))

@@ -6,7 +6,6 @@ use std::time::Instant;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
-use regex::Regex;
 use smol_str::{SmolStr, ToSmolStr};
 use uuid::Uuid;
 use walkdir::WalkDir;
@@ -55,7 +54,7 @@ impl Linter {
     /// Lint strings directly.
     pub fn lint_string_wrapped(
         &mut self,
-        sql: String,
+        sql: &str,
         f_name: Option<String>,
         fix: Option<bool>,
         rules: Vec<ErasedRule>,
@@ -83,20 +82,20 @@ impl Linter {
     #[allow(unused_variables)]
     pub fn parse_string(
         &self,
-        in_str: String,
+        in_str: &str,
         f_name: Option<String>,
-        encoding: Option<String>,
+        encoding: Option<&str>,
         parse_statistics: Option<bool>,
     ) -> Result<ParsedString, SQLFluffUserError> {
-        let f_name = f_name.unwrap_or_else(|| "<string>".to_string());
-        let encoding = encoding.unwrap_or_else(|| "utf-8".to_string());
+        let f_name = f_name.unwrap_or("<string>".to_string());
+        let encoding = encoding.unwrap_or("utf-8");
         let parse_statistics = parse_statistics.unwrap_or(false);
 
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
 
         // Scan the raw file for config commands.
-        self.config.process_raw_file_for_config(&in_str);
-        let rendered = self.render_string(in_str, f_name.clone(), &self.config, Some(encoding))?;
+        self.config.process_raw_file_for_config(in_str);
+        let rendered = self.render_string(in_str, f_name, &self.config, Some(encoding))?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));
@@ -114,7 +113,7 @@ impl Linter {
     #[allow(clippy::too_many_arguments)]
     pub fn lint_string(
         &mut self,
-        in_str: Option<String>,
+        in_str: Option<&str>,
         f_name: Option<String>,
         _fix: Option<bool>,
         config: Option<&FluffConfig>,
@@ -125,8 +124,7 @@ impl Linter {
         // Sort out config, defaulting to the built in config if no override
         let _defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
-        let parsed =
-            self.parse_string(in_str.unwrap_or("".to_string()), f_name, None, None).unwrap();
+        let parsed = self.parse_string(in_str.unwrap_or(""), f_name, None, None).unwrap();
 
         // Lint the file and return the LintedFile
         self.lint_parsed(parsed, rules, fix)
@@ -173,7 +171,7 @@ impl Linter {
 
     pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
-        self.render_string(in_str, fname, &self.config, None).unwrap()
+        self.render_string(&in_str, fname, &self.config, None).unwrap()
     }
 
     pub fn lint_rendered(
@@ -319,10 +317,10 @@ impl Linter {
     /// Template the file.
     pub fn render_string(
         &self,
-        in_str: String,
+        in_str: &str,
         f_name: String,
         config: &FluffConfig,
-        encoding: Option<String>,
+        _encoding: Option<&str>,
     ) -> Result<RenderedFile, SQLFluffUserError> {
         // TODO Implement loggers eventually
         // let linter_logger = log::logger();
@@ -334,7 +332,7 @@ impl Linter {
         // Newlines are normalised to unix-style line endings (\n).
         // The motivation is that Jinja normalises newlines during templating and
         // we want consistent mapping between the raw and templated slices.
-        let in_str = Self::normalise_newlines(in_str.as_str());
+        let in_str = Self::normalise_newlines(in_str);
 
         // Since Linter.__init__() does not require a dialect to be specified,
         // check for one now. (We're processing a string, not a file, so we're
@@ -396,7 +394,7 @@ impl Linter {
             config: config.clone(),
             time_dict: AHashMap::new(),
             f_name: f_name.to_owned(),
-            encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
+            // encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
         })
     }
@@ -516,8 +514,7 @@ impl Linter {
 
     /// Normalise newlines to unix-style line endings.
     fn normalise_newlines(string: &str) -> String {
-        let re = Regex::new(r"\r\n|\r").unwrap();
-        re.replace_all(string, "\n").to_string()
+        string.replace("\r\n", "\n").replace('\r', "\n")
     }
 
     // Return a set of sql file paths from a potentially more ambiguous path string.
@@ -525,7 +522,7 @@ impl Linter {
     // When a path to a file to be linted is explicitly passed
     // we look for ignore files in all directories that are parents of the file,
     // up to the current directory.
-    // If the current directory is not a parent of the file we only
+    // If the current directory  is not a parent of the file we only
     // look for an ignore file in the direct parent of the file.
     fn paths_from_path(
         &self,
@@ -768,8 +765,7 @@ mod tests {
             tab_b.col_b
         FROM cte
         INNER JOIN tab_b;
-        "
-        .to_string();
+        ";
 
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let _parsed = linter.parse_string(sql, None, None, None).unwrap();

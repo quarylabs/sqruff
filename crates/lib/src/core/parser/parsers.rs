@@ -14,29 +14,29 @@ use crate::helpers::HashableFancyRegex;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct TypedParser {
-    template: String,
+    template: &'static str,
     target_types: BTreeSet<String>,
-    instance_types: Vec<String>,
+    instance_types: Vec<&'static str>,
     /* raw_class: RawSegment, // Type for raw_class */
     optional: bool,
-    trim_chars: Option<Vec<char>>,
+    trim_chars: Option<&'static [char]>,
     cache_key: Uuid,
     factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
 impl TypedParser {
     pub fn new(
-        template: &str,
+        template: &'static str,
         factory: fn(&dyn Segment) -> ErasedSegment,
         /* raw_class: RawSegment, */
-        type_: Option<String>,
+        type_: Option<&'static str>,
         optional: bool,
-        trim_chars: Option<Vec<char>>,
+        trim_chars: Option<&'static [char]>,
     ) -> TypedParser {
         let mut instance_types = Vec::new();
         let target_types = [template.to_string()].iter().cloned().collect();
 
-        if let Some(t) = type_.clone() {
+        if let Some(t) = type_ {
             instance_types.push(t);
         }
 
@@ -49,7 +49,7 @@ impl TypedParser {
         // }
 
         TypedParser {
-            template: template.to_string(),
+            template,
             factory,
             target_types,
             instance_types,
@@ -121,10 +121,10 @@ pub struct StringParser {
     template: String,
     simple: BTreeSet<String>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    type_: Option<String>, /* Renamed `type` to `type_` because `type` is a reserved keyword in
-                            * Rust */
+    type_: Option<&'static str>, /* Renamed `type` to `type_` because `type` is a reserved
+                                  * keyword in Rust */
     optional: bool,
-    trim_chars: Option<Vec<char>>,
+    trim_chars: Option<&'static [char]>,
     cache_key: Uuid,
 }
 
@@ -132,9 +132,9 @@ impl StringParser {
     pub fn new(
         template: &str,
         factory: fn(&dyn Segment) -> ErasedSegment,
-        type_: Option<String>,
+        type_: Option<&'static str>,
         optional: bool,
-        trim_chars: Option<Vec<char>>,
+        trim_chars: Option<&'static [char]>,
     ) -> StringParser {
         let template_upper = template.to_uppercase();
         let simple_set = [template_upper.clone()].iter().cloned().collect();
@@ -166,19 +166,19 @@ impl StringParser {
     fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
         // Check if the segment matches the first condition.
         if !self.is_first_match(segment) {
-            return None;
+            None
+        } else {
+            // // Check if the segment is already of the correct type.
+            // // Assuming RawSegment has a `get_type` method and `_instance_types` is a
+            // Vec<String> if segment.is_type(&self.raw_class) && segment.get_type()
+            // == self._instance_types[0] {     return Some(segment.clone()); //
+            // Assuming BaseSegment implements Clone }
+
+            // Otherwise, create a new match segment.
+            // Assuming _make_match_from_segment is a method that returns RawSegment
+            // Some(self.make_match_from_segment(segment))
+            (self.factory)(segment).into()
         }
-
-        // // Check if the segment is already of the correct type.
-        // // Assuming RawSegment has a `get_type` method and `_instance_types` is a
-        // Vec<String> if segment.is_type(&self.raw_class) && segment.get_type()
-        // == self._instance_types[0] {     return Some(segment.clone()); //
-        // Assuming BaseSegment implements Clone }
-
-        // Otherwise, create a new match segment.
-        // Assuming _make_match_from_segment is a method that returns RawSegment
-        // Some(self.make_match_from_segment(segment))
-        (self.factory)(segment).into()
     }
 }
 
@@ -221,7 +221,7 @@ impl Matchable for StringParser {
 #[derive(Hash, Debug, Clone)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct RegexParser {
-    template: String,
+    template: &'static str,
     anti_template: Option<String>,
     _template: HashableFancyRegex,
     _anti_template: HashableFancyRegex,
@@ -241,7 +241,7 @@ impl PartialEq for RegexParser {
 
 impl RegexParser {
     pub fn new(
-        template: &str,
+        template: &'static str,
         factory: fn(&dyn Segment) -> ErasedSegment,
         _type_: Option<String>,
         _optional: bool,
@@ -253,7 +253,7 @@ impl RegexParser {
         let template_pattern = Regex::new(&format!("(?i){}", template)).unwrap();
 
         Self {
-            template: template.to_string(),
+            template,
             anti_template,
             _template: HashableFancyRegex(template_pattern),
             _anti_template: HashableFancyRegex(anti_template_pattern),

@@ -131,7 +131,7 @@ mod tests {
     #[test]
     fn test_pass_column_exp_without_alias_1() {
         let violations = lint(
-            "select ps.*, pandgs.blah from ps join pandgs using(moo)".into(),
+            "select ps.*, pandgs.blah from ps join pandgs using(moo)",
             "ansi".into(),
             rules(),
             None,
@@ -143,16 +143,14 @@ mod tests {
 
     #[test]
     fn test_pass_column_exp_without_alias_allow_scalar_true() {
-        let violations =
-            lint("SELECT 1 from blah".into(), "ansi".into(), rules(), None, None).unwrap();
+        let violations = lint("SELECT 1 from blah", "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(violations, []);
     }
 
     #[test]
     fn test_fail_column_exp_without_alias() {
         let violations =
-            lint("SELECT upper(foo), bar from blah".into(), "ansi".into(), rules(), None, None)
-                .unwrap();
+            lint("SELECT upper(foo), bar from blah", "ansi".into(), rules(), None, None).unwrap();
 
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].line_no, 1);

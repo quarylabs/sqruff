@@ -37,7 +37,7 @@ pub struct RenderedFile {
     pub config: FluffConfig,
     pub time_dict: AHashMap<&'static str, f64>,
     pub(crate) f_name: String,
-    pub encoding: String,
+    // pub encoding: &'static str,
     pub source_str: String,
 }
 

@@ -137,7 +137,7 @@ mod tests {
     JOIN Cte2
     "#;
 
-        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
+        let violations = lint(pass_str, "ansi".into(), rules(), None, None).unwrap();
         assert_eq!(violations, []);
     }
 

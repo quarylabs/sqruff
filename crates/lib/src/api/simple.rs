@@ -11,7 +11,7 @@ use crate::core::rules::base::ErasedRule;
 
 pub fn get_simple_config(
     dialect: Option<String>,
-    rules: Option<Vec<String>>,
+    rules: Option<&[&str]>,
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
 ) -> Result<FluffConfig, SQLFluffUserError> {
@@ -24,13 +24,13 @@ pub fn get_simple_config(
                 dialect, "Dialect not found"
             )));
         }
-        overrides.insert("dialect".to_owned(), dialect);
+        overrides.insert("dialect", dialect);
     }
     if let Some(rules) = rules {
-        overrides.insert("rules".to_owned(), rules.join(","));
+        overrides.insert("rules", rules.join(","));
     }
     if let Some(exclude_rules) = exclude_rules {
-        overrides.insert("exclude_rules".to_owned(), exclude_rules.join(","));
+        overrides.insert("exclude_rules", exclude_rules.join(","));
     }
 
     FluffConfig::from_root(config_path, true, Some(overrides))
@@ -38,7 +38,7 @@ pub fn get_simple_config(
 }
 
 pub fn lint(
-    sql: String,
+    sql: &str,
     dialect: String,
     rules: Vec<ErasedRule>,
     exclude_rules: Option<Vec<String>>,
@@ -49,7 +49,7 @@ pub fn lint(
 
 /// Lint a SQL string.
 pub fn lint_with_formatter(
-    sql: String,
+    sql: &str,
     dialect: String,
     rules: Vec<ErasedRule>,
     exclude_rules: Option<Vec<String>>,
@@ -66,7 +66,7 @@ pub fn lint_with_formatter(
     Ok(take(&mut result.paths[0].files[0].violations))
 }
 
-pub fn fix(sql: String, rules: Vec<ErasedRule>) -> String {
+pub fn fix(sql: &str, rules: Vec<ErasedRule>) -> String {
     let cfg = get_simple_config(Some("ansi".into()), None, None, None).unwrap();
     let mut linter = Linter::new(cfg, None, None);
     let result = linter.lint_string_wrapped(sql, None, Some(true), rules);

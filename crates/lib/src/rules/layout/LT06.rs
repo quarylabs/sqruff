@@ -77,8 +77,7 @@ mod tests {
     fn passing_example() {
         let sql = "SELECT SUM(1)";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql, "ansi".into(), vec![RuleLT06::default().erased()], None, None).unwrap();
 
         assert_eq!(result, &[]);
     }
@@ -87,15 +86,14 @@ mod tests {
     fn passing_example_window_function() {
         let sql = "SELECT AVG(c) OVER (PARTITION BY a)";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql, "ansi".into(), vec![RuleLT06::default().erased()], None, None).unwrap();
         assert_eq!(result, &[]);
     }
 
     #[test]
     fn simple_fail() {
         let sql = "SELECT SUM (1)";
-        let result = fix(sql.to_string(), vec![RuleLT06::default().erased()]);
+        let result = fix(sql, vec![RuleLT06::default().erased()]);
         assert_eq!(result, "SELECT SUM(1)");
     }
 
@@ -103,8 +101,7 @@ mod tests {
     fn complex_fail_1() {
         let sql = "SELECT SUM /* SOMETHING */ (1)";
         let violations =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql, "ansi".into(), vec![RuleLT06::default().erased()], None, None).unwrap();
 
         assert_eq!(violations[0].desc(), "Function name not immediately followed by parenthesis.");
         assert_eq!(violations.len(), 1);
@@ -119,8 +116,7 @@ mod tests {
       (1)";
 
         let violations =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql, "ansi".into(), vec![RuleLT06::default().erased()], None, None).unwrap();
 
         assert_eq!(violations[0].desc(), "Function name not immediately followed by parenthesis.");
         assert_eq!(violations.len(), 1);

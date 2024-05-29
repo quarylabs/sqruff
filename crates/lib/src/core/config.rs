@@ -229,7 +229,7 @@ impl FluffConfig {
     pub fn from_root(
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-        overrides: Option<AHashMap<String, String>>,
+        overrides: Option<AHashMap<&'static str, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
         let loader = ConfigLoader {};
         let mut config =

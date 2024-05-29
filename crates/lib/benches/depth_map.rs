@@ -68,7 +68,7 @@ SELECT construct_depth_info('uuid-3');"#;
 
 fn depth_map(c: &mut Criterion) {
     let linter = Linter::new(FluffConfig::default(), None, None);
-    let tree = linter.parse_string(COMPLEX_QUERY.into(), None, None, None).unwrap().tree.unwrap();
+    let tree = linter.parse_string(COMPLEX_QUERY, None, None, None).unwrap().tree.unwrap();
 
     c.bench_function("DepthMap::from_parent", |b| {
         b.iter(|| black_box(DepthMap::from_parent(&tree)));

@@ -12,18 +12,18 @@ use crate::core::slice_helpers::zero_slice;
 /// A slice referring to a templated file.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TemplatedFileSlice {
-    pub slice_type: String,
+    pub slice_type: &'static str,
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
 }
 
 impl TemplatedFileSlice {
     pub fn new(
-        slice_type: &str,
+        slice_type: &'static str,
         source_slice: Range<usize>,
         templated_slice: Range<usize>,
     ) -> Self {
-        Self { slice_type: slice_type.to_string(), source_slice, templated_slice }
+        Self { slice_type, source_slice, templated_slice }
     }
 }
 

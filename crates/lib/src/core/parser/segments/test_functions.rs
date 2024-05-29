@@ -27,7 +27,7 @@ pub fn bracket_segments() -> Vec<ErasedSegment> {
 
 pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
     let linter = Linter::new(<_>::default(), None, None);
-    linter.parse_string(sql.into(), None, None, None).unwrap().tree.unwrap()
+    linter.parse_string(sql, None, None, None).unwrap().tree.unwrap()
 }
 
 pub fn lex(string: &str) -> Vec<ErasedSegment> {

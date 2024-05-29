@@ -109,7 +109,7 @@ pub fn bigquery_dialect() -> Dialect {
                         CodeSegmentNewArgs { code_type: "quoted_literal", ..Default::default() },
                     )
                 },
-                "quoted_literal".to_owned().into(),
+                "quoted_literal".into(),
                 false,
                 None,
             )
@@ -163,7 +163,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegmentNewArgs { r#type: "start_angle_bracket" },
                     )
                 },
-                "start_angle_bracket".to_owned().into(),
+                "start_angle_bracket".into(),
                 false,
                 None,
             )
@@ -181,7 +181,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegmentNewArgs { r#type: "end_angle_bracket" },
                     )
                 },
-                "end_angle_bracket".to_owned().into(),
+                "end_angle_bracket".into(),
                 false,
                 None,
             )
@@ -199,7 +199,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegmentNewArgs { r#type: "remove me" },
                     )
                 },
-                "right_arrow".to_owned().into(),
+                "right_arrow".into(),
                 false,
                 None,
             )
@@ -217,7 +217,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegmentNewArgs { r#type: "dash" },
                     )
                 },
-                "dash".to_owned().into(),
+                "dash".into(),
                 false,
                 None,
             )
@@ -245,7 +245,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegmentNewArgs { r#type: "question_mark" },
                     )
                 },
-                "dash".to_owned().into(),
+                "dash".into(),
                 false,
                 None,
             )
@@ -263,7 +263,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegmentNewArgs { r#type: "at_sign_literal" },
                     )
                 },
-                "quoted_literal".to_owned().into(),
+                "quoted_literal".into(),
                 false,
                 None,
             )
@@ -525,9 +525,9 @@ pub fn bigquery_dialect() -> Dialect {
                             },
                         )
                     },
-                    "quoted_identifier".to_owned().into(),
+                    "quoted_identifier".into(),
                     false,
-                    vec!['`'].into(),
+                    Some(&['`']),
                 )
             ])
             .to_matchable()
@@ -730,9 +730,9 @@ pub fn bigquery_dialect() -> Dialect {
                         CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
                     )
                 },
-                "quoted_identifier".to_owned().into(),
+                "quoted_identifier".into(),
                 false,
-                vec!['`'].into(),
+                Some(&['`']),
             )
             .to_matchable()
             .into(),
@@ -752,7 +752,7 @@ pub fn bigquery_dialect() -> Dialect {
                             },
                         )
                     },
-                    "numeric_literal".to_owned().into(),
+                    "numeric_literal".into(),
                     false,
                     None,
                 ),
@@ -1341,7 +1341,7 @@ impl NodeTrait for ExtractFunctionNameSegment {
                     SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                 )
             },
-            "function_name_identifier".to_owned().into(),
+            "function_name_identifier".into(),
             false,
             None,
         )
@@ -1368,7 +1368,7 @@ impl NodeTrait for ArrayFunctionNameSegment {
                     SymbolSegmentNewArgs { r#type: "function_name_identifier" },
                 )
             },
-            "function_name_identifier".to_owned().into(),
+            "function_name_identifier".into(),
             false,
             None,
         )
@@ -2732,7 +2732,7 @@ impl NodeTrait for CreateProcedureStatementSegment {
                             SymbolSegmentNewArgs { r#type: "procedure_option" },
                         )
                     },
-                    "procedure_option".to_owned().into(),
+                    "procedure_option".into(),
                     false,
                     None,
                 ),

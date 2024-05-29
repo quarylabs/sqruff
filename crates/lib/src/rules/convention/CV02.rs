@@ -101,7 +101,7 @@ mod tests {
         // CV02 is raised for use of "IFNULL" or "NVL".
         let sql = "SELECT\n\tIFNULL(NULL, 100),\n\tNVL(NULL, 100);";
         let result = lint(
-            sql.to_string(),
+            sql,
             get_default_dialect().to_string(),
             vec![RuleCV02::default().erased()],
             None,
@@ -119,7 +119,7 @@ mod tests {
         let sql = "SELECT coalesce(foo, 0) AS bar,\nFROM baz;";
 
         let result = lint(
-            sql.to_string(),
+            sql,
             get_default_dialect().to_string(),
             vec![RuleCV02::default().erased()],
             None,
@@ -133,14 +133,14 @@ mod tests {
     #[test]
     fn test_fail_ifnull() {
         let sql = "SELECT ifnull(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql.to_string(), vec![RuleCV02::default().erased()]);
+        let result = fix(sql, vec![RuleCV02::default().erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 
     #[test]
     fn test_fail_nvl() {
         let sql = "SELECT nvl(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql.to_string(), vec![RuleCV02::default().erased()]);
+        let result = fix(sql, vec![RuleCV02::default().erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 }

@@ -584,7 +584,7 @@ fn iter_segments(
                         }
                     }
                 }
-            } else if matches!(tfs.slice_type.as_str(), "templated" | "block_start") {
+            } else if matches!(tfs.slice_type, "templated" | "block_start") {
                 unimplemented!();
             }
         }

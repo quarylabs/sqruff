@@ -57,7 +57,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test__parser__parse_error() {
-        let in_str = "SELECT ;".to_string();
+        let in_str = "SELECT ;";
         let config = FluffConfig::new(<_>::default(), None, None);
         let linter = Linter::new(config, None, None);
 

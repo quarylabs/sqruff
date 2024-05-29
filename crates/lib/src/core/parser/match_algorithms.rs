@@ -35,7 +35,7 @@ pub fn first_non_whitespace(segments: &[ErasedSegment]) -> Option<(String, AHash
 pub struct BracketInfo {
     bracket: ErasedSegment,
     segments: Vec<ErasedSegment>,
-    bracket_type: String,
+    bracket_type: &'static str,
 }
 
 impl BracketInfo {
@@ -232,13 +232,11 @@ pub fn bracket_sensitive_look_ahead_match(
     // These are matchables, probably StringParsers.
     let mut start_brackets = start_bracket_refs
         .into_iter()
-        .map(|seg_ref| parse_cx.dialect().r#ref(&seg_ref))
+        .map(|seg_ref| parse_cx.dialect().r#ref(seg_ref))
         .collect_vec();
 
-    let mut end_brackets = end_bracket_refs
-        .into_iter()
-        .map(|seg_ref| parse_cx.dialect().r#ref(&seg_ref))
-        .collect_vec();
+    let mut end_brackets =
+        end_bracket_refs.into_iter().map(|seg_ref| parse_cx.dialect().r#ref(seg_ref)).collect_vec();
 
     // Add any bracket-like things passed as arguments
     if let Some(start_bracket) = start_bracket {
@@ -291,7 +289,7 @@ pub fn bracket_sensitive_look_ahead_match(
                         bracket_stack.push(BracketInfo {
                             bracket: match_result.matched_segments[0].clone(),
                             segments: match_result.matched_segments,
-                            bracket_type: bracket_types[bracket_type_idx].clone(),
+                            bracket_type: bracket_types[bracket_type_idx],
                         });
                         seg_buff = match_result.unmatched_segments;
                         continue;
@@ -300,8 +298,7 @@ pub fn bracket_sensitive_look_ahead_match(
                         // the innermost start bracket? E.g. ")" matches "(",
                         // "]" matches "[".
                         let end_type = bracket_types
-                            [end_brackets.iter().position(|x| x.dyn_eq(matcher)).unwrap()]
-                        .clone();
+                            [end_brackets.iter().position(|x| x.dyn_eq(matcher)).unwrap()];
                         if let Some(last_bracket) = bracket_stack.last_mut() {
                             if last_bracket.bracket_type == end_type {
                                 // Yes, the types match. So we've found a
@@ -399,8 +396,7 @@ pub fn bracket_sensitive_look_ahead_match(
                             bracket_type: bracket_types[start_brackets
                                 .iter()
                                 .position(|x| x.dyn_eq(matcher_dyn))
-                                .unwrap()]
-                            .clone(),
+                                .unwrap()],
                         });
 
                         // The matched element has already been added to the bracket.

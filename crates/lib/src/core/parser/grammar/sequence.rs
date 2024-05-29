@@ -489,8 +489,8 @@ impl Bracketed {
         let bracket_pairs = parse_context.dialect().bracket_sets(self.bracket_pairs_set);
         for (bracket_type, start_ref, end_ref, persists) in bracket_pairs {
             if bracket_type == self.bracket_type {
-                let start_bracket = parse_context.dialect().r#ref(&start_ref);
-                let end_bracket = parse_context.dialect().r#ref(&end_ref);
+                let start_bracket = parse_context.dialect().r#ref(start_ref);
+                let end_bracket = parse_context.dialect().r#ref(end_ref);
 
                 return Ok((start_bracket, end_bracket, persists));
             }

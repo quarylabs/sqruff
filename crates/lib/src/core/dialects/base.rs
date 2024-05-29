@@ -20,7 +20,7 @@ pub struct Dialect {
     // TODO: Can we use PHF here? https://crates.io/crates/phf
     library: AHashMap<Cow<'static, str>, DialectElementType>,
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
-    bracket_collections: AHashMap<String, AHashSet<BracketPair>>,
+    bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,
 }
 
 impl PartialEq for Dialect {
@@ -150,16 +150,16 @@ impl Dialect {
         self.bracket_collections.get(label).cloned().unwrap_or_default()
     }
 
-    pub fn bracket_sets_mut(&mut self, label: &str) -> &mut AHashSet<BracketPair> {
+    pub fn bracket_sets_mut(&mut self, label: &'static str) -> &mut AHashSet<BracketPair> {
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",
             "Invalid bracket set. Consider using another identifier instead."
         );
 
-        self.bracket_collections.entry(label.to_string()).or_default()
+        self.bracket_collections.entry(label).or_default()
     }
 
-    pub fn update_bracket_sets(&mut self, label: &str, pairs: Vec<BracketPair>) {
+    pub fn update_bracket_sets(&mut self, label: &'static str, pairs: Vec<BracketPair>) {
         let set = self.bracket_sets_mut(label);
         for pair in pairs {
             set.insert(pair);
@@ -244,4 +244,4 @@ impl Dialect {
     }
 }
 
-pub type BracketPair = (String, String, String, bool);
+pub type BracketPair = (&'static str, &'static str, &'static str, bool);

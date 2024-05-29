@@ -1,4 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+#[cfg(unix)]
+use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
 use sqruff_lib::utils::reflow::depth_map::DepthMap;
@@ -75,5 +77,10 @@ fn depth_map(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, depth_map);
+#[cfg(unix)]
+criterion_group! {
+    name = benches;
+    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
+    targets = depth_map
+}
 criterion_main!(benches);

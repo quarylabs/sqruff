@@ -343,7 +343,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
 
         // TODO Could this also be AHashSet to &str
         for seg in self.segments() {
-            result_set.extend(seg.descendant_type_set().union(&seg.class_types()).cloned());
+            result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
         }
 
         result_set

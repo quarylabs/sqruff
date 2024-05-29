@@ -106,19 +106,9 @@ pub fn ansi_raw_dialect() -> Dialect {
     ansi_dialect.update_bracket_sets(
         "bracket_pairs",
         vec![
-            ("round".into(), "StartBracketSegment".into(), "EndBracketSegment".into(), true),
-            (
-                "square".into(),
-                "StartSquareBracketSegment".into(),
-                "EndSquareBracketSegment".into(),
-                false,
-            ),
-            (
-                "curly".into(),
-                "StartCurlyBracketSegment".into(),
-                "EndCurlyBracketSegment".into(),
-                false,
-            ),
+            ("round", "StartBracketSegment", "EndBracketSegment", true),
+            ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", false),
+            ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", false),
         ],
     );
 

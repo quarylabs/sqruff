@@ -619,9 +619,9 @@ pub fn bigquery_dialect() -> Dialect {
 
     // Set angle bracket pairs
     dialect.bracket_sets_mut("angle_bracket_pairs").extend([(
-        "angle".to_string(),
-        "StartAngleBracketSegment".to_string(),
-        "EndAngleBracketSegment".to_string(),
+        "angle",
+        "StartAngleBracketSegment",
+        "EndAngleBracketSegment",
         false,
     )]);
 

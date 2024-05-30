@@ -302,7 +302,6 @@ mod test {
     }
 
     #[test]
-    #[ignore]
     fn test_exclude_constraint() {
         let pass_str = r#"alter table abc add constraint xyz exclude (field WITH =);"#;
 

@@ -22,9 +22,11 @@ use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
+use crate::helpers::ToErasedSegment;
 use crate::rules::get_ruleset;
 
 pub struct Linter {
@@ -192,20 +194,24 @@ impl Linter {
         rules: Vec<ErasedRule>,
         fix: bool,
     ) -> LintedFile {
-        let violations = parsed_string.violations;
-        assert!(violations.is_empty());
+        let mut violations = parsed_string.violations;
 
         let (tree, initial_linting_errors) = if let Some(tree) = parsed_string.tree {
             self.lint_fix_parsed(tree, rules, fix)
         } else {
-            unimplemented!()
+            (
+                BracketedSegment::new(Vec::new(), Vec::new(), Vec::new(), true).to_erased_segment(),
+                Vec::new(),
+            )
         };
+
+        violations.extend(initial_linting_errors.into_iter().map(Into::into));
 
         let linted_file = LintedFile {
             path: parsed_string.f_name,
             tree,
             templated_file: parsed_string.templated_file,
-            violations: initial_linting_errors,
+            violations,
         };
 
         if let Some(formatter) = &self.formatter {

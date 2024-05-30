@@ -3,7 +3,7 @@ use std::ops::Range;
 use ahash::AHashSet;
 use itertools::Itertools;
 
-use crate::core::errors::{SQLBaseError, SQLLintError};
+use crate::core::errors::SQLBaseError;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::fix::FixPatch;
 use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
@@ -13,7 +13,7 @@ pub struct LintedFile {
     pub path: String,
     pub tree: ErasedSegment,
     pub templated_file: TemplatedFile,
-    pub violations: Vec<SQLLintError>,
+    pub violations: Vec<SQLBaseError>,
 }
 
 impl LintedFile {

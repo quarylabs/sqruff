@@ -421,7 +421,12 @@ pub fn bracket_sensitive_look_ahead_match(
                 }
             }
         } else if !bracket_stack.is_empty() {
-            panic!("Couldn't find closing bracket for opened brackets: `{bracket_stack:?}`.",);
+            return Err(SQLParseError {
+                description: format!(
+                    "Couldn't find closing bracket for opened brackets: `{bracket_stack:?}`."
+                ),
+                segment: bracket_stack.last().unwrap().bracket.clone().into(),
+            });
         }
 
         // This is the happy unmatched path. This occurs when:

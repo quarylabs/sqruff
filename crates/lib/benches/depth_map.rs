@@ -83,4 +83,8 @@ criterion_group! {
     config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
     targets = depth_map
 }
+
+#[cfg(not(unix))]
+criterion_group!(benches, depth_map);
+
 criterion_main!(benches);

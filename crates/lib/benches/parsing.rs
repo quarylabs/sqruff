@@ -1,4 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+#[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::dialects::base::Dialect;
 use sqruff_lib::core::parser::context::ParseContext;
@@ -105,9 +106,14 @@ fn mk_segments<'a>(
     (ctx, segment, segments)
 }
 
+#[cfg(unix)]
 criterion_group! {
     name = benches;
     config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
     targets = parse
 }
+
+#[cfg(not(unix))]
+criterion_group!(benches, parse);
+
 criterion_main!(benches);

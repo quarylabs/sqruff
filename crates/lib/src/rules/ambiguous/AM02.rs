@@ -221,6 +221,25 @@ mod tests {
               f
             from tbl2
         ";
+        let fix_str = "
+            select
+              a,
+              b
+            from tbl
+            union distinct
+            select
+              c,
+              d
+            from tbl1
+            union distinct
+            select
+              e,
+              f
+            from tbl2
+        ";
+
+        let actual = fix(fail_str.into(), rules());
+        assert_eq!(fix_str, actual);
     }
 
     #[test]

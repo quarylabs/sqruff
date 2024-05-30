@@ -323,6 +323,48 @@ mod tests {
     }
 
     #[test]
+    fn test_pass_update_cte() {
+        let pass_str = r#"
+        WITH cte AS (
+            SELECT
+                id,
+                name,
+                description
+            FROM table1
+        )
+        UPDATE table2
+        SET
+            name = cte.name,
+            description = cte.description
+        FROM cte
+        WHERE table2.id = cte.id;
+        "#;
+
+        let violations = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_fail_update_cte() {
+        let fail_str = r#"
+        WITH cte AS (
+            SELECT
+                id,
+                name,
+                description
+            FROM table1
+        )
+        UPDATE table2
+        SET
+            name = 1,
+            description = 2
+        "#;
+
+        let violations = lint(fail_str.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(violations.len(), 1);
+    }
+
+    #[test]
     fn test_pass_nested_query() {
         let pass_str = r#"
     WITH

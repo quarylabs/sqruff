@@ -403,8 +403,17 @@ from my_table;";
     }
 
     #[test]
-    #[ignore = "dialect: postgres"]
-    fn test_pass_case_cannot_be_reduced_13() {}
+    fn test_pass_case_cannot_be_reduced_13() {
+        let pass_str = "
+        SELECT
+            CASE
+                WHEN item.submitted_timestamp IS NOT NULL
+                THEN item.sitting_id
+            END";
+
+        let violations = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
 
     #[test]
     fn test_fail_unnecessary_case_1() {

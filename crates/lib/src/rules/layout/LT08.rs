@@ -375,4 +375,17 @@ cross join other_cte";
 
         println!("{fixed}");
     }
+
+    #[test]
+    fn test_pass_recursive_with_argument_list_postgres() {
+        let sql = "
+            WITH RECURSIVE my_cte (n) AS (
+                select 1
+            )
+
+            select * from my_cte
+        ";
+        let lints = lint(sql.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(lints, []);
+    }
 }

@@ -494,4 +494,23 @@ mod tests {
 
         assert_eq!(violations, []);
     }
+
+    #[test]
+    fn test_postgres_value_table_alias() {
+        let violations = lint(
+            "select
+                sc.col1 as colx
+                , pn.col1 as coly
+            from sch1.tbl1 as sc
+            cross join unnest(array[111, 222]) as pn(col1)"
+                .into(),
+            "postgres".into(),
+            rules(),
+            None,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(violations, []);
+    }
 }

@@ -208,6 +208,35 @@ mod tests {
     }
 
     #[test]
+    fn test_ignore_postgres_value_table_functions() {
+        let pass_str = r#"
+            SELECT json_build_object(
+                'name', 'ticket_status',
+                'type', 'enum',
+                'values', json_agg(status_name)
+            )
+            FROM unnest(enum_range(NULL::my_enum)) AS status_name;
+        "#;
+
+        let result = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(result, []);
+    }
+
+    #[test]
+    fn test_ignore_postgres_value_table_functions_generate_series() {
+        let pass_str = r#"
+            SELECT
+                date_trunc('day', dd):: timestamp with time zone
+            FROM generate_series (
+                '2022-02-01'::timestamp , NOW()::timestamp , '1 day'::interval
+            ) dd ;
+        "#;
+
+        let result = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(result, []);
+    }
+
+    #[test]
     fn test_pass_unaliased_table_referenced() {
         let violations = lint(
             "select ps.*, pandgs.blah from ps join pandgs using(moo)".into(),

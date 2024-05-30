@@ -371,4 +371,25 @@ FROM my_table"#;
         let result = lint(sql, Options::default());
         assert_eq!(result, []);
     }
+
+    #[test]
+    fn test_pass_ignore_comment_clauses_postgres() {
+        let pass_str = r#"
+            CREATE TABLE IF NOT EXISTS foo
+            ( id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+              name TEXT NOT NULL
+            );
+
+            COMMENT ON TABLE foo IS 'Windows Phone 8, however, was never able to overcome a long string of disappointments for Microsoft. ';
+        "#;
+
+        let options = Options {
+            max_line_length: Some(80),
+            ignore_comment_clauses: true,
+            ..Default::default()
+        };
+
+        let result = lint(pass_str, options);
+        assert_eq!(result, []);
+    }
 }

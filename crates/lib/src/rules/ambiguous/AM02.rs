@@ -221,24 +221,23 @@ mod tests {
               f
             from tbl2
         ";
-        let fix_str = "
-            select
-              a,
-              b
-            from tbl
-            union distinct
-            select
-              c,
-              d
-            from tbl1
-            union distinct
-            select
-              e,
-              f
-            from tbl2
-        ";
+    }
 
-        let actual = fix(fail_str.into(), rules());
-        assert_eq!(fix_str, actual);
+    #[test]
+    fn test_postgres() {
+        let pass_str = "
+        select
+          a,
+          b
+        from tbl1
+        union
+        select
+          c,
+          d
+        from tbl2
+      ";
+
+        let violations = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
     }
 }

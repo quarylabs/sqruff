@@ -2,7 +2,7 @@ file:
 - statement_segment:
   - with_compound_statement:
     - keyword: WITH
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: w
       - keyword: AS
       - keyword: MATERIALIZED
@@ -79,7 +79,7 @@ file:
 - statement_segment:
   - with_compound_statement:
     - keyword: WITH
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: w
       - keyword: AS
       - keyword: NOT
@@ -158,7 +158,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: search_tree
       - cte_column_list:
         - bracketed:
@@ -294,7 +294,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: search_tree
       - cte_column_list:
         - bracketed:
@@ -430,7 +430,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: search_graph
       - cte_column_list:
         - bracketed:
@@ -574,7 +574,7 @@ file:
 - statement_segment:
   - with_compound_statement:
     - keyword: WITH
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: tbl
       - keyword: AS
       - bracketed:
@@ -614,7 +614,7 @@ file:
 - statement_segment:
   - with_compound_statement:
     - keyword: WITH
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: tbl
       - keyword: AS
       - bracketed:
@@ -654,7 +654,7 @@ file:
 - statement_segment:
   - with_compound_statement:
     - keyword: WITH
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: tbl
       - keyword: AS
       - bracketed:

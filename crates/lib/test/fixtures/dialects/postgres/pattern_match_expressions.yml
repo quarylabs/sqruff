@@ -377,7 +377,7 @@ file:
 - statement_segment:
   - with_compound_statement:
     - keyword: WITH
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: cleaned_bear_financial_branch
       - keyword: AS
       - bracketed:

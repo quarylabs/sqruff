@@ -160,10 +160,12 @@ mod tests {
         trailing_comments: Option<&'static str>,
         ignore_comment_lines: bool,
         ignore_comment_clauses: bool,
+        dialect: Option<&'static str>,
     }
 
     fn lint_inner(sql: &'static str, options: Options) -> LintingResult {
-        let mut cfg = get_simple_config(Some("ansi".into()), None, None, None).unwrap();
+        let mut cfg =
+            get_simple_config(options.dialect.map(ToOwned::to_owned), None, None, None).unwrap();
 
         if let Some(max_line_length) = options.max_line_length {
             cfg.raw
@@ -386,6 +388,7 @@ FROM my_table"#;
         let options = Options {
             max_line_length: Some(80),
             ignore_comment_clauses: true,
+            dialect: "postgres".into(),
             ..Default::default()
         };
 

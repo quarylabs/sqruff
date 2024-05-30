@@ -485,7 +485,7 @@ file:
 - statement_segment:
   - with_compound_statement:
     - keyword: WITH
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: test
       - keyword: as
       - bracketed:
@@ -516,7 +516,7 @@ file:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
-    - cte_definition:
+    - common_table_expression:
       - naked_identifier: t
       - cte_column_list:
         - bracketed:

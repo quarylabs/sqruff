@@ -27,7 +27,7 @@ file:
                   - column_reference:
                     - naked_identifier: col3
               - keyword: end
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': text
         - alias_expression:
@@ -70,10 +70,10 @@ file:
                   - column_reference:
                     - naked_identifier: col3
               - keyword: end
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': int
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': float
         - alias_expression:

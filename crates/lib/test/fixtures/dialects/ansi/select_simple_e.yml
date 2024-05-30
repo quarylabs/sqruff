@@ -8,7 +8,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: my_var
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': date
         - alias_expression:
@@ -19,7 +19,7 @@ file:
         - expression:
           - cast_expression:
             - numeric_literal: '123'
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': bigint
         - alias_expression:

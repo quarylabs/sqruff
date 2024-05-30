@@ -210,7 +210,7 @@ file:
           - keyword: DEFAULT
           - cast_expression:
             - numeric_literal: '1'
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': INT
       - end_bracket: )

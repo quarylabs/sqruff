@@ -48,7 +48,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''[{"a":"foo"},{"b":"bar"},{"c":"baz"}]'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: json
           - binary_operator: ->
@@ -62,7 +62,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''{"a": {"b":"foo"}}'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: json
           - binary_operator: ->
@@ -76,7 +76,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''[1,2,3]'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: json
           - binary_operator: ->>
@@ -90,7 +90,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''{"a":1,"b":2}'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: json
           - binary_operator: ->>
@@ -104,7 +104,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''{"a": {"b":{"c": "foo"}}}'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: json
           - binary_operator: '#>'
@@ -118,7 +118,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''{"a":[1,2,3],"b":[4,5,6]}'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: json
           - binary_operator: '#>>'

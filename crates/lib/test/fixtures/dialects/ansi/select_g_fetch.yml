@@ -7,7 +7,7 @@ file:
         - expression:
           - cast_expression:
             - null_literal: 'NULL'
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': INT
         - alias_expression:
@@ -18,7 +18,7 @@ file:
         - expression:
           - cast_expression:
             - null_literal: 'NULL'
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': INT
         - alias_expression:

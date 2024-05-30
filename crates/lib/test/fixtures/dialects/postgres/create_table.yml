@@ -1288,7 +1288,7 @@ file:
         - keyword: DEFAULT
         - cast_expression:
           - quoted_literal: '''-1'''
-          - remove me: '::'
+          - casting_operator: '::'
           - data_type:
             - keyword: integer
       - end_bracket: )
@@ -1452,7 +1452,7 @@ file:
             - expression:
               - cast_expression:
                 - quoted_literal: '''orders_id_seq'''
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - '': regclass
             - end_bracket: )

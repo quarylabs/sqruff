@@ -590,7 +590,7 @@ file:
                     - expression:
                       - cast_expression:
                         - quoted_literal: '''[1:1][-2:-1][3:5]={{{1,2,3},{4,5,6}}}'''
-                        - remove me: '::'
+                        - casting_operator: '::'
                         - data_type:
                           - keyword: int
                           - start_square_bracket: '['
@@ -611,7 +611,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''{Hello,World}'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': _text
         - alias_expression:
@@ -636,7 +636,7 @@ file:
                 - comma: ','
                 - quoted_literal: '''C'''
                 - end_square_bracket: ']'
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': _TEXT
 - statement_terminator: ;

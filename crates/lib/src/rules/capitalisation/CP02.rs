@@ -10,7 +10,7 @@ use crate::utils::identifers::identifiers_policy_applicable;
 #[derive(Clone, Debug)]
 pub struct RuleCP02 {
     base: RuleCP01,
-    unquoted_identifiers_policy: String,
+    unquoted_identifiers_policy: &'static str,
 }
 
 impl Default for RuleCP02 {
@@ -20,7 +20,7 @@ impl Default for RuleCP02 {
                 cap_policy_name: "extended_capitalisation_policy".into(),
                 ..Default::default()
             },
-            unquoted_identifiers_policy: "all".into(),
+            unquoted_identifiers_policy: "all",
         }
     }
 }
@@ -53,7 +53,7 @@ impl Rule for RuleCP02 {
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if identifiers_policy_applicable(&self.unquoted_identifiers_policy, &context.parent_stack) {
+        if identifiers_policy_applicable(self.unquoted_identifiers_policy, &context.parent_stack) {
             self.base.eval(context)
         } else {
             vec![LintResult::new(None, Vec::new(), None, None, None)]

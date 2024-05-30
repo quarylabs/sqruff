@@ -3,6 +3,7 @@ use crate::core::parser::segments::base::{ErasedSegment, SegmentExt};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::helpers::capitalize;
 use crate::utils::reflow::elements::ReflowPoint;
+use crate::utils::reflow::helpers::deduce_line_indent;
 
 #[derive(Debug)]
 pub struct RebreakSpan {
@@ -192,7 +193,7 @@ pub fn rebreak_sequence(
     // side to respace them at the same time.
 
     // 1. First find appropriate spans.
-    let spans = identify_rebreak_spans(&elem_buff, root_segment);
+    let spans = identify_rebreak_spans(&elem_buff, root_segment.clone());
 
     let mut locations = Vec::new();
     for span in spans {
@@ -212,8 +213,8 @@ pub fn rebreak_sequence(
         // }
 
         // Points and blocks either side are just offsets from the indices.
-        let prev_point = elem_buff[loc.prev.adj_pt_idx as usize].as_point().unwrap();
-        let next_point = elem_buff[loc.next.adj_pt_idx as usize].as_point().unwrap();
+        let prev_point = elem_buff[loc.prev.adj_pt_idx as usize].as_point().unwrap().clone();
+        let next_point = elem_buff[loc.next.adj_pt_idx as usize].as_point().unwrap().clone();
 
         // So we know we have a preference, is it ok?
         let new_results = if loc.line_position == "leading" {
@@ -349,8 +350,44 @@ pub fn rebreak_sequence(
 
                 new_results
             }
+        } else if loc.line_position == "alone" {
+            let mut new_results = Vec::new();
+
+            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 0 {
+                let (results, next_point) = next_point.indent_to(
+                    &deduce_line_indent(
+                        loc.target.get_raw_segments().last().unwrap(),
+                        &root_segment,
+                    ),
+                    loc.target.clone().into(),
+                    None,
+                    None,
+                    None,
+                );
+
+                new_results = results;
+                elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();
+            }
+
+            if elem_buff[loc.prev.adj_pt_idx as usize].num_newlines() == 0 {
+                let (results, prev_point) = prev_point.indent_to(
+                    &deduce_line_indent(
+                        loc.target.get_raw_segments().first().unwrap(),
+                        &root_segment,
+                    ),
+                    None,
+                    loc.target.into(),
+                    None,
+                    None,
+                );
+
+                new_results = results;
+                elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
+            }
+
+            new_results
         } else {
-            unimplemented!()
+            unimplemented!("Unexpected line_position config: {}", loc.line_position)
         };
 
         lint_results.extend(new_results);

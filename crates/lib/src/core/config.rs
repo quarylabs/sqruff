@@ -236,10 +236,14 @@ impl FluffConfig {
             loader.load_config_up_to_path(".", extra_config_path.clone(), ignore_local_config);
 
         if let Some(overrides) = overrides {
-            let core = config.entry("core".into()).or_insert_with(|| Value::Map(AHashMap::new()));
-            core.as_map_mut()
-                .unwrap()
-                .insert("dialect".into(), Value::String(overrides["dialect"].clone().into()));
+            if let Some(dialect) = overrides.get("dialect") {
+                let core =
+                    config.entry("core".into()).or_insert_with(|| Value::Map(AHashMap::new()));
+
+                core.as_map_mut()
+                    .unwrap()
+                    .insert("dialect".into(), Value::String(dialect.clone().into()));
+            }
         }
 
         Ok(FluffConfig::new(config, extra_config_path, None))

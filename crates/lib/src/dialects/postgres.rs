@@ -41,6 +41,7 @@ impl<T> Boxed for T {
 
 pub fn postgres_dialect() -> Dialect {
     let mut postgres = ansi_raw_dialect();
+    postgres.name = "postgres";
 
     postgres.insert_lexer_matchers(
         vec![Matcher::string("right_arrow", "=>", |slice, marker| {

@@ -784,4 +784,10 @@ mod tests {
         .unwrap();
         assert_eq!(sql, &[]);
     }
+
+    #[test]
+    fn test_casting_operator_pass() {
+        let sql = lint("SELECT '1'::INT;".into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(sql, &[]);
+    }
 }

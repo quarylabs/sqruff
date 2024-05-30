@@ -1432,7 +1432,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "clap",
  "console",
@@ -1443,7 +1443,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "ahash",
  "anstyle",

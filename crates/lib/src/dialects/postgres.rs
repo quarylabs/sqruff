@@ -6450,7 +6450,7 @@ impl NodeTrait for DoStatementSegment {
 pub struct CTEDefinitionSegment;
 
 impl NodeTrait for CTEDefinitionSegment {
-    const TYPE: &'static str = "cte_definition";
+    const TYPE: &'static str = "common_table_expression";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![

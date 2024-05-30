@@ -3391,7 +3391,7 @@ impl Node<ObjectReferenceSegment> {
         let refs = self.iter_raw_references();
 
         match dialect {
-            "ansi" => {
+            "ansi" | "postgres" => {
                 let level = level as usize;
                 if refs.len() >= level && level > 0 {
                     refs.get(refs.len() - level).cloned().into_iter().collect()

@@ -54,9 +54,9 @@ mod tests {
 
     #[test]
     fn test_fail_simple_fix_union_all_before() {
-        let sql = r#"SELECT a UNION ALL SELECT b"#;
+        let sql = "SELECT 'a' UNION ALL\nSELECT 'b'";
 
         let result = fix(sql.into(), rules());
-        println!("{}", result);
+        assert_eq!(result, "SELECT 'a'\nUNION ALL\nSELECT 'b'");
     }
 }

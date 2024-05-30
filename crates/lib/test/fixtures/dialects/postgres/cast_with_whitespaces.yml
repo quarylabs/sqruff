@@ -8,7 +8,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: FLOAT
     - from_clause:
@@ -29,7 +29,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: FLOAT
     - from_clause:
@@ -50,7 +50,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: FLOAT
     - from_clause:
@@ -71,7 +71,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: FLOAT
     - from_clause:
@@ -92,7 +92,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: time
@@ -114,7 +114,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: text
     - from_clause:
@@ -135,7 +135,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: VARCHAR
               - bracketed_arguments:
@@ -161,7 +161,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMPTZ
@@ -183,7 +183,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: amount_of_honey
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMP
@@ -236,7 +236,7 @@ file:
                   - naked_identifier: fc
                   - dot: .
                   - naked_identifier: bear_id
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - keyword: VARCHAR
                   - bracketed_arguments:
@@ -251,7 +251,7 @@ file:
                   - naked_identifier: bi
                   - dot: .
                   - naked_identifier: bear_id
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - keyword: VARCHAR
                   - bracketed_arguments:

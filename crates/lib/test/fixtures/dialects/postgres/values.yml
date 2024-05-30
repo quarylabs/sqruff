@@ -38,7 +38,7 @@ file:
       - expression:
         - cast_expression:
           - numeric_literal: '2'
-          - remove me: '::'
+          - casting_operator: '::'
           - data_type:
             - keyword: TEXT
       - end_bracket: )

@@ -65,7 +65,7 @@ file:
         - expression:
           - cast_expression:
             - numeric_literal: '1.0'
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: int
 - statement_terminator: ;
@@ -77,7 +77,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''2015-10-24 16:38:46'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMP
@@ -90,7 +90,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''2015-10-24 16:38:46'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMP
@@ -109,7 +109,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''2015-10-24 16:38:46'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMP
@@ -125,7 +125,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''2015-10-24 16:38:46'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMP
@@ -147,7 +147,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''2015-10-24 16:38:46'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMP
@@ -163,7 +163,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''2015-10-24 16:38:46'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMPTZ
@@ -176,7 +176,7 @@ file:
         - expression:
           - cast_expression:
             - quoted_literal: '''2015-10-24 16:38:46'''
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: TIMESTAMPTZ
@@ -355,7 +355,7 @@ file:
                   - expression:
                     - quoted_literal: '''Africa/Cairo'''
               - end_bracket: )
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: time
@@ -377,7 +377,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: a
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - keyword: double
               - keyword: precision

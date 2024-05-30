@@ -804,7 +804,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: b
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - '': DATETIME
     - from_clause:
@@ -829,7 +829,7 @@ file:
           - cast_expression:
             - column_reference:
               - naked_identifier: c
-            - remove me: '::'
+            - casting_operator: '::'
             - data_type:
               - datetime_type_identifier:
                 - keyword: DATE
@@ -866,7 +866,7 @@ file:
         - keyword: default
         - cast_expression:
           - quoted_literal: '''A'''
-          - remove me: '::'
+          - casting_operator: '::'
           - data_type:
             - keyword: bpchar
       - end_bracket: )

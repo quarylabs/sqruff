@@ -87,7 +87,7 @@ file:
                 - remove me: ':'
                 - parameter: m1
             - end_bracket: )
-          - remove me: '::'
+          - casting_operator: '::'
           - data_type:
             - keyword: text
         - binary_operator: AND
@@ -111,7 +111,7 @@ file:
                       - remove me: ':'
                       - parameter: a
                   - end_bracket: )
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - keyword: text
             - comma: ','

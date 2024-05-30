@@ -526,7 +526,7 @@ file:
                   - array_literal:
                     - start_square_bracket: '['
                     - end_square_bracket: ']'
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - keyword: INTEGER
                   - start_square_bracket: '['
@@ -550,7 +550,7 @@ file:
                     - column_reference:
                       - quoted_identifier: '"name"'
                     - end_square_bracket: ']'
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - keyword: text
                   - start_square_bracket: '['
@@ -570,7 +570,7 @@ file:
                     - column_reference:
                       - quoted_identifier: '"group_id"'
                     - end_square_bracket: ']'
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - keyword: INTEGER
                   - start_square_bracket: '['
@@ -629,7 +629,7 @@ file:
               - cast_expression:
                 - column_reference:
                   - quoted_identifier: '"name"'
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - keyword: text
           - comma: ','

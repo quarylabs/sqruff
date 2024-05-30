@@ -36,7 +36,7 @@ file:
                   - comma: ','
                   - null_literal: 'null'
                   - end_bracket: )
-                - remove me: '::'
+                - casting_operator: '::'
                 - data_type:
                   - '': my_type
             - end_bracket: )

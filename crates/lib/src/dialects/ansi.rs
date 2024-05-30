@@ -355,9 +355,21 @@ pub fn ansi_raw_dialect() -> Dialect {
         ),
         (
             "CastOperatorSegment".into(),
-            StringParser::new("::", symbol_factory, Some("casting_operator".into()), false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new(
+                "::",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        segment.get_position_marker(),
+                        SymbolSegmentNewArgs { r#type: "casting_operator" },
+                    )
+                },
+                Some("casting_operator".into()),
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "PlusSegment".into(),
@@ -2349,7 +2361,7 @@ pub trait NodeTrait {
     fn match_grammar() -> Arc<dyn Matchable>;
 
     fn class_types() -> AHashSet<&'static str> {
-        <_>::default()
+        [Self::TYPE].into()
     }
 
     fn reference(&self) -> Node<ObjectReferenceSegment> {

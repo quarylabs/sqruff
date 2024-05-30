@@ -145,7 +145,7 @@ mod tests {
     use super::RuleLT05;
     use crate::api::simple::get_simple_config;
     use crate::core::config::Value;
-    use crate::core::errors::SQLLintError;
+    use crate::core::errors::SQLBaseError;
     use crate::core::linter::linter::Linter;
     use crate::core::linter::linting_result::LintingResult;
     use crate::core::rules::base::{Erased, ErasedRule};
@@ -192,7 +192,7 @@ mod tests {
         )
     }
 
-    fn lint(sql: &'static str, options: Options) -> Vec<SQLLintError> {
+    fn lint(sql: &'static str, options: Options) -> Vec<SQLBaseError> {
         let mut result = lint_inner(sql, options);
         std::mem::take(&mut result.paths[0].files[0].violations)
     }

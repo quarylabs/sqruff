@@ -5,7 +5,7 @@ use ahash::AHashMap;
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::init::dialect_selector;
-use crate::core::errors::{SQLFluffUserError, SQLLintError};
+use crate::core::errors::{SQLBaseError, SQLFluffUserError};
 use crate::core::linter::linter::Linter;
 use crate::core::rules::base::ErasedRule;
 
@@ -43,7 +43,7 @@ pub fn lint(
     rules: Vec<ErasedRule>,
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
-) -> Result<Vec<SQLLintError>, SQLFluffUserError> {
+) -> Result<Vec<SQLBaseError>, SQLFluffUserError> {
     lint_with_formatter(sql, dialect, rules, exclude_rules, config_path, None)
 }
 
@@ -55,7 +55,7 @@ pub fn lint_with_formatter(
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
     formatter: Option<OutputStreamFormatter>,
-) -> Result<Vec<SQLLintError>, SQLFluffUserError> {
+) -> Result<Vec<SQLBaseError>, SQLFluffUserError> {
     let cfg = get_simple_config(dialect.into(), None, exclude_rules, config_path)?;
 
     let mut linter = Linter::new(cfg, None, None);

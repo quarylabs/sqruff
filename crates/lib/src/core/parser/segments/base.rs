@@ -320,6 +320,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
         let mut acc = Vec::new();
 
+        if self.get_position_marker().is_none() {
+            return Vec::new();
+        }
+
         if self.get_position_marker().unwrap().is_literal() {
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(

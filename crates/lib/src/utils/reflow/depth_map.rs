@@ -51,14 +51,14 @@ impl DepthMap {
         let mut depth_info = AHashMap::with_capacity(raws_with_stack.len());
 
         for (raw, stack) in raws_with_stack {
-            depth_info.insert(raw.get_uuid().unwrap(), DepthInfo::from_raw_and_stack(raw, stack));
+            depth_info.insert(raw.get_uuid(), DepthInfo::from_raw_and_stack(raw, stack));
         }
 
         Self { depth_info }
     }
 
     pub fn get_depth_info(&self, seg: &ErasedSegment) -> DepthInfo {
-        self.depth_info[&seg.get_uuid().unwrap()].clone()
+        self.depth_info[&seg.get_uuid()].clone()
     }
 
     pub fn copy_depth_info(
@@ -68,7 +68,7 @@ impl DepthMap {
         trim: u32,
     ) {
         self.depth_info.insert(
-            new_segment.get_uuid().unwrap(),
+            new_segment.get_uuid(),
             self.get_depth_info(&anchor).trim(trim.try_into().unwrap()),
         );
     }

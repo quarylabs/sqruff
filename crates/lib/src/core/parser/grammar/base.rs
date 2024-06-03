@@ -281,14 +281,14 @@ impl Anything {
 }
 
 impl Segment for Anything {
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.cache.into()
+    fn get_uuid(&self) -> Uuid {
+        self.cache
     }
 }
 
 impl Matchable for Anything {
     fn cache_key(&self) -> Option<Uuid> {
-        self.get_uuid()
+        Some(self.get_uuid())
     }
 
     fn match_segments(

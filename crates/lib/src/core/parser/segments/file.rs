@@ -58,7 +58,7 @@ impl Segment for BaseFileSegment {
         self.f_name.clone()
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
+    fn get_uuid(&self) -> Uuid {
         todo!()
     }
 

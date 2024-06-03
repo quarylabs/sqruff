@@ -126,7 +126,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
 
     fn reference(&self) -> Node<ObjectReferenceSegment> {
         let mut node = Node::new();
-        node.uuid = self.get_uuid().unwrap();
+        node.uuid = self.get_uuid();
         node.position_marker.clone_from(&self.get_position_marker());
         node.segments = self.segments().to_vec();
         node
@@ -475,7 +475,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         patches
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
+    fn get_uuid(&self) -> Uuid {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
@@ -496,7 +496,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         for fix in fixes {
             // :TRICKY: Use segment uuid as the dictionary key since
             // different segments may compare as equal.
-            let anchor_id = fix.anchor.get_uuid().unwrap();
+            let anchor_id = fix.anchor.get_uuid();
             anchor_info.entry(anchor_id).or_default().add(fix.clone());
         }
         anchor_info
@@ -534,7 +534,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
             // Look for uuid match.
             // This handles potential positioning ambiguity.
 
-            let Some(mut anchor_info) = fixes.remove(&seg.get_uuid().unwrap()) else {
+            let Some(mut anchor_info) = fixes.remove(&seg.get_uuid()) else {
                 seg_buffer.push(seg.clone());
                 continue;
             };
@@ -694,11 +694,9 @@ dyn_clone::clone_trait_object!(Segment);
 
 impl PartialEq for dyn Segment {
     fn eq(&self, other: &Self) -> bool {
-        if let (Some(uuid1), Some(uuid2)) = (self.get_uuid(), other.get_uuid()) {
-            if uuid1 == uuid2 {
-                return true;
-            };
-        };
+        if self.get_uuid() == other.get_uuid() {
+            return true;
+        }
 
         let pos_self = self.get_position_marker();
         let pos_other = other.get_position_marker();
@@ -904,8 +902,8 @@ impl Segment for CodeSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     /// Create a new segment, with exactly the same position but different
@@ -1004,8 +1002,8 @@ impl Segment for IdentifierSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.base.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.base.uuid
     }
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -1099,8 +1097,8 @@ impl Segment for CommentSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -1183,8 +1181,8 @@ impl Segment for NewlineSegment {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -1264,8 +1262,8 @@ impl Segment for WhitespaceSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -1328,7 +1326,7 @@ impl Segment for UnlexableSegment {
         todo!()
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
+    fn get_uuid(&self) -> Uuid {
         todo!()
     }
 
@@ -1397,8 +1395,8 @@ impl Segment for SymbolSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -1480,8 +1478,8 @@ impl Segment for UnparsableSegment {
         &self.segments
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 }
 
@@ -1566,12 +1564,9 @@ mod tests {
         let anchor_edit_info = raw_segs[0].compute_anchor_edit_info(&fixes);
 
         // Check the target segment is the only key we have.
-        assert_eq!(
-            anchor_edit_info.keys().collect::<Vec<_>>(),
-            vec![&raw_segs[0].get_uuid().unwrap()]
-        );
+        assert_eq!(anchor_edit_info.keys().collect::<Vec<_>>(), vec![&raw_segs[0].get_uuid()]);
 
-        let anchor_info = anchor_edit_info.get(&raw_segs[0].get_uuid().unwrap()).unwrap();
+        let anchor_info = anchor_edit_info.get(&raw_segs[0].get_uuid()).unwrap();
 
         // Check that the duplicate as been deduplicated i.e. this isn't 3.
         assert_eq!(anchor_info.replace, 2);

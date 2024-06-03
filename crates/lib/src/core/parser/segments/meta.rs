@@ -104,8 +104,8 @@ impl<M: MetaSegmentKind + Send + Sync> Segment for MetaSegment<M> {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 }
 
@@ -220,8 +220,8 @@ impl Segment for EndOfFile {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {

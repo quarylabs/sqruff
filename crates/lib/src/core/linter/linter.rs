@@ -652,7 +652,7 @@ fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInf
     let mut anchor_info = AHashMap::new();
 
     for fix in fixes {
-        let anchor_id = fix.anchor.get_uuid().unwrap();
+        let anchor_id = fix.anchor.get_uuid();
         anchor_info.entry(anchor_id).or_insert_with(AnchorEditInfo::default).add(fix);
     }
 

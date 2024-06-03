@@ -318,10 +318,7 @@ pub fn handle_respace_inline_without_space(
         'outer: for (result_idx, res) in enumerate(&existing_results) {
             for (fix_idx, fix) in enumerate(&res.fixes) {
                 if let Some(edits) = &fix.edit {
-                    if edits
-                        .iter()
-                        .any(|e| e.get_uuid().unwrap() == insertion.unwrap().get_uuid().unwrap())
-                    {
+                    if edits.iter().any(|e| e.get_uuid() == insertion.unwrap().get_uuid()) {
                         res_found = Some(result_idx);
                         fix_found = Some(fix_idx);
                         break 'outer;

@@ -2,6 +2,7 @@ use std::borrow::Cow;
 
 use ahash::AHashSet;
 use smol_str::SmolStr;
+use uuid::Uuid;
 
 use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
@@ -11,13 +12,13 @@ use crate::helpers::ToErasedSegment;
 #[derive(Hash, Debug, Clone, Default, PartialEq)]
 pub struct KeywordSegment {
     raw: SmolStr,
-    uuid: uuid::Uuid,
+    uuid: Uuid,
     position_marker: Option<PositionMarker>,
 }
 
 impl KeywordSegment {
     pub fn new(raw: SmolStr, position_marker: Option<PositionMarker>) -> Self {
-        Self { raw, uuid: uuid::Uuid::new_v4(), position_marker }
+        Self { raw, uuid: Uuid::new_v4(), position_marker }
     }
 }
 
@@ -58,8 +59,8 @@ impl Segment for KeywordSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<uuid::Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {

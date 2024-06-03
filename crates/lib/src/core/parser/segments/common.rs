@@ -74,8 +74,8 @@ impl Segment for LiteralSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -143,8 +143,8 @@ impl Segment for ComparisonOperatorSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {

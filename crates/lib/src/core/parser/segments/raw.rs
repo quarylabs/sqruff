@@ -70,8 +70,8 @@ impl Segment for RawSegment {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        Some(self.uuid)
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {

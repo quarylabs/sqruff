@@ -86,8 +86,8 @@ impl Segment for BracketedSegment {
         self.pos_marker = position_marker;
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn class_types(&self) -> AHashSet<&'static str> {

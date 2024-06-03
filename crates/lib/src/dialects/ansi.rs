@@ -833,7 +833,7 @@ pub fn ansi_raw_dialect() -> Dialect {
                     LiteralSegment {
                         raw: seg.raw().into(),
                         position_maker: seg.get_position_marker().unwrap(),
-                        uuid: seg.get_uuid().unwrap(),
+                        uuid: seg.get_uuid(),
                     }
                     .to_erased_segment()
                 },
@@ -2451,8 +2451,8 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
         self.segments = segments;
     }
 
-    fn get_uuid(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
     }
 
     fn class_types(&self) -> AHashSet<&'static str> {
@@ -5475,7 +5475,7 @@ impl Node<JoinClauseSegment> {
         for join_clause in
             self.recursive_crawl(&["join_clause"], true, "select_statement".into(), true)
         {
-            if join_clause.get_uuid().unwrap() == join_clause.get_uuid().unwrap() {
+            if join_clause.get_uuid() == join_clause.get_uuid() {
                 continue;
             }
 

@@ -45,8 +45,7 @@ curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | 
 Either download the binary from the [releases page](https://github.com/quarylabs.sqruff/releases) or compile it yourself and with cargo with the following commands.
 
 ```bash
-rustup override set nightly
-cargo install sqruff
+cargo +nightly install sqruff
 sqruff --help
 ```
 

@@ -8,7 +8,6 @@ use super::match_result::MatchResult;
 use super::matchable::Matchable;
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
-use crate::helpers::HashableFancyRegex;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
@@ -180,8 +179,8 @@ impl Matchable for StringParser {
 
 #[derive(Debug, Clone)]
 pub struct RegexParser {
-    template: HashableFancyRegex,
-    anti_template: Option<HashableFancyRegex>,
+    template: Regex,
+    anti_template: Option<Regex>,
     factory: fn(&dyn Segment) -> ErasedSegment,
     cache_key: Uuid,
 }
@@ -212,8 +211,8 @@ impl RegexParser {
         let template_pattern = Regex::new(&format!("(?i){}", template)).unwrap();
 
         Self {
-            template: HashableFancyRegex(template_pattern),
-            anti_template: anti_template_pattern.map(HashableFancyRegex),
+            template: template_pattern,
+            anti_template: anti_template_pattern,
             factory,
             cache_key: Uuid::new_v4(),
         }

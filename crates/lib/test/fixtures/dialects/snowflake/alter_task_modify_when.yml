@@ -1,0 +1,11 @@
+file:
+- statement:
+  - alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: my_task
+    - keyword: MODIFY
+    - keyword: WHEN
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;

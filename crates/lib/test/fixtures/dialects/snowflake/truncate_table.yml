@@ -1,0 +1,29 @@
+file:
+- statement:
+  - truncate_statement:
+    - keyword: truncate
+    - keyword: table
+    - table_reference:
+      - object_reference:
+        - naked_identifier: temp
+- statement_terminator: ;
+- statement:
+  - truncate_statement:
+    - keyword: truncate
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - object_reference:
+        - naked_identifier: temp
+- statement_terminator: ;
+- statement:
+  - truncate_statement:
+    - keyword: truncate
+    - keyword: table
+    - table_reference:
+      - object_reference:
+        - naked_identifier: something
+        - dot: .
+        - naked_identifier: temp
+- statement_terminator: ;

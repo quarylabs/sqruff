@@ -1,0 +1,43 @@
+file:
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@%mytable'
+    - unquoted_file_path: file://C:\temp\load
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''.*foo.*'''
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: $foo
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+    - keyword: PARALLEL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - integer_literal: '1'
+- statement_terminator: ;

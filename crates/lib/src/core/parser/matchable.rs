@@ -90,6 +90,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    #[track_caller]
     fn copy(
         &self,
         _insert: Option<Vec<Arc<dyn Matchable>>>,

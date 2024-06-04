@@ -1,0 +1,384 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: limit
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: limit
+      - numeric_literal: '3'
+      - keyword: offset
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: demo1
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: i
+    - limit_clause:
+      - keyword: limit
+      - keyword: 'null'
+      - keyword: offset
+      - keyword: 'null'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: demo1
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: i
+    - limit_clause:
+      - keyword: limit
+      - quoted_literal: ''''''
+      - keyword: offset
+      - quoted_literal: ''''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: demo1
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: i
+    - limit_clause:
+      - keyword: limit
+      - quoted_literal: $$$$
+      - keyword: offset
+      - quoted_literal: $$$$
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: fetch
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: fetch
+      - keyword: first
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: fetch
+      - keyword: next
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: fetch
+      - numeric_literal: '1'
+      - keyword: row
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: fetch
+      - numeric_literal: '3'
+      - keyword: rows
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: fetch
+      - numeric_literal: '3'
+      - keyword: only
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: offset
+      - numeric_literal: '3'
+      - keyword: fetch
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: offset
+      - numeric_literal: '1'
+      - keyword: row
+      - keyword: fetch
+      - numeric_literal: '1'
+      - keyword: row
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - order_by_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: c1
+    - limit_clause:
+      - keyword: offset
+      - numeric_literal: '3'
+      - keyword: rows
+      - keyword: fetch
+      - numeric_literal: '3'
+      - keyword: rows
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: testtable
+    - limit_clause:
+      - keyword: offset
+      - numeric_literal: '3'
+      - keyword: fetch
+      - numeric_literal: '3'
+- statement_terminator: ;

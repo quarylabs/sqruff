@@ -1,0 +1,100 @@
+file:
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col2
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: some_table
+      - qualify_clause:
+        - keyword: qualify
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: row_number
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+            - over_clause:
+              - keyword: over
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
+                    - keyword: partition
+                    - keyword: by
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: col1
+                  - order_by_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                      - naked_identifier: col1
+                - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '1'
+    - set_operator:
+      - keyword: union
+      - keyword: all
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col2
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: some_table
+      - qualify_clause:
+        - keyword: qualify
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: row_number
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+            - over_clause:
+              - keyword: over
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
+                    - keyword: partition
+                    - keyword: by
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: col1
+                  - order_by_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                      - naked_identifier: col1
+                - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '1'

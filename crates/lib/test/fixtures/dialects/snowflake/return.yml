@@ -1,0 +1,28 @@
+file:
+- statement:
+  - scripting_block_statement:
+    - keyword: begin
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - return_statement:
+    - keyword: return
+    - expression:
+      - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - scripting_block_statement:
+    - keyword: end
+- statement_terminator: ;

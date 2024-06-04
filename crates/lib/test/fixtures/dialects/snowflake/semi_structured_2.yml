@@ -1,0 +1,50 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: value
+            - semi_structured_expression:
+              - remove me: ':'
+              - semi_structured_element: data
+              - remove me: ':'
+              - semi_structured_element: to
+            - casting_operator: '::'
+            - data_type:
+              - '': string
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: TO_PHONE_NUMBER
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: value
+            - semi_structured_expression:
+              - remove me: ':'
+              - semi_structured_element: data
+              - remove me: ':'
+              - semi_structured_element: from
+            - casting_operator: '::'
+            - data_type:
+              - '': string
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: FROM_PHONE_NUMBER
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: b
+                - dot: .
+                - naked_identifier: ticket_audits

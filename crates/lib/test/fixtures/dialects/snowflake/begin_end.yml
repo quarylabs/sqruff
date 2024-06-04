@@ -1,0 +1,45 @@
+file:
+- statement:
+  - transaction_statement:
+    - keyword: begin
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+  - scripting_block_statement:
+    - keyword: end
+- statement_terminator: ;
+- statement:
+  - scripting_block_statement:
+    - keyword: end
+- statement_terminator: ;

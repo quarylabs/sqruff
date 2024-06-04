@@ -1,0 +1,34 @@
+file:
+- statement:
+  - list_statement:
+    - keyword: list
+    - stage_path: '@%mytable'
+- statement_terminator: ;
+- statement:
+  - list_statement:
+    - keyword: list
+    - stage_path: '@mystage/path1'
+- statement_terminator: ;
+- statement:
+  - list_statement:
+    - keyword: list
+    - stage_path: '@%mytable'
+    - keyword: pattern
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''.*data_0.*'''
+- statement_terminator: ;
+- statement:
+  - list_statement:
+    - keyword: list
+    - stage_path: '@my_csv_stage/analysis/'
+    - keyword: pattern
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''.*data_0.*'''
+- statement_terminator: ;
+- statement:
+  - list_statement:
+    - keyword: ls
+    - stage_path: '@~'
+- statement_terminator: ;

@@ -1,0 +1,19 @@
+file:
+- statement:
+  - set_expression:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+    - set_operator:
+      - keyword: UNION
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '2'
+    - order_by_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - numeric_literal: '1'

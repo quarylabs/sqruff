@@ -1,0 +1,151 @@
+file:
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: RENAME
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '"prod_role"'
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: RENAME
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '"prod_role"'
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: SET
+    - keyword: COMMENT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''test_comment'''
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: UNSET
+    - role_reference:
+      - naked_identifier: COMMENT
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: SET
+    - keyword: COMMENT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''test_comment'''
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: UNSET
+    - role_reference:
+      - naked_identifier: COMMENT
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+        - naked_identifier: TAG1
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value1'''
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+        - naked_identifier: TAG1
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value1'''
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: TAG1
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value2'''
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: TAG1
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value3'''
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+      - naked_identifier: TAG1
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+      - naked_identifier: TAG1
+    - comma: ','
+    - tag_reference:
+      - naked_identifier: TAG2
+    - comma: ','
+    - tag_reference:
+      - naked_identifier: TAG3
+- statement_terminator: ;

@@ -1,0 +1,47 @@
+file:
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - function:
+      - function_name:
+        - function_name_identifier: sv_proc1
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - quoted_literal: '''Manitoba'''
+        - comma: ','
+        - expression:
+          - numeric_literal: '127.4'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: Variable1
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '49'
+- statement_terminator: ;
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - function:
+      - function_name:
+        - function_name_identifier: sv_proc2
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - variable: $Variable1
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - function:
+      - function_name:
+        - function_name_identifier: sv_proc3
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;

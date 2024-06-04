@@ -1,0 +1,17 @@
+file:
+- statement:
+  - execute_task_clause:
+    - keyword: EXECUTE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: my_task
+- statement_terminator: ;
+- statement:
+  - execute_task_clause:
+    - keyword: EXECUTE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: my_task
+- statement_terminator: ;

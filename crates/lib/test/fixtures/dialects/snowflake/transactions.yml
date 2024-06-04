@@ -1,0 +1,64 @@
+file:
+- statement:
+  - transaction_statement:
+    - keyword: begin
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: work
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: transaction
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: name
+    - object_reference:
+      - naked_identifier: t4
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: work
+    - keyword: name
+    - object_reference:
+      - naked_identifier: t4
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: transaction
+    - keyword: name
+    - object_reference:
+      - naked_identifier: t4
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: start
+    - keyword: transaction
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: start
+    - keyword: transaction
+    - keyword: name
+    - object_reference:
+      - naked_identifier: t4
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: rollback
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: commit
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: commit
+    - keyword: work
+- statement_terminator: ;

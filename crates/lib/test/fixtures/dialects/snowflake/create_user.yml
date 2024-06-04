@@ -1,0 +1,110 @@
+file:
+- statement:
+  - create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+      - naked_identifier: user1
+    - keyword: password
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''abc123'''
+    - keyword: default_role
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: myrole
+    - keyword: display_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: user1
+    - keyword: login_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_login_name
+    - keyword: first_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: User1
+    - keyword: middle_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: abc
+    - keyword: last_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: Test1
+    - keyword: default_warehouse
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_default_warehouse
+    - keyword: default_namespace
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_default_namespace
+    - keyword: default_secondary_roles
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''ALL'''
+      - end_bracket: )
+    - keyword: must_change_password
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: create
+    - keyword: user
+    - object_reference:
+      - naked_identifier: user2
+    - keyword: password
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''abc123'''
+    - keyword: default_role
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''myrole'''
+    - keyword: display_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''user 2'''
+    - keyword: login_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''test login name'''
+    - keyword: first_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''User'''
+    - keyword: middle_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''abc'''
+    - keyword: last_name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''test2'''
+    - keyword: default_warehouse
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''my_default_warehouse'''
+    - keyword: default_namespace
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''my_default_namespace'''
+    - keyword: must_change_password
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'false'
+- statement_terminator: ;

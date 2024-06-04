@@ -1,0 +1,67 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: coalesce
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: first_value
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - case_expression:
+                      - keyword: case
+                      - when_clause:
+                        - keyword: when
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: a
+                        - keyword: then
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: b
+                      - else_clause:
+                        - keyword: else
+                        - expression:
+                          - null_literal: 'null'
+                      - keyword: end
+                  - end_bracket: )
+                - keyword: ignore
+                - keyword: nulls
+                - over_clause:
+                  - keyword: over
+                  - bracketed:
+                    - start_bracket: (
+                    - window_specification:
+                      - order_by_clause:
+                        - keyword: order
+                        - keyword: by
+                        - column_reference:
+                          - naked_identifier: e
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - boolean_literal: 'false'
+            - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: c
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: d

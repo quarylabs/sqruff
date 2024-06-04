@@ -1,0 +1,110 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: value
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: p_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: iff
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: rank
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
+                - over_clause:
+                  - keyword: over
+                  - bracketed:
+                    - start_bracket: (
+                    - window_specification:
+                      - partitionby_clause:
+                        - keyword: partition
+                        - keyword: by
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: id
+                      - order_by_clause:
+                        - keyword: order
+                        - keyword: by
+                        - column_reference:
+                          - naked_identifier: t_id
+                        - keyword: desc
+                    - end_bracket: )
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - comma: ','
+            - expression:
+              - boolean_literal: 'true'
+            - comma: ','
+            - expression:
+              - boolean_literal: 'false'
+            - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: most_recent
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: a
+        - join_clause:
+          - keyword: inner
+          - keyword: join
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: b
+          - join_on_condition:
+            - keyword: on
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: c_id
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: c_id
+              - end_bracket: )
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - keyword: lateral
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: flatten
+              - bracketed:
+                - start_bracket: (
+                - snowflake_keyword_expression:
+                  - '': input
+                  - parameter_assigner: =>
+                  - column_reference:
+                    - naked_identifier: b
+                    - dot: .
+                    - naked_identifier: cool_ids
+                - end_bracket: )

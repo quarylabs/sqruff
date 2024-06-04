@@ -1,0 +1,26 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: x
+              - dot: .
+              - naked_identifier: y
+            - semi_structured_expression:
+              - remove me: ':'
+              - semi_structured_element: _z
+            - casting_operator: '::'
+            - data_type:
+              - '': string
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: x

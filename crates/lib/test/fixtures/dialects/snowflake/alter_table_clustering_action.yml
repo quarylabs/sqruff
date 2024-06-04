@@ -1,0 +1,205 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: c1
+        - comma: ','
+        - expression:
+          - column_reference:
+            - naked_identifier: c2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: to_date
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: c1
+              - end_bracket: )
+        - comma: ','
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: substring
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: c2
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - numeric_literal: '10'
+              - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: v
+            - semi_structured_expression:
+              - remove me: ':'
+              - semi_structured_element: '"Data"'
+              - remove me: ':'
+              - semi_structured_element: id
+            - casting_operator: '::'
+            - data_type:
+              - '': number
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RECLUSTER
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RECLUSTER
+      - keyword: MAX_SIZE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RECLUSTER
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: create_date
+          - keyword: BETWEEN
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''2016-01-01'''
+            - end_bracket: )
+          - keyword: AND
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''2016-01-07'''
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RECLUSTER
+      - keyword: MAX_SIZE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '100'
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: create_date
+          - keyword: BETWEEN
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''2016-01-01'''
+            - end_bracket: )
+          - keyword: AND
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''2016-01-07'''
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: SUSPEND
+      - keyword: RECLUSTER
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RESUME
+      - keyword: RECLUSTER
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: DROP
+      - keyword: CLUSTERING
+      - keyword: KEY
+- statement_terminator: ;

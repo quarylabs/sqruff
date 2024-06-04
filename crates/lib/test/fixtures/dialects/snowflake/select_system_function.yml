@@ -1,0 +1,23 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - system_function_name: SYSTEM$STREAM_HAS_DATA
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''SCH.MY_STREAM'''
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - system_function_name: SYSTEM$USER_TASK_CANCEL_ONGOING_EXECUTIONS
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''MY_TASK'''
+          - end_bracket: )
+- statement_terminator: ;

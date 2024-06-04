@@ -1,0 +1,42 @@
+file:
+- statement:
+  - copy_into_location_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - storage_location:
+      - stage_path: '''@public.dir/airflow-pipelines/'''
+    - keyword: FROM
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '"MODEL"'
+        - dot: .
+        - quoted_identifier: '"FCT_ROLLING_ACTIVE_USERS_L28"'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - file_format_segment:
+      - bracketed:
+        - start_bracket: (
+        - parquet_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - file_type: PARQUET
+        - end_bracket: )
+    - copy_options:
+      - keyword: SINGLE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'FALSE'
+      - keyword: MAX_FILE_SIZE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1000000000'
+      - keyword: INCLUDE_QUERY_ID
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+    - keyword: HEADER
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'

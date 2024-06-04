@@ -1,0 +1,113 @@
+file:
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: rename
+    - keyword: to
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema2
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: swap
+    - keyword: with
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema2
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema2
+    - keyword: enable
+    - keyword: managed
+    - keyword: access
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: set
+    - schema_object_properties:
+      - keyword: data_retention_time_in_days
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: set
+    - tag_equals:
+      - keyword: tag
+      - tag_reference:
+        - naked_identifier: tag1
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value1'''
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: tag2
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value2'''
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: unset
+    - keyword: data_retention_time_in_days
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: unset
+    - keyword: data_retention_time_in_days
+    - comma: ','
+    - keyword: max_data_extension_time_in_days
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: unset
+    - keyword: tag
+    - tag_reference:
+      - naked_identifier: foo
+    - comma: ','
+    - tag_reference:
+      - naked_identifier: bar
+- statement_terminator: ;

@@ -1,0 +1,30 @@
+file:
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"my_role"'
+- statement_terminator: ;
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - role_reference:
+      - naked_identifier: foo_role
+    - keyword: COMMENT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''this is a fake role'''

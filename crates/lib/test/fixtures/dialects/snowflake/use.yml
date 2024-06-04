@@ -1,0 +1,97 @@
+file:
+- statement:
+  - use_statement:
+    - keyword: use
+    - keyword: role
+    - object_reference:
+      - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: use
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: my_warehouse
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: use
+    - keyword: database
+    - database_reference:
+      - naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: use
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - keyword: ROLE
+    - object_reference:
+      - quoted_identifier: '"MY_ROLE"'
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - keyword: WAREHOUSE
+    - object_reference:
+      - quoted_identifier: '"MY_WAREHOUSE"'
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - keyword: DATABASE
+    - database_reference:
+      - quoted_identifier: '"MY_DATABASE"'
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - database_reference:
+      - quoted_identifier: '"MY_DATABASE"'
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '"MY_DATABASE"'
+        - dot: .
+        - quoted_identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - database_reference:
+      - quoted_identifier: '"MY_DATABASE"'
+      - dot: .
+      - quoted_identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: NONE
+- statement_terminator: ;

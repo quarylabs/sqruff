@@ -1,0 +1,21 @@
+file:
+- statement:
+  - unset_statement:
+    - keyword: unset
+    - variable: v1
+- statement_terminator: ;
+- statement:
+  - unset_statement:
+    - keyword: unset
+    - variable: v2
+- statement_terminator: ;
+- statement:
+  - unset_statement:
+    - keyword: unset
+    - bracketed:
+      - start_bracket: (
+      - variable: v1
+      - comma: ','
+      - variable: v2
+      - end_bracket: )
+- statement_terminator: ;

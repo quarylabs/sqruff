@@ -1,0 +1,12 @@
+file:
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: unset
+    - '': USE_CACHED_RESULT
+    - comma: ','
+    - '': must_change_password
+- statement_terminator: ;

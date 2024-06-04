@@ -1,0 +1,11 @@
+file:
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - alter_session_set_statement:
+      - keyword: SET
+      - '': TIMEZONE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''UTC'''

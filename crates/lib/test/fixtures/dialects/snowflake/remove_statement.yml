@@ -1,0 +1,48 @@
+file:
+- statement:
+  - remove_statement:
+    - keyword: rm
+    - stage_path: '@%mytable/myobject'
+- statement_terminator: ;
+- statement:
+  - remove_statement:
+    - keyword: rm
+    - stage_path: '@%mytable/myobject/'
+- statement_terminator: ;
+- statement:
+  - remove_statement:
+    - keyword: remove
+    - stage_path: '@mystage/path1/subpath2'
+- statement_terminator: ;
+- statement:
+  - remove_statement:
+    - keyword: remove
+    - stage_path: '@%orders'
+- statement_terminator: ;
+- statement:
+  - remove_statement:
+    - keyword: rm
+    - stage_path: '@~'
+    - keyword: pattern
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''.*jun.*'''
+- statement_terminator: ;
+- statement:
+  - remove_statement:
+    - keyword: REMOVE
+    - stage_path: '@foo.bar'
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''\w'''
+- statement_terminator: ;
+- statement:
+  - remove_statement:
+    - keyword: RM
+    - stage_path: '@foo.foo'
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: $bar
+- statement_terminator: ;

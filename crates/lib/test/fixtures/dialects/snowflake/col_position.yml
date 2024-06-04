@@ -1,0 +1,54 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - column_index_identifier_segment: $1
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: type
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - column_index_identifier_segment: $2
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: price
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - bracketed:
+          - start_bracket: (
+          - from_expression_element:
+            - table_expression:
+              - values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''toffee'''
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '5'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''starburst'''
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '8'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''flying_saucer'''
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '1'
+                  - end_bracket: )
+          - end_bracket: )

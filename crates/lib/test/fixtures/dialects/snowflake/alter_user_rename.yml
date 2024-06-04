@@ -1,0 +1,14 @@
+file:
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - quoted_identifier: '"new_name"'
+- statement_terminator: ;

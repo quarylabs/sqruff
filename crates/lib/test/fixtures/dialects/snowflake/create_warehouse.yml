@@ -1,0 +1,98 @@
+file:
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: my_wh
+    - keyword: with
+    - warehouse_object_properties:
+      - keyword: warehouse_size
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: '''X-LARGE'''
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: my_wh
+    - warehouse_object_properties:
+      - keyword: warehouse_size
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: large
+      - keyword: initially_suspended
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+      - naked_identifier: LOAD_WH
+    - warehouse_object_properties:
+      - keyword: warehouse_size
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: '''medium'''
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+      - naked_identifier: LOAD_WH
+    - warehouse_object_properties:
+      - keyword: warehouse_size
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: '''medium'''
+      - keyword: warehouse_type
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: standard
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: my_wh
+    - warehouse_object_properties:
+      - keyword: WAREHOUSE_TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: '''SNOWPARK-OPTIMIZED'''
+      - keyword: warehouse_size
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - warehouse_size: '''medium'''
+      - keyword: SCALING_POLICY
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - scaling_policy: ECONOMY
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''comment'''
+    - warehouse_object_properties:
+      - keyword: auto_suspend
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '60'
+- statement_terminator: ;

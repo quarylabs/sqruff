@@ -1,0 +1,31 @@
+file:
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: MY_DATABASE
+- statement_terminator: ;
+- statement:
+  - create_database_from_share_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - object_reference:
+      - naked_identifier: MY_DATABASE
+    - keyword: FROM
+    - keyword: SHARE
+    - object_reference:
+      - naked_identifier: MY_ACCOUNT
+      - dot: .
+      - naked_identifier: MY_SHARE
+- statement_terminator: ;

@@ -1,0 +1,24 @@
+file:
+- statement:
+  - undrop_statement:
+    - keyword: UNDROP
+    - keyword: database
+    - database_reference:
+      - naked_identifier: mytestdb2
+- statement_terminator: ;
+- statement:
+  - undrop_statement:
+    - keyword: undrop
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: myschema
+- statement_terminator: ;
+- statement:
+  - undrop_statement:
+    - keyword: undrop
+    - keyword: table
+    - table_reference:
+      - object_reference:
+        - naked_identifier: t2
+- statement_terminator: ;

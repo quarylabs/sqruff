@@ -1,0 +1,23 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - bare_function: CURRENT_TIMESTAMP
+      - comma: ','
+      - select_clause_element:
+        - bare_function: CURRENT_TIME
+      - comma: ','
+      - select_clause_element:
+        - bare_function: CURRENT_DATE
+      - comma: ','
+      - select_clause_element:
+        - bare_function: CURRENT_USER
+      - comma: ','
+      - select_clause_element:
+        - bare_function: LOCALTIME
+      - comma: ','
+      - select_clause_element:
+        - bare_function: LOCALTIMESTAMP
+- statement_terminator: ;

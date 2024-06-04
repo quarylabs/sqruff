@@ -273,6 +273,7 @@ impl Matchable for AnyNumberOf {
         }
     }
 
+    #[track_caller]
     fn copy(
         &self,
         insert: Option<Vec<Arc<dyn Matchable>>>,

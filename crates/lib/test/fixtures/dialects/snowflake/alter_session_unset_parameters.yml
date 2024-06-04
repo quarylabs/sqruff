@@ -1,0 +1,11 @@
+file:
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - alter_session_unset_clause:
+      - keyword: UNSET
+      - '': TIME_OUTPUT_FORMAT
+      - comma: ','
+      - '': TWO_DIGIT_CENTURY_START
+- statement_terminator: ;

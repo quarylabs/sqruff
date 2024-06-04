@@ -5,6 +5,7 @@ pub fn dialect_selector(s: &str) -> Option<Dialect> {
         "ansi" => Some(crate::dialects::ansi::ansi_dialect()),
         "bigquery" => Some(crate::dialects::bigquery::bigquery_dialect()),
         "postgres" => Some(crate::dialects::postgres::postgres_dialect()),
+        "snowflake" => Some(crate::dialects::snowflake::snowflake_dialect()),
         _ => None,
     }
 }

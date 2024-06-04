@@ -1,0 +1,90 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: bar
+            - casting_operator: '::'
+            - data_type:
+              - '': array
+            - array_accessor:
+              - start_square_bracket: '['
+              - numeric_literal: '0'
+              - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: channel
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: foo
+            - semi_structured_expression:
+              - remove me: ':'
+              - semi_structured_element: bar
+            - casting_operator: '::'
+            - data_type:
+              - '': array
+            - array_accessor:
+              - start_square_bracket: '['
+              - numeric_literal: '2'
+              - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: channel2
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: bar
+            - casting_operator: '::'
+            - data_type:
+              - '': array
+            - array_accessor:
+              - start_square_bracket: '['
+              - numeric_literal: '0'
+              - end_square_bracket: ']'
+            - array_accessor:
+              - start_square_bracket: '['
+              - numeric_literal: '1'
+              - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: channel3
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: raw
+            - semi_structured_expression:
+              - remove me: ':'
+              - semi_structured_element: foo
+            - casting_operator: '::'
+            - data_type:
+              - '': array
+            - array_accessor:
+              - start_square_bracket: '['
+              - numeric_literal: '0'
+              - end_square_bracket: ']'
+            - casting_operator: '::'
+            - data_type:
+              - '': string
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: channel4
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_table
+- statement_terminator: ;

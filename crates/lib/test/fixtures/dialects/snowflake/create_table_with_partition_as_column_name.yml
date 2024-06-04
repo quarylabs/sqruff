@@ -1,0 +1,26 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: timestamp_col
+        - data_type:
+          - keyword: TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: date_col
+        - data_type:
+          - '': DATE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: partition
+        - data_type:
+          - '': INTEGER
+      - end_bracket: )
+- statement_terminator: ;

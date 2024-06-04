@@ -1,0 +1,128 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: set
+    - variable: v1
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - variable: v2
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''example'''
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - bracketed:
+      - start_bracket: (
+      - variable: v1
+      - comma: ','
+      - variable: v2
+      - end_bracket: )
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '10'
+      - comma: ','
+      - expression:
+        - quoted_literal: '''example'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - variable: id_threshold
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - select_statement:
+            - select_clause:
+              - keyword: select
+              - select_clause_element:
+                - function:
+                  - function_name:
+                    - function_name_identifier: count
+                  - bracketed:
+                    - start_bracket: (
+                    - star: '*'
+                    - end_bracket: )
+            - from_clause:
+              - keyword: from
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - object_reference:
+                        - naked_identifier: table1
+        - end_bracket: )
+      - binary_operator: /
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - bracketed:
+      - start_bracket: (
+      - variable: min
+      - comma: ','
+      - variable: max
+      - end_bracket: )
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '40'
+      - comma: ','
+      - expression:
+        - numeric_literal: '70'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: set
+    - bracketed:
+      - start_bracket: (
+      - variable: min
+      - comma: ','
+      - variable: max
+      - end_bracket: )
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '50'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+        - binary_operator: '*'
+        - variable: $min
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: THIS_ROLE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - function:
+        - function_name:
+          - function_name_identifier: CURRENT_ROLE
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;

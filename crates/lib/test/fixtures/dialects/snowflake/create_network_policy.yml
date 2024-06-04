@@ -1,0 +1,46 @@
+file:
+- statement:
+  - create_statement:
+    - keyword: create
+    - keyword: network
+    - keyword: policy
+    - object_reference:
+      - naked_identifier: mypolicy1
+    - keyword: allowed_ip_list
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''192.168.1.0/24'''
+      - end_bracket: )
+    - keyword: blocked_ip_list
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''192.168.1.99'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: TEST_NW_POLICY
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''xx.xxx.xxx.xx/xx'''
+      - comma: ','
+      - quoted_literal: '''xx.xxx.xxx.xx/xx'''
+      - end_bracket: )
+    - keyword: COMMENT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''NW Policy'''
+- statement_terminator: ;

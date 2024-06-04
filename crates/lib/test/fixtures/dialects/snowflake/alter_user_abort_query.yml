@@ -1,0 +1,13 @@
+file:
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: ABORT
+    - keyword: ALL
+    - keyword: QUERIES
+- statement_terminator: ;

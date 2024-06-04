@@ -107,3 +107,7 @@ Join the Quary community on [Slack](https://join.slack.com/t/quarylabs/shared_in
 ## Contributing 
 
 Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute.
+
+## Credits/Thank you
+
+The sqruff project wouldn't be possible without "heavy inspiration" from [Sqlfluff](https://sqlfluff.com/)! We're very grateful to their awesome work!

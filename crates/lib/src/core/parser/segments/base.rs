@@ -104,7 +104,8 @@ impl ErasedSegment {
                 hash = old
             }
         }
-        return hash;
+
+        hash
     }
 
     fn deep_clone(&self) -> Self {

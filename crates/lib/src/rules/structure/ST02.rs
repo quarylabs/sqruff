@@ -43,9 +43,9 @@ impl Rule for RuleST02 {
             }
 
             let condition_expression =
-                when_clauses.children(Some(|it| it.is_type("expression")))[0].clone_box();
+                when_clauses.children(Some(|it| it.is_type("expression")))[0].clone();
             let then_expression =
-                when_clauses.children(Some(|it| it.is_type("expression")))[1].clone_box();
+                when_clauses.children(Some(|it| it.is_type("expression")))[1].clone();
 
             if !else_clauses.is_empty() {
                 if let Some(else_expression) =
@@ -60,7 +60,7 @@ impl Rule for RuleST02 {
                         && upper_bools.contains(&else_expression_upper.as_str())
                         && then_expression_upper != else_expression_upper
                     {
-                        let coalesce_arg_1 = condition_expression.clone_box();
+                        let coalesce_arg_1 = condition_expression.clone();
                         let coalesce_arg_2 =
                             KeywordSegment::new("false".into(), None).to_erased_segment();
                         let preceding_not = then_expression_upper == "FALSE";
@@ -101,7 +101,7 @@ impl Rule for RuleST02 {
             {
                 let is_not_prefix = condition_expression_segments_raw.contains("NOT");
 
-                let tmp = Segments::new(condition_expression.clone_box(), None)
+                let tmp = Segments::new(condition_expression.clone(), None)
                     .children(Some(|it| it.is_type("column_reference")));
 
                 let Some(column_reference_segment) = tmp.first() else {
@@ -140,10 +140,8 @@ impl Rule for RuleST02 {
                     };
 
                     if coalesce_arg_2.get_raw_upper().unwrap() == "NULL" {
-                        let fixes = Self::column_only_fix_list(
-                            &context,
-                            column_reference_segment.clone_box(),
-                        );
+                        let fixes =
+                            Self::column_only_fix_list(&context, column_reference_segment.clone());
                         return vec![LintResult::new(
                             condition_expression.into(),
                             fixes,
@@ -169,7 +167,7 @@ impl Rule for RuleST02 {
                     == then_expression.get_raw_upper().unwrap()
                 {
                     let fixes =
-                        Self::column_only_fix_list(&context, column_reference_segment.clone_box());
+                        Self::column_only_fix_list(&context, column_reference_segment.clone());
 
                     return vec![LintResult::new(
                         condition_expression.into(),
@@ -224,14 +222,14 @@ impl RuleST02 {
             .collect_vec();
         }
 
-        vec![LintFix::replace(context.segment.clone_box(), edits, None)]
+        vec![LintFix::replace(context.segment.clone(), edits, None)]
     }
 
     fn column_only_fix_list(
         context: &RuleContext,
         column_reference_segment: ErasedSegment,
     ) -> Vec<LintFix> {
-        vec![LintFix::replace(context.segment.clone_box(), vec![column_reference_segment], None)]
+        vec![LintFix::replace(context.segment.clone(), vec![column_reference_segment], None)]
     }
 }
 

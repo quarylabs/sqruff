@@ -219,7 +219,7 @@ impl<T: Default + Clone> Query<'_, T> {
 
         let mut ctes = AHashMap::new();
         for cte in cte_defs {
-            let name_seg = cte.segments()[0].clone_box();
+            let name_seg = cte.segments()[0].clone();
             let name = name_seg.get_raw_upper().unwrap();
 
             let types = [SELECTABLE_TYPES, &["values_clause"], SUBSELECT_TYPES].concat();

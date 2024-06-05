@@ -243,7 +243,7 @@ pub fn rebreak_sequence(
                 let (new_results, prev_point) = prev_point.indent_to(
                     &desired_indent,
                     None,
-                    loc.target.clone_box().into(),
+                    loc.target.clone().into(),
                     None,
                     None,
                 );

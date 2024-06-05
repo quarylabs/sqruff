@@ -13,7 +13,7 @@ fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
 
     for seg in segment.recursive_crawl_all(true) {
         if seg.is_type("newline") {
-            result.push(seg.clone_box());
+            result.push(seg.clone());
         } else if !seg.is_whitespace() && !seg.is_type("dedent") && !seg.is_type("end_of_file") {
             break;
         }
@@ -29,7 +29,7 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
         let children = segment.children(None);
 
         if !children.is_empty() {
-            parent_stack.push(segment.first().unwrap().clone_box());
+            parent_stack.push(segment.first().unwrap().clone());
             segment = children.find_last(Some(|s| !s.is_type("end_of_file")));
         } else {
             return (parent_stack, segment);
@@ -72,13 +72,13 @@ impl Rule for RuleLT12 {
         let trailing_newlines = Segments::from_vec(get_trailing_newlines(&context.segment), None);
         if trailing_newlines.is_empty() {
             let fix_anchor_segment = if parent_stack.len() == 1 {
-                segment.first().unwrap().clone_box()
+                segment.first().unwrap().clone()
             } else {
                 parent_stack[1].clone()
             };
 
             vec![LintResult::new(
-                segment.first().unwrap().clone_box().into(),
+                segment.first().unwrap().clone().into(),
                 vec![LintFix::create_after(
                     fix_anchor_segment,
                     vec![NewlineSegment::create("\n", None, <_>::default())],
@@ -90,7 +90,7 @@ impl Rule for RuleLT12 {
             )]
         } else if trailing_newlines.len() > 1 {
             vec![LintResult::new(
-                segment.first().unwrap().clone_box().into(),
+                segment.first().unwrap().clone().into(),
                 trailing_newlines.into_iter().skip(1).map(|d| LintFix::delete(d.clone())).collect(),
                 None,
                 None,

@@ -52,7 +52,7 @@ impl Rule for RuleLT07 {
                 {
                     continue;
                 }
-                cte_end_brackets.insert(cte_end_bracket[0].clone_box());
+                cte_end_brackets.insert(cte_end_bracket[0].clone());
             }
         }
 

@@ -197,7 +197,7 @@ impl RuleLT09 {
 
                 fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
-                    select_target.clone_box(),
+                    select_target.clone(),
                     vec![NewlineSegment::create("\n", None, <_>::default())],
                 ));
             }
@@ -216,7 +216,7 @@ impl RuleLT09 {
                     );
 
                     fixes.push(LintFix::create_before(
-                        from_segment.clone_box(),
+                        from_segment.clone(),
                         vec![NewlineSegment::create("\n", None, <_>::default())],
                     ));
                 }
@@ -289,7 +289,7 @@ impl RuleLT09 {
                 fixes.push(LintFix::delete(select_children[modifier_idx + 2].clone()));
             }
 
-            fixes.push(LintFix::delete(modifier[0].clone_box()));
+            fixes.push(LintFix::delete(modifier[0].clone()));
 
             modifier_idx
         } else {
@@ -338,7 +338,7 @@ impl RuleLT09 {
 
                     if !move_after_select_clause.is_empty() || add_newline {
                         local_fixes.push(LintFix::create_after(
-                            select_clause[0].clone_box(),
+                            select_clause[0].clone(),
                             if add_newline {
                                 vec![NewlineSegment::create("\n", None, <_>::default())]
                             } else {
@@ -375,7 +375,7 @@ impl RuleLT09 {
 
                         let new_fixes = fixes_for_move_after_select_clause(
                             &mut fixes,
-                            to_delete.last().unwrap().clone_box(),
+                            to_delete.last().unwrap().clone(),
                             to_delete.into(),
                             true,
                         );
@@ -383,13 +383,13 @@ impl RuleLT09 {
                     }
                 } else if select_stmt.segments()[after_select_clause_idx].is_type("whitespace") {
                     fixes.push(LintFix::delete(
-                        select_stmt.segments()[after_select_clause_idx].clone_box(),
+                        select_stmt.segments()[after_select_clause_idx].clone(),
                     ));
 
                     let new_fixes = fixes_for_move_after_select_clause(
                         &mut fixes,
                         select_children[select_targets_info.first_select_target_idx.unwrap()]
-                            .clone_box(),
+                            .clone(),
                         None,
                         true,
                     );
@@ -413,7 +413,7 @@ impl RuleLT09 {
                         let add_newline = to_delete.iter().any(|it| it.is_type("newline"));
                         let local_fixes = fixes_for_move_after_select_clause(
                             &mut fixes,
-                            to_delete.last().unwrap().clone_box(),
+                            to_delete.last().unwrap().clone(),
                             to_delete.into(),
                             add_newline,
                         );
@@ -423,7 +423,7 @@ impl RuleLT09 {
                     let local_fixes = fixes_for_move_after_select_clause(
                         &mut fixes,
                         select_children[select_targets_info.first_select_target_idx.unwrap()]
-                            .clone_box(),
+                            .clone(),
                         None,
                         true,
                     );

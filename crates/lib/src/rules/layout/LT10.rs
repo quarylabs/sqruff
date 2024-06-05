@@ -82,7 +82,7 @@ impl Rule for RuleLT10 {
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-            select_clause_modifier.clone_box(),
+            select_clause_modifier.clone(),
         ];
 
         if trailing_newline_segments.is_empty() {
@@ -91,7 +91,7 @@ impl Rule for RuleLT10 {
 
         let mut fixes = Vec::new();
         // Move select clause modifier after select keyword.
-        fixes.push(LintFix::create_after(select_keyword.clone_box(), edit_segments, None));
+        fixes.push(LintFix::create_after(select_keyword.clone(), edit_segments, None));
 
         if trailing_newline_segments.is_empty() {
             fixes.extend(leading_newline_segments.into_iter().map(LintFix::delete));
@@ -112,7 +112,7 @@ impl Rule for RuleLT10 {
         }
 
         // Delete the original select clause modifier.
-        fixes.push(LintFix::delete(select_clause_modifier.clone_box()));
+        fixes.push(LintFix::delete(select_clause_modifier.clone()));
 
         vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
     }

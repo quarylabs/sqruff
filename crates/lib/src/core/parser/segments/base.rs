@@ -364,7 +364,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     fn descendant_type_set(&self) -> AHashSet<&'static str> {
         let mut result_set = AHashSet::new();
 
-        // TODO Could this also be AHashSet to &str
         for seg in self.segments() {
             result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
         }

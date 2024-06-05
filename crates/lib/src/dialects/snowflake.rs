@@ -39,6 +39,46 @@ impl<T> Boxed for T {
 pub fn snowflake_dialect() -> Dialect {
     let mut snowflake_dialect = ansi_raw_dialect();
 
+    snowflake_dialect.node_mut::<ansi::SelectClauseElementSegment>().match_grammar =
+        ansi::SelectClauseElementSegment::match_grammar()
+            .copy(
+                Some(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::new("SystemFunctionName"),
+                    Bracketed::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+                ])]),
+                None,
+                Some(Ref::new("WildcardExpressionSegment").to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            )
+            .into();
+
+    snowflake_dialect.node_mut::<ansi::FromExpressionElementSegment>().match_grammar =
+        Sequence::new(vec_of_erased![
+            Ref::new("PreTableFunctionKeywordsGrammar").optional(),
+            optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
+            Ref::new("AliasExpressionSegment")
+                .exclude(one_of(vec_of_erased![
+                    Ref::new("FromClauseTerminatorGrammar"),
+                    Ref::new("SamplingExpressionSegment"),
+                    Ref::new("ChangesClauseSegment"),
+                    Ref::new("JoinLikeClauseGrammar"),
+                    Ref::keyword("CROSS"),
+                ]))
+                .optional(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("WITH"),
+                Ref::keyword("OFFSET"),
+                Ref::new("AliasExpressionSegment"),
+            ])
+            .config(|this| this.optional()),
+            Ref::new("SamplingExpressionSegment").optional(),
+            Ref::new("PostTableExpressionGrammar").optional(),
+        ])
+        .to_matchable()
+        .into();
+
     snowflake_dialect.patch_lexer_matchers(vec![
         Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", |slice, marker| {
             CodeSegment::create(
@@ -1630,7 +1670,6 @@ pub fn snowflake_dialect() -> Dialect {
         SetAssignmentStatementSegment,
         CallStoredProcedureSegment,
         WithinGroupClauseSegment,
-        FromExpressionElementSegment,
         PatternSegment,
         MatchRecognizeClauseSegment,
         ChangesClauseSegment,
@@ -1643,7 +1682,6 @@ pub fn snowflake_dialect() -> Dialect {
         SemiStructuredAccessorSegment,
         QualifyClauseSegment,
         SelectStatementSegment,
-        SelectClauseElementSegment,
         WildcardExpressionSegment,
         ExcludeClauseSegment,
         RenameClauseSegment,
@@ -2137,41 +2175,6 @@ impl NodeTrait for WithinGroupClauseSegment {
     }
 }
 
-pub struct FromExpressionElementSegment;
-
-impl NodeTrait for FromExpressionElementSegment {
-    const TYPE: &'static str = "from_expression_element";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("PreTableFunctionKeywordsGrammar").optional(),
-            optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
-            Ref::new("AliasExpressionSegment")
-                .exclude(one_of(vec_of_erased![
-                    Ref::new("FromClauseTerminatorGrammar"),
-                    Ref::new("SamplingExpressionSegment"),
-                    Ref::new("ChangesClauseSegment"),
-                    Ref::new("JoinLikeClauseGrammar"),
-                    Ref::keyword("CROSS"),
-                ]))
-                .optional(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::keyword("OFFSET"),
-                Ref::new("AliasExpressionSegment"),
-            ])
-            .config(|this| this.optional()),
-            Ref::new("SamplingExpressionSegment").optional(),
-            Ref::new("PostTableExpressionGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["from_expression_element"].into()
-    }
-}
-
 pub struct PatternSegment;
 
 impl NodeTrait for PatternSegment {
@@ -2584,30 +2587,6 @@ impl NodeTrait for SelectStatementSegment {
             Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
             None,
             Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
-            None,
-            Vec::new(),
-            false,
-        )
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["select_statement"].into()
-    }
-}
-
-pub struct SelectClauseElementSegment;
-
-impl NodeTrait for SelectClauseElementSegment {
-    const TYPE: &'static str = "select_clause_element";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::SelectClauseElementSegment::match_grammar().copy(
-            Some(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("SystemFunctionName"),
-                Bracketed::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
-            ])]),
-            None,
-            Some(Ref::new("WildcardExpressionSegment").to_matchable()),
             None,
             Vec::new(),
             false,

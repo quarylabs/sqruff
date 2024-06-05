@@ -30,10 +30,8 @@ pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
     linter.parse_string(sql.into(), None, None, None).unwrap().tree.unwrap()
 }
 
-pub fn lex(string: &str) -> Vec<ErasedSegment> {
-    let config = FluffConfig::new(<_>::default(), None, None);
-    let lexer = Lexer::new(&config, None);
-
+pub fn lex(config: &FluffConfig, string: &str) -> Vec<ErasedSegment> {
+    let lexer = Lexer::new(config, None);
     let (segments, errors) = lexer.lex(StringOrTemplate::String(string)).unwrap();
     assert_eq!(errors, &[]);
     segments

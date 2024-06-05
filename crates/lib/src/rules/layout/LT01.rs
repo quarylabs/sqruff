@@ -555,9 +555,7 @@ mod tests {
         assert_eq!(sql, &[]);
     }
 
-    // configs: core: dialect: bigquery
     #[test]
-    #[ignore = "bigquery"]
     fn test_pass_bigquery_udf_triple_single_quote() {
         let sql = lint(
             "
@@ -577,9 +575,7 @@ mod tests {
         assert_eq!(sql, &[]);
     }
 
-    // configs: core: dialect: bigquery
     #[test]
-    #[ignore = "bigquery"]
     fn test_pass_bigquery_udf_triple_double_quote() {
         let sql = lint(
             r#"

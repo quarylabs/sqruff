@@ -108,16 +108,30 @@ impl Rule for RuleST02 {
                     return Vec::new();
                 };
 
+                let array_accessor_segment = Segments::new(condition_expression.clone(), None)
+                    .children(Some(|it: &ErasedSegment| it.is_type("array_accessor")))
+                    .first()
+                    .cloned();
+
+                let column_reference_segment_raw_upper = match array_accessor_segment {
+                    Some(array_accessor_segment) => {
+                        column_reference_segment.raw().to_lowercase()
+                            + &array_accessor_segment.raw().to_uppercase()
+                    }
+                    None => column_reference_segment.raw().to_uppercase(),
+                };
+
                 if !else_clauses.is_empty() {
                     let else_expression =
                         else_clauses.children(Some(|it| it.is_type("expression")))[0].clone();
+
                     let (coalesce_arg_1, coalesce_arg_2) = if !is_not_prefix
-                        && column_reference_segment.get_raw_upper().unwrap()
+                        && column_reference_segment_raw_upper
                             == else_expression.get_raw_upper().unwrap()
                     {
                         (else_expression, then_expression)
                     } else if is_not_prefix
-                        && column_reference_segment.get_raw_upper().unwrap()
+                        && column_reference_segment_raw_upper
                             == then_expression.get_raw_upper().unwrap()
                     {
                         (then_expression, else_expression)
@@ -412,6 +426,21 @@ from my_table;";
             END";
 
         let violations = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn test_pass_array_accessors() {
+        let pass_str = "SELECT
+CASE
+    WHEN genres[0] IS NULL
+        THEN 'x'
+    ELSE genres
+END
+AS g
+FROM table_t";
+
+        let violations = lint(pass_str.into(), "snowflake".into(), rules(), None, None).unwrap();
         assert_eq!(violations, []);
     }
 

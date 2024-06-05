@@ -22,9 +22,9 @@ impl StackPosition {
             ""
         } else if path_step.code_idxs.len() == 1 {
             "solo"
-        } else if path_step.idx == *path_step.code_idxs.iter().min().unwrap() {
+        } else if path_step.idx == *path_step.code_idxs.first().unwrap() {
             "start"
-        } else if path_step.idx == *path_step.code_idxs.iter().max().unwrap() {
+        } else if path_step.idx == *path_step.code_idxs.last().unwrap() {
             "end"
         } else {
             ""

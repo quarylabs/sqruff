@@ -375,6 +375,33 @@ order by o desc;"; // In the fix string, 'o' is intentionally left unchanged ass
     }
 
     #[test]
+    fn select_from_table_generator() {
+        let pass_str = "select *
+from table(
+    generator(
+        rowcount=>10000
+    )
+)";
+
+        let violations = lint(pass_str.into(), "snowflake".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
+    fn issue_635() {
+        let pass_str = "select
+    id::varchar as id,
+    obj:userid::varchar as user_id,
+    redemptions.value:awardedreceiptid::varchar as awarded_receipt_id
+from
+    a,
+    lateral flatten(input => a.obj:redemptions) redemptions";
+
+        let violations = lint(pass_str.into(), "snowflake".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }
+
+    #[test]
     fn test_issue_610() {
         let pass_str = "SELECT aaaaaa.c\nFROM aaaaaa\nJOIN bbbbbb AS b ON b.a = aaaaaa.id\nJOIN \
                         bbbbbb AS b2 ON b2.other = b.id";

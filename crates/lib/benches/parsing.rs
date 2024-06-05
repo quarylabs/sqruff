@@ -1,6 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 #[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
+use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::dialects::base::Dialect;
 use sqruff_lib::core::parser::context::ParseContext;
 use sqruff_lib::core::parser::matchable::Matchable;
@@ -84,7 +85,8 @@ fn parse(c: &mut Criterion) {
     ];
 
     for (name, source) in passes {
-        let (mut ctx, segment, segments) = mk_segments(&dialect, source);
+        let config = FluffConfig::default();
+        let (mut ctx, segment, segments) = mk_segments(&dialect, &config, source);
         c.bench_function(name, |b| {
             b.iter(|| black_box(segment.match_segments(&segments, &mut ctx).unwrap()));
         });
@@ -93,11 +95,12 @@ fn parse(c: &mut Criterion) {
 
 fn mk_segments<'a>(
     dialect: &'a Dialect,
+    config: &FluffConfig,
     source: &str,
 ) -> (ParseContext<'a>, std::sync::Arc<dyn Matchable>, Vec<ErasedSegment>) {
     let ctx = ParseContext::new(&dialect, <_>::default());
     let segment = dialect.r#ref("FileSegment");
-    let mut segments = lex(source);
+    let mut segments = lex(&config, source);
 
     if segments.last().unwrap().get_type() == "end_of_file" {
         segments.pop();

@@ -55,10 +55,30 @@ impl Rule for RuleAL02 {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::simple::fix;
+    use crate::api::simple::{fix, lint};
     use crate::core::rules::base::Erased;
     use crate::rules::aliasing::AL01::Aliasing;
     use crate::rules::aliasing::AL02::RuleAL02;
+
+    #[test]
+    fn issue_561() {
+        let pass_str: String = "select
+        array_agg(catalog_item_id) within group
+          (order by product_position asc) over (partition by (event_id, shelf_position))
+        as shelf_catalog_items
+      from x"
+            .into();
+
+        let violations = lint(
+            pass_str.into(),
+            "snowflake".into(),
+            vec![RuleAL02::default().erased()],
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(violations, []);
+    }
 
     #[test]
     fn test_fail_explicit_column_default() {

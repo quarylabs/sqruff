@@ -534,114 +534,16 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     fn class_types(&self) -> AHashSet<&'static str> {
         AHashSet::new()
     }
-
-    #[allow(unused_variables)]
-    fn apply_fixes(
-        &self,
-        dialect: &Dialect,
-        mut fixes: AHashMap<Uuid, AnchorEditInfo>,
-    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
-        if fixes.is_empty() || self.segments().is_empty() {
-            return (self.clone_box(), Vec::new(), Vec::new(), true);
-        }
-
-        let mut seg_buffer = Vec::new();
-        let mut fixes_applied = Vec::new();
-        let mut requires_validate = false;
-
-        for seg in self.gather_segments() {
-            // Look for uuid match.
-            // This handles potential positioning ambiguity.
-
-            let Some(mut anchor_info) = fixes.remove(&seg.get_uuid()) else {
-                seg_buffer.push(seg.clone());
-                continue;
-            };
-
-            if anchor_info.fixes.len() == 2
-                && anchor_info.fixes[0].edit_type == EditType::CreateAfter
-            {
-                anchor_info.fixes.reverse();
-            }
-
-            let fixes_count = anchor_info.fixes.len();
-            for mut f in anchor_info.fixes {
-                // assert f.anchor.uuid == seg.uuid
-                fixes_applied.push(f.clone());
-
-                // Deletes are easy.
-                #[allow(unused_assignments)]
-                if f.edit_type == EditType::Delete {
-                    // We're just getting rid of this segment.
-                    requires_validate = true;
-                    // NOTE: We don't add the segment in this case.
-                    continue;
-                }
-
-                // Otherwise it must be a replace or a create.
-                assert!(matches!(
-                    f.edit_type,
-                    EditType::Replace | EditType::CreateBefore | EditType::CreateAfter
-                ));
-
-                if f.edit_type == EditType::CreateAfter && fixes_count == 1 {
-                    // In the case of a creation after that is not part
-                    // of a create_before/create_after pair, also add
-                    // this segment before the edit.
-                    seg_buffer.push(seg.clone());
-                }
-
-                let mut consumed_pos = false;
-                for s in std::mem::take(f.edit.as_mut().unwrap()) {
-                    let mut s = s.deep_clone();
-                    if f.edit_type == EditType::Replace && !consumed_pos && s.raw() == seg.raw() {
-                        consumed_pos = true;
-                        s.get_mut().set_position_marker(seg.get_position_marker().clone());
-                    }
-
-                    seg_buffer.push(s);
-                }
-
-                #[allow(unused_assignments)]
-                if !(f.edit_type == EditType::Replace
-                    && f.edit.as_ref().map_or(false, |x| x.len() == 1)
-                    && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
-                {
-                    requires_validate = true;
-                }
-
-                if f.edit_type == EditType::CreateBefore {
-                    seg_buffer.push(seg.clone());
-                }
-            }
-        }
-
-        if !fixes_applied.is_empty() {
-            seg_buffer = position_segments(&seg_buffer, self.get_position_marker().as_ref(), false);
-        }
-
-        let seg_queue = seg_buffer.clone();
-        let mut seg_buffer = Vec::new();
-        for seg in seg_queue {
-            let (s, pre, post, validated) = seg.apply_fixes(dialect, fixes.clone());
-
-            seg_buffer.extend(pre);
-            seg_buffer.push(s);
-            seg_buffer.extend(post);
-
-            #[allow(unused_assignments)]
-            if !validated {
-                requires_validate = true;
-            }
-        }
-
-        (self.new(seg_buffer), Vec::new(), Vec::new(), false)
-    }
 }
 
 pub trait SegmentExt {
     fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)>;
     fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep>;
+    fn apply_fixes(
+        &self,
+        dialect: &Dialect,
+        fixes: &mut AHashMap<Uuid, AnchorEditInfo>,
+    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool);
 }
 
 impl SegmentExt for ErasedSegment {
@@ -706,6 +608,107 @@ impl SegmentExt for ErasedSegment {
         }
 
         Vec::new()
+    }
+
+    fn apply_fixes(
+        &self,
+        dialect: &Dialect,
+        fixes: &mut AHashMap<Uuid, AnchorEditInfo>,
+    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
+        if fixes.is_empty() || self.segments().is_empty() {
+            return (self.clone(), Vec::new(), Vec::new(), true);
+        }
+
+        let mut seg_buffer = Vec::new();
+        let mut fixes_applied = Vec::new();
+        let mut _requires_validate = false;
+
+        for seg in self.gather_segments() {
+            // Look for uuid match.
+            // This handles potential positioning ambiguity.
+
+            let Some(mut anchor_info) = fixes.remove(&seg.get_uuid()) else {
+                seg_buffer.push(seg.clone());
+                continue;
+            };
+
+            if anchor_info.fixes.len() == 2
+                && anchor_info.fixes[0].edit_type == EditType::CreateAfter
+            {
+                anchor_info.fixes.reverse();
+            }
+
+            let fixes_count = anchor_info.fixes.len();
+            for mut f in anchor_info.fixes {
+                fixes_applied.push(f.clone());
+
+                // Deletes are easy.
+                #[allow(unused_assignments)]
+                if f.edit_type == EditType::Delete {
+                    // We're just getting rid of this segment.
+                    _requires_validate = true;
+                    // NOTE: We don't add the segment in this case.
+                    continue;
+                }
+
+                // Otherwise it must be a replace or a create.
+                assert!(matches!(
+                    f.edit_type,
+                    EditType::Replace | EditType::CreateBefore | EditType::CreateAfter
+                ));
+
+                if f.edit_type == EditType::CreateAfter && fixes_count == 1 {
+                    // In the case of a creation after that is not part
+                    // of a create_before/create_after pair, also add
+                    // this segment before the edit.
+                    seg_buffer.push(seg.clone());
+                }
+
+                let mut consumed_pos = false;
+                for s in std::mem::take(f.edit.as_mut().unwrap()) {
+                    let mut s = s.deep_clone();
+                    if f.edit_type == EditType::Replace && !consumed_pos && s.raw() == seg.raw() {
+                        consumed_pos = true;
+                        s.get_mut().set_position_marker(seg.get_position_marker());
+                    }
+
+                    seg_buffer.push(s);
+                }
+
+                #[allow(unused_assignments)]
+                if !(f.edit_type == EditType::Replace
+                    && f.edit.as_ref().map_or(false, |x| x.len() == 1)
+                    && f.edit.as_ref().unwrap()[0].class_types() == seg.class_types())
+                {
+                    _requires_validate = true;
+                }
+
+                if f.edit_type == EditType::CreateBefore {
+                    seg_buffer.push(seg.clone());
+                }
+            }
+        }
+
+        if !fixes_applied.is_empty() {
+            seg_buffer = position_segments(&seg_buffer, self.get_position_marker().as_ref(), false);
+        }
+
+        let seg_queue = seg_buffer;
+        let mut seg_buffer = Vec::new();
+        for seg in seg_queue {
+            let (s, pre, post, validated) = seg.apply_fixes(dialect, fixes);
+
+            seg_buffer.extend(pre);
+            seg_buffer.push(s);
+            seg_buffer.extend(post);
+
+            #[allow(unused_assignments)]
+            if !validated {
+                _requires_validate = true;
+            }
+        }
+
+        (self.new(seg_buffer), Vec::new(), Vec::new(), false)
     }
 }
 

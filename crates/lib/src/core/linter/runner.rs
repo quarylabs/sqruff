@@ -33,7 +33,7 @@ impl Runner for ParallelRunner {
         let acc = Mutex::new(Vec::with_capacity(paths.len()));
         let rule_pack = linter.get_rulepack();
 
-        paths.iter().for_each(|path| {
+        paths.par_iter().for_each(|path| {
             let rendered = linter.render_file(path.clone());
             let linted_file = linter.lint_rendered(rendered, &rule_pack, fix);
             acc.lock().unwrap().push(linted_file);

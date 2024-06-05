@@ -2377,6 +2377,7 @@ pub struct Node<T> {
     pub raw: OnceLock<String>,
     pub source_fixes: Vec<SourceFix>,
     pub match_grammar: Option<Arc<dyn Matchable>>,
+    descendant_type_set: OnceLock<AHashSet<&'static str>>,
 }
 
 impl<T> Default for Node<T> {
@@ -2395,6 +2396,7 @@ impl<T> Node<T> {
             raw: OnceLock::new(),
             source_fixes: Vec::new(),
             match_grammar: None,
+            descendant_type_set: OnceLock::new(),
         }
     }
 }
@@ -2409,8 +2411,23 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
             raw: OnceLock::new(),
             source_fixes: Vec::new(),
             match_grammar: self.match_grammar.clone(),
+            descendant_type_set: OnceLock::new(),
         }
         .to_erased_segment()
+    }
+
+    fn descendant_type_set(&self) -> AHashSet<&'static str> {
+        self.descendant_type_set
+            .get_or_init(|| {
+                let mut result_set = AHashSet::new();
+
+                for seg in self.segments() {
+                    result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
+                }
+
+                result_set
+            })
+            .clone()
     }
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -2489,6 +2506,7 @@ impl<T> Clone for Node<T> {
             raw: self.raw.clone(),
             source_fixes: Vec::new(),
             match_grammar: None,
+            descendant_type_set: self.descendant_type_set.clone(),
         }
     }
 }

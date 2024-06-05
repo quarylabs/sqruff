@@ -291,8 +291,7 @@ impl Linter {
                             continue;
                         }
 
-                        let (new_tree, _, _, valid) =
-                            tree.apply_fixes(&self.config.dialect, &mut anchor_info);
+                        let (new_tree, _, _, valid) = tree.apply_fixes(&mut anchor_info);
 
                         if false {
                             println!(

@@ -15,7 +15,6 @@ use serde::{Deserialize, Serialize};
 use smol_str::SmolStr;
 use uuid::Uuid;
 
-use crate::core::dialects::base::Dialect;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
@@ -541,7 +540,6 @@ pub trait SegmentExt {
     fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep>;
     fn apply_fixes(
         &self,
-        dialect: &Dialect,
         fixes: &mut AHashMap<Uuid, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool);
 }
@@ -612,7 +610,6 @@ impl SegmentExt for ErasedSegment {
 
     fn apply_fixes(
         &self,
-        dialect: &Dialect,
         fixes: &mut AHashMap<Uuid, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
@@ -696,7 +693,7 @@ impl SegmentExt for ErasedSegment {
         let seg_queue = seg_buffer;
         let mut seg_buffer = Vec::new();
         for seg in seg_queue {
-            let (s, pre, post, validated) = seg.apply_fixes(dialect, fixes);
+            let (s, pre, post, validated) = seg.apply_fixes(fixes);
 
             seg_buffer.extend(pre);
             seg_buffer.push(s);

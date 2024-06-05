@@ -2376,6 +2376,7 @@ pub struct Node<T> {
     pub position_marker: Option<PositionMarker>,
     pub raw: OnceLock<String>,
     pub source_fixes: Vec<SourceFix>,
+    pub match_grammar: Option<Arc<dyn Matchable>>,
 }
 
 impl<T> Default for Node<T> {
@@ -2393,6 +2394,7 @@ impl<T> Node<T> {
             position_marker: None,
             raw: OnceLock::new(),
             source_fixes: Vec::new(),
+            match_grammar: None,
         }
     }
 }
@@ -2406,6 +2408,7 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
             position_marker: self.position_marker.clone(),
             raw: OnceLock::new(),
             source_fixes: Vec::new(),
+            match_grammar: self.match_grammar.clone(),
         }
         .to_erased_segment()
     }
@@ -2428,7 +2431,7 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
     }
 
     fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        T::match_grammar().into()
+        self.match_grammar.clone().unwrap_or_else(|| T::match_grammar()).into()
     }
 
     fn get_type(&self) -> &'static str {
@@ -2485,6 +2488,7 @@ impl<T> Clone for Node<T> {
             position_marker: self.position_marker.clone(),
             raw: self.raw.clone(),
             source_fixes: Vec::new(),
+            match_grammar: None,
         }
     }
 }
@@ -6478,11 +6482,13 @@ mod tests {
         ];
 
         let dialect = fresh_ansi_dialect();
+        let config = FluffConfig::default();
+
         for (segment_ref, sql_string) in cases {
             let mut ctx = ParseContext::new(&dialect, <_>::default());
 
             let segment = dialect.r#ref(segment_ref);
-            let mut segments = lex(sql_string);
+            let mut segments = lex(&config, sql_string);
 
             if segments.last().unwrap().get_type() == "end_of_file" {
                 segments.pop();
@@ -6502,9 +6508,10 @@ mod tests {
         let cases = [("ObjectReferenceSegment", "\n     ")];
 
         let dialect = fresh_ansi_dialect();
+        let config = FluffConfig::new(<_>::default(), None, None);
+
         for (segment_ref, sql) in cases {
-            let config = FluffConfig::new(<_>::default(), None, None);
-            let segments = lex(sql);
+            let segments = lex(&config, sql);
 
             let mut parse_cx = ParseContext::from_config(&config);
             let segment = dialect.r#ref(segment_ref);

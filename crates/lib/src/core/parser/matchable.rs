@@ -12,9 +12,17 @@ use super::match_result::MatchResult;
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
 
-// Define a trait to represent the Matchable interface.
-// This trait is similar to the abstract base class in Python.
-pub trait Matchable: Any + Segment + DynClone + Debug + DynEq {
+pub trait AsAnyMut {
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+}
+
+impl<T: Any> AsAnyMut for T {
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
+pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())

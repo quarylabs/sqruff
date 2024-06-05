@@ -302,7 +302,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "snowflake"]
     fn test_snowflake_delete_cte() {
         let fail_str = r#"
     DELETE FROM MYTABLE1
@@ -312,9 +311,6 @@ mod tests {
     ) X
     WHERE COLUMN1 = X.COLUMN3
     "#;
-
-        // Assume `lint` can be configured for different SQL dialects, here using
-        // 'snowflake' as a parameter
         let violations = lint(fail_str.into(), "snowflake".into(), rules(), None, None).unwrap();
         assert!(
             !violations.is_empty(),

@@ -128,19 +128,18 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "snowflake"]
     fn test_fail_alias_quoted() {
         let sql = "select foo, b as \"foo\"";
         let result = lint(
             sql.to_string(),
-            "the snowflake dialect is not implemented".into(),
+            "snowflake".into(),
             vec![RuleAL08::default().erased()],
             None,
             None,
         )
         .unwrap();
 
-        dbg!(result);
+        assert_eq!(result[0].desc(), "Reuse of column alias '\"foo\"' from line 1.");
     }
 
     #[test]

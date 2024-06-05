@@ -1,4 +1,3 @@
-use std::hash::{Hash, Hasher};
 use std::iter::zip;
 
 use ahash::{AHashMap, AHashSet};
@@ -103,16 +102,10 @@ pub struct DepthInfo {
     pub stack_positions: IntMap<u64, StackPosition>,
 }
 
-fn calculate_hash<T: Hash>(t: &T) -> u64 {
-    let mut hasher = ahash::AHasher::default();
-    t.hash(&mut hasher);
-    hasher.finish()
-}
-
 impl DepthInfo {
     #[allow(unused_variables)]
     fn from_raw_and_stack(raw: ErasedSegment, stack: Vec<PathStep>) -> DepthInfo {
-        let stack_hashes: Vec<u64> = stack.iter().map(|ps| calculate_hash(&ps.segment)).collect();
+        let stack_hashes: Vec<u64> = stack.iter().map(|ps| ps.segment.hash_value()).collect();
         let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
 
         let stack_class_types: Vec<AHashSet<&str>> =

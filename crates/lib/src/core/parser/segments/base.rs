@@ -1,8 +1,9 @@
 use std::any::Any;
 use std::borrow::Cow;
 use std::fmt::Debug;
-use std::hash::Hash;
+use std::hash::{Hash, Hasher};
 use std::ops::Deref;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
@@ -23,11 +24,6 @@ use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::{Node, ObjectReferenceSegment};
 use crate::helpers::ToErasedSegment;
 
-/// An element of the response to BaseSegment.path_to().
-///     Attributes:
-///         segment (:obj:`BaseSegment`): The segment in the chain.
-///         idx (int): The index of the target within its `segment`.
-///         len (int): The number of children `segment` has.
 #[derive(Debug, Clone)]
 pub struct PathStep {
     pub segment: ErasedSegment,
@@ -81,13 +77,36 @@ impl TupleSerialisedSegment {
     }
 }
 
-#[derive(Debug, Hash, Clone)]
+#[derive(Debug, Clone)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct ErasedSegment {
     value: Arc<dyn Segment>,
+    hash: Arc<AtomicU64>,
+}
+
+impl Hash for ErasedSegment {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.hash_value().hash(state);
+    }
 }
 
 impl ErasedSegment {
+    pub fn hash_value(&self) -> u64 {
+        let mut hash = self.hash.load(Ordering::Acquire);
+
+        if hash == 0 {
+            let mut hasher = ahash::AHasher::default();
+            self.value.hash(&mut hasher);
+            hash = hasher.finish();
+
+            let exchange = self.hash.compare_exchange(0, hash, Ordering::AcqRel, Ordering::Acquire);
+            if let Err(old) = exchange {
+                hash = old
+            }
+        }
+        return hash;
+    }
+
     fn deep_clone(&self) -> Self {
         self.clone_box()
     }
@@ -114,7 +133,7 @@ impl PartialEq for ErasedSegment {
 
 impl ErasedSegment {
     pub fn of<T: Segment>(value: T) -> Self {
-        Self { value: Arc::new(value) }
+        Self { value: Arc::new(value), hash: Arc::new(AtomicU64::new(0)) }
     }
 }
 
@@ -713,7 +732,7 @@ impl PartialEq for dyn Segment {
 impl Eq for ErasedSegment {}
 
 impl Hash for dyn Segment {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: Hasher>(&self, state: &mut H) {
         self.type_name().hash(state);
 
         self.raw().hash(state);

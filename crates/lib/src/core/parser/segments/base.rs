@@ -719,10 +719,10 @@ impl PartialEq for dyn Segment {
 
         let pos_self = self.get_position_marker();
         let pos_other = other.get_position_marker();
-        if let (Some(pos_self), Some(pos_other)) = (pos_self, pos_other) {
+        if let Some((pos_self, pos_other)) = pos_self.zip(pos_other) {
             self.get_type() == other.get_type()
+                && pos_self.working_loc() == pos_other.working_loc()
                 && self.raw() == other.raw()
-                && pos_self == pos_other
         } else {
             false
         }

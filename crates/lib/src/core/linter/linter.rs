@@ -21,7 +21,7 @@ use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::parser::segments::base::{ErasedSegment, SegmentExt};
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, RulePack};
@@ -271,7 +271,7 @@ impl Linter {
 
                     let (linting_errors, fixes) =
                         rule.crawl(&self.config.dialect, fix, tree.clone(), &self.config);
-                    let anchor_info = compute_anchor_edit_info(fixes.clone());
+                    let mut anchor_info = compute_anchor_edit_info(fixes.clone());
 
                     if is_first_linter_pass {
                         initial_linting_errors.extend(linting_errors);
@@ -292,7 +292,7 @@ impl Linter {
                         }
 
                         let (new_tree, _, _, valid) =
-                            tree.apply_fixes(&self.config.dialect, anchor_info);
+                            tree.apply_fixes(&self.config.dialect, &mut anchor_info);
 
                         if false {
                             println!(

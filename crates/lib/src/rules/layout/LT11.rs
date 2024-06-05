@@ -29,7 +29,7 @@ impl Rule for RuleLT11 {
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_around_target(
             &context.segment,
-            context.parent_stack.first().unwrap().clone_box(),
+            context.parent_stack.first().unwrap().clone(),
             "both",
             context.config.unwrap(),
         )

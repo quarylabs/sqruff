@@ -5492,7 +5492,7 @@ impl Node<JoinClauseSegment> {
             .unwrap()
             .eventual_alias();
 
-        buff.push((from_expression.clone_box(), alias));
+        buff.push((from_expression.clone(), alias));
 
         for join_clause in
             self.recursive_crawl(&["join_clause"], true, "select_statement".into(), true)

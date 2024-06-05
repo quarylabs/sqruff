@@ -587,7 +587,7 @@ impl SegmentExt for ErasedSegment {
 
         for (idx, seg) in enumerate(self.segments()) {
             let mut steps = vec![PathStep {
-                segment: self.clone_box(),
+                segment: self.clone(),
                 idx,
                 len: self.segments().len(),
                 code_idxs: self.code_indices(),

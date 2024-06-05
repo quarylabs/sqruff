@@ -94,7 +94,7 @@ pub fn get_select_statement_info(
     }
 
     SelectStatementColumnsAndTables {
-        select_statement: segment.clone_box(),
+        select_statement: segment.clone(),
         table_aliases,
         standalone_aliases,
         reference_buffer,

@@ -417,7 +417,7 @@ fn lint_line_starting_indent(
 
         (
             vec![LintResult::new(
-                initial_point.segments[0].clone_box().into(),
+                initial_point.segments[0].clone().into(),
                 fixes,
                 None,
                 Some("First line should not be indented.".into()),

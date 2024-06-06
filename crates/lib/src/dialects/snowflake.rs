@@ -38,6 +38,7 @@ impl<T> Boxed for T {
 
 pub fn snowflake_dialect() -> Dialect {
     let mut snowflake_dialect = ansi_raw_dialect();
+    snowflake_dialect.name = "snowflake";
 
     snowflake_dialect.node_mut::<ansi::SelectClauseElementSegment>().match_grammar =
         ansi::SelectClauseElementSegment::match_grammar()

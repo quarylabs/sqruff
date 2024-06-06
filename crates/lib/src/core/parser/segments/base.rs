@@ -28,7 +28,7 @@ pub struct PathStep {
     pub segment: ErasedSegment,
     pub idx: usize,
     pub len: usize,
-    pub code_idxs: Vec<usize>,
+    pub code_idxs: Arc<[usize]>,
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
@@ -546,8 +546,9 @@ pub trait SegmentExt {
 
 impl SegmentExt for ErasedSegment {
     fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)> {
-        let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> = Vec::new();
-        let code_idxs: Vec<usize> = self.code_indices();
+        let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
+            Vec::with_capacity(self.segments().len());
+        let code_idxs: Arc<[usize]> = self.code_indices().into();
 
         for (idx, seg) in self.segments().iter().enumerate() {
             let new_step = vec![PathStep {
@@ -590,7 +591,7 @@ impl SegmentExt for ErasedSegment {
                 segment: self.clone(),
                 idx,
                 len: self.segments().len(),
-                code_idxs: self.code_indices(),
+                code_idxs: self.code_indices().into(),
             }];
 
             if seg.eq(midpoint) {

@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a aria-label="Quary logo" href="https://quary.io/">
+  <a aria-label="Quary logo" href="https://quary.dev/">
     <img src="https://img.shields.io/badge/MADE%20BY%20Quary-000000.svg?style=for-the-badge&logo=Quary&labelColor=000">
   </a>
 </p>

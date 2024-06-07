@@ -38,7 +38,9 @@ impl Rule for RuleAL09 {
                     if column.child(&["identifier", "naked_identifier"]).is_some()
                         || column.child(&["quoted_identifier"]).is_some()
                     {
-                        let whitespace = clause_element.child(&["whitespace"]).unwrap();
+                        let Some(whitespace) = clause_element.child(&["whitespace"]) else {
+                            return Vec::new();
+                        };
 
                         let column_identifier =
                             if let Some(quoted_identifier) = column.child(&["quoted_identifier"]) {

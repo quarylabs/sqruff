@@ -78,6 +78,7 @@ pub fn simple(
 #[derive(Debug, Clone, Hash)]
 #[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
 pub struct AnyNumberOf {
+    pub(crate) exclude: Option<Arc<dyn Matchable>>,
     pub(crate) elements: Vec<Arc<dyn Matchable>>,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
     pub(crate) max_times: Option<usize>,
@@ -99,6 +100,7 @@ impl AnyNumberOf {
     pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
         Self {
             elements,
+            exclude: None,
             max_times: None,
             min_times: 0,
             max_times_per_element: None,
@@ -162,6 +164,12 @@ impl Matchable for AnyNumberOf {
         segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
+        if let Some(exclude) = &self.exclude {
+            if exclude.match_segments(segments, parse_context)?.has_match() {
+                return Ok(MatchResult::from_empty());
+            }
+        }
+
         let mut matched_segments = MatchResult::from_empty();
         let mut unmatched_segments = segments.to_vec();
         let mut tail = Vec::new();

@@ -43,7 +43,7 @@ impl Dialect {
     }
 
     pub fn grammar(&self, name: &str) -> Arc<dyn Matchable> {
-        match &self.library[name] {
+        match self.library.get(name).unwrap_or_else(|| panic!("not found {name}")) {
             DialectElementType::Matchable(matchable) => matchable.clone(),
             DialectElementType::SegmentGenerator(_) => {
                 unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")

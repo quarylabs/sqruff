@@ -15,7 +15,7 @@ use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
-use crate::core::parser::grammar::base::{Nothing, Ref};
+use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
@@ -1193,6 +1193,23 @@ pub fn ansi_raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "InOperatorGrammar".into(),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NOT").optional(),
+                Ref::keyword("IN"),
+                one_of(vec_of_erased![
+                    Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("Expression_A_Grammar"),]),
+                        Ref::new("SelectableGrammar"),
+                    ])])
+                    .config(|this| this.parse_mode(ParseMode::Greedy)),
+                    Ref::new("FunctionSegment"), // E.g. UNNEST()
+                ]),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "SelectClauseTerminatorGrammar".into(),
             one_of(vec_of_erased![
                 Ref::keyword("FROM"),
@@ -2084,7 +2101,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         HavingClauseSegment, OverlapsClauseSegment, NamedWindowSegment, NamedWindowExpressionSegment, SamplingExpressionSegment, WithNoSchemaBindingClauseSegment,
         WithDataClauseSegment, EqualsSegment, GreaterThanSegment, StructLiteralSegment, DatePartFunctionNameSegment, EmptyStructLiteralBracketsSegment, 
         ObjectLiteralElementSegment, GroupingExpressionList, SizedArrayTypeSegment, TablespaceReferenceSegment, ExtensionReferenceSegment, TagReferenceSegment,
-        GroupingSetsClauseSegment, CollationReferenceSegment
+        GroupingSetsClauseSegment, CollationReferenceSegment, PathSegment
     );
 
     // This is a hook point to allow subclassing for other dialects
@@ -3413,7 +3430,7 @@ impl Node<ObjectReferenceSegment> {
         let refs = self.iter_raw_references();
 
         match dialect {
-            "ansi" | "postgres" => {
+            "ansi" | "postgres" | "clickhouse" => {
                 let level = level as usize;
                 if refs.len() >= level && level > 0 {
                     refs.get(refs.len() - level).cloned().into_iter().collect()
@@ -5451,7 +5468,8 @@ impl NodeTrait for JoinClauseSegment {
                             MetaSegment::indent(),
                             Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                                 Ref::new("SingleIdentifierGrammar")
-                            ])]),
+                            ])])
+                            .config(|this| this.parse_mode = ParseMode::Greedy),
                             MetaSegment::dedent(),
                         ])
                     ]),
@@ -5892,7 +5910,8 @@ impl NodeTrait for ColumnDefinitionSegment {
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("SingleIdentifierGrammar"), // Column name
-            Ref::new("DatatypeSegment"),         // Column type
+            Ref::new("DatatypeSegment"),         // Column type,
+            Bracketed::new(vec_of_erased![Anything::new()]).config(|this| this.optional()),
             AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")])
                 .config(|this| this.optional())
         ])
@@ -6363,6 +6382,39 @@ impl NodeTrait for HavingClauseSegment {
             MetaSegment::implicit_indent(),
             optionally_bracketed(vec_of_erased![Ref::new("ExpressionSegment"),]),
             MetaSegment::dedent()
+        ])
+        .to_matchable()
+    }
+}
+
+pub struct PathSegment;
+
+impl NodeTrait for PathSegment {
+    const TYPE: &'static str = "path_segment";
+
+    fn match_grammar() -> Arc<dyn Matchable> {
+        one_of(vec_of_erased![
+            Sequence::new(vec_of_erased![
+                Ref::new("SlashSegment"),
+                Delimited::new(vec_of_erased![TypedParser::new(
+                    "word",
+                    |segment: &dyn Segment| {
+                        CodeSegment::create(
+                            &segment.raw(),
+                            segment.get_position_marker(),
+                            CodeSegmentNewArgs { code_type: "path_segment", ..Default::default() },
+                        )
+                    },
+                    None,
+                    false,
+                    None,
+                )])
+                .config(|this| {
+                    this.allow_gaps = false;
+                    this.delimiter(Ref::new("SlashSegment"));
+                }),
+            ]),
+            Ref::new("QuotedLiteralSegment"),
         ])
         .to_matchable()
     }

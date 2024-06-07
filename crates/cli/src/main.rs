@@ -12,7 +12,17 @@ mod commands;
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
+#[cfg(feature = "codegen-docs")]
+fn codegen_docs() {
+    let markdown: String = clap_markdown::help_markdown::<Cli>();
+    println!("{markdown}");
+}
+
+#[cfg_attr(feature = "codegen-docs", allow(unreachable_code))]
 fn main() {
+    #[cfg(feature = "codegen-docs")]
+    return codegen_docs();
+
     let cli = Cli::parse();
 
     let config = FluffConfig::from_root(None, false, None).unwrap();

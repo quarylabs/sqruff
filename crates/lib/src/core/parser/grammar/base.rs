@@ -4,6 +4,7 @@ use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
 use itertools::enumerate;
+use smol_str::ToSmolStr;
 use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;
@@ -359,11 +360,13 @@ pub fn longest_trimmed_match(
     }
 
     let loc_key = (
-        segments[0].raw().to_string(),
+        segments[0].raw().to_smolstr(),
         segments[0].get_position_marker().unwrap().working_loc(),
         segments[0].get_type(),
         segments.len(),
     );
+
+    let loc_key = parse_context.loc_key(loc_key);
 
     let mut best_match_length = 0;
     let mut best_match = None;
@@ -372,22 +375,18 @@ pub fn longest_trimmed_match(
         let matcher_key = matcher.cache_key();
 
         let match_result = if let Some(matcher_key) = matcher_key {
-            match parse_context.check_parse_cache(loc_key.clone(), matcher_key) {
+            match parse_context.check_parse_cache(loc_key, matcher_key) {
                 Some(match_result) => match_result,
                 None => {
                     let match_result = matcher.match_segments(segments, parse_context)?;
-                    parse_context.put_parse_cache(
-                        loc_key.clone(),
-                        matcher_key,
-                        match_result.clone(),
-                    );
+                    parse_context.put_parse_cache(loc_key, matcher_key, match_result.clone());
                     match_result
                 }
             }
         } else {
             let match_result = matcher.match_segments(segments, parse_context)?;
             if let Some(matcher_key) = matcher_key {
-                parse_context.put_parse_cache(loc_key.clone(), matcher_key, match_result.clone());
+                parse_context.put_parse_cache(loc_key, matcher_key, match_result.clone());
             }
             match_result
         };

@@ -1,11 +1,16 @@
 use std::sync::Arc;
 
 use ahash::AHashMap;
+use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
 use super::matchable::Matchable;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
+use crate::helpers::IndexSet;
+
+type LocKey = u32;
+type LocKeyData = (SmolStr, (usize, usize), &'static str, usize);
 
 #[derive(Debug)]
 pub struct ParseContext<'a> {
@@ -16,7 +21,8 @@ pub struct ParseContext<'a> {
     match_depth: usize,
     track_progress: bool,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
-    parse_cache: AHashMap<((String, (usize, usize), &'static str, usize), uuid::Uuid), MatchResult>,
+    loc_keys: IndexSet<LocKeyData>,
+    parse_cache: AHashMap<(LocKey, uuid::Uuid), MatchResult>,
     pub(crate) indentation_config: AHashMap<String, bool>,
 }
 
@@ -30,6 +36,7 @@ impl<'a> ParseContext<'a> {
             match_depth: 0,
             track_progress: true,
             terminators: Vec::new(),
+            loc_keys: IndexSet::default(),
             parse_cache: AHashMap::new(),
             indentation_config,
         }
@@ -136,9 +143,14 @@ impl<'a> ParseContext<'a> {
         }
     }
 
+    pub(crate) fn loc_key(&mut self, data: LocKeyData) -> LocKey {
+        let (key, _) = self.loc_keys.insert_full(data);
+        key as u32
+    }
+
     pub(crate) fn check_parse_cache(
         &self,
-        loc_key: (String, (usize, usize), &'static str, usize),
+        loc_key: LocKey,
         matcher_key: uuid::Uuid,
     ) -> Option<MatchResult> {
         self.parse_cache.get(&(loc_key, matcher_key)).cloned()
@@ -146,7 +158,7 @@ impl<'a> ParseContext<'a> {
 
     pub(crate) fn put_parse_cache(
         &mut self,
-        loc_key: (String, (usize, usize), &'static str, usize),
+        loc_key: LocKey,
         matcher_key: uuid::Uuid,
         match_result: MatchResult,
     ) {

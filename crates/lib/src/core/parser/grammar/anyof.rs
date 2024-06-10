@@ -135,9 +135,7 @@ impl AnyNumberOf {
         segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
     ) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
-        let name = std::any::type_name::<Self>();
-
-        parse_context.deeper_match(name, false, &self.terminators, None, |ctx| {
+        parse_context.deeper_match(false, &self.terminators, |ctx| {
             longest_trimmed_match(segments, self.elements.clone(), ctx, false)
         })
     }

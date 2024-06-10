@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 use ahash::AHashSet;
-use itertools::{chain, enumerate, Itertools};
+use itertools::{chain, Itertools};
 use uuid::Uuid;
 
 use super::conditional::Conditional;
@@ -37,10 +37,9 @@ fn trim_to_terminator(
         }
     }
 
-    let term_match =
-        parse_context.deeper_match("Sequence-GreedyB-@0", false, &[], false.into(), |this| {
-            greedy_match(segments.clone(), this, terminators, false)
-        })?;
+    let term_match = parse_context.deeper_match(false, &[], |this| {
+        greedy_match(segments.clone(), this, terminators, false)
+    })?;
 
     if term_match.has_match() {
         // If we _do_ find a terminator, we separate off everything
@@ -211,7 +210,7 @@ impl Matchable for Sequence {
         let mut meta_buffer = Vec::new();
         let mut non_code_buffer = Vec::new();
 
-        for (idx, elem) in enumerate(&self.elements) {
+        for elem in &self.elements {
             // 1. Handle any metas or conditionals.
             // We do this first so that it's the same whether we've run
             // out of segments or not.
@@ -295,13 +294,8 @@ impl Matchable for Sequence {
             }
 
             // 4. Match the current element against the current position.
-            let elem_match = parse_context.deeper_match(
-                format!("Sequence-@{idx}"),
-                false,
-                &[],
-                None,
-                |this| elem.match_segments(&unmatched_segments, this),
-            )?;
+            let elem_match = parse_context
+                .deeper_match(false, &[], |this| elem.match_segments(&unmatched_segments, this))?;
 
             // Did we fail to match? (totally or un-cleanly)
             if !elem_match.has_match() {
@@ -586,7 +580,7 @@ impl Matchable for Bracketed {
             trailing_segments = seg_buff[1..].to_vec();
         } else {
             // Look for the first bracket
-            let status = parse_context.deeper_match("Bracketed-First", false, &[], None, |this| {
+            let status = parse_context.deeper_match(false, &[], |this| {
                 let start_match = start_bracket.match_segments(segments, this);
 
                 match start_match {
@@ -608,19 +602,18 @@ impl Matchable for Bracketed {
                 Status::Fail(error) => return Err(error),
             };
 
-            let (segs, end_match) =
-                parse_context.deeper_match("Bracketed-End", true, &[], None, |this| {
-                    let (content_segs, end_match, _) = bracket_sensitive_look_ahead_match(
-                        seg_buff,
-                        vec![end_bracket.clone()],
-                        this,
-                        start_bracket.into(),
-                        end_bracket.into(),
-                        self.bracket_pairs_set.into(),
-                    )?;
+            let (segs, end_match) = parse_context.deeper_match(true, &[], |this| {
+                let (content_segs, end_match, _) = bracket_sensitive_look_ahead_match(
+                    seg_buff,
+                    vec![end_bracket.clone()],
+                    this,
+                    start_bracket.into(),
+                    end_bracket.into(),
+                    self.bracket_pairs_set.into(),
+                )?;
 
-                    Ok((content_segs, end_match))
-                })?;
+                Ok((content_segs, end_match))
+            })?;
 
             content_segs = segs;
 
@@ -672,9 +665,8 @@ impl Matchable for Bracketed {
 
         // Match the content using super. Sequence will interpret the content of the
         // elements. Within the brackets, clear any inherited terminators.
-        let content_match = parse_context.deeper_match("Bracketed", true, &[], None, |this| {
-            self.this.match_segments(content_segs, this)
-        })?;
+        let content_match = parse_context
+            .deeper_match(true, &[], |this| self.this.match_segments(content_segs, this))?;
 
         // We require a complete match for the content (hopefully for obvious reasons)
         if !content_match.is_complete() {

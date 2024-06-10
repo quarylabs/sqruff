@@ -2586,12 +2586,14 @@ impl FileSegment {
 
         let _closing_position = final_seg.get_position_marker().unwrap().templated_slice.end;
 
-        let match_result = parse_context.progress_bar(|this| {
+        let match_result = {
             // NOTE: Don't call .match() on the segment class itself, but go
             // straight to the match grammar inside.
-            let cls = this.dialect().r#ref("FileSegment");
-            cls.match_grammar().unwrap().match_segments(&segments[start_idx..end_idx], this)
-        })?;
+            let cls = parse_context.dialect().r#ref("FileSegment");
+            cls.match_grammar()
+                .unwrap()
+                .match_segments(&segments[start_idx..end_idx], parse_context)
+        }?;
 
         let has_match = match_result.has_match();
         let MatchResult { matched_segments, unmatched_segments } = match_result;

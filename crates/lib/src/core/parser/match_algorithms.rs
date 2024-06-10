@@ -453,17 +453,16 @@ pub fn greedy_match(
     let mut seg_bank = Vec::new();
 
     loop {
-        let (pre, mat, matcher) =
-            parse_context.deeper_match("Greedy", false, &[], None, |this| {
-                bracket_sensitive_look_ahead_match(
-                    seg_buff.clone(),
-                    matchers.clone(),
-                    this,
-                    None,
-                    None,
-                    None,
-                )
-            })?;
+        let (pre, mat, matcher) = parse_context.deeper_match(false, &[], |this| {
+            bracket_sensitive_look_ahead_match(
+                seg_buff.clone(),
+                matchers.clone(),
+                this,
+                None,
+                None,
+                None,
+            )
+        })?;
 
         if !mat.has_match() {
             // No terminator match? Return everything

@@ -139,10 +139,9 @@ impl Matchable for Delimited {
             }
 
             // Check whether there is a terminator before checking for content
-            let (match_result, _) =
-                parse_context.deeper_match("Delimited-Term", false, &[], None, |this| {
-                    longest_trimmed_match(seg_content, terminator_matchers.clone(), this, false)
-                })?;
+            let (match_result, _) = parse_context.deeper_match(false, &[], |this| {
+                longest_trimmed_match(seg_content, terminator_matchers.clone(), this, false)
+            })?;
 
             if match_result.has_match() {
                 terminated = true;
@@ -156,10 +155,8 @@ impl Matchable for Delimited {
             }
 
             let (match_result, _) = parse_context.deeper_match(
-                "Delimited",
                 false,
                 if seeking_delimiter { &[] } else { &delimiter_matchers },
-                None,
                 |this| {
                     longest_trimmed_match(
                         seg_content,

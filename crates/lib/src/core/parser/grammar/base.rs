@@ -209,12 +209,8 @@ impl Matchable for Ref {
 
         // Check the exclude condition
         if let Some(exclude) = &self.exclude {
-            let ctx = parse_context.deeper_match(
-                &format!("{}-Exclude", self.reference),
-                self.reset_terminators,
-                &self.terminators,
-                None,
-                |this| {
+            let ctx =
+                parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
                     if !exclude
                         .match_segments(segments, this)
                         .map_err(|e| dbg!(e))
@@ -224,8 +220,7 @@ impl Matchable for Ref {
                     }
 
                     None
-                },
-            );
+                });
 
             if let Some(ctx) = ctx {
                 return Ok(ctx);
@@ -235,13 +230,9 @@ impl Matchable for Ref {
         ensure_sufficient_stack(|| {
             // Match against that. NB We're not incrementing the match_depth here.
             // References shouldn't really count as a depth of match.
-            parse_context.deeper_match(
-                &self.reference,
-                self.reset_terminators,
-                &self.terminators,
-                None,
-                |this| elem.match_segments(segments, this),
-            )
+            parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
+                elem.match_segments(segments, this)
+            })
         })
     }
 

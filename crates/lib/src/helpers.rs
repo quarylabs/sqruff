@@ -180,6 +180,9 @@ fn with_ctx(f: impl FnOnce(&mut Vec<String>)) {
 }
 
 pub fn next_cache_key() -> u32 {
+    // The value 0 is reserved for NonCodeMatcher. This grammar matcher is somewhat
+    // of a singleton, so we don't need a unique ID in the same way as other grammar
+    // matchers.
     static ID: AtomicU32 = AtomicU32::new(1);
 
     ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)).unwrap()

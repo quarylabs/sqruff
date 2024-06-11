@@ -3,7 +3,6 @@ use std::ops::Deref;
 use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
-use itertools::enumerate;
 use smol_str::ToSmolStr;
 use uuid::Uuid;
 
@@ -362,7 +361,7 @@ pub fn longest_trimmed_match(
     let mut best_match_length = 0;
     let mut best_match = None;
 
-    for (_idx, matcher) in enumerate(available_options) {
+    for matcher in available_options {
         let matcher_key = matcher.cache_key();
 
         let match_result = match parse_context.check_parse_cache(loc_key, matcher_key) {

@@ -1,13 +1,13 @@
 use ahash::AHashSet;
 use fancy_regex::Regex;
 use smol_str::SmolStr;
-use uuid::Uuid;
 
 use super::context::ParseContext;
 use super::match_result::MatchResult;
 use super::matchable::Matchable;
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
+use crate::helpers::next_cache_key;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
@@ -16,7 +16,7 @@ pub struct TypedParser {
     instance_types: Vec<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
-    cache_key: Uuid,
+    cache_key: u32,
     factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
@@ -42,7 +42,7 @@ impl TypedParser {
             instance_types,
             optional,
             trim_chars,
-            cache_key: Uuid::new_v4(),
+            cache_key: next_cache_key(),
         }
     }
 
@@ -62,8 +62,8 @@ impl TypedParser {
 impl Segment for TypedParser {}
 
 impl Matchable for TypedParser {
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(Uuid::new_v4())
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 
     fn simple(
@@ -99,7 +99,7 @@ pub struct StringParser {
     type_: Option<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
-    cache_key: Uuid,
+    cache_key: u32,
 }
 
 impl StringParser {
@@ -120,7 +120,7 @@ impl StringParser {
             type_,
             optional,
             trim_chars,
-            cache_key: Uuid::new_v4(),
+            cache_key: next_cache_key(),
         }
     }
 
@@ -172,8 +172,8 @@ impl Matchable for StringParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.cache_key)
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }
 
@@ -182,7 +182,7 @@ pub struct RegexParser {
     template: Regex,
     anti_template: Option<Regex>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    cache_key: Uuid,
+    cache_key: u32,
 }
 
 impl PartialEq for RegexParser {
@@ -214,7 +214,7 @@ impl RegexParser {
             template: template_pattern,
             anti_template: anti_template_pattern,
             factory,
-            cache_key: Uuid::new_v4(),
+            cache_key: next_cache_key(),
         }
     }
 
@@ -278,8 +278,8 @@ impl Matchable for RegexParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.cache_key)
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }
 
@@ -288,7 +288,7 @@ pub struct MultiStringParser {
     templates: AHashSet<String>,
     simple: AHashSet<String>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    uuid: Uuid,
+    cache_key: u32,
 }
 
 impl MultiStringParser {
@@ -310,7 +310,7 @@ impl MultiStringParser {
             templates: templates.into_iter().collect(),
             simple: _simple.into_iter().collect(),
             factory,
-            uuid: Uuid::new_v4(),
+            cache_key: next_cache_key(),
         }
     }
 
@@ -357,8 +357,8 @@ impl Matchable for MultiStringParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        self.uuid.into()
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }
 

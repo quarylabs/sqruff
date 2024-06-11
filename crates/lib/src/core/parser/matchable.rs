@@ -94,7 +94,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
     // A method to generate a unique cache key for the matchable object.
     //
     // Returns none for no caching key
-    fn cache_key(&self) -> Option<uuid::Uuid> {
+    fn cache_key(&self) -> u32 {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 

@@ -4,7 +4,6 @@ use std::sync::Arc;
 
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
-use uuid::Uuid;
 
 use super::conditional::Conditional;
 use crate::core::errors::SQLParseError;
@@ -21,7 +20,7 @@ use crate::core::parser::segments::base::{
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::{Indent, MetaSegment, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
-use crate::helpers::ToErasedSegment;
+use crate::helpers::{next_cache_key, ToErasedSegment};
 
 fn trim_to_terminator(
     mut segments: Vec<ErasedSegment>,
@@ -112,7 +111,7 @@ pub struct Sequence {
     pub(crate) allow_gaps: bool,
     is_optional: bool,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
-    cache_key: Uuid,
+    cache_key: u32,
 }
 
 impl Sequence {
@@ -123,7 +122,7 @@ impl Sequence {
             is_optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
-            cache_key: Uuid::new_v4(),
+            cache_key: next_cache_key(),
         }
     }
 
@@ -405,8 +404,8 @@ impl Matchable for Sequence {
         })
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.cache_key)
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 
     fn copy(
@@ -695,7 +694,7 @@ impl Matchable for Bracketed {
         })
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
+    fn cache_key(&self) -> u32 {
         self.this.cache_key()
     }
 }

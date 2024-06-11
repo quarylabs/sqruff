@@ -2,7 +2,6 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 use ahash::AHashSet;
-use uuid::Uuid;
 
 use super::anyof::{one_of, AnyNumberOf};
 use super::base::{longest_trimmed_match, Ref};
@@ -13,7 +12,7 @@ use crate::core::parser::helpers::trim_non_code_segments;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
-use crate::helpers::ToMatchable;
+use crate::helpers::{next_cache_key, ToMatchable};
 
 /// Match an arbitrary number of elements separated by a delimiter.
 ///
@@ -27,7 +26,7 @@ pub struct Delimited {
     delimiter: Arc<dyn Matchable>,
     pub(crate) min_delimiters: Option<usize>,
     optional: bool,
-    cache_key: Uuid,
+    cache_key: u32,
 }
 
 impl Delimited {
@@ -38,7 +37,7 @@ impl Delimited {
             delimiter: Ref::new("CommaSegment").to_matchable(),
             min_delimiters: None,
             optional: false,
-            cache_key: Uuid::new_v4(),
+            cache_key: next_cache_key(),
         }
     }
 
@@ -254,8 +253,8 @@ impl Matchable for Delimited {
         Ok(MatchResult { matched_segments, unmatched_segments })
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.cache_key)
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }
 

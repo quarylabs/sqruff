@@ -13,12 +13,32 @@ use crate::helpers::IndexSet;
 type LocKey = u32;
 type LocKeyData = (SmolStr, (usize, usize), &'static str, usize);
 
+#[cfg_attr(not(target_pointer_width = "64"), derive(Hash))]
+#[derive(Debug, PartialEq, Eq)]
+pub struct Cache {
+    loc: LocKey,
+    key: u32,
+}
+
+impl Cache {
+    pub fn new(loc: LocKey, key: u32) -> Self {
+        Self { loc, key }
+    }
+}
+
+#[cfg(target_pointer_width = "64")]
+impl std::hash::Hash for Cache {
+    fn hash<H: std::hash::Hasher>(&self, h: &mut H) {
+        (((self.loc as u64) << 32) | (self.key as u64)).hash(h)
+    }
+}
+
 #[derive(Debug)]
 pub struct ParseContext<'a> {
     dialect: &'a Dialect,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
     loc_keys: IndexSet<LocKeyData>,
-    parse_cache: FxHashMap<(LocKey, u32), MatchResult>,
+    parse_cache: FxHashMap<Cache, MatchResult>,
     pub(crate) indentation_config: AHashMap<String, bool>,
 }
 
@@ -111,7 +131,7 @@ impl<'a> ParseContext<'a> {
         loc_key: LocKey,
         matcher_key: u32,
     ) -> Option<MatchResult> {
-        self.parse_cache.get(&(loc_key, matcher_key)).cloned()
+        self.parse_cache.get(&Cache::new(loc_key, matcher_key)).cloned()
     }
 
     pub(crate) fn put_parse_cache(
@@ -120,6 +140,6 @@ impl<'a> ParseContext<'a> {
         matcher_key: u32,
         match_result: MatchResult,
     ) {
-        self.parse_cache.insert((loc_key, matcher_key), match_result);
+        self.parse_cache.insert(Cache::new(loc_key, matcher_key), match_result);
     }
 }

@@ -69,7 +69,7 @@ impl Matchable for Delimited {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         super::anyof::simple(&self.elements, parse_context, crumbs)
     }
 

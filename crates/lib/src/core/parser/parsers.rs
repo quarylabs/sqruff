@@ -11,8 +11,8 @@ use crate::core::errors::SQLParseError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
-    template: String,
-    target_types: AHashSet<String>,
+    template: &'static str,
+    target_types: AHashSet<&'static str>,
     instance_types: Vec<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
@@ -22,21 +22,21 @@ pub struct TypedParser {
 
 impl TypedParser {
     pub fn new(
-        template: &str,
+        template: &'static str,
         factory: fn(&dyn Segment) -> ErasedSegment,
         type_: Option<String>,
         optional: bool,
         trim_chars: Option<Vec<char>>,
     ) -> TypedParser {
         let mut instance_types = Vec::new();
-        let target_types = [template.to_string()].into();
+        let target_types = [template].into();
 
         if let Some(t) = type_.clone() {
             instance_types.push(t);
         }
 
         TypedParser {
-            template: template.to_string(),
+            template,
             factory,
             target_types,
             instance_types,
@@ -70,7 +70,7 @@ impl Matchable for TypedParser {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         let _ = (parse_context, crumbs);
         (AHashSet::new(), self.target_types.clone()).into()
     }
@@ -154,7 +154,7 @@ impl Matchable for StringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         (self.simple.clone().into_iter().collect(), <_>::default()).into()
     }
 
@@ -257,7 +257,7 @@ impl Matchable for RegexParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
         None
@@ -338,7 +338,7 @@ impl Matchable for MultiStringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         (self.simple.clone(), <_>::default()).into()
     }
 

@@ -55,21 +55,20 @@ pub fn simple(
     elements: &[Arc<dyn Matchable>],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
-) -> Option<(AHashSet<String>, AHashSet<String>)> {
-    let option_simples: Vec<Option<(AHashSet<String>, AHashSet<String>)>> =
+) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
+    let option_simples: Vec<Option<(AHashSet<String>, _)>> =
         elements.iter().map(|opt| opt.simple(parse_context, crumbs.clone())).collect();
 
     if option_simples.iter().any(Option::is_none) {
         return None;
     }
 
-    let simple_buff: Vec<(AHashSet<String>, AHashSet<String>)> =
+    let simple_buff: Vec<(AHashSet<_>, AHashSet<_>)> =
         option_simples.into_iter().flatten().collect();
 
-    let simple_raws: AHashSet<String> =
-        simple_buff.iter().flat_map(|(raws, _)| raws).cloned().collect();
+    let simple_raws: AHashSet<_> = simple_buff.iter().flat_map(|(raws, _)| raws).cloned().collect();
 
-    let simple_types: AHashSet<String> =
+    let simple_types: AHashSet<_> =
         simple_buff.iter().flat_map(|(_, types)| types).cloned().collect();
 
     Some((simple_raws, simple_types))
@@ -155,7 +154,7 @@ impl Matchable for AnyNumberOf {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         simple(&self.elements, parse_context, crumbs)
     }
 

@@ -168,7 +168,7 @@ impl Matchable for Sequence {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         let mut simple_raws = AHashSet::new();
         let mut simple_types = AHashSet::new();
 
@@ -528,7 +528,7 @@ impl Matchable for Bracketed {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         let (start_bracket, _, _) = self.get_bracket_from_dialect(parse_context).unwrap();
         start_bracket.simple(parse_context, crumbs)
     }

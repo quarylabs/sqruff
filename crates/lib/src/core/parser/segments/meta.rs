@@ -114,7 +114,7 @@ impl<M: MetaSegmentKind + Send + Sync> Matchable for MetaSegment<M> {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         None
     }
 

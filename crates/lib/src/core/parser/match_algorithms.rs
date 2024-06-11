@@ -95,8 +95,7 @@ pub fn prune_options(
             matched = true;
         }
 
-        let simple_types = simple_types.iter().map(|x| x.as_str()).collect::<AHashSet<_>>();
-        if !matched && !first_types.intersection(&simple_types).collect_vec().is_empty() {
+        if !matched && first_types.intersection(&simple_types).next().is_some() {
             available_options.push(opt.clone());
             matched = true;
         }

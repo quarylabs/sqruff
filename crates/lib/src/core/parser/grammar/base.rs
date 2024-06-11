@@ -83,7 +83,7 @@ impl Matchable for BaseGrammar {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         // Placeholder implementation
         None
     }
@@ -112,7 +112,7 @@ pub struct Ref {
     allow_gaps: bool,
     optional: bool,
     cache_key: Uuid,
-    simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<String>)>>,
+    simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<&'static str>)>>,
 }
 
 impl std::fmt::Debug for Ref {
@@ -180,7 +180,7 @@ impl Matchable for Ref {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         self.simple_cache
             .get_or_init(|| {
                 if let Some(ref c) = crumbs {

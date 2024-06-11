@@ -51,7 +51,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<String>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
         let match_grammar = self.match_grammar()?;
 
         match_grammar.simple(parse_context, crumbs)

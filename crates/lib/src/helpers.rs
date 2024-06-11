@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::hash::BuildHasherDefault;
 use std::panic;
 use std::path::{Component, Path, PathBuf};
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Once};
 
 use crate::core::parser::matchable::Matchable;
@@ -176,4 +177,10 @@ fn with_ctx(f: impl FnOnce(&mut Vec<String>)) {
         static CTX: RefCell<Vec<String>> = const { RefCell::new(Vec::new()) };
     }
     CTX.with(|ctx| f(&mut ctx.borrow_mut()));
+}
+
+pub fn next_cache_key() -> u32 {
+    static ID: AtomicU32 = AtomicU32::new(1);
+
+    ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)).unwrap()
 }

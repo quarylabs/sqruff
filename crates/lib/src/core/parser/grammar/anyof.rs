@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
-use uuid::Uuid;
 
 use super::base::longest_trimmed_match;
 use super::sequence::{Bracketed, Sequence};
@@ -14,7 +13,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{ErasedSegment, Segment, UnparsableSegment};
 use crate::core::parser::types::ParseMode;
-use crate::helpers::{ToErasedSegment, ToMatchable};
+use crate::helpers::{next_cache_key, ToErasedSegment, ToMatchable};
 
 fn parse_mode_match_result(
     matched_segments: Vec<ErasedSegment>,
@@ -86,7 +85,7 @@ pub struct AnyNumberOf {
     pub(crate) allow_gaps: bool,
     pub(crate) optional: bool,
     pub(crate) parse_mode: ParseMode,
-    cache_key: Uuid,
+    cache_key: u32,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -107,7 +106,7 @@ impl AnyNumberOf {
             optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
-            cache_key: Uuid::new_v4(),
+            cache_key: next_cache_key(),
         }
     }
 
@@ -184,8 +183,8 @@ impl Matchable for AnyNumberOf {
 
         // Keep track of the number of times each option has been matched.
         let mut n_matches = 0;
-        let mut option_counter: AHashMap<Uuid, usize> =
-            self.elements.iter().map(|item| (item.cache_key().unwrap(), 0)).collect();
+        let mut option_counter: AHashMap<_, usize> =
+            self.elements.iter().map(|item| (item.cache_key(), 0)).collect();
 
         loop {
             if self.max_times.is_some() && Some(n_matches) >= self.max_times {
@@ -229,7 +228,7 @@ impl Matchable for AnyNumberOf {
                 self.match_once(&unmatched_segments, parse_context)?;
 
             if let Some(matched_option) = matched_option {
-                let matched_key = matched_option.cache_key().unwrap();
+                let matched_key = matched_option.cache_key();
                 if let Some(counter) = option_counter.get_mut(&matched_key) {
                     *counter += 1;
 
@@ -320,8 +319,8 @@ impl Matchable for AnyNumberOf {
         Arc::new(new_grammar)
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.cache_key)
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }
 

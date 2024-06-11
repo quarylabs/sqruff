@@ -16,7 +16,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::types::ParseMode;
-use crate::helpers::{capitalize, ToMatchable};
+use crate::helpers::{capitalize, next_cache_key, ToMatchable};
 use crate::stack::ensure_sufficient_stack;
 
 #[derive(Clone, Debug, Hash)]
@@ -28,7 +28,7 @@ pub struct BaseGrammar {
     terminators: Vec<Arc<dyn Matchable>>,
     reset_terminators: bool,
     parse_mode: ParseMode,
-    cache_key: Uuid,
+    cache_key: u32,
 }
 
 impl PartialEq for BaseGrammar {
@@ -52,7 +52,7 @@ impl BaseGrammar {
         reset_terminators: bool,
         parse_mode: ParseMode,
     ) -> Self {
-        let cache_key = Uuid::new_v4();
+        let cache_key = next_cache_key();
 
         Self {
             elements,
@@ -98,8 +98,8 @@ impl Matchable for BaseGrammar {
         Ok(MatchResult::new(Vec::new(), Vec::new()))
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.cache_key)
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }
 
@@ -112,7 +112,7 @@ pub struct Ref {
     reset_terminators: bool,
     allow_gaps: bool,
     optional: bool,
-    cache_key: Uuid,
+    cache_key: u32,
     simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<&'static str>)>>,
 }
 
@@ -132,7 +132,7 @@ impl Ref {
             reset_terminators: false,
             allow_gaps: true,
             optional: false,
-            cache_key: Uuid::new_v4(),
+            cache_key: next_cache_key(),
             simple_cache: OnceLock::new(),
         }
     }
@@ -236,15 +236,15 @@ impl Matchable for Ref {
         })
     }
 
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.cache_key)
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }
 
 #[derive(Clone, Debug, Hash)]
 #[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Anything {
-    cache: Uuid,
+    cache: u32,
     terminators: Vec<Arc<dyn Matchable>>,
 }
 
@@ -263,7 +263,7 @@ impl Default for Anything {
 
 impl Anything {
     pub fn new() -> Self {
-        Self { cache: Uuid::new_v4(), terminators: Vec::new() }
+        Self { cache: next_cache_key(), terminators: Vec::new() }
     }
 
     pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
@@ -274,13 +274,13 @@ impl Anything {
 
 impl Segment for Anything {
     fn get_uuid(&self) -> Uuid {
-        self.cache
+        todo!()
     }
 }
 
 impl Matchable for Anything {
-    fn cache_key(&self) -> Option<Uuid> {
-        Some(self.get_uuid())
+    fn cache_key(&self) -> u32 {
+        self.cache
     }
 
     fn match_segments(
@@ -365,21 +365,13 @@ pub fn longest_trimmed_match(
     for (_idx, matcher) in enumerate(available_options) {
         let matcher_key = matcher.cache_key();
 
-        let match_result = if let Some(matcher_key) = matcher_key {
-            match parse_context.check_parse_cache(loc_key, matcher_key) {
-                Some(match_result) => match_result,
-                None => {
-                    let match_result = matcher.match_segments(segments, parse_context)?;
-                    parse_context.put_parse_cache(loc_key, matcher_key, match_result.clone());
-                    match_result
-                }
-            }
-        } else {
-            let match_result = matcher.match_segments(segments, parse_context)?;
-            if let Some(matcher_key) = matcher_key {
+        let match_result = match parse_context.check_parse_cache(loc_key, matcher_key) {
+            Some(match_result) => match_result,
+            None => {
+                let match_result = matcher.match_segments(segments, parse_context)?;
                 parse_context.put_parse_cache(loc_key, matcher_key, match_result.clone());
+                match_result
             }
-            match_result
         };
 
         // No match. Skip this one.

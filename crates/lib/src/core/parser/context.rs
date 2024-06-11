@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use ahash::AHashMap;
+use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
@@ -17,7 +18,7 @@ pub struct ParseContext<'a> {
     dialect: &'a Dialect,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
     loc_keys: IndexSet<LocKeyData>,
-    parse_cache: AHashMap<(LocKey, u32), MatchResult>,
+    parse_cache: FxHashMap<(LocKey, u32), MatchResult>,
     pub(crate) indentation_config: AHashMap<String, bool>,
 }
 
@@ -27,7 +28,7 @@ impl<'a> ParseContext<'a> {
             dialect,
             terminators: Vec::new(),
             loc_keys: IndexSet::default(),
-            parse_cache: AHashMap::new(),
+            parse_cache: FxHashMap::default(),
             indentation_config,
         }
     }

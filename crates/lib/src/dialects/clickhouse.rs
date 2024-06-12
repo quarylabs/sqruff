@@ -952,7 +952,7 @@ impl NodeTrait for DropSettingProfileStatementSegment {
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Delimited::new(vec_of_erased![Ref::new("NakedIdentifierSegment")])
-                .config(|this| this.min_delimiters = 0.into()),
+                .config(|this| this.min_delimiters = 0),
             Ref::keyword("PROFILE"),
             Ref::new("IfExistsGrammar").optional(),
             Ref::new("SingleIdentifierGrammar"),

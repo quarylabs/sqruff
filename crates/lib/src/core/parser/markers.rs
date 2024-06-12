@@ -87,7 +87,7 @@ impl PositionMarker {
         self.source_position().1
     }
 
-    pub fn from_child_markers(markers: Vec<PositionMarker>) -> PositionMarker {
+    pub fn from_child_markers(markers: impl Iterator<Item = PositionMarker>) -> PositionMarker {
         let mut source_start = usize::MAX;
         let mut source_end = usize::MIN;
         let mut template_start = usize::MAX;

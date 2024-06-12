@@ -35,10 +35,12 @@ pub type SegmentConstructorFn<SegmentArgs> =
     &'static (dyn Fn(&str, Option<PositionMarker>, SegmentArgs) -> ErasedSegment + Sync + Send);
 
 pub trait CloneSegment {
+    #[track_caller]
     fn clone_box(&self) -> ErasedSegment;
 }
 
 impl<T: Segment> CloneSegment for T {
+    #[track_caller]
     fn clone_box(&self) -> ErasedSegment {
         dyn_clone::clone(self).to_erased_segment()
     }
@@ -433,6 +435,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         unimplemented!()
     }
 
+    #[track_caller]
     fn set_segments(&mut self, _segments: Vec<ErasedSegment>) {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -1468,7 +1471,7 @@ impl UnparsableSegment {
     pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let mut this = Self { uuid: Uuid::new_v4(), segments, position_marker: None };
         this.uuid = Uuid::new_v4();
-        this.set_position_marker(pos_marker(&this).into());
+        // this.set_position_marker(pos_marker(&this).into());
         this
     }
 }
@@ -1503,10 +1506,8 @@ impl Segment for UnparsableSegment {
     }
 }
 
-pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
-    let markers: Vec<_> =
-        this.segments().iter().flat_map(|seg| seg.get_position_marker()).collect();
-
+pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
+    let markers = segments.iter().flat_map(|seg| seg.get_position_marker());
     PositionMarker::from_child_markers(markers)
 }
 

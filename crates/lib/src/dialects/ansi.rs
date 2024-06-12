@@ -5,7 +5,7 @@ use std::marker::PhantomData;
 use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
-use itertools::{chain, Itertools};
+use itertools::Itertools;
 use smol_str::SmolStr;
 use uuid::Uuid;
 
@@ -21,14 +21,13 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, Pattern};
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::match_result::SyntaxKind;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    pos_marker, CloneSegment, CodeSegment, CodeSegmentNewArgs, CommentSegment,
-    CommentSegmentNewArgs, ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs,
-    Segment, SymbolSegment, SymbolSegmentNewArgs, UnparsableSegment, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
+    CloneSegment, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
+    ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment,
+    SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
@@ -1844,7 +1843,6 @@ pub fn ansi_raw_dialect() -> Dialect {
                             Ref::new("Tail_Recurse_Expression_A_Grammar").boxed(),
                         ])
                         .boxed(),
-                        // Additional sequences and grammar rules can be added here
                     ])
                     .boxed(),
                 ])
@@ -2375,6 +2373,10 @@ fn lexer_matchers() -> Vec<Matcher> {
 pub trait NodeTrait {
     const TYPE: &'static str;
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::Skip
+    }
+
     fn match_grammar() -> Arc<dyn Matchable>;
 
     fn class_types() -> AHashSet<&'static str> {
@@ -2484,8 +2486,14 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
         &self.segments
     }
 
+    #[track_caller]
     fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
         self.segments = segments;
+        if self.segments.iter().all(|it| it.get_position_marker().is_some()) {
+            self.set_position_marker(
+                crate::core::parser::segments::base::pos_marker(&self.segments).into(),
+            )
+        }
     }
 
     fn get_uuid(&self) -> Uuid {
@@ -2502,8 +2510,12 @@ impl<T: 'static + NodeTrait + Send + Sync> Matchable for Node<T> {
         let mut this = self.clone();
         this.segments = segments;
         this.uuid = Uuid::new_v4();
-        this.set_position_marker(pos_marker(&this).into());
+        // this.set_position_marker(pos_marker(&this).into());
         this.to_erased_segment()
+    }
+
+    fn kind(&self) -> Option<SyntaxKind> {
+        T::kind().into()
     }
 }
 
@@ -2561,73 +2573,45 @@ impl FileSegment {
         parse_context: &mut ParseContext,
         _f_name: Option<String>,
     ) -> Result<ErasedSegment, SQLParseError> {
-        // Trim the start
-        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0);
+        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0) as u32;
 
-        // Trim the end
-        // Note: The '+ 1' in the end is to include the segment at 'end_idx' in the
-        // slice.
-        let end_idx =
-            segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
+        let end_idx = segments
+            .iter()
+            .rposition(|segment| segment.is_code())
+            .map_or(start_idx, |idx| idx as u32 + 1);
 
         if start_idx == end_idx {
-            let mut file =
-                FileSegment { segments: segments.to_vec(), uuid: Uuid::new_v4(), pos_marker: None }
-                    .to_erased_segment();
-
-            let b = pos_marker(&*file).into();
-            file.get_mut().set_position_marker(b);
-
-            return Ok(file);
+            return Ok(self.new(segments.to_vec()));
         }
 
         let final_seg = segments.last().unwrap();
         assert!(final_seg.get_position_marker().is_some());
 
-        let _closing_position = final_seg.get_position_marker().unwrap().templated_slice.end;
+        let FileSegment = parse_context.dialect().r#ref("FileSegment");
 
-        let match_result = {
-            // NOTE: Don't call .match() on the segment class itself, but go
-            // straight to the match grammar inside.
-            let cls = parse_context.dialect().r#ref("FileSegment");
-            cls.match_grammar()
-                .unwrap()
-                .match_segments(&segments[start_idx..end_idx], parse_context)
-        }?;
+        let match_result = FileSegment.match_grammar().unwrap().match_segments(
+            &segments[..end_idx as usize],
+            start_idx,
+            parse_context,
+        )?;
 
+        let match_span = match_result.span;
         let has_match = match_result.has_match();
-        let MatchResult { matched_segments, unmatched_segments } = match_result;
+        let matched = match_result.apply(segments);
+        let unmatched = &segments[match_span.end as usize..end_idx as usize];
 
-        let content: Vec<_> = if !has_match {
-            vec![UnparsableSegment::new(segments[start_idx..end_idx].to_vec()).to_erased_segment()]
-        } else if !unmatched_segments.is_empty() {
-            let idx = unmatched_segments
-                .iter()
-                .position(|item| item.is_code())
-                .unwrap_or(unmatched_segments.len());
-            let mut result = Vec::new();
-            result.extend(matched_segments.clone());
-            result.extend(unmatched_segments.iter().take(idx).cloned());
-            if idx < unmatched_segments.len() {
-                result.push(
-                    UnparsableSegment::new(unmatched_segments[idx..].to_vec()).to_erased_segment(),
-                );
-            }
-
-            result
+        let content: &[ErasedSegment] = if !has_match {
+            unimplemented!()
+        } else if !unmatched.is_empty() {
+            dbg!(unmatched);
+            unimplemented!()
         } else {
-            chain(matched_segments, unmatched_segments).collect()
+            &[&matched, unmatched].concat()
         };
 
-        let mut result = Vec::new();
-        result.extend_from_slice(&segments[..start_idx]);
-        result.extend(content);
-        result.extend_from_slice(&segments[end_idx..]);
-
-        let mut file = Self { segments: result, uuid: Uuid::new_v4(), pos_marker: None };
-        file.set_position_marker(pos_marker(&file).into());
-
-        Ok(file.to_erased_segment())
+        Ok(self.new(
+            [&segments[..start_idx as usize], content, &segments[end_idx as usize..]].concat(),
+        ))
     }
 }
 
@@ -2677,6 +2661,10 @@ impl Matchable for FileSegment {
         new_object.segments = segments;
         new_object.to_erased_segment()
     }
+
+    fn kind(&self) -> Option<SyntaxKind> {
+        SyntaxKind::FileSegment.into()
+    }
 }
 
 /// An interval expression segment.
@@ -2717,6 +2705,10 @@ pub struct ArrayTypeSegment;
 impl NodeTrait for ArrayTypeSegment {
     const TYPE: &'static str = "array_type";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::ArrayTypeSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Nothing::new().to_matchable()
     }
@@ -2741,6 +2733,10 @@ pub struct UnorderedSelectStatementSegment;
 
 impl NodeTrait for UnorderedSelectStatementSegment {
     const TYPE: &'static str = "select_statement";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::UnorderedSelectStatementSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
@@ -2797,13 +2793,18 @@ pub struct SelectClauseSegment;
 impl NodeTrait for SelectClauseSegment {
     const TYPE: &'static str = "select_clause";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::SelectClauseSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("SELECT"),
             Ref::new("SelectClauseModifierSegment").optional(),
             MetaSegment::indent(),
             Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
-                .config(|this| this.allow_trailing())
+                .config(|this| this.allow_trailing()),
+            MetaSegment::dedent()
         ])
         .terminators(vec_of_erased![Ref::new("SelectClauseTerminatorGrammar")])
         .config(|this| {
@@ -2821,6 +2822,10 @@ pub struct StatementSegment;
 
 impl NodeTrait for StatementSegment {
     const TYPE: &'static str = "statement";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::StatementSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         one_of(vec![
@@ -2909,6 +2914,10 @@ pub struct SetExpressionSegment;
 impl NodeTrait for SetExpressionSegment {
     const TYPE: &'static str = "set_expression";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::SetExpressionSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::new("NonSetSelectableGrammar"),
@@ -2929,6 +2938,10 @@ pub struct FromClauseSegment;
 
 impl NodeTrait for FromClauseSegment {
     const TYPE: &'static str = "from_clause";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::FromClauseSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
@@ -2994,8 +3007,12 @@ pub struct SelectStatementSegment;
 impl NodeTrait for SelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::SelectStatementSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
-        Node::<UnorderedSelectStatementSegment>::new().match_grammar().unwrap().copy(
+        UnorderedSelectStatementSegment::match_grammar().copy(
             Some(vec_of_erased![
                 Ref::new("OrderByClauseSegment").optional(),
                 Ref::new("FetchClauseSegment").optional(),
@@ -3023,6 +3040,10 @@ pub struct SelectClauseModifierSegment;
 
 impl NodeTrait for SelectClauseModifierSegment {
     const TYPE: &'static str = "select_clause_modifier";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::SelectClauseModifierSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         one_of(vec![Ref::keyword("DISTINCT").boxed(), Ref::keyword("ALL").boxed()]).to_matchable()
@@ -3052,6 +3073,10 @@ pub struct SelectClauseElementSegment;
 
 impl NodeTrait for SelectClauseElementSegment {
     const TYPE: &'static str = "select_clause_element";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::SelectClauseElementSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         one_of(vec_of_erased![
@@ -3115,6 +3140,10 @@ pub struct WildcardExpressionSegment;
 impl NodeTrait for WildcardExpressionSegment {
     const TYPE: &'static str = "wildcard_expression";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::WildcardExpressionSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
             // *, blah.*, blah.blah.*, etc.
@@ -3131,6 +3160,10 @@ pub struct WildcardIdentifierSegment;
 
 impl NodeTrait for WildcardIdentifierSegment {
     const TYPE: &'static str = "wildcard_identifier";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::WildcardIdentifierSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
@@ -3209,6 +3242,10 @@ pub struct ExpressionSegment;
 impl NodeTrait for ExpressionSegment {
     const TYPE: &'static str = "expression";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::ExpressionSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("Expression_A_Grammar").to_matchable()
     }
@@ -3222,6 +3259,10 @@ pub struct FromExpressionSegment;
 
 impl NodeTrait for FromExpressionSegment {
     const TYPE: &'static str = "from_expression";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::FromExpressionSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
@@ -3274,6 +3315,10 @@ pub struct FromExpressionElementSegment;
 
 impl NodeTrait for FromExpressionElementSegment {
     const TYPE: &'static str = "from_expression_element";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::FromExpressionElementSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
@@ -3371,6 +3416,10 @@ pub struct ColumnReferenceSegment;
 impl NodeTrait for ColumnReferenceSegment {
     const TYPE: &'static str = "column_reference";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::ColumnReferenceSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
@@ -3386,6 +3435,10 @@ pub struct ObjectReferenceSegment;
 
 impl NodeTrait for ObjectReferenceSegment {
     const TYPE: &'static str = "object_reference";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::ObjectReferenceSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
@@ -3560,6 +3613,10 @@ pub struct TypedArrayLiteralSegment;
 impl NodeTrait for TypedArrayLiteralSegment {
     const TYPE: &'static str = "typed_array_literal";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::TypedArrayLiteralSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
             Ref::new("ArrayTypeSegment").boxed(),
@@ -3573,6 +3630,10 @@ pub struct StructTypeSegment;
 
 impl NodeTrait for StructTypeSegment {
     const TYPE: &'static str = "struct_type";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::StructTypeSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Nothing::new().to_matchable()
@@ -3599,6 +3660,10 @@ pub struct TypedStructLiteralSegment;
 
 impl NodeTrait for TypedStructLiteralSegment {
     const TYPE: &'static str = "typed_struct_literal";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::TypedStructLiteralSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec![
@@ -3692,6 +3757,10 @@ pub struct BracketedArguments;
 impl NodeTrait for BracketedArguments {
     const TYPE: &'static str = "bracketed_arguments";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::BracketedArguments
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Bracketed::new(vec![
             Delimited::new(vec![Ref::new("LiteralGrammar").boxed()])
@@ -3708,6 +3777,10 @@ pub struct DatatypeSegment;
 
 impl NodeTrait for DatatypeSegment {
     const TYPE: &'static str = "data_type";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::DatatypeSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         one_of(vec_of_erased![
@@ -3793,6 +3866,10 @@ pub struct ShorthandCastSegment;
 impl NodeTrait for ShorthandCastSegment {
     const TYPE: &'static str = "cast_expression";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::ShorthandCastSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             one_of(vec_of_erased![
@@ -3839,6 +3916,10 @@ pub struct FunctionSegment;
 impl NodeTrait for FunctionSegment {
     const TYPE: &'static str = "function";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::FunctionSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
@@ -3873,6 +3954,10 @@ pub struct FunctionNameSegment;
 
 impl NodeTrait for FunctionNameSegment {
     const TYPE: &'static str = "function_name";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::FunctionNameSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
@@ -3910,9 +3995,7 @@ impl NodeTrait for CaseExpressionSegment {
                 AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(|this| {
                     this.terminators = vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
                 }),
-                Ref::new("ElseClauseSegment")
-                    .optional()
-                    .config(|_this| /*this = vec![Ref::keyword("END")]*/ ()),
+                Ref::new("ElseClauseSegment").optional(),
                 MetaSegment::dedent(),
                 Ref::keyword("END"),
             ]),
@@ -3920,9 +4003,9 @@ impl NodeTrait for CaseExpressionSegment {
                 Ref::keyword("CASE"),
                 Ref::new("ExpressionSegment"),
                 MetaSegment::implicit_indent(),
-                AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],)
-                    .config(|this| this.terminators =
-                        vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")]),
+                AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(|this| {
+                    this.terminators = vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
+                }),
                 Ref::new("ElseClauseSegment")
                     .optional()
                     .config(|_this|/*this = vec![Ref::keyword("END")]*/ ()),
@@ -3977,6 +4060,10 @@ pub struct WhereClauseSegment;
 
 impl NodeTrait for WhereClauseSegment {
     const TYPE: &'static str = "where_clause";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::WhereClauseSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
@@ -4251,6 +4338,10 @@ pub struct ArrayExpressionSegment;
 impl NodeTrait for ArrayExpressionSegment {
     const TYPE: &'static str = "array_expression";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::ArrayExpressionSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Nothing::new().to_matchable()
     }
@@ -4260,6 +4351,10 @@ pub struct LocalAliasSegment;
 
 impl NodeTrait for LocalAliasSegment {
     const TYPE: &'static str = "local_alias";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::LocalAliasSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Nothing::new().to_matchable()
@@ -5413,6 +5508,10 @@ pub struct SamplingExpressionSegment;
 impl NodeTrait for SamplingExpressionSegment {
     const TYPE: &'static str = "sample_expression";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::SamplingExpressionSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![
             Ref::keyword("TABLESAMPLE"),
@@ -5433,6 +5532,10 @@ pub struct TableExpressionSegment;
 impl NodeTrait for TableExpressionSegment {
     const TYPE: &'static str = "table_expression";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::TableExpressionSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         one_of(vec_of_erased![
             Ref::new("ValuesClauseSegment"),
@@ -5451,6 +5554,10 @@ pub struct JoinClauseSegment;
 
 impl NodeTrait for JoinClauseSegment {
     const TYPE: &'static str = "join_clause";
+
+    fn kind() -> SyntaxKind {
+        SyntaxKind::JoinClauseSegment
+    }
 
     fn match_grammar() -> Arc<dyn Matchable> {
         one_of(vec_of_erased![
@@ -6108,6 +6215,10 @@ pub struct TableReferenceSegment;
 impl NodeTrait for TableReferenceSegment {
     const TYPE: &'static str = "table_reference";
 
+    fn kind() -> SyntaxKind {
+        SyntaxKind::TableReferenceSegment
+    }
+
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("ObjectReferenceSegment").to_matchable()
     }
@@ -6472,8 +6583,10 @@ mod tests {
     }
 
     #[test]
-    fn test__dialect__ansi_specific_segment_parses() {
+    fn test_dialect_ansi_specific_segment_parses() {
         let cases = [
+            ("NonWithSelectableGrammar", "SELECT * FROM counter FETCH FIRST 10 ROWS ONLY"),
+            ("ExpressionSegment", "concat(left())"),
             ("SelectKeywordSegment", "select"),
             ("NakedIdentifierSegment", "online_sales"),
             ("BareFunctionSegment", "current_timestamp"),
@@ -6566,98 +6679,13 @@ mod tests {
                 segments.pop();
             }
 
-            let mut match_result = segment.match_segments(&segments, &mut ctx).unwrap();
+            let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
+            let mut parsed = match_result.apply(&segments);
 
-            assert_eq!(match_result.len(), 1, "failed {segment_ref}, {sql_string}");
+            assert_eq!(parsed.len(), 1, "failed {segment_ref}, {sql_string}");
 
-            let parsed = match_result.matched_segments.pop().unwrap();
+            let parsed = parsed.pop().unwrap();
             assert_eq!(sql_string, parsed.raw());
-        }
-    }
-
-    #[test]
-    fn test__dialect__ansi_specific_segment_not_match() {
-        let cases = [("ObjectReferenceSegment", "\n     ")];
-
-        let dialect = fresh_ansi_dialect();
-        let config = FluffConfig::new(<_>::default(), None, None);
-
-        for (segment_ref, sql) in cases {
-            let segments = lex(&config, sql);
-
-            let mut parse_cx = ParseContext::from_config(&config);
-            let segment = dialect.r#ref(segment_ref);
-
-            let match_result = segment.match_segments(&segments, &mut parse_cx).unwrap();
-            assert!(!match_result.has_match());
-        }
-    }
-
-    #[test]
-    fn test__dialect__ansi_specific_segment_not_parse() {
-        let tests = vec![
-            ("SELECT 1 + (2 ", vec![(1, 12)]),
-            // ("SELECT * FROM a ORDER BY 1 UNION SELECT * FROM b", vec![(1, 28)]),
-            // (
-            //     "SELECT * FROM a LIMIT 1 UNION SELECT * FROM b",
-            //     vec![(1, 25)],
-            // ),
-            // (
-            //     "SELECT * FROM a ORDER BY 1 LIMIT 1 UNION SELECT * FROM b",
-            //     vec![(1, 36)],
-            // ),
-        ];
-
-        for (raw, err_locations) in tests {
-            let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-            let parsed = lnt.parse_string(raw.to_string(), None, None, None).unwrap();
-            assert!(!parsed.violations.is_empty());
-
-            let locs: Vec<(usize, usize)> =
-                parsed.violations.iter().map(|v| (v.line_no, v.line_pos)).collect();
-            assert_eq!(locs, err_locations);
-        }
-    }
-
-    #[test]
-    fn test__dialect__ansi_is_whitespace() {
-        let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let file_content =
-            std::fs::read_to_string("test/fixtures/dialects/ansi/select_in_multiline_comment.sql")
-                .expect("Unable to read file");
-
-        let parsed = lnt.parse_string(file_content, None, None, None).unwrap();
-
-        for raw_seg in parsed.tree.unwrap().get_raw_segments() {
-            if raw_seg.is_type("whitespace") || raw_seg.is_type("newline") {
-                assert!(raw_seg.is_whitespace());
-            }
-        }
-    }
-
-    #[test]
-    fn test__dialect__ansi_parse_indented_joins() {
-        let cases = [
-            // ("select field_1 from my_table as alias_1", [1, 5, 8, 11, 15, 16, 17].as_slice()),
-            (
-                "select field_1 from my_table as alias_1 join foo using (field_1)",
-                [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
-            ),
-        ];
-        let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-
-        for (sql_string, meta_loc) in cases {
-            let parsed = lnt.parse_string(sql_string.to_string(), None, None, None).unwrap();
-            let tree = parsed.tree.unwrap();
-
-            let res_meta_locs = tree
-                .get_raw_segments()
-                .into_iter()
-                .enumerate()
-                .filter_map(|(idx, raw_seg)| raw_seg.is_meta().then_some(idx))
-                .collect_vec();
-
-            assert_eq!(res_meta_locs, meta_loc);
         }
     }
 

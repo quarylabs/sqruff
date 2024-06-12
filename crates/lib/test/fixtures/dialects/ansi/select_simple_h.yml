@@ -9,9 +9,7 @@ file:
             - '': DATEADD
           - bracketed:
             - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: DAY
+            - date_part: DAY
             - comma: ','
             - expression:
               - function:

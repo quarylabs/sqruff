@@ -8,7 +8,7 @@ use dyn_ord::DynEq;
 
 use super::context::ParseContext;
 use super::grammar::base::Ref;
-use super::match_result::MatchResult;
+use super::match_result::{MatchResult, Matched, SyntaxKind};
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
 
@@ -23,6 +23,10 @@ impl<T: Any> AsAnyMut for T {
 }
 
 pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
+    fn kind(&self) -> Option<SyntaxKind> {
+        todo!("{}", std::any::type_name::<Self>())
+    }
+
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
@@ -62,33 +66,31 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        let Some(match_grammar) = self.match_grammar() else {
-            unimplemented!("{} has no match function implemented", std::any::type_name::<Self>())
-        };
-
-        if segments.len() == 1 && segments[0].get_type() == self.get_type() {
-            return Ok(MatchResult::from_matched(segments.to_vec()));
-        } else if segments.len() > 1 && segments[0].get_type() == self.get_type() {
-            let (first_segment, remaining_segments) =
-                segments.split_first().expect("segments should not be empty");
-            return Ok(MatchResult {
-                matched_segments: vec![first_segment.clone()],
-                unmatched_segments: remaining_segments.to_vec(),
-            });
+        if idx >= segments.len() as u32 {
+            return Ok(MatchResult::empty_at(idx));
         }
 
-        let match_result = match_grammar.match_segments(segments, parse_context)?;
-
-        if match_result.has_match() {
-            Ok(MatchResult {
-                matched_segments: vec![self.mk_from_segments(match_result.matched_segments)],
-                unmatched_segments: match_result.unmatched_segments,
-            })
-        } else {
-            Ok(MatchResult::from_unmatched(segments.to_vec()))
+        if segments[idx as usize].type_name() == self.type_name() {
+            return Ok(MatchResult::from_span(idx, idx + 1));
         }
+
+        let grammar = self.match_grammar().unwrap();
+        let match_result = parse_context
+            .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
+
+        Ok(match_result.wrap(match self.kind() {
+            Some(kind) => {
+                if matches!(kind, SyntaxKind::Skip) {
+                    Matched::ErasedSegment(self.clone_box())
+                } else {
+                    Matched::SyntaxKind(kind)
+                }
+            }
+            None => Matched::ErasedSegment(self.clone_box()),
+        }))
     }
 
     // A method to generate a unique cache key for the matchable object.
@@ -113,4 +115,3 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
 }
 
 dyn_clone::clone_trait_object!(Matchable);
-dyn_hash::hash_trait_object!(Matchable);

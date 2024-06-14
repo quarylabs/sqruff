@@ -391,6 +391,12 @@ pub struct RulePack {
     _reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
 }
 
+impl RulePack {
+    pub fn rules(&self) -> Vec<ErasedRule> {
+        self.rules.clone()
+    }
+}
+
 pub struct RuleSet {
     pub(crate) _name: String,
     pub(crate) _config_info: AHashMap<String, String>,

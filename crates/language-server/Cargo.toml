@@ -1,0 +1,18 @@
+[package]
+name = "language-server"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+bench = false
+
+[dependencies]
+js-sys = "0.3.69"
+lsp-types = "0.97"
+serde = "1.0.203"
+serde-wasm-bindgen = "0.6.5"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4.42"
+sqruff-lib = { version = "0.7.0", path = "../lib" }
+console_error_panic_hook = "0.1.7"

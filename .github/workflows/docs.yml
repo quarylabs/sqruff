@@ -9,5 +9,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@nightly
-      - run: cargo r -F codegen-docs >> options.md
+      - run: cargo r -F codegen-docs > options.md
       - uses: stefanzweifel/git-auto-commit-action@v5

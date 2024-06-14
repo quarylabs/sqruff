@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::time::Instant;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
@@ -329,36 +328,11 @@ impl Linter {
         config: &FluffConfig,
         encoding: Option<String>,
     ) -> Result<RenderedFile, SQLFluffUserError> {
-        // TODO Implement loggers eventually
-        // let linter_logger = log::logger();
-        // linter_logger.info!("TEMPLATING RAW [{}] ({})", self.templater.name, f_name);
-
-        // Start the templating timer
-        let _t0 = Instant::now();
-
-        // Newlines are normalised to unix-style line endings (\n).
-        // The motivation is that Jinja normalises newlines during templating and
-        // we want consistent mapping between the raw and templated slices.
         let in_str = Self::normalise_newlines(in_str.as_str());
 
-        // Since Linter.__init__() does not require a dialect to be specified,
-        // check for one now. (We're processing a string, not a file, so we're
-        // not going to pick up a .sqlfluff or other config file to provide a
-        // missing dialect at this point.)
         if let Some(error) = config.verify_dialect_specified() {
             return Err(error);
         }
-
-        // TODO Implement linter warning
-        // if config.get("templater_obj") != self.templater {
-        //     linter_logger::warning(format!(
-        //         "Attempt to set templater to {} failed. Using {} templater. Templater
-        // cannot be set in a .sqlfluff file in a subdirectory of the current working
-        // directory. It can be set in a .sqlfluff in the current working directory. See
-        // Nesting section of the docs for more details.",         config.get("
-        // templater_obj").name,         self.templater.name,
-        //     ));
-        // }
 
         #[allow(unused_assignments)]
         let mut templated_file = None;
@@ -380,26 +354,10 @@ impl Linter {
             }
         }
 
-        if templated_file.is_none() {
-            panic!("not implemented");
-            // linter_logger::info(
-            //     "TEMPLATING FAILED: {:?}",
-            //     templater_violations,
-            // );
-        };
-
-        // // Record time
-        // TODO Implement time
-        // let time_dict = [("templating", t0.elapsed().as_secs_f64())]
-        //     .iter()
-        //     .cloned()
-        //     .collect();
-
         Ok(RenderedFile {
             templated_file: templated_file.unwrap(),
             templater_violations,
             config: config.clone(),
-            time_dict: AHashMap::new(),
             f_name: f_name.to_owned(),
             encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
@@ -407,11 +365,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
-
     pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
-        // panic!("Not implemented");
-
-        let t0 = Instant::now();
         let violations = rendered.templater_violations.clone();
         if !violations.is_empty() {
             unimplemented!()
@@ -432,11 +386,6 @@ impl Linter {
             tokens = None;
         };
 
-        let t1 = Instant::now();
-        // TODO Add the logging
-        // let linter_logger = log::logger();
-        // linter_logger.info("PARSING ({})", rendered.fname);
-
         let parsed: Option<ErasedSegment>;
         if let Some(token_list) = tokens {
             let (p, pvs) = Self::parse_tokens(
@@ -451,18 +400,10 @@ impl Linter {
             parsed = None;
         };
 
-        // TODO Time_Dict should be a structure, it should also probably replace f64
-        // with Duration type
-        let mut time_dict = rendered.time_dict.clone();
-        time_dict.insert("lexing", (t1 - t0).as_secs_f64());
-        time_dict.insert("parsing", (Instant::now() - t1).as_secs_f64());
-
         ParsedString {
             tree: parsed,
             violations,
-            time_dict,
             templated_file: rendered.templated_file,
-
             f_name: rendered.f_name,
             source_str: rendered.source_str,
         }

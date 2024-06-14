@@ -1,7 +1,7 @@
-use lsp_types::notification::{DidChangeTextDocument, Notification};
+use lsp_types::notification::{DidChangeTextDocument, DidOpenTextDocument, Notification};
 use lsp_types::{
-    Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, PublishDiagnosticsParams,
-    VersionedTextDocumentIdentifier,
+    Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidOpenTextDocumentParams,
+    PublishDiagnosticsParams, TextDocumentItem, Uri, VersionedTextDocumentIdentifier,
 };
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
@@ -16,7 +16,7 @@ extern "C" {
 pub(crate) fn log(s: &str) {
     #[allow(unused_unsafe)]
     unsafe {
-        console_log(&("[pls] ".to_owned() + s))
+        console_log(&("[sqruff] ".to_owned() + s))
     }
 }
 
@@ -44,47 +44,21 @@ impl LanguageServer {
         log(&format!("{params:?}"));
 
         match method {
-            DidChangeTextDocument::METHOD => {
-                log("HELLO");
+            DidOpenTextDocument::METHOD => {
+                let params: DidOpenTextDocumentParams =
+                    serde_wasm_bindgen::from_value(params).unwrap();
+                let TextDocumentItem { uri, language_id: _, version, text } = params.text_document;
 
+                self.check_file(uri, text, version);
+            }
+            DidChangeTextDocument::METHOD => {
                 let params: DidChangeTextDocumentParams =
                     serde_wasm_bindgen::from_value(params).unwrap();
 
                 let content = params.content_changes[0].text.clone();
                 let VersionedTextDocumentIdentifier { uri, version } = params.text_document;
 
-                let rule_pack = self.linter.get_rulepack().rules();
-                let result = self.linter.lint_string(
-                    content.into(),
-                    None,
-                    false.into(),
-                    None,
-                    None,
-                    rule_pack,
-                    false,
-                );
-
-                let diagnostics = result
-                    .violations
-                    .into_iter()
-                    .map(|violation| {
-                        Diagnostic::new(
-                            to_range((violation.line_no, violation.line_pos)),
-                            DiagnosticSeverity::WARNING.into(),
-                            None,
-                            None,
-                            violation.description,
-                            None,
-                            None,
-                        )
-                    })
-                    .collect();
-
-                self.send_diagnostics(PublishDiagnosticsParams::new(
-                    uri,
-                    diagnostics,
-                    version.into(),
-                ));
+                self.check_file(uri, content, version);
             }
             _ => {}
         }
@@ -92,6 +66,30 @@ impl LanguageServer {
 }
 
 impl LanguageServer {
+    fn check_file(&mut self, uri: Uri, text: String, version: i32) {
+        let rule_pack = self.linter.get_rulepack().rules();
+        let result =
+            self.linter.lint_string(text.into(), None, false.into(), None, None, rule_pack, false);
+
+        let diagnostics = result
+            .violations
+            .into_iter()
+            .map(|violation| {
+                Diagnostic::new(
+                    to_range((violation.line_no, violation.line_pos)),
+                    DiagnosticSeverity::WARNING.into(),
+                    None,
+                    None,
+                    violation.description,
+                    None,
+                    None,
+                )
+            })
+            .collect();
+
+        self.send_diagnostics(PublishDiagnosticsParams::new(uri, diagnostics, version.into()));
+    }
+
     fn send_diagnostics(&self, diagnostics: PublishDiagnosticsParams) {
         let this = &JsValue::null();
 

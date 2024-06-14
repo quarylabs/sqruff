@@ -10,15 +10,14 @@ import {
 } from "vscode-languageserver/browser";
 
 sqruffInit(sqruffWasmData).then(() => {
-    
     const reader = new BrowserMessageReader(self);
     const writer = new BrowserMessageWriter(self);
-    
+
     const connection = createConnection(reader, writer);
-    
+
     const sendDiagnosticsCallback = (params: PublishDiagnosticsParams) =>
         connection.sendDiagnostics(params);
-    
+
     let lsp = new sqruff_lsp.LanguageServer(sendDiagnosticsCallback);
 
     connection.onInitialize(() => {
@@ -26,6 +25,8 @@ sqruffInit(sqruffWasmData).then(() => {
             capabilities: {
                 textDocumentSync: {
                     change: TextDocumentSyncKind.Full,
+                    openClose: true,
+                    save: true
                 }
             }
         }

@@ -16,7 +16,6 @@ use smol_str::SmolStr;
 use uuid::Uuid;
 
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
@@ -369,11 +368,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         }
 
         result_set
-    }
-
-    // TODO: remove &self?
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        None
     }
 
     fn raw(&self) -> Cow<str> {

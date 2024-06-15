@@ -2464,10 +2464,6 @@ impl<T: NodeTrait + 'static + Send + Sync> Segment for Node<T> {
         self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
     }
 
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        self.match_grammar.clone().unwrap_or_else(|| T::match_grammar()).into()
-    }
-
     fn get_type(&self) -> &'static str {
         T::TYPE
     }
@@ -2504,6 +2500,14 @@ impl<T: 'static + NodeTrait + Send + Sync> Matchable for Node<T> {
         this.uuid = Uuid::new_v4();
         this.set_position_marker(pos_marker(&this).into());
         this.to_erased_segment()
+    }
+
+    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+        self.match_grammar.clone().unwrap_or_else(|| T::match_grammar()).into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        T::TYPE
     }
 }
 
@@ -2637,19 +2641,6 @@ impl Segment for FileSegment {
             .to_erased_segment()
     }
 
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        Delimited::new(vec![Ref::new("StatementSegment").boxed()])
-            .config(|this| {
-                this.allow_trailing();
-                this.delimiter(
-                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").boxed()])
-                        .config(|config| config.min_times(1)),
-                );
-            })
-            .to_matchable()
-            .into()
-    }
-
     fn get_type(&self) -> &'static str {
         "file"
     }
@@ -2676,6 +2667,23 @@ impl Matchable for FileSegment {
         let mut new_object = self.clone();
         new_object.segments = segments;
         new_object.to_erased_segment()
+    }
+
+    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+        Delimited::new(vec![Ref::new("StatementSegment").boxed()])
+            .config(|this| {
+                this.allow_trailing();
+                this.delimiter(
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").boxed()])
+                        .config(|config| config.min_times(1)),
+                );
+            })
+            .to_matchable()
+            .into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        "file"
     }
 }
 

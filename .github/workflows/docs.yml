@@ -11,3 +11,5 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
       - run: cargo r -F codegen-docs > options.md
       - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: '--force'

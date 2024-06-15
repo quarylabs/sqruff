@@ -9,7 +9,7 @@ use dyn_ord::DynEq;
 use super::context::ParseContext;
 use super::grammar::base::Ref;
 use super::match_result::MatchResult;
-use super::segments::base::{ErasedSegment, Segment};
+use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
 
 pub trait AsAnyMut {
@@ -22,10 +22,18 @@ impl<T: Any> AsAnyMut for T {
     }
 }
 
-pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
+pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn get_type(&self) -> &'static str {
+        todo!()
+    }
+
+    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+        None
     }
 
     fn hack_eq(&self, rhs: &Arc<dyn Matchable>) -> bool {

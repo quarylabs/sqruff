@@ -7,15 +7,12 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::parser::segments::base::{Segment, SegmentExt};
+use crate::core::parser::segments::base::SegmentExt;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
-use crate::dialects::ansi::{
-    Node, ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment, TableReferenceSegment,
-};
-use crate::helpers::ToErasedSegment;
+use crate::dialects::ansi::{ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment};
 use crate::utils::analysis::query::{Query, Selectable};
 
 #[derive(Debug, Default, Clone)]
@@ -31,7 +28,7 @@ impl RuleRF01 {
     #[allow(clippy::only_used_in_recursion)]
     fn resolve_reference(
         &self,
-        r: &Node<ObjectReferenceSegment>,
+        r: &ObjectReferenceSegment,
         tbl_refs: Vec<(ObjectReferencePart, Vec<SmolStr>)>,
         dml_target_table: &[SmolStr],
         query: Query<RF01Query>,
@@ -47,10 +44,7 @@ impl RuleRF01 {
             }
 
             if let Some(object_reference) = &alias.object_reference {
-                let references = object_reference
-                    .as_any()
-                    .downcast_ref::<Node<ObjectReferenceSegment>>()
-                    .unwrap()
+                let references = ObjectReferenceSegment(object_reference.clone())
                     .iter_raw_references()
                     .into_iter()
                     .map(|it| it.part.into())
@@ -77,7 +71,7 @@ impl RuleRF01 {
                     format!(
                         "Reference '{}' refers to table/view not found in the FROM clause or \
                          found in ancestor statement.",
-                        r.raw()
+                        r.0.raw()
                     )
                     .into(),
                     None,
@@ -90,7 +84,7 @@ impl RuleRF01 {
 
     fn get_table_refs(
         &self,
-        r: &Node<ObjectReferenceSegment>,
+        r: &ObjectReferenceSegment,
         dialect: &Dialect,
     ) -> Vec<(ObjectReferencePart, Vec<SmolStr>)> {
         let mut tbl_refs = Vec::new();
@@ -155,10 +149,10 @@ impl RuleRF01 {
 
     fn should_ignore_reference(
         &self,
-        reference: &Node<ObjectReferenceSegment>,
+        reference: &ObjectReferenceSegment,
         selectable: &Selectable,
     ) -> bool {
-        let ref_path = selectable.selectable.path_to(&reference.clone().to_erased_segment());
+        let ref_path = selectable.selectable.path_to(&reference.0);
 
         if !ref_path.is_empty() {
             ref_path.iter().any(|ps| ps.segment.is_type("into_table_clause"))
@@ -220,16 +214,7 @@ FROM foo
         let dml_target_table = if !context.segment.is_type("select_statement") {
             let refs = context.segment.recursive_crawl(&["table_reference"], true, None, true);
             if let Some(reference) = refs.first() {
-                let mut node = Node::new();
-
-                let reference = if reference.is_type("table_reference") {
-                    let tr =
-                        reference.as_any().downcast_ref::<Node<TableReferenceSegment>>().unwrap();
-                    node.segments.clone_from(&tr.segments);
-                    &node
-                } else {
-                    reference.as_any().downcast_ref::<Node<ObjectReferenceSegment>>().unwrap()
-                };
+                let reference = ObjectReferenceSegment(reference.clone());
 
                 tmp = reference
                     .iter_raw_references()

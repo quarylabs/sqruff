@@ -10,6 +10,7 @@ use smol_str::SmolStr;
 use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
+use super::SyntaxKind;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::errors::SQLParseError;
@@ -55,6 +56,171 @@ impl<T> BoxedE for T {
         Self: Sized,
     {
         Arc::new(self)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Nodev2 {
+    kind: SyntaxKind,
+    segments: Vec<ErasedSegment>,
+    uuid: Uuid,
+    position_marker: Option<PositionMarker>,
+    raw: OnceLock<String>,
+    source_fixes: Vec<SourceFix>,
+    descendant_type_set: OnceLock<AHashSet<&'static str>>,
+}
+
+impl Nodev2 {
+    fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
+        let position_marker = pos_marker(&segments);
+        Self {
+            kind,
+            segments,
+            uuid: Uuid::new_v4(),
+            position_marker: position_marker.into(),
+            raw: OnceLock::new(),
+            source_fixes: Vec::new(),
+            descendant_type_set: OnceLock::new(),
+        }
+    }
+}
+
+impl Segment for Nodev2 {
+    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+        Self {
+            kind: self.kind,
+            uuid: self.uuid,
+            segments,
+            position_marker: self.position_marker.clone(),
+            raw: OnceLock::new(),
+            source_fixes: Vec::new(),
+            descendant_type_set: OnceLock::new(),
+        }
+        .to_erased_segment()
+    }
+
+    fn descendant_type_set(&self) -> AHashSet<&'static str> {
+        self.descendant_type_set
+            .get_or_init(|| {
+                let mut result_set = AHashSet::new();
+
+                for seg in self.segments() {
+                    result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
+                }
+
+                result_set
+            })
+            .clone()
+    }
+
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        let mut cloned = self.clone();
+        if let Some((a, b)) = cloned.raw.get_mut().zip(raw) {
+            *a = b;
+        };
+        cloned.source_fixes = source_fixes.unwrap_or_default();
+        cloned.to_erased_segment()
+    }
+
+    fn get_source_fixes(&self) -> Vec<SourceFix> {
+        self.source_fixes.clone()
+    }
+
+    fn raw(&self) -> Cow<str> {
+        self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
+    }
+
+    fn get_type(&self) -> &'static str {
+        self.kind.as_str()
+    }
+
+    fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.position_marker.clone()
+    }
+
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker;
+    }
+
+    fn segments(&self) -> &[ErasedSegment] {
+        &self.segments
+    }
+
+    fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
+        self.segments = segments;
+    }
+
+    fn get_uuid(&self) -> Uuid {
+        self.uuid
+    }
+
+    fn class_types(&self) -> AHashSet<&'static str> {
+        match self.kind {
+            SyntaxKind::ColumnReferenceSegment => ["object_reference", self.get_type()].into(),
+            SyntaxKind::WildcardIdentifier => ["wildcard_identifier", "object_reference"].into(),
+            _ => [self.get_type()].into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct NodeMatcher {
+    node_kind: SyntaxKind,
+    match_grammar: Arc<dyn Matchable>,
+}
+
+impl NodeMatcher {
+    pub fn new(node_kind: SyntaxKind, match_grammar: Arc<dyn Matchable>) -> Self {
+        Self { node_kind, match_grammar }
+    }
+}
+
+impl PartialEq for NodeMatcher {
+    fn eq(&self, _other: &Self) -> bool {
+        todo!()
+    }
+}
+
+impl Matchable for NodeMatcher {
+    fn get_type(&self) -> &'static str {
+        self.node_kind.as_str()
+    }
+
+    fn match_segments(
+        &self,
+        segments: &[ErasedSegment],
+        parse_context: &mut ParseContext,
+    ) -> Result<MatchResult, SQLParseError> {
+        let Some(match_grammar) = self.match_grammar() else {
+            unimplemented!("{} has no match function implemented", std::any::type_name::<Self>())
+        };
+
+        if segments.len() == 1 && segments[0].get_type() == self.get_type() {
+            return Ok(MatchResult::from_matched(segments.to_vec()));
+        } else if segments.len() > 1 && segments[0].get_type() == self.get_type() {
+            let (first_segment, remaining_segments) =
+                segments.split_first().expect("segments should not be empty");
+            return Ok(MatchResult {
+                matched_segments: vec![first_segment.clone()],
+                unmatched_segments: remaining_segments.to_vec(),
+            });
+        }
+
+        let match_result = match_grammar.match_segments(segments, parse_context)?;
+        if match_result.has_match() {
+            Ok(MatchResult {
+                matched_segments: vec![
+                    Nodev2::new(self.node_kind, match_result.matched_segments).to_erased_segment(),
+                ],
+                unmatched_segments: match_result.unmatched_segments,
+            })
+        } else {
+            Ok(MatchResult::from_unmatched(segments.to_vec()))
+        }
+    }
+
+    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+        self.match_grammar.clone().into()
     }
 }
 
@@ -1625,6 +1791,115 @@ pub fn ansi_raw_dialect() -> Dialect {
         ),
     ]);
 
+    ansi_dialect.add([
+        (
+            "FileSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::File,
+                Delimited::new(vec![Ref::new("StatementSegment").boxed()])
+                    .config(|this| {
+                        this.allow_trailing();
+                        this.delimiter(
+                            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").boxed()])
+                                .config(|config| config.min_times(1)),
+                        );
+                    })
+                    .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ColumnReferenceSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ColumnReferenceSegment,
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+                    .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
+                    .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ObjectReferenceSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ObjectReference,
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+                    .config(|this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.disallow_gaps();
+                        this.terminators =
+                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                    })
+                    .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExpressionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::Expression,
+                Ref::new("Expression_A_Grammar").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WildcardIdentifierSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::WildcardIdentifier,
+                Sequence::new(vec![
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").boxed(),
+                            Ref::new("ObjectReferenceDelimiterGrammar").boxed(),
+                        ])
+                        .boxed(),
+                    ])
+                    .boxed(),
+                    Ref::new("StarSegment").boxed(),
+                ])
+                .allow_gaps(false)
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FunctionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::Function,
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("DatePartFunctionNameSegment"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Ref::new("DatetimeUnitSegment"),
+                            Ref::new("FunctionContentsGrammar").optional()
+                        ])])
+                        .config(|this| this.parse_mode(ParseMode::Greedy))
+                    ])]),
+                    Sequence::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
+                                Ref::new("DatePartFunctionNameSegment"),
+                                Ref::new("ValuesClauseSegment")
+                            ])),
+                            Bracketed::new(vec_of_erased![
+                                Ref::new("FunctionContentsGrammar").optional()
+                            ])
+                            .config(|this| this.parse_mode(ParseMode::Greedy))
+                        ]),
+                        Ref::new("PostFunctionGrammar").optional()
+                    ])
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // hookpoint
     ansi_dialect.add([("CharCharacterSetGrammar".into(), Nothing::new().to_matchable().into())]);
 
@@ -2069,8 +2344,8 @@ pub fn ansi_raw_dialect() -> Dialect {
     #[rustfmt::skip]
     add_segments!(
         ansi_dialect, OverClauseSegment, FromExpressionElementSegment, SelectClauseElementSegment,
-        FromExpressionSegment, FromClauseSegment, WildcardIdentifierSegment, ColumnReferenceSegment,
-        WildcardExpressionSegment, SelectStatementSegment, StatementSegment, WindowSpecificationSegment,
+        FromExpressionSegment, FromClauseSegment, WildcardExpressionSegment,
+        SelectStatementSegment, StatementSegment, WindowSpecificationSegment,
         SetExpressionSegment, UnorderedSelectStatementSegment, SelectClauseSegment, JoinClauseSegment,
         TableExpressionSegment, ConcatSegment, EmptyStructLiteralSegment, ArrayLiteralSegment,
         LessThanSegment, GreaterThanOrEqualToSegment, LessThanOrEqualToSegment, NotEqualToSegment,
@@ -2079,10 +2354,10 @@ pub fn ansi_raw_dialect() -> Dialect {
         IndexColumnDefinitionSegment, AggregateOrderByClause, ValuesClauseSegment, ArrayAccessorSegment,
         CaseExpressionSegment, WhenClauseSegment, BracketedArguments, CTEColumnList, TypedStructLiteralSegment,
         StructTypeSegment, TimeZoneGrammar, FrameClauseSegment, SetOperatorSegment, WhereClauseSegment,
-        ElseClauseSegment, IntervalExpressionSegment, QualifiedNumericLiteralSegment, FunctionSegment,
+        ElseClauseSegment, IntervalExpressionSegment, QualifiedNumericLiteralSegment,
         FunctionNameSegment, TypedArrayLiteralSegment, SelectClauseModifierSegment, OrderByClauseSegment,
-        WithCompoundStatementSegment, TruncateStatementSegment, ExpressionSegment, ShorthandCastSegment,
-        DatatypeSegment, AliasExpressionSegment, ObjectReferenceSegment, ObjectLiteralSegment, ArrayExpressionSegment,
+        WithCompoundStatementSegment, TruncateStatementSegment, ShorthandCastSegment,
+        DatatypeSegment, AliasExpressionSegment, ObjectLiteralSegment, ArrayExpressionSegment,
         LocalAliasSegment, MergeStatementSegment, InsertStatementSegment, TransactionStatementSegment,
         DropTableStatementSegment, DropViewStatementSegment, CreateUserStatementSegment, DropUserStatementSegment,
         AccessStatementSegment, CreateTableStatementSegment, CreateRoleStatementSegment, DropRoleStatementSegment,
@@ -2106,7 +2381,6 @@ pub fn ansi_raw_dialect() -> Dialect {
 
     // This is a hook point to allow subclassing for other dialects
     ansi_dialect.add([
-        ("FileSegment".into(), FileSegment::default().to_matchable().into()),
         ("PostTableExpressionGrammar".into(), Nothing::new().to_matchable().into()),
         (
             "BracketedSegment".into(),
@@ -2380,10 +2654,6 @@ pub trait NodeTrait {
     fn class_types() -> AHashSet<&'static str> {
         [Self::TYPE].into()
     }
-
-    fn reference(&self) -> Node<ObjectReferenceSegment> {
-        unimplemented!()
-    }
 }
 
 pub struct Node<T> {
@@ -2498,7 +2768,7 @@ impl<T: 'static + NodeTrait + Send + Sync> Matchable for Node<T> {
         let mut this = self.clone();
         this.segments = segments;
         this.uuid = Uuid::new_v4();
-        this.set_position_marker(pos_marker(&this).into());
+        this.set_position_marker(pos_marker(&this.segments).into());
         this.to_erased_segment()
     }
 
@@ -2579,7 +2849,7 @@ impl FileSegment {
                 FileSegment { segments: segments.to_vec(), uuid: Uuid::new_v4(), pos_marker: None }
                     .to_erased_segment();
 
-            let b = pos_marker(&*file).into();
+            let b = pos_marker(file.segments()).into();
             file.get_mut().set_position_marker(b);
 
             return Ok(file);
@@ -2629,7 +2899,7 @@ impl FileSegment {
         result.extend_from_slice(&segments[end_idx..]);
 
         let mut file = Self { segments: result, uuid: Uuid::new_v4(), pos_marker: None };
-        file.set_position_marker(pos_marker(&file).into());
+        file.set_position_marker(pos_marker(&file.segments).into());
 
         Ok(file.to_erased_segment())
     }
@@ -2659,31 +2929,6 @@ impl Segment for FileSegment {
 
     fn class_types(&self) -> AHashSet<&'static str> {
         ["file"].into()
-    }
-}
-
-impl Matchable for FileSegment {
-    fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
-        let mut new_object = self.clone();
-        new_object.segments = segments;
-        new_object.to_erased_segment()
-    }
-
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        Delimited::new(vec![Ref::new("StatementSegment").boxed()])
-            .config(|this| {
-                this.allow_trailing();
-                this.delimiter(
-                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").boxed()])
-                        .config(|config| config.min_times(1)),
-                );
-            })
-            .to_matchable()
-            .into()
-    }
-
-    fn get_type(&self) -> &'static str {
-        "file"
     }
 }
 
@@ -3132,35 +3377,6 @@ impl NodeTrait for WildcardExpressionSegment {
     }
 }
 
-/// Any identifier of the form a.b.*.
-/// This inherits iter_raw_references from the
-/// ObjectReferenceSegment.
-pub struct WildcardIdentifierSegment;
-
-impl NodeTrait for WildcardIdentifierSegment {
-    const TYPE: &'static str = "wildcard_identifier";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec![
-            AnyNumberOf::new(vec![
-                Sequence::new(vec![
-                    Ref::new("SingleIdentifierGrammar").boxed(),
-                    Ref::new("ObjectReferenceDelimiterGrammar").boxed(),
-                ])
-                .boxed(),
-            ])
-            .boxed(),
-            Ref::new("StarSegment").boxed(),
-        ])
-        .allow_gaps(false)
-        .to_matchable()
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["wildcard_identifier", "object_reference"].into()
-    }
-}
-
 pub struct OrderByClauseSegment;
 
 impl NodeTrait for OrderByClauseSegment {
@@ -3209,20 +3425,6 @@ impl NodeTrait for TruncateStatementSegment {
             Ref::new("TableReferenceSegment").boxed(),
         ])
         .to_matchable()
-    }
-}
-
-pub struct ExpressionSegment;
-
-impl NodeTrait for ExpressionSegment {
-    const TYPE: &'static str = "expression";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Ref::new("Expression_A_Grammar").to_matchable()
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["expression"].into()
     }
 }
 
@@ -3343,7 +3545,7 @@ impl Node<FromExpressionElementSegment> {
                     aliased: true,
                     from_expression_element: self.clone_box(),
                     alias_expression: alias_expression.into(),
-                    object_reference: reference.map(|it| it.clone_box()),
+                    object_reference: reference.map(|it| it.clone().0),
                 };
             }
         }
@@ -3358,7 +3560,7 @@ impl Node<FromExpressionElementSegment> {
                     aliased: false,
                     from_expression_element: self.clone_box(),
                     alias_expression: None,
-                    object_reference: reference.clone().to_erased_segment().into(),
+                    object_reference: reference.clone().0.into(),
                 };
             }
         }
@@ -3369,44 +3571,8 @@ impl Node<FromExpressionElementSegment> {
             aliased: false,
             from_expression_element: self.clone_box(),
             alias_expression: None,
-            object_reference: reference.map(|it| it.clone_box()),
+            object_reference: reference.map(|it| it.clone().0),
         }
-    }
-}
-
-pub struct ColumnReferenceSegment;
-
-impl NodeTrait for ColumnReferenceSegment {
-    const TYPE: &'static str = "column_reference";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
-            .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
-            .to_matchable()
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["object_reference", "column_reference"].into()
-    }
-}
-
-pub struct ObjectReferenceSegment;
-
-impl NodeTrait for ObjectReferenceSegment {
-    const TYPE: &'static str = "object_reference";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
-            .config(|this| {
-                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
-                this.disallow_gaps();
-                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-            })
-            .to_matchable()
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["object_reference"].into()
     }
 }
 
@@ -3423,7 +3589,10 @@ pub struct ObjectReferencePart {
     pub segments: Vec<ErasedSegment>,
 }
 
-impl Node<ObjectReferenceSegment> {
+#[derive(Clone)]
+pub struct ObjectReferenceSegment(pub ErasedSegment);
+
+impl ObjectReferenceSegment {
     pub fn is_qualified(&self) -> bool {
         self.iter_raw_references().len() > 1
     }
@@ -3491,7 +3660,7 @@ impl Node<ObjectReferenceSegment> {
     pub fn iter_raw_references(&self) -> Vec<ObjectReferencePart> {
         let mut acc = Vec::new();
 
-        for elem in self.recursive_crawl(&["identifier", "naked_identifier"], true, None, true) {
+        for elem in self.0.recursive_crawl(&["identifier", "naked_identifier"], true, None, true) {
             acc.extend(self.iter_reference_parts(elem));
         }
 
@@ -3839,41 +4008,6 @@ impl NodeTrait for AggregateOrderByClause {
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Ref::new("OrderByClauseSegment").to_matchable()
-    }
-}
-
-pub struct FunctionSegment;
-
-impl NodeTrait for FunctionSegment {
-    const TYPE: &'static str = "function";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("DatePartFunctionNameSegment"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                    Ref::new("DatetimeUnitSegment"),
-                    Ref::new("FunctionContentsGrammar").optional()
-                ])])
-                .config(|this| this.parse_mode(ParseMode::Greedy))
-            ])]),
-            Sequence::new(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
-                        Ref::new("DatePartFunctionNameSegment"),
-                        Ref::new("ValuesClauseSegment")
-                    ])),
-                    Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
-                        .config(|this| this.parse_mode(ParseMode::Greedy))
-                ]),
-                Ref::new("PostFunctionGrammar").optional()
-            ])
-        ])
-        .to_matchable()
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["function"].into()
     }
 }
 
@@ -5566,7 +5700,13 @@ impl NodeTrait for DatabaseReferenceSegment {
     const TYPE: &'static str = "database_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 }
 
@@ -5576,7 +5716,13 @@ impl NodeTrait for IndexReferenceSegment {
     const TYPE: &'static str = "database_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 }
 
@@ -5778,7 +5924,13 @@ impl NodeTrait for SequenceReferenceSegment {
     const TYPE: &'static str = "column_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 
     fn class_types() -> AHashSet<&'static str> {
@@ -5792,7 +5944,13 @@ impl NodeTrait for TriggerReferenceSegment {
     const TYPE: &'static str = "trigger_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 }
 
@@ -5888,7 +6046,13 @@ impl NodeTrait for TablespaceReferenceSegment {
     const TYPE: &'static str = "tablespace_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 }
 
@@ -5898,7 +6062,13 @@ impl NodeTrait for ExtensionReferenceSegment {
     const TYPE: &'static str = "extension_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 }
 
@@ -5908,7 +6078,13 @@ impl NodeTrait for TagReferenceSegment {
     const TYPE: &'static str = "tag_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 }
 

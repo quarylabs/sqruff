@@ -48,7 +48,7 @@ impl BracketedSegment {
             raw: OnceLock::new(),
         };
         if !hack {
-            this.pos_marker = pos_marker(&this).into();
+            this.pos_marker = pos_marker(&this.segments).into();
         }
         this
     }

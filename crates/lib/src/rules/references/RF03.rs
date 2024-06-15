@@ -7,13 +7,13 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::parser::segments::base::{
-    CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, Segment, SymbolSegment,
+    CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, SymbolSegment,
 };
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::{Node, ObjectReferenceSegment};
-use crate::helpers::{capitalize, ToErasedSegment};
+use crate::dialects::ansi::ObjectReferenceSegment;
+use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
 
 #[derive(Debug, Clone)]
@@ -100,7 +100,7 @@ fn iter_available_targets(query: Query<()>) -> Vec<SmolStr> {
 fn check_references(
     table_aliases: Vec<AliasInfo>,
     standalone_aliases: Vec<SmolStr>,
-    references: Vec<Node<ObjectReferenceSegment>>,
+    references: Vec<ObjectReferenceSegment>,
     col_aliases: Vec<ColumnAliasInfo>,
     single_table_references: &str,
     is_struct_dialect: bool,
@@ -165,7 +165,7 @@ fn check_references(
 #[allow(clippy::too_many_arguments)]
 fn validate_one_reference(
     single_table_references: &str,
-    ref_: Node<ObjectReferenceSegment>,
+    ref_: ObjectReferenceSegment,
     this_ref_type: &str,
     standalone_aliases: &[SmolStr],
     table_ref_str: &str,
@@ -174,11 +174,11 @@ fn validate_one_reference(
     seen_ref_types: &AHashSet<&str>,
     fixable: bool,
 ) -> Option<LintResult> {
-    if !ref_.is_qualified() && ref_.is_type("wildcard_identifier") {
+    if !ref_.is_qualified() && ref_.0.is_type("wildcard_identifier") {
         return None;
     }
 
-    if standalone_aliases.contains(&ref_.raw().into()) {
+    if standalone_aliases.contains(&ref_.0.raw().into()) {
         return None;
     }
 
@@ -186,21 +186,21 @@ fn validate_one_reference(
         return None;
     }
 
-    if col_alias_names.contains(&ref_.raw().into()) {
+    if col_alias_names.contains(&ref_.0.raw().into()) {
         return None;
     }
 
     if single_table_references == "consistent" {
         return if !seen_ref_types.is_empty() && !seen_ref_types.contains(this_ref_type) {
             LintResult::new(
-                ref_.clone().to_erased_segment().into(),
+                ref_.clone().0.into(),
                 Vec::new(),
                 None,
                 format!(
                     "{} reference '{}' found in single table select which is inconsistent with \
                      previous references.",
                     capitalize(this_ref_type),
-                    ref_.raw()
+                    ref_.0.raw()
                 )
                 .into(),
                 None,
@@ -217,19 +217,19 @@ fn validate_one_reference(
 
     if single_table_references == "unqualified" {
         let fixes = if fixable {
-            ref_.segments.iter().take(2).cloned().map(LintFix::delete).collect::<Vec<_>>()
+            ref_.0.segments().iter().take(2).cloned().map(LintFix::delete).collect::<Vec<_>>()
         } else {
             Vec::new()
         };
 
         return LintResult::new(
-            ref_.clone().to_erased_segment().into(),
+            ref_.0.clone().into(),
             fixes,
             None,
             format!(
                 "{} reference '{}' found in single table select.",
                 capitalize(this_ref_type),
-                ref_.raw()
+                ref_.0.raw()
             )
             .into(),
             None,
@@ -237,7 +237,7 @@ fn validate_one_reference(
         .into();
     }
 
-    let ref_ = ref_.to_erased_segment();
+    let ref_ = ref_.0.clone();
     let fixes = if fixable {
         vec![LintFix::create_before(
             if !ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },

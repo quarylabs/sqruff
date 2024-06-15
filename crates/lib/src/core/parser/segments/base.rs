@@ -19,7 +19,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::{Node, ObjectReferenceSegment};
+use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
@@ -142,12 +142,8 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
-    fn reference(&self) -> Node<ObjectReferenceSegment> {
-        let mut node = Node::new();
-        node.uuid = self.get_uuid();
-        node.position_marker.clone_from(&self.get_position_marker());
-        node.segments = self.segments().to_vec();
-        node
+    fn reference(&self) -> ObjectReferenceSegment {
+        ObjectReferenceSegment(self.clone_box())
     }
 
     fn type_name(&self) -> &'static str {
@@ -1462,7 +1458,7 @@ impl UnparsableSegment {
     pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let mut this = Self { uuid: Uuid::new_v4(), segments, position_marker: None };
         this.uuid = Uuid::new_v4();
-        this.set_position_marker(pos_marker(&this).into());
+        this.set_position_marker(pos_marker(&this.segments).into());
         this
     }
 }
@@ -1497,9 +1493,8 @@ impl Segment for UnparsableSegment {
     }
 }
 
-pub fn pos_marker(this: &dyn Segment) -> PositionMarker {
-    let markers: Vec<_> =
-        this.segments().iter().flat_map(|seg| seg.get_position_marker()).collect();
+pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
+    let markers = segments.iter().flat_map(|seg| seg.get_position_marker());
 
     PositionMarker::from_child_markers(markers)
 }

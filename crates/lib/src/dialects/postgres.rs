@@ -1456,7 +1456,13 @@ impl NodeTrait for OperatorClassReferenceSegment {
     const TYPE: &'static str = "operator_class_reference";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::ObjectReferenceSegment::match_grammar()
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            })
+            .to_matchable()
     }
 }
 

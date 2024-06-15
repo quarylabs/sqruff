@@ -13,13 +13,13 @@ pub struct SelectStatementColumnsAndTables {
     pub select_statement: ErasedSegment,
     pub table_aliases: Vec<AliasInfo>,
     pub standalone_aliases: Vec<SmolStr>,
-    pub reference_buffer: Vec<Node<ObjectReferenceSegment>>,
+    pub reference_buffer: Vec<ObjectReferenceSegment>,
     pub select_targets: Vec<Node<SelectClauseElementSegment>>,
     pub col_aliases: Vec<ColumnAliasInfo>,
     pub using_cols: Vec<SmolStr>,
 }
 
-pub fn get_object_references(segment: &ErasedSegment) -> Vec<Node<ObjectReferenceSegment>> {
+pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
     segment
         .recursive_crawl(
             &["object_reference", "column_reference"],

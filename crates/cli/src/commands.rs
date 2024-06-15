@@ -16,6 +16,8 @@ pub enum Commands {
     Lint(LintArgs),
     #[command(name = "fix", about = "fix files")]
     Fix(FixArgs),
+    #[command(name = "lsp", about = "Run an LSP server")]
+    Lsp,
 }
 
 #[derive(Debug, Parser)]

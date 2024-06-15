@@ -1,5 +1,5 @@
-import sqruffInit, * as sqruff_lsp from "../dist/language_server";
-import sqruffWasmData from "../dist/language_server_bg.wasm";
+import sqruffInit, * as sqruff_lsp from "../dist/lsp";
+import sqruffWasmData from "../dist/lsp_bg.wasm";
 
 import {
     createConnection,
@@ -18,20 +18,9 @@ sqruffInit(sqruffWasmData).then(() => {
     const sendDiagnosticsCallback = (params: PublishDiagnosticsParams) =>
         connection.sendDiagnostics(params);
 
-    let lsp = new sqruff_lsp.LanguageServer(sendDiagnosticsCallback);
+    let lsp = new sqruff_lsp.Wasm(sendDiagnosticsCallback);
 
-    connection.onInitialize(() => {
-        return {
-            capabilities: {
-                textDocumentSync: {
-                    change: TextDocumentSyncKind.Full,
-                    openClose: true,
-                    save: true
-                }
-            }
-        }
-    });
-
+    connection.onInitialize(() => lsp.onInitialize());
     connection.onNotification((...args) => lsp.onNotification(...args));
     connection.listen();
 

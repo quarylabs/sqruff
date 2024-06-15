@@ -12,7 +12,7 @@
   "activationEvents": [
     "onLanguage:sql"
   ],
-  "main": "./dist/extension.js",
+  "main": "./dist/native.js",
   "browser": "./dist/browser.js",
   "contributes": {
     "commands": [
@@ -23,13 +23,14 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
+    "vscode:prepublish": "npm run build:wasm_lsp-release && npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "build:wasm_lsp": "env-var wasm-pack build --dev --target web ../../crates/language-server --out-dir {{npm_config_local_prefix}}/dist",
+    "build:wasm_lsp": "env-var wasm-pack build --dev --target web ../../crates/lsp --out-dir {{npm_config_local_prefix}}/dist",
+    "build:wasm_lsp-release": "env-var wasm-pack build --release --target web ../../crates/lsp --out-dir {{npm_config_local_prefix}}/dist",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",

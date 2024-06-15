@@ -55,7 +55,7 @@ esbuild
 
 esbuild
 	.build({
-		entryPoints: ["src/extension.ts"],
+		entryPoints: ["src/native.ts"],
 		bundle: true,
 		external: [
 			"vscode",
@@ -64,7 +64,7 @@ esbuild
 			"path",
 			"fs",
 		],
-		outfile: "dist/extension.js",
+		outfile: "dist/native.js",
 		platform: "node",
 		format: "cjs",
 		minify: production,

@@ -5,7 +5,6 @@ use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
 
 use crate::commands::{Cli, Commands};
-
 mod commands;
 
 #[cfg(all(feature = "jemalloc", not(target_env = "msvc")))]
@@ -88,6 +87,7 @@ fn main() {
 
             linter.formatter.as_mut().unwrap().completion_message();
         }
+        Commands::Lsp => lsp::run(),
     }
 }
 

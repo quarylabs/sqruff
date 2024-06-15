@@ -7,6 +7,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff`↴](#sqruff)
 * [`sqruff lint`↴](#sqruff-lint)
 * [`sqruff fix`↴](#sqruff-fix)
+* [`sqruff lsp`↴](#sqruff-lsp)
 
 ## `sqruff`
 
@@ -18,6 +19,7 @@ sqruff is a sql formatter and linter
 
 * `lint` — lint files
 * `fix` — fix files
+* `lsp` — Run an LSP server
 
 
 
@@ -64,6 +66,14 @@ fix files
 
   Possible values: `human`, `github-annotation-native`
 
+
+
+
+## `sqruff lsp`
+
+Run an LSP server
+
+**Usage:** `sqruff lsp`
 
 
 

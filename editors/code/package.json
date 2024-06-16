@@ -1,13 +1,13 @@
 {
-  "name": "code",
-  "displayName": "code",
-  "description": "",
+  "name": "sqruff",
+  "displayName": "Sqruff",
+  "description": "Sqruff is a SQL linter and formatter.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.89.1"
   },
   "categories": [
-    "Other"
+    "SQL", "Linting", "Formatting"
   ],
   "activationEvents": [
     "onLanguage:sql"

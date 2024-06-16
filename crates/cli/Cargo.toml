@@ -34,4 +34,4 @@ serde = { version = "1.0.203", features = ["derive"], optional = true }
 jemallocator = { version = "0.5", package = "tikv-jemallocator", optional = true }
 
 [dev-dependencies]
-ui_test = "0.22"
+ui_test = "0.23"

@@ -12,10 +12,9 @@ fn main() -> Result<()> {
     config.program.out_dir_flag = None;
     config.program.args = vec!["lint".into()];
 
-    std::mem::swap(&mut config.comment_defaults.base().edition, &mut <_>::default());
+    std::mem::swap(&mut config.comment_defaults, &mut Default::default());
     config.comment_defaults.base().mode =
-        Spanned::dummy(Mode::Fail { require_patterns: false, rustfix: RustfixMode::Disabled })
-            .into();
+        Spanned::dummy(Mode::Fail { require_patterns: false }).into();
 
     let args = Args::test()?;
     config.with_args(&args);

@@ -14,14 +14,6 @@
   ],
   "main": "./dist/native.js",
   "browser": "./dist/browser.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "code.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
   "scripts": {
     "vscode:prepublish": "npm run build:wasm_lsp-release && npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",

@@ -5,7 +5,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::ansi::{
-    FromClauseSegment, Node, ObjectReferenceSegment, SelectClauseElementSegment,
+    FromClauseSegment, ObjectReferenceSegment, SelectClauseElementSegment,
 };
 
 #[derive(Clone)]
@@ -14,7 +14,7 @@ pub struct SelectStatementColumnsAndTables {
     pub table_aliases: Vec<AliasInfo>,
     pub standalone_aliases: Vec<SmolStr>,
     pub reference_buffer: Vec<ObjectReferenceSegment>,
-    pub select_targets: Vec<Node<SelectClauseElementSegment>>,
+    pub select_targets: Vec<SelectClauseElementSegment>,
     pub col_aliases: Vec<ColumnAliasInfo>,
     pub using_cols: Vec<SmolStr>,
 }
@@ -56,10 +56,8 @@ pub fn get_select_statement_info(
 
     let select_clause = segment.child(&["select_clause"]).unwrap();
     let select_targets = select_clause.children(&["select_clause_element"]);
-    let select_targets = select_targets
-        .iter()
-        .map(|it| it.as_any().downcast_ref::<Node<SelectClauseElementSegment>>().unwrap().clone())
-        .collect_vec();
+    let select_targets =
+        select_targets.iter().map(|it| SelectClauseElementSegment(it.clone())).collect_vec();
 
     let col_aliases = select_targets.iter().flat_map(|s| s.alias()).collect_vec();
 
@@ -114,7 +112,7 @@ pub fn get_aliases_from_select(
         return (Vec::new(), Vec::new());
     };
 
-    let fc = fc.as_any().downcast_ref::<Node<FromClauseSegment>>().unwrap();
+    let fc = FromClauseSegment(fc);
     let aliases = fc.eventual_aliases();
 
     let mut standalone_aliases = Vec::new();

@@ -116,7 +116,7 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
         _terminators: Vec<Arc<dyn Matchable>>,
         _replace_terminators: bool,
     ) -> Arc<dyn Matchable> {
-        unimplemented!()
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 }
 

@@ -24,7 +24,8 @@ pub fn clickhouse_dialect() -> Dialect {
     clickhouse_dialect.name = "clickhouse";
     clickhouse_dialect.sets_mut("unreserved_keywords").extend(UNRESERVED_KEYWORDS);
 
-    clickhouse_dialect.node_mut::<ansi::FromExpressionElementSegment>().match_grammar =
+    clickhouse_dialect.replace_grammar(
+        "FromExpressionElementSegment",
         Sequence::new(vec_of_erased![
             Ref::new("PreTableFunctionKeywordsGrammar").optional(),
             optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
@@ -47,10 +48,11 @@ pub fn clickhouse_dialect() -> Dialect {
             Ref::new("SamplingExpressionSegment").optional(),
             Ref::new("PostTableExpressionGrammar").optional(),
         ])
-        .to_matchable()
-        .into();
+        .to_matchable(),
+    );
 
-    clickhouse_dialect.node_mut::<ansi::JoinClauseSegment>().match_grammar =
+    clickhouse_dialect.replace_grammar(
+        "JoinClauseSegment",
         one_of(vec_of_erased![Sequence::new(vec_of_erased![
             Ref::new("JoinTypeKeywords").optional(),
             Ref::new("JoinKeywordsGrammar"),
@@ -76,8 +78,8 @@ pub fn clickhouse_dialect() -> Dialect {
             .config(|this| this.optional()),
             Conditional::new(MetaSegment::dedent()).indented_using_on(),
         ]),])
-        .to_matchable()
-        .into();
+        .to_matchable(),
+    );
 
     clickhouse_dialect.add([
         (
@@ -1278,7 +1280,7 @@ impl NodeTrait for StatementSegment {
     const TYPE: &'static str = "statement_segment";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::StatementSegment::match_grammar().copy(
+        ansi::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("CreateMaterializedViewStatementSegment"),
                 Ref::new("DropDictionaryStatementSegment"),

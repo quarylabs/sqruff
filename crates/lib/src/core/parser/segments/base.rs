@@ -724,7 +724,12 @@ impl Eq for ErasedSegment {}
 
 impl Hash for dyn Segment {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.type_name().hash(state);
+        // TODO: remove hack
+        if self.type_name() == "sqruff_lib::dialects::ansi::Nodev2" {
+            self.get_type().hash(state)
+        } else {
+            self.type_name().hash(state);
+        }
 
         self.raw().hash(state);
 

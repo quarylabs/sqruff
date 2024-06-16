@@ -2177,7 +2177,7 @@ impl NodeTrait for UnorderedSelectStatementSegment {
     const TYPE: &'static str = "unordered_select_statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::UnorderedSelectStatementSegment::match_grammar().copy(
+        ansi::get_unordered_select_statement_segment_grammar().copy(
             Some(vec![Ref::new("IntoClauseSegment").optional().to_matchable()]),
             None,
             Some(Ref::new("FromClauseSegment").optional().to_matchable()),
@@ -2571,7 +2571,7 @@ impl NodeTrait for ExplainStatementSegment {
                 )])]),
             ])
             .config(|this| this.optional()),
-            ansi::ExplainStatementSegment::explainable_stmt(),
+            ansi::explainable_stmt(),
         ])
         .to_matchable()
     }
@@ -5132,7 +5132,7 @@ impl NodeTrait for FrameClauseSegment {
     const TYPE: &'static str = "frame_clause";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        let frame_extent = ansi::FrameClauseSegment::frame_extent();
+        let frame_extent = ansi::frame_extent();
 
         let frame_exclusion = Sequence::new(vec_of_erased![
             Ref::keyword("EXCLUDE"),
@@ -5380,7 +5380,7 @@ impl NodeTrait for StatementSegment {
     const TYPE: &'static str = "statement_segment";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::StatementSegment::match_grammar().copy(
+        ansi::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("AlterDefaultPrivilegesStatementSegment"),
                 Ref::new("DropOwnedStatementSegment"),

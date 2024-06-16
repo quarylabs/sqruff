@@ -943,7 +943,7 @@ impl NodeTrait for SelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::SelectStatementSegment::match_grammar().copy(
+        ansi::select_statement().copy(
             Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
             None,
             Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
@@ -960,7 +960,7 @@ impl NodeTrait for UnorderedSelectStatementSegment {
     const TYPE: &'static str = "unordered_select_statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::UnorderedSelectStatementSegment::match_grammar().copy(
+        ansi::get_unordered_select_statement_segment_grammar().copy(
             Some(vec![Ref::new("QualifyClauseSegment").optional().to_matchable()]),
             None,
             Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
@@ -1019,7 +1019,7 @@ impl NodeTrait for StatementSegment {
     const TYPE: &'static str = "statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::StatementSegment::match_grammar().copy(
+        ansi::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("DeclareStatementSegment"),
                 Ref::new("SetStatementSegment"),
@@ -1594,7 +1594,7 @@ impl NodeTrait for WildcardExpressionSegment {
     const TYPE: &'static str = "wildcard_expression";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::WildcardExpressionSegment::match_grammar().copy(
+        ansi::wildcard_expression_segment().copy(
             Some(vec_of_erased![
                 Ref::new("ExceptClauseSegment").optional(),
                 Ref::new("ReplaceClauseSegment").optional(),

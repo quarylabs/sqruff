@@ -40,22 +40,23 @@ pub fn snowflake_dialect() -> Dialect {
     let mut snowflake_dialect = ansi_raw_dialect();
     snowflake_dialect.name = "snowflake";
 
-    snowflake_dialect.node_mut::<ansi::SelectClauseElementSegment>().match_grammar =
-        ansi::SelectClauseElementSegment::match_grammar()
-            .copy(
-                Some(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::new("SystemFunctionName"),
-                    Bracketed::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
-                ])]),
-                None,
-                Some(Ref::new("WildcardExpressionSegment").to_matchable()),
-                None,
-                Vec::new(),
-                false,
-            )
-            .into();
+    snowflake_dialect.replace_grammar(
+        "SelectClauseElementSegment",
+        ansi::select_clause_element().copy(
+            Some(vec_of_erased![Sequence::new(vec_of_erased![
+                Ref::new("SystemFunctionName"),
+                Bracketed::new(vec_of_erased![Ref::new("QuotedLiteralSegment")])
+            ])]),
+            None,
+            Some(Ref::new("WildcardExpressionSegment").to_matchable()),
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
 
-    snowflake_dialect.node_mut::<ansi::FromExpressionElementSegment>().match_grammar =
+    snowflake_dialect.replace_grammar(
+        "FromExpressionElementSegment",
         Sequence::new(vec_of_erased![
             Ref::new("PreTableFunctionKeywordsGrammar").optional(),
             optionally_bracketed(vec_of_erased![Ref::new("TableExpressionSegment")]),
@@ -77,8 +78,8 @@ pub fn snowflake_dialect() -> Dialect {
             Ref::new("SamplingExpressionSegment").optional(),
             Ref::new("PostTableExpressionGrammar").optional(),
         ])
-        .to_matchable()
-        .into();
+        .to_matchable(),
+    );
 
     snowflake_dialect.patch_lexer_matchers(vec![
         Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", |slice, marker| {
@@ -2038,7 +2039,7 @@ impl NodeTrait for StatementSegment {
     const TYPE: &'static str = "statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::StatementSegment::match_grammar().copy(
+        ansi::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("AccessStatementSegment"),
                 Ref::new("CreateStatementSegment"),
@@ -2584,7 +2585,7 @@ impl NodeTrait for SelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::SelectStatementSegment::match_grammar().copy(
+        ansi::select_statement().copy(
             Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
             None,
             Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
@@ -2605,7 +2606,7 @@ impl NodeTrait for WildcardExpressionSegment {
     const TYPE: &'static str = "wildcard_expression";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::WildcardExpressionSegment::match_grammar().copy(
+        ansi::wildcard_expression_segment().copy(
             Some(vec_of_erased![
                 Ref::new("ExcludeClauseSegment").optional(),
                 Ref::new("ReplaceClauseSegment").optional(),
@@ -3454,7 +3455,7 @@ impl NodeTrait for UnorderedSelectStatementSegment {
     const TYPE: &'static str = "select_statement";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::UnorderedSelectStatementSegment::match_grammar().copy(
+        ansi::get_unordered_select_statement_segment_grammar().copy(
             Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
             None,
             Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
@@ -7531,7 +7532,7 @@ impl NodeTrait for ExplainStatementSegment {
                 ]),
             ])
             .config(|this| this.optional()),
-            ansi::ExplainStatementSegment::explainable_stmt(),
+            ansi::explainable_stmt(),
         ])
         .to_matchable()
     }
@@ -7620,7 +7621,7 @@ impl NodeTrait for AlterTaskStatementSegment {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MODIFY"),
                     Ref::keyword("AS"),
-                    ansi::ExplainStatementSegment::explainable_stmt(),
+                    ansi::explainable_stmt(),
                 ]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MODIFY"),
@@ -8202,7 +8203,7 @@ impl NodeTrait for SelectClauseSegment {
     const TYPE: &'static str = "select_clause";
 
     fn match_grammar() -> Arc<dyn Matchable> {
-        ansi::SelectClauseSegment::match_grammar().copy(
+        ansi::select_clause_segment().copy(
             None,
             None,
             None,

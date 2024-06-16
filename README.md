@@ -78,36 +78,15 @@ To get help on the available commands and options, run the following command:
 sqruff --help
 ```
 
-## Contributing
-
-Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute.
-
-### Releasing
-
-1. Bump the versions in `sqruff-lib/Cargo.toml` and `sqruff/Cargo.toml`.
-2. Commit the changes.
-3. Push the changes.
-4. Tag the commit with the new version
-5. Release `sqruff-lib` crate
-
-```bash
-cargo publish -p sqruff-lib
-```
-
-5. Release `sqruff` crate
-
-```bash
-cargo publish -p sqruff
-```
-
 ## Community
 
 Join the Quary community on [Slack](https://join.slack.com/t/quarylabs/shared_invite/zt-2dlbfnztw-dMLXJVL38NcbhqRuM5gUcw) to ask questions, suggest features, or share your projects. Also feel free to raise any issues in the repository.
 
 ## Contributing 
 
-Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute.
+Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to run things locally and on how to contribute.
 
-## Credits/Thank you
+## Credits
 
 The sqruff project wouldn't be possible without "heavy inspiration" from [Sqlfluff](https://sqlfluff.com/)! We're very grateful to their awesome work!
+

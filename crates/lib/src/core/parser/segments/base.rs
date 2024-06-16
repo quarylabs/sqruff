@@ -114,6 +114,60 @@ impl ErasedSegment {
     pub fn get_mut(&mut self) -> &mut dyn Segment {
         Arc::get_mut(&mut self.value).unwrap()
     }
+
+    pub fn reference(&self) -> ObjectReferenceSegment {
+        ObjectReferenceSegment(self.clone())
+    }
+
+    pub fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
+        let mut result = Vec::new();
+
+        if reverse {
+            for seg in self.segments().iter().rev() {
+                result.extend(seg.recursive_crawl_all(reverse));
+            }
+            result.push(self.clone());
+        } else {
+            result.push(self.clone());
+            for seg in self.segments() {
+                result.extend(seg.recursive_crawl_all(reverse));
+            }
+        }
+
+        result
+    }
+
+    pub fn recursive_crawl(
+        &self,
+        seg_types: &[&str],
+        recurse_into: bool,
+        no_recursive_seg_type: Option<&str>,
+        allow_self: bool,
+    ) -> Vec<ErasedSegment> {
+        let mut acc = Vec::new();
+        let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
+
+        let matches = allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it));
+        if matches {
+            acc.push(self.clone());
+        }
+
+        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty)) {
+            return acc;
+        }
+
+        if recurse_into || !matches {
+            for seg in self.segments() {
+                if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
+                    let segments =
+                        seg.recursive_crawl(seg_types, recurse_into, no_recursive_seg_type, true);
+                    acc.extend(segments);
+                }
+            }
+        }
+
+        acc
+    }
 }
 
 impl Deref for ErasedSegment {
@@ -140,10 +194,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    fn reference(&self) -> ObjectReferenceSegment {
-        ObjectReferenceSegment(self.clone_box())
     }
 
     fn type_name(&self) -> &'static str {
@@ -252,56 +302,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
             }
         }
         result
-    }
-
-    fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
-        let mut result = Vec::new();
-
-        if reverse {
-            for seg in self.segments().iter().rev() {
-                result.extend(seg.recursive_crawl_all(reverse));
-            }
-            result.push(self.clone_box());
-        } else {
-            result.push(self.clone_box());
-            for seg in self.segments() {
-                result.extend(seg.recursive_crawl_all(reverse));
-            }
-        }
-
-        result
-    }
-
-    fn recursive_crawl(
-        &self,
-        seg_types: &[&str],
-        recurse_into: bool,
-        no_recursive_seg_type: Option<&str>,
-        allow_self: bool,
-    ) -> Vec<ErasedSegment> {
-        let mut acc = Vec::new();
-        let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
-
-        let matches = allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it));
-        if matches {
-            acc.push(self.clone_box());
-        }
-
-        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty)) {
-            return acc;
-        }
-
-        if recurse_into || !matches {
-            for seg in self.segments() {
-                if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
-                    let segments =
-                        seg.recursive_crawl(seg_types, recurse_into, no_recursive_seg_type, true);
-                    acc.extend(segments);
-                }
-            }
-        }
-
-        acc
     }
 
     fn code_indices(&self) -> Vec<usize> {

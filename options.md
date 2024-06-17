@@ -57,9 +57,6 @@ fix files
 ###### **Options:**
 
 * `--force` — Skip the confirmation prompt and go straight to applying fixes
-
-  Possible values: `true`, `false`
-
 * `-f`, `--format <FORMAT>`
 
   Default value: `human`

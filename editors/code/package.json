@@ -37,7 +37,7 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "test": "vscode-test",
-    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=."
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../../crates/lib/test/fixtures/dialects/ansi"
   },
   "dependencies": {
     "@vscode/vsce": "^2.27.0",

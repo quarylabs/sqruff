@@ -8,6 +8,15 @@ env:
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: short
 jobs:
+  check-licenses-match: 
+    name: Check licenses match
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v4
+      - name: Copy LICENSE to editors/code directory
+        run: cp LICENSE editors/code/LICENSE
+      - name: Check there is no change 
+        run: git diff --quiet || exit 1
   check-versions-match:
     name: Check versions match
     runs-on: ubuntu-latest

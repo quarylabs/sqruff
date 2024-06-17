@@ -47,6 +47,8 @@ jobs:
           node-version: 22
       - run: npm ci
         working-directory: ./editors/code
+      - run: npm run build:wasm_lsp
+        working-directory: ./editors/code
       - run: npm run check-types
         working-directory: ./editors/code
       - run: npm run lint

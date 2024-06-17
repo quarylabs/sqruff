@@ -38,6 +38,9 @@ jobs:
   typescript:
     name: TypeScript
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./editors/code
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,15 +50,10 @@ jobs:
           node-version: 22
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: npm ci
-        working-directory: ./editors/code
       - run: npm run build:wasm_lsp
-        working-directory: ./editors/code
       - run: npm run check-types
-        working-directory: ./editors/code
       - run: npm run lint
-        working-directory: ./editors/code
       - run: npm run format:check
-        working-directory: ./editors/code
   test:
     name: Test
     runs-on: ubuntu-latest

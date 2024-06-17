@@ -35,6 +35,24 @@ jobs:
       - name: Add WASM target
         run: rustup target add wasm32-unknown-unknown
       - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: ./editors/code
+      - run: npm run check-types
+        working-directory: ./editors/code
+      - run: npm run lint
+        working-directory: ./editors/code
+      - run: npm run format:check
+        working-directory: ./editors/code
   test:
     name: Test
     runs-on: ubuntu-latest

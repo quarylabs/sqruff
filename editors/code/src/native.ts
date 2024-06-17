@@ -49,4 +49,4 @@ export function activate(context: vscode.ExtensionContext) {
   cl.start();
 }
 
-export function deactivate() { }
+export function deactivate() {}

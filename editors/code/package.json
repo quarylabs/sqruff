@@ -1,7 +1,7 @@
 {
   "name": "sqruff",
-  "displayName": "Sqruff",
-  "description": "Sqruff is a SQL linter and formatter.",
+  "displayName": "sqruff",
+  "description": "sqruff is a SQL linter and formatter.",
   "repository": {
     "type": "git",
     "url": "https://github.com/quarylabs/sqruff.git"

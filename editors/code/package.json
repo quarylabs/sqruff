@@ -28,6 +28,8 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src --ext ts",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
     "test": "vscode-test",
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=."
   },
@@ -36,6 +38,7 @@
     "vscode-languageserver": "^9.0.1"
   },
   "devDependencies": {
+    "prettier": "^3.0.0",
     "@rauschma/env-var": "^1.0.1",
     "@types/vscode": "^1.90.0",
     "@types/mocha": "^10.0.6",

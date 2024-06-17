@@ -29,13 +29,11 @@ export function activate(context: vscode.ExtensionContext) {
       "release",
       "sqruff" + program_extension,
     ),
-    "sqruff",
   ];
 
   let serverModule = lspSearchPaths.find((path) => existsSync(path));
   if (serverModule === undefined) {
-    console.warn("Could not locate sqruff server binary");
-    return;
+    serverModule = "sqruff";
   }
 
   let args = ["lsp"];
@@ -51,4 +49,4 @@ export function activate(context: vscode.ExtensionContext) {
   cl.start();
 }
 
-export function deactivate() {}
+export function deactivate() { }

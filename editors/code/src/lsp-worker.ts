@@ -1,11 +1,10 @@
-import sqruffInit, * as sqruff_lsp from "../dist/lsp";
+import sqruffInit, * as sqruffLsp from "../dist/lsp";
 import sqruffWasmData from "../dist/lsp_bg.wasm";
 
 import {
   createConnection,
   BrowserMessageReader,
   BrowserMessageWriter,
-  TextDocumentSyncKind,
   PublishDiagnosticsParams,
 } from "vscode-languageserver/browser";
 
@@ -18,7 +17,7 @@ sqruffInit(sqruffWasmData).then(() => {
   const sendDiagnosticsCallback = (params: PublishDiagnosticsParams) =>
     connection.sendDiagnostics(params);
 
-  let lsp = new sqruff_lsp.Wasm(sendDiagnosticsCallback);
+  let lsp = new sqruffLsp.Wasm(sendDiagnosticsCallback);
 
   connection.onInitialize(() => lsp.onInitialize());
   connection.onNotification((...args) => lsp.onNotification(...args));

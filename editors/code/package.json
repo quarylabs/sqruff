@@ -7,7 +7,7 @@
     "vscode": "^1.89.1"
   },
   "categories": [
-    "SQL", "Linting", "Formatting"
+    "Linters", "Formatters"
   ],
   "activationEvents": [
     "onLanguage:sql"

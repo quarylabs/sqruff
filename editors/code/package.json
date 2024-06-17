@@ -12,7 +12,8 @@
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Linters", "Formatters"
+    "Linters",
+    "Formatters"
   ],
   "activationEvents": [
     "onLanguage:sql"
@@ -20,12 +21,12 @@
   "main": "./dist/native.js",
   "browser": "./dist/browser.js",
   "scripts": {
-    "vscode:prepublish": "npm run build:wasm_lsp-release && npm run package",
+    "vscode:prepublish": "npm run lint && npm run check-types && npm run build:wasm_lsp-release && npm run package && node esbuild.js --production",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "package": "vsce package",
     "build:wasm_lsp": "env-var wasm-pack build --dev --target web ../../crates/lsp --out-dir {{npm_config_local_prefix}}/dist",
     "build:wasm_lsp-release": "env-var wasm-pack build --release --target web ../../crates/lsp --out-dir {{npm_config_local_prefix}}/dist",
     "compile-tests": "tsc -p . --outDir out",
@@ -39,23 +40,24 @@
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=."
   },
   "dependencies": {
+    "@vscode/vsce": "^2.27.0",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1"
   },
   "devDependencies": {
-    "prettier": "^3.0.0",
     "@rauschma/env-var": "^1.0.1",
-    "@types/vscode": "^1.90.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "20.x",
+    "@types/vscode": "^1.90.0",
     "@typescript-eslint/eslint-plugin": "^7.11.0",
     "@typescript-eslint/parser": "^7.11.0",
-    "eslint": "^8.57.0",
-    "esbuild": "^0.21.4",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.4.5",
     "@vscode/test-cli": "^0.0.9",
     "@vscode/test-electron": "^2.4.0",
-    "@vscode/test-web": "^0.0.54"
+    "@vscode/test-web": "^0.0.54",
+    "esbuild": "^0.21.4",
+    "eslint": "^8.57.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.0.0",
+    "typescript": "^5.4.5"
   }
 }

@@ -4,6 +4,7 @@ set -eo pipefail
 # Extract version from Cargo.toml
 cargo_version_cli=$(grep "^version" crates/cli/Cargo.toml | awk -F '"' '{print $2}')
 cargo_version_lib=$(grep "^version" crates/lib/Cargo.toml | awk -F '"' '{print $2}')
+cargo_version_lsp=$(grep "^version" crates/lsp/Cargo.toml | awk -F '"' '{print $2}')
 
 # Optional GitHub release version passed as an argument
 github_release_version=$1
@@ -17,6 +18,7 @@ compare_versions() {
 }
 
 compare_versions "$cargo_version_cli" "$cargo_version_lib"
+compare_versions "$cargo_version_cli" "$cargo_version_lsp"
 
 # Extract version from package.json in VS Code and compare
 code_version=$(grep "\"version\"" editors/code/package.json | awk -F '"' '{print $4}')

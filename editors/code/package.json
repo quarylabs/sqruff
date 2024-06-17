@@ -2,9 +2,14 @@
   "name": "sqruff",
   "displayName": "Sqruff",
   "description": "Sqruff is a SQL linter and formatter.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quarylabs/sqruff.git"
+  },
+  "publisher": "Quary",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.89.1"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Linters", "Formatters"

@@ -95,7 +95,7 @@ impl Linter {
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
 
         // Scan the raw file for config commands.
-        self.config.process_raw_file_for_config(&in_str);
+        self.config.process_raw_file_for_config(in_str);
         let rendered = self.render_string(in_str, f_name.clone(), &self.config, Some(encoding))?;
 
         for violation in &rendered.templater_violations {

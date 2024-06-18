@@ -1,3 +1,4 @@
+import { FormattingOptions } from "vscode";
 import sqruffInit, * as sqruffLsp from "../dist/lsp";
 import sqruffWasmData from "../dist/lsp_bg.wasm";
 
@@ -6,6 +7,8 @@ import {
   BrowserMessageReader,
   BrowserMessageWriter,
   PublishDiagnosticsParams,
+  RequestType,
+  DocumentFormattingParams,
 } from "vscode-languageserver/browser";
 
 sqruffInit(sqruffWasmData).then(() => {
@@ -20,6 +23,12 @@ sqruffInit(sqruffWasmData).then(() => {
   let lsp = new sqruffLsp.Wasm(sendDiagnosticsCallback);
 
   connection.onInitialize(() => lsp.onInitialize());
+  connection.onRequest(
+    "textDocument/formatting",
+    (params: DocumentFormattingParams) => {
+      return lsp.format(params.textDocument.uri);
+    },
+  );
   connection.onNotification((...args) => lsp.onNotification(...args));
   connection.listen();
 

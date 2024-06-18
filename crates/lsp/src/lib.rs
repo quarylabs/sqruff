@@ -17,6 +17,16 @@ use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
 use wasm_bindgen::prelude::*;
 
+fn load_config() -> FluffConfig {
+    match FluffConfig::from_root(None, false, None) {
+        Ok(config) => config,
+        Err(_) => {
+            // TODO: show error message to the user
+            FluffConfig::default()
+        }
+    }
+}
+
 fn server_initialize_result() -> InitializeResult {
     InitializeResult {
         capabilities: ServerCapabilities {
@@ -72,7 +82,7 @@ impl Wasm {
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
         Self {
-            linter: Linter::new(FluffConfig::from_root(None, false, None).unwrap(), None, None),
+            linter: Linter::new(load_config(), None, None),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: AHashMap::new(),
         }
@@ -115,17 +125,20 @@ impl LanguageServer {
         match method {
             DidOpenTextDocument::METHOD => {
                 let params: DidOpenTextDocumentParams = serde_json::from_value(params).unwrap();
-                let TextDocumentItem { uri, language_id: _, version, text } = params.text_document;
+                let TextDocumentItem { uri, language_id: _, version: _, text } =
+                    params.text_document;
 
-                self.check_file(uri, text, version);
+                self.check_file(uri.clone(), &text);
+                self.documents.insert(uri, text);
             }
             DidChangeTextDocument::METHOD => {
                 let params: DidChangeTextDocumentParams = serde_json::from_value(params).unwrap();
 
                 let content = params.content_changes[0].text.clone();
-                let VersionedTextDocumentIdentifier { uri, version } = params.text_document;
+                let VersionedTextDocumentIdentifier { uri, version: _ } = params.text_document;
 
-                self.check_file(uri, content, version);
+                self.check_file(uri.clone(), &content);
+                self.documents.insert(uri, content);
             }
             DidCloseTextDocument::METHOD => {
                 let params: DidCloseTextDocumentParams = serde_json::from_value(params).unwrap();
@@ -136,16 +149,24 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    *self.linter.config_mut() = FluffConfig::from_root(None, false, None).unwrap();
+                    *self.linter.config_mut() = load_config();
+
+                    self.recheck_files();
                 }
             }
             _ => {}
         }
     }
 
-    fn check_file(&mut self, uri: Uri, text: String, version: i32) {
+    fn recheck_files(&mut self) {
+        for (uri, text) in self.documents.iter() {
+            self.check_file(uri.clone(), text);
+        }
+    }
+
+    fn check_file(&self, uri: Uri, text: &str) {
         let rule_pack = self.linter.get_rulepack().rules();
-        let result = self.linter.lint_string(&text, None, None, None, rule_pack, false);
+        let result = self.linter.lint_string(text, None, None, None, rule_pack, false);
 
         let diagnostics = result
             .violations
@@ -171,10 +192,8 @@ impl LanguageServer {
             })
             .collect();
 
-        let diagnostics = PublishDiagnosticsParams::new(uri.clone(), diagnostics, version.into());
+        let diagnostics = PublishDiagnosticsParams::new(uri.clone(), diagnostics, None);
         (self.send_diagnostics_callback)(diagnostics);
-
-        self.documents.insert(uri, text);
     }
 }
 

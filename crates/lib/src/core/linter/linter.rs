@@ -113,7 +113,7 @@ impl Linter {
     /// Lint a string.
     #[allow(clippy::too_many_arguments)]
     pub fn lint_string(
-        &mut self,
+        &self,
         in_str: &str,
         f_name: Option<String>,
         config: Option<&FluffConfig>,

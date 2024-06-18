@@ -95,7 +95,7 @@ mod tests {
     #[test]
     fn simple_fail() {
         let sql = "SELECT SUM (1)";
-        let result = fix(sql.to_string(), vec![RuleLT06::default().erased()]);
+        let result = fix(sql, vec![RuleLT06::default().erased()]);
         assert_eq!(result, "SELECT SUM(1)");
     }
 

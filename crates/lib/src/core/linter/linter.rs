@@ -56,7 +56,7 @@ impl Linter {
     /// Lint strings directly.
     pub fn lint_string_wrapped(
         &mut self,
-        sql: String,
+        sql: &str,
         f_name: Option<String>,
         fix: Option<bool>,
         rules: Vec<ErasedRule>,
@@ -65,9 +65,8 @@ impl Linter {
 
         let mut linted_path = LintedDir::new(f_name.clone());
         linted_path.add(self.lint_string(
-            Some(sql),
+            sql,
             Some(f_name),
-            fix,
             None,
             None,
             rules,
@@ -84,7 +83,7 @@ impl Linter {
     #[allow(unused_variables)]
     pub fn parse_string(
         &self,
-        in_str: String,
+        in_str: &str,
         f_name: Option<String>,
         encoding: Option<String>,
         parse_statistics: Option<bool>,
@@ -115,9 +114,8 @@ impl Linter {
     #[allow(clippy::too_many_arguments)]
     pub fn lint_string(
         &mut self,
-        in_str: Option<String>,
+        in_str: &str,
         f_name: Option<String>,
-        _fix: Option<bool>,
         config: Option<&FluffConfig>,
         _encoding: Option<String>,
         rules: Vec<ErasedRule>,
@@ -126,8 +124,7 @@ impl Linter {
         // Sort out config, defaulting to the built in config if no override
         let _defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
-        let parsed =
-            self.parse_string(in_str.unwrap_or("".to_string()), f_name, None, None).unwrap();
+        let parsed = self.parse_string(in_str, f_name, None, None).unwrap();
 
         // Lint the file and return the LintedFile
         self.lint_parsed(parsed, rules, fix)
@@ -174,7 +171,7 @@ impl Linter {
 
     pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
-        self.render_string(in_str, fname, &self.config, None).unwrap()
+        self.render_string(&in_str, fname, &self.config, None).unwrap()
     }
 
     pub fn lint_rendered(
@@ -323,12 +320,12 @@ impl Linter {
     /// Template the file.
     pub fn render_string(
         &self,
-        in_str: String,
+        in_str: &str,
         f_name: String,
         config: &FluffConfig,
         encoding: Option<String>,
     ) -> Result<RenderedFile, SQLFluffUserError> {
-        let in_str = Self::normalise_newlines(in_str.as_str());
+        let in_str = Self::normalise_newlines(in_str);
 
         if let Some(error) = config.verify_dialect_specified() {
             return Err(error);
@@ -718,7 +715,7 @@ mod tests {
         .to_string();
 
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let _parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let _parsed = linter.parse_string(&sql, None, None, None).unwrap();
     }
 
     #[test]

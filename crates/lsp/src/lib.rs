@@ -1,10 +1,14 @@
-use lsp_server::{Connection, Message};
+use ahash::AHashMap;
+use lsp_server::{Connection, Message, RequestId, Response};
 use lsp_types::notification::{
-    DidChangeTextDocument, DidOpenTextDocument, Notification, PublishDiagnostics,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Notification,
+    PublishDiagnostics,
 };
+use lsp_types::request::{Formatting, Request};
 use lsp_types::{
-    Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidOpenTextDocumentParams,
-    InitializeParams, InitializeResult, PublishDiagnosticsParams, ServerCapabilities,
+    Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams, DocumentFormattingParams, InitializeParams, InitializeResult, OneOf,
+    Position, PublishDiagnosticsParams, ServerCapabilities, TextDocumentIdentifier,
     TextDocumentItem, TextDocumentSyncCapability, TextDocumentSyncKind, Uri,
     VersionedTextDocumentIdentifier,
 };
@@ -17,6 +21,7 @@ fn server_initialize_result() -> InitializeResult {
     InitializeResult {
         capabilities: ServerCapabilities {
             text_document_sync: TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL).into(),
+            document_formatting_provider: OneOf::Left(true).into(),
             ..Default::default()
         },
         server_info: None,
@@ -26,6 +31,7 @@ fn server_initialize_result() -> InitializeResult {
 pub struct LanguageServer {
     linter: Linter,
     send_diagnostics_callback: Box<dyn Fn(PublishDiagnosticsParams)>,
+    documents: AHashMap<Uri, String>,
 }
 
 #[wasm_bindgen]
@@ -61,6 +67,39 @@ impl LanguageServer {
         Self {
             linter: Linter::new(FluffConfig::default(), None, None),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
+            documents: AHashMap::new(),
+        }
+    }
+
+    fn on_request(&mut self, id: RequestId, method: &str, params: Value) -> Option<Response> {
+        match method {
+            Formatting::METHOD => {
+                let DocumentFormattingParams {
+                    text_document: TextDocumentIdentifier { uri }, ..
+                } = serde_json::from_value(params).unwrap();
+
+                let rule_pack = self.linter.get_rulepack().rules();
+                let text = &self.documents[&uri];
+                let tree = self.linter.lint_string(&text, None, None, None, rule_pack, true);
+
+                let new_text = tree.fix_string();
+                let start_position = Position { line: 0, character: 0 };
+                let end_position = Position {
+                    line: new_text.lines().count() as u32,
+                    character: new_text.chars().count() as u32,
+                };
+
+                let resp = lsp_server::Response::new_ok(
+                    id,
+                    vec![lsp_types::TextEdit {
+                        range: lsp_types::Range::new(start_position, end_position),
+                        new_text,
+                    }],
+                );
+
+                Some(resp)
+            }
+            _ => return None,
         }
     }
 
@@ -80,14 +119,17 @@ impl LanguageServer {
 
                 self.check_file(uri, content, version);
             }
+            DidCloseTextDocument::METHOD => {
+                let params: DidCloseTextDocumentParams = serde_json::from_value(params).unwrap();
+                self.documents.remove(&params.text_document.uri);
+            }
             _ => {}
         }
     }
 
     fn check_file(&mut self, uri: Uri, text: String, version: i32) {
         let rule_pack = self.linter.get_rulepack().rules();
-        let result =
-            self.linter.lint_string(text.into(), None, false.into(), None, None, rule_pack, false);
+        let result = self.linter.lint_string(&text, None, None, None, rule_pack, false);
 
         let diagnostics = result
             .violations
@@ -113,8 +155,10 @@ impl LanguageServer {
             })
             .collect();
 
-        let diagnostics = PublishDiagnosticsParams::new(uri, diagnostics, version.into());
+        let diagnostics = PublishDiagnosticsParams::new(uri.clone(), diagnostics, version.into());
         (self.send_diagnostics_callback)(diagnostics);
+
+        self.documents.insert(uri, text);
     }
 }
 
@@ -130,6 +174,7 @@ pub fn run() {
 
     io_threads.join().unwrap();
 }
+
 fn main_loop(connection: Connection, _init_param: InitializeParams) {
     let sender = connection.sender.clone();
     let mut lsp = LanguageServer::new(move |diagnostics| {
@@ -143,10 +188,15 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
                 if connection.handle_shutdown(&request).unwrap() {
                     return;
                 }
+
+                if let Some(response) = lsp.on_request(request.id, &request.method, request.params)
+                {
+                    connection.sender.send(Message::Response(response)).unwrap();
+                }
             }
             Message::Response(_) => {}
             Message::Notification(notification) => {
-                lsp.on_notification(&notification.method, notification.params)
+                lsp.on_notification(&notification.method, notification.params);
             }
         }
     }

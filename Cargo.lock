@@ -887,6 +887,7 @@ checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 name = "lsp"
 version = "0.7.4"
 dependencies = [
+ "ahash",
  "console_error_panic_hook",
  "js-sys",
  "lsp-server",

@@ -6610,7 +6610,7 @@ mod tests {
 
         for (raw, err_locations) in tests {
             let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-            let parsed = lnt.parse_string(raw.to_string(), None, None, None).unwrap();
+            let parsed = lnt.parse_string(raw, None, None, None).unwrap();
             assert!(!parsed.violations.is_empty());
 
             let locs: Vec<(usize, usize)> =
@@ -6626,7 +6626,7 @@ mod tests {
             std::fs::read_to_string("test/fixtures/dialects/ansi/select_in_multiline_comment.sql")
                 .expect("Unable to read file");
 
-        let parsed = lnt.parse_string(file_content, None, None, None).unwrap();
+        let parsed = lnt.parse_string(&file_content, None, None, None).unwrap();
 
         for raw_seg in parsed.tree.unwrap().get_raw_segments() {
             if raw_seg.is_type("whitespace") || raw_seg.is_type("newline") {
@@ -6647,7 +6647,7 @@ mod tests {
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
 
         for (sql_string, meta_loc) in cases {
-            let parsed = lnt.parse_string(sql_string.to_string(), None, None, None).unwrap();
+            let parsed = lnt.parse_string(sql_string, None, None, None).unwrap();
             let tree = parsed.tree.unwrap();
 
             let res_meta_locs = tree

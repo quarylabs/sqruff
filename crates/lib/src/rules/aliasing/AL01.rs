@@ -143,7 +143,7 @@ mod tests {
     #[test]
     fn test_fail_default_explicit() {
         let sql = "select foo.bar from table1 foo";
-        let result = fix(sql.to_string(), vec![RuleAL01::default().erased()]);
+        let result = fix(sql, vec![RuleAL01::default().erased()]);
 
         assert_eq!(result, "select foo.bar from table1 AS foo");
     }
@@ -151,8 +151,7 @@ mod tests {
     #[test]
     fn test_fail_explicit() {
         let sql = "select foo.bar from table1 foo";
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Explicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Explicit).erased()]);
 
         assert_eq!(result, "select foo.bar from table1 AS foo");
     }
@@ -160,8 +159,7 @@ mod tests {
     #[test]
     fn test_fail_implicit() {
         let sql = "select foo.bar from table1 AS foo";
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
 
         assert_eq!(result, "select foo.bar from table1 foo");
     }
@@ -169,7 +167,7 @@ mod tests {
     #[test]
     fn test_fail_implicit_alias() {
         let sql = "select foo.bar from (select 1 as bar)foo";
-        let result = fix(sql.to_string(), vec![RuleAL01::default().erased()]);
+        let result = fix(sql, vec![RuleAL01::default().erased()]);
 
         assert_eq!(result, "select foo.bar from (select 1 as bar) AS foo");
     }
@@ -177,7 +175,7 @@ mod tests {
     #[test]
     fn test_fail_implicit_alias_space() {
         let sql = "select foo.bar from (select 1 as bar) foo";
-        let result = fix(sql.to_string(), vec![RuleAL01::default().erased()]);
+        let result = fix(sql, vec![RuleAL01::default().erased()]);
 
         assert_eq!(result, "select foo.bar from (select 1 as bar) AS foo");
     }
@@ -185,8 +183,7 @@ mod tests {
     #[test]
     fn test_fail_implicit_alias_explicit() {
         let sql = "select foo.bar from (select 1 as bar) foo";
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Explicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Explicit).erased()]);
 
         assert_eq!(result, "select foo.bar from (select 1 as bar) AS foo");
     }
@@ -194,8 +191,7 @@ mod tests {
     #[test]
     fn test_fail_implicit_alias_implicit() {
         let sql = "select foo.bar from (select 1 as bar) AS foo";
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
 
         assert_eq!(result, "select foo.bar from (select 1 as bar) foo");
     }
@@ -203,8 +199,7 @@ mod tests {
     #[test]
     fn test_fail_implicit_alias_implicit_multiple() {
         let sql = "select foo.bar from (select 1 as bar) AS bar, (select 1 as foo) AS foo";
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
 
         assert_eq!(result, "select foo.bar from (select 1 as bar) bar, (select 1 as foo) foo");
     }
@@ -212,8 +207,7 @@ mod tests {
     #[test]
     fn test_fail_implicit_alias_implicit_newline() {
         let sql = "select foo.bar from (select 1 as bar)\nAS foo";
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
 
         assert_eq!(result, "select foo.bar from (select 1 as bar)\nfoo");
     }
@@ -224,7 +218,7 @@ mod tests {
         let sql = "MERGE dataset.inventory t\nUSING dataset.newarrivals s\n    ON t.product = \
                    s.product\nWHEN MATCHED THEN\n    UPDATE SET quantity = t.quantity + \
                    s.quantity;";
-        let result = fix(sql.to_string(), vec![RuleAL01::default().erased()]);
+        let result = fix(sql, vec![RuleAL01::default().erased()]);
         assert_eq!(
             result,
             "MERGE dataset.inventory AS t\nUSING dataset.newarrivals AS s\n    ON t.product = \
@@ -238,8 +232,7 @@ mod tests {
         let sql = "MERGE dataset.inventory t\nUSING dataset.newarrivals s\n    ON t.product = \
                    s.product\nWHEN MATCHED THEN\n    UPDATE SET quantity = t.quantity + \
                    s.quantity;";
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Explicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Explicit).erased()]);
         assert_eq!(
             result,
             "MERGE dataset.inventory AS t\nUSING dataset.newarrivals AS s\n    ON t.product = \
@@ -255,15 +248,14 @@ mod tests {
         // This test seems to expect the same SQL to be valid under implicit aliasing
         // settings, hence no change in the result. Assuming `fix` returns the
         // original SQL if no changes are required.
-        let result =
-            fix(sql.to_string(), vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
+        let result = fix(sql, vec![RuleAL01::default().aliasing(Aliasing::Implicit).erased()]);
         assert_eq!(result, sql);
     }
 
     #[test]
     fn test_alias_expression_4492() {
         let sql = "SELECT\n    voo.a\nFROM foo voo";
-        let result = fix(sql.to_string(), vec![RuleAL01::default().erased()]);
+        let result = fix(sql, vec![RuleAL01::default().erased()]);
         assert_eq!(result, "SELECT\n    voo.a\nFROM foo AS voo");
     }
 }

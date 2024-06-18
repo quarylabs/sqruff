@@ -69,14 +69,9 @@ mod tests {
       from x"
             .into();
 
-        let violations = lint(
-            pass_str.into(),
-            "snowflake".into(),
-            vec![RuleAL02::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str, "snowflake".into(), vec![RuleAL02::default().erased()], None, None)
+                .unwrap();
         assert_eq!(violations, []);
     }
 
@@ -92,8 +87,7 @@ mod tests {
     fn test_fail_explicit_column_explicit() {
         let sql = "select 1 bar from table1 b";
 
-        let result =
-            fix(sql.to_string(), vec![RuleAL02::default().aliasing(Aliasing::Explicit).erased()]);
+        let result = fix(sql, vec![RuleAL02::default().aliasing(Aliasing::Explicit).erased()]);
 
         assert_eq!(result, "select 1 AS bar from table1 b");
     }
@@ -102,8 +96,7 @@ mod tests {
     fn test_fail_explicit_column_implicit() {
         let sql = "select 1 AS bar from table1 b";
 
-        let result =
-            fix(sql.to_string(), vec![RuleAL02::default().aliasing(Aliasing::Implicit).erased()]);
+        let result = fix(sql, vec![RuleAL02::default().aliasing(Aliasing::Implicit).erased()]);
 
         assert_eq!(result, "select 1 bar from table1 b");
     }
@@ -111,8 +104,7 @@ mod tests {
     #[test]
     fn test_fail_alias_ending_raw_equals() {
         let sql = "select col1 raw_equals";
-        let result =
-            fix(sql.to_string(), vec![RuleAL02::default().aliasing(Aliasing::Explicit).erased()]);
+        let result = fix(sql, vec![RuleAL02::default().aliasing(Aliasing::Explicit).erased()]);
 
         assert_eq!(result, "select col1 AS raw_equals");
     }

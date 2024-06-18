@@ -1,4 +1,3 @@
-import { FormattingOptions } from "vscode";
 import sqruffInit, * as sqruffLsp from "../dist/lsp";
 import sqruffWasmData from "../dist/lsp_bg.wasm";
 

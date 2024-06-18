@@ -60,6 +60,13 @@ impl Wasm {
     pub fn on_notification(&mut self, method: &str, params: JsValue) {
         self.0.on_notification(method, serde_wasm_bindgen::from_value(params).unwrap())
     }
+
+    #[wasm_bindgen]
+    pub fn format(&mut self, uri: JsValue) -> JsValue {
+        let uri = serde_wasm_bindgen::from_value(uri).unwrap();
+        let edits = self.0.format(uri);
+        serde_wasm_bindgen::to_value(&edits).unwrap()
+    }
 }
 
 impl LanguageServer {
@@ -78,29 +85,30 @@ impl LanguageServer {
                     text_document: TextDocumentIdentifier { uri }, ..
                 } = serde_json::from_value(params).unwrap();
 
-                let rule_pack = self.linter.get_rulepack().rules();
-                let text = &self.documents[&uri];
-                let tree = self.linter.lint_string(&text, None, None, None, rule_pack, true);
-
-                let new_text = tree.fix_string();
-                let start_position = Position { line: 0, character: 0 };
-                let end_position = Position {
-                    line: new_text.lines().count() as u32,
-                    character: new_text.chars().count() as u32,
-                };
-
-                let resp = lsp_server::Response::new_ok(
-                    id,
-                    vec![lsp_types::TextEdit {
-                        range: lsp_types::Range::new(start_position, end_position),
-                        new_text,
-                    }],
-                );
-
-                Some(resp)
+                let edits = self.format(uri);
+                Some(lsp_server::Response::new_ok(id, edits))
             }
-            _ => return None,
+            _ => None,
         }
+    }
+
+    fn format(&mut self, uri: Uri) -> Vec<lsp_types::TextEdit> {
+        let rule_pack = self.linter.get_rulepack().rules();
+        let text = &self.documents[&uri];
+        let tree = self.linter.lint_string(text, None, None, None, rule_pack, true);
+
+        let new_text = tree.fix_string();
+        let start_position = Position { line: 0, character: 0 };
+        let end_position = Position {
+            line: new_text.lines().count() as u32,
+            character: new_text.chars().count() as u32,
+        };
+
+        let result = vec![lsp_types::TextEdit {
+            range: lsp_types::Range::new(start_position, end_position),
+            new_text,
+        }];
+        result
     }
 
     pub fn on_notification(&mut self, method: &str, params: Value) {

@@ -1,16 +1,16 @@
 use ahash::AHashMap;
-use lsp_server::{Connection, Message, RequestId, Response};
+use lsp_server::{Connection, Message, Request, RequestId, Response};
 use lsp_types::notification::{
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Notification,
-    PublishDiagnostics,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
+    Notification, PublishDiagnostics,
 };
-use lsp_types::request::{Formatting, Request};
+use lsp_types::request::{Formatting, Request as _};
 use lsp_types::{
     Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams, DocumentFormattingParams, InitializeParams, InitializeResult, OneOf,
-    Position, PublishDiagnosticsParams, ServerCapabilities, TextDocumentIdentifier,
-    TextDocumentItem, TextDocumentSyncCapability, TextDocumentSyncKind, Uri,
-    VersionedTextDocumentIdentifier,
+    DidOpenTextDocumentParams, DidSaveTextDocumentParams, DocumentFormattingParams,
+    InitializeParams, InitializeResult, OneOf, Position, PublishDiagnosticsParams, Registration,
+    ServerCapabilities, TextDocumentIdentifier, TextDocumentItem, TextDocumentSyncCapability,
+    TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
 use sqruff_lib::core::config::FluffConfig;
@@ -40,10 +40,10 @@ pub struct Wasm(LanguageServer);
 #[wasm_bindgen]
 impl Wasm {
     #[wasm_bindgen(constructor)]
-    pub fn new(send_diagnostics_callback: &js_sys::Function) -> Self {
+    pub fn new(send_diagnostics_callback: js_sys::Function) -> Self {
         console_error_panic_hook::set_once();
 
-        let send_diagnostics_callback = Box::leak(Box::new(send_diagnostics_callback.clone()));
+        let send_diagnostics_callback = Box::leak(Box::new(send_diagnostics_callback));
 
         Self(LanguageServer::new(|diagnostics| {
             let diagnostics = serde_wasm_bindgen::to_value(&diagnostics).unwrap();
@@ -72,7 +72,7 @@ impl Wasm {
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
         Self {
-            linter: Linter::new(FluffConfig::default(), None, None),
+            linter: Linter::new(FluffConfig::from_root(None, false, None).unwrap(), None, None),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: AHashMap::new(),
         }
@@ -130,6 +130,14 @@ impl LanguageServer {
             DidCloseTextDocument::METHOD => {
                 let params: DidCloseTextDocumentParams = serde_json::from_value(params).unwrap();
                 self.documents.remove(&params.text_document.uri);
+            }
+            DidSaveTextDocument::METHOD => {
+                let params: DidSaveTextDocumentParams = serde_json::from_value(params).unwrap();
+                let uri = params.text_document.uri.as_str();
+
+                if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
+                    *self.linter.config_mut() = FluffConfig::from_root(None, false, None).unwrap();
+                }
             }
             _ => {}
         }
@@ -189,6 +197,38 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
         let notification = new_notification::<PublishDiagnostics>(diagnostics);
         sender.send(Message::Notification(notification)).unwrap();
     });
+
+    let save_registration_options = lsp_types::TextDocumentSaveRegistrationOptions {
+        include_text: false.into(),
+        text_document_registration_options: lsp_types::TextDocumentRegistrationOptions {
+            document_selector: Some(vec![
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/.sqlfluff".into()),
+                },
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/.sqruff".into()),
+                },
+            ]),
+        },
+    };
+
+    let request = Request::new(
+        "textDocument-didSave".to_owned().into(),
+        "client/registerCapability".to_owned(),
+        lsp_types::RegistrationParams {
+            registrations: vec![Registration {
+                id: "textDocument/didSave".into(),
+                method: "textDocument/didSave".into(),
+                register_options: serde_json::to_value(save_registration_options).unwrap().into(),
+            }],
+        },
+    );
+
+    connection.sender.send(Message::Request(request)).unwrap();
 
     for message in &connection.receiver {
         match message {

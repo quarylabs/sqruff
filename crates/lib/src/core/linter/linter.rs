@@ -583,6 +583,10 @@ impl Linter {
         files.sort();
         files
     }
+
+    pub fn config_mut(&mut self) -> &mut FluffConfig {
+        &mut self.config
+    }
 }
 
 fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {

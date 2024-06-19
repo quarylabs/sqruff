@@ -140,6 +140,12 @@ impl FluffConfig {
         &self.raw[section][key]
     }
 
+    pub fn from_source(source: &str) -> FluffConfig {
+        let configs = ConfigLoader {}.from_source(source);
+
+        FluffConfig::new(configs, None, None)
+    }
+
     pub fn get_section(&self, section: &str) -> &AHashMap<String, Value> {
         self.raw[section].as_map().unwrap()
     }
@@ -425,6 +431,13 @@ impl ConfigLoader {
             }
         }
 
+        configs
+    }
+
+    pub fn from_source(&self, source: &str) -> AHashMap<String, Value> {
+        let mut configs = AHashMap::new();
+        let elems = self.get_config_elems_from_file(None, Some(source));
+        self.incorporate_vals(&mut configs, elems);
         configs
     }
 

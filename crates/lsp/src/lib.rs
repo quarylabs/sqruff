@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use ahash::AHashMap;
 use lsp_server::{Connection, Message, Request, RequestId, Response};
 use lsp_types::notification::{
@@ -65,6 +67,11 @@ impl Wasm {
             let diagnostics = serde_wasm_bindgen::to_value(&diagnostics).unwrap();
             send_diagnostics_callback.call1(&JsValue::null(), &diagnostics).unwrap();
         }))
+    }
+
+    #[wasm_bindgen(js_name = updateConfig)]
+    pub fn update_config(&self, source: &str)  {
+        todo!()
     }
 
     #[wasm_bindgen(js_name = onInitialize)]

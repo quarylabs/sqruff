@@ -17,8 +17,8 @@ sqruffInit(sqruffWasmData).then(() => {
 
   const connection = createConnection(reader, writer);
 
-  async function loadFile(path: string): Promise<string> {
-    return await connection.sendRequest("loadFile", path);
+  async function loadConfig(): Promise<string> {
+    return await connection.sendRequest("loadConfig");
   }
 
   const sendDiagnosticsCallback = (params: PublishDiagnosticsParams) =>
@@ -34,9 +34,8 @@ sqruffInit(sqruffWasmData).then(() => {
     },
   );
   connection.onNotification((...args) => {
-    console.log(args);
-    loadFile("vscode-test-web://mount/alter_sequence.sql").then((val) => {
-      console.log(val);
+    loadConfig().then((config) => {
+
     });
     lsp.onNotification(...args);
   });

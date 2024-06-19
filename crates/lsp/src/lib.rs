@@ -17,6 +17,7 @@ use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
 use wasm_bindgen::prelude::*;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn load_config() -> FluffConfig {
     match FluffConfig::from_root(None, false, None) {
         Ok(config) => config,
@@ -25,6 +26,11 @@ fn load_config() -> FluffConfig {
             FluffConfig::default()
         }
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn load_config() -> FluffConfig {
+    FluffConfig::default()
 }
 
 fn server_initialize_result() -> InitializeResult {

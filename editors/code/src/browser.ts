@@ -19,6 +19,14 @@ export function activate(context: vscode.ExtensionContext) {
       { documentSelector: [{ language: "sql" }] },
       worker,
     );
+
+    cl.onRequest("loadFile", async (path: string) => {
+      let contents = await vscode.workspace.fs.readFile(
+        vscode.Uri.parse(path, true),
+      );
+      return new TextDecoder().decode(contents);
+    });
+
     cl.start().then(() => {});
   };
 }

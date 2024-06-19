@@ -20,10 +20,26 @@ export function activate(context: vscode.ExtensionContext) {
       worker,
     );
 
-    cl.onRequest("loadFile", async (path: string) => {
-      let contents = await vscode.workspace.fs.readFile(
-        vscode.Uri.parse(path, true),
-      );
+    cl.onRequest("loadConfig", async (_path: string) => {
+      if (vscode.workspace.workspaceFolders === undefined) {
+        return "";
+      }
+
+      const uri = vscode.workspace.workspaceFolders[0].uri;
+      const fileNames = [".sqlfluff", ".sqruff"];
+      let contents = new Uint8Array();
+
+      for (const fileName of fileNames) {
+        try {
+          contents = await vscode.workspace.fs.readFile(
+            vscode.Uri.joinPath(uri, fileName),
+          );
+          break;
+        } catch (error) {
+          // Continue to the next file if an error occurs
+        }
+      }
+
       return new TextDecoder().decode(contents);
     });
 

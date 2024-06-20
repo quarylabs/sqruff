@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use ahash::AHashMap;
 use lsp_server::{Connection, Message, Request, RequestId, Response};
 use lsp_types::notification::{
@@ -69,9 +67,15 @@ impl Wasm {
         }))
     }
 
+    #[wasm_bindgen(js_name = saveRegistrationOptions)]
+    pub fn save_registration_options() -> JsValue {
+        serde_wasm_bindgen::to_value(&save_registration_options()).unwrap()
+    }
+
     #[wasm_bindgen(js_name = updateConfig)]
-    pub fn update_config(&self, source: &str)  {
-        todo!()
+    pub fn update_config(&mut self, source: &str) {
+        *self.0.linter.config_mut() = FluffConfig::from_source(source);
+        self.0.recheck_files();
     }
 
     #[wasm_bindgen(js_name = onInitialize)]
@@ -230,37 +234,15 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
         sender.send(Message::Notification(notification)).unwrap();
     });
 
-    let save_registration_options = lsp_types::TextDocumentSaveRegistrationOptions {
-        include_text: false.into(),
-        text_document_registration_options: lsp_types::TextDocumentRegistrationOptions {
-            document_selector: Some(vec![
-                lsp_types::DocumentFilter {
-                    language: None,
-                    scheme: None,
-                    pattern: Some("**/.sqlfluff".into()),
-                },
-                lsp_types::DocumentFilter {
-                    language: None,
-                    scheme: None,
-                    pattern: Some("**/.sqruff".into()),
-                },
-            ]),
-        },
-    };
-
-    let request = Request::new(
-        "textDocument-didSave".to_owned().into(),
-        "client/registerCapability".to_owned(),
-        lsp_types::RegistrationParams {
-            registrations: vec![Registration {
-                id: "textDocument/didSave".into(),
-                method: "textDocument/didSave".into(),
-                register_options: serde_json::to_value(save_registration_options).unwrap().into(),
-            }],
-        },
-    );
-
-    connection.sender.send(Message::Request(request)).unwrap();
+    let params = save_registration_options();
+    connection
+        .sender
+        .send(Message::Request(Request::new(
+            "textDocument-didSave".to_owned().into(),
+            "client/registerCapability".to_owned(),
+            params,
+        )))
+        .unwrap();
 
     for message in &connection.receiver {
         match message {
@@ -279,6 +261,34 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
                 lsp.on_notification(&notification.method, notification.params);
             }
         }
+    }
+}
+
+pub fn save_registration_options() -> lsp_types::RegistrationParams {
+    let save_registration_options = lsp_types::TextDocumentSaveRegistrationOptions {
+        include_text: false.into(),
+        text_document_registration_options: lsp_types::TextDocumentRegistrationOptions {
+            document_selector: Some(vec![
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/.sqlfluff".into()),
+                },
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/.sqruff".into()),
+                },
+            ]),
+        },
+    };
+
+    lsp_types::RegistrationParams {
+        registrations: vec![Registration {
+            id: "textDocument/didSave".into(),
+            method: "textDocument/didSave".into(),
+            register_options: serde_json::to_value(save_registration_options).unwrap().into(),
+        }],
     }
 }
 

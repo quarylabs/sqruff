@@ -133,6 +133,11 @@ jobs:
         with:
          command: publish
          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib
+      - name: Publish sqruff-lsp to Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lsp
       - name: Publish sqruff to Cargo
         uses: actions-rs/cargo@v1
         with:

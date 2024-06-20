@@ -884,21 +884,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 
 [[package]]
-name = "lsp"
-version = "0.7.6"
-dependencies = [
- "ahash",
- "console_error_panic_hook",
- "js-sys",
- "lsp-server",
- "lsp-types",
- "serde-wasm-bindgen",
- "serde_json",
- "sqruff-lib",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "lsp-server"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1533,8 +1518,8 @@ dependencies = [
  "clap",
  "clap-markdown",
  "console",
- "lsp",
  "sqruff-lib",
+ "sqruff-lsp",
  "tikv-jemallocator",
  "ui_test",
 ]
@@ -1577,6 +1562,21 @@ dependencies = [
  "unicase",
  "uuid",
  "walkdir",
+]
+
+[[package]]
+name = "sqruff-lsp"
+version = "0.7.6"
+dependencies = [
+ "ahash",
+ "console_error_panic_hook",
+ "js-sys",
+ "lsp-server",
+ "lsp-types",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "sqruff-lib",
+ "wasm-bindgen",
 ]
 
 [[package]]

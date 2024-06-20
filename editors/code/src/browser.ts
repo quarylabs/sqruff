@@ -16,9 +16,28 @@ export function activate(context: vscode.ExtensionContext) {
     const cl = new LanguageClient(
       "sqruff-lsp",
       "Sqruff LSP",
-      { documentSelector: [{ language: "sql" }] },
+      {
+        documentSelector: [{ language: "sql" }],
+      },
       worker,
     );
+
+    const fileEvents = [
+      vscode.workspace.createFileSystemWatcher("**/.sqruff"),
+      vscode.workspace.createFileSystemWatcher("**/.sqlfluff"),
+    ];
+
+    for (const fileEvent of fileEvents) {
+      fileEvent.onDidChange((_) => {
+        cl.sendRequest("changeConfig");
+      });
+      fileEvent.onDidCreate((_) => {
+        cl.sendRequest("changeConfig");
+      });
+      fileEvent.onDidDelete((_) => {
+        cl.sendRequest("deleteConfig");
+      });
+    }
 
     cl.onRequest("loadConfig", async (_path: string) => {
       if (vscode.workspace.workspaceFolders === undefined) {

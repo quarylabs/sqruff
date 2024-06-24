@@ -20,7 +20,21 @@ SQRUFF is an innovative SQL linter and formatter for modern development environm
 - **Formatting:** Automated, configurable formatting for SQL code consistency.
 - **Portability:** Designed to be easily integrated into various development workflows.
 
+## Dialects Supported 
+
+Sqruff currently supports the following SQL dialects:
+
+- **ANSI SQL** - Standard SQL syntax
+- [**BigQuery**](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
+- [**Clickhouse**](https://clickhouse.com/docs/en/sql-reference/)
+- [**PostgreSQL**](https://www.postgresql.org/docs/current/sql.html)
+- [**Snowflake**](https://docs.snowflake.com/en/sql-reference.html)
+
+While those above are the supported dialects, we are working on adding support for more dialects in the future.
+
 ## Getting Started
+
+In addition to the CLI installation mechanism listed below, sqruff is also released as a [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff).
 
 ### Installation
 

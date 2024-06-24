@@ -6,7 +6,7 @@ The following rules are available in this create. This list is generated from th
 
 | Rule Code | Rule Name | 
 |-----------|-----------|{% for rule in rules %}
-| {{ rule.code }} | [{{ rule.name }}](#{{ rule.name }}) |{% endfor %}
+| {{ rule.code }} | [{{ rule.name }}](#{{ rule.name_no_periods }}) |{% endfor %}
 
 ## Rule Details
 {% for rule in rules %}

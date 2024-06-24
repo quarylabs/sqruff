@@ -35,6 +35,7 @@ pub(crate) fn codegen_docs() {
 #[derive(Debug, Clone, Serialize)]
 struct Rule {
     pub name: &'static str,
+    pub name_no_periods: String,
     pub code: &'static str,
     pub description: &'static str,
     pub fixable: bool,
@@ -45,6 +46,7 @@ impl From<ErasedRule> for Rule {
     fn from(value: ErasedRule) -> Self {
         Rule {
             name: value.name(),
+            name_no_periods: value.name().replace('.', ""),
             code: value.code(),
             fixable: value.is_fix_compatible(),
             description: value.description(),

@@ -375,6 +375,28 @@ Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'.
 **Fixable:** No
 
 
+**Anti-pattern**
+
+`DISTINCT` and `GROUP BY are conflicting.
+
+```sql
+SELECT DISTINCT
+    a
+FROM foo
+GROUP BY a
+```
+
+**Best practice**
+
+Remove `DISTINCT` or `GROUP BY`. In our case, removing `GROUP BY` is better.
+
+
+```sql
+SELECT DISTINCT
+    a
+FROM foo
+```
+
 
 ### ambiguous.union
 
@@ -385,6 +407,27 @@ Look for UNION keyword not immediately followed by DISTINCT or ALL
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+In this example, `UNION DISTINCT` should be preferred over `UNION`, because explicit is better than implicit.
+
+
+```sql
+SELECT a, b FROM table_1
+UNION
+SELECT a, b FROM table_2
+```
+
+**Best practice**
+
+Specify `DISTINCT` or `ALL` after `UNION` (note that `DISTINCT` is the default behavior).
+
+```sql
+SELECT a, b FROM table_1
+UNION DISTINCT
+SELECT a, b FROM table_2
+```
+
 
 ### ambiguous.column_references
 
@@ -394,6 +437,28 @@ Inconsistent column references in 'GROUP BY/ORDER BY' clauses.
 
 **Fixable:** No
 
+
+**Anti-pattern**
+
+In this example, the ORRDER BY clause mixes explicit and implicit order by column references.
+
+```sql
+SELECT
+    a, b
+FROM foo
+ORDER BY a, b DESC
+```
+
+**Best practice**
+
+If any columns in the ORDER BY clause specify ASC or DESC, they should all do so.
+
+```sql
+SELECT
+    a, b
+FROM foo
+ORDER BY a ASC, b DESC
+```
 
 
 ### capitalisation.keywords

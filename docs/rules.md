@@ -4,46 +4,46 @@ The following rules are available in this create. This list is generated from th
 
 ## Rule Index
 
-| Rule Code | Rule Name | 
-|-----------|-----------|
-| AL01 | [aliasing.table](#aliasingtable) |
-| AL02 | [aliasing.column](#aliasingcolumn) |
-| AL03 | [aliasing.expression](#aliasingexpression) |
-| AL04 | [aliasing.unique.table](#aliasinguniquetable) |
-| AL05 | [aliasing.unused](#aliasingunused) |
-| AL06 | [aliasing.lenght](#aliasinglenght) |
-| AL07 | [aliasing.forbid](#aliasingforbid) |
-| AL08 | [layout.cte_newline](#layoutcte_newline) |
-| AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) |
-| AM01 | [ambiguous.distinct](#ambiguousdistinct) |
-| AM02 | [ambiguous.union](#ambiguousunion) |
-| AM06 | [ambiguous.column_references](#ambiguouscolumn_references) |
-| CP01 | [capitalisation.keywords](#capitalisationkeywords) |
-| CP02 | [capitalisation.identifiers](#capitalisationidentifiers) |
-| CP03 | [capitalisation.functions](#capitalisationfunctions) |
-| CP04 | [capitalisation.literals](#capitalisationliterals) |
-| CP05 | [capitalisation.types](#capitalisationtypes) |
-| CV02 | [convention.coalesce](#conventioncoalesce) |
-| CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) |
-| CV04 | [convention.count_rows](#conventioncount_rows) |
-| LT01 | [layout.spacing](#layoutspacing) |
-| LT02 | [layout.indent](#layoutindent) |
-| LT03 | [layout.operators](#layoutoperators) |
-| LT04 | [layout.commas](#layoutcommas) |
-| LT05 | [layout.long_lines](#layoutlong_lines) |
-| LT06 | [layout.functions](#layoutfunctions) |
-| LT07 | [layout.cte_bracket](#layoutcte_bracket) |
-| LT08 | [layout.cte_newline](#layoutcte_newline) |
-| LT09 | [layout.select_targets](#layoutselect_targets) |
-| LT10 | [layout.select_modifiers](#layoutselect_modifiers) |
-| LT11 | [layout.set_operators](#layoutset_operators) |
-| LT12 | [layout.end_of_file](#layoutend_of_file) |
-| RF01 | [references.from](#referencesfrom) |
-| RF03 | [references.consistent](#referencesconsistent) |
-| ST01 | [structure.else_null](#structureelse_null) |
-| ST02 | [structure.simple_case](#structuresimple_case) |
-| ST03 | [structure.unused_cte](#structureunused_cte) |
-| ST08 | [structure.distinct](#structuredistinct) |
+| Rule Code | Rule Name | Description |
+|-----------|-----------|-------------|
+| AL01 | [aliasing.table](#aliasingtable) | Implicit/explicit aliasing of table. | 
+| AL02 | [aliasing.column](#aliasingcolumn) | Implicit/explicit aliasing of columns. | 
+| AL03 | [aliasing.expression](#aliasingexpression) | Column expression without alias. Use explicit `AS` clause. | 
+| AL04 | [aliasing.unique.table](#aliasinguniquetable) | Table aliases should be unique within each clause. | 
+| AL05 | [aliasing.unused](#aliasingunused) | Tables should not be aliased if that alias is not used. | 
+| AL06 | [aliasing.lenght](#aliasinglenght) | Identify aliases in from clause and join conditions | 
+| AL07 | [aliasing.forbid](#aliasingforbid) | Avoid table aliases in from clauses and join conditions. | 
+| AL08 | [layout.cte_newline](#layoutcte_newline) | Column aliases should be unique within each clause. | 
+| AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) | Find self-aliased columns and fix them | 
+| AM01 | [ambiguous.distinct](#ambiguousdistinct) | Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'. | 
+| AM02 | [ambiguous.union](#ambiguousunion) | Look for UNION keyword not immediately followed by DISTINCT or ALL | 
+| AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. | 
+| CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. | 
+| CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. | 
+| CP03 | [capitalisation.functions](#capitalisationfunctions) | Inconsistent capitalisation of function names. | 
+| CP04 | [capitalisation.literals](#capitalisationliterals) | Inconsistent capitalisation of boolean/null literal. | 
+| CP05 | [capitalisation.types](#capitalisationtypes) | Inconsistent capitalisation of datatypes. | 
+| CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. | 
+| CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause | 
+| CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
+| LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
+| LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
+| LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. | 
+| LT04 | [layout.commas](#layoutcommas) | Leading/Trailing comma enforcement. | 
+| LT05 | [layout.long_lines](#layoutlong_lines) | Line is too long. | 
+| LT06 | [layout.functions](#layoutfunctions) | Function name not immediately followed by parenthesis. | 
+| LT07 | [layout.cte_bracket](#layoutcte_bracket) | 'WITH' clause closing bracket should be on a new line. | 
+| LT08 | [layout.cte_newline](#layoutcte_newline) | Blank line expected but not found after CTE closing bracket. | 
+| LT09 | [layout.select_targets](#layoutselect_targets) | Select targets should be on a new line unless there is only one select target. | 
+| LT10 | [layout.select_modifiers](#layoutselect_modifiers) | 'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'. | 
+| LT11 | [layout.set_operators](#layoutset_operators) | Set operators should be surrounded by newlines. | 
+| LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. | 
+| RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
+| RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
+| ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). | 
+| ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
+| ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
+| ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 
 ## Rule Details
 

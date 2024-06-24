@@ -17,11 +17,11 @@ type LocKeyData = (SmolStr, (usize, usize), &'static str, usize);
 #[derive(Debug, PartialEq, Eq)]
 pub struct Cache {
     loc: LocKey,
-    key: u32,
+    key: u64,
 }
 
 impl Cache {
-    pub fn new(loc: LocKey, key: u32) -> Self {
+    pub fn new(loc: LocKey, key: u64) -> Self {
         Self { loc, key }
     }
 }
@@ -29,7 +29,7 @@ impl Cache {
 #[cfg(target_pointer_width = "64")]
 impl std::hash::Hash for Cache {
     fn hash<H: std::hash::Hasher>(&self, h: &mut H) {
-        (((self.loc as u64) << 32) | (self.key as u64)).hash(h)
+        (((self.loc as u64) << 32) | (self.key)).hash(h)
     }
 }
 
@@ -129,7 +129,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn check_parse_cache(
         &self,
         loc_key: LocKey,
-        matcher_key: u32,
+        matcher_key: u64,
     ) -> Option<MatchResult> {
         self.parse_cache.get(&Cache::new(loc_key, matcher_key)).cloned()
     }
@@ -137,7 +137,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn put_parse_cache(
         &mut self,
         loc_key: LocKey,
-        matcher_key: u32,
+        matcher_key: u64,
         match_result: MatchResult,
     ) {
         self.parse_cache.insert(Cache::new(loc_key, matcher_key), match_result);

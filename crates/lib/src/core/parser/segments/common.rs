@@ -2,23 +2,22 @@ use std::borrow::Cow;
 
 use ahash::AHashSet;
 use smol_str::SmolStr;
-use uuid::Uuid;
 
 use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
-use crate::helpers::ToErasedSegment;
+use crate::helpers::{next_cache_key, ToErasedSegment};
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LiteralSegment {
     pub raw: SmolStr,
     pub position_maker: PositionMarker,
-    pub uuid: Uuid,
+    pub uuid: u64,
 }
 
 impl LiteralSegment {
     pub fn create(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
-        Self { raw: raw.into(), position_maker: position_maker.clone(), uuid: Uuid::new_v4() }
+        Self { raw: raw.into(), position_maker: position_maker.clone(), uuid: next_cache_key() }
             .to_erased_segment()
     }
 }
@@ -74,7 +73,7 @@ impl Segment for LiteralSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         self.uuid
     }
 
@@ -91,12 +90,12 @@ impl Segment for LiteralSegment {
 pub struct ComparisonOperatorSegment {
     pub raw: SmolStr,
     pub position_maker: PositionMarker,
-    pub uuid: Uuid,
+    pub uuid: u64,
 }
 
 impl ComparisonOperatorSegment {
     pub fn create(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
-        Self { raw: raw.into(), position_maker: position_maker.clone(), uuid: Uuid::new_v4() }
+        Self { raw: raw.into(), position_maker: position_maker.clone(), uuid: next_cache_key() }
             .to_erased_segment()
     }
 }
@@ -143,7 +142,7 @@ impl Segment for ComparisonOperatorSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         self.uuid
     }
 

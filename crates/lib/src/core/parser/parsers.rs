@@ -16,7 +16,7 @@ pub struct TypedParser {
     instance_types: Vec<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
-    cache_key: u32,
+    cache_key: u64,
     factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
@@ -62,7 +62,7 @@ impl TypedParser {
 impl Segment for TypedParser {}
 
 impl Matchable for TypedParser {
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 
@@ -99,7 +99,7 @@ pub struct StringParser {
     type_: Option<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
-    cache_key: u32,
+    cache_key: u64,
 }
 
 impl StringParser {
@@ -172,7 +172,7 @@ impl Matchable for StringParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }
@@ -182,7 +182,7 @@ pub struct RegexParser {
     template: Regex,
     anti_template: Option<Regex>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    cache_key: u32,
+    cache_key: u64,
 }
 
 impl PartialEq for RegexParser {
@@ -278,7 +278,7 @@ impl Matchable for RegexParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }
@@ -288,7 +288,7 @@ pub struct MultiStringParser {
     templates: AHashSet<String>,
     simple: AHashSet<String>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    cache_key: u32,
+    cache_key: u64,
 }
 
 impl MultiStringParser {
@@ -357,7 +357,7 @@ impl Matchable for MultiStringParser {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }

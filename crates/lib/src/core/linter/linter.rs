@@ -3,11 +3,11 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::{AHashMap, AHashSet, HashMapExt};
 use itertools::Itertools;
+use nohash_hasher::IntMap;
 use regex::Regex;
 use smol_str::{SmolStr, ToSmolStr};
-use uuid::Uuid;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
@@ -590,8 +590,8 @@ impl Linter {
     }
 }
 
-fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
-    let mut anchor_info = AHashMap::new();
+fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> IntMap<u64, AnchorEditInfo> {
+    let mut anchor_info = IntMap::new();
 
     for fix in fixes {
         let anchor_id = fix.anchor.get_uuid();

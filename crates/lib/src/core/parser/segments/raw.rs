@@ -5,6 +5,7 @@ use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{CloneSegment, Segment};
 use crate::core::parser::segments::fix::SourceFix;
+use crate::helpers::next_cache_key;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct RawSegment {
@@ -12,7 +13,7 @@ pub struct RawSegment {
     position_marker: Option<PositionMarker>,
 
     // From BaseSegment
-    uuid: Uuid,
+    uuid: u64,
 }
 
 pub struct RawSegmentArgs {
@@ -33,7 +34,7 @@ impl RawSegment {
         // we suggest using the `instance_types` option.
         _args: RawSegmentArgs,
     ) -> Self {
-        Self { position_marker, raw: raw.map(Into::into), uuid: Uuid::new_v4() }
+        Self { position_marker, raw: raw.map(Into::into), uuid: next_cache_key() }
     }
 }
 
@@ -70,7 +71,7 @@ impl Segment for RawSegment {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         self.uuid
     }
 

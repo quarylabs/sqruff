@@ -14,7 +14,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
-use crate::helpers::ToErasedSegment;
+use crate::helpers::{next_cache_key, ToErasedSegment};
 
 pub type Indent = MetaSegment<IndentChange>;
 
@@ -34,7 +34,7 @@ pub trait MetaSegmentKind: Debug + Hash + Clone + PartialEq + 'static {
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MetaSegment<M> {
-    uuid: Uuid,
+    uuid: u64,
     position_marker: Option<PositionMarker>,
     kind: M,
 }
@@ -42,7 +42,7 @@ pub struct MetaSegment<M> {
 impl MetaSegment<TemplateSegment> {
     pub fn template(pos_marker: PositionMarker, source_str: &str, block_type: &str) -> Self {
         MetaSegment {
-            uuid: Uuid::new_v4(),
+            uuid: next_cache_key(),
             position_marker: pos_marker.into(),
             kind: TemplateSegment::new(source_str.into(), block_type.into(), None, None),
         }
@@ -51,7 +51,7 @@ impl MetaSegment<TemplateSegment> {
 
 impl Indent {
     fn from_kind(kind: IndentChange) -> Self {
-        Self { kind, position_marker: None, uuid: Uuid::new_v4() }
+        Self { kind, position_marker: None, uuid: next_cache_key() }
     }
 
     pub fn indent() -> Self {
@@ -104,7 +104,7 @@ impl<M: MetaSegmentKind + Send + Sync> Segment for MetaSegment<M> {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         self.uuid
     }
 }
@@ -165,13 +165,13 @@ pub struct IndentNewArgs {}
 
 #[derive(Hash, Clone, Debug, PartialEq)]
 pub struct EndOfFile {
-    uuid: Uuid,
+    uuid: u64,
     position_maker: PositionMarker,
 }
 
 impl EndOfFile {
     pub fn create(position_maker: PositionMarker) -> ErasedSegment {
-        EndOfFile { position_maker, uuid: Uuid::new_v4() }.to_erased_segment()
+        EndOfFile { position_maker, uuid: next_cache_key() }.to_erased_segment()
     }
 }
 
@@ -220,7 +220,7 @@ impl Segment for EndOfFile {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         self.uuid
     }
 

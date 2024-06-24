@@ -3,7 +3,6 @@ use std::sync::OnceLock;
 
 use ahash::AHashSet;
 use itertools::Itertools;
-use uuid::Uuid;
 
 use super::base::{pos_marker, ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
@@ -20,8 +19,8 @@ pub struct BracketedSegment {
     pub start_bracket: Vec<ErasedSegment>,
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
-    pub uuid: Uuid,
-    cache_key: u32,
+    pub uuid: u64,
+    cache_key: u64,
 }
 
 impl PartialEq for BracketedSegment {
@@ -44,7 +43,7 @@ impl BracketedSegment {
             start_bracket,
             end_bracket,
             pos_marker: None,
-            uuid: Uuid::new_v4(),
+            uuid: next_cache_key(),
             raw: OnceLock::new(),
             cache_key: next_cache_key(),
         };
@@ -87,7 +86,7 @@ impl Segment for BracketedSegment {
         self.pos_marker = position_marker;
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         self.uuid
     }
 
@@ -119,7 +118,7 @@ impl Matchable for BracketedSegment {
         Ok(MatchResult::from_unmatched(segments.to_vec()))
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }

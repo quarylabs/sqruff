@@ -40,7 +40,7 @@ impl Matchable for NonCodeMatcher {
         Ok(MatchResult::new(segments[0..idx].to_vec(), segments[idx..].to_vec()))
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         0
     }
 }

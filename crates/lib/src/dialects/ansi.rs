@@ -6,7 +6,6 @@ use std::sync::{Arc, OnceLock};
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
 use smol_str::SmolStr;
-use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 use super::SyntaxKind;
@@ -36,7 +35,7 @@ use crate::core::parser::segments::fix::SourceFix;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
-use crate::helpers::{Config, ToErasedSegment, ToMatchable};
+use crate::helpers::{next_cache_key, Config, ToErasedSegment, ToMatchable};
 
 #[macro_export]
 macro_rules! vec_of_erased {
@@ -62,7 +61,7 @@ impl<T> BoxedE for T {
 pub struct Node {
     kind: SyntaxKind,
     segments: Vec<ErasedSegment>,
-    uuid: Uuid,
+    uuid: u64,
     position_marker: Option<PositionMarker>,
     raw: OnceLock<String>,
     source_fixes: Vec<SourceFix>,
@@ -75,7 +74,7 @@ impl Node {
         Self {
             kind,
             segments,
-            uuid: Uuid::new_v4(),
+            uuid: next_cache_key(),
             position_marker: position_marker.into(),
             raw: OnceLock::new(),
             source_fixes: Vec::new(),
@@ -149,7 +148,7 @@ impl Segment for Node {
         self.segments = segments;
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         self.uuid
     }
 
@@ -5839,7 +5838,7 @@ pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
 pub struct FileSegment {
     segments: Vec<ErasedSegment>,
     pos_marker: Option<PositionMarker>,
-    uuid: Uuid,
+    uuid: u64,
 }
 
 impl FileSegment {
@@ -5859,9 +5858,12 @@ impl FileSegment {
             segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
 
         if start_idx == end_idx {
-            let mut file =
-                FileSegment { segments: segments.to_vec(), uuid: Uuid::new_v4(), pos_marker: None }
-                    .to_erased_segment();
+            let mut file = FileSegment {
+                segments: segments.to_vec(),
+                uuid: next_cache_key(),
+                pos_marker: None,
+            }
+            .to_erased_segment();
 
             let b = pos_marker(file.segments()).into();
             file.get_mut().set_position_marker(b);
@@ -5912,7 +5914,7 @@ impl FileSegment {
         result.extend(content);
         result.extend_from_slice(&segments[end_idx..]);
 
-        let mut file = Self { segments: result, uuid: Uuid::new_v4(), pos_marker: None };
+        let mut file = Self { segments: result, uuid: next_cache_key(), pos_marker: None };
         file.set_position_marker(pos_marker(&file.segments).into());
 
         Ok(file.to_erased_segment())

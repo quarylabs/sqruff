@@ -4,7 +4,6 @@ use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
 use smol_str::ToSmolStr;
-use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLParseError;
@@ -25,7 +24,7 @@ pub struct Ref {
     reset_terminators: bool,
     allow_gaps: bool,
     optional: bool,
-    cache_key: u32,
+    cache_key: u64,
     simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<&'static str>)>>,
 }
 
@@ -149,14 +148,14 @@ impl Matchable for Ref {
         })
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }
 
 #[derive(Clone, Debug)]
 pub struct Anything {
-    cache: u32,
+    cache: u64,
     terminators: Vec<Arc<dyn Matchable>>,
 }
 
@@ -184,14 +183,8 @@ impl Anything {
     }
 }
 
-impl Segment for Anything {
-    fn get_uuid(&self) -> Uuid {
-        todo!()
-    }
-}
-
 impl Matchable for Anything {
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache
     }
 

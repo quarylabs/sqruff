@@ -1,5 +1,3 @@
-use uuid::Uuid;
-
 use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Segment;
@@ -58,7 +56,7 @@ impl Segment for BaseFileSegment {
         self.f_name.clone()
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u64 {
         todo!()
     }
 

@@ -110,7 +110,7 @@ pub struct Sequence {
     pub(crate) allow_gaps: bool,
     is_optional: bool,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
-    cache_key: u32,
+    cache_key: u64,
 }
 
 impl Sequence {
@@ -409,7 +409,7 @@ impl Matchable for Sequence {
         })
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 
@@ -699,7 +699,7 @@ impl Matchable for Bracketed {
         })
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.this.cache_key()
     }
 }

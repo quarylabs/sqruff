@@ -1,8 +1,7 @@
 use std::iter::zip;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::{AHashSet, HashMapExt};
 use nohash_hasher::{IntMap, IntSet};
-use uuid::Uuid;
 
 use crate::core::parser::segments::base::{ErasedSegment, PathStep};
 
@@ -42,12 +41,12 @@ impl StackPosition {
 
 #[derive(Clone)]
 pub struct DepthMap {
-    depth_info: AHashMap<Uuid, DepthInfo>,
+    depth_info: IntMap<u64, DepthInfo>,
 }
 
 impl DepthMap {
     fn new(raws_with_stack: Vec<(ErasedSegment, Vec<PathStep>)>) -> Self {
-        let mut depth_info = AHashMap::with_capacity(raws_with_stack.len());
+        let mut depth_info = IntMap::with_capacity(raws_with_stack.len());
 
         for (raw, stack) in raws_with_stack {
             depth_info.insert(raw.get_uuid(), DepthInfo::from_raw_and_stack(raw, stack));

@@ -31,6 +31,32 @@ impl Rule for RuleAM06 {
     fn description(&self) -> &'static str {
         "Inconsistent column references in 'GROUP BY/ORDER BY' clauses."
     }
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the ORRDER BY clause mixes explicit and implicit order by column references.
+
+```sql
+SELECT
+    a, b
+FROM foo
+ORDER BY a, b DESC
+```
+
+**Best practice**
+
+If any columns in the ORDER BY clause specify ASC or DESC, they should all do so.
+
+```sql
+SELECT
+    a, b
+FROM foo
+ORDER BY a ASC, b DESC
+```
+"#
+        .into()
+    }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let skip = FunctionalContext::new(context.clone()).parent_stack().any(Some(|it| {

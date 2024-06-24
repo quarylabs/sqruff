@@ -25,6 +25,31 @@ impl Rule for RuleAM02 {
     fn description(&self) -> &'static str {
         "Look for UNION keyword not immediately followed by DISTINCT or ALL"
     }
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, `UNION DISTINCT` should be preferred over `UNION`, because explicit is better than implicit.
+
+
+```sql
+SELECT a, b FROM table_1
+UNION
+SELECT a, b FROM table_2
+```
+
+**Best practice**
+
+Specify `DISTINCT` or `ALL` after `UNION` (note that `DISTINCT` is the default behavior).
+
+```sql
+SELECT a, b FROM table_1
+UNION DISTINCT
+SELECT a, b FROM table_2
+```
+"#
+            .into()
+    }
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["set_operator"].into()).into()

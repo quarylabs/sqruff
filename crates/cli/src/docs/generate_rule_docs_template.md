@@ -4,9 +4,9 @@ The following rules are available in this create. This list is generated from th
 
 ## Rule Index
 
-| Rule Code | Rule Name | 
-|-----------|-----------|{% for rule in rules %}
-| {{ rule.code }} | [{{ rule.name }}](#{{ rule.name_no_periods }}) |{% endfor %}
+| Rule Code | Rule Name | Description |
+|-----------|-----------|-------------|{% for rule in rules %}
+| {{ rule.code }} | [{{ rule.name }}](#{{ rule.name_no_periods }}) | {{ rule.description }} | {% endfor %}
 
 ## Rule Details
 {% for rule in rules %}

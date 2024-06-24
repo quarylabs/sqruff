@@ -92,6 +92,12 @@ To get help on the available commands and options, run the following command:
 sqruff --help
 ```
 
+For all the details on the CLI commands and options, see the [CLI documentation](./docs/cli.md).
+
+### Configuration
+
+For all the details on the rules options, see the [configuration documentation](./docs/rules.md).
+
 ## Community
 
 Join the Quary community on [Slack](https://join.slack.com/t/quarylabs/shared_invite/zt-2dlbfnztw-dMLXJVL38NcbhqRuM5gUcw) to ask questions, suggest features, or share your projects. Also feel free to raise any issues in the repository.

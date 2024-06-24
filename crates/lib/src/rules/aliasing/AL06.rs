@@ -99,6 +99,42 @@ impl Rule for RuleAL06 {
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
+
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, alias `o` is used for the orders table.
+
+```sql
+SELECT
+    SUM(o.amount) as order_amount,
+FROM orders as o
+```
+
+**Best practice**
+
+Avoid aliases. Avoid short aliases when aliases are necessary.
+
+See also: Rule_AL07.
+
+```sql
+SELECT
+    SUM(orders.amount) as order_amount,
+FROM orders
+
+SELECT
+    replacement_orders.amount,
+    previous_orders.amount
+FROM
+    orders AS replacement_orders
+JOIN
+    orders AS previous_orders
+    ON replacement_orders.id = previous_orders.replacement_id
+```
+"#
+        .into()
+    }
 }
 
 #[cfg(test)]

@@ -9,7 +9,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@nightly
-      - run: cargo r -F codegen-docs > options.md
+      - run: cargo r -F codegen-docs
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           push_options: '--force'
+  codegen-check:
+    name: codegen-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo r --bin sqruff -F codegen-docs
+      - run: git diff --quiet || exit 1

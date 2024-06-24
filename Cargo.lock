@@ -924,6 +924,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "minijinja"
+version = "2.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e136ef580d7955019ab0a407b68d77c292a9976907e217900f3f76bc8f6dc1a4"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "miniz_oxide"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1518,6 +1527,8 @@ dependencies = [
  "clap",
  "clap-markdown",
  "console",
+ "minijinja",
+ "serde",
  "sqruff-lib",
  "sqruff-lsp",
  "tikv-jemallocator",

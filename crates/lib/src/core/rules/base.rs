@@ -248,6 +248,10 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
 
     fn name(&self) -> &'static str;
 
+    fn long_description(&self) -> Option<&'static str> {
+        None
+    }
+
     fn config_ref(&self) -> &'static str {
         self.name()
     }

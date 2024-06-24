@@ -24,6 +24,45 @@ impl Rule for RuleAL08 {
         "Column aliases should be unique within each clause."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, alias o is used for the orders table, and c is used for customers table.
+
+```sql
+SELECT
+    COUNT(o.customer_id) as order_amount,
+    c.name
+FROM orders as o
+JOIN customers as c on o.id = c.user_id
+```
+
+**Best practice**
+
+Avoid aliases.
+
+```sql
+SELECT
+    COUNT(orders.customer_id) as order_amount,
+    customers.name
+FROM orders
+JOIN customers on orders.id = customers.user_id
+
+-- Self-join will not raise issue
+
+SELECT
+    table1.a,
+    table_alias.b,
+FROM
+    table1
+    LEFT JOIN table1 AS table_alias ON
+        table1.foreign_key = table_alias.foreign_key
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut used_aliases = AHashMap::new();
         let mut violations = Vec::new();

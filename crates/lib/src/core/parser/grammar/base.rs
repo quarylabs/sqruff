@@ -4,7 +4,6 @@ use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
 use smol_str::ToSmolStr;
-use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLParseError;
@@ -272,7 +271,7 @@ impl Anything {
 }
 
 impl Segment for Anything {
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u32 {
         todo!()
     }
 }

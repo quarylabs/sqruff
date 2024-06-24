@@ -3,7 +3,6 @@ use std::sync::OnceLock;
 
 use ahash::AHashSet;
 use itertools::Itertools;
-use uuid::Uuid;
 
 use super::base::{pos_marker, ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
@@ -11,7 +10,7 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::helpers::ToErasedSegment;
+use crate::helpers::{next_cache_key, ToErasedSegment};
 
 #[derive(Debug, Clone)]
 #[allow(clippy::derived_hash_with_manual_eq)]
@@ -21,7 +20,7 @@ pub struct BracketedSegment {
     pub start_bracket: Vec<ErasedSegment>,
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
-    pub uuid: Uuid,
+    pub uuid: u32,
 }
 
 impl PartialEq for BracketedSegment {
@@ -44,7 +43,7 @@ impl BracketedSegment {
             start_bracket,
             end_bracket,
             pos_marker: None,
-            uuid: Uuid::new_v4(),
+            uuid: next_cache_key(),
             raw: OnceLock::new(),
         };
         if !hack {
@@ -86,7 +85,7 @@ impl Segment for BracketedSegment {
         self.pos_marker = position_marker;
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn get_uuid(&self) -> u32 {
         self.uuid
     }
 

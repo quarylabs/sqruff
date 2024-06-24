@@ -2,7 +2,6 @@ use std::iter::zip;
 
 use ahash::{AHashMap, AHashSet};
 use nohash_hasher::{IntMap, IntSet};
-use uuid::Uuid;
 
 use crate::core::parser::segments::base::{ErasedSegment, PathStep, SegmentExt as _};
 
@@ -42,7 +41,7 @@ impl StackPosition {
 
 #[derive(Clone)]
 pub struct DepthMap {
-    depth_info: AHashMap<Uuid, DepthInfo>,
+    depth_info: AHashMap<u32, DepthInfo>,
 }
 
 impl DepthMap {

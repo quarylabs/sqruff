@@ -34,6 +34,31 @@ impl Rule for RuleAL02 {
         "aliasing.column"
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the alias for column `a` is implicit.
+
+```sql
+SELECT
+  a alias_col
+FROM foo
+```
+
+**Best practice**
+
+Add the `AS` keyword to make the alias explicit.
+
+```sql
+SELECT
+    a AS alias_col
+FROM foo
+```
+"#
+        .into()
+    }
+
     fn description(&self) -> &'static str {
         "Implicit/explicit aliasing of columns."
     }

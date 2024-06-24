@@ -33,12 +33,38 @@ impl Rule for RuleAL05 {
         "aliasing.unused"
     }
 
-    fn description(&self) -> &'static str {
-        "Tables should not be aliased if that alias is not used."
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, alias `zoo` is not used.
+
+```sql
+SELECT
+    a
+FROM foo AS zoo
+```
+
+**Best practice**
+
+Use the alias or remove it. An unused alias makes code harder to read without changing any functionality.
+
+```sql
+SELECT
+    zoo.a
+FROM foo AS zoo
+
+-- Alternatively...
+
+SELECT
+    a
+FROM foo
+```
+"#.into()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn description(&self) -> &'static str {
+        "Tables should not be aliased if that alias is not used."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -70,6 +96,10 @@ impl Rule for RuleAL05 {
         }
 
         violations
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

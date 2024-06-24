@@ -184,17 +184,51 @@ impl Rule for RuleAL07 {
     fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
         RuleAL07 { force_enable: config["force_enable"].as_bool().unwrap() }.erased()
     }
-
     fn name(&self) -> &'static str {
         "aliasing.forbid"
     }
 
-    fn description(&self) -> &'static str {
-        "Avoid table aliases in from clauses and join conditions."
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, alias o is used for the orders table, and c is used for customers table.
+
+```sql
+SELECT
+    COUNT(o.customer_id) as order_amount,
+    c.name
+FROM orders as o
+JOIN customers as c on o.id = c.user_id
+```
+
+**Best practice**
+
+Avoid aliases.
+
+```sql
+SELECT
+    COUNT(orders.customer_id) as order_amount,
+    customers.name
+FROM orders
+JOIN customers on orders.id = customers.user_id
+
+-- Self-join will not raise issue
+
+SELECT
+    table1.a,
+    table_alias.b,
+FROM
+    table1
+    LEFT JOIN table1 AS table_alias ON
+        table1.foreign_key = table_alias.foreign_key
+```
+"#
+        .into()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn description(&self) -> &'static str {
+        "Avoid table aliases in from clauses and join conditions."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -244,6 +278,10 @@ impl Rule for RuleAL07 {
             column_reference_segments,
             context.segment,
         )
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

@@ -132,6 +132,31 @@ impl Rule for RuleAL01 {
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["alias_expression"].into()).into()
     }
+
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the alias `voo` is implicit.
+
+```sql
+SELECT
+    voo.a
+FROM foo voo
+```
+
+**Best practice**
+
+Add `AS` to make the alias explicit.
+
+```sql
+SELECT
+    voo.a
+FROM foo AS voo
+```
+"#
+        .into()
+    }
 }
 
 #[cfg(test)]

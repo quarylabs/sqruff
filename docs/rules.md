@@ -655,6 +655,27 @@ Use 'COALESCE' instead of 'IFNULL' or 'NVL'.
 **Fixable:** No
 
 
+**Anti-pattern**
+
+`IFNULL` or `NVL` are used to fill `NULL` values.
+
+```sql
+SELECT ifnull(foo, 0) AS bar,
+FROM baz;
+
+SELECT nvl(foo, 0) AS bar,
+FROM baz;
+```
+
+**Best practice**
+
+Use COALESCE instead. COALESCE is universally supported, whereas Redshift doesn’t support IFNULL and BigQuery doesn’t support NVL. Additionally, COALESCE is more flexible and accepts an arbitrary number of arguments.
+
+```sql
+SELECT coalesce(foo, 0) AS bar,
+FROM baz;
+```
+
 
 ### convention.select_trailing_comma
 
@@ -665,6 +686,28 @@ Trailing commas within select clause
 **Fixable:** No
 
 
+**Anti-pattern**
+
+In this example, the last selected column has a trailing comma.
+
+```sql
+SELECT
+    a,
+    b,
+FROM foo
+```
+
+**Best practice**
+
+Remove the trailing comma.
+
+```sql
+SELECT
+    a,
+    b
+FROM foo
+```
+
 
 ### convention.count_rows
 
@@ -674,6 +717,26 @@ Use consistent syntax to express "count number of rows".
 
 **Fixable:** No
 
+
+**Anti-pattern**
+
+In this example, `count(1)` is used to count the number of rows in a table.
+
+```sql
+select
+    count(1)
+from table_a
+```
+
+**Best practice**
+
+Use count(*) unless specified otherwise by config prefer_count_1, or prefer_count_0 as preferred.
+
+```sql
+select
+    count(*)
+from table_a
+```
 
 
 ### layout.spacing

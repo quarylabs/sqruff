@@ -37,6 +37,33 @@ impl Rule for RuleCV03 {
         "Trailing commas within select clause"
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the last selected column has a trailing comma.
+
+```sql
+SELECT
+    a,
+    b,
+FROM foo
+```
+
+**Best practice**
+
+Remove the trailing comma.
+
+```sql
+SELECT
+    a,
+    b
+FROM foo
+```
+"#
+        .into()
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }

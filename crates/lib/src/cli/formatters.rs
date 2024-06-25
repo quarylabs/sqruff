@@ -375,6 +375,10 @@ mod tests {
                 ""
             }
 
+            fn long_description(&self) -> &'static str {
+                "Ghost rule for testing purposes"
+            }
+
             fn code(&self) -> &'static str {
                 "A"
             }

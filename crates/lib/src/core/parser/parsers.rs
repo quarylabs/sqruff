@@ -391,7 +391,7 @@ mod tests {
 
         assert_eq!(
             parser.simple(&parse_cx, None),
-            (AHashSet::new(), ["single_quote".into()].into()).into()
+            (AHashSet::new(), ["single_quote"].into()).into()
         );
     }
 

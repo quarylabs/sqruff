@@ -27,7 +27,11 @@ impl Rule for RuleLT05 {
         "layout.long_lines"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Line is too long."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -58,11 +62,6 @@ SELECT
     my_expression_function(col6, col7 + col8, arg4)
     = col9 + col10 as another_relatively_long_alias
 FROM my_table"#
-            .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Line is too long."
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut results =
@@ -220,7 +219,7 @@ mod tests {
 
         let mut linter = Linter::new(cfg, None, None);
         linter.lint_string_wrapped(
-            sql.into(),
+            sql,
             None,
             Some(true),
             rules(options.ignore_comment_lines, options.ignore_comment_clauses),

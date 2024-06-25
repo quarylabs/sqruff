@@ -23,7 +23,10 @@ impl Rule for RuleLT04 {
         "layout.commas"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Leading/Trailing comma enforcement."
+    }
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -58,10 +61,6 @@ SELECT
 FROM foo
 ```
 "#
-            .into()
-    }
-    fn description(&self) -> &'static str {
-        "Leading/Trailing comma enforcement."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -119,7 +118,7 @@ SELECT
   , b
 FROM c";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
 
         println!("{fix_str}");
     }

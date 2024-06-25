@@ -24,7 +24,7 @@ impl Rule for RuleAL08 {
         "Column aliases should be unique within each clause."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -60,7 +60,6 @@ FROM
         table1.foreign_key = table_alias.foreign_key
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

@@ -24,7 +24,11 @@ impl Rule for RuleLT13 {
         "layout.start_of_file"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Files must not begin with newlines or whitespace."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -74,11 +78,6 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
      foo
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Files must not begin with newlines or whitespace."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -210,39 +209,38 @@ mod tests {
 
     #[test]
     fn test_fail_leading_whitespace_statement() {
-        let fixed = fix("\n  SELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  SELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "SELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_comment() {
-        let fixed = fix("\n  /*I am a comment*/\nSELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  /*I am a comment*/\nSELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "/*I am a comment*/\nSELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_inline_comment() {
-        let fixed = fix("\n  --I am a comment\nSELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  --I am a comment\nSELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "--I am a comment\nSELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_jinja_comment() {
-        let fixed = fix("\n  {# I am a comment #}\nSELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  {# I am a comment #}\nSELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "{# I am a comment #}\nSELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_jinja_if() {
-        let fixed = fix("\n  {% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n".into(), rules());
+        let fixed = fix("\n  {% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n", rules());
         assert_eq!(fixed, "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_jinja_for() {
         let fixed = fix(
-            "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
-                .into(),
+            "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n",
             rules(),
         );
         assert_eq!(

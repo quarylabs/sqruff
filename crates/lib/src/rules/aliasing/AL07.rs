@@ -188,7 +188,11 @@ impl Rule for RuleAL07 {
         "aliasing.forbid"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Avoid table aliases in from clauses and join conditions."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -224,11 +228,6 @@ FROM
         table1.foreign_key = table_alias.foreign_key
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Avoid table aliases in from clauses and join conditions."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -326,7 +325,7 @@ FROM users
 JOIN customers on users.id = customers.user_id
 JOIN orders on users.id = orders.user_id;";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -354,7 +353,7 @@ JOIN customers on users.id = customers.user_id
 JOIN orders on users.id = orders.user_id
 order by orders.user_id desc;";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -382,7 +381,7 @@ JOIN customers on users.id = customers.user_id
 JOIN orders on users.id = orders.user_id
 order by o desc;"; // In the fix string, 'o' is intentionally left unchanged assuming it's now clear or a different issue
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -391,7 +390,7 @@ order by o desc;"; // In the fix string, 'o' is intentionally left unchanged ass
         let fail_str = "select b from tbl as a";
         let fix_str = "select b from tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -400,7 +399,7 @@ order by o desc;"; // In the fix string, 'o' is intentionally left unchanged ass
         let fail_str = "select * from tbl as a";
         let fix_str = "select * from tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -408,7 +407,7 @@ order by o desc;"; // In the fix string, 'o' is intentionally left unchanged ass
     fn test_select_from_values() {
         let pass_str = "select *\nfrom values(1, 2, 3)";
 
-        let actual = fix(pass_str.into(), rules());
+        let actual = fix(pass_str, rules());
         assert_eq!(actual, pass_str);
     }
 
@@ -444,7 +443,7 @@ from
         let pass_str = "SELECT aaaaaa.c\nFROM aaaaaa\nJOIN bbbbbb AS b ON b.a = aaaaaa.id\nJOIN \
                         bbbbbb AS b2 ON b2.other = b.id";
 
-        let actual = fix(pass_str.into(), rules());
+        let actual = fix(pass_str, rules());
         assert_eq!(actual, pass_str);
     }
 
@@ -455,7 +454,7 @@ from
                         t2,\n(select * from data\nwhere repl=t2.m and\nrnd>=t1.v\norder by \
                         rnd\nlimit 1)";
 
-        let actual = fix(pass_str.into(), rules());
+        let actual = fix(pass_str, rules());
         assert_eq!(actual, pass_str);
     }
 
@@ -490,7 +489,7 @@ from
                        JOIN customers on users.id = customers.user_id JOIN orders\non users.id = \
                        orders.user_id;";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 }

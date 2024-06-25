@@ -20,7 +20,11 @@ impl Rule for RuleAL04 {
         "aliasing.unique.table"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Table aliases should be unique within each clause."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -64,11 +68,6 @@ FROM
     2021.foo AS f2
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Table aliases should be unique within each clause."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

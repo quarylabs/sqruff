@@ -98,9 +98,9 @@ fn mk_segments<'a>(
     config: &FluffConfig,
     source: &str,
 ) -> (ParseContext<'a>, std::sync::Arc<dyn Matchable>, Vec<ErasedSegment>) {
-    let ctx = ParseContext::new(&dialect, <_>::default());
+    let ctx = ParseContext::new(dialect, <_>::default());
     let segment = dialect.r#ref("FileSegment");
-    let mut segments = lex(&config, source);
+    let mut segments = lex(config, source);
 
     if segments.last().unwrap().get_type() == "end_of_file" {
         segments.pop();

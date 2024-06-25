@@ -18,7 +18,11 @@ impl Rule for RuleAM01 {
         "ambiguous.distinct"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -42,11 +46,6 @@ SELECT DISTINCT
 FROM foo
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

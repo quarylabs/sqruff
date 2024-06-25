@@ -20,7 +20,11 @@ impl Rule for RuleLT06 {
         "layout.functions"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Function name not immediately followed by parenthesis."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -42,11 +46,6 @@ SELECT
 FROM foo
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Function name not immediately followed by parenthesis."
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();

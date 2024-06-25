@@ -40,10 +40,6 @@ impl Rule for RuleCP02 {
         .erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "capitalisation.identifiers"
     }
@@ -52,7 +48,7 @@ impl Rule for RuleCP02 {
         "Inconsistent capitalisation of unquoted identifiers."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -83,7 +79,6 @@ select
 from foo
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -92,6 +87,10 @@ from foo
         } else {
             vec![LintResult::new(None, Vec::new(), None, None, None)]
         }
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -111,7 +110,7 @@ mod tests {
     fn test_pass_consistent_capitalisation_1() {
         let pass_str = "SELECT a, b";
 
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
@@ -119,49 +118,49 @@ mod tests {
     fn test_pass_consistent_capitalisation_2() {
         let pass_str = "SELECT A, B";
 
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
     #[test]
     fn test_pass_consistent_capitalisation_with_null() {
         let pass_str = "SELECT NULL, a";
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
     #[test]
     fn test_pass_consistent_capitalisation_with_single_letter_upper() {
         let pass_str = "SELECT A, Boo";
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
     #[test]
     fn test_pass_consistent_capitalisation_with_single_word_snake() {
         let pass_str = "SELECT Apple, Banana_split";
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
     #[test]
     fn test_pass_consistent_capitalisation_with_single_word_pascal() {
         let pass_str = "SELECT AppleFritter, Banana";
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
     #[test]
     fn test_pass_consistent_capitalisation_with_multiple_words_with_numbers() {
         let pass_str = "SELECT AppleFritter, Apple123fritter, Apple123Fritter";
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
     #[test]
     fn test_pass_consistent_capitalisation_with_leading_underscore() {
         let pass_str = "SELECT _a, b";
-        let actual = fix(pass_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
@@ -170,7 +169,7 @@ mod tests {
         // Test that fixes are consistent
         let fail_str = "SELECT a, B";
         let expected = "SELECT a, b";
-        let actual = fix(fail_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP02::default().erased()]);
         assert_eq!(expected, actual);
     }
 
@@ -179,7 +178,7 @@ mod tests {
         let fail_str = "SELECT B,   a";
         let expected = "SELECT B,   A";
 
-        let actual = fix(fail_str.into(), vec![RuleCP02::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP02::default().erased()]);
         assert_eq!(expected, actual);
     }
 }

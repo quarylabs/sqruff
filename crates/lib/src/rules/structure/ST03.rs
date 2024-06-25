@@ -25,7 +25,7 @@ impl Rule for RuleST03 {
         "Query defines a CTE (common-table expression) but does not use it."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -59,7 +59,6 @@ SELECT *
 FROM cte1
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

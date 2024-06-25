@@ -39,7 +39,7 @@ struct Rule {
     pub code: &'static str,
     pub description: &'static str,
     pub fixable: bool,
-    pub long_description: Option<&'static str>,
+    pub long_description: &'static str,
 }
 
 impl From<ErasedRule> for Rule {

@@ -39,7 +39,11 @@ impl Rule for RuleLT09 {
         "layout.select_targets"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Select targets should be on a new line unless there is only one select target."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -84,11 +88,6 @@ SELECT
 FROM test_table;
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Select targets should be on a new line unless there is only one select target."
     }
     #[allow(unused_variables)]
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -542,8 +541,7 @@ mod tests {
             "
 select
     a
-from x"
-                .into(),
+from x",
             rules(),
         );
 
@@ -585,7 +583,7 @@ from x";
 select
     * from x";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(
             fixed,
             "
@@ -597,14 +595,14 @@ select *
     #[test]
     fn test_multiple_select_targets_all_on_the_same_line() {
         let fail_str = "select a, b, c from x";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fixed, "select\na,\nb,\nc\nfrom x");
     }
 
     #[test]
     fn test_multiple_select_targets_including_wildcard_all_on_the_same_line_plus_from_clause() {
         let fail_str = "select *, b, c from x";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fixed, "select\n*,\nb,\nc\nfrom x");
     }
 
@@ -615,7 +613,7 @@ select
     a,
     b,
     c from x";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(
             fixed,
             "
@@ -655,7 +653,7 @@ SELECT
     user_id
 FROM
     safe_user";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(
             fixed,
             "
@@ -686,7 +684,7 @@ f,
 g,
   h
 from x";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fixed, expected_fixed_str);
     }
 
@@ -709,7 +707,7 @@ f,
 g,
   h
 from x";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fixed, expected_fixed_str);
     }
 
@@ -737,7 +735,7 @@ cte1 AS (
 
 SELECT 1
 FROM cte1";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fixed, expected_fixed_str);
     }
 
@@ -748,7 +746,7 @@ SELECT
 id";
         let expected_fixed_str = "
 SELECT id";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fixed, expected_fixed_str);
     }
 
@@ -761,7 +759,7 @@ DISTINCT id";
         let expected_fixed_str = "
 SELECT DISTINCT id";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -779,7 +777,7 @@ b,
 c
 FROM my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -805,7 +803,7 @@ FROM my_table";
 SELECT distinct a
 FROM my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -821,7 +819,7 @@ FROM my_table";
 SELECT distinct a
 FROM my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -830,7 +828,7 @@ FROM my_table";
     fn test_single_select_with_no_from() {
         let fail_str = "SELECT\n   10000000\n";
         let expected_fixed_str = "SELECT 10000000\n";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -841,7 +839,7 @@ FROM my_table";
 
         let expected_fixed_str = "SELECT 10000000 /* test */\n";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -860,7 +858,7 @@ SELECT 1
 FROM
   my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -879,7 +877,7 @@ SELECT 1
 FROM
   my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -900,7 +898,7 @@ SELECT 1
 FROM
   my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -919,7 +917,7 @@ SELECT 1
 FROM
   my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }
@@ -941,7 +939,7 @@ SELECT c
 FROM table1
 INNER JOIN table2 ON (table1.id = table2.id);";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(fixed, expected_fixed_str);
     }

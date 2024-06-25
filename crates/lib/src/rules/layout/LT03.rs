@@ -19,7 +19,10 @@ impl Rule for RuleLT03 {
         "layout.operators"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Operators should follow a standard for being before/after newlines."
+    }
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -52,10 +55,6 @@ SELECT
 FROM foo
 ```
 "#
-            .into()
-    }
-    fn description(&self) -> &'static str {
-        "Operators should follow a standard for being before/after newlines."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -183,7 +182,7 @@ select
 from foo
 "#;
 
-        let result = fix(sql.into(), vec![RuleLT03::default().erased()]);
+        let result = fix(sql, vec![RuleLT03::default().erased()]);
         println!("{}", result);
     }
 }

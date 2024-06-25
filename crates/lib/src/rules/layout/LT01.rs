@@ -18,7 +18,11 @@ impl Rule for RuleLT01 {
         "layout.spacing"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Inappropriate Spacing."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -44,11 +48,6 @@ FROM foo
 JOIN bar USING (a)
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Inappropriate Spacing."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -81,7 +80,7 @@ mod tests {
 
     #[test]
     fn test_fail_whitespace_before_comma() {
-        let sql = fix("SELECT 1 ,4".into(), rules());
+        let sql = fix("SELECT 1 ,4", rules());
         assert_eq!(sql, "SELECT 1, 4");
     }
 
@@ -113,13 +112,13 @@ mod tests {
     #[ignore = "parser needs further development"]
     fn test_fail_errors_only_in_non_templated_and_ignore() {
         // ignore_templated_areas: true
-        let sql = fix("{{ 'SELECT 1, 4' }}, 5 , 6".into(), rules());
+        let sql = fix("{{ 'SELECT 1, 4' }}, 5 , 6", rules());
         assert_eq!(sql, "{{ 'SELECT 1, 4' }}, 5, 6");
     }
 
     #[test]
     fn test_pass_single_whitespace_after_comma() {
-        let sql = fix("SELECT 1, 4".into(), rules());
+        let sql = fix("SELECT 1, 4", rules());
         assert_eq!(sql, "SELECT 1, 4");
     }
 
@@ -133,19 +132,19 @@ mod tests {
 
     #[test]
     fn test_fail_multiple_whitespace_after_comma() {
-        let sql = fix("SELECT 1,   4".into(), rules());
+        let sql = fix("SELECT 1,   4", rules());
         assert_eq!(sql, "SELECT 1, 4");
     }
 
     #[test]
     fn test_fail_no_whitespace_after_comma() {
-        let sql = fix("SELECT 1,4".into(), rules());
+        let sql = fix("SELECT 1,4", rules());
         assert_eq!(sql, "SELECT 1, 4");
     }
 
     #[test]
     fn test_fail_no_whitespace_after_comma_2() {
-        let sql = fix("SELECT FLOOR(dt) ,count(*) FROM test".into(), rules());
+        let sql = fix("SELECT FLOOR(dt) ,count(*) FROM test", rules());
         assert_eq!(sql, "SELECT FLOOR(dt), count(*) FROM test");
     }
 
@@ -158,7 +157,7 @@ mod tests {
     // LT01-missing.yml
     #[test]
     fn test_fail_no_space_after_using_clause() {
-        let sql = fix("select * from a JOIN b USING(x)".into(), rules());
+        let sql = fix("select * from a JOIN b USING(x)", rules());
         assert_eq!(sql, "select * from a JOIN b USING (x)");
     }
 
@@ -173,25 +172,25 @@ mod tests {
 
     #[test]
     fn test_fail_cte_no_space_after_as() {
-        let sql = fix("WITH a AS(select 1) select * from a".into(), rules());
+        let sql = fix("WITH a AS(select 1) select * from a", rules());
         assert_eq!(sql, "WITH a AS (select 1) select * from a");
     }
 
     #[test]
     fn test_fail_multiple_spaces_after_as() {
-        let sql = fix("WITH a AS  (select 1) select * from a".into(), rules());
+        let sql = fix("WITH a AS  (select 1) select * from a", rules());
         assert_eq!(sql, "WITH a AS (select 1) select * from a");
     }
 
     #[test]
     fn test_fail_cte_newline_after_as() {
-        let sql = fix("WITH a AS\n(select 1)\nselect * from a".into(), rules());
+        let sql = fix("WITH a AS\n(select 1)\nselect * from a", rules());
         assert_eq!(sql, "WITH a AS (select 1)\nselect * from a");
     }
 
     #[test]
     fn test_fail_cte_newline_and_spaces_after_as() {
-        let sql = fix("WITH a AS\n\n\n(select 1)\nselect * from a".into(), rules());
+        let sql = fix("WITH a AS\n\n\n(select 1)\nselect * from a", rules());
         assert_eq!(sql, "WITH a AS (select 1)\nselect * from a");
     }
 
@@ -206,8 +205,7 @@ mod tests {
             a    AS first_column,
             b      AS second_column,
             (a + b) / 2 AS third_column
-        FROM foo"
-                .into(),
+        FROM foo",
             rules(),
         );
         assert_eq!(
@@ -233,8 +231,7 @@ mod tests {
             b      AS second_column,
             (a + b) / 2 AS third_column
         FROM foo   AS bar
-    "
-            .into(),
+    ",
             rules(),
         );
         assert_eq!(
@@ -260,8 +257,7 @@ mod tests {
             b      AS second_column,
             (a + b) / 2 AS third_column
         FROM foo
-    "
-            .into(),
+    ",
             rules(),
         );
         assert_eq!(
@@ -285,8 +281,7 @@ mod tests {
             a   ,
             b   ,
             (a   +   b) /   2
-        FROM foo"
-                .into(),
+        FROM foo",
             rules(),
         );
         assert_eq!(
@@ -312,8 +307,7 @@ mod tests {
             (a      +      b)      /      2 AS third_column
         FROM foo   AS first_table
         JOIN my_tbl AS second_table USING(a)
-    "
-            .into(),
+    ",
             rules(),
         );
         assert_eq!(
@@ -338,8 +332,7 @@ mod tests {
         SELECT
             a    AS first_column,
             (SELECT b AS c)      AS second_column
-    "
-            .into(),
+    ",
             rules(),
         );
         assert_eq!(
@@ -363,7 +356,7 @@ mod tests {
     // configs: *align_alias
     #[test]
     fn test_align_alias_inline_fail() {
-        let sql = fix("SELECT a   AS   b  ,   c   AS   d    FROM tbl".into(), rules());
+        let sql = fix("SELECT a   AS   b  ,   c   AS   d    FROM tbl", rules());
         assert_eq!(sql, "SELECT a AS b, c AS d FROM tbl");
     }
 
@@ -379,8 +372,7 @@ mod tests {
             foo VARCHAR(25) NOT NULL,
             barbar INT NULL
         )
-    "
-            .into(),
+    ",
             rules(),
         );
         assert_eq!(
@@ -404,8 +396,7 @@ mod tests {
             foo    varchar(25)  not null,
             barbar int not null unique
         )
-    "
-            .into(),
+    ",
             rules(),
         );
         assert_eq!(
@@ -451,7 +442,7 @@ mod tests {
 
     #[test]
     fn test_fail_parenthesis_block_not_isolated() {
-        let sql = fix("SELECT * FROM(SELECT 1 AS C1)AS T1;".into(), rules());
+        let sql = fix("SELECT * FROM(SELECT 1 AS C1)AS T1;", rules());
         assert_eq!(sql, "SELECT * FROM (SELECT 1 AS C1) AS T1;");
     }
 
@@ -459,7 +450,7 @@ mod tests {
     #[test]
     #[ignore = "parser needs further development"]
     fn test_fail_parenthesis_block_not_isolated_templated() {
-        let sql = fix("{{ 'SELECT * FROM(SELECT 1 AS C1)AS T1;' }}".into(), rules());
+        let sql = fix("{{ 'SELECT * FROM(SELECT 1 AS C1)AS T1;' }}", rules());
         assert_eq!(sql, "{{ 'SELECT * FROM (SELECT 1 AS C1) AS T1;' }}");
     }
 
@@ -486,7 +477,7 @@ mod tests {
 
     #[test]
     fn test_basic_fix() {
-        let sql = fix("SELECT     1".into(), rules());
+        let sql = fix("SELECT     1", rules());
         assert_eq!(sql, "SELECT 1");
     }
 
@@ -494,7 +485,7 @@ mod tests {
     #[test]
     #[ignore = "parser needs further development"]
     fn test_basic_fail_template() {
-        let sql = fix("{{ 'SELECT     1' }}".into(), rules());
+        let sql = fix("{{ 'SELECT     1' }}", rules());
         assert_eq!(sql, "{{ 'SELECT 1' }}");
     }
 
@@ -506,8 +497,7 @@ mod tests {
         select
             1 + 2     + 3     + 4        -- Comment
         from     foo
-    "
-            .into(),
+    ",
             rules(),
         );
         assert_eq!(
@@ -538,13 +528,13 @@ mod tests {
 
     #[test]
     fn test_fail_as() {
-        let sql = fix("SELECT 'foo'AS   bar FROM foo".into(), rules());
+        let sql = fix("SELECT 'foo'AS   bar FROM foo", rules());
         assert_eq!(sql, "SELECT 'foo' AS bar FROM foo");
     }
 
     #[test]
     fn test_fail_expression() {
-        let sql = fix("SELECT ('foo'||'bar') as buzz".into(), rules());
+        let sql = fix("SELECT ('foo'||'bar') as buzz", rules());
         assert_eq!(sql, "SELECT ('foo' || 'bar') as buzz");
     }
 
@@ -633,7 +623,7 @@ mod tests {
 
     #[test]
     fn test_fail_ansi_single_quote() {
-        let sql = fix("SELECT a +'b'+ 'c' FROM tbl;".into(), rules());
+        let sql = fix("SELECT a +'b'+ 'c' FROM tbl;", rules());
         assert_eq!(sql, "SELECT a + 'b' + 'c' FROM tbl;");
     }
 
@@ -672,8 +662,7 @@ mod tests {
         select
             field,
             date(field_1)-date(field_2) as diff
-        from table"
-                .into(),
+        from table",
             rules(),
         );
 
@@ -719,7 +708,7 @@ mod tests {
 
     #[test]
     fn fail_simple() {
-        let sql = fix("SELECT 1+2".into(), rules());
+        let sql = fix("SELECT 1+2", rules());
         assert_eq!(sql, "SELECT 1 + 2");
     }
 
@@ -742,13 +731,13 @@ mod tests {
 
     #[test]
     fn test_fail_trailing_whitespace() {
-        let sql = fix("SELECT 1     \n".into(), rules());
+        let sql = fix("SELECT 1     \n", rules());
         assert_eq!(sql, "SELECT 1\n");
     }
 
     #[test]
     fn test_fail_trailing_whitespace_on_initial_blank_line() {
-        let sql = fix(" \nSELECT 1     \n".into(), rules());
+        let sql = fix(" \nSELECT 1     \n", rules());
         assert_eq!(sql, "\nSELECT 1\n");
     }
 
@@ -776,7 +765,7 @@ mod tests {
     #[test]
     #[ignore = "parser needs further development"]
     fn test_fail_trailing_whitespace_and_whitespace_control() {
-        let sql = fix("{%- set temp = 'temp' -%}\n\nSELECT\n    1, \n    2,\n".into(), rules());
+        let sql = fix("{%- set temp = 'temp' -%}\n\nSELECT\n    1, \n    2,\n", rules());
         assert_eq!(sql, "{%- set temp = 'temp' -%}\n\nSELECT\n    1,\n    2,\n");
     }
 

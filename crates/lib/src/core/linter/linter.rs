@@ -693,7 +693,7 @@ mod tests {
     #[test]
     fn test__linter__empty_file() {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let parsed = linter.parse_string("".into(), None, None, None).unwrap();
+        let parsed = linter.parse_string("", None, None, None).unwrap();
 
         assert!(parsed.violations.is_empty());
     }

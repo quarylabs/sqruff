@@ -34,10 +34,6 @@ impl Rule for RuleCP04 {
         .erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "capitalisation.literals"
     }
@@ -45,7 +41,8 @@ impl Rule for RuleCP04 {
     fn description(&self) -> &'static str {
         "Inconsistent capitalisation of boolean/null literal."
     }
-    fn long_description(&self) -> Option<&'static str> {
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -82,11 +79,13 @@ select
 from foo
 ```
 "#
-        .into()
     }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         self.base.eval(context)
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -107,7 +106,7 @@ mod tests {
         let fail_str = "SeLeCt true, FALSE, NULL";
         let fix_str = "SeLeCt true, false, null";
 
-        let actual = fix(fail_str.into(), vec![RuleCP04::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP04::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 }

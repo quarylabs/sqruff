@@ -23,7 +23,7 @@ use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::{ErasedSegment, SegmentExt};
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
-use crate::core::rules::base::{ErasedRule, LintFix, RulePack};
+use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use crate::helpers::ToErasedSegment;
 use crate::rules::get_ruleset;
@@ -226,7 +226,8 @@ impl Linter {
     ) -> (ErasedSegment, Vec<SQLLintError>) {
         let mut tmp;
         let mut initial_linting_errors = Vec::new();
-        let phases: &[_] = if fix { &["main", "post"] } else { &["main"] };
+        let phases: &[_] =
+            if fix { &[LintPhase::Main, LintPhase::Post] } else { &[LintPhase::Main] };
         let mut previous_versions: AHashSet<(SmolStr, Vec<SourceFix>)> =
             [(tree.raw().to_smolstr(), vec![])].into_iter().collect();
 
@@ -234,12 +235,12 @@ impl Linter {
         // once for linting.
         let loop_limit = if fix { 10 } else { 1 };
 
-        for &phase in phases {
+        for phase in phases {
             let mut rules_this_phase = if phases.len() > 1 {
                 tmp = rules
                     .clone()
                     .into_iter()
-                    .filter(|rule| rule.lint_phase() == phase)
+                    .filter(|rule| rule.lint_phase() == *phase)
                     .collect_vec();
 
                 &tmp
@@ -247,8 +248,8 @@ impl Linter {
                 &rules
             };
 
-            for loop_ in 0..(if phase == "main" { loop_limit } else { 2 }) {
-                let is_first_linter_pass = phase == phases[0] && loop_ == 0;
+            for loop_ in 0..(if *phase == LintPhase::Main { loop_limit } else { 2 }) {
+                let is_first_linter_pass = *phase == phases[0] && loop_ == 0;
                 let mut changed = false;
 
                 if is_first_linter_pass {

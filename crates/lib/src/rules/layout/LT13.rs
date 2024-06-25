@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
@@ -15,9 +15,8 @@ impl Rule for RuleLT13 {
         unimplemented!()
     }
 
-    // TODO Turn lint phase into an enum
-    fn lint_phase(&self) -> &'static str {
-        "post"
+    fn lint_phase(&self) -> LintPhase {
+        LintPhase::Post
     }
 
     fn name(&self) -> &'static str {

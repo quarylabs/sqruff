@@ -181,6 +181,31 @@ impl Rule for RuleRF01 {
         "References cannot reference objects not present in 'FROM' clause."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the reference `vee` has not been declared.
+
+```sql
+SELECT
+    vee.a
+FROM foo
+```
+
+**Best practice**
+
+Remove the reference.
+
+```sql
+SELECT
+    a
+FROM foo
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let dialects_disabled_by_default =
             ["bigquery", "databricks", "hive", "redshift", "soql", "sparksql"];

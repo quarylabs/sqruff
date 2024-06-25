@@ -1223,6 +1223,26 @@ References cannot reference objects not present in 'FROM' clause.
 **Fixable:** No
 
 
+**Anti-pattern**
+
+In this example, the reference `vee` has not been declared.
+
+```sql
+SELECT
+    vee.a
+FROM foo
+```
+
+**Best practice**
+
+Remove the reference.
+
+```sql
+SELECT
+    a
+FROM foo
+```
+
 
 ### references.consistent
 
@@ -1232,6 +1252,35 @@ References should be consistent in statements with a single table.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+In this example, only the field b is referenced.
+
+```sql
+SELECT
+    a,
+    foo.b
+FROM foo
+```
+
+**Best practice**
+
+Add or remove references to all fields.
+
+```sql
+SELECT
+    a,
+    b
+FROM foo
+
+-- Also good
+
+SELECT
+    foo.a,
+    foo.b
+FROM foo
+```
 
 
 ### structure.else_null

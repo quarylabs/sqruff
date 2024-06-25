@@ -285,8 +285,38 @@ impl Rule for RuleRF03 {
         "References should be consistent in statements with a single table."
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, only the field b is referenced.
+
+```sql
+SELECT
+    a,
+    foo.b
+FROM foo
+```
+
+**Best practice**
+
+Add or remove references to all fields.
+
+```sql
+SELECT
+    a,
+    b
+FROM foo
+
+-- Also good
+
+SELECT
+    foo.a,
+    foo.b
+FROM foo
+```
+"#
+        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -300,6 +330,10 @@ impl Rule for RuleRF03 {
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
 
         self.visit_queries(query, &mut visited)
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

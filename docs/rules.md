@@ -1292,6 +1292,26 @@ Do not specify 'else null' in a case when statement (redundant).
 **Fixable:** No
 
 
+**Anti-pattern**
+
+In this example, the reference `vee` has not been declared.
+
+```sql
+SELECT
+    vee.a
+FROM foo
+```
+
+**Best practice**
+
+Remove the reference.
+
+```sql
+SELECT
+    a
+FROM foo
+```
+
 
 ### structure.simple_case
 
@@ -1301,6 +1321,60 @@ Unnecessary 'CASE' statement.
 
 **Fixable:** No
 
+
+**Anti-pattern**
+
+CASE statement returns booleans.
+
+```sql
+select
+    case
+        when fab > 0 then true
+        else false
+    end as is_fab
+from fancy_table
+
+-- This rule can also simplify CASE statements
+-- that aim to fill NULL values.
+
+select
+    case
+        when fab is null then 0
+        else fab
+    end as fab_clean
+from fancy_table
+
+-- This also covers where the case statement
+-- replaces NULL values with NULL values.
+
+select
+    case
+        when fab is null then null
+        else fab
+    end as fab_clean
+from fancy_table
+```
+
+**Best practice**
+
+Reduce to WHEN condition within COALESCE function.
+
+```sql
+select
+    coalesce(fab > 0, false) as is_fab
+from fancy_table
+
+-- To fill NULL values.
+
+select
+    coalesce(fab, 0) as fab_clean
+from fancy_table
+
+-- NULL filling NULL.
+
+select fab as fab_clean
+from fancy_table
+```
 
 
 ### structure.unused_cte
@@ -1312,6 +1386,38 @@ Query defines a CTE (common-table expression) but does not use it.
 **Fixable:** No
 
 
+**Anti-pattern**
+
+Defining a CTE that is not used by the query is harmless, but it means the code is unnecessary and could be removed.
+
+```sql
+WITH cte1 AS (
+  SELECT a
+  FROM t
+),
+cte2 AS (
+  SELECT b
+  FROM u
+)
+
+SELECT *
+FROM cte1
+```
+
+**Best practice**
+
+Remove unused CTEs.
+
+```sql
+WITH cte1 AS (
+  SELECT a
+  FROM t
+)
+
+SELECT *
+FROM cte1
+```
+
 
 ### structure.distinct
 
@@ -1321,4 +1427,20 @@ Looking for DISTINCT before a bracket
 
 **Fixable:** No
 
+
+**Anti-pattern**
+
+In this example, parentheses are not needed and confuse DISTINCT with a function. The parentheses can also be misleading about which columns are affected by the DISTINCT (all the columns!).
+
+```sql
+SELECT DISTINCT(a), b FROM foo
+```
+
+**Best practice**
+
+Remove parentheses to be clear that the DISTINCT applies to both columns.
+
+```sql
+SELECT DISTINCT a, b FROM foo
+```
 

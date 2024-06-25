@@ -45,6 +45,45 @@ impl Rule for RuleCP04 {
     fn description(&self) -> &'static str {
         "Inconsistent capitalisation of boolean/null literal."
     }
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, `null` and `false` are in lower-case whereas `TRUE` is in upper-case.
+
+```sql
+select
+    a,
+    null,
+    TRUE,
+    false
+from foo
+```
+
+**Best practice**
+
+Ensure all literal `null`/`true`/`false` literals are consistently upper or lower case
+
+```sql
+select
+    a,
+    NULL,
+    TRUE,
+    FALSE
+from foo
+
+-- Also good
+
+select
+    a,
+    null,
+    true,
+    false
+from foo
+```
+"#
+        .into()
+    }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         self.base.eval(context)

@@ -30,6 +30,33 @@ impl Rule for RuleCP05 {
         "Inconsistent capitalisation of datatypes."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, `int` and `unsigned` are in lower-case whereas `VARCHAR` is in upper-case.
+
+```sql
+CREATE TABLE t (
+    a int unsigned,
+    b VARCHAR(15)
+);
+```
+
+**Best practice**
+
+Ensure all datatypes are consistently upper or lower case
+
+```sql
+CREATE TABLE t (
+    a INT UNSIGNED,
+    b VARCHAR(15)
+);
+```
+"#
+        .into()
+    }
+
     fn is_fix_compatible(&self) -> bool {
         true
     }

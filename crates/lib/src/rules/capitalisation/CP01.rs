@@ -61,6 +61,37 @@ impl Rule for RuleCP01 {
         "Inconsistent capitalisation of keywords."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, select is in lower-case whereas `FROM` is in upper-case.
+
+```sql
+select
+    a
+FROM foo
+```
+
+**Best practice**
+
+Make all keywords either in upper-case or in lower-case.
+
+```sql
+SELECT
+    a
+FROM foo
+
+-- Also good
+
+select
+    a
+from foo
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
 

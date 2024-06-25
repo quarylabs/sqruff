@@ -470,6 +470,32 @@ Inconsistent capitalisation of keywords.
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+In this example, select is in lower-case whereas `FROM` is in upper-case.
+
+```sql
+select
+    a
+FROM foo
+```
+
+**Best practice**
+
+Make all keywords either in upper-case or in lower-case.
+
+```sql
+SELECT
+    a
+FROM foo
+
+-- Also good
+
+select
+    a
+from foo
+```
+
 
 ### capitalisation.identifiers
 
@@ -479,6 +505,35 @@ Inconsistent capitalisation of unquoted identifiers.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+In this example, unquoted identifier `a` is in lower-case but `B` is in upper-case.
+
+```sql
+select
+    a,
+    B
+from foo
+```
+
+**Best practice**
+
+Ensure all unquoted identifiers are either in upper-case or in lower-case.
+
+```sql
+select
+    a,
+    b
+from foo
+
+-- Also good
+
+select
+    A,
+    B
+from foo
+```
 
 
 ### capitalisation.functions
@@ -490,6 +545,29 @@ Inconsistent capitalisation of function names.
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+In this example, the two `SUM` functions don’t have the same capitalisation.
+
+```sql
+SELECT
+    sum(a) AS aa,
+    SUM(b) AS bb
+FROM foo
+```
+
+**Best practice**
+
+Make the case consistent.
+
+
+```sql
+SELECT
+    sum(a) AS aa,
+    sum(b) AS bb
+FROM foo
+```
+
 
 ### capitalisation.literals
 
@@ -500,6 +578,41 @@ Inconsistent capitalisation of boolean/null literal.
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+In this example, `null` and `false` are in lower-case whereas `TRUE` is in upper-case.
+
+```sql
+select
+    a,
+    null,
+    TRUE,
+    false
+from foo
+```
+
+**Best practice**
+
+Ensure all literal `null`/`true`/`false` literals are consistently upper or lower case
+
+```sql
+select
+    a,
+    NULL,
+    TRUE,
+    FALSE
+from foo
+
+-- Also good
+
+select
+    a,
+    null,
+    true,
+    false
+from foo
+```
+
 
 ### capitalisation.types
 
@@ -509,6 +622,28 @@ Inconsistent capitalisation of datatypes.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+In this example, `int` and `unsigned` are in lower-case whereas `VARCHAR` is in upper-case.
+
+```sql
+CREATE TABLE t (
+    a int unsigned,
+    b VARCHAR(15)
+);
+```
+
+**Best practice**
+
+Ensure all datatypes are consistently upper or lower case
+
+```sql
+CREATE TABLE t (
+    a INT UNSIGNED,
+    b VARCHAR(15)
+);
+```
 
 
 ### convention.coalesce

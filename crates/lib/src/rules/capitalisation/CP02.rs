@@ -52,6 +52,40 @@ impl Rule for RuleCP02 {
         "Inconsistent capitalisation of unquoted identifiers."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, unquoted identifier `a` is in lower-case but `B` is in upper-case.
+
+```sql
+select
+    a,
+    B
+from foo
+```
+
+**Best practice**
+
+Ensure all unquoted identifiers are either in upper-case or in lower-case.
+
+```sql
+select
+    a,
+    b
+from foo
+
+-- Also good
+
+select
+    A,
+    B
+from foo
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if identifiers_policy_applicable(self.unquoted_identifiers_policy, &context.parent_stack) {
             self.base.eval(context)

@@ -49,6 +49,34 @@ impl Rule for RuleCP03 {
         "Inconsistent capitalisation of function names."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the two `SUM` functions don’t have the same capitalisation.
+
+```sql
+SELECT
+    sum(a) AS aa,
+    SUM(b) AS bb
+FROM foo
+```
+
+**Best practice**
+
+Make the case consistent.
+
+
+```sql
+SELECT
+    sum(a) AS aa,
+    sum(b) AS bb
+FROM foo
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         self.base.eval(context)
     }

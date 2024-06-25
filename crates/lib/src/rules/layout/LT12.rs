@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -45,8 +45,8 @@ impl Rule for RuleLT12 {
         RuleLT12::default().erased()
     }
 
-    fn lint_phase(&self) -> &'static str {
-        "post"
+    fn lint_phase(&self) -> LintPhase {
+        LintPhase::Post
     }
 
     fn name(&self) -> &'static str {

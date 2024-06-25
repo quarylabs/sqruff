@@ -239,11 +239,17 @@ impl<T: Rule> CloneRule for T {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum LintPhase {
+    Main,
+    Post,
+}
+
 pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule;
 
-    fn lint_phase(&self) -> &'static str {
-        "main"
+    fn lint_phase(&self) -> LintPhase {
+        LintPhase::Main
     }
 
     fn name(&self) -> &'static str;

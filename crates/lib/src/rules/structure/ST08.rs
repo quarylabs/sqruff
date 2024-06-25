@@ -57,6 +57,27 @@ impl Rule for RuleST08 {
         "Looking for DISTINCT before a bracket"
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, parentheses are not needed and confuse DISTINCT with a function. The parentheses can also be misleading about which columns are affected by the DISTINCT (all the columns!).
+
+```sql
+SELECT DISTINCT(a), b FROM foo
+```
+
+**Best practice**
+
+Remove parentheses to be clear that the DISTINCT applies to both columns.
+
+```sql
+SELECT DISTINCT a, b FROM foo
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut seq: Option<ReflowSequence> = None;
         let mut anchor: Option<ErasedSegment> = None;

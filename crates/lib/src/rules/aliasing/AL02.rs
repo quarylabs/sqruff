@@ -34,7 +34,11 @@ impl Rule for RuleAL02 {
         "aliasing.column"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Implicit/explicit aliasing of columns."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -56,11 +60,6 @@ SELECT
 FROM foo
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Implicit/explicit aliasing of columns."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -103,7 +102,7 @@ mod tests {
     #[test]
     fn test_fail_explicit_column_default() {
         assert_eq!(
-            fix("select 1 bar from table1 b".into(), vec![RuleAL02::default().erased()]),
+            fix("select 1 bar from table1 b", vec![RuleAL02::default().erased()]),
             "select 1 AS bar from table1 b"
         );
     }

@@ -78,6 +78,10 @@ impl RuleAL06 {
 }
 
 impl Rule for RuleAL06 {
+    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
+        RuleAL06::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "aliasing.lenght"
     }
@@ -86,21 +90,7 @@ impl Rule for RuleAL06 {
         "Identify aliases in from clause and join conditions"
     }
 
-    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        RuleAL06::default().erased()
-    }
-
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let children = FunctionalContext::new(context.clone()).segment().children(None);
-        let from_expression_elements = children.recursive_crawl(&["from_expression_element"], true);
-        self.lint_aliases(from_expression_elements.base)
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
-    }
-
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -133,7 +123,16 @@ JOIN
     ON replacement_orders.id = previous_orders.replacement_id
 ```
 "#
-        .into()
+    }
+
+    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+        let children = FunctionalContext::new(context.clone()).segment().children(None);
+        let from_expression_elements = children.recursive_crawl(&["from_expression_element"], true);
+        self.lint_aliases(from_expression_elements.base)
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
 }
 

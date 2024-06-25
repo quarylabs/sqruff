@@ -1307,7 +1307,7 @@ mod tests {
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql.into(), None, None, None).unwrap();
+        let parsed = linter.parse_string(sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

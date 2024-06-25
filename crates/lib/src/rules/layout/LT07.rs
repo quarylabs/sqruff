@@ -19,7 +19,11 @@ impl Rule for RuleLT07 {
         "layout.cte_bracket"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "'WITH' clause closing bracket should be on a new line."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -44,11 +48,6 @@ WITH zoo AS (
 SELECT * FROM zoo
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "'WITH' clause closing bracket should be on a new line."
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segments = FunctionalContext::new(context.clone())
@@ -183,7 +182,7 @@ with cte_1 as (
 select cte_1.foo
 from cte_1";
 
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
         assert_eq!(
             fixed,
             "

@@ -285,7 +285,7 @@ impl Rule for RuleRF03 {
         "References should be consistent in statements with a single table."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -316,7 +316,6 @@ SELECT
 FROM foo
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -368,7 +367,7 @@ mod tests {
         let fail_str = "SELECT my_tbl.bar, baz FROM my_tbl";
         let fix_str = "SELECT my_tbl.bar, my_tbl.baz FROM my_tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -408,7 +407,7 @@ mod tests {
         let fail_str = "SELECT * FROM (SELECT my_tbl.bar, baz FROM my_tbl)";
         let fix_str = "SELECT * FROM (SELECT my_tbl.bar, my_tbl.baz FROM my_tbl)";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -461,7 +460,7 @@ mod tests {
         let fail_str = "SELECT my_tbl.bar FROM my_tbl";
         let fix_str = "SELECT bar FROM my_tbl";
 
-        let actual = fix(fail_str.into(), rules_unqualified());
+        let actual = fix(fail_str, rules_unqualified());
         assert_eq!(actual, fix_str);
     }
 
@@ -470,7 +469,7 @@ mod tests {
         let fail_str = "SELECT bar FROM my_tbl WHERE foo";
         let fix_str = "SELECT my_tbl.bar FROM my_tbl WHERE my_tbl.foo";
 
-        let actual = fix(fail_str.into(), rules_qualified());
+        let actual = fix(fail_str, rules_qualified());
         assert_eq!(actual, fix_str);
     }
 
@@ -487,7 +486,7 @@ mod tests {
         let fail_str = "SELECT a.bar, b FROM my_tbl";
         let fix_str = "SELECT a.bar, my_tbl.b FROM my_tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -507,7 +506,7 @@ mod tests {
             "select t.col0, t.col1 + 1 as alias_col1 from table1 as t where alias_col1 > 5";
         let fix_str = "select col0, col1 + 1 as alias_col1 from table1 as t where alias_col1 > 5";
 
-        let actual = fix(fail_str.into(), rules_unqualified());
+        let actual = fix(fail_str, rules_unqualified());
         assert_eq!(actual, fix_str);
     }
 

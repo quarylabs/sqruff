@@ -18,5 +18,5 @@ The following rules are available in this create. This list is generated from th
 
 **Fixable:** {% if rule.fixable %}Yes{% else %}No{% endif %}
 
-{% if rule.long_description %}{{ rule.long_description }}{% endif %}
+{{ rule.long_description }}
 {% endfor %}

@@ -53,7 +53,10 @@ impl Rule for RuleLT12 {
         "layout.end_of_file"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Files must end with a single trailing newline."
+    }
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -119,10 +122,6 @@ Add trailing newline to the end. The $ character represents end of file.
  $
 ```
 "#
-        .into()
-    }
-    fn description(&self) -> &'static str {
-        "Files must end with a single trailing newline."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -193,13 +192,13 @@ mod tests {
 
     #[test]
     fn test_fail_no_final_newline() {
-        let fixed = fix("SELECT foo FROM bar".into(), rules());
+        let fixed = fix("SELECT foo FROM bar", rules());
         assert_eq!(fixed, "SELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_multiple_final_newlines() {
-        let fixed = fix("SELECT foo FROM bar\n\n".into(), rules());
+        let fixed = fix("SELECT foo FROM bar\n\n", rules());
         assert_eq!(fixed, "SELECT foo FROM bar\n");
     }
 
@@ -211,13 +210,13 @@ mod tests {
 
     #[test]
     fn test_fail_templated_plus_raw_newlines() {
-        let fixed = fix("{{ '\n\n' }}".into(), rules());
+        let fixed = fix("{{ '\n\n' }}", rules());
         assert_eq!(fixed, "{{ '\n\n' }}\n");
     }
 
     #[test]
     fn test_fail_templated_plus_raw_newlines_extra_newline() {
-        let fixed = fix("{{ '\n\n' }}\n\n".into(), rules());
+        let fixed = fix("{{ '\n\n' }}\n\n", rules());
         assert_eq!(fixed, "{{ '\n\n' }}\n");
     }
 
@@ -232,7 +231,7 @@ mod tests {
 
     #[test]
     fn test_fail_templated_no_newline() {
-        let fixed = fix("{% if true %}\nSELECT 1 + 1\n{%- endif %}".into(), rules());
+        let fixed = fix("{% if true %}\nSELECT 1 + 1\n{%- endif %}", rules());
         assert_eq!(fixed, "{% if true %}\nSELECT 1 + 1\n{%- endif %}\n");
     }
 }

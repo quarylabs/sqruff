@@ -22,7 +22,11 @@ impl Rule for RuleLT10 {
         "layout.select_modifiers"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -46,11 +50,6 @@ select distinct
 from x
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
@@ -169,7 +168,7 @@ SELECT
 FROM
     safe_user";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
         assert_eq!(
             fix_str,
             "
@@ -190,7 +189,7 @@ SELECT
 FROM
     safe_user";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
         assert_eq!(
             fix_str,
             "
@@ -211,7 +210,7 @@ distinct
     def
 from a;";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
         println!("{}", &fix_str);
     }
 }

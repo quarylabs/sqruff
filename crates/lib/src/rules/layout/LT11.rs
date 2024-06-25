@@ -18,7 +18,11 @@ impl Rule for RuleLT11 {
         "layout.set_operators"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Set operators should be surrounded by newlines."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -39,11 +43,6 @@ UNION ALL
 SELECT 'b' AS col
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Set operators should be surrounded by newlines."
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_around_target(
@@ -79,7 +78,7 @@ mod tests {
     fn test_fail_simple_fix_union_all_before() {
         let sql = "SELECT 'a' UNION ALL\nSELECT 'b'";
 
-        let result = fix(sql.into(), rules());
+        let result = fix(sql, rules());
         assert_eq!(result, "SELECT 'a'\nUNION ALL\nSELECT 'b'");
     }
 }

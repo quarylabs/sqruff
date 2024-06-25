@@ -20,7 +20,11 @@ impl Rule for RuleAL03 {
         "aliasing.expression"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Column expression without alias. Use explicit `AS` clause."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -44,11 +48,6 @@ SELECT
 FROM foo
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Column expression without alias. Use explicit `AS` clause."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

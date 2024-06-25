@@ -365,6 +365,26 @@ Find self-aliased columns and fix them
 **Fixable:** No
 
 
+**Anti-pattern**
+
+Aliasing the column to itself.
+
+```sql
+SELECT
+    col AS col
+FROM table;
+```
+
+**Best practice**
+
+Not to use alias to rename the column to its original name. Self-aliasing leads to redundant code without changing any functionality.
+
+```sql
+SELECT
+    col
+FROM table;
+```
+
 
 ### ambiguous.distinct
 

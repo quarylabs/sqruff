@@ -181,7 +181,7 @@ impl Rule for RuleRF01 {
         "References cannot reference objects not present in 'FROM' clause."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -203,7 +203,6 @@ SELECT
 FROM foo
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

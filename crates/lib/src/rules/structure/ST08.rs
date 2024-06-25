@@ -41,23 +41,19 @@ impl RuleST08 {
 }
 
 impl Rule for RuleST08 {
-    fn name(&self) -> &'static str {
-        "structure.distinct"
-    }
-
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
         RuleST08.erased()
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause", "function"].into()).into()
+    fn name(&self) -> &'static str {
+        "structure.distinct"
     }
 
     fn description(&self) -> &'static str {
         "Looking for DISTINCT before a bracket"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -75,7 +71,6 @@ Remove parentheses to be clear that the DISTINCT applies to both columns.
 SELECT DISTINCT a, b FROM foo
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -166,6 +161,10 @@ SELECT DISTINCT a, b FROM foo
 
         Vec::new()
     }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_clause", "function"].into()).into()
+    }
 }
 
 #[cfg(test)]
@@ -176,7 +175,7 @@ mod tests {
     use crate::api::simple::{fix, lint};
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleST08::default().erased()]
+        vec![RuleST08.erased()]
     }
 
     #[test]
@@ -184,7 +183,7 @@ mod tests {
         let fail_str = "SELECT DISTINCT(a)";
         let fix_str = "SELECT DISTINCT a";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -193,7 +192,7 @@ mod tests {
         let fail_str = "SELECT DISTINCT(a + b) * c";
         let fix_str = "SELECT DISTINCT (a + b) * c";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -202,7 +201,7 @@ mod tests {
         let fail_str = "SELECT DISTINCT (a)";
         let fix_str = "SELECT DISTINCT a";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -218,7 +217,7 @@ mod tests {
         let fail_str = r#"SELECT DISTINCT(field_1) FROM my_table"#;
         let fix_str = "SELECT DISTINCT field_1 FROM my_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -227,7 +226,7 @@ mod tests {
         let fail_str = "SELECT DISTINCT(a), b";
         let fix_str = "SELECT DISTINCT a, b";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -243,7 +242,7 @@ mod tests {
         let fail_str = "SELECT COUNT(DISTINCT(unique_key))";
         let fix_str = "SELECT COUNT(DISTINCT unique_key)";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -252,7 +251,7 @@ mod tests {
         let fail_str = "SELECT COUNT(DISTINCT(CONCAT(col1, '-', col2, '-', col3)))";
         let fix_str = "SELECT COUNT(DISTINCT CONCAT(col1, '-', col2, '-', col3))";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 }

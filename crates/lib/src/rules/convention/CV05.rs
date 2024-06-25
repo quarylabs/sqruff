@@ -36,6 +36,10 @@ fn create_base_is_null_sequence(is_upper: bool, operator_raw: Cow<str>) -> Corre
 }
 
 impl Rule for RuleCV05 {
+    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
+        unimplemented!()
+    }
+
     fn name(&self) -> &'static str {
         "convention.is_null"
     }
@@ -44,7 +48,7 @@ impl Rule for RuleCV05 {
         "Relational operators should not be used to check for NULL values."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -68,15 +72,6 @@ FROM foo
 WHERE a IS NULL
 ```
 "#
-        .into()
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["comparison_operator"].into()).into()
-    }
-
-    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        unimplemented!()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -151,6 +146,10 @@ WHERE a IS NULL
 
         vec![LintResult::new(Some(context.segment.clone()), fixes, None, None, None)]
     }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["comparison_operator"].into()).into()
+    }
 }
 
 #[cfg(test)]
@@ -200,7 +199,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a <> NULL";
         let fix_str = "SELECT a FROM foo WHERE a IS NOT NULL";
 
-        let result = fix(fail_str.into(), vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -214,7 +213,7 @@ mod test {
                                 FROM foo
                                 WHERE a IS NOT NULL AND b IS NOT NULL AND c = 'foo'"#;
 
-        let result = fix(fail_str.into(), vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -223,7 +222,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a <> null";
         let fix_str = "SELECT a FROM foo WHERE a is not null";
 
-        let actual = fix(fail_str.into(), vec![RuleCV05::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCV05::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 
@@ -237,7 +236,7 @@ mod test {
                                 FROM foo
                                 WHERE a IS NULL"#;
 
-        let result = fix(fail_str.into(), vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -246,7 +245,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a=NULL";
         let fix_str = "SELECT a FROM foo WHERE a IS NULL";
 
-        let result = fix(fail_str.into(), vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -255,7 +254,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a = b or (c > d or e = NULL)";
         let fix_str = "SELECT a FROM foo WHERE a = b or (c > d or e IS NULL)";
 
-        let actual = fix(fail_str.into(), vec![RuleCV05::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCV05::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 

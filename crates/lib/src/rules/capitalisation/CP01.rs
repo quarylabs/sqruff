@@ -49,10 +49,6 @@ impl Rule for RuleCP01 {
         "post"
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "capitalisation.keywords"
     }
@@ -61,7 +57,7 @@ impl Rule for RuleCP01 {
         "Inconsistent capitalisation of keywords."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -89,7 +85,6 @@ select
 from foo
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -112,6 +107,10 @@ from foo
             context.segment.clone(),
             &context,
         )]
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -259,7 +258,7 @@ mod tests {
         let fail_str = "SeLeCt 1;";
         let fix_str = "SELECT 1;";
 
-        let actual = fix(fail_str.into(), vec![RuleCP01::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP01::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 
@@ -268,7 +267,7 @@ mod tests {
         let fail_str = "SeLeCt 1 from blah;";
         let fix_str = "SELECT 1 FROM blah;";
 
-        let actual = fix(fail_str.into(), vec![RuleCP01::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP01::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 
@@ -278,7 +277,7 @@ mod tests {
         let fix_str = "select * from MOO order by dt desc;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -290,7 +289,7 @@ mod tests {
         let fix_str = "SELECT * FROM MOO ORDER BY dt DESC;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
         );
 
@@ -303,7 +302,7 @@ mod tests {
         let fix_str = "Select * From MOO Order By dt Desc;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![
                 RuleCP01 { capitalisation_policy: "capitalise".into(), ..Default::default() }
                     .erased(),
@@ -319,7 +318,7 @@ mod tests {
         let fix_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
         );
 
@@ -332,7 +331,7 @@ mod tests {
         let fix_str = "select dt + interval 2 day, interval 3 hour;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() }.erased()],
         );
 
@@ -345,7 +344,7 @@ mod tests {
         let fix_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
         );
 
@@ -357,7 +356,7 @@ mod tests {
         let pass_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
         let expected_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
 
-        let actual = fix(pass_str.into(), vec![RuleCP01::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP01::default().erased()]);
 
         assert_eq!(expected_str, actual);
     }
@@ -368,7 +367,7 @@ mod tests {
         let expected_str = "CREATE TABLE table1 (account_id bigint);";
 
         let actual = fix(
-            pass_str.into(),
+            pass_str,
             vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
         );
 

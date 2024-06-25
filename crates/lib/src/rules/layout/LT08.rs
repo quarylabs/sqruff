@@ -22,7 +22,11 @@ impl Rule for RuleLT08 {
         "layout.cte_newline"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Blank line expected but not found after CTE closing bracket."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -47,11 +51,6 @@ WITH plop AS (
 SELECT a FROM plop
 ```
 "#
-        .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Blank line expected but not found after CTE closing bracket."
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
@@ -263,7 +262,7 @@ other_cte as (
 
 select * from my_cte cross join other_cte";
 
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
         assert_eq!(
             fixed,
             "
@@ -292,7 +291,7 @@ other_cte as (
 
 select * from my_cte cross join other_cte";
 
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
 
         assert_eq!(
             fixed,
@@ -321,7 +320,7 @@ WITH mycte AS (
 SELECT col
 FROM
   mycte";
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
 
         assert_eq!(
             fixed,
@@ -349,7 +348,7 @@ other_cte as (
     select 1
 )
 select * from my_cte cross join other_cte";
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
         assert_eq!(
             fixed,
             "
@@ -376,7 +375,7 @@ with my_cte as (
     select 1
 )
 select * from my_cte cross join other_cte";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(
             fixed,
@@ -398,7 +397,7 @@ select * from my_cte cross join other_cte"
         let fail_str = "
 with my_cte as (select 1), other_cte as (select 1) select * from my_cte
 cross join other_cte";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         println!("{fixed}");
     }

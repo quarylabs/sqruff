@@ -29,7 +29,7 @@ impl Rule for RuleST02 {
         "Unnecessary 'CASE' statement."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -85,7 +85,6 @@ select fab as fab_clean
 from fancy_table
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -514,7 +513,7 @@ select
     coalesce(fab > 0, false) as is_fab
 from fancy_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -531,7 +530,7 @@ select
     not coalesce(fab > 0, false) as is_fab
 from fancy_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -548,7 +547,7 @@ select
     coalesce(fab > 0 and tot > 0, false) as is_fab
 from fancy_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -565,7 +564,7 @@ select
     not coalesce(fab > 0 and tot > 0, false) as is_fab
 from fancy_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -582,7 +581,7 @@ select
     not coalesce(not fab > 0 or tot > 0, false) as is_fab
 from fancy_table";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -611,7 +610,7 @@ select
 
 from subscriptions_xf";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -633,7 +632,7 @@ select
     coalesce(bar, '123') as test
 from baz;";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -657,7 +656,7 @@ from baz;";
     from baz;
     "#;
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str.trim(), fixed.trim());
     }
 
@@ -679,7 +678,7 @@ select
     bar as test
 from baz;"#;
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -703,7 +702,7 @@ from baz;"#;
     from baz;
     "#;
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -726,7 +725,7 @@ from baz;"#;
     from baz;
     "#;
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 

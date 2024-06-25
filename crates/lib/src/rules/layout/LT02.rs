@@ -18,7 +18,11 @@ impl Rule for RuleLT02 {
         "layout.indent"
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn description(&self) -> &'static str {
+        "Incorrect Indentation."
+    }
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -44,11 +48,6 @@ SELECT
 FROM foo
 ```
 "#
-            .into()
-    }
-
-    fn description(&self) -> &'static str {
-        "Incorrect Indentation."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -85,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_fail_reindent_first_line_2() {
-        let fixed = fix("  select 1 from tbl;".into(), rules());
+        let fixed = fix("  select 1 from tbl;", rules());
         assert_eq!(fixed, "select 1 from tbl;");
     }
 
@@ -186,7 +185,7 @@ from foo";
 
     #[test]
     fn tabs_fail_default() {
-        let fixed = fix("SELECT\n\t\t1\n".into(), rules());
+        let fixed = fix("SELECT\n\t\t1\n", rules());
         assert_eq!(fixed, "SELECT\n    1\n");
     }
 
@@ -212,6 +211,6 @@ FROM spam";
         let fix_str = "\nSELECT\n    a,\t\t\t-- Some comment\n    longer_col\t-- A lined up \
                        comment\nFROM spam";
 
-        assert_eq!(fix(fail_str.into(), rules()), fix_str);
+        assert_eq!(fix(fail_str, rules()), fix_str);
     }
 }

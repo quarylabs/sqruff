@@ -49,7 +49,7 @@ impl Rule for RuleCV02 {
         "Use 'COALESCE' instead of 'IFNULL' or 'NVL'."
     }
 
-    fn long_description(&self) -> Option<&'static str> {
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -72,7 +72,6 @@ SELECT coalesce(foo, 0) AS bar,
 FROM baz;
 ```
 "#
-        .into()
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

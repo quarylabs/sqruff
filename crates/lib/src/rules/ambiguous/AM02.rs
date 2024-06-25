@@ -18,14 +18,11 @@ impl Rule for RuleAM02 {
         "ambiguous.union"
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn description(&self) -> &'static str {
         "Look for UNION keyword not immediately followed by DISTINCT or ALL"
     }
-    fn long_description(&self) -> Option<&'static str> {
+
+    fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
@@ -48,13 +45,7 @@ UNION DISTINCT
 SELECT a, b FROM table_2
 ```
 "#
-            .into()
     }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["set_operator"].into()).into()
-    }
-
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
         let supported_dialects = ["ansi", "hive", "mysql", "redshift"];
         if !supported_dialects.contains(&rule_cx.dialect.name) {
@@ -93,6 +84,14 @@ SELECT a, b FROM table_2
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["set_operator"].into()).into()
     }
 }
 
@@ -149,7 +148,7 @@ mod tests {
             FROM tbl1
         ";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(fix_str, actual);
     }
 
@@ -224,7 +223,7 @@ mod tests {
             FROM tbl2
         ";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(fix_str, actual);
     }
 
@@ -263,7 +262,7 @@ mod tests {
             from tbl2
         ";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(fix_str, actual);
     }
 

@@ -19,12 +19,43 @@ impl Rule for RuleLT03 {
         "layout.operators"
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, if line_position = leading (or unspecified, as is the default), then the operator + should not be at the end of the second line.
+
+```sql
+SELECT
+    a +
+    b
+FROM foo
+```
+
+**Best practice**
+
+If line_position = leading (or unspecified, as this is the default), place the operator after the newline.
+
+```sql
+SELECT
+    a
+    + b
+FROM foo
+```
+
+If line_position = trailing, place the operator before the newline.
+
+```sql
+SELECT
+    a +
+    b
+FROM foo
+```
+"#
+            .into()
+    }
     fn description(&self) -> &'static str {
         "Operators should follow a standard for being before/after newlines."
-    }
-
-    fn is_fix_compatible(&self) -> bool {
-        true
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -55,6 +86,10 @@ impl Rule for RuleLT03 {
         )
         .rebreak()
         .results()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

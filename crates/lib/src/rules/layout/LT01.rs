@@ -18,17 +18,46 @@ impl Rule for RuleLT01 {
         "layout.spacing"
     }
 
-    fn description(&self) -> &'static str {
-        "Inappropriate Spacing."
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, spacing is all over the place and is represented by `•`.
+
+```sql
+SELECT
+    a,        b(c) as d••
+FROM foo••••
+JOIN bar USING(a)
+```
+
+**Best practice**
+
+- Unless an indent or preceding a comment, whitespace should be a single space.
+- There should also be no trailing whitespace at the ends of lines.
+- There should be a space after USING so that it’s not confused for a function.
+
+```sql
+SELECT
+    a, b(c) as d
+FROM foo
+JOIN bar USING (a)
+```
+"#
+        .into()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        false
+    fn description(&self) -> &'static str {
+        "Inappropriate Spacing."
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment, context.config.unwrap());
         sequence.respace(false, Filter::All).results()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        false
     }
 
     fn crawl_behaviour(&self) -> Crawler {

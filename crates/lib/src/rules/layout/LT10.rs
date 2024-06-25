@@ -18,18 +18,40 @@ impl Rule for RuleLT10 {
         RuleLT10::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.select_modifiers"
+    }
+
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the `DISTINCT` modifier is on the next line after the `SELECT` keyword.
+
+```sql
+select
+    distinct a,
+    b
+from x
+```
+
+**Best practice**
+
+Move the `DISTINCT` modifier to the same line as the `SELECT` keyword.
+
+```sql
+select distinct
+    a,
+    b
+from x
+```
+"#
+        .into()
     }
 
     fn description(&self) -> &'static str {
         "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
     }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
         let child_segments = FunctionalContext::new(context.clone()).segment().children(None);
@@ -115,6 +137,10 @@ impl Rule for RuleLT10 {
         fixes.push(LintFix::delete(select_clause_modifier.clone()));
 
         vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

@@ -14,18 +14,37 @@ impl Rule for RuleLT11 {
         RuleLT11.erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.set_operators"
+    }
+
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, `UNION ALL` is not on a line itself.
+
+```sql
+SELECT 'a' AS col UNION ALL
+SELECT 'b' AS col
+```
+
+**Best practice**
+
+Place `UNION ALL` on its own line.
+
+```sql
+SELECT 'a' AS col
+UNION ALL
+SELECT 'b' AS col
+```
+"#
+        .into()
     }
 
     fn description(&self) -> &'static str {
         "Set operators should be surrounded by newlines."
     }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_around_target(
             &context.segment,
@@ -35,6 +54,10 @@ impl Rule for RuleLT11 {
         )
         .rebreak()
         .results()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

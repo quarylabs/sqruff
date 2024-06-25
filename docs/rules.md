@@ -748,6 +748,30 @@ Inappropriate Spacing.
 **Fixable:** No
 
 
+**Anti-pattern**
+
+In this example, spacing is all over the place and is represented by `•`.
+
+```sql
+SELECT
+    a,        b(c) as d••
+FROM foo••••
+JOIN bar USING(a)
+```
+
+**Best practice**
+
+- Unless an indent or preceding a comment, whitespace should be a single space.
+- There should also be no trailing whitespace at the ends of lines.
+- There should be a space after USING so that it’s not confused for a function.
+
+```sql
+SELECT
+    a, b(c) as d
+FROM foo
+JOIN bar USING (a)
+```
+
 
 ### layout.indent
 
@@ -757,6 +781,30 @@ Incorrect Indentation.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+The ``•`` character represents a space and the ``→`` character represents a tab.
+In this example, the third line contains five spaces instead of four and
+the second line contains two spaces and one tab.
+
+```sql
+SELECT
+••→a,
+•••••b
+FROM foo
+```
+
+**Best practice**
+
+Change the indentation to use a multiple of four spaces. This example also assumes that the indent_unit config value is set to space. If it had instead been set to tab, then the indents would be tabs instead.
+
+```sql
+SELECT
+••••a,
+••••b
+FROM foo
+```
 
 
 ### layout.operators
@@ -768,6 +816,37 @@ Operators should follow a standard for being before/after newlines.
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+In this example, if line_position = leading (or unspecified, as is the default), then the operator + should not be at the end of the second line.
+
+```sql
+SELECT
+    a +
+    b
+FROM foo
+```
+
+**Best practice**
+
+If line_position = leading (or unspecified, as this is the default), place the operator after the newline.
+
+```sql
+SELECT
+    a
+    + b
+FROM foo
+```
+
+If line_position = trailing, place the operator before the newline.
+
+```sql
+SELECT
+    a +
+    b
+FROM foo
+```
+
 
 ### layout.commas
 
@@ -777,6 +856,39 @@ Leading/Trailing comma enforcement.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+There is a mixture of leading and trailing commas.
+
+```sql
+SELECT
+    a
+    , b,
+    c
+FROM foo
+```
+
+**Best practice**
+
+By default, sqruff prefers trailing commas. However it is configurable for leading commas. The chosen style must be used consistently throughout your SQL.
+
+```sql
+SELECT
+    a,
+    b,
+    c
+FROM foo
+
+-- Alternatively, set the configuration file to 'leading'
+-- and then the following would be acceptable:
+
+SELECT
+    a
+    , b
+    , c
+FROM foo
+```
 
 
 ### layout.long_lines
@@ -788,6 +900,35 @@ Line is too long.
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+In this example, the line is too long.
+
+```sql
+SELECT
+    my_function(col1 + col2, arg2, arg3) over (partition by col3, col4 order by col5 rows between unbounded preceding and current row) as my_relatively_long_alias,
+    my_other_function(col6, col7 + col8, arg4) as my_other_relatively_long_alias,
+    my_expression_function(col6, col7 + col8, arg4) = col9 + col10 as another_relatively_long_alias
+FROM my_table
+```
+
+**Best practice**
+
+Wraps the line to be within the maximum line length.
+
+```sql
+SELECT
+    my_function(col1 + col2, arg2, arg3)
+        over (
+            partition by col3, col4
+            order by col5 rows between unbounded preceding and current row
+        )
+        as my_relatively_long_alias,
+    my_other_function(col6, col7 + col8, arg4)
+        as my_other_relatively_long_alias,
+    my_expression_function(col6, col7 + col8, arg4)
+    = col9 + col10 as another_relatively_long_alias
+FROM my_table
 
 ### layout.functions
 
@@ -797,6 +938,26 @@ Function name not immediately followed by parenthesis.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+In this example, there is a space between the function and the parenthesis.
+
+```sql
+SELECT
+    sum (a)
+FROM foo
+```
+
+**Best practice**
+
+Remove the space between the function and the parenthesis.
+
+```sql
+SELECT
+    sum(a)
+FROM foo
+```
 
 
 ### layout.cte_bracket
@@ -808,6 +969,29 @@ Function name not immediately followed by parenthesis.
 **Fixable:** No
 
 
+**Anti-pattern**
+
+In this example, the closing bracket is on the same line as CTE.
+
+```sql
+ WITH zoo AS (
+     SELECT a FROM foo)
+
+ SELECT * FROM zoo
+```
+
+**Best practice**
+
+Move the closing bracket on a new line.
+
+```sql
+WITH zoo AS (
+    SELECT a FROM foo
+)
+
+SELECT * FROM zoo
+```
+
 
 ### layout.cte_newline
 
@@ -817,6 +1001,29 @@ Blank line expected but not found after CTE closing bracket.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+There is no blank line after the CTE closing bracket. In queries with many CTEs, this hinders readability.
+
+```sql
+WITH plop AS (
+    SELECT * FROM foo
+)
+SELECT a FROM plop
+```
+
+**Best practice**
+
+Add a blank line.
+
+```sql
+WITH plop AS (
+    SELECT * FROM foo
+)
+
+SELECT a FROM plop
+```
 
 
 ### layout.select_targets
@@ -828,6 +1035,49 @@ Select targets should be on a new line unless there is only one select target.
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+Multiple select targets on the same line.
+
+```sql
+select a, b
+from foo;
+
+-- Single select target on its own line.
+
+SELECT
+    a
+FROM foo;
+```
+
+**Best practice**
+
+Multiple select targets each on their own line.
+
+```sql
+select
+    a,
+    b
+from foo;
+
+-- Single select target on the same line as the ``SELECT``
+-- keyword.
+
+SELECT a
+FROM foo;
+
+-- When select targets span multiple lines, however they
+-- can still be on a new line.
+
+SELECT
+    SUM(
+        1 + SUM(
+            2 + 3
+        )
+    ) AS col
+FROM test_table;
+```
+
 
 ### layout.select_modifiers
 
@@ -837,6 +1087,28 @@ Select targets should be on a new line unless there is only one select target.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+In this example, the `DISTINCT` modifier is on the next line after the `SELECT` keyword.
+
+```sql
+select
+    distinct a,
+    b
+from x
+```
+
+**Best practice**
+
+Move the `DISTINCT` modifier to the same line as the `SELECT` keyword.
+
+```sql
+select distinct
+    a,
+    b
+from x
+```
 
 
 ### layout.set_operators
@@ -848,6 +1120,25 @@ Set operators should be surrounded by newlines.
 **Fixable:** Yes
 
 
+**Anti-pattern**
+
+In this example, `UNION ALL` is not on a line itself.
+
+```sql
+SELECT 'a' AS col UNION ALL
+SELECT 'b' AS col
+```
+
+**Best practice**
+
+Place `UNION ALL` on its own line.
+
+```sql
+SELECT 'a' AS col
+UNION ALL
+SELECT 'b' AS col
+```
+
 
 ### layout.end_of_file
 
@@ -857,6 +1148,70 @@ Files must end with a single trailing newline.
 
 **Fixable:** Yes
 
+
+**Anti-pattern**
+
+The content in file does not end with a single trailing newline. The $ represents end of file.
+
+```sql
+ SELECT
+     a
+ FROM foo$
+
+ -- Ending on an indented line means there is no newline
+ -- at the end of the file, the • represents space.
+
+ SELECT
+ ••••a
+ FROM
+ ••••foo
+ ••••$
+
+ -- Ending on a semi-colon means the last line is not a
+ -- newline.
+
+ SELECT
+     a
+ FROM foo
+ ;$
+
+ -- Ending with multiple newlines.
+
+ SELECT
+     a
+ FROM foo
+
+ $
+```
+
+**Best practice**
+
+Add trailing newline to the end. The $ character represents end of file.
+
+```sql
+ SELECT
+     a
+ FROM foo
+ $
+
+ -- Ensuring the last line is not indented so is just a
+ -- newline.
+
+ SELECT
+ ••••a
+ FROM
+ ••••foo
+ $
+
+ -- Even when ending on a semi-colon, ensure there is a
+ -- newline after.
+
+ SELECT
+     a
+ FROM foo
+ ;
+ $
+```
 
 
 ### references.from

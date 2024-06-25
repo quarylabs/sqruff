@@ -15,16 +15,66 @@ impl Rule for RuleLT13 {
         unimplemented!()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    // TODO Turn lint phase into an enum
+    fn lint_phase(&self) -> &'static str {
+        "post"
     }
 
     fn name(&self) -> &'static str {
         "layout.start_of_file"
     }
 
-    fn lint_phase(&self) -> &'static str {
-        "post"
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+The file begins with newlines or whitespace. The ^ represents the beginning of the file.
+
+```sql
+ ^
+
+ SELECT
+     a
+ FROM foo
+
+ -- Beginning on an indented line is also forbidden,
+ -- (the • represents space).
+
+ ••••SELECT
+ ••••a
+ FROM
+ ••••foo
+```
+
+**Best practice**
+
+Start file on either code or comment. (The ^ represents the beginning of the file.)
+
+```sql
+ ^SELECT
+     a
+ FROM foo
+
+ -- Including an initial block comment.
+
+ ^/*
+ This is a description of my SQL code.
+ */
+ SELECT
+     a
+ FROM
+     foo
+
+ -- Including an initial inline comment.
+
+ ^--This is a description of my SQL code.
+ SELECT
+     a
+ FROM
+     foo
+```
+"#
+        .into()
     }
 
     fn description(&self) -> &'static str {
@@ -61,6 +111,10 @@ impl Rule for RuleLT13 {
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

@@ -35,18 +35,61 @@ impl Rule for RuleLT09 {
             .erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.select_targets"
+    }
+
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+Multiple select targets on the same line.
+
+```sql
+select a, b
+from foo;
+
+-- Single select target on its own line.
+
+SELECT
+    a
+FROM foo;
+```
+
+**Best practice**
+
+Multiple select targets each on their own line.
+
+```sql
+select
+    a,
+    b
+from foo;
+
+-- Single select target on the same line as the ``SELECT``
+-- keyword.
+
+SELECT a
+FROM foo;
+
+-- When select targets span multiple lines, however they
+-- can still be on a new line.
+
+SELECT
+    SUM(
+        1 + SUM(
+            2 + 3
+        )
+    ) AS col
+FROM test_table;
+```
+"#
+        .into()
     }
 
     fn description(&self) -> &'static str {
         "Select targets should be on a new line unless there is only one select target."
     }
-
     #[allow(unused_variables)]
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context.clone());
@@ -67,6 +110,10 @@ impl Rule for RuleLT09 {
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

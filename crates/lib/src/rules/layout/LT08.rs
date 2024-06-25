@@ -18,18 +18,41 @@ impl Rule for RuleLT08 {
         RuleLT08::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.cte_newline"
+    }
+
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+There is no blank line after the CTE closing bracket. In queries with many CTEs, this hinders readability.
+
+```sql
+WITH plop AS (
+    SELECT * FROM foo
+)
+SELECT a FROM plop
+```
+
+**Best practice**
+
+Add a blank line.
+
+```sql
+WITH plop AS (
+    SELECT * FROM foo
+)
+
+SELECT a FROM plop
+```
+"#
+        .into()
     }
 
     fn description(&self) -> &'static str {
         "Blank line expected but not found after CTE closing bracket."
     }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
         let global_comma_style = "trailing";
@@ -169,6 +192,10 @@ impl Rule for RuleLT08 {
         }
 
         error_buffer
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

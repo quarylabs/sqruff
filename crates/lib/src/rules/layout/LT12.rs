@@ -45,20 +45,84 @@ impl Rule for RuleLT12 {
         RuleLT12::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn lint_phase(&self) -> &'static str {
+        "post"
     }
 
     fn name(&self) -> &'static str {
         "layout.end_of_file"
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+The content in file does not end with a single trailing newline. The $ represents end of file.
+
+```sql
+ SELECT
+     a
+ FROM foo$
+
+ -- Ending on an indented line means there is no newline
+ -- at the end of the file, the • represents space.
+
+ SELECT
+ ••••a
+ FROM
+ ••••foo
+ ••••$
+
+ -- Ending on a semi-colon means the last line is not a
+ -- newline.
+
+ SELECT
+     a
+ FROM foo
+ ;$
+
+ -- Ending with multiple newlines.
+
+ SELECT
+     a
+ FROM foo
+
+ $
+```
+
+**Best practice**
+
+Add trailing newline to the end. The $ character represents end of file.
+
+```sql
+ SELECT
+     a
+ FROM foo
+ $
+
+ -- Ensuring the last line is not indented so is just a
+ -- newline.
+
+ SELECT
+ ••••a
+ FROM
+ ••••foo
+ $
+
+ -- Even when ending on a semi-colon, ensure there is a
+ -- newline after.
+
+ SELECT
+     a
+ FROM foo
+ ;
+ $
+```
+"#
+        .into()
+    }
     fn description(&self) -> &'static str {
         "Files must end with a single trailing newline."
-    }
-
-    fn lint_phase(&self) -> &'static str {
-        "post"
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -99,6 +163,10 @@ impl Rule for RuleLT12 {
         } else {
             vec![]
         }
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

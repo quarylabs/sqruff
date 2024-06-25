@@ -44,6 +44,31 @@ impl Rule for RuleCV04 {
         "Use consistent syntax to express \"count number of rows\"."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, `count(1)` is used to count the number of rows in a table.
+
+```sql
+select
+    count(1)
+from table_a
+```
+
+**Best practice**
+
+Use count(*) unless specified otherwise by config prefer_count_1, or prefer_count_0 as preferred.
+
+```sql
+select
+    count(*)
+from table_a
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let Some(function_name) = context.segment.child(&["function_name"]) else {
             return Vec::new();

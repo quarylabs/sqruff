@@ -49,6 +49,32 @@ impl Rule for RuleCV02 {
         "Use 'COALESCE' instead of 'IFNULL' or 'NVL'."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+`IFNULL` or `NVL` are used to fill `NULL` values.
+
+```sql
+SELECT ifnull(foo, 0) AS bar,
+FROM baz;
+
+SELECT nvl(foo, 0) AS bar,
+FROM baz;
+```
+
+**Best practice**
+
+Use COALESCE instead. COALESCE is universally supported, whereas Redshift doesn’t support IFNULL and BigQuery doesn’t support NVL. Additionally, COALESCE is more flexible and accepts an arbitrary number of arguments.
+
+```sql
+SELECT coalesce(foo, 0) AS bar,
+FROM baz;
+```
+"#
+        .into()
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Use "COALESCE" instead of "IFNULL" or "NVL".
         // We only care about function names, and they should be the

@@ -44,6 +44,33 @@ impl Rule for RuleCV05 {
         "Relational operators should not be used to check for NULL values."
     }
 
+    fn long_description(&self) -> Option<&'static str> {
+        r#"
+**Anti-pattern**
+
+In this example, the `=` operator is used to check for `NULL` values.
+
+```sql
+SELECT
+    a
+FROM foo
+WHERE a = NULL
+```
+
+**Best practice**
+
+Use `IS` or `IS NOT` to check for `NULL` values.
+
+```sql
+SELECT
+    a
+FROM foo
+WHERE a IS NULL
+```
+"#
+        .into()
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["comparison_operator"].into()).into()
     }

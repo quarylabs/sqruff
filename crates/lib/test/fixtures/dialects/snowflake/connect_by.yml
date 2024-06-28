@@ -40,7 +40,7 @@ file:
           - keyword: prior
           - column_reference:
             - naked_identifier: employee_id
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -101,7 +101,7 @@ file:
           - keyword: prior
           - column_reference:
             - naked_identifier: employee_id
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -169,7 +169,7 @@ file:
           - keyword: prior
           - column_reference:
             - naked_identifier: component_id
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -224,7 +224,7 @@ file:
           - keyword: prior
           - column_reference:
             - naked_identifier: employee_id
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:

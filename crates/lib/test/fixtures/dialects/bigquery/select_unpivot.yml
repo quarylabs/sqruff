@@ -8,7 +8,7 @@ file:
       - bracketed:
         - start_bracket: (
         - set_expression:
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -43,7 +43,7 @@ file:
           - set_operator:
             - keyword: UNION
             - keyword: ALL
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:

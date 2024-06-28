@@ -38,7 +38,7 @@ file:
                   - expression:
                     - column_reference:
                       - naked_identifier: col1
-                - order_by_clause:
+                - orderby_clause:
                   - keyword: order
                   - keyword: by
                   - column_reference:

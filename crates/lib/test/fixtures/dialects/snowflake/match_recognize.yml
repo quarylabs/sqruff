@@ -25,7 +25,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -166,7 +166,7 @@ file:
                       - naked_identifier: price
                   - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -233,7 +233,7 @@ file:
           - keyword: match_recognize
           - bracketed:
             - start_bracket: (
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -306,7 +306,7 @@ file:
                       - naked_identifier: price
                   - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -341,7 +341,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -403,7 +403,7 @@ file:
                         - keyword: following
                     - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -438,7 +438,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -511,7 +511,7 @@ file:
                         - keyword: following
                     - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -561,7 +561,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -635,7 +635,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - quoted_literal: '''ABCD'''
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -667,7 +667,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -834,7 +834,7 @@ file:
                       - naked_identifier: price
                   - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -869,7 +869,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -1032,7 +1032,7 @@ file:
                       - naked_identifier: price
                   - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -1067,7 +1067,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -1216,7 +1216,7 @@ file:
                       - naked_identifier: price
                   - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -1251,7 +1251,7 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: company
-            - order_by_clause:
+            - orderby_clause:
               - keyword: order
               - keyword: by
               - column_reference:
@@ -1399,7 +1399,7 @@ file:
                       - naked_identifier: price
                   - end_bracket: )
             - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:

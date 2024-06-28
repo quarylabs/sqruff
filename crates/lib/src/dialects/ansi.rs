@@ -6384,62 +6384,6 @@ impl JoinClauseSegment {
     }
 }
 
-pub struct StatementSegment;
-
-impl NodeTrait for StatementSegment {
-    const TYPE: &'static str = "stsatement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec![
-            Ref::new("SelectableGrammar").boxed(),
-            Ref::new("MergeStatementSegment").boxed(),
-            Ref::new("InsertStatementSegment").boxed(),
-            Ref::new("TransactionStatementSegment").boxed(),
-            Ref::new("DropTableStatementSegment").boxed(),
-            Ref::new("DropViewStatementSegment").boxed(),
-            Ref::new("CreateUserStatementSegment").boxed(),
-            Ref::new("DropUserStatementSegment").boxed(),
-            Ref::new("TruncateStatementSegment").boxed(),
-            Ref::new("AccessStatementSegment").boxed(),
-            Ref::new("CreateTableStatementSegment").boxed(),
-            Ref::new("CreateRoleStatementSegment").boxed(),
-            Ref::new("DropRoleStatementSegment").boxed(),
-            Ref::new("AlterTableStatementSegment").boxed(),
-            Ref::new("CreateSchemaStatementSegment").boxed(),
-            Ref::new("SetSchemaStatementSegment").boxed(),
-            Ref::new("DropSchemaStatementSegment").boxed(),
-            Ref::new("DropTypeStatementSegment").boxed(),
-            Ref::new("CreateDatabaseStatementSegment").boxed(),
-            Ref::new("DropDatabaseStatementSegment").boxed(),
-            Ref::new("CreateIndexStatementSegment").boxed(),
-            Ref::new("DropIndexStatementSegment").boxed(),
-            Ref::new("CreateViewStatementSegment").boxed(),
-            Ref::new("DeleteStatementSegment").boxed(),
-            Ref::new("UpdateStatementSegment").boxed(),
-            Ref::new("CreateCastStatementSegment").boxed(),
-            Ref::new("DropCastStatementSegment").boxed(),
-            Ref::new("CreateFunctionStatementSegment").boxed(),
-            Ref::new("DropFunctionStatementSegment").boxed(),
-            Ref::new("CreateModelStatementSegment").boxed(),
-            Ref::new("DropModelStatementSegment").boxed(),
-            Ref::new("DescribeStatementSegment").boxed(),
-            Ref::new("UseStatementSegment").boxed(),
-            Ref::new("ExplainStatementSegment").boxed(),
-            Ref::new("CreateSequenceStatementSegment").boxed(),
-            Ref::new("AlterSequenceStatementSegment").boxed(),
-            Ref::new("DropSequenceStatementSegment").boxed(),
-            Ref::new("CreateTriggerStatementSegment").boxed(),
-            Ref::new("DropTriggerStatementSegment").boxed(),
-        ])
-        .config(|this| this.terminators = vec_of_erased![Ref::new("DelimiterGrammar")])
-        .to_matchable()
-    }
-
-    fn class_types() -> AHashSet<&'static str> {
-        ["stssatement"].into()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use expect_test::expect_file;

@@ -64,6 +64,7 @@ impl Dialect {
         }
     }
 
+    #[track_caller]
     pub fn replace_grammar(&mut self, name: &str, match_grammar: Arc<dyn Matchable>) {
         match self.library.get_mut(name).unwrap() {
             DialectElementType::Matchable(matchable) => {

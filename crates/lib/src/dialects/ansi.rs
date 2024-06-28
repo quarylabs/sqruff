@@ -156,7 +156,7 @@ impl Segment for Nodev2 {
 
     fn class_types(&self) -> AHashSet<&'static str> {
         match self.kind {
-            SyntaxKind::ColumnReferenceSegment => ["object_reference", self.get_type()].into(),
+            SyntaxKind::ColumnReference => ["object_reference", self.get_type()].into(),
             SyntaxKind::WildcardIdentifier => ["wildcard_identifier", "object_reference"].into(),
             _ => [self.get_type()].into(),
         }
@@ -1812,7 +1812,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "ColumnReferenceSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::ColumnReferenceSegment,
+                SyntaxKind::ColumnReference,
                 Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
                     .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
                     .to_matchable(),
@@ -2157,7 +2157,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "AlterSequenceOptionsSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::AlterSequenceOptions,
+                SyntaxKind::AlterSequenceOptionsSegment,
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("INCREMENT"),
@@ -2269,7 +2269,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "ColumnConstraintSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::ColumnConstraint,
+                SyntaxKind::ColumnConstraintSegment,
                 Sequence::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("CONSTRAINT"),
@@ -2342,7 +2342,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "MergeMatchedClauseSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::MergeMatchedClause,
+                SyntaxKind::MergeWhenMatchedClause,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WHEN"),
                     Ref::keyword("MATCHED"),
@@ -2367,7 +2367,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "MergeNotMatchedClauseSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::MergeNotMatchedClause,
+                SyntaxKind::MergeWhenNotMatchedClause,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WHEN"),
                     Ref::keyword("NOT"),
@@ -2840,7 +2840,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "SamplingExpressionSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::SamplingExpression,
+                SyntaxKind::SampleExpression,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("TABLESAMPLE"),
                     one_of(vec_of_erased![Ref::keyword("BERNOULLI"), Ref::keyword("SYSTEM")]),
@@ -2891,7 +2891,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "SamplingExpressionSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::SamplingExpression,
+                SyntaxKind::SampleExpression,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("TABLESAMPLE"),
                     one_of(vec_of_erased![Ref::keyword("BERNOULLI"), Ref::keyword("SYSTEM")]),
@@ -3104,7 +3104,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "CreateSequenceOptionsSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::CreateSequenceOptions,
+                SyntaxKind::CreateSequenceOptionsSegment,
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("INCREMENT"),
@@ -4412,7 +4412,7 @@ pub fn ansi_raw_dialect() -> Dialect {
         (
             "TimeZoneGrammar".into(),
             NodeMatcher::new(
-                SyntaxKind::TimeZone,
+                SyntaxKind::TimeZoneGrammar,
                 AnyNumberOf::new(vec![
                     Sequence::new(vec![
                         Ref::keyword("AT").boxed(),

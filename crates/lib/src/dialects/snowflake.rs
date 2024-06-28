@@ -8217,7 +8217,7 @@ impl NodeTrait for SelectClauseSegment {
 pub struct OrderByClauseSegment;
 
 impl NodeTrait for OrderByClauseSegment {
-    const TYPE: &'static str = "order_by_clause";
+    const TYPE: &'static str = "orderby_clause";
 
     fn match_grammar() -> Arc<dyn Matchable> {
         Sequence::new(vec_of_erased![

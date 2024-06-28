@@ -112,7 +112,7 @@ file:
               - keyword: group
               - bracketed:
                 - start_bracket: (
-                - order_by_clause:
+                - orderby_clause:
                   - keyword: order
                   - keyword: by
                   - column_reference:
@@ -154,7 +154,7 @@ file:
             - keyword: GROUP
             - bracketed:
               - start_bracket: (
-              - order_by_clause:
+              - orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
                 - column_reference:
@@ -189,7 +189,7 @@ file:
             - keyword: group
             - bracketed:
               - start_bracket: (
-              - order_by_clause:
+              - orderby_clause:
                 - keyword: order
                 - keyword: by
                 - column_reference:
@@ -233,7 +233,7 @@ file:
             - keyword: group
             - bracketed:
               - start_bracket: (
-              - order_by_clause:
+              - orderby_clause:
                 - keyword: order
                 - keyword: by
                 - column_reference:
@@ -256,7 +256,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: '>'
         - numeric_literal: '450000'
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -286,7 +286,7 @@ file:
             - keyword: group
             - bracketed:
               - start_bracket: (
-              - order_by_clause:
+              - orderby_clause:
                 - keyword: order
                 - keyword: by
                 - column_reference:
@@ -314,7 +314,7 @@ file:
       - keyword: by
       - column_reference:
         - naked_identifier: o_orderstatus
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -416,7 +416,7 @@ file:
             - keyword: group
             - bracketed:
               - start_bracket: (
-              - order_by_clause:
+              - orderby_clause:
                 - keyword: order
                 - keyword: by
                 - column_reference:
@@ -467,7 +467,7 @@ file:
             - keyword: group
             - bracketed:
               - start_bracket: (
-              - order_by_clause:
+              - orderby_clause:
                 - keyword: order
                 - keyword: by
                 - expression:
@@ -520,7 +520,7 @@ file:
             - keyword: group
             - bracketed:
               - start_bracket: (
-              - order_by_clause:
+              - orderby_clause:
                 - keyword: order
                 - keyword: by
                 - expression:

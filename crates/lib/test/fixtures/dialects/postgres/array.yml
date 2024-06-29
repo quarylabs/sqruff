@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -27,7 +27,7 @@ file:
               - numeric_literal: '4'
               - end_square_bracket: ']'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -52,7 +52,7 @@ file:
               - end_square_bracket: ']'
             - end_square_bracket: ']'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -83,7 +83,7 @@ file:
         - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -106,7 +106,7 @@ file:
         - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -118,7 +118,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: sal_emp
@@ -165,7 +165,7 @@ file:
           - raw_comparison_operator: =
         - numeric_literal: '10000'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -216,7 +216,7 @@ file:
               - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -267,7 +267,7 @@ file:
               - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -278,7 +278,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: sal_emp
@@ -301,7 +301,7 @@ file:
           - numeric_literal: '2'
           - end_square_bracket: ']'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -325,7 +325,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: sal_emp
@@ -338,7 +338,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''Bill'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
@@ -365,7 +365,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''Bill'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
@@ -394,7 +394,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''Carol'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -430,7 +430,7 @@ file:
                   - end_square_bracket: ']'
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -474,7 +474,7 @@ file:
                   - end_square_bracket: ']'
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -494,7 +494,7 @@ file:
             - pipe: '|'
           - quoted_literal: '''{3, 4}'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -529,7 +529,7 @@ file:
               - quoted_literal: '''mon'''
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -580,7 +580,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - bracketed:
               - start_bracket: (
               - select_statement:
@@ -603,7 +603,7 @@ file:
             - keyword: AS
             - naked_identifier: ss
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -618,7 +618,7 @@ file:
           - keyword: AS
           - naked_identifier: text_array
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -640,7 +640,7 @@ file:
             - data_type:
               - '': _TEXT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -703,12 +703,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: direction_with_vertical_change
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -752,7 +752,7 @@ file:
             - numeric_literal: '3'
             - end_square_bracket: ']'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

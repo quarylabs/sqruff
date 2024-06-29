@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -18,7 +18,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -32,7 +32,7 @@ file:
     - keyword: DEFAULT
     - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -46,7 +46,7 @@ file:
     - keyword: DEFAULT
     - quoted_literal: '''value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -60,7 +60,7 @@ file:
     - keyword: DEFAULT
     - boolean_literal: 'false'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -76,7 +76,7 @@ file:
       - column_reference:
         - naked_identifier: other_value
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -90,7 +90,7 @@ file:
     - keyword: DEFAULT
     - bare_function: CURRENT_TIMESTAMP
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -112,7 +112,7 @@ file:
             - naked_identifier: a_parameter
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -133,7 +133,7 @@ file:
           - quoted_literal: '''a_parameter'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -146,7 +146,7 @@ file:
     - keyword: DROP
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -167,7 +167,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -183,7 +183,7 @@ file:
     - keyword: DEFAULT
     - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -199,7 +199,7 @@ file:
     - keyword: DEFAULT
     - quoted_literal: '''value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -215,7 +215,7 @@ file:
     - keyword: DEFAULT
     - boolean_literal: 'false'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -233,7 +233,7 @@ file:
       - column_reference:
         - naked_identifier: other_value
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -249,7 +249,7 @@ file:
     - keyword: DEFAULT
     - bare_function: CURRENT_TIMESTAMP
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -273,7 +273,7 @@ file:
             - naked_identifier: a_parameter
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -296,7 +296,7 @@ file:
           - quoted_literal: '''a_parameter'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -311,7 +311,7 @@ file:
     - keyword: DROP
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -323,7 +323,7 @@ file:
     - object_reference:
       - naked_identifier: baz_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -335,7 +335,7 @@ file:
     - object_reference:
       - quoted_identifier: '"baz-role"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -346,7 +346,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_ROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -358,7 +358,7 @@ file:
     - object_reference:
       - naked_identifier: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -369,7 +369,7 @@ file:
     - keyword: TO
     - keyword: SESSION_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -383,7 +383,7 @@ file:
     - object_reference:
       - naked_identifier: baz_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -397,7 +397,7 @@ file:
     - object_reference:
       - quoted_identifier: '"baz-role"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -410,7 +410,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_ROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -424,7 +424,7 @@ file:
     - object_reference:
       - naked_identifier: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -437,7 +437,7 @@ file:
     - keyword: TO
     - keyword: SESSION_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -451,7 +451,7 @@ file:
     - column_reference:
       - naked_identifier: new_column_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -466,7 +466,7 @@ file:
     - column_reference:
       - naked_identifier: new_column_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -482,7 +482,7 @@ file:
     - column_reference:
       - naked_identifier: new_column_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -499,7 +499,7 @@ file:
     - column_reference:
       - naked_identifier: new_column_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -512,7 +512,7 @@ file:
       - object_reference:
         - naked_identifier: new_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -527,7 +527,7 @@ file:
       - object_reference:
         - naked_identifier: new_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -540,7 +540,7 @@ file:
       - object_reference:
         - naked_identifier: new_schema
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -555,7 +555,7 @@ file:
       - object_reference:
         - naked_identifier: new_schema
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -568,7 +568,7 @@ file:
       - parameter: view_option_name
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -584,7 +584,7 @@ file:
       - numeric_literal: '1'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -612,7 +612,7 @@ file:
       - boolean_literal: 'false'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -627,7 +627,7 @@ file:
       - parameter: view_option_name
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -645,7 +645,7 @@ file:
       - numeric_literal: '1'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -667,7 +667,7 @@ file:
       - parameter: view_option_name3
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -680,7 +680,7 @@ file:
       - parameter: view_option_name
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -695,7 +695,7 @@ file:
       - parameter: view_option_name2
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -710,7 +710,7 @@ file:
       - parameter: view_option_name
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW

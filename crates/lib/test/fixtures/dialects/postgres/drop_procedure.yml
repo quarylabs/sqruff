@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: DROP
     - keyword: PROCEDURE
@@ -10,14 +10,14 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
     - function_name:
       - function_name_identifier: insert_actor
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
@@ -30,7 +30,7 @@ file:
           - keyword: varchar
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
@@ -46,7 +46,7 @@ file:
           - keyword: varchar
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
@@ -56,7 +56,7 @@ file:
     - function_name:
       - function_name_identifier: update_actor
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
@@ -67,7 +67,7 @@ file:
       - function_name_identifier: update_actor
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
@@ -82,7 +82,7 @@ file:
           - keyword: varchar
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_procedure_statement:
     - keyword: drop
     - keyword: procedure

@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_domain_statement:
     - keyword: CREATE
     - keyword: DOMAIN
@@ -24,7 +24,7 @@ file:
           - quoted_literal: '''^\d{5}-\d{4}$'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_domain_statement:
     - keyword: create
     - keyword: domain
@@ -34,7 +34,7 @@ file:
     - data_type:
       - keyword: text
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_domain_statement:
     - keyword: CREATE
     - keyword: DOMAIN

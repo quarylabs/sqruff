@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: LOCAL
@@ -8,7 +8,7 @@ file:
       - raw_comparison_operator: =
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - parameter: search_path
@@ -17,7 +17,7 @@ file:
     - comma: ','
     - naked_identifier: public
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - parameter: datestyle
@@ -26,7 +26,7 @@ file:
     - comma: ','
     - naked_identifier: dmy
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: SESSION
@@ -36,7 +36,7 @@ file:
     - comma: ','
     - quoted_literal: '''dmy'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - parameter: value
@@ -48,7 +48,7 @@ file:
     - comma: ','
     - naked_identifier: auto
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - parameter: value
@@ -58,61 +58,61 @@ file:
     - comma: ','
     - boolean_literal: 'FALSE'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: TIME
     - keyword: ZONE
     - quoted_literal: '''PST8PDT'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: TIME
     - keyword: ZONE
     - quoted_literal: '''Europe/Rome'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: TIME
     - keyword: ZONE
     - keyword: LOCAL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: TIME
     - keyword: ZONE
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: SCHEMA
     - quoted_literal: '''my_schema'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: SCHEMA
     - quoted_literal: '''public'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: ROLE
     - role_reference:
       - naked_identifier: my_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: ROLE
     - role_reference:
       - quoted_identifier: '"my role"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - set_statement:
     - keyword: SET
     - keyword: ROLE

@@ -1,25 +1,25 @@
 file:
-- statement_segment:
+- statement:
   - discard_statement:
     - keyword: DISCARD
     - keyword: ALL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - discard_statement:
     - keyword: DISCARD
     - keyword: PLANS
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - discard_statement:
     - keyword: DISCARD
     - keyword: SEQUENCES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - discard_statement:
     - keyword: DISCARD
     - keyword: TEMPORARY
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - discard_statement:
     - keyword: DISCARD
     - keyword: TEMP

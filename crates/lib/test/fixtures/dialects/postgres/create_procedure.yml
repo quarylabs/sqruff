@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -26,7 +26,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: plpgsql
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE

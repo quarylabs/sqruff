@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
@@ -14,7 +14,7 @@ file:
     - trigger_reference:
       - naked_identifier: new_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
@@ -30,7 +30,7 @@ file:
     - extension_reference:
       - naked_identifier: extension_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
@@ -47,7 +47,7 @@ file:
     - extension_reference:
       - naked_identifier: extension_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER
@@ -62,7 +62,7 @@ file:
     - trigger_reference:
       - naked_identifier: emp_track_chgs
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_trigger:
     - keyword: ALTER
     - keyword: TRIGGER

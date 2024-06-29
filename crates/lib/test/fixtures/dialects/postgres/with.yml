@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -19,7 +19,7 @@ file:
             - keyword: FROM
             - from_expression:
               - from_expression_element:
-                - table_expression_segment:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: other_table
@@ -35,7 +35,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: w
@@ -45,7 +45,7 @@ file:
           - join_clause:
             - keyword: JOIN
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: w
@@ -76,7 +76,7 @@ file:
             - raw_comparison_operator: =
           - numeric_literal: '123'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -97,7 +97,7 @@ file:
             - keyword: FROM
             - from_expression:
               - from_expression_element:
-                - table_expression_segment:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: big_table
@@ -113,7 +113,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: w
@@ -123,7 +123,7 @@ file:
           - join_clause:
             - keyword: JOIN
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: w
@@ -154,7 +154,7 @@ file:
             - raw_comparison_operator: =
           - numeric_literal: '123'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
@@ -174,7 +174,7 @@ file:
       - bracketed:
         - start_bracket: (
         - set_expression:
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -198,7 +198,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: tree
@@ -207,7 +207,7 @@ file:
           - set_operator:
             - keyword: UNION
             - keyword: ALL
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -231,7 +231,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: tree
@@ -240,7 +240,7 @@ file:
               - comma: ','
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: search_tree
@@ -280,7 +280,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: search_tree
@@ -290,7 +290,7 @@ file:
         - column_reference:
           - naked_identifier: ordercol
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
@@ -310,7 +310,7 @@ file:
       - bracketed:
         - start_bracket: (
         - set_expression:
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -334,7 +334,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: tree
@@ -343,7 +343,7 @@ file:
           - set_operator:
             - keyword: UNION
             - keyword: ALL
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -367,7 +367,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: tree
@@ -376,7 +376,7 @@ file:
               - comma: ','
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: search_tree
@@ -416,7 +416,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: search_tree
@@ -426,7 +426,7 @@ file:
         - column_reference:
           - naked_identifier: ordercol
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
@@ -448,7 +448,7 @@ file:
       - bracketed:
         - start_bracket: (
         - set_expression:
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -475,7 +475,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: graph
@@ -484,7 +484,7 @@ file:
           - set_operator:
             - keyword: UNION
             - keyword: ALL
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -517,7 +517,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: graph
@@ -526,7 +526,7 @@ file:
               - comma: ','
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: search_graph
@@ -566,12 +566,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: search_graph
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -606,12 +606,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -646,12 +646,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -679,7 +679,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl

@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
@@ -12,7 +12,7 @@ file:
           - keyword: integer
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
@@ -34,14 +34,14 @@ file:
           - keyword: bigint
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
     - function_name:
       - function_name_identifier: update_employee_salaries
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
@@ -52,7 +52,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION

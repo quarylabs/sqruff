@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: USAGE
@@ -11,7 +11,7 @@ file:
     - role_reference:
       - naked_identifier: web_anon
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
@@ -25,7 +25,7 @@ file:
     - role_reference:
       - naked_identifier: web_anon
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - object_reference:
@@ -34,7 +34,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: CONNECT
@@ -52,7 +52,7 @@ file:
     - role_reference:
       - naked_identifier: app
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: TRIGGER
@@ -67,7 +67,7 @@ file:
     - role_reference:
       - naked_identifier: app
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: USAGE
@@ -79,7 +79,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: USAGE
@@ -93,7 +93,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: USAGE
@@ -106,7 +106,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
@@ -118,7 +118,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
@@ -130,7 +130,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
@@ -145,7 +145,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
@@ -160,7 +160,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
@@ -175,7 +175,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: USAGE
@@ -187,7 +187,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: SELECT
@@ -199,7 +199,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: ALL
@@ -211,7 +211,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: USAGE
@@ -223,7 +223,7 @@ file:
     - role_reference:
       - naked_identifier: my_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - object_reference:
@@ -238,7 +238,7 @@ file:
     - keyword: BY
     - keyword: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - object_reference:
@@ -250,7 +250,7 @@ file:
     - keyword: BY
     - keyword: SESSION_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - object_reference:
@@ -266,7 +266,7 @@ file:
     - object_reference:
       - naked_identifier: my_new_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: CONNECT
@@ -284,7 +284,7 @@ file:
     - role_reference:
       - naked_identifier: xyz
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: CONNECT
@@ -308,7 +308,7 @@ file:
     - keyword: GRANT
     - keyword: OPTION
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: SELECT
@@ -322,7 +322,7 @@ file:
     - role_reference:
       - naked_identifier: mno
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE

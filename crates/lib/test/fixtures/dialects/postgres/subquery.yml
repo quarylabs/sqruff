@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -23,7 +23,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: table1
@@ -31,7 +31,7 @@ file:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - bracketed:
                   - start_bracket: (
                   - select_statement:
@@ -46,7 +46,7 @@ file:
                       - keyword: FROM
                       - from_expression:
                         - from_expression_element:
-                          - table_expression_segment:
+                          - table_expression:
                             - table_reference:
                               - object_reference:
                                 - naked_identifier: table2

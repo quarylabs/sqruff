@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
     - column_reference:
       - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -17,7 +17,7 @@ file:
       - data_type:
         - keyword: integer
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -28,7 +28,7 @@ file:
       - keyword: BY
       - numeric_literal: '3'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -41,7 +41,7 @@ file:
       - keyword: NO
       - keyword: MAXVALUE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -54,7 +54,7 @@ file:
       - keyword: MAXVALUE
       - numeric_literal: '12'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -71,7 +71,7 @@ file:
       - keyword: CACHE
       - numeric_literal: '4'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -81,7 +81,7 @@ file:
       - keyword: NO
       - keyword: CYCLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -92,7 +92,7 @@ file:
       - keyword: BY
       - keyword: NONE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
@@ -106,7 +106,7 @@ file:
         - dot: .
         - naked_identifier: my_column
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: TEMP
@@ -117,7 +117,7 @@ file:
     - column_reference:
       - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_sequence_statement:
     - keyword: CREATE
     - keyword: TEMPORARY

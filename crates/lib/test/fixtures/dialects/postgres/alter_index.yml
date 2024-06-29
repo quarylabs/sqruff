@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -10,7 +10,7 @@ file:
     - database_reference:
       - naked_identifier: suppliers
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -21,7 +21,7 @@ file:
     - tablespace_reference:
       - naked_identifier: fasttablespace
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -36,7 +36,7 @@ file:
       - numeric_literal: '75'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -49,7 +49,7 @@ file:
     - keyword: STATISTICS
     - numeric_literal: '1000'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -62,7 +62,7 @@ file:
     - database_reference:
       - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -75,7 +75,7 @@ file:
     - extension_reference:
       - naked_identifier: barr
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -89,7 +89,7 @@ file:
       - parameter: other_thing
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX
@@ -101,7 +101,7 @@ file:
     - keyword: STATISTICS
     - numeric_literal: '7'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_index_statement:
     - keyword: ALTER
     - keyword: INDEX

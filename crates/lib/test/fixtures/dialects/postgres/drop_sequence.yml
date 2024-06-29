@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
     - column_reference:
       - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
@@ -15,7 +15,7 @@ file:
       - dot: .
       - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
@@ -24,7 +24,7 @@ file:
     - column_reference:
       - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
@@ -34,7 +34,7 @@ file:
       - naked_identifier: foo
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE

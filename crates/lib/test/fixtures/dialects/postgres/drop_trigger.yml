@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - drop_trigger_statement:
     - keyword: DROP
     - keyword: TRIGGER
@@ -10,7 +10,7 @@ file:
       - object_reference:
         - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_trigger_statement:
     - keyword: DROP
     - keyword: TRIGGER
@@ -23,7 +23,7 @@ file:
       - object_reference:
         - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_trigger_statement:
     - keyword: DROP
     - keyword: TRIGGER
@@ -35,7 +35,7 @@ file:
         - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_trigger_statement:
     - keyword: DROP
     - keyword: TRIGGER
@@ -49,7 +49,7 @@ file:
         - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_trigger_statement:
     - keyword: DROP
     - keyword: TRIGGER

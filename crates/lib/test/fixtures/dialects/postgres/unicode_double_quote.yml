@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -7,7 +7,7 @@ file:
         - column_reference:
           - quoted_literal: U&"a"
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -15,7 +15,7 @@ file:
         - column_reference:
           - quoted_literal: U&"aaaa" UESCAPE '!'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

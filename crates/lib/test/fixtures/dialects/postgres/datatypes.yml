@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -85,7 +85,7 @@ file:
         - keyword: bigserial
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -120,7 +120,7 @@ file:
         - keyword: float8
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -184,7 +184,7 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -199,7 +199,7 @@ file:
         - keyword: money
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -276,7 +276,7 @@ file:
         - keyword: text
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -291,7 +291,7 @@ file:
         - keyword: bytea
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -421,7 +421,7 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -441,7 +441,7 @@ file:
         - keyword: bool
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -486,7 +486,7 @@ file:
         - keyword: circle
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -516,7 +516,7 @@ file:
         - keyword: macaddr8
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -558,7 +558,7 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -573,7 +573,7 @@ file:
         - keyword: pg_lsn
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -593,7 +593,7 @@ file:
         - keyword: tsquery
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -608,7 +608,7 @@ file:
         - keyword: uuid
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -623,7 +623,7 @@ file:
         - keyword: xml
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -643,7 +643,7 @@ file:
         - keyword: jsonb
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -710,7 +710,7 @@ file:
             - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
@@ -725,7 +725,7 @@ file:
       - single_quote: '''bar'''
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -740,7 +740,7 @@ file:
         - '': bar
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_type_statement:
     - keyword: create
     - keyword: type
@@ -757,7 +757,7 @@ file:
       - single_quote: '''bar'''
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -774,7 +774,7 @@ file:
         - '': c
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -795,7 +795,7 @@ file:
         - '': DATETIME
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -811,12 +811,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: a
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -837,12 +837,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: a
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -860,9 +860,9 @@ file:
             - start_bracket: (
             - numeric_literal: '1'
             - end_bracket: )
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: 'null'
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: default
         - cast_expression:
           - quoted_literal: '''A'''

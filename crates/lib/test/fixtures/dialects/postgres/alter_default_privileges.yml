@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -20,7 +20,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -46,7 +46,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -67,7 +67,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -100,7 +100,7 @@ file:
       - keyword: GRANT
       - keyword: OPTION
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -125,7 +125,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -148,7 +148,7 @@ file:
         - role_reference:
           - naked_identifier: PUBLIC
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -175,7 +175,7 @@ file:
         - role_reference:
           - naked_identifier: your_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -196,7 +196,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -214,7 +214,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -245,7 +245,7 @@ file:
         - role_reference:
           - naked_identifier: your_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -266,7 +266,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -287,7 +287,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -340,7 +340,7 @@ file:
       - keyword: GRANT
       - keyword: OPTION
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -361,7 +361,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -388,7 +388,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -419,7 +419,7 @@ file:
           - naked_identifier: PUBLIC
       - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -454,7 +454,7 @@ file:
           - naked_identifier: PUBLIC
       - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -479,7 +479,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -500,7 +500,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -517,7 +517,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -548,7 +548,7 @@ file:
         - role_reference:
           - naked_identifier: your_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT
@@ -571,7 +571,7 @@ file:
         - role_reference:
           - naked_identifier: my_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_default_privileges_statement:
     - keyword: ALTER
     - keyword: DEFAULT

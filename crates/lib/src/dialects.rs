@@ -4,10 +4,12 @@ pub mod bigquery;
 pub mod bigquery_keywords;
 pub mod clickhouse;
 pub mod clickhouse_keywords;
+pub mod hive;
 pub mod postgres;
 pub mod postgres_keywords;
 pub mod snowflake;
 pub mod snowflake_keywords;
+pub mod sparksql;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, strum_macros::IntoStaticStr)]
 #[strum(serialize_all = "snake_case")]

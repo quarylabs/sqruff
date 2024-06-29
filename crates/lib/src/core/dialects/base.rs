@@ -10,7 +10,7 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::StringParser;
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::parser::types::DialectElementType;
-use crate::dialects::ansi::{Node, NodeMatcher};
+use crate::dialects::ansi::NodeMatcher;
 use crate::helpers::{capitalize, ToErasedSegment};
 
 #[derive(Debug, Clone, Default)]
@@ -45,19 +45,6 @@ impl Dialect {
     pub fn grammar(&self, name: &str) -> Arc<dyn Matchable> {
         match self.library.get(name).unwrap_or_else(|| panic!("not found {name}")) {
             DialectElementType::Matchable(matchable) => matchable.clone(),
-            DialectElementType::SegmentGenerator(_) => {
-                unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")
-            }
-        }
-    }
-
-    #[track_caller]
-    pub fn node_mut<T: 'static>(&mut self) -> &mut Node<T> {
-        let name = std::any::type_name::<T>().split("::").last().unwrap();
-        match self.library.get_mut(name).unwrap() {
-            DialectElementType::Matchable(matchable) => {
-                Arc::get_mut(matchable).unwrap().as_any_mut().downcast_mut().unwrap()
-            }
             DialectElementType::SegmentGenerator(_) => {
                 unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")
             }

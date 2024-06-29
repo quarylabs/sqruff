@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -21,14 +21,14 @@ file:
                 - dot: .
                 - naked_identifier: dictionaries
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_model_segment:
       - keyword: RELOAD
       - keyword: MODELS
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_model_segment:
@@ -39,7 +39,7 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_model_segment:
@@ -51,7 +51,7 @@ file:
         - remove me: /
         - path_segment: path
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_model_segment:
@@ -67,7 +67,7 @@ file:
         - remove me: /
         - path_segment: path
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -80,7 +80,7 @@ file:
         - object_reference:
           - naked_identifier: table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -95,7 +95,7 @@ file:
           - dot: .
           - naked_identifier: table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -107,7 +107,7 @@ file:
       - object_reference:
         - naked_identifier: database
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -115,7 +115,7 @@ file:
       - keyword: REPLICA
       - quoted_identifier: '''replica_name'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -127,7 +127,7 @@ file:
       - path_segment:
         - quoted_literal: '''/path/to/table/in/zk'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_distributed_segment:
@@ -138,7 +138,7 @@ file:
         - object_reference:
           - naked_identifier: distributed_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_distributed_segment:
@@ -151,7 +151,7 @@ file:
           - dot: .
           - naked_identifier: distributed_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_distributed_segment:
@@ -161,7 +161,7 @@ file:
         - object_reference:
           - naked_identifier: distributed_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_distributed_segment:
@@ -173,7 +173,7 @@ file:
           - dot: .
           - naked_identifier: distributed_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_distributed_segment:
@@ -184,7 +184,7 @@ file:
         - object_reference:
           - naked_identifier: distributed_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_distributed_segment:
@@ -197,7 +197,7 @@ file:
           - dot: .
           - naked_identifier: distributed_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_merges_segment:
@@ -208,7 +208,7 @@ file:
       - object_reference:
         - naked_identifier: volume_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_merges_segment:
@@ -218,7 +218,7 @@ file:
         - object_reference:
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_merges_segment:
@@ -230,7 +230,7 @@ file:
           - dot: .
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_merges_segment:
@@ -241,7 +241,7 @@ file:
       - object_reference:
         - naked_identifier: volume_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_merges_segment:
@@ -251,7 +251,7 @@ file:
         - object_reference:
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_merges_segment:
@@ -263,7 +263,7 @@ file:
           - dot: .
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_ttl_merges_segment:
@@ -271,7 +271,7 @@ file:
       - keyword: TTL
       - keyword: MERGES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_ttl_merges_segment:
@@ -284,7 +284,7 @@ file:
           - dot: .
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_ttl_merges_segment:
@@ -295,7 +295,7 @@ file:
         - object_reference:
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_ttl_merges_segment:
@@ -303,7 +303,7 @@ file:
       - keyword: TTL
       - keyword: MERGES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_ttl_merges_segment:
@@ -314,7 +314,7 @@ file:
         - object_reference:
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_ttl_merges_segment:
@@ -327,14 +327,14 @@ file:
           - dot: .
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_moves_segment:
       - keyword: STOP
       - keyword: MOVES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_moves_segment:
@@ -344,7 +344,7 @@ file:
         - object_reference:
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_moves_segment:
@@ -356,14 +356,14 @@ file:
           - dot: .
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_moves_segment:
       - keyword: START
       - keyword: MOVES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_moves_segment:
@@ -373,7 +373,7 @@ file:
         - object_reference:
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_moves_segment:
@@ -385,7 +385,7 @@ file:
           - dot: .
           - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_unfreeze_segment:
@@ -395,14 +395,14 @@ file:
       - object_reference:
         - naked_identifier: backup_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_fetches_segment:
       - keyword: STOP
       - keyword: FETCHES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_fetches_segment:
@@ -412,7 +412,7 @@ file:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_fetches_segment:
@@ -424,24 +424,14 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_fetches_segment:
       - keyword: START
       - keyword: FETCHES
 - statement_terminator: ;
-- statement_segment:
-  - system_statement:
-    - keyword: SYSTEM
-    - system_fetches_segment:
-      - keyword: START
-      - keyword: FETCHES
-      - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
-- statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_fetches_segment:
@@ -449,66 +439,44 @@ file:
       - keyword: FETCHES
       - table_reference:
         - object_reference:
-          - naked_identifier: db
-          - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
-    - system_replicated_segment:
-      - keyword: STOP
-      - keyword: REPLICATED
-      - keyword: SENDS
-- statement_terminator: ;
-- statement_segment:
-  - system_statement:
-    - keyword: SYSTEM
-    - system_replicated_segment:
-      - keyword: STOP
-      - keyword: REPLICATED
-      - keyword: SENDS
-      - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
-- statement_terminator: ;
-- statement_segment:
-  - system_statement:
-    - keyword: SYSTEM
-    - system_replicated_segment:
-      - keyword: STOP
-      - keyword: REPLICATED
-      - keyword: SENDS
+    - system_fetches_segment:
+      - keyword: START
+      - keyword: FETCHES
       - table_reference:
         - object_reference:
           - naked_identifier: db
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replicated_segment:
-      - keyword: START
+      - keyword: STOP
       - keyword: REPLICATED
       - keyword: SENDS
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replicated_segment:
-      - keyword: START
+      - keyword: STOP
       - keyword: REPLICATED
       - keyword: SENDS
       - table_reference:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replicated_segment:
-      - keyword: START
+      - keyword: STOP
       - keyword: REPLICATED
       - keyword: SENDS
       - table_reference:
@@ -517,7 +485,39 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
+  - system_statement:
+    - keyword: SYSTEM
+    - system_replicated_segment:
+      - keyword: START
+      - keyword: REPLICATED
+      - keyword: SENDS
+- statement_terminator: ;
+- statement:
+  - system_statement:
+    - keyword: SYSTEM
+    - system_replicated_segment:
+      - keyword: START
+      - keyword: REPLICATED
+      - keyword: SENDS
+      - table_reference:
+        - object_reference:
+          - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+  - system_statement:
+    - keyword: SYSTEM
+    - system_replicated_segment:
+      - keyword: START
+      - keyword: REPLICATED
+      - keyword: SENDS
+      - table_reference:
+        - object_reference:
+          - naked_identifier: db
+          - dot: .
+          - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replication_segment:
@@ -525,7 +525,7 @@ file:
       - keyword: REPLICATION
       - keyword: QUEUES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replication_segment:
@@ -536,7 +536,7 @@ file:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replication_segment:
@@ -549,7 +549,7 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replication_segment:
@@ -557,7 +557,7 @@ file:
       - keyword: REPLICATION
       - keyword: QUEUES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replication_segment:
@@ -568,7 +568,7 @@ file:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replication_segment:
@@ -581,7 +581,7 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -591,7 +591,7 @@ file:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -603,7 +603,7 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -614,7 +614,7 @@ file:
           - naked_identifier: replicated_merge_tree_family_table_name
       - keyword: STRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -628,7 +628,7 @@ file:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -643,7 +643,7 @@ file:
           - naked_identifier: replicated_merge_tree_family_table_name
       - keyword: STRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -659,7 +659,7 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -676,7 +676,7 @@ file:
           - naked_identifier: replicated_merge_tree_family_table_name
       - keyword: STRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -686,7 +686,7 @@ file:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -698,7 +698,7 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -708,7 +708,7 @@ file:
         - object_reference:
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -720,7 +720,7 @@ file:
           - dot: .
           - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -734,7 +734,7 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_replica_segment:
@@ -750,7 +750,7 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_filesystem_segment:
@@ -758,7 +758,7 @@ file:
       - keyword: FILESYSTEM
       - keyword: CACHE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - system_statement:
     - keyword: SYSTEM
     - system_file_segment:

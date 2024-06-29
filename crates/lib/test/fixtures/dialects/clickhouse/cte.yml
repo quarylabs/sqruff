@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: with
     - common_table_expression:
@@ -89,7 +89,7 @@ file:
             - keyword: as
             - naked_identifier: param
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -137,7 +137,7 @@ file:
           - column_reference:
             - naked_identifier: ts_upper_bound
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -191,7 +191,7 @@ file:
         - column_reference:
           - naked_identifier: s
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -285,7 +285,7 @@ file:
         - keyword: LIMIT
         - numeric_literal: '10'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:

@@ -224,10 +224,10 @@ impl Matchable for NodeMatcher {
 }
 
 pub fn ansi_dialect() -> Dialect {
-    ansi_raw_dialect().config(|this| this.expand())
+    raw_dialect().config(|this| this.expand())
 }
 
-pub fn ansi_raw_dialect() -> Dialect {
+pub fn raw_dialect() -> Dialect {
     let mut ansi_dialect = Dialect::new("FileSegment");
 
     ansi_dialect.set_lexer_matchers(lexer_matchers());

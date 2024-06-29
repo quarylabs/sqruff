@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use super::ansi::{self, ansi_raw_dialect};
+use super::ansi::{self, raw_dialect};
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::{any_set_of, one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::Ref;
@@ -21,7 +21,7 @@ use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
 pub fn clickhouse_dialect() -> Dialect {
-    let mut clickhouse_dialect = ansi_raw_dialect();
+    let mut clickhouse_dialect = raw_dialect();
     clickhouse_dialect.name = "clickhouse";
     clickhouse_dialect.sets_mut("unreserved_keywords").extend(UNRESERVED_KEYWORDS);
 

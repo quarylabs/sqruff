@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
@@ -39,7 +39,7 @@ file:
           - naked_identifier: b
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -101,7 +101,7 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '8192'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -157,7 +157,7 @@ file:
             - numeric_literal: '8192'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -214,7 +214,7 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '8192'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -246,7 +246,7 @@ file:
             - quoted_literal: '''^WatchLog'''
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -289,7 +289,7 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '0'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -309,7 +309,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -337,7 +337,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -388,7 +388,7 @@ file:
           - start_bracket: (
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -428,7 +428,7 @@ file:
       - column_reference:
         - naked_identifier: x
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: OR
@@ -463,7 +463,7 @@ file:
       - column_reference:
         - naked_identifier: n
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: OR
@@ -503,7 +503,7 @@ file:
       - column_reference:
         - naked_identifier: n
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -527,7 +527,7 @@ file:
     - keyword: COMMENT
     - quoted_identifier: '''The temporary table'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -575,7 +575,7 @@ file:
               - naked_identifier: hits
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -613,7 +613,7 @@ file:
         - function_name:
           - function_name_identifier: engine
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -688,7 +688,7 @@ file:
       - column_reference:
         - naked_identifier: d
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE

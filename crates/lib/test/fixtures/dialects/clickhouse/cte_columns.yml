@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:

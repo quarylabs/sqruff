@@ -15,7 +15,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: real_data
-          - sampling_expression:
+          - sample_expression:
             - keyword: sample
             - bracketed:
               - start_bracket: (
@@ -95,7 +95,7 @@ file:
               - table_reference:
                 - object_reference:
                   - naked_identifier: dummy_data
-            - sampling_expression:
+            - sample_expression:
               - keyword: SAMPLE
               - bracketed:
                 - start_bracket: (

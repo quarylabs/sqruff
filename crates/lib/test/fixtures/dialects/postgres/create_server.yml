@@ -1,18 +1,17 @@
 file:
-- statement_segment:
+- statement:
   - create_server_statement:
     - keyword: CREATE
     - keyword: SERVER
     - server_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - keyword: FOREIGN
     - keyword: DATA
     - keyword: WRAPPER
     - object_reference:
       - naked_identifier: postgres_fdw
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_server_statement:
     - keyword: CREATE
     - keyword: SERVER
@@ -20,21 +19,19 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - server_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - keyword: FOREIGN
     - keyword: DATA
     - keyword: WRAPPER
     - object_reference:
       - naked_identifier: oracle_fdw
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_server_statement:
     - keyword: CREATE
     - keyword: SERVER
     - server_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - keyword: TYPE
     - quoted_literal: '''test'''
     - keyword: VERSION
@@ -46,13 +43,12 @@ file:
     - object_reference:
       - naked_identifier: postgres_fdw
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_server_statement:
     - keyword: CREATE
     - keyword: SERVER
     - server_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - keyword: FOREIGN
     - keyword: DATA
     - keyword: WRAPPER

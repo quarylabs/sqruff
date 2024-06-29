@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -10,7 +10,7 @@ file:
     - keyword: IS
     - quoted_literal: '''This is my table.'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -21,7 +21,7 @@ file:
     - keyword: IS
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -32,7 +32,7 @@ file:
     - keyword: IS
     - quoted_literal: '''GIN index access method'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -47,7 +47,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Computes sample variance'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -63,7 +63,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Allow casts from text to int4'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -73,7 +73,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Canadian French'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -85,7 +85,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Employee ID number'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -95,7 +95,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Conversion to UTF8'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -108,7 +108,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Constrains column col'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -122,7 +122,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Constrains col of domain'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -132,7 +132,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Development Database'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -142,7 +142,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Email Address Domain'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -153,7 +153,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Aborts all DDL commands'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -163,7 +163,7 @@ file:
     - keyword: IS
     - quoted_literal: '''implements the hstore data type'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -175,7 +175,7 @@ file:
     - keyword: IS
     - quoted_literal: '''my foreign data wrapper'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -186,7 +186,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Employee Information in other database'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -203,7 +203,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Returns Roman Numeral'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: comment
     - keyword: on
@@ -213,7 +213,7 @@ file:
     - keyword: is
     - quoted_literal: '''comment'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: comment
     - keyword: on
@@ -227,7 +227,7 @@ file:
     - keyword: is
     - quoted_literal: '''comment'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -237,7 +237,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Enforces uniqueness on employee ID'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -247,7 +247,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Python support for stored procedures'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -258,7 +258,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Summary of order history'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -271,7 +271,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Filter rows by users'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -287,7 +287,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Runs a report'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: comment
     - keyword: on
@@ -297,7 +297,7 @@ file:
     - keyword: is
     - quoted_literal: '''comment'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: comment
     - keyword: on
@@ -310,7 +310,7 @@ file:
     - keyword: is
     - quoted_literal: '''comment'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -320,7 +320,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Publishes all operations on all tables'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -330,7 +330,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Administration group for finance tables'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -346,7 +346,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Runs a routine (which is a function or procedure)'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -359,7 +359,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Logs updates of employee records'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -370,7 +370,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Departmental data'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -380,7 +380,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Used to generate primary keys'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -390,7 +390,7 @@ file:
     - keyword: IS
     - quoted_literal: '''my foreign server'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -400,7 +400,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Improves planner row estimations'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -410,7 +410,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Subscription for all operations on all tables'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -423,7 +423,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Employee Information'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -433,7 +433,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Tablespace for indexes'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -445,7 +445,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Special word filtering'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -457,7 +457,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Snowball stemmer for Swedish language'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -469,7 +469,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Splits text into words'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -481,7 +481,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Snowball stemmer'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -494,7 +494,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Used for RI'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON
@@ -504,7 +504,7 @@ file:
     - keyword: IS
     - quoted_literal: '''Complex number data type'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - comment_clause:
     - keyword: COMMENT
     - keyword: ON

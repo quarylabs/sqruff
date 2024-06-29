@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - lock_table_statement:
     - keyword: LOCK
     - keyword: TABLE
@@ -10,7 +10,7 @@ file:
     - keyword: SHARE
     - keyword: MODE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - lock_table_statement:
     - keyword: LOCK
     - keyword: TABLE
@@ -23,7 +23,7 @@ file:
     - keyword: EXCLUSIVE
     - keyword: MODE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - lock_table_statement:
     - keyword: LOCK
     - keyword: TABLE
@@ -35,7 +35,7 @@ file:
     - keyword: EXCLUSIVE
     - keyword: MODE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - lock_table_statement:
     - keyword: lock
     - keyword: table
@@ -48,7 +48,7 @@ file:
     - keyword: EXCLUSIVE
     - keyword: MODE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - lock_table_statement:
     - keyword: LOCK
     - keyword: TABLE

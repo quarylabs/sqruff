@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE
     - data_type:
       - '': foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE
@@ -15,7 +15,7 @@ file:
     - data_type:
       - '': foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE
@@ -25,7 +25,7 @@ file:
     - data_type:
       - '': bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE
@@ -33,7 +33,7 @@ file:
       - '': foo
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE

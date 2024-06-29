@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -16,7 +16,7 @@ file:
     - function_name:
       - function_name_identifier: fname
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -35,7 +35,7 @@ file:
     - keyword: AS
     - keyword: ASSIGNMENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -54,7 +54,7 @@ file:
     - keyword: AS
     - keyword: IMPLICIT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -75,7 +75,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -98,7 +98,7 @@ file:
     - keyword: AS
     - keyword: ASSIGNMENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -121,7 +121,7 @@ file:
     - keyword: AS
     - keyword: IMPLICIT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -144,7 +144,7 @@ file:
           - keyword: bool
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -174,7 +174,7 @@ file:
     - keyword: AS
     - keyword: ASSIGNMENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -200,7 +200,7 @@ file:
           - '': udt_2
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -236,7 +236,7 @@ file:
           - '': udt_2
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -251,7 +251,7 @@ file:
     - keyword: WITHOUT
     - keyword: FUNCTION
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -268,7 +268,7 @@ file:
     - keyword: AS
     - keyword: ASSIGNMENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -285,7 +285,7 @@ file:
     - keyword: AS
     - keyword: IMPLICIT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -300,7 +300,7 @@ file:
     - keyword: WITH
     - keyword: INOUT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST
@@ -317,7 +317,7 @@ file:
     - keyword: AS
     - keyword: ASSIGNMENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_cast_statement:
     - keyword: CREATE
     - keyword: CAST

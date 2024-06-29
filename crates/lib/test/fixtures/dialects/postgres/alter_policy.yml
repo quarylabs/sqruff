@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_policy_statement:
     - keyword: ALTER
     - keyword: POLICY
@@ -14,7 +14,7 @@ file:
     - object_reference:
       - naked_identifier: account_users
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_policy_statement:
     - keyword: ALTER
     - keyword: POLICY
@@ -28,7 +28,7 @@ file:
     - role_reference:
       - naked_identifier: current_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_policy_statement:
     - keyword: ALTER
     - keyword: POLICY
@@ -44,7 +44,7 @@ file:
     - comma: ','
     - keyword: session_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_policy_statement:
     - keyword: ALTER
     - keyword: POLICY
@@ -71,7 +71,7 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_policy_statement:
     - keyword: ALTER
     - keyword: POLICY
@@ -93,7 +93,7 @@ file:
         - numeric_literal: '10'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_policy_statement:
     - keyword: ALTER
     - keyword: POLICY
@@ -115,7 +115,7 @@ file:
           - naked_identifier: current_user
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_policy_statement:
     - keyword: ALTER
     - keyword: POLICY
@@ -152,7 +152,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: allowed_users

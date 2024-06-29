@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
       - object_reference:
         - naked_identifier: bigtable
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
@@ -15,7 +15,7 @@ file:
         - dot: .
         - naked_identifier: bigtable
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - keyword: TABLE
@@ -23,7 +23,7 @@ file:
       - object_reference:
         - naked_identifier: bigtable
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - keyword: ONLY
@@ -31,7 +31,7 @@ file:
       - object_reference:
         - naked_identifier: bigtable
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - keyword: TABLE
@@ -40,7 +40,7 @@ file:
       - object_reference:
         - naked_identifier: bigtable
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
@@ -48,7 +48,7 @@ file:
         - naked_identifier: bigtable
     - star: '*'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - keyword: TABLE
@@ -57,7 +57,7 @@ file:
         - naked_identifier: bigtable
     - star: '*'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
@@ -68,7 +68,7 @@ file:
       - object_reference:
         - naked_identifier: fattable
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - keyword: TABLE
@@ -80,7 +80,7 @@ file:
       - object_reference:
         - naked_identifier: fattable
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - keyword: ONLY
@@ -93,7 +93,7 @@ file:
         - naked_identifier: fattable
     - star: '*'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
@@ -102,7 +102,7 @@ file:
     - keyword: RESTART
     - keyword: IDENTITY
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
@@ -111,7 +111,7 @@ file:
     - keyword: CONTINUE
     - keyword: IDENTITY
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
@@ -119,7 +119,7 @@ file:
         - naked_identifier: bigtable
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - table_reference:
@@ -127,7 +127,7 @@ file:
         - naked_identifier: bigtable
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - truncate_statement:
     - keyword: TRUNCATE
     - keyword: TABLE

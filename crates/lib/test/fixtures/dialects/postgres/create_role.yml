@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: USER
@@ -14,14 +14,14 @@ file:
     - role_reference:
       - naked_identifier: foo_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_user_statement:
     - keyword: CREATE
     - keyword: USER
     - role_reference:
       - naked_identifier: foo_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: USER
@@ -32,7 +32,7 @@ file:
     - keyword: LIMIT
     - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: USER
@@ -44,7 +44,7 @@ file:
     - role_reference:
       - naked_identifier: frank
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: USER
@@ -55,7 +55,7 @@ file:
     - keyword: CREATEDB
     - keyword: CREATEROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: USER
@@ -67,7 +67,7 @@ file:
     - keyword: REPLICATION
     - keyword: BYPASSRLS
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: USER
@@ -77,7 +77,7 @@ file:
     - keyword: PASSWORD
     - quoted_literal: '''jw8s0F4'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: USER
@@ -91,7 +91,7 @@ file:
     - keyword: UNTIL
     - quoted_literal: '''2005-01-01'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
@@ -106,14 +106,14 @@ file:
     - role_reference:
       - naked_identifier: foo_group
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
     - role_reference:
       - naked_identifier: foo_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
@@ -124,7 +124,7 @@ file:
     - keyword: LIMIT
     - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
@@ -136,7 +136,7 @@ file:
     - role_reference:
       - naked_identifier: frank
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
@@ -147,7 +147,7 @@ file:
     - keyword: CREATEDB
     - keyword: CREATEROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
@@ -159,7 +159,7 @@ file:
     - keyword: REPLICATION
     - keyword: BYPASSRLS
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
@@ -169,7 +169,7 @@ file:
     - keyword: PASSWORD
     - quoted_literal: '''jw8s0F4'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE

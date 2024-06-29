@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
       - naked_identifier: db
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -15,7 +15,7 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -25,7 +25,7 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -35,7 +35,7 @@ file:
     - keyword: LIMIT
     - numeric_literal: '10'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -46,7 +46,7 @@ file:
     - keyword: LIMIT
     - numeric_literal: '10'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -55,7 +55,7 @@ file:
     - keyword: IS_TEMPLATE
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -65,7 +65,7 @@ file:
     - keyword: IS_TEMPLATE
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -76,7 +76,7 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -88,7 +88,7 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -102,7 +102,7 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -117,7 +117,7 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - boolean_literal: 'true'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -128,7 +128,7 @@ file:
     - database_reference:
       - naked_identifier: new_db
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -139,7 +139,7 @@ file:
     - object_reference:
       - naked_identifier: other_role
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -149,7 +149,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_ROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -160,7 +160,7 @@ file:
     - object_reference:
       - naked_identifier: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -170,7 +170,7 @@ file:
     - keyword: TO
     - keyword: SESSION_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -181,7 +181,7 @@ file:
     - keyword: TO
     - quoted_literal: '''scram-sha-256'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -192,7 +192,7 @@ file:
     - tablespace_reference:
       - naked_identifier: new_tablespace
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -203,7 +203,7 @@ file:
     - keyword: TO
     - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -214,7 +214,7 @@ file:
     - keyword: TO
     - quoted_literal: '''some_value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -225,7 +225,7 @@ file:
     - keyword: TO
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -237,7 +237,7 @@ file:
       - raw_comparison_operator: =
     - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -249,7 +249,7 @@ file:
       - raw_comparison_operator: =
     - quoted_literal: '''some_value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -261,7 +261,7 @@ file:
       - raw_comparison_operator: =
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -272,7 +272,7 @@ file:
     - keyword: FROM
     - keyword: CURRENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -284,7 +284,7 @@ file:
       - raw_comparison_operator: =
     - naked_identifier: ON
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -293,7 +293,7 @@ file:
     - keyword: RESET
     - parameter: parameter1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE

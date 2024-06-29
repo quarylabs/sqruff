@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
@@ -9,7 +9,7 @@ file:
     - keyword: NOT
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
@@ -19,7 +19,7 @@ file:
     - keyword: NOT
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
@@ -48,7 +48,7 @@ file:
           - numeric_literal: '5'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
@@ -59,7 +59,7 @@ file:
     - object_reference:
       - naked_identifier: zipchk
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
@@ -73,7 +73,7 @@ file:
     - object_reference:
       - naked_identifier: zip_check
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_domain_statement:
     - keyword: ALTER
     - keyword: DOMAIN
@@ -84,7 +84,7 @@ file:
     - object_reference:
       - naked_identifier: customers
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_domain_statement:
     - keyword: alter
     - keyword: domain

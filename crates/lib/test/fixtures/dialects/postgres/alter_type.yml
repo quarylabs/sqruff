@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -10,7 +10,7 @@ file:
     - object_reference:
       - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -20,7 +20,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -31,7 +31,7 @@ file:
     - object_reference:
       - naked_identifier: new_owner
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -43,7 +43,7 @@ file:
       - object_reference:
         - naked_identifier: new_schema
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -71,7 +71,7 @@ file:
     - data_type:
       - keyword: int
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -85,7 +85,7 @@ file:
     - column_reference:
       - naked_identifier: f7
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -97,7 +97,7 @@ file:
     - keyword: AFTER
     - quoted_literal: '''red'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -107,7 +107,7 @@ file:
     - keyword: VALUE
     - quoted_literal: '''baz'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -119,7 +119,7 @@ file:
     - keyword: BEFORE
     - quoted_literal: '''baz'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
@@ -131,7 +131,7 @@ file:
     - keyword: AFTER
     - quoted_literal: '''baz'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE

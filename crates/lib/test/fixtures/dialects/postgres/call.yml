@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - call_statement:
     - keyword: CALL
     - function:
@@ -9,7 +9,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - call_statement:
     - keyword: CALL
     - function:
@@ -21,7 +21,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - call_statement:
     - keyword: call
     - function:
@@ -31,7 +31,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - call_statement:
     - keyword: call
     - function:
@@ -46,7 +46,7 @@ file:
           - numeric_literal: '123'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - call_statement:
     - keyword: call
     - function:
@@ -58,7 +58,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - call_statement:
     - keyword: call
     - function:

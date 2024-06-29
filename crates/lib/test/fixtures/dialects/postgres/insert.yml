@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -19,7 +19,7 @@ file:
           - bare_function: current_timestamp
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -54,7 +54,7 @@ file:
           - numeric_literal: '4'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -91,7 +91,7 @@ file:
           - numeric_literal: '4'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -110,7 +110,7 @@ file:
         - keyword: DEFAULT
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -139,7 +139,7 @@ file:
           - quoted_literal: '''Anvil Distribution'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -168,7 +168,7 @@ file:
           - quoted_literal: '''val'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -197,7 +197,7 @@ file:
           - quoted_literal: '''val'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -212,7 +212,7 @@ file:
     - keyword: DEFAULT
     - keyword: VALUES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -230,7 +230,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tmp_films
@@ -243,7 +243,7 @@ file:
             - raw_comparison_operator: <
           - quoted_literal: '''2004-05-07'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -265,7 +265,7 @@ file:
     - keyword: RETURNING
     - star: '*'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -289,7 +289,7 @@ file:
       - column_reference:
         - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -316,7 +316,7 @@ file:
       - keyword: AS
       - naked_identifier: some_alias
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -350,7 +350,7 @@ file:
       - column_reference:
         - naked_identifier: baz
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -390,7 +390,7 @@ file:
       - keyword: AS
       - naked_identifier: alias2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -437,7 +437,7 @@ file:
           - dot: .
           - naked_identifier: baz
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -474,7 +474,7 @@ file:
       - keyword: DO
       - keyword: NOTHING
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -549,7 +549,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''21201'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -584,7 +584,7 @@ file:
       - keyword: DO
       - keyword: NOTHING
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -625,7 +625,7 @@ file:
       - keyword: DO
       - keyword: NOTHING
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -682,7 +682,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: foobar
@@ -696,7 +696,7 @@ file:
                 - numeric_literal: '1'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -721,7 +721,7 @@ file:
           - from_expression_element:
             - bracketed:
               - start_bracket: (
-              - table_expression_segment:
+              - table_expression:
                 - values_clause:
                   - keyword: VALUES
                   - bracketed:
@@ -752,7 +752,7 @@ file:
                 - keyword: FROM
                 - from_expression:
                   - from_expression_element:
-                    - table_expression_segment:
+                    - table_expression:
                       - table_reference:
                         - object_reference:
                           - naked_identifier: megatable
@@ -779,7 +779,7 @@ file:
       - keyword: DO
       - keyword: NOTHING
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -808,7 +808,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: baz

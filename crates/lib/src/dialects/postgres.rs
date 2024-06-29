@@ -1,9 +1,8 @@
 use std::sync::Arc;
 
-use ahash::AHashSet;
 use itertools::Itertools;
 
-use super::ansi::{self, Node, NodeTrait};
+use super::ansi;
 use super::postgres_keywords::POSTGRES_POSTGIS_DATATYPE_KEYWORDS;
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::{any_set_of, one_of, optionally_bracketed, AnyNumberOf};
@@ -11,7 +10,6 @@ use crate::core::parser::grammar::base::{Anything, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
-use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, IdentifierSegment,
@@ -21,8 +19,9 @@ use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
-use crate::dialects::ansi::ansi_raw_dialect;
+use crate::dialects::ansi::{ansi_raw_dialect, NodeMatcher};
 use crate::dialects::postgres_keywords::{get_keywords, postgres_keywords};
+use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
@@ -976,246 +975,84 @@ pub fn postgres_dialect() -> Dialect {
         ("NonWithNonSelectableGrammar".into(), one_of(vec_of_erased![]).to_matchable().into()),
     ]);
 
-    macro_rules! add_segments {
-        ($dialect:ident, $( $segment:ident ),*) => {
-            $(
-                $dialect.add([(
-                    stringify!($segment).into(),
-                    Node::<$segment>::new().to_matchable().into(),
-                )]);
-            )*
-        }
-    }
-
-    add_segments!(
-        postgres,
-        OverlapSegment,
-        NotExtendRightSegment,
-        NotExtendLeftSegment,
-        AdjacentSegment,
-        PsqlVariableGrammar,
-        ArrayAccessorSegment,
-        DateTimeTypeIdentifier,
-        DateTimeLiteralGrammar,
-        DatatypeSegment,
-        ArrayTypeSegment,
-        IndexAccessMethodSegment,
-        OperatorClassReferenceSegment,
-        DefinitionParameterSegment,
-        DefinitionParametersSegment,
-        CreateCastStatementSegment,
-        DropCastStatementSegment,
-        RelationOptionSegment,
-        RelationOptionsSegment,
-        CreateFunctionStatementSegment,
-        DropFunctionStatementSegment,
-        AlterFunctionStatementSegment,
-        AlterFunctionActionSegment,
-        AlterProcedureActionSegment,
-        AlterProcedureStatementSegment,
-        CreateProcedureStatementSegment,
-        DropProcedureStatementSegment,
-        WellKnownTextGeometrySegment,
-        SemiStructuredAccessorSegment,
-        FunctionDefinitionGrammar,
-        IntoClauseSegment,
-        ForClauseSegment,
-        UnorderedSelectStatementSegment,
-        SelectStatementSegment,
-        SelectClauseSegment,
-        SelectClauseModifierSegment,
-        WithinGroupClauseSegment,
-        GroupByClauseSegment,
-        CreateRoleStatementSegment,
-        AlterRoleStatementSegment,
-        ExplainStatementSegment,
-        ExplainOptionSegment,
-        CreateSchemaStatementSegment,
-        CreateTableStatementSegment,
-        CreateTableAsStatementSegment,
-        AlterTableStatementSegment,
-        AlterTableActionSegment,
-        VersionIdentifierSegment,
-        CreateExtensionStatementSegment,
-        DropExtensionStatementSegment,
-        PublicationReferenceSegment,
-        PublicationTableSegment,
-        PublicationObjectsSegment,
-        CreatePublicationStatementSegment,
-        AlterPublicationStatementSegment,
-        DropPublicationStatementSegment,
-        CreateMaterializedViewStatementSegment,
-        AlterMaterializedViewStatementSegment,
-        AlterMaterializedViewActionSegment,
-        RefreshMaterializedViewStatementSegment,
-        DropMaterializedViewStatementSegment,
-        WithCheckOptionSegment,
-        AlterPolicyStatementSegment,
-        CreateViewStatementSegment,
-        AlterViewStatementSegment,
-        DropViewStatementSegment,
-        CreateDatabaseStatementSegment,
-        AlterDatabaseStatementSegment,
-        DropDatabaseStatementSegment,
-        VacuumStatementSegment,
-        LikeOptionSegment,
-        ColumnConstraintSegment,
-        PartitionBoundSpecSegment,
-        TableConstraintSegment,
-        TableConstraintUsingIndexSegment,
-        IndexParametersSegment,
-        IndexElementOptionsSegment,
-        IndexElementSegment,
-        ExclusionConstraintElementSegment,
-        AlterDefaultPrivilegesStatementSegment,
-        AlterDefaultPrivilegesObjectPrivilegesSegment,
-        AlterDefaultPrivilegesSchemaObjectsSegment,
-        AlterDefaultPrivilegesToFromRolesSegment,
-        AlterDefaultPrivilegesGrantSegment,
-        AlterDefaultPrivilegesRevokeSegment,
-        DropOwnedStatementSegment,
-        ReassignOwnedStatementSegment,
-        CommentOnStatementSegment,
-        CreateIndexStatementSegment,
-        AlterIndexStatementSegment,
-        ReindexStatementSegment,
-        DropIndexStatementSegment,
-        FrameClauseSegment,
-        CreateSequenceOptionsSegment,
-        CreateSequenceStatementSegment,
-        AlterSequenceOptionsSegment,
-        AlterSequenceStatementSegment,
-        DropSequenceStatementSegment,
-        AnalyzeStatementSegment,
-        StatementSegment,
-        CreateTriggerStatementSegment,
-        AlterTriggerStatementSegment,
-        DropTriggerStatementSegment,
-        AliasExpressionSegment,
-        AsAliasExpressionSegment,
-        OperationClassReferenceSegment,
-        ConflictActionSegment,
-        ConflictTargetSegment,
-        InsertStatementSegment,
-        DropTypeStatementSegment,
-        SetStatementSegment,
-        CreatePolicyStatementSegment,
-        CallStoredProcedureSegment,
-        CreateDomainStatementSegment,
-        AlterDomainStatementSegment,
-        DropDomainStatementSegment,
-        DropPolicyStatementSegment,
-        LoadStatementSegment,
-        ResetStatementSegment,
-        DiscardStatementSegment,
-        ListenStatementSegment,
-        NotifyStatementSegment,
-        UnlistenStatementSegment,
-        TruncateStatementSegment,
-        CopyStatementSegment,
-        LanguageClauseSegment,
-        DoStatementSegment,
-        CTEDefinitionSegment,
-        ValuesClauseSegment,
-        DeleteStatementSegment,
-        SetClauseSegment,
-        UpdateStatementSegment,
-        CreateTypeStatementSegment,
-        AlterTypeStatementSegment,
-        CreateCollationStatementSegment,
-        AlterSchemaStatementSegment,
-        LockTableStatementSegment,
-        ClusterStatementSegment,
-        ColumnReferenceSegment,
-        NamedArgumentSegment,
-        TableExpressionSegment,
-        ServerReferenceSegment,
-        CreateServerStatementSegment,
-        CreateUserMappingStatementSegment,
-        ImportForeignSchemaStatementSegment
-    );
-
-    postgres.expand();
-    postgres
-}
-
-pub struct OverlapSegment {}
-
-impl NodeTrait for OverlapSegment {
-    const TYPE: &'static str = "comparison_operator";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![Ref::new("AmpersandSegment"), Ref::new("AmpersandSegment")])
+    postgres.add([
+        (
+            "OverlapSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Sequence::new(vec_of_erased![
+                    Ref::new("AmpersandSegment"),
+                    Ref::new("AmpersandSegment")
+                ])
+                .to_matchable(),
+            )
             .to_matchable()
-    }
-}
-
-pub struct NotExtendRightSegment {}
-
-impl NodeTrait for NotExtendRightSegment {
-    const TYPE: &'static str = "comparison_operator";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("AmpersandSegment"),
-            Ref::new("RawGreaterThanSegment")
-        ])
-        .allow_gaps(false)
-        .to_matchable()
-    }
-}
-
-pub struct NotExtendLeftSegment {}
-
-impl NodeTrait for NotExtendLeftSegment {
-    const TYPE: &'static str = "comparison_operator";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![Ref::new("AmpersandSegment"), Ref::new("RawLessThanSegment")])
-            .allow_gaps(false)
+            .into(),
+        ),
+        (
+            "NotExtendRightSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Sequence::new(vec_of_erased![
+                    Ref::new("AmpersandSegment"),
+                    Ref::new("RawGreaterThanSegment")
+                ])
+                .allow_gaps(false)
+                .to_matchable(),
+            )
             .to_matchable()
-    }
-}
+            .into(),
+        ),
+        (
+            "NotExtendLeftSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Sequence::new(vec_of_erased![
+                    Ref::new("AmpersandSegment"),
+                    Ref::new("RawLessThanSegment")
+                ])
+                .allow_gaps(false)
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AdjacentSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Sequence::new(vec_of_erased![
+                    Ref::new("MinusSegment"),
+                    Ref::new("PipeSegment"),
+                    Ref::new("MinusSegment")
+                ])
+                .allow_gaps(false)
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct AdjacentSegment {}
-
-impl NodeTrait for AdjacentSegment {
-    const TYPE: &'static str = "comparison_operator";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("MinusSegment"),
-            Ref::new("PipeSegment"),
-            Ref::new("MinusSegment")
-        ])
-        .allow_gaps(false)
+    postgres.add([(
+        "PsqlVariableGrammar".into(),
+        NodeMatcher::new(
+            SyntaxKind::PsqlVariable,
+            Sequence::new(vec_of_erased![optionally_bracketed(vec_of_erased![
+                Ref::new("ColonSegment"),
+                one_of(vec_of_erased![
+                    Ref::new("ParameterNameSegment"),
+                    Ref::new("QuotedLiteralSegment")
+                ])
+            ])])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct PsqlVariableGrammar {}
-
-impl NodeTrait for PsqlVariableGrammar {
-    const TYPE: &'static str = "psql_variable";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![optionally_bracketed(vec_of_erased![
-            Ref::new("ColonSegment"),
-            one_of(vec_of_erased![
-                Ref::new("ParameterNameSegment"),
-                Ref::new("QuotedLiteralSegment")
-            ])
-        ])])
-        .to_matchable()
-    }
-}
-
-pub struct ArrayAccessorSegment;
-
-impl NodeTrait for ArrayAccessorSegment {
-    const TYPE: &'static str = "array_accessor";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "ArrayAccessorSegment",
         Bracketed::new(vec_of_erased![one_of(vec_of_erased![
             // These three are for a single element access: [n]
             Ref::new("QualifiedNumericLiteralSegment"),
@@ -1241,67 +1078,58 @@ impl NodeTrait for ArrayAccessorSegment {
         .config(|this| {
             this.bracket_type("square");
         })
-        .to_matchable()
-    }
+        .to_matchable(),
+    );
 
-    fn class_types() -> AHashSet<&'static str> {
-        ["array_accessor"].into()
-    }
-}
-
-pub struct DateTimeTypeIdentifier;
-
-impl NodeTrait for DateTimeTypeIdentifier {
-    const TYPE: &'static str = "datetime_type_identifier";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Ref::keyword("DATE"),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("TIME"), Ref::keyword("TIMESTAMP")]),
-                Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
-                    .config(|this| this.optional()),
+    postgres.add([(
+        "DateTimeTypeIdentifier".into(),
+        NodeMatcher::new(
+            SyntaxKind::DateTimeTypeIdentifier,
+            one_of(vec_of_erased![
+                Ref::keyword("DATE"),
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
-                    Ref::keyword("TIME"),
-                    Ref::keyword("ZONE")
-                ])
-                .config(|this| this.optional())
-            ]),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("INTERVAL"),
-                    Ref::keyword("TIMETZ"),
-                    Ref::keyword("TIMESTAMPTZ")
-                ]),
-                Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
+                    one_of(vec_of_erased![Ref::keyword("TIME"), Ref::keyword("TIMESTAMP")]),
+                    Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
+                        .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+                        Ref::keyword("TIME"),
+                        Ref::keyword("ZONE")
+                    ])
                     .config(|this| this.optional())
+                ]),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("INTERVAL"),
+                        Ref::keyword("TIMETZ"),
+                        Ref::keyword("TIMESTAMPTZ")
+                    ]),
+                    Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")])
+                        .config(|this| this.optional())
+                ])
             ])
-        ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct DateTimeLiteralGrammar;
-
-impl NodeTrait for DateTimeLiteralGrammar {
-    const TYPE: &'static str = "datetime_literal";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("DateTimeTypeIdentifier").optional(),
-            Ref::new("QuotedLiteralSegment")
-        ])
+    postgres.add([(
+        "DateTimeLiteralGrammar".into(),
+        NodeMatcher::new(
+            SyntaxKind::DateTimeLiteral,
+            Sequence::new(vec_of_erased![
+                Ref::new("DateTimeTypeIdentifier").optional(),
+                Ref::new("QuotedLiteralSegment")
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct DatatypeSegment;
-
-impl NodeTrait for DatatypeSegment {
-    const TYPE: &'static str = "data_type";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DatatypeSegment",
         Sequence::new(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::new("SingleIdentifierGrammar"),
@@ -1426,82 +1254,64 @@ impl NodeTrait for DatatypeSegment {
             ])
             .config(|this| this.optional()),
         ])
+        .to_matchable(),
+    );
+
+    postgres.replace_grammar("ArrayTypeSegment", Ref::keyword("ARRAY").to_matchable());
+
+    postgres.add([(
+        "IndexAccessMethodSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::IndexAccessMethod,
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct ArrayTypeSegment;
+    postgres.add([(
+        "OperatorClassReferenceSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::OperatorClassReference,
+            postgres.grammar("ObjectReferenceSegment").match_grammar().unwrap(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
 
-impl NodeTrait for ArrayTypeSegment {
-    const TYPE: &'static str = "array_type";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Ref::keyword("ARRAY").to_matchable()
-    }
-}
-
-pub struct IndexAccessMethodSegment;
-
-impl NodeTrait for IndexAccessMethodSegment {
-    const TYPE: &'static str = "index_access_method";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Ref::new("SingleIdentifierGrammar").to_matchable()
-    }
-}
-
-pub struct OperatorClassReferenceSegment;
-
-impl NodeTrait for OperatorClassReferenceSegment {
-    const TYPE: &'static str = "operator_class_reference";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
-            .config(|this| {
-                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
-                this.disallow_gaps();
-                this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-            })
+    postgres.add([
+        (
+            "DefinitionParameterSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DefinitionParameter,
+                Sequence::new(vec_of_erased![
+                    Ref::new("PropertiesNakedIdentifierSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("EqualsSegment"),
+                        Ref::new("DefinitionArgumentValueGrammar").optional()
+                    ])
+                ])
+                .to_matchable(),
+            )
             .to_matchable()
-    }
-}
+            .into(),
+        ),
+        (
+            "DefinitionParametersSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DefinitionParameters,
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "DefinitionParameterSegment"
+                )])])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct DefinitionParameterSegment;
-
-impl NodeTrait for DefinitionParameterSegment {
-    const TYPE: &'static str = "definition_parameter";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("PropertiesNakedIdentifierSegment"),
-            Sequence::new(vec_of_erased![
-                Ref::new("EqualsSegment"),
-                Ref::new("DefinitionArgumentValueGrammar").optional()
-            ])
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DefinitionParametersSegment;
-
-impl NodeTrait for DefinitionParametersSegment {
-    const TYPE: &'static str = "definition_parameters";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-            "DefinitionParameterSegment"
-        )])])
-        .to_matchable()
-    }
-}
-
-pub struct CreateCastStatementSegment;
-
-impl NodeTrait for CreateCastStatementSegment {
-    const TYPE: &'static str = "create_cast_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateCastStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("CAST"),
@@ -1528,16 +1338,11 @@ impl NodeTrait for CreateCastStatementSegment {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct DropCastStatementSegment;
-
-impl NodeTrait for DropCastStatementSegment {
-    const TYPE: &'static str = "drop_cast_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DropCastStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("CAST"),
@@ -1550,52 +1355,48 @@ impl NodeTrait for DropCastStatementSegment {
             ])]),
             Ref::new("DropBehaviorGrammar").optional(),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct RelationOptionSegment;
+    postgres.add([
+        (
+            "RelationOptionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::RelationOption,
+                Sequence::new(vec_of_erased![
+                    Ref::new("PropertiesNakedIdentifierSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("PropertiesNakedIdentifierSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("EqualsSegment"),
+                        Ref::new("DefinitionArgumentValueGrammar").optional(),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RelationOptionsSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::RelationOptions,
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                    "RelationOptionSegment"
+                )])])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-impl NodeTrait for RelationOptionSegment {
-    const TYPE: &'static str = "relation_option";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("PropertiesNakedIdentifierSegment"),
-            Sequence::new(vec_of_erased![
-                Ref::new("DotSegment"),
-                Ref::new("PropertiesNakedIdentifierSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::new("EqualsSegment"),
-                Ref::new("DefinitionArgumentValueGrammar").optional(),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct RelationOptionsSegment;
-
-impl NodeTrait for RelationOptionsSegment {
-    const TYPE: &'static str = "relation_options";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-            "RelationOptionSegment"
-        )])])
-        .to_matchable()
-    }
-}
-
-pub struct CreateFunctionStatementSegment;
-
-impl NodeTrait for CreateFunctionStatementSegment {
-    const TYPE: &'static str = "create_function_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateFunctionStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE")])
@@ -1632,390 +1433,399 @@ impl NodeTrait for CreateFunctionStatementSegment {
             .config(|this| this.optional()),
             Ref::new("FunctionDefinitionGrammar"),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct DropFunctionStatementSegment;
-
-impl NodeTrait for DropFunctionStatementSegment {
-    const TYPE: &'static str = "drop_function_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("FUNCTION"),
-            Ref::new("IfExistsGrammar").optional(),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("FunctionNameSegment"),
-                Ref::new("FunctionParameterListGrammar").optional(),
-            ])]),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterFunctionStatementSegment;
-
-impl NodeTrait for AlterFunctionStatementSegment {
-    const TYPE: &'static str = "alter_function_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("FUNCTION"),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("FunctionNameSegment"),
-                Ref::new("FunctionParameterListGrammar").optional(),
-            ])]),
-            one_of(vec_of_erased![
-                Ref::new("AlterFunctionActionSegment").optional(),
+    postgres.add([
+        (
+            "DropFunctionStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropFunctionStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("FunctionNameSegment")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::keyword("SCHEMA"),
-                    Ref::new("SchemaReferenceSegment")
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
-                    one_of(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::new("ParameterNameSegment"),
-                            Ref::new("QuotedIdentifierSegment")
-                        ]),
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER")
-                    ])
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NO").optional(),
-                    Ref::keyword("DEPENDS"),
-                    Ref::keyword("ON"),
-                    Ref::keyword("EXTENSION"),
-                    Ref::new("ExtensionReferenceSegment")
+                    Ref::keyword("DROP"),
+                    Ref::keyword("FUNCTION"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("FunctionParameterListGrammar").optional(),
+                    ])]),
+                    Ref::new("DropBehaviorGrammar").optional(),
                 ])
-            ])
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterFunctionActionSegment;
-
-impl NodeTrait for AlterFunctionActionSegment {
-    const TYPE: &'static str = "alter_function_action_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CALLED"),
-                        Ref::keyword("ON"),
-                        Ref::keyword("NULL"),
-                        Ref::keyword("INPUT"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("RETURNS"),
-                        Ref::keyword("NULL"),
-                        Ref::keyword("ON"),
-                        Ref::keyword("NULL"),
-                        Ref::keyword("INPUT"),
-                    ]),
-                    Ref::keyword("STRICT"),
-                ]),
-                one_of(vec_of_erased![
-                    Ref::keyword("IMMUTABLE"),
-                    Ref::keyword("STABLE"),
-                    Ref::keyword("VOLATILE"),
-                ]),
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterFunctionStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterFunctionStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("NOT").optional(),
-                    Ref::keyword("LEAKPROOF"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("EXTERNAL").optional(),
-                    Ref::keyword("SECURITY"),
-                    one_of(vec_of_erased![Ref::keyword("DEFINER"), Ref::keyword("INVOKER"),]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("PARALLEL"),
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("FUNCTION"),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("FunctionParameterListGrammar").optional(),
+                    ])]),
                     one_of(vec_of_erased![
-                        Ref::keyword("UNSAFE"),
-                        Ref::keyword("RESTRICTED"),
-                        Ref::keyword("SAFE"),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("COST"),
-                    Ref::new("NumericLiteralSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ROWS"),
-                    Ref::new("NumericLiteralSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SUPPORT"),
-                    Ref::new("ParameterNameSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::new("ParameterNameSegment"),
-                    one_of(vec_of_erased![
+                        Ref::new("AlterFunctionActionSegment").optional(),
                         Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("TO"), Ref::new("EqualsSegment"),]),
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("FunctionNameSegment")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::keyword("SCHEMA"),
+                            Ref::new("SchemaReferenceSegment")
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::keyword("TO"),
                             one_of(vec_of_erased![
-                                Ref::new("LiteralGrammar"),
-                                Ref::new("NakedIdentifierSegment"),
-                                Ref::keyword("DEFAULT"),
-                            ]),
+                                one_of(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                    Ref::new("QuotedIdentifierSegment")
+                                ]),
+                                Ref::keyword("CURRENT_ROLE"),
+                                Ref::keyword("CURRENT_USER"),
+                                Ref::keyword("SESSION_USER")
+                            ])
                         ]),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("FROM"),
-                            Ref::keyword("CURRENT"),
-                        ]),
-                    ]),
-                ]),
+                            Ref::keyword("NO").optional(),
+                            Ref::keyword("DEPENDS"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("EXTENSION"),
+                            Ref::new("ExtensionReferenceSegment")
+                        ])
+                    ])
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterFunctionActionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterFunctionActionSegment,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("RESET"),
-                    one_of(vec_of_erased![Ref::keyword("ALL"), Ref::new("ParameterNameSegment"),]),
-                ]),
-            ]),
-            Ref::keyword("RESTRICT").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterProcedureActionSegment;
-
-impl NodeTrait for AlterProcedureActionSegment {
-    const TYPE: &'static str = "alter_procedure_action_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("EXTERNAL").optional(),
-                    Ref::keyword("SECURITY"),
-                    one_of(vec_of_erased![Ref::keyword("DEFINER"), Ref::keyword("INVOKER"),]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::new("ParameterNameSegment"),
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("TO"), Ref::new("EqualsSegment"),]),
-                            one_of(vec_of_erased![
-                                Ref::new("LiteralGrammar"),
-                                Ref::new("NakedIdentifierSegment"),
-                                Ref::keyword("DEFAULT"),
-                            ]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("FROM"),
-                            Ref::keyword("CURRENT"),
-                        ]),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RESET"),
-                    one_of(vec_of_erased![Ref::keyword("ALL"), Ref::new("ParameterNameSegment"),]),
-                ]),
-            ]),
-            Ref::keyword("RESTRICT").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterProcedureStatementSegment;
-
-impl NodeTrait for AlterProcedureStatementSegment {
-    const TYPE: &'static str = "alter_procedure_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("PROCEDURE"),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("FunctionNameSegment"),
-                Ref::new("FunctionParameterListGrammar").optional(),
-            ])]),
-            one_of(vec_of_erased![
-                Ref::new("AlterProcedureActionSegment").optional(),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("FunctionNameSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::keyword("SCHEMA"),
-                    Ref::new("SchemaReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::new("ParameterNameSegment"),
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("TO"), Ref::new("EqualsSegment"),]),
-                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                                Ref::new("ParameterNameSegment"),
-                                Ref::new("LiteralGrammar"),
-                            ])]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("FROM"),
-                            Ref::keyword("CURRENT"),
-                        ]),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
                     one_of(vec_of_erased![
                         one_of(vec_of_erased![
-                            Ref::new("ParameterNameSegment"),
-                            Ref::new("QuotedIdentifierSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CALLED"),
+                                Ref::keyword("ON"),
+                                Ref::keyword("NULL"),
+                                Ref::keyword("INPUT"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RETURNS"),
+                                Ref::keyword("NULL"),
+                                Ref::keyword("ON"),
+                                Ref::keyword("NULL"),
+                                Ref::keyword("INPUT"),
+                            ]),
+                            Ref::keyword("STRICT"),
                         ]),
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("IMMUTABLE"),
+                            Ref::keyword("STABLE"),
+                            Ref::keyword("VOLATILE"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("NOT").optional(),
+                            Ref::keyword("LEAKPROOF"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("EXTERNAL").optional(),
+                            Ref::keyword("SECURITY"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("DEFINER"),
+                                Ref::keyword("INVOKER"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("PARALLEL"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("UNSAFE"),
+                                Ref::keyword("RESTRICTED"),
+                                Ref::keyword("SAFE"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("COST"),
+                            Ref::new("NumericLiteralSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ROWS"),
+                            Ref::new("NumericLiteralSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SUPPORT"),
+                            Ref::new("ParameterNameSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::new("ParameterNameSegment"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("TO"),
+                                        Ref::new("EqualsSegment"),
+                                    ]),
+                                    one_of(vec_of_erased![
+                                        Ref::new("LiteralGrammar"),
+                                        Ref::new("NakedIdentifierSegment"),
+                                        Ref::keyword("DEFAULT"),
+                                    ]),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("FROM"),
+                                    Ref::keyword("CURRENT"),
+                                ]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RESET"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ALL"),
+                                Ref::new("ParameterNameSegment"),
+                            ]),
+                        ]),
                     ]),
-                ]),
+                    Ref::keyword("RESTRICT").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterProcedureActionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterProcedureActionSegment,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("NO").optional(),
-                    Ref::keyword("DEPENDS"),
-                    Ref::keyword("ON"),
-                    Ref::keyword("EXTENSION"),
-                    Ref::new("ExtensionReferenceSegment"),
-                ]),
-            ])
-        ])
-        .to_matchable()
-    }
-}
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("EXTERNAL").optional(),
+                            Ref::keyword("SECURITY"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("DEFINER"),
+                                Ref::keyword("INVOKER"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::new("ParameterNameSegment"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("TO"),
+                                        Ref::new("EqualsSegment"),
+                                    ]),
+                                    one_of(vec_of_erased![
+                                        Ref::new("LiteralGrammar"),
+                                        Ref::new("NakedIdentifierSegment"),
+                                        Ref::keyword("DEFAULT"),
+                                    ]),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("FROM"),
+                                    Ref::keyword("CURRENT"),
+                                ]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RESET"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ALL"),
+                                Ref::new("ParameterNameSegment"),
+                            ]),
+                        ]),
+                    ]),
+                    Ref::keyword("RESTRICT").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterProcedureStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterProcedureStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("PROCEDURE"),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("FunctionParameterListGrammar").optional(),
+                    ])]),
+                    one_of(vec_of_erased![
+                        Ref::new("AlterProcedureActionSegment").optional(),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("FunctionNameSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::keyword("SCHEMA"),
+                            Ref::new("SchemaReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::new("ParameterNameSegment"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("TO"),
+                                        Ref::new("EqualsSegment"),
+                                    ]),
+                                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                        Ref::new("ParameterNameSegment"),
+                                        Ref::new("LiteralGrammar"),
+                                    ])]),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("FROM"),
+                                    Ref::keyword("CURRENT"),
+                                ]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::keyword("TO"),
+                            one_of(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                    Ref::new("QuotedIdentifierSegment"),
+                                ]),
+                                Ref::keyword("CURRENT_ROLE"),
+                                Ref::keyword("CURRENT_USER"),
+                                Ref::keyword("SESSION_USER"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("NO").optional(),
+                            Ref::keyword("DEPENDS"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("EXTENSION"),
+                            Ref::new("ExtensionReferenceSegment"),
+                        ]),
+                    ])
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateProcedureStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateProcedureStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE")])
+                        .config(|this| this.optional()),
+                    Ref::keyword("PROCEDURE"),
+                    Ref::new("FunctionNameSegment"),
+                    Ref::new("FunctionParameterListGrammar"),
+                    Ref::new("FunctionDefinitionGrammar"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropProcedureStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropProcedureStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("PROCEDURE"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("FunctionNameSegment"),
+                        Ref::new("FunctionParameterListGrammar").optional(),
+                    ])]),
+                    one_of(vec_of_erased![Ref::keyword("CASCADE"), Ref::keyword("RESTRICT")])
+                        .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WellKnownTextGeometrySegment".into(),
+            NodeMatcher::new(SyntaxKind::WktGeometryType, {
+                let geometry_type_keywords = POSTGRES_POSTGIS_DATATYPE_KEYWORDS
+                    .iter()
+                    .map(|(kw, _)| Ref::keyword(kw).to_matchable())
+                    .collect_vec();
 
-pub struct CreateProcedureStatementSegment;
+                let mut geometry_type_keywords0 = geometry_type_keywords.clone();
+                geometry_type_keywords0.extend(
+                    ["GEOMETRY", "GEOGRAPHY"].into_iter().map(|it| Ref::keyword(it).to_matchable()),
+                );
 
-impl NodeTrait for CreateProcedureStatementSegment {
-    const TYPE: &'static str = "create_procedure_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE")])
-                .config(|this| this.optional()),
-            Ref::keyword("PROCEDURE"),
-            Ref::new("FunctionNameSegment"),
-            Ref::new("FunctionParameterListGrammar"),
-            Ref::new("FunctionDefinitionGrammar"),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DropProcedureStatementSegment;
-
-impl NodeTrait for DropProcedureStatementSegment {
-    const TYPE: &'static str = "drop_procedure_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("PROCEDURE"),
-            Ref::new("IfExistsGrammar").optional(),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("FunctionNameSegment"),
-                Ref::new("FunctionParameterListGrammar").optional(),
-            ])]),
-            one_of(vec_of_erased![Ref::keyword("CASCADE"), Ref::keyword("RESTRICT")])
-                .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct WellKnownTextGeometrySegment;
-
-impl NodeTrait for WellKnownTextGeometrySegment {
-    const TYPE: &'static str = "wkt_geometry_type";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        let geometry_type_keywords = POSTGRES_POSTGIS_DATATYPE_KEYWORDS
-            .iter()
-            .map(|(kw, _)| Ref::keyword(kw).to_matchable())
-            .collect_vec();
-
-        let mut geometry_type_keywords0 = geometry_type_keywords.clone();
-        geometry_type_keywords0.extend(
-            ["GEOMETRY", "GEOGRAPHY"].into_iter().map(|it| Ref::keyword(it).to_matchable()),
-        );
-
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                one_of(geometry_type_keywords.clone()),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                    optionally_bracketed(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "SimpleGeometryGrammar"
-                    )])]),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Bracketed::new(
-                        vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "SimpleGeometryGrammar"
-                        )])]
-                    )])]),
-                    Ref::new("WellKnownTextGeometrySegment"),
-                ])]),
-            ]),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("GEOMETRY"), Ref::keyword("GEOGRAPHY")]),
-                Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    one_of(geometry_type_keywords0),
-                    Ref::new("CommaSegment"),
-                    Ref::new("NumericLiteralSegment"),
-                ])]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct SemiStructuredAccessorSegment;
-
-impl NodeTrait for SemiStructuredAccessorSegment {
-    const TYPE: &'static str = "semi_structured_expression";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("DotSegment"),
-            Ref::new("SingleIdentifierGrammar"),
-            Ref::new("ArrayAccessorSegment").optional(),
-            AnyNumberOf::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        one_of(geometry_type_keywords.clone()),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            optionally_bracketed(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("SimpleGeometryGrammar")
+                            ])]),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("SimpleGeometryGrammar")
+                                ])])
+                            ])]),
+                            Ref::new("WellKnownTextGeometrySegment"),
+                        ])]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("GEOMETRY"), Ref::keyword("GEOGRAPHY")]),
+                        Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
+                            one_of(geometry_type_keywords0),
+                            Ref::new("CommaSegment"),
+                            Ref::new("NumericLiteralSegment"),
+                        ])]),
+                    ]),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemiStructuredAccessorSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::SemiStructuredExpression,
                 Sequence::new(vec_of_erased![
                     Ref::new("DotSegment"),
                     Ref::new("SingleIdentifierGrammar"),
-                ]),
-                Ref::new("ArrayAccessorSegment").optional(),
-            ])
-        ])
-        .to_matchable()
-    }
-}
+                    Ref::new("ArrayAccessorSegment").optional(),
+                    AnyNumberOf::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("DotSegment"),
+                            Ref::new("SingleIdentifierGrammar"),
+                        ]),
+                        Ref::new("ArrayAccessorSegment").optional(),
+                    ])
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct FunctionDefinitionGrammar;
-
-impl NodeTrait for FunctionDefinitionGrammar {
-    const TYPE: &'static str = "function_definition";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "FunctionDefinitionGrammar",
         Sequence::new(vec_of_erased![
             AnyNumberOf::new(vec_of_erased![
                 Ref::new("LanguageClauseSegment"),
@@ -2113,70 +1923,66 @@ impl NodeTrait for FunctionDefinitionGrammar {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct IntoClauseSegment;
-
-impl NodeTrait for IntoClauseSegment {
-    const TYPE: &'static str = "into_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("INTO"),
-            one_of(vec_of_erased![
-                Ref::keyword("TEMPORARY"),
-                Ref::keyword("TEMP"),
-                Ref::keyword("UNLOGGED"),
-            ])
-            .config(|this| this.optional()),
-            Ref::keyword("TABLE").optional(),
-            Ref::new("TableReferenceSegment"),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ForClauseSegment;
-
-impl NodeTrait for ForClauseSegment {
-    const TYPE: &'static str = "for_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("FOR"),
-            one_of(vec_of_erased![
-                Ref::keyword("UPDATE"),
+    postgres.add([
+        (
+            "IntoClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::IntoClause,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("NO"),
-                    Ref::keyword("KEY"),
-                    Ref::keyword("UPDATE"),
-                ]),
-                Ref::keyword("SHARE"),
-                Sequence::new(vec_of_erased![Ref::keyword("KEY"), Ref::keyword("SHARE")]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OF"),
-                Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")]),
-            ])
-            .config(|this| this.optional()),
-            one_of(vec_of_erased![
-                Ref::keyword("NOWAIT"),
-                Sequence::new(vec_of_erased![Ref::keyword("SKIP"), Ref::keyword("LOCKED")]),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
+                    Ref::keyword("INTO"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("TEMPORARY"),
+                        Ref::keyword("TEMP"),
+                        Ref::keyword("UNLOGGED"),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("TABLE").optional(),
+                    Ref::new("TableReferenceSegment"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ForClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ForClause,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FOR"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("UPDATE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("NO"),
+                            Ref::keyword("KEY"),
+                            Ref::keyword("UPDATE"),
+                        ]),
+                        Ref::keyword("SHARE"),
+                        Sequence::new(vec_of_erased![Ref::keyword("KEY"), Ref::keyword("SHARE")]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OF"),
+                        Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")]),
+                    ])
+                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        Ref::keyword("NOWAIT"),
+                        Sequence::new(vec_of_erased![Ref::keyword("SKIP"), Ref::keyword("LOCKED")]),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct UnorderedSelectStatementSegment;
-
-impl NodeTrait for UnorderedSelectStatementSegment {
-    const TYPE: &'static str = "unordered_select_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "UnorderedSelectStatementSegment",
         ansi::get_unordered_select_statement_segment_grammar().copy(
             Some(vec![Ref::new("IntoClauseSegment").optional().to_matchable()]),
             None,
@@ -2195,54 +2001,47 @@ impl NodeTrait for UnorderedSelectStatementSegment {
                 Ref::new("WithCheckOptionSegment").to_matchable(),
             ],
             false,
-        )
-    }
-}
+        ),
+    );
 
-pub struct SelectStatementSegment;
+    postgres.replace_grammar(
+        "SelectStatementSegment",
+        postgres
+            .grammar("UnorderedSelectStatementSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
+                    Ref::new("NamedWindowSegment").optional().to_matchable(),
+                ]),
+                None,
+                None,
+                None,
+                vec![],
+                false,
+            )
+            .copy(
+                Some(vec![Ref::new("ForClauseSegment").optional().to_matchable()]),
+                None,
+                Some(Ref::new("LimitClauseSegment").optional().to_matchable()),
+                None,
+                vec![
+                    Ref::new("SetOperatorSegment").to_matchable(),
+                    Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                    Ref::new("WithDataClauseSegment").to_matchable(),
+                    Sequence::new(vec_of_erased![Ref::keyword("ON"), Ref::keyword("CONFLICT")])
+                        .to_matchable(),
+                    Ref::keyword("RETURNING").to_matchable(),
+                    Ref::new("WithCheckOptionSegment").to_matchable(),
+                ],
+                true,
+            ),
+    );
 
-impl NodeTrait for SelectStatementSegment {
-    const TYPE: &'static str = "select_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        let initial_copy = UnorderedSelectStatementSegment::match_grammar().copy(
-            Some(vec![
-                Ref::new("OrderByClauseSegment").optional().to_matchable(),
-                Ref::new("LimitClauseSegment").optional().to_matchable(),
-                Ref::new("NamedWindowSegment").optional().to_matchable(),
-            ]),
-            None,
-            None,
-            None,
-            vec![],
-            false,
-        );
-
-        initial_copy.copy(
-            Some(vec![Ref::new("ForClauseSegment").optional().to_matchable()]),
-            None,
-            Some(Ref::new("LimitClauseSegment").optional().to_matchable()),
-            None,
-            vec![
-                Ref::new("SetOperatorSegment").to_matchable(),
-                Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
-                Ref::new("WithDataClauseSegment").to_matchable(),
-                Sequence::new(vec_of_erased![Ref::keyword("ON"), Ref::keyword("CONFLICT")])
-                    .to_matchable(),
-                Ref::keyword("RETURNING").to_matchable(),
-                Ref::new("WithCheckOptionSegment").to_matchable(),
-            ],
-            true,
-        )
-    }
-}
-
-pub struct SelectClauseSegment;
-
-impl NodeTrait for SelectClauseSegment {
-    const TYPE: &'static str = "select_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "SelectClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("SELECT"),
             Ref::new("SelectClauseModifierSegment").optional(),
@@ -2270,16 +2069,11 @@ impl NodeTrait for SelectClauseSegment {
             ];
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct SelectClauseModifierSegment;
-
-impl NodeTrait for SelectClauseModifierSegment {
-    const TYPE: &'static str = "select_clause_modifier";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "SelectClauseModifierSegment",
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("DISTINCT"),
@@ -2293,65 +2087,64 @@ impl NodeTrait for SelectClauseModifierSegment {
             ]),
             Ref::keyword("ALL"),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct WithinGroupClauseSegment;
+    postgres.add([
+        (
+            "WithinGroupClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::WithingroupClause,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITHIN"),
+                    Ref::keyword("GROUP"),
+                    Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment").optional()]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "GroupByClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::GroupbyClause,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("GROUP"),
+                    Ref::keyword("BY"),
+                    MetaSegment::indent(),
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("CubeRollupClauseSegment"),
+                        Ref::new("GroupingSetsClauseSegment"),
+                        Ref::new("ExpressionSegment"),
+                        Bracketed::new(vec_of_erased![]),
+                    ])])
+                    .config(|this| {
+                        this.terminators = vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ORDER"),
+                                Ref::keyword("BY")
+                            ]),
+                            Ref::keyword("LIMIT"),
+                            Ref::keyword("HAVING"),
+                            Ref::keyword("QUALIFY"),
+                            Ref::keyword("WINDOW"),
+                            Ref::new("SetOperatorSegment"),
+                        ];
+                    }),
+                    MetaSegment::dedent(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-impl NodeTrait for WithinGroupClauseSegment {
-    const TYPE: &'static str = "withingroup_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("WITHIN"),
-            Ref::keyword("GROUP"),
-            Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment").optional()])
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct GroupByClauseSegment;
-
-impl NodeTrait for GroupByClauseSegment {
-    const TYPE: &'static str = "groupby_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("GROUP"),
-            Ref::keyword("BY"),
-            MetaSegment::indent(),
-            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                Ref::new("ColumnReferenceSegment"),
-                Ref::new("NumericLiteralSegment"),
-                Ref::new("CubeRollupClauseSegment"),
-                Ref::new("GroupingSetsClauseSegment"),
-                Ref::new("ExpressionSegment"),
-                Bracketed::new(vec_of_erased![])
-            ])])
-            .config(|this| {
-                this.terminators = vec_of_erased![
-                    Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
-                    Ref::keyword("LIMIT"),
-                    Ref::keyword("HAVING"),
-                    Ref::keyword("QUALIFY"),
-                    Ref::keyword("WINDOW"),
-                    Ref::new("SetOperatorSegment")
-                ];
-            }),
-            MetaSegment::dedent()
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreateRoleStatementSegment;
-
-impl NodeTrait for CreateRoleStatementSegment {
-    const TYPE: &'static str = "create_role_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateRoleStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             one_of(vec_of_erased![Ref::keyword("ROLE"), Ref::keyword("USER"),]),
@@ -2420,142 +2213,140 @@ impl NodeTrait for CreateRoleStatementSegment {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct AlterRoleStatementSegment;
-
-impl NodeTrait for AlterRoleStatementSegment {
-    const TYPE: &'static str = "alter_role_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            one_of(vec_of_erased![Ref::keyword("ROLE"), Ref::keyword("USER"),]),
-            one_of(vec_of_erased![
-                // role_specification
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
-                        Ref::new("RoleReferenceSegment"),
-                    ]),
-                    Ref::keyword("WITH").optional(),
-                    any_set_of(vec_of_erased![
+    postgres.add([(
+        "AlterRoleStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AlterRoleStatement,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                one_of(vec_of_erased![Ref::keyword("ROLE"), Ref::keyword("USER"),]),
+                one_of(vec_of_erased![
+                    // role_specification
+                    Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
-                            Ref::keyword("SUPERUSER"),
-                            Ref::keyword("NOSUPERUSER"),
+                            Ref::keyword("CURRENT_ROLE"),
+                            Ref::keyword("CURRENT_USER"),
+                            Ref::keyword("SESSION_USER"),
+                            Ref::new("RoleReferenceSegment"),
                         ]),
-                        one_of(vec_of_erased![
-                            Ref::keyword("CREATEDB"),
-                            Ref::keyword("NOCREATEDB"),
-                        ]),
-                        one_of(vec_of_erased![
-                            Ref::keyword("CREATEROLE"),
-                            Ref::keyword("NOCREATEROLE"),
-                        ]),
-                        one_of(vec_of_erased![Ref::keyword("INHERIT"), Ref::keyword("NOINHERIT"),]),
-                        one_of(vec_of_erased![Ref::keyword("LOGIN"), Ref::keyword("NOLOGIN"),]),
-                        one_of(vec_of_erased![
-                            Ref::keyword("REPLICATION"),
-                            Ref::keyword("NOREPLICATION"),
-                        ]),
-                        one_of(vec_of_erased![
-                            Ref::keyword("BYPASSRLS"),
-                            Ref::keyword("NOBYPASSRLS"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("CONNECTION"),
-                            Ref::keyword("LIMIT"),
-                            Ref::new("NumericLiteralSegment"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("ENCRYPTED").optional(),
-                            Ref::keyword("PASSWORD"),
+                        Ref::keyword("WITH").optional(),
+                        any_set_of(vec_of_erased![
                             one_of(vec_of_erased![
+                                Ref::keyword("SUPERUSER"),
+                                Ref::keyword("NOSUPERUSER"),
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CREATEDB"),
+                                Ref::keyword("NOCREATEDB"),
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CREATEROLE"),
+                                Ref::keyword("NOCREATEROLE"),
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("INHERIT"),
+                                Ref::keyword("NOINHERIT"),
+                            ]),
+                            one_of(vec_of_erased![Ref::keyword("LOGIN"), Ref::keyword("NOLOGIN"),]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("REPLICATION"),
+                                Ref::keyword("NOREPLICATION"),
+                            ]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("BYPASSRLS"),
+                                Ref::keyword("NOBYPASSRLS"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CONNECTION"),
+                                Ref::keyword("LIMIT"),
+                                Ref::new("NumericLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ENCRYPTED").optional(),
+                                Ref::keyword("PASSWORD"),
+                                one_of(vec_of_erased![
+                                    Ref::new("QuotedLiteralSegment"),
+                                    Ref::keyword("NULL"),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("VALID"),
+                                Ref::keyword("UNTIL"),
                                 Ref::new("QuotedLiteralSegment"),
-                                Ref::keyword("NULL"),
                             ]),
                         ]),
+                    ]),
+                    // name only
+                    Sequence::new(vec_of_erased![
+                        Ref::new("RoleReferenceSegment"),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("VALID"),
-                            Ref::keyword("UNTIL"),
-                            Ref::new("QuotedLiteralSegment"),
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("RoleReferenceSegment"),
                         ]),
                     ]),
-                ]),
-                // name only
-                Sequence::new(vec_of_erased![
-                    Ref::new("RoleReferenceSegment"),
+                    // role_specification | all
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("RENAME"),
-                        Ref::keyword("TO"),
-                        Ref::new("RoleReferenceSegment"),
-                    ]),
-                ]),
-                // role_specification | all
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
-                        Ref::keyword("ALL"),
-                        Ref::new("RoleReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("IN"),
-                        Ref::keyword("DATABASE"),
-                        Ref::new("DatabaseReferenceSegment"),
-                    ])
-                    .config(|this| this.optional()),
-                    one_of(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("CURRENT_ROLE"),
+                            Ref::keyword("CURRENT_USER"),
+                            Ref::keyword("SESSION_USER"),
+                            Ref::keyword("ALL"),
+                            Ref::new("RoleReferenceSegment"),
+                        ]),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("SET"),
-                            Ref::new("ParameterNameSegment"),
-                            one_of(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("TO"),
-                                        Ref::new("EqualsSegment"),
-                                    ]),
-                                    one_of(vec_of_erased![
-                                        Ref::keyword("DEFAULT"),
-                                        Delimited::new(vec_of_erased![
-                                            Ref::new("LiteralGrammar"),
-                                            Ref::new("NakedIdentifierSegment"),
-                                            Ref::new("OnKeywordAsIdentifierSegment"),
+                            Ref::keyword("IN"),
+                            Ref::keyword("DATABASE"),
+                            Ref::new("DatabaseReferenceSegment"),
+                        ])
+                        .config(|this| this.optional()),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::new("ParameterNameSegment"),
+                                one_of(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("TO"),
+                                            Ref::new("EqualsSegment"),
+                                        ]),
+                                        one_of(vec_of_erased![
+                                            Ref::keyword("DEFAULT"),
+                                            Delimited::new(vec_of_erased![
+                                                Ref::new("LiteralGrammar"),
+                                                Ref::new("NakedIdentifierSegment"),
+                                                Ref::new("OnKeywordAsIdentifierSegment"),
+                                            ]),
                                         ]),
                                     ]),
-                                ]),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("FROM"),
-                                    Ref::keyword("CURRENT"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FROM"),
+                                        Ref::keyword("CURRENT"),
+                                    ]),
                                 ]),
                             ]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RESET"),
-                            one_of(vec_of_erased![
-                                Ref::new("ParameterNameSegment"),
-                                Ref::keyword("ALL"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RESET"),
+                                one_of(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                    Ref::keyword("ALL"),
+                                ]),
                             ]),
                         ]),
                     ]),
                 ]),
-            ]),
-        ])
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct ExplainStatementSegment;
-
-impl NodeTrait for ExplainStatementSegment {
-    const TYPE: &'static str = "explain_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "ExplainStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("EXPLAIN"),
             one_of(vec_of_erased![
@@ -2573,51 +2364,46 @@ impl NodeTrait for ExplainStatementSegment {
             .config(|this| this.optional()),
             ansi::explainable_stmt(),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct ExplainOptionSegment;
-
-impl NodeTrait for ExplainOptionSegment {
-    const TYPE: &'static str = "explain_option";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("ANALYZE"),
-                    Ref::keyword("ANALYSE"),
-                    Ref::keyword("VERBOSE"),
-                    Ref::keyword("COSTS"),
-                    Ref::keyword("SETTINGS"),
-                    Ref::keyword("BUFFERS"),
-                    Ref::keyword("WAL"),
-                    Ref::keyword("TIMING"),
-                    Ref::keyword("SUMMARY"),
+    postgres.add([(
+        "ExplainOptionSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::ExplainOption,
+            one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("ANALYZE"),
+                        Ref::keyword("ANALYSE"),
+                        Ref::keyword("VERBOSE"),
+                        Ref::keyword("COSTS"),
+                        Ref::keyword("SETTINGS"),
+                        Ref::keyword("BUFFERS"),
+                        Ref::keyword("WAL"),
+                        Ref::keyword("TIMING"),
+                        Ref::keyword("SUMMARY"),
+                    ]),
+                    Ref::new("BooleanLiteralGrammar").optional(),
                 ]),
-                Ref::new("BooleanLiteralGrammar").optional(),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FORMAT"),
-                one_of(vec_of_erased![
-                    Ref::keyword("TEXT"),
-                    Ref::keyword("XML"),
-                    Ref::keyword("JSON"),
-                    Ref::keyword("YAML"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("FORMAT"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("TEXT"),
+                        Ref::keyword("XML"),
+                        Ref::keyword("JSON"),
+                        Ref::keyword("YAML"),
+                    ]),
                 ]),
-            ]),
-        ])
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct CreateSchemaStatementSegment;
-
-impl NodeTrait for CreateSchemaStatementSegment {
-    const TYPE: &'static str = "create_schema_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateSchemaStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("SCHEMA"),
@@ -2631,16 +2417,11 @@ impl NodeTrait for CreateSchemaStatementSegment {
                 Ref::new("SchemaReferenceSegment"),
             ]),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct CreateTableStatementSegment;
-
-impl NodeTrait for CreateTableStatementSegment {
-    const TYPE: &'static str = "create_table_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateTableStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             one_of(vec_of_erased![
@@ -2793,104 +2574,105 @@ impl NodeTrait for CreateTableStatementSegment {
                 ]),
             ]),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct CreateTableAsStatementSegment;
-
-impl NodeTrait for CreateTableAsStatementSegment {
-    const TYPE: &'static str = "create_table_as_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("GLOBAL"), Ref::keyword("LOCAL")])
-                        .config(|this| this.optional()),
-                    Ref::new("TemporaryGrammar"),
-                ]),
-                Ref::keyword("UNLOGGED"),
-            ])
-            .config(|this| this.optional()),
-            Ref::keyword("TABLE"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("TableReferenceSegment"),
-            AnyNumberOf::new(vec_of_erased![
-                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![Delimited::new(
-                    vec_of_erased![Ref::new("ColumnReferenceSegment"),]
-                )])])
-                .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("USING"),
-                    Ref::new("ParameterNameSegment"),
-                ])
-                .config(|this| this.optional()),
+    postgres.add([(
+        "CreateTableAsStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::CreateTableAsStatement,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("WITH"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("ParameterNameSegment"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("EqualsSegment"),
-                                    one_of(vec_of_erased![
-                                        Ref::new("LiteralGrammar"),
-                                        Ref::new("NakedIdentifierSegment"),
-                                    ]),
-                                ])
-                                .config(|this| this.optional()),
-                            ]),
-                        ])]),
+                        one_of(vec_of_erased![Ref::keyword("GLOBAL"), Ref::keyword("LOCAL")])
+                            .config(|this| this.optional()),
+                        Ref::new("TemporaryGrammar"),
                     ]),
-                    Sequence::new(vec_of_erased![Ref::keyword("WITHOUT"), Ref::keyword("OIDS")]),
+                    Ref::keyword("UNLOGGED"),
                 ])
                 .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ON"),
-                    Ref::keyword("COMMIT"),
+                Ref::keyword("TABLE"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("TableReferenceSegment"),
+                AnyNumberOf::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![Delimited::new(
+                        vec_of_erased![Ref::new("ColumnReferenceSegment"),]
+                    )])])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("USING"),
+                        Ref::new("ParameterNameSegment"),
+                    ])
+                    .config(|this| this.optional()),
                     one_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("PRESERVE"),
-                            Ref::keyword("ROWS"),
+                            Ref::keyword("WITH"),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("EqualsSegment"),
+                                        one_of(vec_of_erased![
+                                            Ref::new("LiteralGrammar"),
+                                            Ref::new("NakedIdentifierSegment"),
+                                        ]),
+                                    ])
+                                    .config(|this| this.optional()),
+                                ]),
+                            ])]),
                         ]),
-                        Sequence::new(vec_of_erased![Ref::keyword("DELETE"), Ref::keyword("ROWS")]),
-                        Ref::keyword("DROP"),
-                    ]),
-                ])
-                .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("TablespaceReferenceSegment"),
-                ])
-                .config(|this| this.optional()),
-            ]),
-            Ref::keyword("AS"),
-            one_of(vec_of_erased![
-                optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar"),]),
-                optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::keyword("TABLE"),
-                    Ref::new("TableReferenceSegment"),
-                ])]),
-                Ref::new("ValuesClauseSegment"),
-                optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::keyword("EXECUTE"),
-                    Ref::new("FunctionSegment"),
-                ])]),
-            ]),
-            Ref::new("WithDataClauseSegment").optional(),
-        ])
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITHOUT"),
+                            Ref::keyword("OIDS")
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ON"),
+                        Ref::keyword("COMMIT"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PRESERVE"),
+                                Ref::keyword("ROWS"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DELETE"),
+                                Ref::keyword("ROWS")
+                            ]),
+                            Ref::keyword("DROP"),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ]),
+                Ref::keyword("AS"),
+                one_of(vec_of_erased![
+                    optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar"),]),
+                    optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLE"),
+                        Ref::new("TableReferenceSegment"),
+                    ])]),
+                    Ref::new("ValuesClauseSegment"),
+                    optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("EXECUTE"),
+                        Ref::new("FunctionSegment"),
+                    ])]),
+                ]),
+                Ref::new("WithDataClauseSegment").optional(),
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct AlterTableStatementSegment;
-
-impl NodeTrait for AlterTableStatementSegment {
-    const TYPE: &'static str = "alter_table_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "AlterTableStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("ALTER"),
             Ref::keyword("TABLE"),
@@ -2972,132 +2754,264 @@ impl NodeTrait for AlterTableStatementSegment {
                 ]),
             ]),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct AlterTableActionSegment;
-
-impl NodeTrait for AlterTableActionSegment {
-    const TYPE: &'static str = "alter_table_action_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ADD"),
-                Ref::keyword("COLUMN").optional(),
-                Ref::new("IfNotExistsGrammar").optional(),
-                Ref::new("ColumnReferenceSegment"),
-                Ref::new("DatatypeSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("COLLATE"),
-                    Ref::new("CollationReferenceSegment"),
-                ])
-                .config(|this| this.optional()),
-                AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DROP"),
-                Ref::keyword("COLUMN").optional(),
-                Ref::new("IfExistsGrammar").optional(),
-                Ref::new("ColumnReferenceSegment"),
-                Ref::new("DropBehaviorGrammar").optional(),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ALTER"),
-                Ref::keyword("COLUMN").optional(),
-                Ref::new("ColumnReferenceSegment"),
+    postgres.add([
+        (
+            "AlterTableActionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterTableActionSegment,
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DATA")])
-                            .config(|this| this.optional()),
-                        Ref::keyword("TYPE"),
+                        Ref::keyword("ADD"),
+                        Ref::keyword("COLUMN").optional(),
+                        Ref::new("IfNotExistsGrammar").optional(),
+                        Ref::new("ColumnReferenceSegment"),
                         Ref::new("DatatypeSegment"),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("COLLATE"),
                             Ref::new("CollationReferenceSegment"),
                         ])
                         .config(|this| this.optional()),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("USING"),
-                            one_of(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        AnyNumberOf::new(vec_of_erased![Ref::new("ColumnConstraintSegment")]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DROP"),
+                        Ref::keyword("COLUMN").optional(),
+                        Ref::new("IfExistsGrammar").optional(),
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("DropBehaviorGrammar").optional(),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("COLUMN").optional(),
+                        Ref::new("ColumnReferenceSegment"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    Ref::keyword("DATA")
+                                ])
+                                .config(|this| this.optional()),
+                                Ref::keyword("TYPE"),
+                                Ref::new("DatatypeSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLLATE"),
+                                    Ref::new("CollationReferenceSegment"),
+                                ])
+                                .config(|this| this.optional()),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("USING"),
+                                    one_of(vec_of_erased![Ref::new("ExpressionSegment")]),
+                                ])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::keyword("DEFAULT"),
+                                one_of(vec_of_erased![
+                                    Ref::new("LiteralGrammar"),
+                                    Ref::new("FunctionSegment"),
+                                    Ref::new("BareFunctionSegment"),
+                                    Ref::new("ExpressionSegment"),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DROP"),
+                                Ref::keyword("DEFAULT")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DROP")])
+                                    .config(|this| this.optional()),
+                                Ref::keyword("NOT"),
+                                Ref::keyword("NULL"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DROP"),
+                                Ref::keyword("EXPRESSION"),
+                                Ref::new("IfExistsGrammar").optional(),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ADD"),
+                                Ref::keyword("GENERATED"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("ALWAYS"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("BY"),
+                                        Ref::keyword("DEFAULT"),
+                                    ]),
+                                ]),
+                                Ref::keyword("AS"),
+                                Ref::keyword("IDENTITY"),
+                                Bracketed::new(vec_of_erased![
+                                    AnyNumberOf::new(vec_of_erased![Ref::new(
+                                        "AlterSequenceOptionsSegment"
+                                    )])
+                                    .config(|this| this.optional()),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    Ref::keyword("GENERATED"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("ALWAYS"),
+                                        Sequence::new(vec_of_erased![
+                                            Ref::keyword("BY"),
+                                            Ref::keyword("DEFAULT"),
+                                        ]),
+                                    ]),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    Ref::new("AlterSequenceOptionsSegment"),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("RESTART"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("WITH"),
+                                        Ref::new("NumericLiteralSegment"),
+                                    ]),
+                                ]),
+                            ]),]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DROP"),
+                                Ref::keyword("IDENTITY"),
+                                Ref::new("IfExistsGrammar").optional(),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::keyword("STATISTICS"),
+                                Ref::new("NumericLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::new("RelationOptionsSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RESET"),
+                                Ref::new("RelationOptionsSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::keyword("STORAGE"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("PLAIN"),
+                                    Ref::keyword("EXTERNAL"),
+                                    Ref::keyword("EXTENDED"),
+                                    Ref::keyword("MAIN"),
+                                ]),
+                            ]),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ADD"),
+                        Ref::new("TableConstraintSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ADD"),
+                        Ref::new("TableConstraintUsingIndexSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("ParameterNameSegment"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DEFERRABLE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NOT"),
+                                Ref::keyword("DEFERRABLE"),
+                            ])
+                        ])
+                        .config(|this| this.optional()),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("INITIALLY"),
+                                Ref::keyword("DEFERRED"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("INITIALLY"),
+                                Ref::keyword("IMMEDIATE"),
+                            ]),
                         ])
                         .config(|this| this.optional()),
                     ]),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("SET"),
-                        Ref::keyword("DEFAULT"),
-                        one_of(vec_of_erased![
-                            Ref::new("LiteralGrammar"),
-                            Ref::new("FunctionSegment"),
-                            Ref::new("BareFunctionSegment"),
-                            Ref::new("ExpressionSegment"),
-                        ]),
-                    ]),
-                    Sequence::new(vec_of_erased![Ref::keyword("DROP"), Ref::keyword("DEFAULT")]),
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DROP")])
-                            .config(|this| this.optional()),
-                        Ref::keyword("NOT"),
-                        Ref::keyword("NULL"),
+                        Ref::keyword("VALIDATE"),
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("ParameterNameSegment")
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DROP"),
-                        Ref::keyword("EXPRESSION"),
+                        Ref::keyword("CONSTRAINT"),
                         Ref::new("IfExistsGrammar").optional(),
+                        Ref::new("ParameterNameSegment"),
+                        Ref::new("DropBehaviorGrammar").optional(),
                     ]),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("ADD"),
-                        Ref::keyword("GENERATED"),
+                        one_of(vec_of_erased![Ref::keyword("ENABLE"), Ref::keyword("DISABLE"),]),
+                        Ref::keyword("TRIGGER"),
                         one_of(vec_of_erased![
-                            Ref::keyword("ALWAYS"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("BY"),
-                                Ref::keyword("DEFAULT"),
-                            ]),
-                        ]),
-                        Ref::keyword("AS"),
-                        Ref::keyword("IDENTITY"),
-                        Bracketed::new(vec_of_erased![
-                            AnyNumberOf::new(vec_of_erased![Ref::new(
-                                "AlterSequenceOptionsSegment"
-                            )])
-                            .config(|this| this.optional()),
+                            Ref::new("ParameterNameSegment"),
+                            Ref::keyword("ALL"),
+                            Ref::keyword("USER"),
                         ]),
                     ]),
-                    Sequence::new(vec_of_erased![one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("SET"),
-                            Ref::keyword("GENERATED"),
-                            one_of(vec_of_erased![
-                                Ref::keyword("ALWAYS"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("BY"),
-                                    Ref::keyword("DEFAULT"),
-                                ]),
-                            ]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("SET"),
-                            Ref::new("AlterSequenceOptionsSegment"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RESTART"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("WITH"),
-                                Ref::new("NumericLiteralSegment"),
-                            ]),
-                        ]),
-                    ]),]),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("DROP"),
-                        Ref::keyword("IDENTITY"),
-                        Ref::new("IfExistsGrammar").optional(),
+                        Ref::keyword("ENABLE"),
+                        one_of(vec_of_erased![Ref::keyword("REPLICA"), Ref::keyword("ALWAYS"),]),
+                        Ref::keyword("TRIGGER"),
+                        Ref::new("ParameterNameSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("ENABLE"),
+                            Ref::keyword("DISABLE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ENABLE"),
+                                Ref::keyword("REPLICA"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ENABLE"),
+                                Ref::keyword("RULE"),
+                            ]),
+                        ]),
+                        Ref::keyword("RULE"),
+                        Ref::new("ParameterNameSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("DISABLE"),
+                            Ref::keyword("ENABLE"),
+                            Ref::keyword("FORCE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NO"),
+                                Ref::keyword("FORCE"),
+                            ]),
+                        ]),
+                        Ref::keyword("ROW"),
+                        Ref::keyword("LEVEL"),
+                        Ref::keyword("SECURITY"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CLUSTER"),
+                        Ref::keyword("ON"),
+                        Ref::new("ParameterNameSegment"),
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("SET"),
-                        Ref::keyword("STATISTICS"),
-                        Ref::new("NumericLiteralSegment"),
+                        Ref::keyword("WITHOUT"),
+                        one_of(vec_of_erased![Ref::keyword("CLUSTER"), Ref::keyword("OIDS"),]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        one_of(vec_of_erased![Ref::keyword("LOGGED"), Ref::keyword("UNLOGGED"),]),
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("SET"),
@@ -3108,443 +3022,650 @@ impl NodeTrait for AlterTableActionSegment {
                         Ref::new("RelationOptionsSegment"),
                     ]),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("SET"),
-                        Ref::keyword("STORAGE"),
+                        Ref::keyword("NO").optional(),
+                        Ref::keyword("INHERIT"),
+                        Ref::new("TableReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OF"),
+                        Ref::new("ParameterNameSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("OF"),]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OWNER"),
+                        Ref::keyword("TO"),
                         one_of(vec_of_erased![
-                            Ref::keyword("PLAIN"),
-                            Ref::keyword("EXTERNAL"),
-                            Ref::keyword("EXTENDED"),
-                            Ref::keyword("MAIN"),
+                            Ref::new("ParameterNameSegment"),
+                            Ref::keyword("CURRENT_ROLE"),
+                            Ref::keyword("CURRENT_USER"),
+                            Ref::keyword("SESSION_USER"),
                         ]),
                     ]),
-                ]),
-            ]),
-            Sequence::new(vec_of_erased![Ref::keyword("ADD"), Ref::new("TableConstraintSegment"),]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ADD"),
-                Ref::new("TableConstraintUsingIndexSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ALTER"),
-                Ref::keyword("CONSTRAINT"),
-                Ref::new("ParameterNameSegment"),
-                one_of(vec_of_erased![
-                    Ref::keyword("DEFERRABLE"),
-                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE"),])
-                ])
-                .config(|this| this.optional()),
-                one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("INITIALLY"),
-                        Ref::keyword("DEFERRED"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("INITIALLY"),
-                        Ref::keyword("IMMEDIATE"),
+                        Ref::keyword("REPLICA"),
+                        Ref::keyword("IDENTITY"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DEFAULT"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("USING"),
+                                Ref::keyword("INDEX"),
+                                Ref::new("IndexReferenceSegment"),
+                            ]),
+                            Ref::keyword("FULL"),
+                            Ref::keyword("NOTHING"),
+                        ]),
                     ]),
                 ])
-                .config(|this| this.optional()),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("VALIDATE"),
-                Ref::keyword("CONSTRAINT"),
-                Ref::new("ParameterNameSegment")
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DROP"),
-                Ref::keyword("CONSTRAINT"),
-                Ref::new("IfExistsGrammar").optional(),
-                Ref::new("ParameterNameSegment"),
-                Ref::new("DropBehaviorGrammar").optional(),
-            ]),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("ENABLE"), Ref::keyword("DISABLE"),]),
-                Ref::keyword("TRIGGER"),
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "VersionIdentifierSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::VersionIdentifier,
                 one_of(vec_of_erased![
-                    Ref::new("ParameterNameSegment"),
-                    Ref::keyword("ALL"),
-                    Ref::keyword("USER"),
-                ]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ENABLE"),
-                one_of(vec_of_erased![Ref::keyword("REPLICA"), Ref::keyword("ALWAYS"),]),
-                Ref::keyword("TRIGGER"),
-                Ref::new("ParameterNameSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("ENABLE"),
-                    Ref::keyword("DISABLE"),
-                    Sequence::new(vec_of_erased![Ref::keyword("ENABLE"), Ref::keyword("REPLICA"),]),
-                    Sequence::new(vec_of_erased![Ref::keyword("ENABLE"), Ref::keyword("RULE"),]),
-                ]),
-                Ref::keyword("RULE"),
-                Ref::new("ParameterNameSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("DISABLE"),
-                    Ref::keyword("ENABLE"),
-                    Ref::keyword("FORCE"),
-                    Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("FORCE"),]),
-                ]),
-                Ref::keyword("ROW"),
-                Ref::keyword("LEVEL"),
-                Ref::keyword("SECURITY"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CLUSTER"),
-                Ref::keyword("ON"),
-                Ref::new("ParameterNameSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET"),
-                Ref::keyword("WITHOUT"),
-                one_of(vec_of_erased![Ref::keyword("CLUSTER"), Ref::keyword("OIDS"),]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET"),
-                Ref::keyword("TABLESPACE"),
-                Ref::new("TablespaceReferenceSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET"),
-                one_of(vec_of_erased![Ref::keyword("LOGGED"), Ref::keyword("UNLOGGED"),]),
-            ]),
-            Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::new("RelationOptionsSegment"),]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("RESET"),
-                Ref::new("RelationOptionsSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("NO").optional(),
-                Ref::keyword("INHERIT"),
-                Ref::new("TableReferenceSegment"),
-            ]),
-            Sequence::new(vec_of_erased![Ref::keyword("OF"), Ref::new("ParameterNameSegment"),]),
-            Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("OF"),]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OWNER"),
-                Ref::keyword("TO"),
-                one_of(vec_of_erased![
-                    Ref::new("ParameterNameSegment"),
-                    Ref::keyword("CURRENT_ROLE"),
-                    Ref::keyword("CURRENT_USER"),
-                    Ref::keyword("SESSION_USER"),
-                ]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("REPLICA"),
-                Ref::keyword("IDENTITY"),
-                one_of(vec_of_erased![
-                    Ref::keyword("DEFAULT"),
+                    Ref::new("QuotedLiteralSegment"),
+                    Ref::new("NakedIdentifierSegment"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateExtensionStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateExtensionStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("EXTENSION"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("ExtensionReferenceSegment"),
+                    Ref::keyword("WITH").optional(),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("USING"),
-                        Ref::keyword("INDEX"),
-                        Ref::new("IndexReferenceSegment"),
-                    ]),
-                    Ref::keyword("FULL"),
-                    Ref::keyword("NOTHING"),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct VersionIdentifierSegment;
-
-impl NodeTrait for VersionIdentifierSegment {
-    const TYPE: &'static str = "version_identifier";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(
-            vec_of_erased![Ref::new("QuotedLiteralSegment"), Ref::new("NakedIdentifierSegment"),],
-        )
-        .to_matchable()
-    }
-}
-
-pub struct CreateExtensionStatementSegment;
-
-impl NodeTrait for CreateExtensionStatementSegment {
-    const TYPE: &'static str = "create_extension_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("EXTENSION"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("ExtensionReferenceSegment"),
-            Ref::keyword("WITH").optional(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SCHEMA"),
-                Ref::new("SchemaReferenceSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("VERSION"),
-                Ref::new("VersionIdentifierSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FROM"),
-                Ref::new("VersionIdentifierSegment"),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DropExtensionStatementSegment;
-
-impl NodeTrait for DropExtensionStatementSegment {
-    const TYPE: &'static str = "drop_extension_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("EXTENSION"),
-            Ref::new("IfExistsGrammar").optional(),
-            Ref::new("ExtensionReferenceSegment"),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct PublicationReferenceSegment;
-
-impl NodeTrait for PublicationReferenceSegment {
-    const TYPE: &'static str = "publication_reference";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Ref::new("SingleIdentifierGrammar").to_matchable()
-    }
-}
-
-pub struct PublicationTableSegment;
-
-impl NodeTrait for PublicationTableSegment {
-    const TYPE: &'static str = "publication_table";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("ExtendedTableReferenceGrammar"),
-            Ref::new("BracketedColumnReferenceListGrammar").optional(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WHERE"),
-                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct PublicationObjectsSegment;
-
-impl NodeTrait for PublicationObjectsSegment {
-    const TYPE: &'static str = "publication_objects";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TABLE"),
-                Delimited::new(vec_of_erased![Ref::new("PublicationTableSegment")]).config(
-                    |this| {
-                        this.terminators = vec_of_erased![Sequence::new(vec_of_erased![
-                            Ref::new("CommaSegment"),
-                            one_of(vec_of_erased![Ref::keyword("TABLE"), Ref::keyword("TABLES")]),
-                        ])];
-                    }
-                ),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TABLES"),
-                Ref::keyword("IN"),
-                Ref::keyword("SCHEMA"),
-                Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                    Ref::new("SchemaReferenceSegment"),
-                    Ref::keyword("CURRENT_SCHEMA"),
-                ]),])
-                .config(|this| {
-                    this.terminators = vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("CommaSegment"),
-                        one_of(vec_of_erased![Ref::keyword("TABLE"), Ref::keyword("TABLES"),]),
-                    ]),];
-                }),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreatePublicationStatementSegment;
-
-impl NodeTrait for CreatePublicationStatementSegment {
-    const TYPE: &'static str = "create_publication_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("PUBLICATION"),
-            Ref::new("PublicationReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("FOR"),
-                    Ref::keyword("ALL"),
-                    Ref::keyword("TABLES"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("FOR"),
-                    Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment"),]),
-                ]),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::new("DefinitionParametersSegment"),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterPublicationStatementSegment;
-
-impl NodeTrait for AlterPublicationStatementSegment {
-    const TYPE: &'static str = "alter_publication_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("PUBLICATION"),
-            Ref::new("PublicationReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::new("DefinitionParametersSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ADD"),
-                    Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment")]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment")]),
-                ]),
+                        Ref::keyword("SCHEMA"),
+                        Ref::new("SchemaReferenceSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("VERSION"),
+                        Ref::new("VersionIdentifierSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FROM"),
+                        Ref::new("VersionIdentifierSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropExtensionStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropExtensionStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
-                    Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment")]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("PublicationReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
-                    one_of(vec_of_erased![
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
-                        Ref::new("RoleReferenceSegment"),
-                    ]),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DropPublicationStatementSegment;
-
-impl NodeTrait for DropPublicationStatementSegment {
-    const TYPE: &'static str = "drop_publication_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("PUBLICATION"),
-            Ref::new("IfExistsGrammar").optional(),
-            Delimited::new(vec_of_erased![Ref::new("PublicationReferenceSegment"),]),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreateMaterializedViewStatementSegment;
-
-impl NodeTrait for CreateMaterializedViewStatementSegment {
-    const TYPE: &'static str = "create_materialized_view_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::new("OrReplaceGrammar").optional(),
-            Ref::keyword("MATERIALIZED"),
-            Ref::keyword("VIEW"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("TableReferenceSegment"),
-            Ref::new("BracketedColumnReferenceListGrammar").optional(),
-            Sequence::new(vec_of_erased![Ref::keyword("USING"), Ref::new("ParameterNameSegment"),])
-                .config(|this| this.optional()),
-            Sequence::new(
-                vec_of_erased![Ref::keyword("WITH"), Ref::new("RelationOptionsSegment"),]
+                    Ref::keyword("EXTENSION"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Ref::new("ExtensionReferenceSegment"),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
             )
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TABLESPACE"),
-                Ref::new("TablespaceReferenceSegment"),
-            ])
-            .config(|this| this.optional()),
-            Ref::keyword("AS"),
-            one_of(vec_of_erased![
-                optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar"),]),
-                optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::keyword("TABLE"),
-                    Ref::new("TableReferenceSegment"),
-                ]),]),
-                Ref::new("ValuesClauseSegment"),
-                optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::keyword("EXECUTE"),
-                    Ref::new("FunctionSegment"),
-                ]),]),
-            ]),
-            Ref::new("WithDataClauseSegment").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterMaterializedViewStatementSegment;
-
-impl NodeTrait for AlterMaterializedViewStatementSegment {
-    const TYPE: &'static str = "alter_materialized_view_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("MATERIALIZED"),
-            Ref::keyword("VIEW"),
-            one_of(vec_of_erased![
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PublicationReferenceSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::PublicationReference,
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PublicationTableSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::PublicationTable,
                 Sequence::new(vec_of_erased![
+                    Ref::new("ExtendedTableReferenceGrammar"),
+                    Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WHERE"),
+                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PublicationObjectsSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::PublicationObjects,
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLE"),
+                        Delimited::new(vec_of_erased![Ref::new("PublicationTableSegment")]).config(
+                            |this| {
+                                this.terminators = vec_of_erased![Sequence::new(vec_of_erased![
+                                    Ref::new("CommaSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("TABLE"),
+                                        Ref::keyword("TABLES")
+                                    ]),
+                                ])];
+                            }
+                        ),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLES"),
+                        Ref::keyword("IN"),
+                        Ref::keyword("SCHEMA"),
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::new("SchemaReferenceSegment"),
+                            Ref::keyword("CURRENT_SCHEMA"),
+                        ]),])
+                        .config(|this| {
+                            this.terminators = vec_of_erased![Sequence::new(vec_of_erased![
+                                Ref::new("CommaSegment"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("TABLE"),
+                                    Ref::keyword("TABLES"),
+                                ]),
+                            ]),];
+                        }),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreatePublicationStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreatePublicationStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("PUBLICATION"),
+                    Ref::new("PublicationReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FOR"),
+                            Ref::keyword("ALL"),
+                            Ref::keyword("TABLES"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FOR"),
+                            Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment"),]),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::new("DefinitionParametersSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterPublicationStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterPublicationStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("PUBLICATION"),
+                    Ref::new("PublicationReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::new("DefinitionParametersSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ADD"),
+                            Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment")]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment")]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DROP"),
+                            Delimited::new(vec_of_erased![Ref::new("PublicationObjectsSegment")]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("PublicationReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::keyword("TO"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CURRENT_ROLE"),
+                                Ref::keyword("CURRENT_USER"),
+                                Ref::keyword("SESSION_USER"),
+                                Ref::new("RoleReferenceSegment"),
+                            ]),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    postgres.add([
+        (
+            "DropPublicationStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropPublicationStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("PUBLICATION"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Delimited::new(vec_of_erased![Ref::new("PublicationReferenceSegment")]),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateMaterializedViewStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateMaterializedViewStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::new("OrReplaceGrammar").optional(),
+                    Ref::keyword("MATERIALIZED"),
+                    Ref::keyword("VIEW"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("USING"),
+                        Ref::new("ParameterNameSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::new("RelationOptionsSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("AS"),
+                    one_of(vec_of_erased![
+                        optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
+                        optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::keyword("TABLE"),
+                            Ref::new("TableReferenceSegment"),
+                        ])]),
+                        Ref::new("ValuesClauseSegment"),
+                        optionally_bracketed(vec_of_erased![Sequence::new(vec_of_erased![
+                            Ref::keyword("EXECUTE"),
+                            Ref::new("FunctionSegment"),
+                        ])]),
+                    ]),
+                    Ref::new("WithDataClauseSegment").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterMaterializedViewStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterMaterializedViewStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("MATERIALIZED"),
+                    Ref::keyword("VIEW"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("IfExistsGrammar").optional(),
+                            Ref::new("TableReferenceSegment"),
+                            one_of(vec_of_erased![
+                                Delimited::new(vec_of_erased![Ref::new(
+                                    "AlterMaterializedViewActionSegment"
+                                )]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("RENAME"),
+                                    Sequence::new(vec_of_erased![Ref::keyword("COLUMN")])
+                                        .config(|this| this.optional()),
+                                    Ref::new("ColumnReferenceSegment"),
+                                    Ref::keyword("TO"),
+                                    Ref::new("ColumnReferenceSegment"),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("RENAME"),
+                                    Ref::keyword("TO"),
+                                    Ref::new("TableReferenceSegment"),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    Ref::keyword("SCHEMA"),
+                                    Ref::new("SchemaReferenceSegment"),
+                                ]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::new("TableReferenceSegment"),
+                            Ref::keyword("NO").optional(),
+                            Ref::keyword("DEPENDS"),
+                            Ref::keyword("ON"),
+                            Ref::keyword("EXTENSION"),
+                            Ref::new("ExtensionReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ALL"),
+                            Ref::keyword("IN"),
+                            Ref::keyword("TABLESPACE"),
+                            Ref::new("TablespaceReferenceSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("OWNED"),
+                                Ref::keyword("BY"),
+                                Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]),
+                            ])
+                            .config(|this| this.optional()),
+                            Ref::keyword("SET"),
+                            Ref::keyword("TABLESPACE"),
+                            Ref::new("TablespaceReferenceSegment"),
+                            Sequence::new(vec_of_erased![Ref::keyword("NOWAIT")])
+                                .config(|this| this.optional()),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterMaterializedViewActionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterMaterializedViewActionSegment,
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALTER"),
+                        Ref::keyword("COLUMN").optional(),
+                        Ref::new("ColumnReferenceSegment"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::keyword("STATISTICS"),
+                                Ref::new("NumericLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("ParameterNameSegment"),
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("LiteralGrammar"),
+                                    ]),
+                                ])]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RESET"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("ParameterNameSegment")
+                                ])]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::keyword("STORAGE"),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("PLAIN"),
+                                    Ref::keyword("EXTERNAL"),
+                                    Ref::keyword("EXTENDED"),
+                                    Ref::keyword("MAIN"),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::keyword("COMPRESSION"),
+                                Ref::new("ParameterNameSegment"),
+                            ]),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CLUSTER"),
+                        Ref::keyword("ON"),
+                        Ref::new("ParameterNameSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("WITHOUT"),
+                        Ref::keyword("CLUSTER"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::new("ParameterNameSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("EqualsSegment"),
+                                    Ref::new("LiteralGrammar"),
+                                ])
+                                .config(|this| this.optional()),
+                            ])
+                        ])]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RESET"),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ParameterNameSegment"
+                        )])]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OWNER"),
+                        Ref::keyword("TO"),
+                        one_of(vec_of_erased![
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("CURRENT_ROLE"),
+                            Ref::keyword("CURRENT_USER"),
+                            Ref::keyword("SESSION_USER"),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RefreshMaterializedViewStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::RefreshMaterializedViewStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("REFRESH"),
+                    Ref::keyword("MATERIALIZED"),
+                    Ref::keyword("VIEW"),
+                    Ref::keyword("CONCURRENTLY").optional(),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("WithDataClauseSegment").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropMaterializedViewStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropMaterializedViewStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("MATERIALIZED"),
+                    Ref::keyword("VIEW"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")]),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WithCheckOptionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::WithCheckOption,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    one_of(vec_of_erased![Ref::keyword("CASCADED"), Ref::keyword("LOCAL")]),
+                    Ref::keyword("CHECK"),
+                    Ref::keyword("OPTION"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterPolicyStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterPolicyStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("POLICY"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::keyword("ON"),
+                    Ref::new("TableReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TO"),
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                Ref::new("RoleReferenceSegment"),
+                                Ref::keyword("PUBLIC"),
+                                Ref::keyword("CURRENT_ROLE"),
+                                Ref::keyword("CURRENT_USER"),
+                                Ref::keyword("SESSION_USER"),
+                            ])]),
+                        ])
+                        .config(|this| this.optional()),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        ])
+                        .config(|this| this.optional()),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WITH"),
+                            Ref::keyword("CHECK"),
+                            Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        ])
+                        .config(|this| this.optional()),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    postgres.add([
+        (
+            "CreateViewStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateViewStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::new("OrReplaceGrammar").optional(),
+                    Ref::new("TemporaryGrammar").optional(),
+                    Ref::keyword("RECURSIVE").optional(),
+                    Ref::keyword("VIEW"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::new("RelationOptionsSegment")
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("AS"),
+                    one_of(vec_of_erased![
+                        optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
+                        Ref::new("ValuesClauseSegment"),
+                    ]),
+                    Ref::new("WithCheckOptionSegment").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterViewStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterViewStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("VIEW"),
                     Ref::new("IfExistsGrammar").optional(),
                     Ref::new("TableReferenceSegment"),
                     one_of(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new(
-                            "AlterMaterializedViewActionSegment"
-                        ),]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ALTER"),
+                            Ref::keyword("COLUMN").optional(),
+                            Ref::new("ColumnReferenceSegment"),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    Ref::keyword("DEFAULT"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("LiteralGrammar"),
+                                        Ref::new("FunctionSegment"),
+                                        Ref::new("BareFunctionSegment"),
+                                        Ref::new("ExpressionSegment"),
+                                    ]),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("DROP"),
+                                    Ref::keyword("DEFAULT"),
+                                ]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::keyword("TO"),
+                            one_of(vec_of_erased![
+                                Ref::new("ObjectReferenceSegment"),
+                                Ref::keyword("CURRENT_ROLE"),
+                                Ref::keyword("CURRENT_USER"),
+                                Ref::keyword("SESSION_USER"),
+                            ]),
+                        ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("RENAME"),
-                            Sequence::new(vec_of_erased![Ref::keyword("COLUMN"),])
-                                .config(|this| this.optional()),
+                            Ref::keyword("COLUMN").optional(),
                             Ref::new("ColumnReferenceSegment"),
                             Ref::keyword("TO"),
                             Ref::new("ColumnReferenceSegment"),
@@ -3559,523 +3680,217 @@ impl NodeTrait for AlterMaterializedViewStatementSegment {
                             Ref::keyword("SCHEMA"),
                             Ref::new("SchemaReferenceSegment"),
                         ]),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::new("TableReferenceSegment"),
-                    Ref::keyword("NO").optional(),
-                    Ref::keyword("DEPENDS"),
-                    Ref::keyword("ON"),
-                    Ref::keyword("EXTENSION"),
-                    Ref::new("ExtensionReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ALL"),
-                    Ref::keyword("IN"),
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("TablespaceReferenceSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("OWNED"),
-                        Ref::keyword("BY"),
-                        Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment"),]),
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::keyword("SET"),
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("TablespaceReferenceSegment"),
-                    Sequence::new(vec_of_erased![Ref::keyword("NOWAIT"),])
-                        .config(|this| this.optional()),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterMaterializedViewActionSegment;
-
-impl NodeTrait for AlterMaterializedViewActionSegment {
-    const TYPE: &'static str = "alter_materialized_view_action_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ALTER"),
-                Ref::keyword("COLUMN").optional(),
-                Ref::new("ColumnReferenceSegment"),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SET"),
-                        Ref::keyword("STATISTICS"),
-                        Ref::new("NumericLiteralSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SET"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![
-                                Ref::new("ParameterNameSegment"),
-                                Ref::new("EqualsSegment"),
-                                Ref::new("LiteralGrammar"),
-                            ]),
-                        ])]),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("RESET"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "ParameterNameSegment"
-                        )])]),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SET"),
-                        Ref::keyword("STORAGE"),
-                        one_of(vec_of_erased![
-                            Ref::keyword("PLAIN"),
-                            Ref::keyword("EXTERNAL"),
-                            Ref::keyword("EXTENDED"),
-                            Ref::keyword("MAIN"),
-                        ]),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SET"),
-                        Ref::keyword("COMPRESSION"),
-                        Ref::new("ParameterNameSegment"),
-                    ]),
-                ]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CLUSTER"),
-                Ref::keyword("ON"),
-                Ref::new("ParameterNameSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET"),
-                Ref::keyword("WITHOUT"),
-                Ref::keyword("CLUSTER"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                    vec_of_erased![
-                        Ref::new("ParameterNameSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::new("EqualsSegment"),
-                            Ref::new("LiteralGrammar"),
-                        ])
-                        .config(|this| this.optional()),
-                    ]
-                )])]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("RESET"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ParameterNameSegment"
-                )])]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OWNER"),
-                Ref::keyword("TO"),
-                one_of(vec_of_erased![
-                    Ref::new("ObjectReferenceSegment"),
-                    Ref::keyword("CURRENT_ROLE"),
-                    Ref::keyword("CURRENT_USER"),
-                    Ref::keyword("SESSION_USER"),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct RefreshMaterializedViewStatementSegment;
-
-impl NodeTrait for RefreshMaterializedViewStatementSegment {
-    const TYPE: &'static str = "refresh_materialized_view_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("REFRESH"),
-            Ref::keyword("MATERIALIZED"),
-            Ref::keyword("VIEW"),
-            Ref::keyword("CONCURRENTLY").optional(),
-            Ref::new("TableReferenceSegment"),
-            Ref::new("WithDataClauseSegment").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DropMaterializedViewStatementSegment;
-
-impl NodeTrait for DropMaterializedViewStatementSegment {
-    const TYPE: &'static str = "drop_materialized_view_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("MATERIALIZED"),
-            Ref::keyword("VIEW"),
-            Ref::new("IfExistsGrammar").optional(),
-            Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment"),]),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct WithCheckOptionSegment;
-
-impl NodeTrait for WithCheckOptionSegment {
-    const TYPE: &'static str = "with_check_option";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("WITH"),
-            one_of(vec_of_erased![Ref::keyword("CASCADED"), Ref::keyword("LOCAL"),]),
-            Ref::keyword("CHECK"),
-            Ref::keyword("OPTION"),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterPolicyStatementSegment;
-
-impl NodeTrait for AlterPolicyStatementSegment {
-    const TYPE: &'static str = "alter_policy_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("POLICY"),
-            Ref::new("ObjectReferenceSegment"),
-            Ref::keyword("ON"),
-            Ref::new("TableReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("TO"),
-                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                        Ref::new("RoleReferenceSegment"),
-                        Ref::keyword("PUBLIC"),
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
-                    ])]),
-                ])
-                .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("USING"),
-                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
-                ])
-                .config(|this| this.optional()),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WITH"),
-                    Ref::keyword("CHECK"),
-                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
-                ])
-                .config(|this| this.optional()),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreateViewStatementSegment;
-
-impl NodeTrait for CreateViewStatementSegment {
-    const TYPE: &'static str = "create_view_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::new("OrReplaceGrammar").optional(),
-            Ref::new("TemporaryGrammar").optional(),
-            Ref::keyword("RECURSIVE").optional(),
-            Ref::keyword("VIEW"),
-            Ref::new("TableReferenceSegment"),
-            Ref::new("BracketedColumnReferenceListGrammar").optional(),
-            Sequence::new(vec_of_erased![Ref::keyword("WITH"), Ref::new("RelationOptionsSegment")])
-                .config(|this| this.optional()),
-            Ref::keyword("AS"),
-            one_of(vec_of_erased![
-                optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar")]),
-                Ref::new("ValuesClauseSegment"),
-            ]),
-            Ref::new("WithCheckOptionSegment").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterViewStatementSegment;
-
-impl NodeTrait for AlterViewStatementSegment {
-    const TYPE: &'static str = "alter_view_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("VIEW"),
-            Ref::new("IfExistsGrammar").optional(),
-            Ref::new("TableReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ALTER"),
-                    Ref::keyword("COLUMN").optional(),
-                    Ref::new("ColumnReferenceSegment"),
-                    one_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
                             Ref::keyword("SET"),
-                            Ref::keyword("DEFAULT"),
-                            one_of(vec_of_erased![
-                                Ref::new("LiteralGrammar"),
-                                Ref::new("FunctionSegment"),
-                                Ref::new("BareFunctionSegment"),
-                                Ref::new("ExpressionSegment"),
-                            ]),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::new("EqualsSegment"),
+                                        Ref::new("LiteralGrammar"),
+                                    ])
+                                    .config(|this| this.optional()),
+                                ]),
+                            ]),]),
                         ]),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("DROP"),
-                            Ref::keyword("DEFAULT"),
+                            Ref::keyword("RESET"),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("ParameterNameSegment")
+                            ])]),
                         ]),
                     ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
-                    one_of(vec_of_erased![
-                        Ref::new("ObjectReferenceSegment"),
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("COLUMN").optional(),
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::keyword("TO"),
-                    Ref::new("ColumnReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("TableReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::keyword("SCHEMA"),
-                    Ref::new("SchemaReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                        vec_of_erased![
-                            Ref::new("ParameterNameSegment"),
-                            Sequence::new(vec_of_erased![
-                                Ref::new("EqualsSegment"),
-                                Ref::new("LiteralGrammar"),
-                            ])
-                            .config(|this| this.optional()),
-                        ]
-                    ),]),]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RESET"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ParameterNameSegment"
-                    )])]),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct DropViewStatementSegment;
-
-impl NodeTrait for DropViewStatementSegment {
-    const TYPE: &'static str = "drop_view_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("VIEW"),
-            Ref::new("IfExistsGrammar").optional(),
-            Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment"),]),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreateDatabaseStatementSegment;
-
-impl NodeTrait for CreateDatabaseStatementSegment {
-    const TYPE: &'static str = "create_database_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("DATABASE"),
-            Ref::new("DatabaseReferenceSegment"),
-            Ref::keyword("WITH").optional(),
-            AnyNumberOf::new(vec_of_erased![
+    postgres.add([
+        (
+            "DropViewStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropViewStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::new("EqualsSegment").optional(),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
+                    Ref::keyword("DROP"),
+                    Ref::keyword("VIEW"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")]),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateDatabaseStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateDatabaseStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("TEMPLATE"),
-                    Ref::new("EqualsSegment").optional(),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ENCODING"),
-                    Ref::new("EqualsSegment").optional(),
-                    one_of(vec_of_erased![
-                        Ref::new("QuotedLiteralSegment"),
-                        Ref::keyword("DEFAULT"),
-                    ]),
-                ]),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("LOCALE"),
-                        Ref::new("EqualsSegment").optional(),
-                        Ref::new("QuotedLiteralSegment"),
-                    ]),
-                    AnyNumberOf::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("LC_COLLATE"),
-                            Ref::new("EqualsSegment").optional(),
-                            Ref::new("QuotedLiteralSegment"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("LC_CTYPE"),
-                            Ref::new("EqualsSegment").optional(),
-                            Ref::new("QuotedLiteralSegment"),
-                        ]),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("EqualsSegment").optional(),
-                    one_of(vec_of_erased![
-                        Ref::new("TablespaceReferenceSegment"),
-                        Ref::keyword("DEFAULT"),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ALLOW_CONNECTIONS"),
-                    Ref::new("EqualsSegment").optional(),
-                    Ref::new("BooleanLiteralGrammar"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CONNECTION"),
-                    Ref::keyword("LIMIT"),
-                    Ref::new("EqualsSegment").optional(),
-                    Ref::new("NumericLiteralSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("IS_TEMPLATE"),
-                    Ref::new("EqualsSegment").optional(),
-                    Ref::new("BooleanLiteralGrammar"),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDatabaseStatementSegment;
-
-impl NodeTrait for AlterDatabaseStatementSegment {
-    const TYPE: &'static str = "alter_database_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("DATABASE"),
-            Ref::new("DatabaseReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("DATABASE"),
+                    Ref::new("DatabaseReferenceSegment"),
                     Ref::keyword("WITH").optional(),
                     AnyNumberOf::new(vec_of_erased![
                         Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::new("EqualsSegment").optional(),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TEMPLATE"),
+                            Ref::new("EqualsSegment").optional(),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ENCODING"),
+                            Ref::new("EqualsSegment").optional(),
+                            one_of(vec_of_erased![
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::keyword("DEFAULT"),
+                            ]),
+                        ]),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("LOCALE"),
+                                Ref::new("EqualsSegment").optional(),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                            AnyNumberOf::new(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("LC_COLLATE"),
+                                    Ref::new("EqualsSegment").optional(),
+                                    Ref::new("QuotedLiteralSegment"),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("LC_CTYPE"),
+                                    Ref::new("EqualsSegment").optional(),
+                                    Ref::new("QuotedLiteralSegment"),
+                                ]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TABLESPACE"),
+                            Ref::new("EqualsSegment").optional(),
+                            one_of(vec_of_erased![
+                                Ref::new("TablespaceReferenceSegment"),
+                                Ref::keyword("DEFAULT"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
                             Ref::keyword("ALLOW_CONNECTIONS"),
+                            Ref::new("EqualsSegment").optional(),
                             Ref::new("BooleanLiteralGrammar"),
                         ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("CONNECTION"),
                             Ref::keyword("LIMIT"),
+                            Ref::new("EqualsSegment").optional(),
                             Ref::new("NumericLiteralSegment"),
                         ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("IS_TEMPLATE"),
+                            Ref::new("EqualsSegment").optional(),
                             Ref::new("BooleanLiteralGrammar"),
                         ]),
-                    ])
-                    .config(|this| this.min_times(1)),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("DatabaseReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
-                    one_of(vec_of_erased![
-                        Ref::new("ObjectReferenceSegment"),
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
                     ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("TablespaceReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::new("ParameterNameSegment"),
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("TO"), Ref::new("EqualsSegment"),]),
-                            one_of(vec_of_erased![
-                                Ref::keyword("DEFAULT"),
-                                Ref::new("LiteralGrammar"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    postgres.add([(
+        "AlterDatabaseStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AlterDatabaseStatement,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("DATABASE"),
+                Ref::new("DatabaseReferenceSegment"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH").optional(),
+                        AnyNumberOf::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ALLOW_CONNECTIONS"),
+                                Ref::new("BooleanLiteralGrammar"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CONNECTION"),
+                                Ref::keyword("LIMIT"),
+                                Ref::new("NumericLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("IS_TEMPLATE"),
+                                Ref::new("BooleanLiteralGrammar"),
+                            ]),
+                        ])
+                        .config(|this| this.min_times(1)),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RENAME"),
+                        Ref::keyword("TO"),
+                        Ref::new("DatabaseReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("OWNER"),
+                        Ref::keyword("TO"),
+                        one_of(vec_of_erased![
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("CURRENT_ROLE"),
+                            Ref::keyword("CURRENT_USER"),
+                            Ref::keyword("SESSION_USER"),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SET"),
+                        Ref::new("ParameterNameSegment"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("TO"),
+                                    Ref::new("EqualsSegment"),
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::keyword("DEFAULT"),
+                                    Ref::new("LiteralGrammar"),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FROM"),
+                                Ref::keyword("CURRENT"),
                             ]),
                         ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("FROM"),
-                            Ref::keyword("CURRENT"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RESET"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ALL"),
+                            Ref::new("ParameterNameSegment"),
                         ]),
                     ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RESET"),
-                    one_of(vec_of_erased![Ref::keyword("ALL"), Ref::new("ParameterNameSegment"),]),
-                ]),
+                ])
+                .config(|this| this.optional()),
             ])
-            .config(|this| this.optional()),
-        ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct DropDatabaseStatementSegment;
-
-impl NodeTrait for DropDatabaseStatementSegment {
-    const TYPE: &'static str = "drop_database_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DropDatabaseStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("DATABASE"),
@@ -4087,91 +3902,90 @@ impl NodeTrait for DropDatabaseStatementSegment {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct VacuumStatementSegment;
-
-impl NodeTrait for VacuumStatementSegment {
-    const TYPE: &'static str = "vacuum_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("VACUUM"),
-            one_of(vec_of_erased![
+    postgres.add([
+        (
+            "VacuumStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::VacuumStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("FULL").optional(),
-                    Ref::keyword("FREEZE").optional(),
-                    Ref::keyword("VERBOSE").optional(),
-                    one_of(vec_of_erased![Ref::keyword("ANALYZE"), Ref::keyword("ANALYSE")])
-                        .config(|this| this.optional()),
-                ]),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                    vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("FULL"),
-                            Ref::keyword("FREEZE"),
-                            Ref::keyword("VERBOSE"),
-                            Ref::keyword("ANALYZE"),
-                            Ref::keyword("ANALYSE"),
-                            Ref::keyword("DISABLE_PAGE_SKIPPING"),
-                            Ref::keyword("SKIP_LOCKED"),
-                            Ref::keyword("INDEX_CLEANUP"),
-                            Ref::keyword("PROCESS_TOAST"),
-                            Ref::keyword("TRUNCATE"),
-                            Ref::keyword("PARALLEL"),
+                    Ref::keyword("VACUUM"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FULL").optional(),
+                            Ref::keyword("FREEZE").optional(),
+                            Ref::keyword("VERBOSE").optional(),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ANALYZE"),
+                                Ref::keyword("ANALYSE")
+                            ])
+                            .config(|this| this.optional()),
                         ]),
-                        one_of(vec_of_erased![
-                            Ref::new("LiteralGrammar"),
-                            Ref::new("NakedIdentifierSegment"),
-                            Ref::new("OnKeywordAsIdentifierSegment"),
-                        ])
-                        .config(|this| this.optional()),
-                    ]
-                ),]),]),
-            ])
-            .config(|this| this.optional()),
-            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::new("TableReferenceSegment"),
-                Ref::new("BracketedColumnReferenceListGrammar").optional(),
-            ])])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("FULL"),
+                                    Ref::keyword("FREEZE"),
+                                    Ref::keyword("VERBOSE"),
+                                    Ref::keyword("ANALYZE"),
+                                    Ref::keyword("ANALYSE"),
+                                    Ref::keyword("DISABLE_PAGE_SKIPPING"),
+                                    Ref::keyword("SKIP_LOCKED"),
+                                    Ref::keyword("INDEX_CLEANUP"),
+                                    Ref::keyword("PROCESS_TOAST"),
+                                    Ref::keyword("TRUNCATE"),
+                                    Ref::keyword("PARALLEL"),
+                                ]),
+                                one_of(vec_of_erased![
+                                    Ref::new("LiteralGrammar"),
+                                    Ref::new("NakedIdentifierSegment"),
+                                    Ref::new("OnKeywordAsIdentifierSegment"),
+                                ])
+                                .config(|this| this.optional()),
+                            ]),
+                        ]),]),
+                    ])
+                    .config(|this| this.optional()),
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("TableReferenceSegment"),
+                        Ref::new("BracketedColumnReferenceListGrammar").optional(),
+                    ])])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LikeOptionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::LikeOptionSegment,
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("INCLUDING"), Ref::keyword("EXCLUDING")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("COMMENTS"),
+                        Ref::keyword("CONSTRAINTS"),
+                        Ref::keyword("DEFAULTS"),
+                        Ref::keyword("GENERATED"),
+                        Ref::keyword("IDENTITY"),
+                        Ref::keyword("INDEXES"),
+                        Ref::keyword("STATISTICS"),
+                        Ref::keyword("STORAGE"),
+                        Ref::keyword("ALL"),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct LikeOptionSegment;
-
-impl NodeTrait for LikeOptionSegment {
-    const TYPE: &'static str = "like_option_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![Ref::keyword("INCLUDING"), Ref::keyword("EXCLUDING"),]),
-            one_of(vec_of_erased![
-                Ref::keyword("COMMENTS"),
-                Ref::keyword("CONSTRAINTS"),
-                Ref::keyword("DEFAULTS"),
-                Ref::keyword("GENERATED"),
-                Ref::keyword("IDENTITY"),
-                Ref::keyword("INDEXES"),
-                Ref::keyword("STATISTICS"),
-                Ref::keyword("STORAGE"),
-                Ref::keyword("ALL"),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ColumnConstraintSegment;
-
-impl NodeTrait for ColumnConstraintSegment {
-    const TYPE: &'static str = "column_constraint";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "ColumnConstraintSegment",
         Sequence::new(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("CONSTRAINT"),
@@ -4184,7 +3998,7 @@ impl NodeTrait for ColumnConstraintSegment {
                 ),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CHECK"),
-                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
+                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
                     Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("INHERIT"),])
                         .config(|this| this.optional()),
                 ]),
@@ -4268,659 +4082,662 @@ impl NodeTrait for ColumnConstraintSegment {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct PartitionBoundSpecSegment;
-
-impl NodeTrait for PartitionBoundSpecSegment {
-    const TYPE: &'static str = "partition_bound_spec";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("IN"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ExpressionSegment"
-                ),]),]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FROM"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                    vec_of_erased![
-                        Ref::new("ExpressionSegment"),
-                        Ref::keyword("MINVALUE"),
-                        Ref::keyword("MAXVALUE"),
-                    ]
-                ),]),]),
-                Ref::keyword("TO"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                    vec_of_erased![
-                        Ref::new("ExpressionSegment"),
-                        Ref::keyword("MINVALUE"),
-                        Ref::keyword("MAXVALUE"),
-                    ]
-                ),]),]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
-                    Ref::keyword("MODULUS"),
-                    Ref::new("NumericLiteralSegment"),
-                    Ref::new("CommaSegment"),
-                    Ref::keyword("REMAINDER"),
-                    Ref::new("NumericLiteralSegment"),
-                ]),]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct TableConstraintSegment;
-
-impl NodeTrait for TableConstraintSegment {
-    const TYPE: &'static str = "table_constraint";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CONSTRAINT"),
-                Ref::new("ObjectReferenceSegment"),
-            ])
-            .config(|this| this.optional()),
+    postgres.add([(
+        "PartitionBoundSpecSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::PartitionBoundSpec,
             one_of(vec_of_erased![
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("CHECK"),
-                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
-                    Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("INHERIT"),])
-                        .config(|this| this.optional()),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("UNIQUE"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NULLS"),
-                        Ref::keyword("NOT").optional(),
-                        Ref::keyword("DISTINCT"),
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::new("BracketedColumnReferenceListGrammar"),
-                    Ref::new("IndexParametersSegment").optional(),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::new("PrimaryKeyGrammar"),
-                    Ref::new("BracketedColumnReferenceListGrammar"),
-                    Ref::new("IndexParametersSegment").optional(),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("EXCLUDE"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("USING"),
-                        Ref::new("IndexAccessMethodSegment"),
-                    ])
-                    .config(|this| this.optional()),
+                    Ref::keyword("IN"),
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ExclusionConstraintElementSegment"
-                    )])]),
-                    Ref::new("IndexParametersSegment").optional(),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WHERE"),
-                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment"),]),
-                    ])
-                    .config(|this| this.optional()),
+                        "ExpressionSegment"
+                    ),]),]),
                 ]),
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("FOREIGN"),
-                    Ref::keyword("KEY"),
-                    Ref::new("BracketedColumnReferenceListGrammar"),
-                    Ref::new("ReferenceDefinitionGrammar"),
+                    Ref::keyword("FROM"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            Ref::new("ExpressionSegment"),
+                            Ref::keyword("MINVALUE"),
+                            Ref::keyword("MAXVALUE"),
+                        ]
+                    ),]),]),
+                    Ref::keyword("TO"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                        vec_of_erased![
+                            Ref::new("ExpressionSegment"),
+                            Ref::keyword("MINVALUE"),
+                            Ref::keyword("MAXVALUE"),
+                        ]
+                    ),]),]),
                 ]),
-            ]),
-            AnyNumberOf::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("DEFERRABLE"),
-                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH"),
+                    Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("MODULUS"),
+                        Ref::new("NumericLiteralSegment"),
+                        Ref::new("CommaSegment"),
+                        Ref::keyword("REMAINDER"),
+                        Ref::new("NumericLiteralSegment"),
+                    ]),]),
                 ]),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("INITIALLY"),
-                        Ref::keyword("DEFERRED"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("INITIALLY"),
-                        Ref::keyword("IMMEDIATE"),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("VALID")]),
-                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("INHERIT")]),
-            ]),
-        ])
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct TableConstraintUsingIndexSegment;
-
-impl NodeTrait for TableConstraintUsingIndexSegment {
-    const TYPE: &'static str = "table_constraint";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
+    postgres.add([(
+        "TableConstraintSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::TableConstraint,
             Sequence::new(vec_of_erased![
-                Ref::keyword("CONSTRAINT"),
-                Ref::new("ObjectReferenceSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("UNIQUE"), Ref::new("PrimaryKeyGrammar"),]),
-                Ref::keyword("USING"),
-                Ref::keyword("INDEX"),
-                Ref::new("IndexReferenceSegment"),
-            ]),
-            one_of(vec_of_erased![
-                Ref::keyword("DEFERRABLE"),
-                Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE"),]),
-            ])
-            .config(|this| this.optional()),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![Ref::keyword("INITIALLY"), Ref::keyword("DEFERRED"),]),
-                Sequence::new(
-                    vec_of_erased![Ref::keyword("INITIALLY"), Ref::keyword("IMMEDIATE"),]
-                ),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct IndexParametersSegment;
-
-impl NodeTrait for IndexParametersSegment {
-    const TYPE: &'static str = "index_parameters";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("INCLUDE"),
-                Ref::new("BracketedColumnReferenceListGrammar"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::new("DefinitionParametersSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("USING"),
-                Ref::keyword("INDEX"),
-                Ref::keyword("TABLESPACE"),
-                Ref::new("TablespaceReferenceSegment"),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ReferentialActionSegment;
-
-impl NodeTrait for ReferentialActionSegment {
-    const TYPE: &'static str = "referential_action";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Ref::keyword("CASCADE"),
-            Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::keyword("NULL"),]),
-            Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DEFAULT"),]),
-            Ref::keyword("RESTRICT"),
-            Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("ACTION"),]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct IndexElementOptionsSegment;
-
-impl NodeTrait for IndexElementOptionsSegment {
-    const TYPE: &'static str = "index_element_options";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("COLLATE"),
-                Ref::new("CollationReferenceSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::new("OperatorClassReferenceSegment").config(|this| {
-                    this.exclude = Some(
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("NULLS"),
-                            one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST")]),
-                        ])
-                        .to_matchable(),
-                    );
-                }),
-                Ref::new("RelationOptionsSegment").optional(),
-            ])
-            .config(|this| this.optional()),
-            one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC"),])
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CONSTRAINT"),
+                    Ref::new("ObjectReferenceSegment"),
+                ])
                 .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("NULLS"),
-                one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST"),]),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct IndexElementSegment;
-
-impl NodeTrait for IndexElementSegment {
-    const TYPE: &'static str = "index_element";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![
-                Ref::new("ColumnReferenceSegment"),
-                Ref::new("FunctionSegment"),
-                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
-            ]),
-            Ref::new("IndexElementOptionsSegment").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ExclusionConstraintElementSegment;
-
-impl NodeTrait for ExclusionConstraintElementSegment {
-    const TYPE: &'static str = "exclusion_constraint_element";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("IndexElementSegment"),
-            Ref::keyword("WITH"),
-            Ref::new("ComparisonOperatorGrammar"),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDefaultPrivilegesStatementSegment;
-
-impl NodeTrait for AlterDefaultPrivilegesStatementSegment {
-    const TYPE: &'static str = "alter_default_privileges_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("DEFAULT"),
-            Ref::keyword("PRIVILEGES"),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FOR"),
-                one_of(vec_of_erased![Ref::keyword("ROLE"), Ref::keyword("USER"),]),
-                Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment"),]).config(
-                    |this| {
-                        this.terminators = vec_of_erased![
-                            Ref::keyword("IN"),
-                            Ref::keyword("GRANT"),
-                            Ref::keyword("REVOKE"),
-                        ];
-                    }
-                ),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("IN"),
-                Ref::keyword("SCHEMA"),
-                Delimited::new(vec_of_erased![Ref::new("SchemaReferenceSegment"),]).config(
-                    |this| {
-                        this.terminators =
-                            vec_of_erased![Ref::keyword("GRANT"), Ref::keyword("REVOKE"),];
-                    }
-                ),
-            ])
-            .config(|this| this.optional()),
-            one_of(vec_of_erased![
-                Ref::new("AlterDefaultPrivilegesGrantSegment"),
-                Ref::new("AlterDefaultPrivilegesRevokeSegment"),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDefaultPrivilegesObjectPrivilegesSegment;
-
-impl NodeTrait for AlterDefaultPrivilegesObjectPrivilegesSegment {
-    const TYPE: &'static str = "alter_default_privileges_object_privilege";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ALL"),
-                Ref::keyword("PRIVILEGES").optional(),
-            ]),
-            Delimited::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("DELETE"),
-                Ref::keyword("EXECUTE"),
-                Ref::keyword("INSERT"),
-                Ref::keyword("REFERENCES"),
-                Ref::keyword("SELECT"),
-                Ref::keyword("TRIGGER"),
-                Ref::keyword("TRUNCATE"),
-                Ref::keyword("UPDATE"),
-                Ref::keyword("USAGE"),
-            ])
-            .config(|this| {
-                this.terminators = vec_of_erased![Ref::keyword("ON"),];
-            }),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDefaultPrivilegesSchemaObjectsSegment;
-
-impl NodeTrait for AlterDefaultPrivilegesSchemaObjectsSegment {
-    const TYPE: &'static str = "alter_default_privileges_schema_object";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Ref::keyword("TABLES"),
-            Ref::keyword("FUNCTIONS"),
-            Ref::keyword("ROUTINES"),
-            Ref::keyword("SEQUENCES"),
-            Ref::keyword("TYPES"),
-            Ref::keyword("SCHEMAS"),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDefaultPrivilegesToFromRolesSegment;
-
-impl NodeTrait for AlterDefaultPrivilegesToFromRolesSegment {
-    const TYPE: &'static str = "alter_default_privileges_to_from_roles";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::keyword("GROUP").optional(),
-                Ref::new("RoleReferenceSegment"),
-            ]),
-            Ref::keyword("PUBLIC"),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDefaultPrivilegesGrantSegment;
-
-impl NodeTrait for AlterDefaultPrivilegesGrantSegment {
-    const TYPE: &'static str = "alter_default_privileges_grant";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("GRANT"),
-            Ref::new("AlterDefaultPrivilegesObjectPrivilegesSegment"),
-            Ref::keyword("ON"),
-            Ref::new("AlterDefaultPrivilegesSchemaObjectsSegment"),
-            Ref::keyword("TO"),
-            Delimited::new(vec_of_erased![Ref::new("AlterDefaultPrivilegesToFromRolesSegment"),])
-                .config(|this| {
-                    this.terminators = vec_of_erased![Ref::keyword("WITH"),];
-                }),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::keyword("GRANT"),
-                Ref::keyword("OPTION"),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDefaultPrivilegesRevokeSegment;
-
-impl NodeTrait for AlterDefaultPrivilegesRevokeSegment {
-    const TYPE: &'static str = "alter_default_privileges_revoke";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("REVOKE"),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("GRANT"),
-                Ref::keyword("OPTION"),
-                Ref::keyword("FOR"),
-            ])
-            .config(|this| this.optional()),
-            Ref::new("AlterDefaultPrivilegesObjectPrivilegesSegment"),
-            Ref::keyword("ON"),
-            Ref::new("AlterDefaultPrivilegesSchemaObjectsSegment"),
-            Ref::keyword("FROM"),
-            Delimited::new(vec_of_erased![Ref::new("AlterDefaultPrivilegesToFromRolesSegment"),])
-                .config(|this| {
-                    this.terminators =
-                        vec_of_erased![Ref::keyword("RESTRICT"), Ref::keyword("CASCADE"),];
-                }),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DropOwnedStatementSegment;
-
-impl NodeTrait for DropOwnedStatementSegment {
-    const TYPE: &'static str = "drop_owned_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("OWNED"),
-            Ref::keyword("BY"),
-            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                Ref::keyword("CURRENT_ROLE"),
-                Ref::keyword("CURRENT_USER"),
-                Ref::keyword("SESSION_USER"),
-                Ref::new("RoleReferenceSegment"),
-            ]),]),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ReassignOwnedStatementSegment;
-
-impl NodeTrait for ReassignOwnedStatementSegment {
-    const TYPE: &'static str = "reassign_owned_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("REASSIGN"),
-            Ref::keyword("OWNED"),
-            Ref::keyword("BY"),
-            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                Ref::keyword("CURRENT_ROLE"),
-                Ref::keyword("CURRENT_USER"),
-                Ref::keyword("SESSION_USER"),
-                Ref::new("RoleReferenceSegment"),
-            ]),]),
-            Ref::keyword("TO"),
-            one_of(vec_of_erased![
-                Ref::keyword("CURRENT_ROLE"),
-                Ref::keyword("CURRENT_USER"),
-                Ref::keyword("SESSION_USER"),
-                Ref::new("RoleReferenceSegment"),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CommentOnStatementSegment;
-
-impl NodeTrait for CommentOnStatementSegment {
-    const TYPE: &'static str = "comment_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("COMMENT"),
-            Ref::keyword("ON"),
-            Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("TABLE"), Ref::keyword("VIEW"),]),
-                        Ref::new("TableReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CAST"),
-                        Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
-                            Ref::new("ObjectReferenceSegment"),
-                            Ref::keyword("AS"),
-                            Ref::new("ObjectReferenceSegment"),
-                        ]),]),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("COLUMN"),
-                        Ref::new("ColumnReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CONSTRAINT"),
-                        Ref::new("ObjectReferenceSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("ON"),
-                            Ref::keyword("DOMAIN").optional(),
-                            Ref::new("ObjectReferenceSegment"),
-                        ]),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("DATABASE"),
-                        Ref::new("DatabaseReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("EXTENSION"),
-                        Ref::new("ExtensionReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FUNCTION"),
-                        Ref::new("FunctionNameSegment"),
-                        Sequence::new(vec_of_erased![Ref::new("FunctionParameterListGrammar")])
+                        Ref::keyword("CHECK"),
+                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                        Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("INHERIT"),])
                             .config(|this| this.optional()),
                     ]),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("INDEX"),
-                        Ref::new("IndexReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SCHEMA"),
-                        Ref::new("SchemaReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("COLLATION"),
-                            Ref::keyword("CONVERSION"),
-                            Ref::keyword("DOMAIN"),
-                            Ref::keyword("LANGUAGE"),
-                            Ref::keyword("POLICY"),
-                            Ref::keyword("PUBLICATION"),
-                            Ref::keyword("ROLE"),
-                            Ref::keyword("RULE"),
-                            Ref::keyword("SEQUENCE"),
-                            Ref::keyword("SERVER"),
-                            Ref::keyword("STATISTICS"),
-                            Ref::keyword("SUBSCRIPTION"),
-                            Ref::keyword("TABLESPACE"),
-                            Ref::keyword("TRIGGER"),
-                            Ref::keyword("TYPE"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("ACCESS"),
-                                Ref::keyword("METHOD"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("EVENT"),
-                                Ref::keyword("TRIGGER"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("FOREIGN"),
-                                Ref::keyword("DATA"),
-                                Ref::keyword("WRAPPER"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("FOREIGN"),
-                                Ref::keyword("TABLE"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("MATERIALIZED"),
-                                Ref::keyword("VIEW"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("TEXT"),
-                                Ref::keyword("SEARCH"),
-                                Ref::keyword("CONFIGURATION"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("TEXT"),
-                                Ref::keyword("SEARCH"),
-                                Ref::keyword("DICTIONARY"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("TEXT"),
-                                Ref::keyword("SEARCH"),
-                                Ref::keyword("PARSER"),
-                            ]),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("TEXT"),
-                                Ref::keyword("SEARCH"),
-                                Ref::keyword("TEMPLATE"),
-                            ]),
-                        ]),
-                        Ref::new("ObjectReferenceSegment"),
+                        Ref::keyword("UNIQUE"),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("ON"),
-                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("NULLS"),
+                            Ref::keyword("NOT").optional(),
+                            Ref::keyword("DISTINCT"),
+                        ])
+                        .config(|this| this.optional()),
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Ref::new("IndexParametersSegment").optional(),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("PrimaryKeyGrammar"),
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Ref::new("IndexParametersSegment").optional(),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("EXCLUDE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("USING"),
+                            Ref::new("IndexAccessMethodSegment"),
+                        ])
+                        .config(|this| this.optional()),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ExclusionConstraintElementSegment"
+                        )])]),
+                        Ref::new("IndexParametersSegment").optional(),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WHERE"),
+                            Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
                         ])
                         .config(|this| this.optional()),
                     ]),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("AGGREGATE"),
-                            Ref::keyword("PROCEDURE"),
-                            Ref::keyword("ROUTINE"),
-                        ]),
-                        Ref::new("ObjectReferenceSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Sequence::new(vec_of_erased![Anything::new()])
-                                .config(|this| this.optional()),
-                        ])
-                        .config(|this| this.optional()),
+                        Ref::keyword("FOREIGN"),
+                        Ref::keyword("KEY"),
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                        Ref::new("ReferenceDefinitionGrammar"),
                     ]),
                 ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("IS"),
-                    one_of(vec_of_erased![Ref::new("QuotedLiteralSegment"), Ref::keyword("NULL")]),
+                AnyNumberOf::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("DEFERRABLE"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("NOT"),
+                            Ref::keyword("DEFERRABLE"),
+                        ]),
+                    ]),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("INITIALLY"),
+                            Ref::keyword("DEFERRED"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("INITIALLY"),
+                            Ref::keyword("IMMEDIATE"),
+                        ]),
+                    ]),
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("VALID"),]),
+                    Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("INHERIT"),]),
                 ]),
-            ]),
-        ])
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct CreateIndexStatementSegment;
+    postgres.add([(
+        "TableConstraintUsingIndexSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::TableConstraint,
+            Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CONSTRAINT"),
+                    Ref::new("ObjectReferenceSegment"),
+                ])
+                .config(|this| this.optional()),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("UNIQUE"), Ref::new("PrimaryKeyGrammar")]),
+                    Ref::keyword("USING"),
+                    Ref::keyword("INDEX"),
+                    Ref::new("IndexReferenceSegment"),
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("DEFERRABLE"),
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")]),
+                ])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INITIALLY"),
+                        Ref::keyword("DEFERRED")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INITIALLY"),
+                        Ref::keyword("IMMEDIATE")
+                    ]),
+                ])
+                .config(|this| this.optional()),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
 
-impl NodeTrait for CreateIndexStatementSegment {
-    const TYPE: &'static str = "create_index_statement";
+    postgres.add([
+        (
+            "IndexParametersSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::IndexParameters,
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INCLUDE"),
+                        Ref::new("BracketedColumnReferenceListGrammar"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::new("DefinitionParametersSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("USING"),
+                        Ref::keyword("INDEX"),
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReferentialActionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ReferentialActionSegment,
+                one_of(vec_of_erased![
+                    Ref::keyword("CASCADE"),
+                    Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::keyword("NULL")]),
+                    Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DEFAULT")]),
+                    Ref::keyword("RESTRICT"),
+                    Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("ACTION")]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IndexElementOptionsSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::IndexElementOptions,
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COLLATE"),
+                        Ref::new("CollationReferenceSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("OperatorClassReferenceSegment").config(|this| {
+                            this.exclude = Some(
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("NULLS"),
+                                    one_of(vec_of_erased![
+                                        Ref::keyword("FIRST"),
+                                        Ref::keyword("LAST")
+                                    ]),
+                                ])
+                                .to_matchable(),
+                            );
+                        }),
+                        Ref::new("RelationOptionsSegment").optional(),
+                    ])
+                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![Ref::keyword("ASC"), Ref::keyword("DESC")])
+                        .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NULLS"),
+                        one_of(vec_of_erased![Ref::keyword("FIRST"), Ref::keyword("LAST")]),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IndexElementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::IndexElement,
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("FunctionSegment"),
+                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")]),
+                    ]),
+                    Ref::new("IndexElementOptionsSegment").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExclusionConstraintElementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ExclusionConstraintElement,
+                Sequence::new(vec_of_erased![
+                    Ref::new("IndexElementSegment"),
+                    Ref::keyword("WITH"),
+                    Ref::new("ComparisonOperatorGrammar"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDefaultPrivilegesStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterDefaultPrivilegesStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("DEFAULT"),
+                    Ref::keyword("PRIVILEGES"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOR"),
+                        one_of(vec_of_erased![Ref::keyword("ROLE"), Ref::keyword("USER")]),
+                        Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]).config(
+                            |this| {
+                                this.terminators = vec_of_erased![
+                                    Ref::keyword("IN"),
+                                    Ref::keyword("GRANT"),
+                                    Ref::keyword("REVOKE"),
+                                ];
+                            }
+                        ),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IN"),
+                        Ref::keyword("SCHEMA"),
+                        Delimited::new(vec_of_erased![Ref::new("SchemaReferenceSegment")]).config(
+                            |this| {
+                                this.terminators =
+                                    vec_of_erased![Ref::keyword("GRANT"), Ref::keyword("REVOKE")];
+                            }
+                        ),
+                    ])
+                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        Ref::new("AlterDefaultPrivilegesGrantSegment"),
+                        Ref::new("AlterDefaultPrivilegesRevokeSegment"),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDefaultPrivilegesObjectPrivilegesSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterDefaultPrivilegesObjectPrivilege,
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ALL"),
+                        Ref::keyword("PRIVILEGES").optional(),
+                    ]),
+                    Delimited::new(vec_of_erased![
+                        Ref::keyword("CREATE"),
+                        Ref::keyword("DELETE"),
+                        Ref::keyword("EXECUTE"),
+                        Ref::keyword("INSERT"),
+                        Ref::keyword("REFERENCES"),
+                        Ref::keyword("SELECT"),
+                        Ref::keyword("TRIGGER"),
+                        Ref::keyword("TRUNCATE"),
+                        Ref::keyword("UPDATE"),
+                        Ref::keyword("USAGE"),
+                    ])
+                    .config(|this| {
+                        this.terminators = vec_of_erased![Ref::keyword("ON")];
+                    }),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDefaultPrivilegesSchemaObjectsSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterDefaultPrivilegesSchemaObject,
+                one_of(vec_of_erased![
+                    Ref::keyword("TABLES"),
+                    Ref::keyword("FUNCTIONS"),
+                    Ref::keyword("ROUTINES"),
+                    Ref::keyword("SEQUENCES"),
+                    Ref::keyword("TYPES"),
+                    Ref::keyword("SCHEMAS"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDefaultPrivilegesToFromRolesSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterDefaultPrivilegesToFromRoles,
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GROUP").optional(),
+                        Ref::new("RoleReferenceSegment"),
+                    ]),
+                    Ref::keyword("PUBLIC"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDefaultPrivilegesGrantSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterDefaultPrivilegesGrant,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("GRANT"),
+                    Ref::new("AlterDefaultPrivilegesObjectPrivilegesSegment"),
+                    Ref::keyword("ON"),
+                    Ref::new("AlterDefaultPrivilegesSchemaObjectsSegment"),
+                    Ref::keyword("TO"),
+                    Delimited::new(vec_of_erased![Ref::new(
+                        "AlterDefaultPrivilegesToFromRolesSegment"
+                    )])
+                    .config(|this| {
+                        this.terminators = vec_of_erased![Ref::keyword("WITH")];
+                    }),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("GRANT"),
+                        Ref::keyword("OPTION"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDefaultPrivilegesRevokeSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterDefaultPrivilegesRevoke,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("REVOKE"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GRANT"),
+                        Ref::keyword("OPTION"),
+                        Ref::keyword("FOR"),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::new("AlterDefaultPrivilegesObjectPrivilegesSegment"),
+                    Ref::keyword("ON"),
+                    Ref::new("AlterDefaultPrivilegesSchemaObjectsSegment"),
+                    Ref::keyword("FROM"),
+                    Delimited::new(vec_of_erased![Ref::new(
+                        "AlterDefaultPrivilegesToFromRolesSegment"
+                    )])
+                    .config(|this| {
+                        this.terminators =
+                            vec_of_erased![Ref::keyword("RESTRICT"), Ref::keyword("CASCADE")];
+                    }),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropOwnedStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropOwnedStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("OWNED"),
+                    Ref::keyword("BY"),
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("CURRENT_ROLE"),
+                        Ref::keyword("CURRENT_USER"),
+                        Ref::keyword("SESSION_USER"),
+                        Ref::new("RoleReferenceSegment"),
+                    ])]),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReassignOwnedStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ReassignOwnedStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("REASSIGN"),
+                    Ref::keyword("OWNED"),
+                    Ref::keyword("BY"),
+                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                        Ref::keyword("CURRENT_ROLE"),
+                        Ref::keyword("CURRENT_USER"),
+                        Ref::keyword("SESSION_USER"),
+                        Ref::new("RoleReferenceSegment"),
+                    ])]),
+                    Ref::keyword("TO"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("CURRENT_ROLE"),
+                        Ref::keyword("CURRENT_USER"),
+                        Ref::keyword("SESSION_USER"),
+                        Ref::new("RoleReferenceSegment"),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CommentOnStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CommentOnStatementSegment,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COMMENT"),
+                    Ref::keyword("ON"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![Ref::keyword("TABLE"), Ref::keyword("VIEW")]),
+                                Ref::new("TableReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CAST"),
+                                Bracketed::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                    Ref::new("ObjectReferenceSegment"),
+                                    Ref::keyword("AS"),
+                                    Ref::new("ObjectReferenceSegment"),
+                                ])]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("COLUMN"),
+                                Ref::new("ColumnReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CONSTRAINT"),
+                                Ref::new("ObjectReferenceSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("ON"),
+                                    Ref::keyword("DOMAIN").optional(),
+                                    Ref::new("ObjectReferenceSegment"),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DATABASE"),
+                                Ref::new("DatabaseReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("EXTENSION"),
+                                Ref::new("ExtensionReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FUNCTION"),
+                                Ref::new("FunctionNameSegment"),
+                                Sequence::new(vec_of_erased![Ref::new(
+                                    "FunctionParameterListGrammar"
+                                )])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("INDEX"),
+                                Ref::new("IndexReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SCHEMA"),
+                                Ref::new("SchemaReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("COLLATION"),
+                                    Ref::keyword("CONVERSION"),
+                                    Ref::keyword("DOMAIN"),
+                                    Ref::keyword("LANGUAGE"),
+                                    Ref::keyword("POLICY"),
+                                    Ref::keyword("PUBLICATION"),
+                                    Ref::keyword("ROLE"),
+                                    Ref::keyword("RULE"),
+                                    Ref::keyword("SEQUENCE"),
+                                    Ref::keyword("SERVER"),
+                                    Ref::keyword("STATISTICS"),
+                                    Ref::keyword("SUBSCRIPTION"),
+                                    Ref::keyword("TABLESPACE"),
+                                    Ref::keyword("TRIGGER"),
+                                    Ref::keyword("TYPE"),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("ACCESS"),
+                                        Ref::keyword("METHOD"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("EVENT"),
+                                        Ref::keyword("TRIGGER"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FOREIGN"),
+                                        Ref::keyword("DATA"),
+                                        Ref::keyword("WRAPPER"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("FOREIGN"),
+                                        Ref::keyword("TABLE"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("MATERIALIZED"),
+                                        Ref::keyword("VIEW"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("TEXT"),
+                                        Ref::keyword("SEARCH"),
+                                        Ref::keyword("CONFIGURATION"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("TEXT"),
+                                        Ref::keyword("SEARCH"),
+                                        Ref::keyword("DICTIONARY"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("TEXT"),
+                                        Ref::keyword("SEARCH"),
+                                        Ref::keyword("PARSER"),
+                                    ]),
+                                    Sequence::new(vec_of_erased![
+                                        Ref::keyword("TEXT"),
+                                        Ref::keyword("SEARCH"),
+                                        Ref::keyword("TEMPLATE"),
+                                    ]),
+                                ]),
+                                Ref::new("ObjectReferenceSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("ON"),
+                                    Ref::new("ObjectReferenceSegment"),
+                                ])
+                                .config(|this| this.optional()),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("AGGREGATE"),
+                                    Ref::keyword("PROCEDURE"),
+                                    Ref::keyword("ROUTINE"),
+                                ]),
+                                Ref::new("ObjectReferenceSegment"),
+                                Bracketed::new(vec_of_erased![
+                                    Sequence::new(vec_of_erased![Anything::new()])
+                                        .config(|this| this.optional()),
+                                ])
+                                .config(|this| this.optional()),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("IS"),
+                            one_of(vec_of_erased![
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::keyword("NULL")
+                            ]),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateIndexStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::keyword("UNIQUE").optional(),
@@ -4964,156 +4781,151 @@ impl NodeTrait for CreateIndexStatementSegment {
                 Ref::new("TablespaceReferenceSegment"),
             ])
             .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![Ref::keyword("WHERE"), Ref::new("ExpressionSegment"),])
+            Sequence::new(vec_of_erased![Ref::keyword("WHERE"), Ref::new("ExpressionSegment")])
                 .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct AlterIndexStatementSegment;
-
-impl NodeTrait for AlterIndexStatementSegment {
-    const TYPE: &'static str = "alter_index_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("INDEX"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::new("IfExistsGrammar").optional(),
-                    Ref::new("IndexReferenceSegment"),
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RENAME"),
-                            Ref::keyword("TO"),
-                            Ref::new("IndexReferenceSegment"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("SET"),
-                            Ref::keyword("TABLESPACE"),
-                            Ref::new("TablespaceReferenceSegment"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("ATTACH"),
-                            Ref::keyword("PARTITION"),
-                            Ref::new("IndexReferenceSegment"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("NO").optional(),
-                            Ref::keyword("DEPENDS"),
-                            Ref::keyword("ON"),
-                            Ref::keyword("EXTENSION"),
-                            Ref::new("ExtensionReferenceSegment"),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("SET"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Sequence::new(vec_of_erased![
-                                    Ref::new("ParameterNameSegment"),
+    postgres.add([(
+        "AlterIndexStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AlterIndexStatement,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("INDEX"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("IfExistsGrammar").optional(),
+                        Ref::new("IndexReferenceSegment"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RENAME"),
+                                Ref::keyword("TO"),
+                                Ref::new("IndexReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Ref::keyword("TABLESPACE"),
+                                Ref::new("TablespaceReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ATTACH"),
+                                Ref::keyword("PARTITION"),
+                                Ref::new("IndexReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NO").optional(),
+                                Ref::keyword("DEPENDS"),
+                                Ref::keyword("ON"),
+                                Ref::keyword("EXTENSION"),
+                                Ref::new("ExtensionReferenceSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SET"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                                     Sequence::new(vec_of_erased![
-                                        Ref::new("EqualsSegment"),
-                                        Ref::new("LiteralGrammar"),
-                                    ])
-                                    .config(|this| this.optional()),
-                                ]),
-                            ]),]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("RESET"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("ParameterNameSegment"),
-                            ]),]),
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("ALTER"),
-                            Ref::keyword("COLUMN").optional(),
-                            Ref::new("NumericLiteralSegment"),
-                            Ref::keyword("SET"),
-                            Ref::keyword("STATISTICS"),
-                            Ref::new("NumericLiteralSegment"),
+                                        Ref::new("ParameterNameSegment"),
+                                        Sequence::new(vec_of_erased![
+                                            Ref::new("EqualsSegment"),
+                                            Ref::new("LiteralGrammar"),
+                                        ])
+                                        .config(|this| this.optional()),
+                                    ]),
+                                ]),]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RESET"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("ParameterNameSegment"),
+                                ]),]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ALTER"),
+                                Ref::keyword("COLUMN").optional(),
+                                Ref::new("NumericLiteralSegment"),
+                                Ref::keyword("SET"),
+                                Ref::keyword("STATISTICS"),
+                                Ref::new("NumericLiteralSegment"),
+                            ]),
                         ]),
                     ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ALL"),
-                    Ref::keyword("IN"),
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("TablespaceReferenceSegment"),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("OWNED"),
-                        Ref::keyword("BY"),
-                        Delimited::new(vec_of_erased![Ref::new("RoleReferenceSegment"),]),
-                    ])
-                    .config(|this| this.optional()),
-                    Ref::keyword("SET"),
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("TablespaceReferenceSegment"),
-                    Ref::keyword("NOWAIT").optional(),
+                        Ref::keyword("ALL"),
+                        Ref::keyword("IN"),
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNED"),
+                            Ref::keyword("BY"),
+                            Delimited::new(vec_of_erased![Ref::new("RoleReferenceSegment")]),
+                        ])
+                        .config(|this| this.optional()),
+                        Ref::keyword("SET"),
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                        Ref::keyword("NOWAIT").optional(),
+                    ]),
                 ]),
-            ]),
-        ])
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct ReindexStatementSegment;
-
-impl NodeTrait for ReindexStatementSegment {
-    const TYPE: &'static str = "reindex_statement_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("REINDEX"),
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CONCURRENTLY"),
-                    Ref::new("BooleanLiteralGrammar").optional(),
+    postgres.add([(
+        "ReindexStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::ReindexStatementSegment,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("REINDEX"),
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("CONCURRENTLY"),
+                        Ref::new("BooleanLiteralGrammar").optional(),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLESPACE"),
+                        Ref::new("TablespaceReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("VERBOSE"),
+                        Ref::new("BooleanLiteralGrammar").optional(),
+                    ]),
+                ]),])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INDEX"),
+                        Ref::keyword("CONCURRENTLY").optional(),
+                        Ref::new("IndexReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TABLE"),
+                        Ref::keyword("CONCURRENTLY").optional(),
+                        Ref::new("TableReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SCHEMA"),
+                        Ref::keyword("CONCURRENTLY").optional(),
+                        Ref::new("SchemaReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("DATABASE"), Ref::keyword("SYSTEM"),]),
+                        Ref::keyword("CONCURRENTLY").optional(),
+                        Ref::new("DatabaseReferenceSegment"),
+                    ]),
                 ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("TABLESPACE"),
-                    Ref::new("TablespaceReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("VERBOSE"),
-                    Ref::new("BooleanLiteralGrammar").optional(),
-                ]),
-            ]),])
-            .config(|this| this.optional()),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("INDEX"),
-                    Ref::keyword("CONCURRENTLY").optional(),
-                    Ref::new("IndexReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("TABLE"),
-                    Ref::keyword("CONCURRENTLY").optional(),
-                    Ref::new("TableReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SCHEMA"),
-                    Ref::keyword("CONCURRENTLY").optional(),
-                    Ref::new("SchemaReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("DATABASE"), Ref::keyword("SYSTEM"),]),
-                    Ref::keyword("CONCURRENTLY").optional(),
-                    Ref::new("DatabaseReferenceSegment"),
-                ]),
-            ]),
-        ])
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct DropIndexStatementSegment;
-
-impl NodeTrait for DropIndexStatementSegment {
-    const TYPE: &'static str = "drop_index_statement_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DropIndexStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("INDEX"),
@@ -5122,54 +4934,46 @@ impl NodeTrait for DropIndexStatementSegment {
             Delimited::new(vec_of_erased![Ref::new("IndexReferenceSegment")]),
             Ref::new("DropBehaviorGrammar").optional(),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct FrameClauseSegment;
+    postgres.replace_grammar(
+        "FrameClauseSegment",
+        {
+            let frame_extent = ansi::frame_extent();
 
-impl NodeTrait for FrameClauseSegment {
-    const TYPE: &'static str = "frame_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        let frame_extent = ansi::frame_extent();
-
-        let frame_exclusion = Sequence::new(vec_of_erased![
-            Ref::keyword("EXCLUDE"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW"),]),
-                Ref::keyword("GROUP"),
-                Ref::keyword("TIES"),
-                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("OTHERS"),]),
+            let frame_exclusion = Sequence::new(vec_of_erased![
+                Ref::keyword("EXCLUDE"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW")]),
+                    Ref::keyword("GROUP"),
+                    Ref::keyword("TIES"),
+                    Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("OTHERS")]),
+                ])
             ])
-        ])
-        .config(|this| this.optional());
+            .config(|this| this.optional());
 
-        Sequence::new(vec_of_erased![
-            Ref::new("FrameClauseUnitGrammar"),
-            one_of(vec_of_erased![
-                frame_extent.clone(),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("BETWEEN"),
+            Sequence::new(vec_of_erased![
+                Ref::new("FrameClauseUnitGrammar"),
+                one_of(vec_of_erased![
                     frame_extent.clone(),
-                    Ref::keyword("AND"),
-                    frame_extent.clone(),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("BETWEEN"),
+                        frame_extent.clone(),
+                        Ref::keyword("AND"),
+                        frame_extent.clone(),
+                    ]),
                 ]),
-            ]),
-            frame_exclusion,
-        ])
-        .to_matchable()
-    }
-}
+                frame_exclusion,
+            ])
+        }
+        .to_matchable(),
+    );
 
-pub struct CreateSequenceOptionsSegment;
-
-impl NodeTrait for CreateSequenceOptionsSegment {
-    const TYPE: &'static str = "create_sequence_options_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateSequenceOptionsSegment",
         one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![Ref::keyword("AS"), Ref::new("DatatypeSegment"),]),
+            Sequence::new(vec_of_erased![Ref::keyword("AS"), Ref::new("DatatypeSegment")]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("INCREMENT"),
                 Ref::keyword("BY").optional(),
@@ -5180,64 +4984,57 @@ impl NodeTrait for CreateSequenceOptionsSegment {
                     Ref::keyword("MINVALUE"),
                     Ref::new("NumericLiteralSegment"),
                 ]),
-                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MINVALUE"),]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MINVALUE")]),
             ]),
             one_of(vec_of_erased![
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MAXVALUE"),
                     Ref::new("NumericLiteralSegment"),
                 ]),
-                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MAXVALUE"),]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MAXVALUE")]),
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("START"),
                 Ref::keyword("WITH").optional(),
                 Ref::new("NumericLiteralSegment"),
             ]),
-            Sequence::new(
-                vec_of_erased![Ref::keyword("CACHE"), Ref::new("NumericLiteralSegment"),]
-            ),
+            Sequence::new(vec_of_erased![Ref::keyword("CACHE"), Ref::new("NumericLiteralSegment")]),
             one_of(vec_of_erased![
                 Ref::keyword("CYCLE"),
-                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("CYCLE"),]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("CYCLE")]),
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("OWNED"),
                 Ref::keyword("BY"),
-                one_of(vec_of_erased![Ref::keyword("NONE"), Ref::new("ColumnReferenceSegment"),]),
+                one_of(vec_of_erased![Ref::keyword("NONE"), Ref::new("ColumnReferenceSegment")]),
             ]),
         ])
+        .to_matchable(),
+    );
+
+    postgres.add([(
+        "CreateSequenceStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::CreateSequenceStatement,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("CREATE"),
+                Ref::new("TemporaryGrammar").optional(),
+                Ref::keyword("SEQUENCE"),
+                Ref::new("IfNotExistsGrammar").optional(),
+                Ref::new("SequenceReferenceSegment"),
+                AnyNumberOf::new(vec_of_erased![Ref::new("CreateSequenceOptionsSegment")])
+                    .config(|this| this.optional()),
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct CreateSequenceStatementSegment;
-
-impl NodeTrait for CreateSequenceStatementSegment {
-    const TYPE: &'static str = "create_sequence_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::new("TemporaryGrammar").optional(),
-            Ref::keyword("SEQUENCE"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("SequenceReferenceSegment"),
-            AnyNumberOf::new(vec_of_erased![Ref::new("CreateSequenceOptionsSegment")])
-                .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterSequenceOptionsSegment;
-
-impl NodeTrait for AlterSequenceOptionsSegment {
-    const TYPE: &'static str = "alter_sequence_options_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "AlterSequenceOptionsSegment",
         one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![Ref::keyword("AS"), Ref::new("DatatypeSegment"),]),
+            Sequence::new(vec_of_erased![Ref::keyword("AS"), Ref::new("DatatypeSegment")]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("INCREMENT"),
                 Ref::keyword("BY").optional(),
@@ -5248,14 +5045,14 @@ impl NodeTrait for AlterSequenceOptionsSegment {
                     Ref::keyword("MINVALUE"),
                     Ref::new("NumericLiteralSegment"),
                 ]),
-                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MINVALUE"),]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MINVALUE")]),
             ]),
             one_of(vec_of_erased![
                 Sequence::new(vec_of_erased![
                     Ref::keyword("MAXVALUE"),
                     Ref::new("NumericLiteralSegment"),
                 ]),
-                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MAXVALUE"),]),
+                Sequence::new(vec_of_erased![Ref::keyword("NO"), Ref::keyword("MAXVALUE")]),
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("SEQUENCE"),
@@ -5272,26 +5069,19 @@ impl NodeTrait for AlterSequenceOptionsSegment {
                 Ref::keyword("WITH").optional(),
                 Ref::new("NumericLiteralSegment"),
             ]),
-            Sequence::new(
-                vec_of_erased![Ref::keyword("CACHE"), Ref::new("NumericLiteralSegment"),]
-            ),
-            Sequence::new(vec_of_erased![Ref::keyword("NO").optional(), Ref::keyword("CYCLE"),]),
+            Sequence::new(vec_of_erased![Ref::keyword("CACHE"), Ref::new("NumericLiteralSegment")]),
+            Sequence::new(vec_of_erased![Ref::keyword("NO").optional(), Ref::keyword("CYCLE")]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("OWNED"),
                 Ref::keyword("BY"),
-                one_of(vec_of_erased![Ref::keyword("NONE"), Ref::new("ColumnReferenceSegment"),]),
+                one_of(vec_of_erased![Ref::keyword("NONE"), Ref::new("ColumnReferenceSegment")]),
             ]),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct AlterSequenceStatementSegment;
-
-impl NodeTrait for AlterSequenceStatementSegment {
-    const TYPE: &'static str = "alter_sequence_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "AlterSequenceStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("ALTER"),
             Ref::keyword("SEQUENCE"),
@@ -5321,16 +5111,11 @@ impl NodeTrait for AlterSequenceStatementSegment {
                 ]),
             ])
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct DropSequenceStatementSegment;
-
-impl NodeTrait for DropSequenceStatementSegment {
-    const TYPE: &'static str = "drop_sequence_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DropSequenceStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("SEQUENCE"),
@@ -5338,48 +5123,46 @@ impl NodeTrait for DropSequenceStatementSegment {
             Delimited::new(vec_of_erased![Ref::new("SequenceReferenceSegment")]),
             Ref::new("DropBehaviorGrammar").optional(),
         ])
+        .to_matchable(),
+    );
+
+    postgres.add([(
+        "AnalyzeStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AnalyzeStatement,
+            {
+                let option = Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("VERBOSE"), Ref::keyword("SKIP_LOCKED")]),
+                    Ref::new("BooleanLiteralGrammar").optional(),
+                ]);
+
+                let tables_and_columns = Sequence::new(vec_of_erased![
+                    Ref::new("TableReferenceSegment"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ColumnReferenceSegment"
+                    )])])
+                    .config(|this| this.optional()),
+                ]);
+
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("ANALYZE"), Ref::keyword("ANALYSE")]),
+                    one_of(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![option])]),
+                        Ref::keyword("VERBOSE")
+                    ])
+                    .config(|this| this.optional()),
+                    Delimited::new(vec_of_erased![tables_and_columns])
+                        .config(|this| this.optional()),
+                ])
+            }
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct AnalyzeStatementSegment;
-
-impl NodeTrait for AnalyzeStatementSegment {
-    const TYPE: &'static str = "analyze_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        let option = Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![Ref::keyword("VERBOSE"), Ref::keyword("SKIP_LOCKED")]),
-            Ref::new("BooleanLiteralGrammar").optional(),
-        ]);
-
-        let tables_and_columns = Sequence::new(vec_of_erased![
-            Ref::new("TableReferenceSegment"),
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                "ColumnReferenceSegment"
-            )])])
-            .config(|this| this.optional()),
-        ]);
-
-        Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![Ref::keyword("ANALYZE"), Ref::keyword("ANALYSE")]),
-            one_of(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![option])]),
-                Ref::keyword("VERBOSE")
-            ])
-            .config(|this| this.optional()),
-            Delimited::new(vec_of_erased![tables_and_columns]).config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct StatementSegment;
-
-impl NodeTrait for StatementSegment {
-    const TYPE: &'static str = "statement_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "StatementSegment",
         ansi::statement_segment().copy(
             Some(vec_of_erased![
                 Ref::new("AlterDefaultPrivilegesStatementSegment"),
@@ -5441,19 +5224,14 @@ impl NodeTrait for StatementSegment {
             None,
             vec![],
             false,
-        )
-    }
-}
+        ),
+    );
 
-pub struct CreateTriggerStatementSegment;
-
-impl NodeTrait for CreateTriggerStatementSegment {
-    const TYPE: &'static str = "create_trigger_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CreateTriggerStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
-            Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE"),])
+            Sequence::new(vec_of_erased![Ref::keyword("OR"), Ref::keyword("REPLACE")])
                 .config(|this| this.optional()),
             Ref::keyword("CONSTRAINT").optional(),
             Ref::keyword("TRIGGER"),
@@ -5461,7 +5239,7 @@ impl NodeTrait for CreateTriggerStatementSegment {
             one_of(vec_of_erased![
                 Ref::keyword("BEFORE"),
                 Ref::keyword("AFTER"),
-                Sequence::new(vec_of_erased![Ref::keyword("INSTEAD"), Ref::keyword("OF"),]),
+                Sequence::new(vec_of_erased![Ref::keyword("INSTEAD"), Ref::keyword("OF")]),
             ]),
             Delimited::new(vec_of_erased![
                 Ref::keyword("INSERT"),
@@ -5471,7 +5249,7 @@ impl NodeTrait for CreateTriggerStatementSegment {
                     Ref::keyword("UPDATE"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("OF"),
-                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment"),]).config(
+                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment")]).config(
                             |this| {
                                 this.terminators =
                                     vec_of_erased![Ref::keyword("OR"), Ref::keyword("ON")];
@@ -5491,7 +5269,7 @@ impl NodeTrait for CreateTriggerStatementSegment {
                     Ref::new("TableReferenceSegment"),
                 ]),
                 one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE"),]),
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("DEFERRABLE").optional(),
                         one_of(vec_of_erased![
@@ -5523,7 +5301,7 @@ impl NodeTrait for CreateTriggerStatementSegment {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("FOR"),
                     Ref::keyword("EACH").optional(),
-                    one_of(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("STATEMENT"),]),
+                    one_of(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("STATEMENT")]),
                 ]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WHEN"),
@@ -5532,51 +5310,46 @@ impl NodeTrait for CreateTriggerStatementSegment {
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("EXECUTE"),
-                one_of(vec_of_erased![Ref::keyword("FUNCTION"), Ref::keyword("PROCEDURE"),]),
+                one_of(vec_of_erased![Ref::keyword("FUNCTION"), Ref::keyword("PROCEDURE")]),
                 Ref::new("FunctionSegment"),
             ]),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct AlterTriggerStatementSegment;
-
-impl NodeTrait for AlterTriggerStatementSegment {
-    const TYPE: &'static str = "alter_trigger";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("TRIGGER"),
-            Ref::new("TriggerReferenceSegment"),
-            Ref::keyword("ON"),
-            Ref::new("TableReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("TriggerReferenceSegment"),
+    postgres.add([(
+        "AlterTriggerStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AlterTrigger,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("ALTER"),
+                Ref::keyword("TRIGGER"),
+                Ref::new("TriggerReferenceSegment"),
+                Ref::keyword("ON"),
+                Ref::new("TableReferenceSegment"),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("RENAME"),
+                        Ref::keyword("TO"),
+                        Ref::new("TriggerReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NO").optional(),
+                        Ref::keyword("DEPENDS"),
+                        Ref::keyword("ON"),
+                        Ref::keyword("EXTENSION"),
+                        Ref::new("ExtensionReferenceSegment"),
+                    ]),
                 ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("NO").optional(),
-                    Ref::keyword("DEPENDS"),
-                    Ref::keyword("ON"),
-                    Ref::keyword("EXTENSION"),
-                    Ref::new("ExtensionReferenceSegment"),
-                ]),
-            ]),
-        ])
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct DropTriggerStatementSegment;
-
-impl NodeTrait for DropTriggerStatementSegment {
-    const TYPE: &'static str = "drop_trigger_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DropTriggerStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("TRIGGER"),
@@ -5586,16 +5359,11 @@ impl NodeTrait for DropTriggerStatementSegment {
             Ref::new("TableReferenceSegment"),
             Ref::new("DropBehaviorGrammar").optional(),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct AliasExpressionSegment;
-
-impl NodeTrait for AliasExpressionSegment {
-    const TYPE: &'static str = "alias_expression";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "AliasExpressionSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("AS").optional(),
             one_of(vec_of_erased![
@@ -5615,132 +5383,131 @@ impl NodeTrait for AliasExpressionSegment {
                 ]),
             ]),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct AsAliasExpressionSegment;
-
-impl NodeTrait for AsAliasExpressionSegment {
-    const TYPE: &'static str = "alias_expression";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            MetaSegment::indent(),
-            Ref::keyword("AS"),
-            Ref::new("SingleIdentifierGrammar"),
-            MetaSegment::dedent(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct OperationClassReferenceSegment;
-
-impl NodeTrait for OperationClassReferenceSegment {
-    const TYPE: &'static str = "operation_class_reference";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Ref::new("ObjectReferenceSegment").to_matchable()
-    }
-}
-
-pub struct ConflictActionSegment;
-
-impl NodeTrait for ConflictActionSegment {
-    const TYPE: &'static str = "conflict_action";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DO"),
-            one_of(vec_of_erased![
-                Ref::keyword("NOTHING"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("UPDATE"),
-                    Ref::keyword("SET"),
-                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment"),
-                            Ref::new("EqualsSegment"),
-                            one_of(vec_of_erased![
-                                Ref::new("ExpressionSegment"),
-                                Ref::keyword("DEFAULT")
-                            ])
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("ColumnReferenceSegment")
-                            ])]),
-                            Ref::new("EqualsSegment"),
-                            Ref::keyword("ROW").optional(),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                                vec_of_erased![
-                                    Ref::new("ExpressionSegment"),
-                                    Ref::keyword("DEFAULT")
-                                ]
-                            )])])
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("ColumnReferenceSegment")
-                            ])]),
-                            Ref::new("EqualsSegment"),
-                            Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")])
-                        ])
-                    ])]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WHERE"),
-                        Ref::new("ExpressionSegment")
-                    ])
-                    .config(|this| this.optional()),
-                ])
-            ])
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ConflictTargetSegment;
-
-impl NodeTrait for ConflictTargetSegment {
-    const TYPE: &'static str = "conflict_target";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        one_of(vec_of_erased![
+    postgres.add([(
+        "AsAliasExpressionSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AsAliasExpression,
             Sequence::new(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                    vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::new("ColumnReferenceSegment"),
-                            Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
-                        ]),
+                MetaSegment::indent(),
+                Ref::keyword("AS"),
+                Ref::new("SingleIdentifierGrammar"),
+                MetaSegment::dedent(),
+            ])
+            .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
+
+    postgres.add([(
+        "OperationClassReferenceSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::OperationClassReference,
+            postgres.grammar("ObjectReferenceSegment").match_grammar().unwrap(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
+
+    postgres.add([
+        (
+            "ConflictActionSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ConflictAction,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DO"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("NOTHING"),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("COLLATE"),
-                            Ref::new("CollationReferenceSegment")
+                            Ref::keyword("UPDATE"),
+                            Ref::keyword("SET"),
+                            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("ExpressionSegment"),
+                                        Ref::keyword("DEFAULT")
+                                    ])
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                        Ref::new("ColumnReferenceSegment")
+                                    ])]),
+                                    Ref::new("EqualsSegment"),
+                                    Ref::keyword("ROW").optional(),
+                                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                        one_of(vec_of_erased![
+                                            Ref::new("ExpressionSegment"),
+                                            Ref::keyword("DEFAULT")
+                                        ])
+                                    ])])
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                        Ref::new("ColumnReferenceSegment")
+                                    ])]),
+                                    Ref::new("EqualsSegment"),
+                                    Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")])
+                                ])
+                            ])]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("WHERE"),
+                                Ref::new("ExpressionSegment")
+                            ])
+                            .config(|this| this.optional()),
+                        ])
+                    ])
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ConflictTargetSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ConflictTarget,
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment"),
+                                    Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLLATE"),
+                                    Ref::new("CollationReferenceSegment")
+                                ])
+                                .config(|this| this.optional()),
+                                Ref::new("OperationClassReferenceSegment").optional()
+                            ])
+                        ])]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("WHERE"),
+                            Ref::new("ExpressionSegment")
                         ])
                         .config(|this| this.optional()),
-                        Ref::new("OperationClassReferenceSegment").optional()
-                    ]
-                )])]),
-                Sequence::new(vec_of_erased![Ref::keyword("WHERE"), Ref::new("ExpressionSegment")])
-                    .config(|this| this.optional()),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ON"),
-                Ref::keyword("CONSTRAINT"),
-                Ref::new("ParameterNameSegment")
-            ])
-        ])
-        .to_matchable()
-    }
-}
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ON"),
+                        Ref::keyword("CONSTRAINT"),
+                        Ref::new("ParameterNameSegment")
+                    ])
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct InsertStatementSegment;
-
-impl NodeTrait for InsertStatementSegment {
-    const TYPE: &'static str = "insert_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "InsertStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("INSERT"),
             Ref::keyword("INTO"),
@@ -5776,16 +5543,11 @@ impl NodeTrait for InsertStatementSegment {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct DropTypeStatementSegment;
-
-impl NodeTrait for DropTypeStatementSegment {
-    const TYPE: &'static str = "drop_type_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DropTypeStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("DROP"),
             Ref::keyword("TYPE"),
@@ -5793,386 +5555,399 @@ impl NodeTrait for DropTypeStatementSegment {
             Delimited::new(vec_of_erased![Ref::new("DatatypeSegment")]),
             Ref::new("DropBehaviorGrammar").optional(),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct SetStatementSegment;
-
-impl NodeTrait for SetStatementSegment {
-    const TYPE: &'static str = "set_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("SET"),
-            one_of(vec_of_erased![Ref::keyword("SESSION"), Ref::keyword("LOCAL")])
-                .config(|this| this.optional()),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::new("ParameterNameSegment"),
-                    one_of(vec_of_erased![Ref::keyword("TO"), Ref::new("EqualsSegment")]),
-                    one_of(vec_of_erased![
-                        Ref::keyword("DEFAULT"),
-                        Delimited::new(vec_of_erased![
-                            Ref::new("LiteralGrammar"),
-                            Ref::new("NakedIdentifierSegment"),
-                            Ref::new("OnKeywordAsIdentifierSegment"),
-                        ]),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("TIME"),
-                    Ref::keyword("ZONE"),
-                    one_of(vec_of_erased![
-                        Ref::new("QuotedLiteralSegment"),
-                        Ref::keyword("LOCAL"),
-                        Ref::keyword("DEFAULT")
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SCHEMA"),
-                    Ref::new("QuotedLiteralSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ROLE"),
-                    one_of(vec_of_erased![Ref::keyword("NONE"), Ref::new("RoleReferenceSegment"),]),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreatePolicyStatementSegment;
-
-impl NodeTrait for CreatePolicyStatementSegment {
-    const TYPE: &'static str = "create_policy_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("POLICY"),
-            Ref::new("ObjectReferenceSegment"),
-            Ref::keyword("ON"),
-            Ref::new("TableReferenceSegment"),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("AS"),
-                one_of(vec_of_erased![Ref::keyword("PERMISSIVE"), Ref::keyword("RESTRICTIVE")])
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("FOR"),
-                one_of(vec_of_erased![
-                    Ref::keyword("ALL"),
-                    Ref::keyword("SELECT"),
-                    Ref::keyword("INSERT"),
-                    Ref::keyword("UPDATE"),
-                    Ref::keyword("DELETE")
-                ])
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TO"),
-                Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                    Ref::new("ObjectReferenceSegment"),
-                    Ref::keyword("PUBLIC"),
-                    Ref::keyword("CURRENT_ROLE"),
-                    Ref::keyword("CURRENT_USER"),
-                    Ref::keyword("SESSION_USER")
-                ])])
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("USING"),
-                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::keyword("CHECK"),
-                Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
-            ])
-            .config(|this| this.optional())
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CallStoredProcedureSegment;
-
-impl NodeTrait for CallStoredProcedureSegment {
-    const TYPE: &'static str = "call_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![Ref::keyword("CALL"), Ref::new("FunctionSegment")])
-            .to_matchable()
-    }
-}
-
-pub struct CreateDomainStatementSegment;
-
-impl NodeTrait for CreateDomainStatementSegment {
-    const TYPE: &'static str = "create_domain_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("DOMAIN"),
-            Ref::new("ObjectReferenceSegment"),
-            Sequence::new(vec_of_erased![Ref::keyword("AS"),]).config(|this| this.optional()),
-            Ref::new("DatatypeSegment"),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("COLLATE"),
-                Ref::new("CollationReferenceSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![Ref::keyword("DEFAULT"), Ref::new("ExpressionSegment"),])
-                .config(|this| this.optional()),
-            AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("CONSTRAINT"),
-                    Ref::new("ObjectReferenceSegment"),
-                ])
-                .config(|this| this.optional()),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NOT").optional(),
-                        Ref::keyword("NULL"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CHECK"),
-                        Ref::new("ExpressionSegment"),
-                    ]),
-                ]),
-            ])]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterDomainStatementSegment;
-
-impl NodeTrait for AlterDomainStatementSegment {
-    const TYPE: &'static str = "alter_domain_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("DOMAIN"),
-            Ref::new("ObjectReferenceSegment"),
-            one_of(vec_of_erased![
+    postgres.add([
+        (
+            "SetStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::SetStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SET"),
-                    Ref::keyword("DEFAULT"),
-                    Ref::new("ExpressionSegment"),
-                ]),
-                Sequence::new(vec_of_erased![Ref::keyword("DROP"), Ref::keyword("DEFAULT"),]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DROP"),]),
-                    Ref::keyword("NOT"),
-                    Ref::keyword("NULL"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ADD"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CONSTRAINT"),
-                        Ref::new("ObjectReferenceSegment"),
-                    ])
-                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![Ref::keyword("SESSION"), Ref::keyword("LOCAL")])
+                        .config(|this| this.optional()),
                     one_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("NOT").optional(),
+                            Ref::new("ParameterNameSegment"),
+                            one_of(vec_of_erased![Ref::keyword("TO"), Ref::new("EqualsSegment")]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("DEFAULT"),
+                                Delimited::new(vec_of_erased![
+                                    Ref::new("LiteralGrammar"),
+                                    Ref::new("NakedIdentifierSegment"),
+                                    Ref::new("OnKeywordAsIdentifierSegment"),
+                                ]),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("TIME"),
+                            Ref::keyword("ZONE"),
+                            one_of(vec_of_erased![
+                                Ref::new("QuotedLiteralSegment"),
+                                Ref::keyword("LOCAL"),
+                                Ref::keyword("DEFAULT")
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SCHEMA"),
+                            Ref::new("QuotedLiteralSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ROLE"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("NONE"),
+                                Ref::new("RoleReferenceSegment"),
+                            ]),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreatePolicyStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreatePolicyStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("POLICY"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::keyword("ON"),
+                    Ref::new("TableReferenceSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("PERMISSIVE"),
+                            Ref::keyword("RESTRICTIVE")
+                        ])
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FOR"),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ALL"),
+                            Ref::keyword("SELECT"),
+                            Ref::keyword("INSERT"),
+                            Ref::keyword("UPDATE"),
+                            Ref::keyword("DELETE")
+                        ])
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TO"),
+                        Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("PUBLIC"),
+                            Ref::keyword("CURRENT_ROLE"),
+                            Ref::keyword("CURRENT_USER"),
+                            Ref::keyword("SESSION_USER")
+                        ])])
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("USING"),
+                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("CHECK"),
+                        Bracketed::new(vec_of_erased![Ref::new("ExpressionSegment")])
+                    ])
+                    .config(|this| this.optional())
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CallStoredProcedureSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CallStatement,
+                Sequence::new(vec_of_erased![Ref::keyword("CALL"), Ref::new("FunctionSegment")])
+                    .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateDomainStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateDomainStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("DOMAIN"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Sequence::new(vec_of_erased![Ref::keyword("AS"),])
+                        .config(|this| this.optional()),
+                    Ref::new("DatatypeSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COLLATE"),
+                        Ref::new("CollationReferenceSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("DEFAULT"),
+                        Ref::new("ExpressionSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    AnyNumberOf::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("CONSTRAINT"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ])
+                        .config(|this| this.optional()),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NOT").optional(),
+                                Ref::keyword("NULL"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CHECK"),
+                                Ref::new("ExpressionSegment"),
+                            ]),
+                        ]),
+                    ])]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDomainStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterDomainStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("DOMAIN"),
+                    Ref::new("ObjectReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::keyword("DEFAULT"),
+                            Ref::new("ExpressionSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DROP"),
+                            Ref::keyword("DEFAULT"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DROP"),]),
+                            Ref::keyword("NOT"),
                             Ref::keyword("NULL"),
                         ]),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("CHECK"),
-                            Ref::new("ExpressionSegment"),
+                            Ref::keyword("ADD"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("CONSTRAINT"),
+                                Ref::new("ObjectReferenceSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                            one_of(vec_of_erased![
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("NOT").optional(),
+                                    Ref::keyword("NULL"),
+                                ]),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("CHECK"),
+                                    Ref::new("ExpressionSegment"),
+                                ]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NOT"),
+                                Ref::keyword("VALID"),
+                            ])
+                            .config(|this| this.optional()),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("DROP"),
+                            Ref::keyword("CONSTRAINT"),
+                            Ref::new("IfExistsGrammar").optional(),
+                            Ref::new("ObjectReferenceSegment"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("RESTRICT"),
+                                Ref::keyword("CASCADE"),
+                            ])
+                            .config(|this| this.optional()),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("CONSTRAINT"),
+                            Ref::new("ObjectReferenceSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("VALIDATE"),
+                            Ref::keyword("CONSTRAINT"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::keyword("TO"),
+                            one_of(vec_of_erased![
+                                Ref::new("ObjectReferenceSegment"),
+                                Ref::keyword("CURRENT_ROLE"),
+                                Ref::keyword("CURRENT_USER"),
+                                Ref::keyword("SESSION_USER"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::keyword("SCHEMA"),
+                            Ref::new("ObjectReferenceSegment"),
                         ]),
                     ]),
-                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("VALID"),])
-                        .config(|this| this.optional()),
-                ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropDomainStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropDomainStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DROP"),
-                    Ref::keyword("CONSTRAINT"),
+                    Ref::keyword("DOMAIN"),
+                    Ref::new("IfExistsGrammar").optional(),
+                    Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropPolicyStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DropPolicyStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::keyword("POLICY"),
                     Ref::new("IfExistsGrammar").optional(),
                     Ref::new("ObjectReferenceSegment"),
-                    one_of(vec_of_erased![Ref::keyword("RESTRICT"), Ref::keyword("CASCADE"),])
-                        .config(|this| this.optional()),
-                ]),
+                    Ref::keyword("ON"),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("DropBehaviorGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LoadStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::LoadStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("CONSTRAINT"),
-                    Ref::new("ObjectReferenceSegment"),
-                    Ref::keyword("TO"),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
+                    Ref::keyword("LOAD"),
+                    Ref::new("QuotedLiteralSegment"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ResetStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ResetStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("VALIDATE"),
-                    Ref::keyword("CONSTRAINT"),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
+                    Ref::keyword("RESET"),
                     one_of(vec_of_erased![
-                        Ref::new("ObjectReferenceSegment"),
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
+                        Ref::keyword("ALL"),
+                        Ref::keyword("ROLE"),
+                        Ref::new("ParameterNameSegment"),
                     ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::keyword("SCHEMA"),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DropDomainStatementSegment;
-
-impl NodeTrait for DropDomainStatementSegment {
-    const TYPE: &'static str = "drop_domain_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("DOMAIN"),
-            Ref::new("IfExistsGrammar").optional(),
-            Delimited::new(vec_of_erased![Ref::new("ObjectReferenceSegment")]),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DropPolicyStatementSegment;
-
-impl NodeTrait for DropPolicyStatementSegment {
-    const TYPE: &'static str = "drop_policy_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DROP"),
-            Ref::keyword("POLICY"),
-            Ref::new("IfExistsGrammar").optional(),
-            Ref::new("ObjectReferenceSegment"),
-            Ref::keyword("ON"),
-            Ref::new("TableReferenceSegment"),
-            Ref::new("DropBehaviorGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct LoadStatementSegment;
-
-impl NodeTrait for LoadStatementSegment {
-    const TYPE: &'static str = "load_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![Ref::keyword("LOAD"), Ref::new("QuotedLiteralSegment"),])
+                ])
+                .to_matchable(),
+            )
             .to_matchable()
-    }
-}
-
-pub struct ResetStatementSegment;
-
-impl NodeTrait for ResetStatementSegment {
-    const TYPE: &'static str = "reset_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("RESET"),
-            one_of(vec_of_erased![
-                Ref::keyword("ALL"),
-                Ref::keyword("ROLE"),
-                Ref::new("ParameterNameSegment"),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DiscardStatementSegment;
-
-impl NodeTrait for DiscardStatementSegment {
-    const TYPE: &'static str = "discard_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DISCARD"),
-            one_of(vec_of_erased![
-                Ref::keyword("ALL"),
-                Ref::keyword("PLANS"),
-                Ref::keyword("SEQUENCES"),
-                Ref::keyword("TEMPORARY"),
-                Ref::keyword("TEMP"),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ListenStatementSegment;
-
-impl NodeTrait for ListenStatementSegment {
-    const TYPE: &'static str = "listen_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![Ref::keyword("LISTEN"), Ref::new("SingleIdentifierGrammar"),])
+            .into(),
+        ),
+        (
+            "DiscardStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DiscardStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DISCARD"),
+                    one_of(vec_of_erased![
+                        Ref::keyword("ALL"),
+                        Ref::keyword("PLANS"),
+                        Ref::keyword("SEQUENCES"),
+                        Ref::keyword("TEMPORARY"),
+                        Ref::keyword("TEMP"),
+                    ]),
+                ])
+                .to_matchable(),
+            )
             .to_matchable()
-    }
-}
+            .into(),
+        ),
+        (
+            "ListenStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ListenStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LISTEN"),
+                    Ref::new("SingleIdentifierGrammar"),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "NotifyStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::NotifyStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOTIFY"),
+                    Ref::new("SingleIdentifierGrammar"),
+                    Sequence::new(vec_of_erased![
+                        Ref::new("CommaSegment"),
+                        Ref::new("QuotedLiteralSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UnlistenStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::UnlistenStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("UNLISTEN"),
+                    one_of(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("StarSegment"),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct NotifyStatementSegment;
-
-impl NodeTrait for NotifyStatementSegment {
-    const TYPE: &'static str = "notify_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("NOTIFY"),
-            Ref::new("SingleIdentifierGrammar"),
-            Sequence::new(vec_of_erased![
-                Ref::new("CommaSegment"),
-                Ref::new("QuotedLiteralSegment"),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct UnlistenStatementSegment;
-
-impl NodeTrait for UnlistenStatementSegment {
-    const TYPE: &'static str = "unlisten_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("UNLISTEN"),
-            one_of(vec_of_erased![Ref::new("SingleIdentifierGrammar"), Ref::new("StarSegment"),]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct TruncateStatementSegment;
-
-impl NodeTrait for TruncateStatementSegment {
-    const TYPE: &'static str = "truncate_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "TruncateStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("TRUNCATE"),
             Ref::keyword("TABLE").optional(),
@@ -6193,272 +5968,274 @@ impl NodeTrait for TruncateStatementSegment {
             .config(|this| this.optional()),
             Ref::new("DropBehaviorGrammar").optional(),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct CopyStatementSegment;
-
-impl NodeTrait for CopyStatementSegment {
-    const TYPE: &'static str = "copy_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        let _target_subset = one_of(vec_of_erased![
-            Ref::new("QuotedLiteralSegment"),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("PROGRAM"),
-                Ref::new("QuotedLiteralSegment")
-            ])
-        ]);
-
-        let _table_definition = Sequence::new(vec_of_erased![
-            Ref::new("TableReferenceSegment"),
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                "ColumnReferenceSegment"
-            )])])
-            .config(|this| this.optional()),
-        ]);
-
-        let _option = Sequence::new(vec_of_erased![
-            Ref::keyword("WITH").optional(),
-            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![any_set_of(
-                vec_of_erased![
+    postgres.add([
+        (
+            "CopyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CopyStatement, {
+                let _target_subset = one_of(vec_of_erased![
+                    Ref::new("QuotedLiteralSegment"),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("FORMAT"),
-                        Ref::new("SingleIdentifierGrammar")
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FREEZE"),
-                        Ref::new("BooleanLiteralGrammar").optional()
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("DELIMITER"),
-                        Ref::new("QuotedLiteralSegment")
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("NULL"),
-                        Ref::new("QuotedLiteralSegment")
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("HEADER"),
-                        Ref::new("BooleanLiteralGrammar").optional()
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("QUOTE"),
-                        Ref::new("QuotedLiteralSegment")
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ESCAPE"),
-                        Ref::new("QuotedLiteralSegment")
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FORCE_QUOTE"),
-                        one_of(vec_of_erased![
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("ColumnReferenceSegment")
-                            ])]),
-                            Ref::new("StarSegment")
-                        ])
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FORCE_NOT_NULL"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "ColumnReferenceSegment"
-                        )])])
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("FORCE_NULL"),
-                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                            "ColumnReferenceSegment"
-                        )])])
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ENCODING"),
+                        Ref::keyword("PROGRAM"),
                         Ref::new("QuotedLiteralSegment")
                     ])
-                ]
-            )])])
-        ])
-        .config(|this| this.optional());
+                ]);
 
-        Sequence::new(vec_of_erased![
-            Ref::keyword("COPY"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    _table_definition.clone(),
-                    Ref::keyword("FROM"),
-                    one_of(vec_of_erased![_target_subset.clone(), Ref::keyword("STDIN")]),
-                    _option.clone(),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("WHERE"),
-                        Ref::new("ExpressionSegment")
-                    ])
-                    .config(|this| this.optional())
-                ]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        _table_definition.clone(),
-                        Bracketed::new(vec_of_erased![Ref::new("UnorderedSelectStatementSegment")])
-                    ]),
-                    Ref::keyword("TO"),
-                    one_of(vec_of_erased![_target_subset, Ref::keyword("STDOUT")]),
-                    _option
-                ])
-            ])
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterSchemaStatementSegment;
-
-impl NodeTrait for AlterSchemaStatementSegment {
-    const TYPE: &'static str = "alter_schema_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("SCHEMA"),
-            Ref::new("SchemaReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("SchemaReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
-                    Ref::new("RoleReferenceSegment"),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct LockTableStatementSegment;
-
-impl NodeTrait for LockTableStatementSegment {
-    const TYPE: &'static str = "lock_table_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("LOCK"),
-            Ref::keyword("TABLE").optional(),
-            Ref::keyword("ONLY").optional(),
-            one_of(vec_of_erased![
-                Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")]),
-                Ref::new("StarSegment"),
-            ]),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("IN"),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![Ref::keyword("ACCESS"), Ref::keyword("SHARE")]),
-                    Sequence::new(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("SHARE")]),
-                    Sequence::new(vec_of_erased![Ref::keyword("ROW"), Ref::keyword("EXCLUSIVE")]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SHARE"),
-                        Ref::keyword("UPDATE"),
-                        Ref::keyword("EXCLUSIVE")
-                    ]),
-                    Ref::keyword("SHARE"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("SHARE"),
-                        Ref::keyword("ROW"),
-                        Ref::keyword("EXCLUSIVE")
-                    ]),
-                    Ref::keyword("EXCLUSIVE"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ACCESS"),
-                        Ref::keyword("EXCLUSIVE")
-                    ]),
-                ]),
-                Ref::keyword("MODE"),
-            ])
-            .config(|this| this.optional()),
-            Ref::keyword("NOWAIT").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ClusterStatementSegment;
-
-impl NodeTrait for ClusterStatementSegment {
-    const TYPE: &'static str = "cluster_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CLUSTER"),
-            Ref::keyword("VERBOSE").optional(),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
+                let _table_definition = Sequence::new(vec_of_erased![
                     Ref::new("TableReferenceSegment"),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ColumnReferenceSegment"
+                    )])])
+                    .config(|this| this.optional()),
+                ]);
+
+                let _option = Sequence::new(vec_of_erased![
+                    Ref::keyword("WITH").optional(),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![any_set_of(
+                        vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FORMAT"),
+                                Ref::new("SingleIdentifierGrammar")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FREEZE"),
+                                Ref::new("BooleanLiteralGrammar").optional()
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DELIMITER"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("NULL"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("HEADER"),
+                                Ref::new("BooleanLiteralGrammar").optional()
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("QUOTE"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ESCAPE"),
+                                Ref::new("QuotedLiteralSegment")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FORCE_QUOTE"),
+                                one_of(vec_of_erased![
+                                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                        Ref::new("ColumnReferenceSegment")
+                                    ])]),
+                                    Ref::new("StarSegment")
+                                ])
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FORCE_NOT_NULL"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment")
+                                ])])
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("FORCE_NULL"),
+                                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                    Ref::new("ColumnReferenceSegment")
+                                ])])
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ENCODING"),
+                                Ref::new("QuotedLiteralSegment")
+                            ])
+                        ]
+                    )])])
+                ])
+                .config(|this| this.optional());
+
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("COPY"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            _table_definition.clone(),
+                            Ref::keyword("FROM"),
+                            one_of(vec_of_erased![_target_subset.clone(), Ref::keyword("STDIN")]),
+                            _option.clone(),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("WHERE"),
+                                Ref::new("ExpressionSegment")
+                            ])
+                            .config(|this| this.optional())
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            one_of(vec_of_erased![
+                                _table_definition.clone(),
+                                Bracketed::new(vec_of_erased![Ref::new(
+                                    "UnorderedSelectStatementSegment"
+                                )])
+                            ]),
+                            Ref::keyword("TO"),
+                            one_of(vec_of_erased![_target_subset, Ref::keyword("STDOUT")]),
+                            _option
+                        ])
+                    ])
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterSchemaStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterSchemaStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("SCHEMA"),
+                    Ref::new("SchemaReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("SchemaReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::keyword("TO"),
+                            Ref::new("RoleReferenceSegment"),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LockTableStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::LockTableStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("LOCK"),
+                    Ref::keyword("TABLE").optional(),
+                    Ref::keyword("ONLY").optional(),
+                    one_of(vec_of_erased![
+                        Delimited::new(vec_of_erased![Ref::new("TableReferenceSegment")]),
+                        Ref::new("StarSegment"),
+                    ]),
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("USING"),
-                        Ref::new("IndexReferenceSegment"),
+                        Ref::keyword("IN"),
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ACCESS"),
+                                Ref::keyword("SHARE")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ROW"),
+                                Ref::keyword("SHARE")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ROW"),
+                                Ref::keyword("EXCLUSIVE")
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SHARE"),
+                                Ref::keyword("UPDATE"),
+                                Ref::keyword("EXCLUSIVE")
+                            ]),
+                            Ref::keyword("SHARE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("SHARE"),
+                                Ref::keyword("ROW"),
+                                Ref::keyword("EXCLUSIVE")
+                            ]),
+                            Ref::keyword("EXCLUSIVE"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ACCESS"),
+                                Ref::keyword("EXCLUSIVE")
+                            ]),
+                        ]),
+                        Ref::keyword("MODE"),
                     ])
                     .config(|this| this.optional()),
-                ]),
+                    Ref::keyword("NOWAIT").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ClusterStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ClusterStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::new("IndexReferenceSegment"),
-                    Ref::keyword("ON"),
-                    Ref::new("TableReferenceSegment"),
-                ]),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct LanguageClauseSegment;
-
-impl NodeTrait for LanguageClauseSegment {
-    const TYPE: &'static str = "language_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("LANGUAGE"),
-            one_of(vec_of_erased![
-                Ref::new("NakedIdentifierSegment"),
-                Ref::new("SingleQuotedIdentifierSegment"),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct DoStatementSegment;
-
-impl NodeTrait for DoStatementSegment {
-    const TYPE: &'static str = "do_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("DO"),
-            one_of(vec_of_erased![
+                    Ref::keyword("CLUSTER"),
+                    Ref::keyword("VERBOSE").optional(),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("TableReferenceSegment"),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("USING"),
+                                Ref::new("IndexReferenceSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::new("IndexReferenceSegment"),
+                            Ref::keyword("ON"),
+                            Ref::new("TableReferenceSegment"),
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LanguageClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::LanguageClause,
                 Sequence::new(vec_of_erased![
-                    Ref::new("LanguageClauseSegment").optional(),
-                    Ref::new("QuotedLiteralSegment"),
-                ]),
+                    Ref::keyword("LANGUAGE"),
+                    one_of(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"),
+                        Ref::new("SingleQuotedIdentifierSegment"),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DoStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::DoStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::new("QuotedLiteralSegment"),
-                    Ref::new("LanguageClauseSegment").optional(),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
+                    Ref::keyword("DO"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::new("LanguageClauseSegment").optional(),
+                            Ref::new("QuotedLiteralSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("LanguageClauseSegment").optional(),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct CTEDefinitionSegment;
-
-impl NodeTrait for CTEDefinitionSegment {
-    const TYPE: &'static str = "common_table_expression";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "CTEDefinitionSegment",
         Sequence::new(vec_of_erased![
             Ref::new("SingleIdentifierGrammar"),
             Ref::new("CTEColumnList").optional(),
@@ -6491,16 +6268,11 @@ impl NodeTrait for CTEDefinitionSegment {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct ValuesClauseSegment;
-
-impl NodeTrait for ValuesClauseSegment {
-    const TYPE: &'static str = "values_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "ValuesClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("VALUES"),
             Delimited::new(vec_of_erased![Bracketed::new(vec_of_erased![
@@ -6514,16 +6286,11 @@ impl NodeTrait for ValuesClauseSegment {
             Ref::new("OrderByClauseSegment").optional(),
             Ref::new("LimitClauseSegment").optional(),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct DeleteStatementSegment;
-
-impl NodeTrait for DeleteStatementSegment {
-    const TYPE: &'static str = "delete_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "DeleteStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("DELETE"),
             Ref::keyword("FROM"),
@@ -6563,39 +6330,19 @@ impl NodeTrait for DeleteStatementSegment {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable()
-    }
-}
+        .to_matchable(),
+    );
 
-pub struct SetClauseSegment;
-
-impl NodeTrait for SetClauseSegment {
-    const TYPE: &'static str = "set_clause";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![
-                Ref::new("ColumnReferenceSegment"),
-                Ref::new("ArrayAccessorSegment").optional(),
-                Ref::new("EqualsSegment"),
-                one_of(vec_of_erased![
-                    Ref::new("LiteralGrammar"),
-                    Ref::new("BareFunctionSegment"),
-                    Ref::new("FunctionSegment"),
-                    Ref::new("ColumnReferenceSegment"),
-                    Ref::new("ExpressionSegment"),
-                    Ref::keyword("DEFAULT"),
-                ]),
-                AnyNumberOf::new(vec_of_erased![Ref::new("ShorthandCastSegment")]),
-            ]),
-            Sequence::new(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "ColumnReferenceSegment"
-                ),])]),
-                Ref::new("EqualsSegment"),
-                Bracketed::new(vec_of_erased![one_of(vec_of_erased![
-                    Ref::new("SelectableGrammar"),
-                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+    postgres.add([
+        (
+            "SetClauseSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::SetClause,
+                Sequence::new(vec_of_erased![one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::new("ColumnReferenceSegment"),
+                        Ref::new("ArrayAccessorSegment").optional(),
+                        Ref::new("EqualsSegment"),
                         one_of(vec_of_erased![
                             Ref::new("LiteralGrammar"),
                             Ref::new("BareFunctionSegment"),
@@ -6605,237 +6352,257 @@ impl NodeTrait for SetClauseSegment {
                             Ref::keyword("DEFAULT"),
                         ]),
                         AnyNumberOf::new(vec_of_erased![Ref::new("ShorthandCastSegment")]),
-                    ])])
-                ])]),
-            ]),
-        ]),])
-        .to_matchable()
-    }
-}
-
-pub struct UpdateStatementSegment;
-
-impl NodeTrait for UpdateStatementSegment {
-    const TYPE: &'static str = "update_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("UPDATE"),
-            Ref::keyword("ONLY").optional(),
-            Ref::new("TableReferenceSegment"),
-            Ref::new("AliasExpressionSegment").exclude(Ref::keyword("SET")).optional(),
-            Ref::new("SetClauseListSegment"),
-            Ref::new("FromClauseSegment").optional(),
-            one_of(vec_of_erased![
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "ColumnReferenceSegment"
+                        ),])]),
+                        Ref::new("EqualsSegment"),
+                        Bracketed::new(vec_of_erased![one_of(vec_of_erased![
+                            Ref::new("SelectableGrammar"),
+                            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::new("LiteralGrammar"),
+                                    Ref::new("BareFunctionSegment"),
+                                    Ref::new("FunctionSegment"),
+                                    Ref::new("ColumnReferenceSegment"),
+                                    Ref::new("ExpressionSegment"),
+                                    Ref::keyword("DEFAULT"),
+                                ]),
+                                AnyNumberOf::new(vec_of_erased![Ref::new("ShorthandCastSegment")]),
+                            ])])
+                        ])]),
+                    ]),
+                ]),])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UpdateStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::UpdateStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("WHERE"),
-                    Ref::keyword("CURRENT"),
-                    Ref::keyword("OF"),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
-                Ref::new("WhereClauseSegment"),
-            ])
-            .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("RETURNING"),
-                one_of(vec_of_erased![
-                    Ref::new("StarSegment"),
-                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("ExpressionSegment"),
-                        Ref::new("AliasExpressionSegment").optional(),
-                    ])])
-                ]),
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreateTypeStatementSegment;
-
-impl NodeTrait for CreateTypeStatementSegment {
-    const TYPE: &'static str = "create_type_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("TYPE"),
-            Ref::new("ObjectReferenceSegment"),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("AS"),
-                one_of(vec_of_erased![Ref::keyword("ENUM"), Ref::keyword("RANGE"),])
-                    .config(|this| this.optional()),
-            ])
-            .config(|this| this.optional()),
-            Bracketed::new(vec_of_erased![
-                Delimited::new(vec_of_erased![Anything::new()]).config(|this| this.optional())
-            ])
-            .config(|this| this.optional()),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct AlterTypeStatementSegment;
-
-impl NodeTrait for AlterTypeStatementSegment {
-    const TYPE: &'static str = "alter_type_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ALTER"),
-            Ref::keyword("TYPE"),
-            Ref::new("ObjectReferenceSegment"),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("OWNER"),
-                    Ref::keyword("TO"),
+                    Ref::keyword("UPDATE"),
+                    Ref::keyword("ONLY").optional(),
+                    Ref::new("TableReferenceSegment"),
+                    Ref::new("AliasExpressionSegment").exclude(Ref::keyword("SET")).optional(),
+                    Ref::new("SetClauseListSegment"),
+                    Ref::new("FromClauseSegment").optional(),
                     one_of(vec_of_erased![
-                        Ref::keyword("CURRENT_USER"),
-                        Ref::keyword("SESSION_USER"),
-                        Ref::keyword("CURRENT_ROLE"),
-                        Ref::new("ObjectReferenceSegment"),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("VALUE"),
-                    Ref::new("QuotedLiteralSegment"),
-                    Ref::keyword("TO"),
-                    Ref::new("QuotedLiteralSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("RENAME"),
-                    Ref::keyword("TO"),
-                    Ref::new("ObjectReferenceSegment"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SET"),
-                    Ref::keyword("SCHEMA"),
-                    Ref::new("SchemaReferenceSegment"),
-                ]),
-                Delimited::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ADD"),
-                        Ref::keyword("ATTRIBUTE"),
-                        Ref::new("ColumnReferenceSegment"),
-                        Ref::new("DatatypeSegment"),
                         Sequence::new(vec_of_erased![
-                            Ref::keyword("COLLATE"),
-                            Ref::new("CollationReferenceSegment"),
-                        ])
-                        .config(|this| this.optional()),
-                        Ref::new("CascadeRestrictGrammar").optional(),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ALTER"),
-                        Ref::keyword("ATTRIBUTE"),
-                        Ref::new("ColumnReferenceSegment"),
-                        Sequence::new(vec_of_erased![Ref::keyword("SET"), Ref::keyword("DATA"),])
-                            .config(|this| this.optional()),
-                        Ref::keyword("TYPE"),
-                        Ref::new("DatatypeSegment"),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("COLLATE"),
-                            Ref::new("CollationReferenceSegment"),
-                        ])
-                        .config(|this| this.optional()),
-                        Ref::new("CascadeRestrictGrammar").optional(),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("DROP"),
-                        Ref::keyword("ATTRIBUTE"),
-                        Ref::new("IfExistsGrammar").optional(),
-                        Ref::new("ColumnReferenceSegment"),
-                        Ref::new("CascadeRestrictGrammar").optional(),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("RENAME"),
-                        Ref::keyword("ATTRIBUTE"),
-                        Ref::new("ColumnReferenceSegment"),
-                        Ref::keyword("TO"),
-                        Ref::new("ColumnReferenceSegment"),
-                        Ref::new("CascadeRestrictGrammar").optional(),
-                    ]),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ADD"),
-                    Ref::keyword("VALUE"),
-                    Ref::new("IfNotExistsGrammar").optional(),
-                    Ref::new("QuotedLiteralSegment"),
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("BEFORE"), Ref::keyword("AFTER")]),
-                        Ref::new("QuotedLiteralSegment"),
+                            Ref::keyword("WHERE"),
+                            Ref::keyword("CURRENT"),
+                            Ref::keyword("OF"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Ref::new("WhereClauseSegment"),
                     ])
                     .config(|this| this.optional()),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreateCollationStatementSegment;
-
-impl NodeTrait for CreateCollationStatementSegment {
-    const TYPE: &'static str = "create_collation_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("COLLATION"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("ObjectReferenceSegment"),
-            one_of(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        Ref::keyword("LOCALE"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("LC_COLLATE"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("LC_CTYPE"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("PROVIDER"),
-                        Ref::new("EqualsSegment"),
-                        one_of(vec_of_erased![Ref::keyword("ICU"), Ref::keyword("LIBC")]),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("DETERMINISTIC"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("BooleanLiteralGrammar"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("VERSION"),
-                        Ref::new("EqualsSegment"),
-                        Ref::new("QuotedLiteralSegment"),
-                    ]),
-                ])]),
+                        Ref::keyword("RETURNING"),
+                        one_of(vec_of_erased![
+                            Ref::new("StarSegment"),
+                            Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                Ref::new("ExpressionSegment"),
+                                Ref::new("AliasExpressionSegment").optional(),
+                            ])])
+                        ]),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateTypeStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateTypeStatement,
                 Sequence::new(vec_of_erased![
-                    Ref::keyword("FROM"),
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("TYPE"),
                     Ref::new("ObjectReferenceSegment"),
-                ]),
-            ]),
-        ])
-        .to_matchable()
-    }
-}
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("AS"),
+                        one_of(vec_of_erased![Ref::keyword("ENUM"), Ref::keyword("RANGE"),])
+                            .config(|this| this.optional()),
+                    ])
+                    .config(|this| this.optional()),
+                    Bracketed::new(vec_of_erased![
+                        Delimited::new(vec_of_erased![Anything::new()])
+                            .config(|this| this.optional())
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterTypeStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterTypeStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("ALTER"),
+                    Ref::keyword("TYPE"),
+                    Ref::new("ObjectReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("OWNER"),
+                            Ref::keyword("TO"),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CURRENT_USER"),
+                                Ref::keyword("SESSION_USER"),
+                                Ref::keyword("CURRENT_ROLE"),
+                                Ref::new("ObjectReferenceSegment"),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("VALUE"),
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::keyword("TO"),
+                            Ref::new("QuotedLiteralSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("RENAME"),
+                            Ref::keyword("TO"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("SET"),
+                            Ref::keyword("SCHEMA"),
+                            Ref::new("SchemaReferenceSegment"),
+                        ]),
+                        Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ADD"),
+                                Ref::keyword("ATTRIBUTE"),
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::new("DatatypeSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLLATE"),
+                                    Ref::new("CollationReferenceSegment"),
+                                ])
+                                .config(|this| this.optional()),
+                                Ref::new("CascadeRestrictGrammar").optional(),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("ALTER"),
+                                Ref::keyword("ATTRIBUTE"),
+                                Ref::new("ColumnReferenceSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("SET"),
+                                    Ref::keyword("DATA"),
+                                ])
+                                .config(|this| this.optional()),
+                                Ref::keyword("TYPE"),
+                                Ref::new("DatatypeSegment"),
+                                Sequence::new(vec_of_erased![
+                                    Ref::keyword("COLLATE"),
+                                    Ref::new("CollationReferenceSegment"),
+                                ])
+                                .config(|this| this.optional()),
+                                Ref::new("CascadeRestrictGrammar").optional(),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DROP"),
+                                Ref::keyword("ATTRIBUTE"),
+                                Ref::new("IfExistsGrammar").optional(),
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::new("CascadeRestrictGrammar").optional(),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("RENAME"),
+                                Ref::keyword("ATTRIBUTE"),
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::keyword("TO"),
+                                Ref::new("ColumnReferenceSegment"),
+                                Ref::new("CascadeRestrictGrammar").optional(),
+                            ]),
+                        ]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("ADD"),
+                            Ref::keyword("VALUE"),
+                            Ref::new("IfNotExistsGrammar").optional(),
+                            Ref::new("QuotedLiteralSegment"),
+                            Sequence::new(vec_of_erased![
+                                one_of(vec_of_erased![
+                                    Ref::keyword("BEFORE"),
+                                    Ref::keyword("AFTER")
+                                ]),
+                                Ref::new("QuotedLiteralSegment"),
+                            ])
+                            .config(|this| this.optional()),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateCollationStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateCollationStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("COLLATION"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("ObjectReferenceSegment"),
+                    one_of(vec_of_erased![
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("LOCALE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("LC_COLLATE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("LC_CTYPE"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("PROVIDER"),
+                                Ref::new("EqualsSegment"),
+                                one_of(vec_of_erased![Ref::keyword("ICU"), Ref::keyword("LIBC")]),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("DETERMINISTIC"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("BooleanLiteralGrammar"),
+                            ]),
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("VERSION"),
+                                Ref::new("EqualsSegment"),
+                                Ref::new("QuotedLiteralSegment"),
+                            ]),
+                        ])]),
+                        Sequence::new(vec_of_erased![
+                            Ref::keyword("FROM"),
+                            Ref::new("ObjectReferenceSegment"),
+                        ]),
+                    ]),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-pub struct ColumnReferenceSegment;
-
-impl NodeTrait for ColumnReferenceSegment {
-    const TYPE: &'static str = "column_reference";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "ColumnReferenceSegment",
         Sequence::new(vec_of_erased![
             Ref::new("SingleIdentifierGrammar"),
             Sequence::new(vec_of_erased![
@@ -6876,31 +6643,26 @@ impl NodeTrait for ColumnReferenceSegment {
             }),
         ])
         .config(|this| this.allow_gaps = false)
+        .to_matchable(),
+    );
+
+    postgres.add([(
+        "NamedArgumentSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::NamedArgument,
+            Sequence::new(vec_of_erased![
+                Ref::new("NakedIdentifierSegment"),
+                Ref::new("RightArrowSegment"),
+                Ref::new("ExpressionSegment"),
+            ])
+            .to_matchable(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct NamedArgumentSegment;
-
-impl NodeTrait for NamedArgumentSegment {
-    const TYPE: &'static str = "named_argument";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("NakedIdentifierSegment"),
-            Ref::new("RightArrowSegment"),
-            Ref::new("ExpressionSegment"),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct TableExpressionSegment;
-
-impl NodeTrait for TableExpressionSegment {
-    const TYPE: &'static str = "table_expression_segment";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
+    postgres.replace_grammar(
+        "TableExpressionSegment",
         one_of(vec_of_erased![
             Ref::new("ValuesClauseSegment"),
             Ref::new("BareFunctionSegment"),
@@ -6913,97 +6675,106 @@ impl NodeTrait for TableExpressionSegment {
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar"),]),
             Bracketed::new(vec_of_erased![Ref::new("MergeStatementSegment"),]),
         ])
+        .to_matchable(),
+    );
+
+    postgres.add([(
+        "ServerReferenceSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::ServerReference,
+            postgres.grammar("ObjectReferenceSegment").match_grammar().unwrap(),
+        )
         .to_matchable()
-    }
-}
+        .into(),
+    )]);
 
-pub struct ServerReferenceSegment;
+    postgres.add([
+        (
+            "CreateServerStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateServerStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CREATE"),
+                    Ref::keyword("SERVER"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::new("ServerReferenceSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("TYPE"),
+                        Ref::new("QuotedLiteralSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("VERSION"),
+                        Ref::new("VersionIdentifierSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::new("ForeignDataWrapperGrammar"),
+                    Ref::new("ObjectReferenceSegment"),
+                    Ref::new("OptionsGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateUserMappingStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateUserMappingStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::new("CreateUserMappingGrammar"),
+                    Ref::new("IfNotExistsGrammar").optional(),
+                    Ref::keyword("FOR"),
+                    one_of(vec_of_erased![
+                        Ref::new("SingleIdentifierGrammar"),
+                        Ref::new("SessionInformationUserFunctionsGrammar"),
+                        Ref::keyword("PUBLIC"),
+                    ]),
+                    Ref::keyword("SERVER"),
+                    Ref::new("ServerReferenceSegment"),
+                    Ref::new("OptionsGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ImportForeignSchemaStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ImportForeignSchemaStatement,
+                Sequence::new(vec_of_erased![
+                    Ref::new("ImportForeignSchemaGrammar"),
+                    Ref::new("SchemaReferenceSegment"),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Sequence::new(vec_of_erased![
+                                Ref::keyword("LIMIT"),
+                                Ref::keyword("TO"),
+                            ]),
+                            Ref::keyword("EXCEPT"),
+                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "NakedIdentifierFullSegment"
+                        ),]),]),
+                    ])
+                    .config(|this| this.optional()),
+                    Ref::keyword("FROM"),
+                    Ref::keyword("SERVER"),
+                    Ref::new("ServerReferenceSegment"),
+                    Ref::keyword("INTO"),
+                    Ref::new("SchemaReferenceSegment"),
+                    Ref::new("OptionsGrammar").optional(),
+                ])
+                .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
-impl NodeTrait for ServerReferenceSegment {
-    const TYPE: &'static str = "server_reference";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Ref::new("ObjectReferenceSegment").to_matchable()
-    }
-}
-
-pub struct CreateServerStatementSegment;
-
-impl NodeTrait for CreateServerStatementSegment {
-    const TYPE: &'static str = "create_server_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::keyword("CREATE"),
-            Ref::keyword("SERVER"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::new("ServerReferenceSegment"),
-            Sequence::new(vec_of_erased![Ref::keyword("TYPE"), Ref::new("QuotedLiteralSegment"),])
-                .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("VERSION"),
-                Ref::new("VersionIdentifierSegment"),
-            ])
-            .config(|this| this.optional()),
-            Ref::new("ForeignDataWrapperGrammar"),
-            Ref::new("ObjectReferenceSegment"),
-            Ref::new("OptionsGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct CreateUserMappingStatementSegment;
-
-impl NodeTrait for CreateUserMappingStatementSegment {
-    const TYPE: &'static str = "create_user_mapping_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("CreateUserMappingGrammar"),
-            Ref::new("IfNotExistsGrammar").optional(),
-            Ref::keyword("FOR"),
-            one_of(vec_of_erased![
-                Ref::new("SingleIdentifierGrammar"),
-                Ref::new("SessionInformationUserFunctionsGrammar"),
-                Ref::keyword("PUBLIC"),
-            ]),
-            Ref::keyword("SERVER"),
-            Ref::new("ServerReferenceSegment"),
-            Ref::new("OptionsGrammar").optional(),
-        ])
-        .to_matchable()
-    }
-}
-
-pub struct ImportForeignSchemaStatementSegment;
-
-impl NodeTrait for ImportForeignSchemaStatementSegment {
-    const TYPE: &'static str = "import_foreign_schema_statement";
-
-    fn match_grammar() -> Arc<dyn Matchable> {
-        Sequence::new(vec_of_erased![
-            Ref::new("ImportForeignSchemaGrammar"),
-            Ref::new("SchemaReferenceSegment"),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![Ref::keyword("LIMIT"), Ref::keyword("TO"),]),
-                    Ref::keyword("EXCEPT"),
-                ]),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                    "NakedIdentifierFullSegment"
-                ),]),]),
-            ])
-            .config(|this| this.optional()),
-            Ref::keyword("FROM"),
-            Ref::keyword("SERVER"),
-            Ref::new("ServerReferenceSegment"),
-            Ref::keyword("INTO"),
-            Ref::new("SchemaReferenceSegment"),
-            Ref::new("OptionsGrammar").optional(),
-        ])
-        .to_matchable()
-    }
+    postgres.expand();
+    postgres
 }
 
 #[cfg(test)]

@@ -1,19 +1,19 @@
 file:
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
     - publication_reference:
       - naked_identifier: abc
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
     - publication_reference:
       - quoted_identifier: '"abc"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -22,7 +22,7 @@ file:
     - publication_reference:
       - naked_identifier: abc
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -35,7 +35,7 @@ file:
     - publication_reference:
       - naked_identifier: ghi
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -50,7 +50,7 @@ file:
     - publication_reference:
       - naked_identifier: ghi
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -58,7 +58,7 @@ file:
       - naked_identifier: abc
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -68,7 +68,7 @@ file:
       - naked_identifier: abc
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -82,7 +82,7 @@ file:
       - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -98,7 +98,7 @@ file:
       - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -106,7 +106,7 @@ file:
       - naked_identifier: abc
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -116,7 +116,7 @@ file:
       - naked_identifier: abc
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION
@@ -130,7 +130,7 @@ file:
       - naked_identifier: ghi
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_publication_statement:
     - keyword: DROP
     - keyword: PUBLICATION

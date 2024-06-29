@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -7,7 +7,7 @@ file:
       - object_reference:
         - naked_identifier: abc
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -15,7 +15,7 @@ file:
       - object_reference:
         - quoted_identifier: '"abc"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -25,7 +25,7 @@ file:
       - object_reference:
         - naked_identifier: abc
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -41,7 +41,7 @@ file:
       - object_reference:
         - naked_identifier: ghi
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -59,7 +59,7 @@ file:
       - object_reference:
         - naked_identifier: ghi
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -68,7 +68,7 @@ file:
         - naked_identifier: abc
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -79,7 +79,7 @@ file:
         - naked_identifier: abc
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -96,7 +96,7 @@ file:
         - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -115,7 +115,7 @@ file:
         - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -124,7 +124,7 @@ file:
         - naked_identifier: abc
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -135,7 +135,7 @@ file:
         - naked_identifier: abc
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -152,7 +152,7 @@ file:
         - naked_identifier: ghi
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW

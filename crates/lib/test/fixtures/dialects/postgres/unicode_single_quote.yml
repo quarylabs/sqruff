@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
         - quoted_literal: U&''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -15,21 +15,21 @@ file:
             U&'
             '
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
         - quoted_literal: U&''''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
         - quoted_literal: U&'aaa'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -39,21 +39,21 @@ file:
             ''
             '
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
         - quoted_literal: U&'' UESCAPE '!'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
         - quoted_literal: U&'asdf' UESCAPE 'P'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

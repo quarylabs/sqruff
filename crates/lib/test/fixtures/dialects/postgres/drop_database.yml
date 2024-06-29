@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
     - database_reference:
       - naked_identifier: db
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -17,7 +17,7 @@ file:
       - keyword: FORCE
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -29,7 +29,7 @@ file:
       - keyword: FORCE
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -38,7 +38,7 @@ file:
     - database_reference:
       - naked_identifier: db
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -51,7 +51,7 @@ file:
       - keyword: FORCE
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE

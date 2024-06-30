@@ -1,5 +1,3 @@
-use orx_concurrent_bag::ConcurrentBag;
-
 use super::linted_file::LintedFile;
 use super::linter::Linter;
 
@@ -42,14 +40,13 @@ impl Runner for ParallelRunner {
 
         let rule_pack = linter.get_rulepack();
 
-        let acc = ConcurrentBag::with_fixed_capacity(paths.len());
-
-        paths.par_iter().for_each(|path| {
-            let rendered = linter.render_file(path.clone());
-            let linted_file = linter.lint_rendered(rendered, &rule_pack, fix);
-            acc.push(linted_file);
-        });
-
-        acc.into_inner().into_iter()
+        paths
+            .par_iter()
+            .map(|path| {
+                let rendered = linter.render_file(path.clone());
+                linter.lint_rendered(rendered, &rule_pack, fix)
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
     }
 }

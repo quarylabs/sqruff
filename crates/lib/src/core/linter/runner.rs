@@ -42,7 +42,7 @@ impl Runner for ParallelRunner {
 
         let rule_pack = linter.get_rulepack();
 
-        let acc = ConcurrentBag::new();
+        let acc = ConcurrentBag::with_fixed_capacity(paths.len());
 
         paths.par_iter().for_each(|path| {
             let rendered = linter.render_file(path.clone());

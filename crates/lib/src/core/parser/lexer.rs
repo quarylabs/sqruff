@@ -1,7 +1,6 @@
 use std::borrow::Cow;
 use std::fmt::Debug;
 use std::ops::Range;
-use std::sync::OnceLock;
 
 use fancy_regex::Regex;
 
@@ -84,22 +83,6 @@ impl Match<'_> {
 }
 
 #[derive(Debug, Clone)]
-pub struct LazyRegex {
-    regex: &'static str,
-    compiled: OnceLock<Regex>,
-}
-
-impl LazyRegex {
-    const fn new(regex: &'static str) -> Self {
-        Self { regex, compiled: OnceLock::new() }
-    }
-
-    fn get(&self) -> &Regex {
-        self.compiled.get_or_init(|| Regex::new(self.regex).unwrap())
-    }
-}
-
-#[derive(Debug, Clone)]
 pub struct Matcher {
     pattern: Pattern,
     subdivider: Option<Pattern>,
@@ -119,7 +102,7 @@ impl Matcher {
         Self::new(Pattern::string(name, pattern, constructor))
     }
 
-    pub const fn regex(
+    pub fn regex(
         name: &'static str,
         pattern: &'static str,
         constructor: fn(&str, PositionMarker) -> ErasedSegment,
@@ -250,7 +233,7 @@ pub struct Pattern {
 #[derive(Debug, Clone)]
 pub enum SearchPatternKind {
     String(&'static str),
-    LazyRegex(LazyRegex),
+    Regex(Regex),
 }
 
 impl Pattern {
@@ -262,12 +245,16 @@ impl Pattern {
         Self { name, value: constructor, kind: SearchPatternKind::String(template) }
     }
 
-    pub const fn regex(
+    pub fn regex(
         name: &'static str,
         regex: &'static str,
         constructor: fn(&str, PositionMarker) -> ErasedSegment,
     ) -> Self {
-        Self { name, value: constructor, kind: SearchPatternKind::LazyRegex(LazyRegex::new(regex)) }
+        Self {
+            name,
+            value: constructor,
+            kind: SearchPatternKind::Regex(Regex::new(regex).unwrap()),
+        }
     }
 
     fn matches<'a>(&self, forward_string: &'a str) -> Option<&'a str> {
@@ -277,8 +264,8 @@ impl Pattern {
                     return Some(template);
                 }
             }
-            SearchPatternKind::LazyRegex(ref template) => {
-                if let Ok(Some(matched)) = template.get().find(forward_string) {
+            SearchPatternKind::Regex(ref template) => {
+                if let Ok(Some(matched)) = template.find(forward_string) {
                     if matched.start() == 0 {
                         return Some(matched.as_str());
                     }
@@ -294,8 +281,8 @@ impl Pattern {
             SearchPatternKind::String(template) => {
                 forward_string.find(template).map(|start| start..start + template.len())
             }
-            SearchPatternKind::LazyRegex(template) => {
-                if let Ok(Some(matched)) = template.get().find(forward_string) {
+            SearchPatternKind::Regex(template) => {
+                if let Ok(Some(matched)) = template.find(forward_string) {
                     return Some(matched.range());
                 }
                 None

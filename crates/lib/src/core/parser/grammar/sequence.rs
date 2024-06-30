@@ -16,6 +16,7 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{ErasedSegment, Segment, UnparsableSegment};
 use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
+use crate::dialects::SyntaxKind;
 use crate::helpers::{next_cache_key, ToErasedSegment};
 use crate::vec_of_erased;
 
@@ -201,10 +202,7 @@ impl Matchable for Sequence {
                 if stop_idx > idx {
                     child_matches.push(MatchResult {
                         span: Span { start: idx, end: stop_idx },
-                        matched: Matched::ErasedSegment(
-                            UnparsableSegment::new(vec_of_erased![]).to_erased_segment(),
-                        )
-                        .into(),
+                        matched: Matched::SyntaxKind(SyntaxKind::Unparsable).into(),
                         ..Default::default()
                     });
                     matched_idx = stop_idx;

@@ -59,7 +59,7 @@ impl<T> BoxedE for T {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Nodev2 {
+pub struct Node {
     kind: SyntaxKind,
     segments: Vec<ErasedSegment>,
     uuid: Uuid,
@@ -69,7 +69,7 @@ pub struct Nodev2 {
     descendant_type_set: OnceLock<AHashSet<&'static str>>,
 }
 
-impl Nodev2 {
+impl Node {
     fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
         let position_marker = pos_marker(&segments);
         Self {
@@ -84,7 +84,7 @@ impl Nodev2 {
     }
 }
 
-impl Segment for Nodev2 {
+impl Segment for Node {
     fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self {
             kind: self.kind,
@@ -209,7 +209,7 @@ impl Matchable for NodeMatcher {
         if match_result.has_match() {
             Ok(MatchResult {
                 matched_segments: vec![
-                    Nodev2::new(self.node_kind, match_result.matched_segments).to_erased_segment(),
+                    Node::new(self.node_kind, match_result.matched_segments).to_erased_segment(),
                 ],
                 unmatched_segments: match_result.unmatched_segments,
             })

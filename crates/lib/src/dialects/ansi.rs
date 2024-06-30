@@ -70,7 +70,7 @@ pub struct Node {
 }
 
 impl Node {
-    pub(crate) fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
+    pub fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
         let position_marker = pos_marker(&segments);
         Self {
             kind,

@@ -1460,7 +1460,7 @@ impl UnparsableSegment {
     pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let mut this = Self { uuid: Uuid::new_v4(), segments, position_marker: None };
         this.uuid = Uuid::new_v4();
-        // this.set_position_marker(pos_marker(&this.segments).into());
+        this.set_position_marker(pos_marker(&this.segments).into());
         this
     }
 }

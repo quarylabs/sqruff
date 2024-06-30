@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -11,7 +11,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -23,7 +23,7 @@ file:
         - keyword: LIKE
         - quoted_literal: '''%ursidae%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -35,7 +35,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -48,7 +48,7 @@ file:
         - keyword: LIKE
         - quoted_literal: '''%ursidae%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -60,7 +60,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -72,7 +72,7 @@ file:
         - keyword: ILIKE
         - quoted_literal: '''%ursus%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -84,7 +84,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -97,7 +97,7 @@ file:
         - keyword: ILIKE
         - quoted_literal: '''%ursus%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -109,7 +109,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -123,7 +123,7 @@ file:
         - keyword: ESCAPE
         - quoted_literal: '''\\'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -135,7 +135,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -150,7 +150,7 @@ file:
         - keyword: ESCAPE
         - quoted_literal: '''\\'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -178,12 +178,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -195,7 +195,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -208,7 +208,7 @@ file:
         - keyword: TO
         - quoted_literal: '''%ursidae%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -220,7 +220,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -234,7 +234,7 @@ file:
         - keyword: TO
         - quoted_literal: '''%ursidae%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -246,7 +246,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -259,7 +259,7 @@ file:
         - keyword: TO
         - quoted_literal: '''%ursus%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -271,7 +271,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -285,7 +285,7 @@ file:
         - keyword: TO
         - quoted_literal: '''%ursus%'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -297,7 +297,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -312,7 +312,7 @@ file:
         - keyword: ESCAPE
         - quoted_literal: '''\\'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -324,7 +324,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
@@ -340,7 +340,7 @@ file:
         - keyword: ESCAPE
         - quoted_literal: '''\\'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -369,12 +369,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: animals
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -426,7 +426,7 @@ file:
             - keyword: FROM
             - from_expression:
               - from_expression_element:
-                - table_expression_segment:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: bear_financial_branch
@@ -441,7 +441,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: cleaned_bear_financial_branch

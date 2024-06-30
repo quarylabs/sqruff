@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -18,12 +18,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -45,12 +45,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -71,13 +71,13 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -96,7 +96,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
@@ -105,7 +105,7 @@ file:
       - keyword: NO
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -124,7 +124,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
@@ -132,7 +132,7 @@ file:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -156,13 +156,13 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -187,7 +187,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
@@ -201,7 +201,7 @@ file:
             - quoted_literal: '''value'''
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -229,7 +229,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
@@ -243,7 +243,7 @@ file:
             - quoted_literal: '''value'''
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -266,7 +266,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
@@ -279,7 +279,7 @@ file:
             - raw_comparison_operator: =
           - quoted_literal: '''value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -305,7 +305,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
@@ -318,7 +318,7 @@ file:
             - raw_comparison_operator: =
           - quoted_literal: '''value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -341,12 +341,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -372,12 +372,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -398,7 +398,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
@@ -408,7 +408,7 @@ file:
       - keyword: NO
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -432,7 +432,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
@@ -442,7 +442,7 @@ file:
       - keyword: NO
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -519,7 +519,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
@@ -541,7 +541,7 @@ file:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -621,7 +621,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: my_table
@@ -643,7 +643,7 @@ file:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -656,7 +656,7 @@ file:
       - naked_identifier: pg_default
     - keyword: AS
     - set_expression:
-      - unordered_select_statement:
+      - select_statement:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
@@ -674,13 +674,13 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: table_1
       - set_operator:
         - keyword: UNION
-      - unordered_select_statement:
+      - select_statement:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
@@ -698,7 +698,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: table_2
@@ -714,7 +714,7 @@ file:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -742,12 +742,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -812,12 +812,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: OR
@@ -838,7 +838,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: my_table

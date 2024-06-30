@@ -239,11 +239,17 @@ impl<T: Rule> CloneRule for T {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum LintPhase {
+    Main,
+    Post,
+}
+
 pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule;
 
-    fn lint_phase(&self) -> &'static str {
-        "main"
+    fn lint_phase(&self) -> LintPhase {
+        LintPhase::Main
     }
 
     fn name(&self) -> &'static str;
@@ -253,6 +259,8 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
     }
 
     fn description(&self) -> &'static str;
+
+    fn long_description(&self) -> &'static str;
 
     fn groups(&self) -> &'static [&'static str] {
         &["all"]
@@ -389,6 +397,12 @@ pub struct RuleManifest {
 pub struct RulePack {
     pub(crate) rules: Vec<ErasedRule>,
     _reference_map: AHashMap<&'static str, AHashSet<&'static str>>,
+}
+
+impl RulePack {
+    pub fn rules(&self) -> Vec<ErasedRule> {
+        self.rules.clone()
+    }
 }
 
 pub struct RuleSet {

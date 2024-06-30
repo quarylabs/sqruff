@@ -30,7 +30,7 @@ file:
                   - expression:
                     - column_reference:
                       - naked_identifier: bar
-                - order_by_clause:
+                - orderby_clause:
                   - keyword: ORDER
                   - keyword: BY
                   - column_reference:

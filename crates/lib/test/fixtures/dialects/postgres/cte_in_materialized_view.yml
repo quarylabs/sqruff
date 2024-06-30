@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -44,7 +44,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: orders
@@ -70,7 +70,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: regional_sales
@@ -104,7 +104,7 @@ file:
                         - keyword: FROM
                         - from_expression:
                           - from_expression_element:
-                            - table_expression_segment:
+                            - table_expression:
                               - table_reference:
                                 - object_reference:
                                   - naked_identifier: regional_sales
@@ -152,7 +152,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: orders
@@ -174,7 +174,7 @@ file:
                   - keyword: FROM
                   - from_expression:
                     - from_expression_element:
-                      - table_expression_segment:
+                      - table_expression:
                         - table_reference:
                           - object_reference:
                             - naked_identifier: top_regions

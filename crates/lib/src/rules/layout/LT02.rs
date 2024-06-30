@@ -22,12 +22,40 @@ impl Rule for RuleLT02 {
         "Incorrect Indentation."
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+The ``•`` character represents a space and the ``→`` character represents a tab.
+In this example, the third line contains five spaces instead of four and
+the second line contains two spaces and one tab.
+
+```sql
+SELECT
+••→a,
+•••••b
+FROM foo
+```
+
+**Best practice**
+
+Change the indentation to use a multiple of four spaces. This example also assumes that the indent_unit config value is set to space. If it had instead been set to tab, then the indents would be tabs instead.
+
+```sql
+SELECT
+••••a,
+••••b
+FROM foo
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_root(context.segment, context.config.unwrap()).reindent().results()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -56,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_fail_reindent_first_line_2() {
-        let fixed = fix("  select 1 from tbl;".into(), rules());
+        let fixed = fix("  select 1 from tbl;", rules());
         assert_eq!(fixed, "select 1 from tbl;");
     }
 
@@ -157,7 +185,7 @@ from foo";
 
     #[test]
     fn tabs_fail_default() {
-        let fixed = fix("SELECT\n\t\t1\n".into(), rules());
+        let fixed = fix("SELECT\n\t\t1\n", rules());
         assert_eq!(fixed, "SELECT\n    1\n");
     }
 
@@ -183,6 +211,6 @@ FROM spam";
         let fix_str = "\nSELECT\n    a,\t\t\t-- Some comment\n    longer_col\t-- A lined up \
                        comment\nFROM spam";
 
-        assert_eq!(fix(fail_str.into(), rules()), fix_str);
+        assert_eq!(fix(fail_str, rules()), fix_str);
     }
 }

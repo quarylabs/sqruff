@@ -24,6 +24,32 @@ impl Rule for RuleAL03 {
         "Column expression without alias. Use explicit `AS` clause."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, there is no alias for both sums.
+
+```sql
+SELECT
+    sum(a),
+    sum(b)
+FROM foo
+```
+
+**Best practice**
+
+Add aliases.
+
+```sql
+SELECT
+    sum(a) AS a_sum,
+    sum(b) AS b_sum
+FROM foo
+```
+"#
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let functional_context = FunctionalContext::new(context.clone());
         let segment = functional_context.segment();

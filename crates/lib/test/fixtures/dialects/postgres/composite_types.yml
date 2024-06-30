@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
@@ -18,7 +18,7 @@ file:
       - word: TEXT
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

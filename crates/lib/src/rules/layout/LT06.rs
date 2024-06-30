@@ -16,10 +16,6 @@ impl Rule for RuleLT06 {
         RuleLT06::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.functions"
     }
@@ -28,6 +24,29 @@ impl Rule for RuleLT06 {
         "Function name not immediately followed by parenthesis."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, there is a space between the function and the parenthesis.
+
+```sql
+SELECT
+    sum (a)
+FROM foo
+```
+
+**Best practice**
+
+Remove the space between the function and the parenthesis.
+
+```sql
+SELECT
+    sum(a)
+FROM foo
+```
+"#
+    }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
         let children = segment.children(None);
@@ -58,6 +77,10 @@ impl Rule for RuleLT06 {
         }
 
         vec![]
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -95,7 +118,7 @@ mod tests {
     #[test]
     fn simple_fail() {
         let sql = "SELECT SUM (1)";
-        let result = fix(sql.to_string(), vec![RuleLT06::default().erased()]);
+        let result = fix(sql, vec![RuleLT06::default().erased()]);
         assert_eq!(result, "SELECT SUM(1)");
     }
 

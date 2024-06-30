@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -9,7 +9,7 @@ file:
     - keyword: PASSWORD
     - quoted_literal: '''hu8jmn3'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -19,7 +19,7 @@ file:
     - keyword: PASSWORD
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -29,7 +29,7 @@ file:
     - keyword: UNTIL
     - quoted_literal: '''May 4 12:00:00 2015 +1'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -39,7 +39,7 @@ file:
     - keyword: UNTIL
     - quoted_literal: '''infinity'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -51,7 +51,7 @@ file:
       - raw_comparison_operator: =
     - quoted_literal: '''100000'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -66,7 +66,7 @@ file:
     - keyword: TO
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -75,7 +75,7 @@ file:
     - keyword: CREATEROLE
     - keyword: CREATEDB
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -85,7 +85,7 @@ file:
     - keyword: PASSWORD
     - quoted_literal: '''hu8jmn3'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -95,7 +95,7 @@ file:
     - keyword: PASSWORD
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -105,7 +105,7 @@ file:
     - keyword: UNTIL
     - quoted_literal: '''May 4 12:00:00 2015 +1'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -115,7 +115,7 @@ file:
     - keyword: UNTIL
     - quoted_literal: '''infinity'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -127,7 +127,7 @@ file:
       - raw_comparison_operator: =
     - quoted_literal: '''100000'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -142,7 +142,7 @@ file:
     - keyword: TO
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -151,7 +151,7 @@ file:
     - keyword: CREATEROLE
     - keyword: CREATEDB
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -162,7 +162,7 @@ file:
     - keyword: FROM
     - keyword: CURRENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -177,7 +177,7 @@ file:
     - keyword: FROM
     - keyword: CURRENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -192,7 +192,7 @@ file:
     - keyword: TO
     - numeric_literal: '1234'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -208,7 +208,7 @@ file:
       - raw_comparison_operator: =
     - numeric_literal: '1234'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -223,7 +223,7 @@ file:
     - keyword: TO
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -239,7 +239,7 @@ file:
       - raw_comparison_operator: =
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -255,7 +255,7 @@ file:
       - raw_comparison_operator: =
     - boolean_literal: 'TRUE'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -271,7 +271,7 @@ file:
       - raw_comparison_operator: =
     - boolean_literal: 'FALSE'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -287,7 +287,7 @@ file:
       - raw_comparison_operator: =
     - quoted_literal: '''string value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -307,7 +307,7 @@ file:
     - comma: ','
     - naked_identifier: auto
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -316,7 +316,7 @@ file:
     - keyword: RESET
     - parameter: ALL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -325,7 +325,7 @@ file:
     - keyword: RESET
     - parameter: testing
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -338,7 +338,7 @@ file:
     - keyword: RESET
     - parameter: ALL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -351,7 +351,7 @@ file:
     - keyword: RESET
     - parameter: testing
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -360,7 +360,7 @@ file:
     - keyword: PASSWORD
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -369,7 +369,7 @@ file:
     - keyword: PASSWORD
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -378,7 +378,7 @@ file:
     - keyword: PASSWORD
     - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -392,7 +392,7 @@ file:
     - keyword: FROM
     - keyword: CURRENT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -406,7 +406,7 @@ file:
     - keyword: TO
     - numeric_literal: '1234'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -421,7 +421,7 @@ file:
       - raw_comparison_operator: =
     - numeric_literal: '1234'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -435,7 +435,7 @@ file:
     - keyword: TO
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -443,7 +443,7 @@ file:
     - keyword: RESET
     - parameter: ALL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE
@@ -451,7 +451,7 @@ file:
     - keyword: RESET
     - parameter: testing
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER
@@ -463,7 +463,7 @@ file:
     - keyword: RESET
     - parameter: ALL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: ROLE

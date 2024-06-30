@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - cluster_statement:
     - keyword: CLUSTER
     - table_reference:
@@ -9,7 +9,7 @@ file:
     - database_reference:
       - naked_identifier: employees_ind
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - cluster_statement:
     - keyword: CLUSTER
     - keyword: VERBOSE
@@ -20,23 +20,23 @@ file:
     - database_reference:
       - naked_identifier: employees_ind
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - cluster_statement:
     - keyword: CLUSTER
     - table_reference:
       - object_reference:
         - naked_identifier: employees
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - cluster_statement:
     - keyword: CLUSTER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - cluster_statement:
     - keyword: CLUSTER
     - keyword: VERBOSE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - cluster_statement:
     - keyword: CLUSTER
     - database_reference:
@@ -46,7 +46,7 @@ file:
       - object_reference:
         - naked_identifier: table_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - cluster_statement:
     - keyword: CLUSTER
     - table_reference:

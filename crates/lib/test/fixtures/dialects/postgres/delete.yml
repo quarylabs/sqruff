@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -7,7 +7,7 @@ file:
       - object_reference:
         - naked_identifier: films
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -16,7 +16,7 @@ file:
       - object_reference:
         - naked_identifier: films
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -25,7 +25,7 @@ file:
         - naked_identifier: films
     - star: '*'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -36,7 +36,7 @@ file:
       - keyword: AS
       - naked_identifier: f
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -46,7 +46,7 @@ file:
     - alias_expression:
       - naked_identifier: f
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -54,7 +54,7 @@ file:
       - object_reference:
         - naked_identifier: films
     - keyword: USING
-    - table_expression_segment:
+    - table_expression:
       - table_reference:
         - object_reference:
           - naked_identifier: producers
@@ -78,7 +78,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''foo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -89,7 +89,7 @@ file:
       - keyword: AS
       - naked_identifier: f
     - keyword: USING
-    - table_expression_segment:
+    - table_expression:
       - table_reference:
         - object_reference:
           - naked_identifier: producers
@@ -118,7 +118,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''foo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -129,7 +129,7 @@ file:
       - keyword: AS
       - naked_identifier: f
     - keyword: USING
-    - table_expression_segment:
+    - table_expression:
       - table_reference:
         - object_reference:
           - naked_identifier: producers
@@ -137,7 +137,7 @@ file:
       - keyword: AS
       - naked_identifier: p
     - comma: ','
-    - table_expression_segment:
+    - table_expression:
       - table_reference:
         - object_reference:
           - naked_identifier: actors
@@ -185,7 +185,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''joe cool'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -195,7 +195,7 @@ file:
     - alias_expression:
       - naked_identifier: f
     - keyword: USING
-    - table_expression_segment:
+    - table_expression:
       - table_reference:
         - object_reference:
           - naked_identifier: producers
@@ -223,7 +223,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''foo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -233,14 +233,14 @@ file:
     - alias_expression:
       - naked_identifier: f
     - keyword: USING
-    - table_expression_segment:
+    - table_expression:
       - table_reference:
         - object_reference:
           - naked_identifier: producers
     - alias_expression:
       - naked_identifier: p
     - comma: ','
-    - table_expression_segment:
+    - table_expression:
       - table_reference:
         - object_reference:
           - naked_identifier: actors
@@ -287,7 +287,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''joe cool'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -300,7 +300,7 @@ file:
     - object_reference:
       - naked_identifier: c_tasks
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -317,7 +317,7 @@ file:
           - raw_comparison_operator: '>'
         - quoted_literal: '''Musical'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -335,7 +335,7 @@ file:
     - keyword: RETURNING
     - star: '*'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -355,7 +355,7 @@ file:
       - column_reference:
         - naked_identifier: actor_id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -378,7 +378,7 @@ file:
       - keyword: as
       - naked_identifier: a_id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -400,7 +400,7 @@ file:
     - alias_expression:
       - naked_identifier: a_id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -424,7 +424,7 @@ file:
       - column_reference:
         - naked_identifier: producer_id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -454,7 +454,7 @@ file:
       - keyword: as
       - naked_identifier: p_id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
@@ -482,7 +482,7 @@ file:
     - alias_expression:
       - naked_identifier: p_id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -500,7 +500,7 @@ file:
             - keyword: from
             - from_expression:
               - from_expression_element:
-                - table_expression_segment:
+                - table_expression:
                   - table_reference:
                     - object_reference:
                       - naked_identifier: bar
@@ -512,7 +512,7 @@ file:
         - object_reference:
           - naked_identifier: films
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - keyword: RECURSIVE
@@ -538,7 +538,7 @@ file:
           - set_operator:
             - keyword: UNION
             - keyword: ALL
-          - unordered_select_statement:
+          - select_statement:
             - select_clause:
               - keyword: SELECT
               - select_clause_element:
@@ -551,7 +551,7 @@ file:
               - keyword: FROM
               - from_expression:
                 - from_expression_element:
-                  - table_expression_segment:
+                  - table_expression:
                     - table_reference:
                       - object_reference:
                         - naked_identifier: t

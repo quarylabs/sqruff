@@ -26,9 +26,41 @@ impl Rule for RuleLT04 {
     fn description(&self) -> &'static str {
         "Leading/Trailing comma enforcement."
     }
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+There is a mixture of leading and trailing commas.
+
+```sql
+SELECT
+    a
+    , b,
+    c
+FROM foo
+```
+
+**Best practice**
+
+By default, sqruff prefers trailing commas. However it is configurable for leading commas. The chosen style must be used consistently throughout your SQL.
+
+```sql
+SELECT
+    a,
+    b,
+    c
+FROM foo
+
+-- Alternatively, set the configuration file to 'leading'
+-- and then the following would be acceptable:
+
+SELECT
+    a
+    , b
+    , c
+FROM foo
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -48,6 +80,10 @@ impl Rule for RuleLT04 {
         )
         .rebreak()
         .results()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -82,7 +118,7 @@ SELECT
   , b
 FROM c";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
 
         println!("{fix_str}");
     }

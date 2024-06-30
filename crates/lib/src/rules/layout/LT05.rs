@@ -23,10 +23,6 @@ impl Rule for RuleLT05 {
         .erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.long_lines"
     }
@@ -35,6 +31,38 @@ impl Rule for RuleLT05 {
         "Line is too long."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, the line is too long.
+
+```sql
+SELECT
+    my_function(col1 + col2, arg2, arg3) over (partition by col3, col4 order by col5 rows between unbounded preceding and current row) as my_relatively_long_alias,
+    my_other_function(col6, col7 + col8, arg4) as my_other_relatively_long_alias,
+    my_expression_function(col6, col7 + col8, arg4) = col9 + col10 as another_relatively_long_alias
+FROM my_table
+```
+
+**Best practice**
+
+Wraps the line to be within the maximum line length.
+
+```sql
+SELECT
+    my_function(col1 + col2, arg2, arg3)
+        over (
+            partition by col3, col4
+            order by col5 rows between unbounded preceding and current row
+        )
+        as my_relatively_long_alias,
+    my_other_function(col6, col7 + col8, arg4)
+        as my_other_relatively_long_alias,
+    my_expression_function(col6, col7 + col8, arg4)
+    = col9 + col10 as another_relatively_long_alias
+FROM my_table"#
+    }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut results =
             ReflowSequence::from_root(context.segment.clone(), context.config.unwrap())
@@ -133,6 +161,10 @@ impl Rule for RuleLT05 {
         results
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler.into()
     }
@@ -187,7 +219,7 @@ mod tests {
 
         let mut linter = Linter::new(cfg, None, None);
         linter.lint_string_wrapped(
-            sql.into(),
+            sql,
             None,
             Some(true),
             rules(options.ignore_comment_lines, options.ignore_comment_clauses),

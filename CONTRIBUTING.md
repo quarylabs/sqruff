@@ -27,3 +27,12 @@ cargo publish -p sqruff-lib
 ```bash
 cargo publish -p sqruff
 ```
+
+## Running extension locally in browser
+
+To run the extension locally, install npm in the `editors/code` directory and run the following commands:
+
+```bash
+npm run build:wasm_lsp && npm run compile && npm run run-in-browser
+```
+

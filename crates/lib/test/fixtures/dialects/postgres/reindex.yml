@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - reindex_statement_segment:
     - keyword: REINDEX
     - keyword: INDEX
     - database_reference:
       - naked_identifier: my_index
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reindex_statement_segment:
     - keyword: REINDEX
     - keyword: TABLE
@@ -14,14 +14,14 @@ file:
       - object_reference:
         - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reindex_statement_segment:
     - keyword: REINDEX
     - keyword: DATABASE
     - database_reference:
       - naked_identifier: broken_db
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reindex_statement_segment:
     - keyword: REINDEX
     - keyword: TABLE
@@ -30,7 +30,7 @@ file:
       - object_reference:
         - naked_identifier: my_broken_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reindex_statement_segment:
     - keyword: REINDEX
     - bracketed:
@@ -42,7 +42,7 @@ file:
     - database_reference:
       - naked_identifier: mydb
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reindex_statement_segment:
     - keyword: REINDEX
     - bracketed:

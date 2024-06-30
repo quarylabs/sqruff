@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -12,14 +12,14 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: tbl1
         - join_clause:
           - keyword: join
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl2
@@ -37,7 +37,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -50,7 +50,7 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: tbl1
@@ -58,7 +58,7 @@ file:
           - keyword: join
           - keyword: lateral
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl2
@@ -76,7 +76,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -89,7 +89,7 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: tbl1
@@ -99,7 +99,7 @@ file:
           - keyword: join
           - keyword: lateral
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl2
@@ -120,7 +120,7 @@ file:
           - keyword: cross
           - keyword: join
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl3
@@ -142,7 +142,7 @@ file:
           - keyword: join
           - keyword: lateral
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tbl4

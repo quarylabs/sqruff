@@ -15,10 +15,6 @@ impl Rule for RuleLT07 {
         RuleLT07::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        false
-    }
-
     fn name(&self) -> &'static str {
         "layout.cte_bracket"
     }
@@ -27,6 +23,32 @@ impl Rule for RuleLT07 {
         "'WITH' clause closing bracket should be on a new line."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, the closing bracket is on the same line as CTE.
+
+```sql
+ WITH zoo AS (
+     SELECT a FROM foo)
+
+ SELECT * FROM zoo
+```
+
+**Best practice**
+
+Move the closing bracket on a new line.
+
+```sql
+WITH zoo AS (
+    SELECT a FROM foo
+)
+
+SELECT * FROM zoo
+```
+"#
+    }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segments = FunctionalContext::new(context.clone())
             .segment()
@@ -88,6 +110,10 @@ impl Rule for RuleLT07 {
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        false
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -156,7 +182,7 @@ with cte_1 as (
 select cte_1.foo
 from cte_1";
 
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
         assert_eq!(
             fixed,
             "

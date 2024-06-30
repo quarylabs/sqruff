@@ -1,19 +1,19 @@
 file:
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYZE
     - table_reference:
       - object_reference:
         - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYSE
     - table_reference:
       - object_reference:
         - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYZE
     - keyword: VERBOSE
@@ -21,7 +21,7 @@ file:
       - object_reference:
         - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYZE
     - bracketed:
@@ -34,7 +34,7 @@ file:
       - object_reference:
         - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYZE
     - bracketed:
@@ -49,7 +49,7 @@ file:
       - object_reference:
         - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYZE
     - bracketed:
@@ -63,7 +63,7 @@ file:
       - object_reference:
         - naked_identifier: foo
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYZE
     - keyword: VERBOSE
@@ -79,7 +79,7 @@ file:
         - naked_identifier: bat
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - analyze_statement:
     - keyword: ANALYZE
     - table_reference:

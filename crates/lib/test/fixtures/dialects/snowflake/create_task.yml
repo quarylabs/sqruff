@@ -228,7 +228,7 @@ file:
                         - expression:
                           - column_reference:
                             - naked_identifier: serial
-                      - order_by_clause:
+                      - orderby_clause:
                         - keyword: ORDER
                         - keyword: BY
                         - column_reference:
@@ -347,7 +347,7 @@ file:
                                         - expression:
                                           - column_reference:
                                             - naked_identifier: serial
-                                      - order_by_clause:
+                                      - orderby_clause:
                                         - keyword: ORDER
                                         - keyword: BY
                                         - column_reference:
@@ -380,7 +380,7 @@ file:
                                           - object_reference:
                                             - naked_identifier: derived_table
                               - end_bracket: )
-                    - order_by_clause:
+                    - orderby_clause:
                       - keyword: ORDER
                       - keyword: BY
                       - column_reference:

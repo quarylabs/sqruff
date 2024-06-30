@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -23,7 +23,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -47,7 +47,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -77,7 +77,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -112,7 +112,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -149,7 +149,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -184,7 +184,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: OR
@@ -211,7 +211,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -248,7 +248,7 @@ file:
             - naked_identifier: args
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -274,7 +274,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: OR
@@ -306,7 +306,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: OR
@@ -340,7 +340,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: OR
@@ -369,7 +369,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -409,7 +409,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -434,7 +434,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -465,7 +465,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER
@@ -502,7 +502,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_trigger_statement:
     - keyword: CREATE
     - keyword: TRIGGER

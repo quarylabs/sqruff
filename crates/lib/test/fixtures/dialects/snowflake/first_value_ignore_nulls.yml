@@ -44,7 +44,7 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - window_specification:
-                      - order_by_clause:
+                      - orderby_clause:
                         - keyword: order
                         - keyword: by
                         - column_reference:

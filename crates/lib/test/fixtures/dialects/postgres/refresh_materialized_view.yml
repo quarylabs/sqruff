@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - refresh_materialized_view_statement:
     - keyword: REFRESH
     - keyword: MATERIALIZED
@@ -8,7 +8,7 @@ file:
       - object_reference:
         - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - refresh_materialized_view_statement:
     - keyword: REFRESH
     - keyword: MATERIALIZED
@@ -18,7 +18,7 @@ file:
       - object_reference:
         - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - refresh_materialized_view_statement:
     - keyword: REFRESH
     - keyword: MATERIALIZED
@@ -30,7 +30,7 @@ file:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - refresh_materialized_view_statement:
     - keyword: REFRESH
     - keyword: MATERIALIZED

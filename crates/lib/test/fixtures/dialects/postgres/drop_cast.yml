@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST
@@ -12,7 +12,7 @@ file:
         - keyword: bool
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST
@@ -26,7 +26,7 @@ file:
       - end_bracket: )
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST
@@ -40,7 +40,7 @@ file:
       - end_bracket: )
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST
@@ -53,7 +53,7 @@ file:
         - '': udt_2
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST
@@ -70,7 +70,7 @@ file:
         - '': udt_2
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST
@@ -85,7 +85,7 @@ file:
         - keyword: bool
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST
@@ -101,7 +101,7 @@ file:
       - end_bracket: )
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_cast_statement:
     - keyword: DROP
     - keyword: CAST

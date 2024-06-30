@@ -18,10 +18,6 @@ impl Rule for RuleLT08 {
         RuleLT08::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.cte_newline"
     }
@@ -30,6 +26,32 @@ impl Rule for RuleLT08 {
         "Blank line expected but not found after CTE closing bracket."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+There is no blank line after the CTE closing bracket. In queries with many CTEs, this hinders readability.
+
+```sql
+WITH plop AS (
+    SELECT * FROM foo
+)
+SELECT a FROM plop
+```
+
+**Best practice**
+
+Add a blank line.
+
+```sql
+WITH plop AS (
+    SELECT * FROM foo
+)
+
+SELECT a FROM plop
+```
+"#
+    }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
         let global_comma_style = "trailing";
@@ -171,6 +193,10 @@ impl Rule for RuleLT08 {
         error_buffer
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
     }
@@ -236,7 +262,7 @@ other_cte as (
 
 select * from my_cte cross join other_cte";
 
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
         assert_eq!(
             fixed,
             "
@@ -265,7 +291,7 @@ other_cte as (
 
 select * from my_cte cross join other_cte";
 
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
 
         assert_eq!(
             fixed,
@@ -294,7 +320,7 @@ WITH mycte AS (
 SELECT col
 FROM
   mycte";
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
 
         assert_eq!(
             fixed,
@@ -322,7 +348,7 @@ other_cte as (
     select 1
 )
 select * from my_cte cross join other_cte";
-        let fixed = fix(sql.into(), rules());
+        let fixed = fix(sql, rules());
         assert_eq!(
             fixed,
             "
@@ -349,7 +375,7 @@ with my_cte as (
     select 1
 )
 select * from my_cte cross join other_cte";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         assert_eq!(
             fixed,
@@ -371,7 +397,7 @@ select * from my_cte cross join other_cte"
         let fail_str = "
 with my_cte as (select 1), other_cte as (select 1) select * from my_cte
 cross join other_cte";
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
 
         println!("{fixed}");
     }

@@ -30,8 +30,30 @@ impl Rule for RuleCP05 {
         "Inconsistent capitalisation of datatypes."
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, `int` and `unsigned` are in lower-case whereas `VARCHAR` is in upper-case.
+
+```sql
+CREATE TABLE t (
+    a int unsigned,
+    b VARCHAR(15)
+);
+```
+
+**Best practice**
+
+Ensure all datatypes are consistently upper or lower case
+
+```sql
+CREATE TABLE t (
+    a INT UNSIGNED,
+    b VARCHAR(15)
+);
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -60,6 +82,10 @@ impl Rule for RuleCP05 {
         results
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
             ["data_type_identifier", "primitive_type", "datetime_type_identifier", "data_type"]
@@ -83,7 +109,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id BIGINT);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "upper".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -95,7 +121,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id bigint);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "lower".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -107,7 +133,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id Bigint);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "capitalise".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -119,7 +145,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id bigint);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "lower".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -131,7 +157,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id bigint, column_two varchar(255));";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "lower".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -143,7 +169,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id BIGINT);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "upper".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -155,7 +181,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id BIGINT, column_two VARCHAR(255));";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "upper".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -167,7 +193,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id Bigint);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "capitalise".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -179,7 +205,7 @@ mod tests {
         let fix_str = "CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "upper".into() }.erased()],
         );
         assert_eq!(fix_str, actual);
@@ -193,7 +219,7 @@ mod tests {
             "CREATE TABLE table1 (account_id BIGINT, column_two TIMESTAMP WITH TIME ZONE);";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![RuleCP05 { extended_capitalisation_policy: "upper".into() }.erased()],
         );
         assert_eq!(fix_str, actual);

@@ -1,7 +1,7 @@
 [package]
 name = "sqruff-lib"
 description = "A high-speed SQL linter."
-version = "0.7.0"
+version = "0.7.6"
 edition = "2021"
 license = "Apache-2.0"
 
@@ -45,12 +45,13 @@ slyce = "0.3.1"
 ahash = { version = "0.8.11", features = ["compile-time-rng"] }
 stacker = "0.1.15"
 lazy-regex = "3.1.0"
-anymap = "0.12.1"
+anymap = { package = "anymap3", version = "1.0" }
 rayon = "1.10.0"
 smol_str = "0.2.1"
 serde_yaml = "0.9.33"
 nohash-hasher = "0.2.0"
-rustc-hash = "1.1.0"
+rustc-hash = "2.0.0"
+strum_macros = "0.26.4"
 
 [dev-dependencies]
 criterion = "0.5"

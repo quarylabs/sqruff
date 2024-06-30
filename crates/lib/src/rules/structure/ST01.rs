@@ -23,6 +23,30 @@ impl Rule for RuleST01 {
         "Do not specify 'else null' in a case when statement (redundant)."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, the reference `vee` has not been declared.
+
+```sql
+SELECT
+    vee.a
+FROM foo
+```
+
+**Best practice**
+
+Remove the reference.
+
+```sql
+SELECT
+    a
+FROM foo
+```
+"#
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let anchor = context.segment.clone();
 
@@ -84,7 +108,7 @@ mod tests {
         end
     from x";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -107,7 +131,7 @@ mod tests {
         end
     from x";
 
-        let fixed = fix(fail_str.into(), rules());
+        let fixed = fix(fail_str, rules());
         assert_eq!(fix_str, fixed);
     }
 
@@ -122,7 +146,7 @@ mod tests {
         end
     from x";
 
-        let fixed = fix(pass_str.into(), rules());
+        let fixed = fix(pass_str, rules());
         assert_eq!(pass_str, fixed);
     }
 
@@ -137,7 +161,7 @@ mod tests {
         end
     from x";
 
-        let fixed = fix(pass_str.into(), rules());
+        let fixed = fix(pass_str, rules());
         assert_eq!(pass_str, fixed);
     }
 }

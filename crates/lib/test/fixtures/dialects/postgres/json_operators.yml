@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -25,7 +25,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: mytable
@@ -40,7 +40,7 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '''some_value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -54,7 +54,7 @@ file:
           - binary_operator: ->
           - numeric_literal: '2'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -68,7 +68,7 @@ file:
           - binary_operator: ->
           - quoted_literal: '''a'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -82,7 +82,7 @@ file:
           - binary_operator: ->>
           - numeric_literal: '2'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -96,7 +96,7 @@ file:
           - binary_operator: ->>
           - quoted_literal: '''b'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -110,7 +110,7 @@ file:
           - binary_operator: '#>'
           - quoted_literal: '''{a,b}'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

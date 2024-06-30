@@ -608,7 +608,7 @@ mod tests {
     /// particular string or negative matching (that it explicitly)
     /// doesn't match.
     fn assert_matches(in_string: &str, matcher: &Matcher, match_string: Option<&str>) {
-        let res = matcher.matches(&in_string);
+        let res = matcher.matches(in_string);
         if let Some(match_string) = match_string {
             assert_eq!(res.forward_string, &in_string[match_string.len()..]);
             assert_eq!(res.elements.len(), 1);
@@ -663,7 +663,7 @@ mod tests {
         ];
 
         for (raw, reg, res) in tests {
-            let matcher = Matcher::regex("test", &reg, |_, _| unimplemented!());
+            let matcher = Matcher::regex("test", reg, |_, _| unimplemented!());
 
             assert_matches(raw, &matcher, Some(res));
         }

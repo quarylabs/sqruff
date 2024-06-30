@@ -16,10 +16,6 @@ pub struct RuleCV04 {
 }
 
 impl Rule for RuleCV04 {
-    fn name(&self) -> &'static str {
-        "convention.count_rows"
-    }
-
     fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
         RuleCV04 {
             prefer_count_1: config
@@ -36,12 +32,36 @@ impl Rule for RuleCV04 {
         .erased()
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function"].into()).into()
+    fn name(&self) -> &'static str {
+        "convention.count_rows"
     }
 
     fn description(&self) -> &'static str {
         "Use consistent syntax to express \"count number of rows\"."
+    }
+
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, `count(1)` is used to count the number of rows in a table.
+
+```sql
+select
+    count(1)
+from table_a
+```
+
+**Best practice**
+
+Use count(*) unless specified otherwise by config prefer_count_1, or prefer_count_0 as preferred.
+
+```sql
+select
+    count(*)
+from table_a
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -122,6 +142,10 @@ impl Rule for RuleCV04 {
 
         Vec::new()
     }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["function"].into()).into()
+    }
 }
 
 #[cfg(test)]
@@ -186,7 +210,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(fix_str, actual);
     }
 
@@ -243,7 +267,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules_with_config(true, true));
+        let actual = fix(fail_str, rules_with_config(true, true));
         assert_eq!(fix_str, actual);
     }
 
@@ -266,7 +290,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(fix_str, actual);
     }
 
@@ -289,7 +313,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(fix_str, actual);
     }
 
@@ -312,7 +336,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules_with_config(false, true));
+        let actual = fix(fail_str, rules_with_config(false, true));
         assert_eq!(fix_str, actual);
     }
 
@@ -335,7 +359,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules_with_config(true, false));
+        let actual = fix(fail_str, rules_with_config(true, false));
         assert_eq!(fix_str, actual);
     }
 
@@ -358,7 +382,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules_with_config(false, true));
+        let actual = fix(fail_str, rules_with_config(false, true));
         assert_eq!(fix_str, actual);
     }
 
@@ -381,7 +405,7 @@ mod tests {
                 foo
         "#;
 
-        let actual = fix(fail_str.into(), rules_with_config(true, false));
+        let actual = fix(fail_str, rules_with_config(true, false));
         assert_eq!(fix_str, actual);
     }
 
@@ -412,7 +436,7 @@ mod tests {
               foo
         "#;
 
-        let actual = fix(fail_str.into(), rules_with_config(true, false));
+        let actual = fix(fail_str, rules_with_config(true, false));
         assert_eq!(fix_str, actual);
     }
 

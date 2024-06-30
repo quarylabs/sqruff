@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -32,7 +32,7 @@ file:
                 - end_square_bracket: ']'
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

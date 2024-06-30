@@ -37,8 +37,34 @@ impl Rule for RuleAL05 {
         "Tables should not be aliased if that alias is not used."
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, alias `zoo` is not used.
+
+```sql
+SELECT
+    a
+FROM foo AS zoo
+```
+
+**Best practice**
+
+Use the alias or remove it. An unused alias makes code harder to read without changing any functionality.
+
+```sql
+SELECT
+    zoo.a
+FROM foo AS zoo
+
+-- Alternatively...
+
+SELECT
+    a
+FROM foo
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -70,6 +96,10 @@ impl Rule for RuleAL05 {
         }
 
         violations
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -114,15 +144,15 @@ impl RuleAL05 {
     fn is_alias_required(from_expression_element: &ErasedSegment) -> bool {
         for segment in from_expression_element.iter_segments(Some(&["bracketed"]), false) {
             if segment.is_type("table_expression") {
-                if segment.child(&["values_clause"]).is_some() {
-                    return false;
+                return if segment.child(&["values_clause"]).is_some() {
+                    false
                 } else {
-                    return segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
+                    segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
                         ["select_statement", "set_expression", "with_compound_statement"]
                             .iter()
                             .any(|it| seg.is_type(it))
-                    });
-                }
+                    })
+                };
             }
         }
         false
@@ -168,7 +198,7 @@ mod tests {
         let fail_str = "SELECT * FROM my_tbl AS foo";
         let fix_str = "SELECT * FROM my_tbl";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -177,7 +207,7 @@ mod tests {
         let fail_str = "SELECT * FROM (SELECT * FROM my_tbl AS foo)";
         let fix_str = "SELECT * FROM (SELECT * FROM my_tbl)";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -265,7 +295,7 @@ mod tests {
         let fail_str = "SELECT * FROM my_tbl foo";
         let fix_str = "SELECT * FROM my_tbl";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -274,7 +304,7 @@ mod tests {
         let fail_str = "SELECT * FROM (SELECT * FROM my_tbl foo)";
         let fix_str = "SELECT * FROM (SELECT * FROM my_tbl)";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -413,7 +443,7 @@ mod tests {
             FROM my_table
         "#;
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 

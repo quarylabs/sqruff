@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::time::Instant;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
@@ -24,7 +23,7 @@ use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::{ErasedSegment, SegmentExt};
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
-use crate::core::rules::base::{ErasedRule, LintFix, RulePack};
+use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
 use crate::helpers::ToErasedSegment;
 use crate::rules::get_ruleset;
@@ -57,7 +56,7 @@ impl Linter {
     /// Lint strings directly.
     pub fn lint_string_wrapped(
         &mut self,
-        sql: String,
+        sql: &str,
         f_name: Option<String>,
         fix: Option<bool>,
         rules: Vec<ErasedRule>,
@@ -66,9 +65,8 @@ impl Linter {
 
         let mut linted_path = LintedDir::new(f_name.clone());
         linted_path.add(self.lint_string(
-            Some(sql),
+            sql,
             Some(f_name),
-            fix,
             None,
             None,
             rules,
@@ -85,7 +83,7 @@ impl Linter {
     #[allow(unused_variables)]
     pub fn parse_string(
         &self,
-        in_str: String,
+        in_str: &str,
         f_name: Option<String>,
         encoding: Option<String>,
         parse_statistics: Option<bool>,
@@ -97,7 +95,7 @@ impl Linter {
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
 
         // Scan the raw file for config commands.
-        self.config.process_raw_file_for_config(&in_str);
+        self.config.process_raw_file_for_config(in_str);
         let rendered = self.render_string(in_str, f_name.clone(), &self.config, Some(encoding))?;
 
         for violation in &rendered.templater_violations {
@@ -115,10 +113,9 @@ impl Linter {
     /// Lint a string.
     #[allow(clippy::too_many_arguments)]
     pub fn lint_string(
-        &mut self,
-        in_str: Option<String>,
+        &self,
+        in_str: &str,
         f_name: Option<String>,
-        _fix: Option<bool>,
         config: Option<&FluffConfig>,
         _encoding: Option<String>,
         rules: Vec<ErasedRule>,
@@ -127,8 +124,7 @@ impl Linter {
         // Sort out config, defaulting to the built in config if no override
         let _defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
-        let parsed =
-            self.parse_string(in_str.unwrap_or("".to_string()), f_name, None, None).unwrap();
+        let parsed = self.parse_string(in_str, f_name, None, None).unwrap();
 
         // Lint the file and return the LintedFile
         self.lint_parsed(parsed, rules, fix)
@@ -175,7 +171,7 @@ impl Linter {
 
     pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
-        self.render_string(in_str, fname, &self.config, None).unwrap()
+        self.render_string(&in_str, fname, &self.config, None).unwrap()
     }
 
     pub fn lint_rendered(
@@ -230,7 +226,8 @@ impl Linter {
     ) -> (ErasedSegment, Vec<SQLLintError>) {
         let mut tmp;
         let mut initial_linting_errors = Vec::new();
-        let phases: &[_] = if fix { &["main", "post"] } else { &["main"] };
+        let phases: &[_] =
+            if fix { &[LintPhase::Main, LintPhase::Post] } else { &[LintPhase::Main] };
         let mut previous_versions: AHashSet<(SmolStr, Vec<SourceFix>)> =
             [(tree.raw().to_smolstr(), vec![])].into_iter().collect();
 
@@ -238,12 +235,12 @@ impl Linter {
         // once for linting.
         let loop_limit = if fix { 10 } else { 1 };
 
-        for &phase in phases {
+        for phase in phases {
             let mut rules_this_phase = if phases.len() > 1 {
                 tmp = rules
                     .clone()
                     .into_iter()
-                    .filter(|rule| rule.lint_phase() == phase)
+                    .filter(|rule| rule.lint_phase() == *phase)
                     .collect_vec();
 
                 &tmp
@@ -251,8 +248,8 @@ impl Linter {
                 &rules
             };
 
-            for loop_ in 0..(if phase == "main" { loop_limit } else { 2 }) {
-                let is_first_linter_pass = phase == phases[0] && loop_ == 0;
+            for loop_ in 0..(if *phase == LintPhase::Main { loop_limit } else { 2 }) {
+                let is_first_linter_pass = *phase == phases[0] && loop_ == 0;
                 let mut changed = false;
 
                 if is_first_linter_pass {
@@ -324,41 +321,16 @@ impl Linter {
     /// Template the file.
     pub fn render_string(
         &self,
-        in_str: String,
+        in_str: &str,
         f_name: String,
         config: &FluffConfig,
         encoding: Option<String>,
     ) -> Result<RenderedFile, SQLFluffUserError> {
-        // TODO Implement loggers eventually
-        // let linter_logger = log::logger();
-        // linter_logger.info!("TEMPLATING RAW [{}] ({})", self.templater.name, f_name);
+        let in_str = Self::normalise_newlines(in_str);
 
-        // Start the templating timer
-        let _t0 = Instant::now();
-
-        // Newlines are normalised to unix-style line endings (\n).
-        // The motivation is that Jinja normalises newlines during templating and
-        // we want consistent mapping between the raw and templated slices.
-        let in_str = Self::normalise_newlines(in_str.as_str());
-
-        // Since Linter.__init__() does not require a dialect to be specified,
-        // check for one now. (We're processing a string, not a file, so we're
-        // not going to pick up a .sqlfluff or other config file to provide a
-        // missing dialect at this point.)
         if let Some(error) = config.verify_dialect_specified() {
             return Err(error);
         }
-
-        // TODO Implement linter warning
-        // if config.get("templater_obj") != self.templater {
-        //     linter_logger::warning(format!(
-        //         "Attempt to set templater to {} failed. Using {} templater. Templater
-        // cannot be set in a .sqlfluff file in a subdirectory of the current working
-        // directory. It can be set in a .sqlfluff in the current working directory. See
-        // Nesting section of the docs for more details.",         config.get("
-        // templater_obj").name,         self.templater.name,
-        //     ));
-        // }
 
         #[allow(unused_assignments)]
         let mut templated_file = None;
@@ -380,26 +352,10 @@ impl Linter {
             }
         }
 
-        if templated_file.is_none() {
-            panic!("not implemented");
-            // linter_logger::info(
-            //     "TEMPLATING FAILED: {:?}",
-            //     templater_violations,
-            // );
-        };
-
-        // // Record time
-        // TODO Implement time
-        // let time_dict = [("templating", t0.elapsed().as_secs_f64())]
-        //     .iter()
-        //     .cloned()
-        //     .collect();
-
         Ok(RenderedFile {
             templated_file: templated_file.unwrap(),
             templater_violations,
             config: config.clone(),
-            time_dict: AHashMap::new(),
             f_name: f_name.to_owned(),
             encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
@@ -407,11 +363,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
-
     pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
-        // panic!("Not implemented");
-
-        let t0 = Instant::now();
         let violations = rendered.templater_violations.clone();
         if !violations.is_empty() {
             unimplemented!()
@@ -432,11 +384,6 @@ impl Linter {
             tokens = None;
         };
 
-        let t1 = Instant::now();
-        // TODO Add the logging
-        // let linter_logger = log::logger();
-        // linter_logger.info("PARSING ({})", rendered.fname);
-
         let parsed: Option<ErasedSegment>;
         if let Some(token_list) = tokens {
             let (p, pvs) = Self::parse_tokens(
@@ -451,18 +398,10 @@ impl Linter {
             parsed = None;
         };
 
-        // TODO Time_Dict should be a structure, it should also probably replace f64
-        // with Duration type
-        let mut time_dict = rendered.time_dict.clone();
-        time_dict.insert("lexing", (t1 - t0).as_secs_f64());
-        time_dict.insert("parsing", (Instant::now() - t1).as_secs_f64());
-
         ParsedString {
             tree: parsed,
             violations,
-            time_dict,
             templated_file: rendered.templated_file,
-
             f_name: rendered.f_name,
             source_str: rendered.source_str,
         }
@@ -645,6 +584,10 @@ impl Linter {
         files.sort();
         files
     }
+
+    pub fn config_mut(&mut self) -> &mut FluffConfig {
+        &mut self.config
+    }
 }
 
 fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
@@ -751,7 +694,7 @@ mod tests {
     #[test]
     fn test__linter__empty_file() {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let parsed = linter.parse_string("".into(), None, None, None).unwrap();
+        let parsed = linter.parse_string("", None, None, None).unwrap();
 
         assert!(parsed.violations.is_empty());
     }
@@ -777,7 +720,7 @@ mod tests {
         .to_string();
 
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let _parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let _parsed = linter.parse_string(&sql, None, None, None).unwrap();
     }
 
     #[test]

@@ -22,6 +22,32 @@ impl Rule for RuleAM01 {
         "Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+`DISTINCT` and `GROUP BY are conflicting.
+
+```sql
+SELECT DISTINCT
+    a
+FROM foo
+GROUP BY a
+```
+
+**Best practice**
+
+Remove `DISTINCT` or `GROUP BY`. In our case, removing `GROUP BY` is better.
+
+
+```sql
+SELECT DISTINCT
+    a
+FROM foo
+```
+"#
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context.clone()).segment();
 

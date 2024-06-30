@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -14,7 +14,7 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test_overlaps
@@ -44,7 +44,7 @@ file:
           - quoted_literal: '''2023-03-15'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -59,7 +59,7 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test_overlaps

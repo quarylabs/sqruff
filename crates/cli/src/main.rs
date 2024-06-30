@@ -5,18 +5,16 @@ use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
 
 use crate::commands::{Cli, Commands};
+#[cfg(feature = "codegen-docs")]
+use crate::docs::codegen_docs;
 
 mod commands;
+#[cfg(feature = "codegen-docs")]
+mod docs;
 
 #[cfg(all(feature = "jemalloc", not(target_env = "msvc")))]
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
-
-#[cfg(feature = "codegen-docs")]
-fn codegen_docs() {
-    let markdown: String = clap_markdown::help_markdown::<Cli>();
-    println!("{markdown}");
-}
 
 #[cfg_attr(feature = "codegen-docs", allow(unreachable_code))]
 fn main() {
@@ -88,6 +86,7 @@ fn main() {
 
             linter.formatter.as_mut().unwrap().completion_message();
         }
+        Commands::Lsp => lsp::run(),
     }
 }
 

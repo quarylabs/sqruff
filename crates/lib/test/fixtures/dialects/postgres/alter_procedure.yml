@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_procedure_statement:
     - keyword: ALTER
     - keyword: PROCEDURE
@@ -19,7 +19,7 @@ file:
     - function_name:
       - function_name_identifier: insert_record
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_procedure_statement:
     - keyword: ALTER
     - keyword: PROCEDURE
@@ -38,7 +38,7 @@ file:
     - keyword: TO
     - parameter: joe
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_procedure_statement:
     - keyword: ALTER
     - keyword: PROCEDURE
@@ -57,7 +57,7 @@ file:
     - keyword: TO
     - parameter: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_procedure_statement:
     - keyword: ALTER
     - keyword: PROCEDURE
@@ -78,7 +78,7 @@ file:
       - object_reference:
         - naked_identifier: accounting
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_procedure_statement:
     - keyword: ALTER
     - keyword: PROCEDURE
@@ -99,7 +99,7 @@ file:
     - extension_reference:
       - naked_identifier: myext
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_procedure_statement:
     - keyword: ALTER
     - keyword: PROCEDURE
@@ -119,7 +119,7 @@ file:
     - comma: ','
     - parameter: pg_temp
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_procedure_statement:
     - keyword: ALTER
     - keyword: PROCEDURE

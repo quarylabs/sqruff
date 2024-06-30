@@ -44,12 +44,12 @@ pub fn lint(
     exclude_rules: Option<Vec<String>>,
     config_path: Option<String>,
 ) -> Result<Vec<SQLBaseError>, SQLFluffUserError> {
-    lint_with_formatter(sql, dialect, rules, exclude_rules, config_path, None)
+    lint_with_formatter(&sql, dialect, rules, exclude_rules, config_path, None)
 }
 
 /// Lint a SQL string.
 pub fn lint_with_formatter(
-    sql: String,
+    sql: &str,
     dialect: String,
     rules: Vec<ErasedRule>,
     exclude_rules: Option<Vec<String>>,
@@ -66,7 +66,7 @@ pub fn lint_with_formatter(
     Ok(take(&mut result.paths[0].files[0].violations))
 }
 
-pub fn fix(sql: String, rules: Vec<ErasedRule>) -> String {
+pub fn fix(sql: &str, rules: Vec<ErasedRule>) -> String {
     let cfg = get_simple_config(Some("ansi".into()), None, None, None).unwrap();
     let mut linter = Linter::new(cfg, None, None);
     let result = linter.lint_string_wrapped(sql, None, Some(true), rules);

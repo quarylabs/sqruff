@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
@@ -8,30 +8,7 @@ file:
       - object_reference:
         - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
-  - drop_materialized_view_statement:
-    - keyword: DROP
-    - keyword: MATERIALIZED
-    - keyword: VIEW
-    - table_reference:
-      - object_reference:
-        - naked_identifier: foo
-    - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: bar
-- statement_terminator: ;
-- statement_segment:
-  - drop_materialized_view_statement:
-    - keyword: DROP
-    - keyword: MATERIALIZED
-    - keyword: VIEW
-    - table_reference:
-      - object_reference:
-        - naked_identifier: bar
-    - keyword: CASCADE
-- statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
@@ -43,9 +20,32 @@ file:
     - table_reference:
       - object_reference:
         - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
+  - drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: foo
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bar
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
@@ -55,7 +55,7 @@ file:
         - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
@@ -69,7 +69,7 @@ file:
         - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
@@ -80,34 +80,7 @@ file:
       - object_reference:
         - naked_identifier: bar
 - statement_terminator: ;
-- statement_segment:
-  - drop_materialized_view_statement:
-    - keyword: DROP
-    - keyword: MATERIALIZED
-    - keyword: VIEW
-    - keyword: IF
-    - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: foo
-    - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: bar
-- statement_terminator: ;
-- statement_segment:
-  - drop_materialized_view_statement:
-    - keyword: DROP
-    - keyword: MATERIALIZED
-    - keyword: VIEW
-    - keyword: IF
-    - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: bar
-    - keyword: CASCADE
-- statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
@@ -121,9 +94,36 @@ file:
     - table_reference:
       - object_reference:
         - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
+  - drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: foo
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: bar
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
@@ -135,7 +135,7 @@ file:
         - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED

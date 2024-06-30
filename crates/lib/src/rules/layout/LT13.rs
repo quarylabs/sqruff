@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
@@ -15,20 +15,68 @@ impl Rule for RuleLT13 {
         unimplemented!()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn lint_phase(&self) -> LintPhase {
+        LintPhase::Post
     }
 
     fn name(&self) -> &'static str {
         "layout.start_of_file"
     }
 
-    fn lint_phase(&self) -> &'static str {
-        "post"
-    }
-
     fn description(&self) -> &'static str {
         "Files must not begin with newlines or whitespace."
+    }
+
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+The file begins with newlines or whitespace. The ^ represents the beginning of the file.
+
+```sql
+ ^
+
+ SELECT
+     a
+ FROM foo
+
+ -- Beginning on an indented line is also forbidden,
+ -- (the • represents space).
+
+ ••••SELECT
+ ••••a
+ FROM
+ ••••foo
+```
+
+**Best practice**
+
+Start file on either code or comment. (The ^ represents the beginning of the file.)
+
+```sql
+ ^SELECT
+     a
+ FROM foo
+
+ -- Including an initial block comment.
+
+ ^/*
+ This is a description of my SQL code.
+ */
+ SELECT
+     a
+ FROM
+     foo
+
+ -- Including an initial inline comment.
+
+ ^--This is a description of my SQL code.
+ SELECT
+     a
+ FROM
+     foo
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -61,6 +109,10 @@ impl Rule for RuleLT13 {
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -156,39 +208,38 @@ mod tests {
 
     #[test]
     fn test_fail_leading_whitespace_statement() {
-        let fixed = fix("\n  SELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  SELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "SELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_comment() {
-        let fixed = fix("\n  /*I am a comment*/\nSELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  /*I am a comment*/\nSELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "/*I am a comment*/\nSELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_inline_comment() {
-        let fixed = fix("\n  --I am a comment\nSELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  --I am a comment\nSELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "--I am a comment\nSELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_jinja_comment() {
-        let fixed = fix("\n  {# I am a comment #}\nSELECT foo FROM bar\n".into(), rules());
+        let fixed = fix("\n  {# I am a comment #}\nSELECT foo FROM bar\n", rules());
         assert_eq!(fixed, "{# I am a comment #}\nSELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_jinja_if() {
-        let fixed = fix("\n  {% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n".into(), rules());
+        let fixed = fix("\n  {% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n", rules());
         assert_eq!(fixed, "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n");
     }
 
     #[test]
     fn test_fail_leading_whitespace_jinja_for() {
         let fixed = fix(
-            "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
-                .into(),
+            "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n",
             rules(),
         );
         assert_eq!(

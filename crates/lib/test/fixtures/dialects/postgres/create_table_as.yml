@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TEMP
@@ -20,13 +20,13 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: t2
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TEMP
@@ -45,12 +45,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TEMPORARY
@@ -69,12 +69,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -94,13 +94,13 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: t2
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -118,12 +118,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -144,12 +144,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -171,12 +171,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -198,12 +198,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -224,12 +224,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -249,7 +249,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: t2
@@ -259,7 +259,7 @@ file:
       - keyword: NO
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -277,7 +277,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
@@ -286,7 +286,7 @@ file:
       - keyword: NO
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -306,7 +306,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - naked_identifier: t2
@@ -315,7 +315,7 @@ file:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -333,7 +333,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
@@ -341,7 +341,7 @@ file:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: UNLOGGED
@@ -360,12 +360,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: GLOBAL
@@ -385,12 +385,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: LOCAL
@@ -410,12 +410,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -435,12 +435,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -460,12 +460,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -510,7 +510,7 @@ file:
           - quoted_literal: '''val6'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -523,7 +523,7 @@ file:
       - object_reference:
         - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -539,7 +539,7 @@ file:
         - start_bracket: (
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -560,12 +560,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -591,12 +591,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: create
     - keyword: temp
@@ -641,12 +641,12 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: tablename
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_table_as_statement:
     - keyword: create
     - keyword: temp
@@ -686,7 +686,7 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: schema

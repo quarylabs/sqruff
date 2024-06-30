@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
@@ -48,12 +48,12 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: t
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -67,7 +67,7 @@ file:
         - from_expression_element:
           - bracketed:
             - start_bracket: (
-            - table_expression_segment:
+            - table_expression:
               - values_clause:
                 - keyword: VALUES
                 - bracketed:
@@ -85,7 +85,7 @@ file:
                 - naked_identifier: c1
               - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -99,7 +99,7 @@ file:
         - from_expression_element:
           - bracketed:
             - start_bracket: (
-            - table_expression_segment:
+            - table_expression:
               - values_clause:
                 - keyword: VALUES
                 - bracketed:

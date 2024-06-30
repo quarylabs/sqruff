@@ -1,0 +1,63 @@
+{
+  "name": "sqruff",
+  "displayName": "sqruff",
+  "description": "sqruff is a SQL linter and formatter.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quarylabs/sqruff.git"
+  },
+  "publisher": "Quary",
+  "version": "0.7.6",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Linters",
+    "Formatters"
+  ],
+  "activationEvents": [
+    "onLanguage:sql"
+  ],
+  "main": "./dist/native.js",
+  "browser": "./dist/browser.js",
+  "scripts": {
+    "vscode:prepublish": "npm run lint && npm run build:wasm_lsp-release && npm run check-types && node esbuild.js --production",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "vsce package",
+    "build:wasm_lsp": "env-var wasm-pack build --dev --target web ../../crates/lsp --out-dir {{npm_config_local_prefix}}/dist",
+    "build:wasm_lsp-release": "env-var wasm-pack build --release --target web ../../crates/lsp --out-dir {{npm_config_local_prefix}}/dist",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src --ext ts --max-warnings 0",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "test": "vscode-test",
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../../crates/lib/test/fixtures/dialects/ansi"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1"
+  },
+  "devDependencies": {
+    "@rauschma/env-var": "^1.0.1",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.90.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0",
+    "@vscode/test-web": "^0.0.54",
+    "@vscode/vsce": "^2.29.0",
+    "esbuild": "^0.21.4",
+    "eslint": "^8.57.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.0.0",
+    "typescript": "^5.5.2"
+  }
+}

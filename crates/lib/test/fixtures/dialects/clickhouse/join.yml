@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -37,7 +37,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -75,7 +75,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -112,7 +112,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -150,7 +150,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -189,7 +189,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -228,7 +228,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -267,7 +267,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -306,7 +306,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -344,7 +344,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -384,7 +384,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -417,7 +417,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -450,7 +450,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -483,7 +483,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -516,7 +516,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -556,7 +556,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -589,7 +589,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -622,7 +622,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -655,7 +655,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -691,7 +691,7 @@ file:
             - naked_identifier: ty2
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -724,7 +724,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -758,7 +758,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -799,7 +799,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -833,7 +833,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -867,7 +867,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -901,7 +901,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -935,7 +935,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -973,7 +973,7 @@ file:
                 - dot: .
                 - naked_identifier: ty1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1013,7 +1013,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1046,7 +1046,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1079,7 +1079,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1112,7 +1112,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -1152,7 +1152,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1185,7 +1185,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1218,7 +1218,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1251,7 +1251,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1284,7 +1284,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1318,7 +1318,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1352,7 +1352,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1386,7 +1386,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1420,7 +1420,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -1460,7 +1460,7 @@ file:
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1485,7 +1485,7 @@ file:
                 - object_reference:
                   - naked_identifier: test2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1518,7 +1518,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1550,7 +1550,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1584,7 +1584,7 @@ file:
           - comma: ','
           - naked_identifier: ty2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1626,7 +1626,7 @@ file:
               - keyword: AS
               - naked_identifier: col
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1668,7 +1668,7 @@ file:
               - keyword: AS
               - naked_identifier: col
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1707,7 +1707,7 @@ file:
             - column_reference:
               - naked_identifier: arr
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1747,7 +1747,7 @@ file:
             - column_reference:
               - naked_identifier: arr
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1801,7 +1801,7 @@ file:
             - column_reference:
               - naked_identifier: arr2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1864,7 +1864,7 @@ file:
               - keyword: AS
               - naked_identifier: y
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -1923,7 +1923,7 @@ file:
               - keyword: as
               - naked_identifier: ch
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

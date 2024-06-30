@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -45,8 +45,8 @@ impl Rule for RuleLT12 {
         RuleLT12::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn lint_phase(&self) -> LintPhase {
+        LintPhase::Post
     }
 
     fn name(&self) -> &'static str {
@@ -56,9 +56,72 @@ impl Rule for RuleLT12 {
     fn description(&self) -> &'static str {
         "Files must end with a single trailing newline."
     }
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
 
-    fn lint_phase(&self) -> &'static str {
-        "post"
+The content in file does not end with a single trailing newline. The $ represents end of file.
+
+```sql
+ SELECT
+     a
+ FROM foo$
+
+ -- Ending on an indented line means there is no newline
+ -- at the end of the file, the • represents space.
+
+ SELECT
+ ••••a
+ FROM
+ ••••foo
+ ••••$
+
+ -- Ending on a semi-colon means the last line is not a
+ -- newline.
+
+ SELECT
+     a
+ FROM foo
+ ;$
+
+ -- Ending with multiple newlines.
+
+ SELECT
+     a
+ FROM foo
+
+ $
+```
+
+**Best practice**
+
+Add trailing newline to the end. The $ character represents end of file.
+
+```sql
+ SELECT
+     a
+ FROM foo
+ $
+
+ -- Ensuring the last line is not indented so is just a
+ -- newline.
+
+ SELECT
+ ••••a
+ FROM
+ ••••foo
+ $
+
+ -- Even when ending on a semi-colon, ensure there is a
+ -- newline after.
+
+ SELECT
+     a
+ FROM foo
+ ;
+ $
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -101,6 +164,10 @@ impl Rule for RuleLT12 {
         }
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler.into()
     }
@@ -125,13 +192,13 @@ mod tests {
 
     #[test]
     fn test_fail_no_final_newline() {
-        let fixed = fix("SELECT foo FROM bar".into(), rules());
+        let fixed = fix("SELECT foo FROM bar", rules());
         assert_eq!(fixed, "SELECT foo FROM bar\n");
     }
 
     #[test]
     fn test_fail_multiple_final_newlines() {
-        let fixed = fix("SELECT foo FROM bar\n\n".into(), rules());
+        let fixed = fix("SELECT foo FROM bar\n\n", rules());
         assert_eq!(fixed, "SELECT foo FROM bar\n");
     }
 
@@ -143,13 +210,13 @@ mod tests {
 
     #[test]
     fn test_fail_templated_plus_raw_newlines() {
-        let fixed = fix("{{ '\n\n' }}".into(), rules());
+        let fixed = fix("{{ '\n\n' }}", rules());
         assert_eq!(fixed, "{{ '\n\n' }}\n");
     }
 
     #[test]
     fn test_fail_templated_plus_raw_newlines_extra_newline() {
-        let fixed = fix("{{ '\n\n' }}\n\n".into(), rules());
+        let fixed = fix("{{ '\n\n' }}\n\n", rules());
         assert_eq!(fixed, "{{ '\n\n' }}\n");
     }
 
@@ -164,7 +231,7 @@ mod tests {
 
     #[test]
     fn test_fail_templated_no_newline() {
-        let fixed = fix("{% if true %}\nSELECT 1 + 1\n{%- endif %}".into(), rules());
+        let fixed = fix("{% if true %}\nSELECT 1 + 1\n{%- endif %}", rules());
         assert_eq!(fixed, "{% if true %}\nSELECT 1 + 1\n{%- endif %}\n");
     }
 }

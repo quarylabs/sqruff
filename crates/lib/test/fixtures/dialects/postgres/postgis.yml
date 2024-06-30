@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE

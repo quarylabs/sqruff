@@ -184,7 +184,6 @@ impl Rule for RuleAL07 {
     fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
         RuleAL07 { force_enable: config["force_enable"].as_bool().unwrap() }.erased()
     }
-
     fn name(&self) -> &'static str {
         "aliasing.forbid"
     }
@@ -193,8 +192,42 @@ impl Rule for RuleAL07 {
         "Avoid table aliases in from clauses and join conditions."
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, alias o is used for the orders table, and c is used for customers table.
+
+```sql
+SELECT
+    COUNT(o.customer_id) as order_amount,
+    c.name
+FROM orders as o
+JOIN customers as c on o.id = c.user_id
+```
+
+**Best practice**
+
+Avoid aliases.
+
+```sql
+SELECT
+    COUNT(orders.customer_id) as order_amount,
+    customers.name
+FROM orders
+JOIN customers on orders.id = customers.user_id
+
+-- Self-join will not raise issue
+
+SELECT
+    table1.a,
+    table_alias.b,
+FROM
+    table1
+    LEFT JOIN table1 AS table_alias ON
+        table1.foreign_key = table_alias.foreign_key
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -246,6 +279,10 @@ impl Rule for RuleAL07 {
         )
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_statement"].into()).into()
     }
@@ -288,7 +325,7 @@ FROM users
 JOIN customers on users.id = customers.user_id
 JOIN orders on users.id = orders.user_id;";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -316,7 +353,7 @@ JOIN customers on users.id = customers.user_id
 JOIN orders on users.id = orders.user_id
 order by orders.user_id desc;";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -344,7 +381,7 @@ JOIN customers on users.id = customers.user_id
 JOIN orders on users.id = orders.user_id
 order by o desc;"; // In the fix string, 'o' is intentionally left unchanged assuming it's now clear or a different issue
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -353,7 +390,7 @@ order by o desc;"; // In the fix string, 'o' is intentionally left unchanged ass
         let fail_str = "select b from tbl as a";
         let fix_str = "select b from tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -362,7 +399,7 @@ order by o desc;"; // In the fix string, 'o' is intentionally left unchanged ass
         let fail_str = "select * from tbl as a";
         let fix_str = "select * from tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -370,7 +407,7 @@ order by o desc;"; // In the fix string, 'o' is intentionally left unchanged ass
     fn test_select_from_values() {
         let pass_str = "select *\nfrom values(1, 2, 3)";
 
-        let actual = fix(pass_str.into(), rules());
+        let actual = fix(pass_str, rules());
         assert_eq!(actual, pass_str);
     }
 
@@ -406,7 +443,7 @@ from
         let pass_str = "SELECT aaaaaa.c\nFROM aaaaaa\nJOIN bbbbbb AS b ON b.a = aaaaaa.id\nJOIN \
                         bbbbbb AS b2 ON b2.other = b.id";
 
-        let actual = fix(pass_str.into(), rules());
+        let actual = fix(pass_str, rules());
         assert_eq!(actual, pass_str);
     }
 
@@ -417,7 +454,7 @@ from
                         t2,\n(select * from data\nwhere repl=t2.m and\nrnd>=t1.v\norder by \
                         rnd\nlimit 1)";
 
-        let actual = fix(pass_str.into(), rules());
+        let actual = fix(pass_str, rules());
         assert_eq!(actual, pass_str);
     }
 
@@ -452,7 +489,7 @@ from
                        JOIN customers on users.id = customers.user_id JOIN orders\non users.id = \
                        orders.user_id;";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 }

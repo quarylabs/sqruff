@@ -7,13 +7,13 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::parser::segments::base::{
-    CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, Segment, SymbolSegment,
+    CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, SymbolSegment,
 };
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::{Node, ObjectReferenceSegment};
-use crate::helpers::{capitalize, ToErasedSegment};
+use crate::dialects::ansi::ObjectReferenceSegment;
+use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
 
 #[derive(Debug, Clone)]
@@ -100,7 +100,7 @@ fn iter_available_targets(query: Query<()>) -> Vec<SmolStr> {
 fn check_references(
     table_aliases: Vec<AliasInfo>,
     standalone_aliases: Vec<SmolStr>,
-    references: Vec<Node<ObjectReferenceSegment>>,
+    references: Vec<ObjectReferenceSegment>,
     col_aliases: Vec<ColumnAliasInfo>,
     single_table_references: &str,
     is_struct_dialect: bool,
@@ -165,7 +165,7 @@ fn check_references(
 #[allow(clippy::too_many_arguments)]
 fn validate_one_reference(
     single_table_references: &str,
-    ref_: Node<ObjectReferenceSegment>,
+    ref_: ObjectReferenceSegment,
     this_ref_type: &str,
     standalone_aliases: &[SmolStr],
     table_ref_str: &str,
@@ -174,11 +174,11 @@ fn validate_one_reference(
     seen_ref_types: &AHashSet<&str>,
     fixable: bool,
 ) -> Option<LintResult> {
-    if !ref_.is_qualified() && ref_.is_type("wildcard_identifier") {
+    if !ref_.is_qualified() && ref_.0.is_type("wildcard_identifier") {
         return None;
     }
 
-    if standalone_aliases.contains(&ref_.raw().into()) {
+    if standalone_aliases.contains(&ref_.0.raw().into()) {
         return None;
     }
 
@@ -186,21 +186,21 @@ fn validate_one_reference(
         return None;
     }
 
-    if col_alias_names.contains(&ref_.raw().into()) {
+    if col_alias_names.contains(&ref_.0.raw().into()) {
         return None;
     }
 
     if single_table_references == "consistent" {
         return if !seen_ref_types.is_empty() && !seen_ref_types.contains(this_ref_type) {
             LintResult::new(
-                ref_.clone().to_erased_segment().into(),
+                ref_.clone().0.into(),
                 Vec::new(),
                 None,
                 format!(
                     "{} reference '{}' found in single table select which is inconsistent with \
                      previous references.",
                     capitalize(this_ref_type),
-                    ref_.raw()
+                    ref_.0.raw()
                 )
                 .into(),
                 None,
@@ -217,19 +217,19 @@ fn validate_one_reference(
 
     if single_table_references == "unqualified" {
         let fixes = if fixable {
-            ref_.segments.iter().take(2).cloned().map(LintFix::delete).collect::<Vec<_>>()
+            ref_.0.segments().iter().take(2).cloned().map(LintFix::delete).collect::<Vec<_>>()
         } else {
             Vec::new()
         };
 
         return LintResult::new(
-            ref_.clone().to_erased_segment().into(),
+            ref_.0.clone().into(),
             fixes,
             None,
             format!(
                 "{} reference '{}' found in single table select.",
                 capitalize(this_ref_type),
-                ref_.raw()
+                ref_.0.raw()
             )
             .into(),
             None,
@@ -237,7 +237,7 @@ fn validate_one_reference(
         .into();
     }
 
-    let ref_ = ref_.to_erased_segment();
+    let ref_ = ref_.0.clone();
     let fixes = if fixable {
         vec![LintFix::create_before(
             if !ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
@@ -285,8 +285,37 @@ impl Rule for RuleRF03 {
         "References should be consistent in statements with a single table."
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, only the field b is referenced.
+
+```sql
+SELECT
+    a,
+    foo.b
+FROM foo
+```
+
+**Best practice**
+
+Add or remove references to all fields.
+
+```sql
+SELECT
+    a,
+    b
+FROM foo
+
+-- Also good
+
+SELECT
+    foo.a,
+    foo.b
+FROM foo
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -300,6 +329,10 @@ impl Rule for RuleRF03 {
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
 
         self.visit_queries(query, &mut visited)
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -334,7 +367,7 @@ mod tests {
         let fail_str = "SELECT my_tbl.bar, baz FROM my_tbl";
         let fix_str = "SELECT my_tbl.bar, my_tbl.baz FROM my_tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -374,7 +407,7 @@ mod tests {
         let fail_str = "SELECT * FROM (SELECT my_tbl.bar, baz FROM my_tbl)";
         let fix_str = "SELECT * FROM (SELECT my_tbl.bar, my_tbl.baz FROM my_tbl)";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -427,7 +460,7 @@ mod tests {
         let fail_str = "SELECT my_tbl.bar FROM my_tbl";
         let fix_str = "SELECT bar FROM my_tbl";
 
-        let actual = fix(fail_str.into(), rules_unqualified());
+        let actual = fix(fail_str, rules_unqualified());
         assert_eq!(actual, fix_str);
     }
 
@@ -436,7 +469,7 @@ mod tests {
         let fail_str = "SELECT bar FROM my_tbl WHERE foo";
         let fix_str = "SELECT my_tbl.bar FROM my_tbl WHERE my_tbl.foo";
 
-        let actual = fix(fail_str.into(), rules_qualified());
+        let actual = fix(fail_str, rules_qualified());
         assert_eq!(actual, fix_str);
     }
 
@@ -453,7 +486,7 @@ mod tests {
         let fail_str = "SELECT a.bar, b FROM my_tbl";
         let fix_str = "SELECT a.bar, my_tbl.b FROM my_tbl";
 
-        let actual = fix(fail_str.into(), rules());
+        let actual = fix(fail_str, rules());
         assert_eq!(actual, fix_str);
     }
 
@@ -473,7 +506,7 @@ mod tests {
             "select t.col0, t.col1 + 1 as alias_col1 from table1 as t where alias_col1 > 5";
         let fix_str = "select col0, col1 + 1 as alias_col1 from table1 as t where alias_col1 > 5";
 
-        let actual = fix(fail_str.into(), rules_unqualified());
+        let actual = fix(fail_str, rules_unqualified());
         assert_eq!(actual, fix_str);
     }
 

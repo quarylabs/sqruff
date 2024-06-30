@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -24,7 +24,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: SQL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -49,7 +49,7 @@ file:
         - keyword: LANGUAGE
         - quoted_identifier: '''sql'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: OR
@@ -80,7 +80,7 @@ file:
         - naked_identifier: plpgsql
       - keyword: VOLATILE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: OR
@@ -129,7 +129,7 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '3'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: OR
@@ -182,7 +182,7 @@ file:
         - parameter: isStrict
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: OR
@@ -216,7 +216,7 @@ file:
       - keyword: SUPPORT
       - parameter: my_function
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -247,7 +247,7 @@ file:
       - keyword: 'NULL'
       - keyword: INPUT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: OR
@@ -277,7 +277,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: plpgsql
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -307,7 +307,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: SQL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -319,7 +319,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - function:
               - function_name:
                 - function_name_identifier: dup
@@ -329,7 +329,7 @@ file:
                   - numeric_literal: '42'
                 - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
@@ -345,7 +345,7 @@ file:
       - word: text
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -367,7 +367,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: SQL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -379,7 +379,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - function:
               - function_name:
                 - function_name_identifier: dup
@@ -389,7 +389,7 @@ file:
                   - numeric_literal: '42'
                 - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -422,7 +422,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: SQL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -455,7 +455,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: SQL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -467,7 +467,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - function:
               - function_name:
                 - function_name_identifier: dup
@@ -477,7 +477,7 @@ file:
                   - numeric_literal: '42'
                 - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -523,11 +523,11 @@ file:
       - comma: ','
       - parameter: pg_temp
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - transaction_statement:
     - keyword: BEGIN
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -566,7 +566,7 @@ file:
       - keyword: SECURITY
       - keyword: DEFINER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: REVOKE
     - keyword: ALL
@@ -589,7 +589,7 @@ file:
     - object_reference:
       - naked_identifier: PUBLIC
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
@@ -612,11 +612,11 @@ file:
     - role_reference:
       - naked_identifier: admins
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - transaction_statement:
     - keyword: COMMIT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: OR
@@ -646,7 +646,7 @@ file:
           select unnest(array['hi', 'test'])
           $function$
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: OR
@@ -683,7 +683,7 @@ file:
       - keyword: PARALLEL
       - keyword: SAFE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -708,7 +708,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: SQL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -733,7 +733,7 @@ file:
         - keyword: LANGUAGE
         - naked_identifier: SQL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: create
     - keyword: function
@@ -764,7 +764,7 @@ file:
             end;
           $$
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: create
     - keyword: function

@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - bracketed:
@@ -50,7 +50,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - bracketed:
@@ -101,7 +101,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - bracketed:
@@ -143,7 +143,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - keyword: analyze
@@ -154,7 +154,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - keyword: analyse
@@ -165,7 +165,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - keyword: analyze
@@ -175,7 +175,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - keyword: analyse
@@ -185,7 +185,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - bracketed:
@@ -200,7 +200,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - bracketed:
@@ -215,7 +215,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - explain_statement:
     - keyword: explain
     - bracketed:

@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
@@ -7,7 +7,7 @@ file:
       - object_reference:
         - naked_identifier: asdf
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
@@ -18,7 +18,7 @@ file:
       - object_reference:
         - naked_identifier: asdf
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
@@ -29,7 +29,7 @@ file:
     - role_reference:
       - naked_identifier: bob
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
@@ -37,7 +37,7 @@ file:
     - role_reference:
       - naked_identifier: bob
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA
@@ -51,7 +51,7 @@ file:
     - role_reference:
       - naked_identifier: bob
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_schema_statement:
     - keyword: CREATE
     - keyword: SCHEMA

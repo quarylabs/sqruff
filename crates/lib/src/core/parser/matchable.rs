@@ -8,8 +8,8 @@ use dyn_ord::DynEq;
 
 use super::context::ParseContext;
 use super::grammar::base::Ref;
-use super::match_result::{MatchResult, Matched, SyntaxKind};
-use super::segments::base::{ErasedSegment, Segment};
+use super::match_result::MatchResult;
+use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
 
 pub trait AsAnyMut {
@@ -22,14 +22,18 @@ impl<T: Any> AsAnyMut for T {
     }
 }
 
-pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
-    fn kind(&self) -> Option<SyntaxKind> {
-        todo!("{}", std::any::type_name::<Self>())
-    }
-
+pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn get_type(&self) -> &'static str {
+        todo!()
+    }
+
+    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+        None
     }
 
     fn hack_eq(&self, rhs: &Arc<dyn Matchable>) -> bool {
@@ -73,7 +77,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
             return Ok(MatchResult::empty_at(idx));
         }
 
-        if segments[idx as usize].type_name() == self.type_name() {
+        if segments[idx as usize].get_type() == self.get_type() {
             return Ok(MatchResult::from_span(idx, idx + 1));
         }
 
@@ -81,16 +85,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
         let match_result = parse_context
             .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
 
-        Ok(match_result.wrap(match self.kind() {
-            Some(kind) => {
-                if matches!(kind, SyntaxKind::Skip) {
-                    Matched::ErasedSegment(self.clone_box())
-                } else {
-                    Matched::SyntaxKind(kind)
-                }
-            }
-            None => Matched::ErasedSegment(self.clone_box()),
-        }))
+        Ok(todo!())
     }
 
     // A method to generate a unique cache key for the matchable object.
@@ -110,7 +105,7 @@ pub trait Matchable: Any + Segment + DynClone + Debug + DynEq + AsAnyMut {
         _terminators: Vec<Arc<dyn Matchable>>,
         _replace_terminators: bool,
     ) -> Arc<dyn Matchable> {
-        unimplemented!()
+        unimplemented!("{}", std::any::type_name::<Self>())
     }
 }
 

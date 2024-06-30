@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -13,7 +13,7 @@ file:
           - object_reference:
             - naked_identifier: def
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -34,7 +34,7 @@ file:
           - object_reference:
             - naked_identifier: ghi
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -69,7 +69,7 @@ file:
               - naked_identifier: mno
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -102,7 +102,7 @@ file:
       - comma: ','
       - keyword: CURRENT_SCHEMA
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -125,7 +125,7 @@ file:
           - boolean_literal: 'TRUE'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -136,7 +136,7 @@ file:
     - role_reference:
       - naked_identifier: bob
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -146,7 +146,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_ROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -156,7 +156,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -166,7 +166,7 @@ file:
     - keyword: TO
     - keyword: SESSION_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -177,7 +177,7 @@ file:
     - publication_reference:
       - naked_identifier: def
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -194,7 +194,7 @@ file:
           - quoted_literal: '''update, delete'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -221,7 +221,7 @@ file:
           - object_reference:
             - naked_identifier: departments
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -253,7 +253,7 @@ file:
           - object_reference:
             - naked_identifier: departments
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION
@@ -272,7 +272,7 @@ file:
         - object_reference:
           - naked_identifier: sales
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_publication_statement:
     - keyword: ALTER
     - keyword: PUBLICATION

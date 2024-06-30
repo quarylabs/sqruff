@@ -37,10 +37,6 @@ impl Rule for RuleCP03 {
         .erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "capitalisation.functions"
     }
@@ -49,8 +45,39 @@ impl Rule for RuleCP03 {
         "Inconsistent capitalisation of function names."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, the two `SUM` functions don’t have the same capitalisation.
+
+```sql
+SELECT
+    sum(a) AS aa,
+    SUM(b) AS bb
+FROM foo
+```
+
+**Best practice**
+
+Make the case consistent.
+
+
+```sql
+SELECT
+    sum(a) AS aa,
+    sum(b) AS bb
+FROM foo
+```
+"#
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         self.base.eval(context)
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -72,7 +99,7 @@ mod tests {
         let fail_str = "SELECT MAX(id), min(id) from table;";
         let fix_str = "SELECT MAX(id), MIN(id) from table;";
 
-        let actual = fix(fail_str.into(), vec![RuleCP03::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP03::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 
@@ -82,7 +109,7 @@ mod tests {
         let fix_str = "SELECT max(id), min(id) from table;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![
                 RuleCP03 {
                     base: RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() },
@@ -100,7 +127,7 @@ mod tests {
         let fix_str = "SELECT Current_Timestamp, Min(a) from table;";
 
         let actual = fix(
-            fail_str.into(),
+            fail_str,
             vec![
                 RuleCP03 {
                     base: RuleCP01 { capitalisation_policy: "pascal".into(), ..Default::default() },
@@ -117,7 +144,7 @@ mod tests {
         let fail_str = "SELECT FLOOR(dt) ,count(*) FROM test;";
         let fix_str = "SELECT FLOOR(dt) ,COUNT(*) FROM test;";
 
-        let actual = fix(fail_str.into(), vec![RuleCP03::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP03::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 
@@ -125,7 +152,7 @@ mod tests {
     fn test_pass_fully_qualified_function_mixed_functions() {
         let pass_str = "SELECT COUNT(*), project1.foo(value1) AS value2;";
 
-        let actual = fix(pass_str.into(), vec![RuleCP03::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP03::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 
@@ -133,7 +160,7 @@ mod tests {
     fn test_pass_fully_qualified_function_pascal_case() {
         let pass_str = "SELECT project1.FoO(value1) AS value2";
 
-        let actual = fix(pass_str.into(), vec![RuleCP03::default().erased()]);
+        let actual = fix(pass_str, vec![RuleCP03::default().erased()]);
         assert_eq!(pass_str, actual);
     }
 }

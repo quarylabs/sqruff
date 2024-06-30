@@ -8,6 +8,10 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleAL09 {}
 
 impl Rule for RuleAL09 {
+    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
+        RuleAL09::default().erased()
+    }
+
     fn name(&self) -> &'static str {
         "aliasing.self_alias.column"
     }
@@ -16,8 +20,28 @@ impl Rule for RuleAL09 {
         "Find self-aliased columns and fix them"
     }
 
-    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        RuleAL09::default().erased()
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+Aliasing the column to itself.
+
+```sql
+SELECT
+    col AS col
+FROM table;
+```
+
+**Best practice**
+
+Not to use alias to rename the column to its original name. Self-aliasing leads to redundant code without changing any functionality.
+
+```sql
+SELECT
+    col
+FROM table;
+```
+"#
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -126,7 +150,7 @@ mod tests {
         let fail_str = "select col_a as col_a, col_b as new_col_b from foo";
         let fix_str = "select col_a, col_b as new_col_b from foo";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -135,7 +159,7 @@ mod tests {
         let fail_str = "select col_a as COL_A, col_b as new_col_b from foo";
         let fix_str = "select col_a, col_b as new_col_b from foo";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -144,7 +168,7 @@ mod tests {
         let fail_str = "select col_a col_a, col_b AS new_col_b from foo";
         let fix_str = "select col_a, col_b AS new_col_b from foo";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -153,7 +177,7 @@ mod tests {
         let fail_str = "select a.col_a as col_a, a.col_b as new_col_b from foo as a";
         let fix_str = "select a.col_a, a.col_b as new_col_b from foo as a";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -162,7 +186,7 @@ mod tests {
         let fail_str = r#"select "col_a" as "col_a", col_b as new_col_b from foo"#;
         let fix_str = r#"select "col_a", col_b as new_col_b from foo"#;
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 

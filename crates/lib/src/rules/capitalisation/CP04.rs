@@ -34,10 +34,6 @@ impl Rule for RuleCP04 {
         .erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "capitalisation.literals"
     }
@@ -46,8 +42,50 @@ impl Rule for RuleCP04 {
         "Inconsistent capitalisation of boolean/null literal."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, `null` and `false` are in lower-case whereas `TRUE` is in upper-case.
+
+```sql
+select
+    a,
+    null,
+    TRUE,
+    false
+from foo
+```
+
+**Best practice**
+
+Ensure all literal `null`/`true`/`false` literals are consistently upper or lower case
+
+```sql
+select
+    a,
+    NULL,
+    TRUE,
+    FALSE
+from foo
+
+-- Also good
+
+select
+    a,
+    null,
+    true,
+    false
+from foo
+```
+"#
+    }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         self.base.eval(context)
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -68,7 +106,7 @@ mod tests {
         let fail_str = "SeLeCt true, FALSE, NULL";
         let fix_str = "SeLeCt true, false, null";
 
-        let actual = fix(fail_str.into(), vec![RuleCP04::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCP04::default().erased()]);
         assert_eq!(fix_str, actual);
     }
 }

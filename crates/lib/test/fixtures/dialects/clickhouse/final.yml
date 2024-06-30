@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -24,7 +24,7 @@ file:
           - raw_comparison_operator: '>'
         - numeric_literal: '0'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

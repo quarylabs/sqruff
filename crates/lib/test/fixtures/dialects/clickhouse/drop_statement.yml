@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
     - database_reference:
       - naked_identifier: db
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -15,7 +15,7 @@ file:
     - database_reference:
       - naked_identifier: db
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -26,7 +26,7 @@ file:
       - keyword: CLUSTER
       - naked_identifier: cluster
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -34,7 +34,7 @@ file:
       - naked_identifier: db
     - keyword: SYNC
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
@@ -42,7 +42,7 @@ file:
       - object_reference:
         - naked_identifier: db_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
@@ -52,7 +52,7 @@ file:
         - dot: .
         - naked_identifier: name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
@@ -62,7 +62,7 @@ file:
       - object_reference:
         - naked_identifier: db_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
@@ -74,7 +74,7 @@ file:
       - keyword: CLUSTER
       - naked_identifier: cluster
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
@@ -83,7 +83,7 @@ file:
         - naked_identifier: db_name
     - keyword: SYNC
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TEMPORARY
@@ -92,13 +92,13 @@ file:
       - object_reference:
         - naked_identifier: db_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_dictionary_statement:
     - keyword: DROP
     - keyword: DICTIONARY
     - naked_identifier: dict_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_dictionary_statement:
     - keyword: DROP
     - keyword: DICTIONARY
@@ -106,20 +106,20 @@ file:
     - keyword: EXISTS
     - naked_identifier: dict_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_dictionary_statement:
     - keyword: DROP
     - keyword: DICTIONARY
     - naked_identifier: dict_name
     - keyword: SYNC
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_user_statement:
     - keyword: DROP
     - keyword: USER
     - naked_identifier: user_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_user_statement:
     - keyword: DROP
     - keyword: USER
@@ -127,7 +127,7 @@ file:
     - keyword: EXISTS
     - naked_identifier: user_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_user_statement:
     - keyword: DROP
     - keyword: USER
@@ -137,13 +137,13 @@ file:
       - keyword: CLUSTER
       - naked_identifier: cluster_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_role_statement:
     - keyword: DROP
     - keyword: ROLE
     - naked_identifier: role_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_role_statement:
     - keyword: DROP
     - keyword: ROLE
@@ -151,7 +151,7 @@ file:
     - keyword: EXISTS
     - naked_identifier: role_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_role_statement:
     - keyword: DROP
     - keyword: ROLE
@@ -161,13 +161,13 @@ file:
       - keyword: CLUSTER
       - naked_identifier: cluster_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_quota_statement:
     - keyword: DROP
     - keyword: QUOTA
     - naked_identifier: quota_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_quota_statement:
     - keyword: DROP
     - keyword: QUOTA
@@ -175,7 +175,7 @@ file:
     - keyword: EXISTS
     - naked_identifier: quota_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_quota_statement:
     - keyword: DROP
     - keyword: QUOTA
@@ -185,14 +185,14 @@ file:
       - keyword: CLUSTER
       - naked_identifier: cluster_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_setting_profile_statement:
     - keyword: DROP
     - naked_identifier: setting_name
     - keyword: PROFILE
     - naked_identifier: profile_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_setting_profile_statement:
     - keyword: DROP
     - naked_identifier: setting_name
@@ -201,7 +201,7 @@ file:
     - keyword: EXISTS
     - naked_identifier: profile_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_setting_profile_statement:
     - keyword: DROP
     - naked_identifier: setting_name
@@ -212,7 +212,7 @@ file:
       - keyword: CLUSTER
       - naked_identifier: cluster_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_setting_profile_statement:
     - keyword: DROP
     - naked_identifier: setting_name1
@@ -221,7 +221,7 @@ file:
     - keyword: PROFILE
     - naked_identifier: profile_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -229,7 +229,7 @@ file:
       - object_reference:
         - naked_identifier: view_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -239,7 +239,7 @@ file:
         - dot: .
         - naked_identifier: view_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -249,7 +249,7 @@ file:
       - object_reference:
         - naked_identifier: view_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -261,7 +261,7 @@ file:
       - keyword: CLUSTER
       - naked_identifier: cluster
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
@@ -270,13 +270,13 @@ file:
         - naked_identifier: view_name
     - keyword: SYNC
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
     - naked_identifier: function_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
@@ -284,7 +284,7 @@ file:
     - keyword: EXISTS
     - naked_identifier: function_name
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION

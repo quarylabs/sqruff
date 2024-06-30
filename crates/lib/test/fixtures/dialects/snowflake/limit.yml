@@ -14,7 +14,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -38,7 +38,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -65,7 +65,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: demo1
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -92,7 +92,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: demo1
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -119,7 +119,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: demo1
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -145,7 +145,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -169,7 +169,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -194,7 +194,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -219,7 +219,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -244,7 +244,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -269,7 +269,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -294,7 +294,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -320,7 +320,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:
@@ -348,7 +348,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: testtable
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - column_reference:

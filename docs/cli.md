@@ -7,6 +7,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff`↴](#sqruff)
 * [`sqruff lint`↴](#sqruff-lint)
 * [`sqruff fix`↴](#sqruff-fix)
+* [`sqruff lsp`↴](#sqruff-lsp)
 
 ## `sqruff`
 
@@ -18,6 +19,7 @@ sqruff is a sql formatter and linter
 
 * `lint` — lint files
 * `fix` — fix files
+* `lsp` — Run an LSP server
 
 
 
@@ -55,9 +57,6 @@ fix files
 ###### **Options:**
 
 * `--force` — Skip the confirmation prompt and go straight to applying fixes
-
-  Possible values: `true`, `false`
-
 * `-f`, `--format <FORMAT>`
 
   Default value: `human`
@@ -67,12 +66,21 @@ fix files
 
 
 
+## `sqruff lsp`
+
+Run an LSP server
+
+**Usage:** `sqruff lsp`
+
+
+
 <hr/>
 
 <small><i>
     This document was generated automatically by
     <a href="https://crates.io/crates/clap-markdown"><code>clap-markdown</code></a>.
 </i></small>
+<<<<<<< HEAD:options.md
 
 # Command-Line Help for `sqruff`
 
@@ -150,3 +158,5 @@ fix files
     <a href="https://crates.io/crates/clap-markdown"><code>clap-markdown</code></a>.
 </i></small>
 
+=======
+>>>>>>> main:docs/cli.md

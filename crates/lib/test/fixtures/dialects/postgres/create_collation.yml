@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_collation_statement:
     - keyword: CREATE
     - keyword: COLLATION
@@ -18,7 +18,7 @@ file:
       - quoted_literal: '''en@colNumeric=yes'''
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_collation_statement:
     - keyword: CREATE
     - keyword: COLLATION
@@ -32,7 +32,7 @@ file:
       - quoted_literal: '''fr_FR.utf8'''
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_collation_statement:
     - keyword: CREATE
     - keyword: COLLATION
@@ -51,7 +51,7 @@ file:
       - quoted_literal: '''de-u-co-phonebk'''
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_collation_statement:
     - keyword: CREATE
     - keyword: COLLATION

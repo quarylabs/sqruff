@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -40,7 +40,7 @@ file:
                   - dot: .
                   - naked_identifier: table_kafka
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -72,7 +72,7 @@ file:
                 - object_reference:
                   - naked_identifier: table_kafka
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -117,7 +117,7 @@ file:
                   - dot: .
                   - naked_identifier: table_kafka
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -159,7 +159,7 @@ file:
                 - object_reference:
                   - naked_identifier: table_kafka
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
@@ -197,7 +197,7 @@ file:
                 - object_reference:
                   - naked_identifier: table_kafka
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED

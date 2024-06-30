@@ -37,8 +37,30 @@ impl Rule for RuleCV03 {
         "Trailing commas within select clause"
     }
 
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, the last selected column has a trailing comma.
+
+```sql
+SELECT
+    a,
+    b,
+FROM foo
+```
+
+**Best practice**
+
+Remove the trailing comma.
+
+```sql
+SELECT
+    a,
+    b
+FROM foo
+```
+"#
     }
 
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
@@ -100,6 +122,10 @@ impl Rule for RuleCV03 {
         }
         Vec::new()
     }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(["select_clause"].into()).into()
+    }
 }
 
 #[cfg(test)]
@@ -131,7 +157,7 @@ mod tests {
         let fail_str = "SELECT a, b FROM foo";
         let fix_str = "SELECT a, b, FROM foo";
 
-        let result = fix(fail_str.into(), rules());
+        let result = fix(fail_str, rules());
         assert_eq!(fix_str, result);
     }
 
@@ -140,7 +166,7 @@ mod tests {
         let fail_str = "SELECT a, b FROM foo";
         let fix_str = "SELECT a, b, FROM foo";
 
-        let result = fix(fail_str.into(), vec![RuleCV03::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV03::default().erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -164,7 +190,7 @@ mod tests {
         let fail_str = "SELECT a, b, FROM foo";
         let fix_str = "SELECT a, b FROM foo";
 
-        let result = fix(fail_str.into(), rules_with_config("forbid".to_owned()));
+        let result = fix(fail_str, rules_with_config("forbid".to_owned()));
         assert_eq!(fix_str, result);
     }
 
@@ -185,7 +211,7 @@ mod tests {
         {% endfor %}
     FROM tbl"#;
 
-        let result = fix(fail_str.into(), rules_with_config("forbid".to_owned()));
+        let result = fix(fail_str, rules_with_config("forbid".to_owned()));
         assert_eq!(fix_str, result);
     }
 }

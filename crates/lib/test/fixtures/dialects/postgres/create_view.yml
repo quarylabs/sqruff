@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
@@ -13,7 +13,7 @@ file:
         - select_clause_element:
           - quoted_literal: '''Hello World'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: OR
@@ -29,7 +29,7 @@ file:
         - select_clause_element:
           - quoted_literal: '''Hello World'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
@@ -49,7 +49,7 @@ file:
             - keyword: AS
             - naked_identifier: hello
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: TEMP
@@ -70,7 +70,7 @@ file:
             - keyword: AS
             - naked_identifier: hello
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: TEMPORARY
@@ -91,7 +91,7 @@ file:
             - keyword: AS
             - naked_identifier: hello
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
@@ -110,7 +110,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: films
@@ -123,7 +123,7 @@ file:
             - raw_comparison_operator: =
           - quoted_literal: '''Comedy'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
@@ -165,7 +165,7 @@ file:
       - keyword: CHECK
       - keyword: OPTION
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
@@ -184,7 +184,7 @@ file:
         - keyword: FROM
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: comedies
@@ -202,7 +202,7 @@ file:
       - keyword: CHECK
       - keyword: OPTION
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -223,7 +223,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -244,7 +244,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -268,7 +268,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -292,7 +292,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -321,12 +321,12 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: OTHER_VIEW
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -355,12 +355,12 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: OTHER_VIEW
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -420,7 +420,7 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -439,7 +439,7 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: OTHER_VIEW
@@ -449,7 +449,7 @@ file:
       - keyword: check
       - keyword: option
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -468,7 +468,7 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: OTHER_VIEW
@@ -478,7 +478,7 @@ file:
       - keyword: check
       - keyword: option
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: OR
@@ -507,7 +507,7 @@ file:
       - end_bracket: )
     - keyword: AS
     - set_expression:
-      - unordered_select_statement:
+      - select_statement:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
@@ -582,7 +582,7 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - quoted_identifier: '"grouping_managementgroup"'
@@ -596,7 +596,7 @@ file:
       - set_operator:
         - keyword: UNION
         - keyword: ALL
-      - unordered_select_statement:
+      - select_statement:
         - select_clause:
           - keyword: SELECT
           - select_clause_element:
@@ -646,14 +646,14 @@ file:
           - keyword: FROM
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - quoted_identifier: '"grouping_managementgroup"'
           - comma: ','
           - from_expression:
             - from_expression_element:
-              - table_expression_segment:
+              - table_expression:
                 - table_reference:
                   - object_reference:
                     - quoted_identifier: '"grouping_node"'
@@ -667,7 +667,7 @@ file:
             - column_reference:
               - quoted_identifier: '"node_id"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
@@ -688,7 +688,7 @@ file:
         - keyword: from
         - from_expression:
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: OTHER_VIEW

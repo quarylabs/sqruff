@@ -18,10 +18,6 @@ impl Rule for RuleLT10 {
         RuleLT10::default().erased()
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "layout.select_modifiers"
     }
@@ -30,6 +26,31 @@ impl Rule for RuleLT10 {
         "'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+In this example, the `DISTINCT` modifier is on the next line after the `SELECT` keyword.
+
+```sql
+select
+    distinct a,
+    b
+from x
+```
+
+**Best practice**
+
+Move the `DISTINCT` modifier to the same line as the `SELECT` keyword.
+
+```sql
+select distinct
+    a,
+    b
+from x
+```
+"#
+    }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
         let child_segments = FunctionalContext::new(context.clone()).segment().children(None);
@@ -117,6 +138,10 @@ impl Rule for RuleLT10 {
         vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(["select_clause"].into()).into()
     }
@@ -143,7 +168,7 @@ SELECT
 FROM
     safe_user";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
         assert_eq!(
             fix_str,
             "
@@ -164,7 +189,7 @@ SELECT
 FROM
     safe_user";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
         assert_eq!(
             fix_str,
             "
@@ -185,7 +210,7 @@ distinct
     def
 from a;";
 
-        let fix_str = fix(fail_str.into(), rules());
+        let fix_str = fix(fail_str, rules());
         println!("{}", &fix_str);
     }
 }

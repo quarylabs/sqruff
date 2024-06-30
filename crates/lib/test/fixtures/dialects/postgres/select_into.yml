@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -19,12 +19,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: qux
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -40,7 +40,7 @@ file:
         - object_reference:
           - naked_identifier: baz
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -55,7 +55,7 @@ file:
         - object_reference:
           - naked_identifier: baz
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT

@@ -13,7 +13,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - numeric_literal: '2'
-    - order_by_clause:
+    - orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - numeric_literal: '1'

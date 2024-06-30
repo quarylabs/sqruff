@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -18,7 +18,7 @@ file:
               - keyword: interval
             - quoted_literal: '''1 day'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -41,7 +41,7 @@ file:
               - bare_function: current_date
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -57,7 +57,7 @@ file:
               - keyword: timestamptz
             - quoted_literal: '''2013-03-01 12:00:00'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -69,7 +69,7 @@ file:
             - data_type:
               - keyword: int
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -82,7 +82,7 @@ file:
               - datetime_type_identifier:
                 - keyword: TIMESTAMP
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -101,7 +101,7 @@ file:
               - expression:
                 - quoted_literal: '''UTC'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -117,7 +117,7 @@ file:
                 - keyword: TIME
                 - keyword: ZONE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -139,7 +139,7 @@ file:
               - expression:
                 - quoted_literal: '''UTC'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -155,7 +155,7 @@ file:
                 - keyword: TIME
                 - keyword: ZONE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -168,7 +168,7 @@ file:
               - datetime_type_identifier:
                 - keyword: TIMESTAMPTZ
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -187,7 +187,7 @@ file:
               - expression:
                 - quoted_literal: '''UTC'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -207,7 +207,7 @@ file:
             - expression:
               - quoted_literal: '''Africa/Cairo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -220,7 +220,7 @@ file:
             - keyword: zone
           - quoted_literal: '''2025-11-20 00:00:00'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -240,7 +240,7 @@ file:
             - expression:
               - quoted_literal: '''Africa/Cairo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -260,7 +260,7 @@ file:
             - expression:
               - quoted_literal: '''Africa/Cairo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -273,7 +273,7 @@ file:
             - keyword: zone
           - quoted_literal: '''2025-11-20 00:00:00+12'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -293,7 +293,7 @@ file:
             - expression:
               - quoted_literal: '''Africa/Cairo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -313,7 +313,7 @@ file:
             - expression:
               - quoted_literal: '''Africa/Cairo'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -331,12 +331,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: t_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -363,12 +363,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: t_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -385,12 +385,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: my_table
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -411,7 +411,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: schema1
@@ -422,7 +422,7 @@ file:
           - keyword: JOIN
           - keyword: LATERAL
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - function:
                 - function_name:
                   - function_name_identifier: somefunc
@@ -448,7 +448,7 @@ file:
                   - keyword: bool
                 - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -467,12 +467,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -494,12 +494,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -518,12 +518,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -542,12 +542,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -559,7 +559,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test1
@@ -578,7 +578,7 @@ file:
         - column_reference:
           - quoted_identifier: '"fr_FR"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -586,12 +586,12 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: test1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -612,12 +612,12 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: periods
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -637,7 +637,7 @@ file:
               - boolean_literal: 'true'
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -660,7 +660,7 @@ file:
                 - quoted_literal: '''World'''
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -683,7 +683,7 @@ file:
                 - boolean_literal: 'true'
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -695,7 +695,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: mytable
@@ -703,7 +703,7 @@ file:
       - keyword: FOR
       - keyword: UPDATE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -715,7 +715,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - bracketed:
               - start_bracket: (
               - select_statement:
@@ -729,7 +729,7 @@ file:
                   - keyword: FROM
                   - from_expression:
                     - from_expression_element:
-                      - table_expression_segment:
+                      - table_expression:
                         - table_reference:
                           - object_reference:
                             - naked_identifier: mytable
@@ -748,7 +748,7 @@ file:
           - raw_comparison_operator: =
         - numeric_literal: '5'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -763,14 +763,14 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: mytable1
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
-            - table_expression_segment:
+            - table_expression:
               - table_reference:
                 - object_reference:
                   - naked_identifier: mytable2
@@ -806,7 +806,7 @@ file:
       - keyword: LIMIT
       - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: Select
@@ -818,7 +818,7 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: foo
@@ -830,7 +830,7 @@ file:
               - numeric_literal: '10'
               - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: Select
@@ -842,7 +842,7 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: foo
@@ -854,7 +854,7 @@ file:
               - numeric_literal: '10'
               - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -866,7 +866,7 @@ file:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - bracketed:
               - start_bracket: (
               - select_statement:
@@ -880,7 +880,7 @@ file:
                   - keyword: FROM
                   - from_expression:
                     - from_expression_element:
-                      - table_expression_segment:
+                      - table_expression:
                         - table_reference:
                           - object_reference:
                             - naked_identifier: mytable
@@ -899,7 +899,7 @@ file:
           - raw_comparison_operator: =
         - numeric_literal: $1
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
@@ -918,7 +918,7 @@ file:
       - keyword: from
       - from_expression:
         - from_expression_element:
-          - table_expression_segment:
+          - table_expression:
             - table_reference:
               - object_reference:
                 - naked_identifier: foo

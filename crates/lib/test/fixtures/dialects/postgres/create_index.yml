@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: UNIQUE
@@ -17,7 +17,7 @@ file:
           - naked_identifier: title
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: UNIQUE
@@ -46,7 +46,7 @@ file:
           - naked_identifier: rating
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -73,7 +73,7 @@ file:
           - quoted_literal: '''off'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -99,7 +99,7 @@ file:
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -120,7 +120,7 @@ file:
             - quoted_identifier: '"de_DE"'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -140,7 +140,7 @@ file:
           - keyword: FIRST
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -160,7 +160,7 @@ file:
           - keyword: LAST
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: UNIQUE
@@ -188,7 +188,7 @@ file:
           - numeric_literal: '70'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -218,7 +218,7 @@ file:
           - quoted_literal: '''off'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -238,7 +238,7 @@ file:
     - tablespace_reference:
       - naked_identifier: indexspace
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -269,7 +269,7 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -287,7 +287,7 @@ file:
           - naked_identifier: quantity
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -309,7 +309,7 @@ file:
           - keyword: DESC
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -331,7 +331,7 @@ file:
             - naked_identifier: varchar_pattern_ops
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -368,7 +368,7 @@ file:
               - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: UNIQUE
@@ -394,7 +394,7 @@ file:
       - column_reference:
         - naked_identifier: success
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -426,7 +426,7 @@ file:
           - quoted_literal: '''off'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
@@ -459,7 +459,7 @@ file:
           - quoted_literal: '''off'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX

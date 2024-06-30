@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - drop_policy_statement:
     - keyword: DROP
     - keyword: POLICY
@@ -10,7 +10,7 @@ file:
       - object_reference:
         - naked_identifier: accounts
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_policy_statement:
     - keyword: DROP
     - keyword: POLICY
@@ -23,7 +23,7 @@ file:
       - object_reference:
         - naked_identifier: accounts
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_policy_statement:
     - keyword: DROP
     - keyword: POLICY
@@ -35,7 +35,7 @@ file:
         - naked_identifier: accounts
     - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_policy_statement:
     - keyword: DROP
     - keyword: POLICY
@@ -47,7 +47,7 @@ file:
         - naked_identifier: accounts
     - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_policy_statement:
     - keyword: DROP
     - keyword: POLICY

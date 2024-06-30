@@ -16,11 +16,10 @@ use smol_str::SmolStr;
 use uuid::Uuid;
 
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::{Node, ObjectReferenceSegment};
+use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
@@ -117,6 +116,60 @@ impl ErasedSegment {
     pub fn get_mut(&mut self) -> &mut dyn Segment {
         Arc::get_mut(&mut self.value).unwrap()
     }
+
+    pub fn reference(&self) -> ObjectReferenceSegment {
+        ObjectReferenceSegment(self.clone())
+    }
+
+    pub fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
+        let mut result = Vec::new();
+
+        if reverse {
+            for seg in self.segments().iter().rev() {
+                result.extend(seg.recursive_crawl_all(reverse));
+            }
+            result.push(self.clone());
+        } else {
+            result.push(self.clone());
+            for seg in self.segments() {
+                result.extend(seg.recursive_crawl_all(reverse));
+            }
+        }
+
+        result
+    }
+
+    pub fn recursive_crawl(
+        &self,
+        seg_types: &[&str],
+        recurse_into: bool,
+        no_recursive_seg_type: Option<&str>,
+        allow_self: bool,
+    ) -> Vec<ErasedSegment> {
+        let mut acc = Vec::new();
+        let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
+
+        let matches = allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it));
+        if matches {
+            acc.push(self.clone());
+        }
+
+        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty)) {
+            return acc;
+        }
+
+        if recurse_into || !matches {
+            for seg in self.segments() {
+                if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
+                    let segments =
+                        seg.recursive_crawl(seg_types, recurse_into, no_recursive_seg_type, true);
+                    acc.extend(segments);
+                }
+            }
+        }
+
+        acc
+    }
 }
 
 impl Deref for ErasedSegment {
@@ -143,14 +196,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    fn reference(&self) -> Node<ObjectReferenceSegment> {
-        let mut node = Node::new();
-        node.uuid = self.get_uuid();
-        node.position_marker.clone_from(&self.get_position_marker());
-        node.segments = self.segments().to_vec();
-        node
     }
 
     fn type_name(&self) -> &'static str {
@@ -261,56 +306,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         result
     }
 
-    fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
-        let mut result = Vec::new();
-
-        if reverse {
-            for seg in self.segments().iter().rev() {
-                result.extend(seg.recursive_crawl_all(reverse));
-            }
-            result.push(self.clone_box());
-        } else {
-            result.push(self.clone_box());
-            for seg in self.segments() {
-                result.extend(seg.recursive_crawl_all(reverse));
-            }
-        }
-
-        result
-    }
-
-    fn recursive_crawl(
-        &self,
-        seg_types: &[&str],
-        recurse_into: bool,
-        no_recursive_seg_type: Option<&str>,
-        allow_self: bool,
-    ) -> Vec<ErasedSegment> {
-        let mut acc = Vec::new();
-        let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
-
-        let matches = allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it));
-        if matches {
-            acc.push(self.clone_box());
-        }
-
-        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty)) {
-            return acc;
-        }
-
-        if recurse_into || !matches {
-            for seg in self.segments() {
-                if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
-                    let segments =
-                        seg.recursive_crawl(seg_types, recurse_into, no_recursive_seg_type, true);
-                    acc.extend(segments);
-                }
-            }
-        }
-
-        acc
-    }
-
     fn code_indices(&self) -> Vec<usize> {
         self.segments()
             .iter()
@@ -371,11 +366,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         }
 
         result_set
-    }
-
-    // TODO: remove &self?
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        None
     }
 
     fn raw(&self) -> Cow<str> {
@@ -737,8 +727,7 @@ impl Eq for ErasedSegment {}
 
 impl Hash for dyn Segment {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.type_name().hash(state);
-
+        self.get_type().hash(state);
         self.raw().hash(state);
 
         if let Some(marker) = &self.get_position_marker() {
@@ -1471,7 +1460,7 @@ impl UnparsableSegment {
     pub fn new(segments: Vec<ErasedSegment>) -> Self {
         let mut this = Self { uuid: Uuid::new_v4(), segments, position_marker: None };
         this.uuid = Uuid::new_v4();
-        // this.set_position_marker(pos_marker(&this).into());
+        // this.set_position_marker(pos_marker(&this.segments).into());
         this
     }
 }
@@ -1508,6 +1497,7 @@ impl Segment for UnparsableSegment {
 
 pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
     let markers = segments.iter().flat_map(|seg| seg.get_position_marker());
+
     PositionMarker::from_child_markers(markers)
 }
 

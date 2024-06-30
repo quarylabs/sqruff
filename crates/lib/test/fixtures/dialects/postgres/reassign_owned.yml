@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - reassign_owned_statement:
     - keyword: REASSIGN
     - keyword: OWNED
@@ -10,7 +10,7 @@ file:
     - role_reference:
       - naked_identifier: alice
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reassign_owned_statement:
     - keyword: REASSIGN
     - keyword: OWNED
@@ -24,7 +24,7 @@ file:
     - role_reference:
       - naked_identifier: alice
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reassign_owned_statement:
     - keyword: REASSIGN
     - keyword: OWNED
@@ -47,7 +47,7 @@ file:
     - role_reference:
       - naked_identifier: alice
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reassign_owned_statement:
     - keyword: REASSIGN
     - keyword: OWNED
@@ -57,7 +57,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_ROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reassign_owned_statement:
     - keyword: REASSIGN
     - keyword: OWNED
@@ -67,7 +67,7 @@ file:
     - keyword: TO
     - keyword: CURRENT_USER
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - reassign_owned_statement:
     - keyword: REASSIGN
     - keyword: OWNED

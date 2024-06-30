@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -19,7 +19,7 @@ file:
             - numeric_literal: '30'
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -37,7 +37,7 @@ file:
           - keyword: with
           - keyword: time
           - keyword: zone
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: DEFAULT
         - function:
           - function_name:
@@ -46,7 +46,7 @@ file:
             - start_bracket: (
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -65,7 +65,7 @@ file:
             - start_bracket: (
             - numeric_literal: '30'
             - end_bracket: )
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: DEFAULT
         - quoted_literal: '''old'''
     - comma: ','
@@ -78,7 +78,7 @@ file:
       - keyword: default
       - quoted_literal: '''current'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -92,7 +92,7 @@ file:
         - naked_identifier: address
       - keyword: RESTRICT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -127,7 +127,7 @@ file:
             - numeric_literal: '100'
             - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -166,7 +166,7 @@ file:
             - keyword: interval
           - quoted_literal: '''1 second'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -222,7 +222,7 @@ file:
           - start_bracket: (
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -242,7 +242,7 @@ file:
           - start_bracket: (
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -257,7 +257,7 @@ file:
       - keyword: DEFAULT
       - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -272,7 +272,7 @@ file:
       - keyword: DEFAULT
       - quoted_literal: '''value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -287,7 +287,7 @@ file:
       - keyword: DEFAULT
       - boolean_literal: 'false'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -304,7 +304,7 @@ file:
         - column_reference:
           - naked_identifier: other_value
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -319,7 +319,7 @@ file:
       - keyword: DEFAULT
       - bare_function: CURRENT_TIMESTAMP
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -342,7 +342,7 @@ file:
               - naked_identifier: a_parameter
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -364,7 +364,7 @@ file:
             - quoted_literal: '''a_parameter'''
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -384,7 +384,7 @@ file:
         - binary_operator: +
         - numeric_literal: '3'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -408,7 +408,7 @@ file:
             - numeric_literal: '3'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -422,7 +422,7 @@ file:
       - keyword: DROP
       - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -444,7 +444,7 @@ file:
           - start_bracket: (
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -461,7 +461,7 @@ file:
       - keyword: DEFAULT
       - numeric_literal: '1'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -478,7 +478,7 @@ file:
       - keyword: DEFAULT
       - quoted_literal: '''value'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -495,7 +495,7 @@ file:
       - keyword: DEFAULT
       - boolean_literal: 'false'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -514,7 +514,7 @@ file:
         - column_reference:
           - naked_identifier: other_value
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -531,7 +531,7 @@ file:
       - keyword: DEFAULT
       - bare_function: CURRENT_TIMESTAMP
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -556,7 +556,7 @@ file:
               - naked_identifier: a_parameter
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -580,7 +580,7 @@ file:
             - quoted_literal: '''a_parameter'''
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -602,7 +602,7 @@ file:
         - binary_operator: +
         - numeric_literal: '3'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -628,7 +628,7 @@ file:
             - numeric_literal: '3'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -644,7 +644,7 @@ file:
       - keyword: DROP
       - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -659,7 +659,7 @@ file:
     - column_reference:
       - naked_identifier: city
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -672,7 +672,7 @@ file:
       - object_reference:
         - naked_identifier: suppliers
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -685,7 +685,7 @@ file:
     - keyword: TO
     - parameter: zip_check
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -701,7 +701,7 @@ file:
       - keyword: NOT
       - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -717,7 +717,7 @@ file:
       - keyword: NOT
       - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -748,7 +748,7 @@ file:
             - numeric_literal: '5'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -781,7 +781,7 @@ file:
         - keyword: NO
         - keyword: INHERIT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -793,7 +793,7 @@ file:
       - keyword: CONSTRAINT
       - parameter: zipchk
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -805,7 +805,7 @@ file:
       - keyword: CONSTRAINT
       - parameter: '"zipchk"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -818,7 +818,7 @@ file:
       - keyword: CONSTRAINT
       - parameter: zipchk
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -848,7 +848,7 @@ file:
             - naked_identifier: address
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -880,7 +880,7 @@ file:
         - keyword: MATCH
         - keyword: FULL
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -916,7 +916,7 @@ file:
         - keyword: UPDATE
         - keyword: CASCADE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -948,7 +948,7 @@ file:
         - keyword: NOT
         - keyword: VALID
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -960,7 +960,7 @@ file:
       - keyword: CONSTRAINT
       - parameter: distfk
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -983,7 +983,7 @@ file:
             - naked_identifier: zipcode
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1001,7 +1001,7 @@ file:
             - naked_identifier: dist_id
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1014,7 +1014,7 @@ file:
       - tablespace_reference:
         - naked_identifier: fasttablespace
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1033,7 +1033,7 @@ file:
             - quoted_literal: '''value'''
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1052,7 +1052,7 @@ file:
             - numeric_literal: '1'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1077,7 +1077,7 @@ file:
             - quoted_literal: '''value'''
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1092,7 +1092,7 @@ file:
       - object_reference:
         - naked_identifier: yourschema
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1117,7 +1117,7 @@ file:
         - database_reference:
           - naked_identifier: dist_id_temp_idx
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1143,7 +1143,7 @@ file:
           - quoted_literal: '''2016-08-01'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1166,7 +1166,7 @@ file:
           - quoted_literal: '''b'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1189,7 +1189,7 @@ file:
         - numeric_literal: '3'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1201,7 +1201,7 @@ file:
     - parameter: cities_partdef
     - keyword: DEFAULT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1212,7 +1212,7 @@ file:
     - keyword: PARTITION
     - parameter: measurement_y2015m12
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1225,7 +1225,7 @@ file:
     - keyword: CONCURRENTLY
     - keyword: FINALIZE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1259,7 +1259,7 @@ file:
             - naked_identifier: id
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1277,7 +1277,7 @@ file:
       - data_type:
         - keyword: TEXT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1291,7 +1291,7 @@ file:
       - keyword: to
       - parameter: postgres
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1318,7 +1318,7 @@ file:
           - keyword: MAXVALUE
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1336,7 +1336,7 @@ file:
         - keyword: WITH
         - numeric_literal: '3'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1349,7 +1349,7 @@ file:
         - naked_identifier: my_column
       - data_type:
         - keyword: int
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: GENERATED
         - keyword: BY
         - keyword: DEFAULT
@@ -1369,7 +1369,7 @@ file:
             - keyword: NONE
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1383,7 +1383,7 @@ file:
       - keyword: TO
       - parameter: '"ID"'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1397,7 +1397,7 @@ file:
       - keyword: TO
       - parameter: ID
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1414,7 +1414,7 @@ file:
       - keyword: TO
       - parameter: CURRENT_ROLE
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1444,7 +1444,7 @@ file:
             - naked_identifier: history_id_seq
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1458,7 +1458,7 @@ file:
         - naked_identifier: nulls_distinct
       - data_type:
         - keyword: text
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: UNIQUE
         - keyword: NULLS
         - keyword: DISTINCT
@@ -1470,7 +1470,7 @@ file:
         - naked_identifier: nulls_not_distinct
       - data_type:
         - keyword: text
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: UNIQUE
         - keyword: NULLS
         - keyword: NOT
@@ -1482,7 +1482,7 @@ file:
         - naked_identifier: everything
       - data_type:
         - keyword: text
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: UNIQUE
         - keyword: NULLS
         - keyword: DISTINCT
@@ -1508,7 +1508,7 @@ file:
         - tablespace_reference:
           - naked_identifier: spc
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1521,10 +1521,10 @@ file:
         - naked_identifier: pk
       - data_type:
         - keyword: text
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: DEFAULT
         - quoted_literal: '''hello'''
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
         - keyword: WITH
@@ -1548,11 +1548,11 @@ file:
         - keyword: TABLESPACE
         - tablespace_reference:
           - naked_identifier: tblspace
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1700,7 +1700,7 @@ file:
           - tablespace_reference:
             - naked_identifier: tblspc
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1755,7 +1755,7 @@ file:
             - properties_naked_identifier: ASC
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1810,7 +1810,7 @@ file:
             - properties_naked_identifier: ASC
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1869,7 +1869,7 @@ file:
             - properties_naked_identifier: ASC
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1928,7 +1928,7 @@ file:
             - properties_naked_identifier: ASC
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1954,7 +1954,7 @@ file:
               - remove me: '&'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -1991,7 +1991,7 @@ file:
               - remove me: '&'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -2019,7 +2019,7 @@ file:
         - keyword: NO
         - keyword: INHERIT
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE

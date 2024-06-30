@@ -1,10 +1,13 @@
-use std::sync::Mutex;
-
 use super::linted_file::LintedFile;
 use super::linter::Linter;
 
 pub trait Runner: Sized {
-    fn run(&mut self, paths: Vec<String>, fix: bool, linter: &mut Linter) -> Vec<LintedFile>;
+    fn run(
+        &mut self,
+        paths: Vec<String>,
+        fix: bool,
+        linter: &mut Linter,
+    ) -> impl Iterator<Item = LintedFile>;
 }
 
 pub struct RunnerContext<'me, R> {
@@ -19,7 +22,7 @@ impl<'me> RunnerContext<'me, ParallelRunner> {
 }
 
 impl<R: Runner> RunnerContext<'_, R> {
-    pub fn run(&mut self, paths: Vec<String>, fix: bool) -> Vec<LintedFile> {
+    pub fn run(&mut self, paths: Vec<String>, fix: bool) -> impl Iterator<Item = LintedFile> + '_ {
         self.runner.run(paths, fix, self.linter)
     }
 }
@@ -27,18 +30,23 @@ impl<R: Runner> RunnerContext<'_, R> {
 pub struct ParallelRunner;
 
 impl Runner for ParallelRunner {
-    fn run(&mut self, paths: Vec<String>, fix: bool, linter: &mut Linter) -> Vec<LintedFile> {
+    fn run(
+        &mut self,
+        paths: Vec<String>,
+        fix: bool,
+        linter: &mut Linter,
+    ) -> impl Iterator<Item = LintedFile> {
         use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 
-        let acc = Mutex::new(Vec::with_capacity(paths.len()));
         let rule_pack = linter.get_rulepack();
 
-        paths.iter().for_each(|path| {
-            let rendered = linter.render_file(path.clone());
-            let linted_file = linter.lint_rendered(rendered, &rule_pack, fix);
-            acc.lock().unwrap().push(linted_file);
-        });
-
-        acc.into_inner().unwrap()
+        paths
+            .par_iter()
+            .map(|path| {
+                let rendered = linter.render_file(path.clone());
+                linter.lint_rendered(rendered, &rule_pack, fix)
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
     }
 }

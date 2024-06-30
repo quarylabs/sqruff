@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
@@ -13,7 +13,7 @@ file:
     - object_reference:
       - naked_identifier: current_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
@@ -33,7 +33,7 @@ file:
     - object_reference:
       - naked_identifier: managers
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
@@ -49,7 +49,7 @@ file:
     - comma: ','
     - keyword: session_user
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
@@ -76,7 +76,7 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
@@ -109,7 +109,7 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY
@@ -131,7 +131,7 @@ file:
         - numeric_literal: '10'
       - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_policy_statement:
     - keyword: CREATE
     - keyword: POLICY

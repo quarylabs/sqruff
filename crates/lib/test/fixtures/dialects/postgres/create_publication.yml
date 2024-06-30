@@ -1,12 +1,12 @@
 file:
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
     - publication_reference:
       - naked_identifier: abc
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -16,7 +16,7 @@ file:
     - keyword: ALL
     - keyword: TABLES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -30,7 +30,7 @@ file:
           - object_reference:
             - naked_identifier: def
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -51,7 +51,7 @@ file:
             - dot: .
             - naked_identifier: ghi
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -74,7 +74,7 @@ file:
             - dot: .
             - naked_identifier: ghi
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -89,7 +89,7 @@ file:
             - naked_identifier: def
         - star: '*'
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -294,7 +294,7 @@ file:
         - object_reference:
           - naked_identifier: p
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -329,7 +329,7 @@ file:
           - boolean_literal: 'TRUE'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -358,7 +358,7 @@ file:
           - boolean_literal: 'TRUE'
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -387,7 +387,7 @@ file:
           - quoted_literal: '''insert,update'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -404,7 +404,7 @@ file:
           - quoted_literal: '''insert,update'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -423,7 +423,7 @@ file:
           - object_reference:
             - naked_identifier: departments
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -446,7 +446,7 @@ file:
             - boolean_literal: 'TRUE'
           - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -456,7 +456,7 @@ file:
     - keyword: ALL
     - keyword: TABLES
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -480,7 +480,7 @@ file:
           - quoted_literal: '''insert'''
         - end_bracket: )
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -507,7 +507,7 @@ file:
         - object_reference:
           - naked_identifier: production
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION
@@ -526,7 +526,7 @@ file:
         - object_reference:
           - naked_identifier: sales
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_publication_statement:
     - keyword: CREATE
     - keyword: PUBLICATION

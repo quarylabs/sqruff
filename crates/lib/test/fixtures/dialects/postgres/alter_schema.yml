@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA
@@ -12,7 +12,7 @@ file:
       - object_reference:
         - naked_identifier: schema2
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - alter_schema_statement:
     - keyword: ALTER
     - keyword: SCHEMA

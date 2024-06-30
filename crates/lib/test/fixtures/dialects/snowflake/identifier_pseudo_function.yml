@@ -168,7 +168,7 @@ file:
                   - start_bracket: (
                   - variable: $table_name
                   - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - numeric_literal: '1'
@@ -193,7 +193,7 @@ file:
                   - start_bracket: (
                   - quoted_identifier: '''my_table'''
                   - end_bracket: )
-    - order_by_clause:
+    - orderby_clause:
       - keyword: order
       - keyword: by
       - numeric_literal: '1'

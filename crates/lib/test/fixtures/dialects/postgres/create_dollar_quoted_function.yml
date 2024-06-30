@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION

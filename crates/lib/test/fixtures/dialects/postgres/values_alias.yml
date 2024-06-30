@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - select_statement:
     - select_clause:
       - keyword: select
@@ -13,7 +13,7 @@ file:
         - from_expression_element:
           - bracketed:
             - start_bracket: (
-            - table_expression_segment:
+            - table_expression:
               - values_clause:
                 - keyword: values
                 - bracketed:

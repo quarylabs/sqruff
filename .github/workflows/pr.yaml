@@ -8,6 +8,17 @@ env:
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: short
 jobs:
+  check-licenses-readmes-match:
+    name: Check licenses match
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v4
+      - name: Copy LICENSE to editors/code directory
+        run: cp LICENSE editors/code/LICENSE
+      - name: Copy README.md to editors/code directory
+        run: cp README.md editors/code/README.md
+      - name: Check there is no change 
+        run: git diff --quiet || exit 1
   check-versions-match:
     name: Check versions match
     runs-on: ubuntu-latest
@@ -35,6 +46,25 @@ jobs:
       - name: Add WASM target
         run: rustup target add wasm32-unknown-unknown
       - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./editors/code
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - run: npm ci
+      - run: npm run build:wasm_lsp
+      - run: npm run check-types
+      - run: npm run lint
+      - run: npm run format:check
   test:
     name: Test
     runs-on: ubuntu-latest

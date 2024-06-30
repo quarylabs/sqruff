@@ -258,7 +258,7 @@ file:
 - statement_terminator: ;
 - statement:
   - set_expression:
-    - unordered_select_statement:
+    - select_statement:
       - select_clause:
         - keyword: select
         - select_clause_element:
@@ -311,7 +311,7 @@ file:
     - set_operator:
       - keyword: union
       - keyword: all
-    - unordered_select_statement:
+    - select_statement:
       - select_clause:
         - keyword: select
         - select_clause_element:

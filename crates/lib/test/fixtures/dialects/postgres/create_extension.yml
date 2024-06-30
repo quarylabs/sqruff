@@ -1,5 +1,5 @@
 file:
-- statement_segment:
+- statement:
   - create_extension_statement:
     - keyword: CREATE
     - keyword: EXTENSION
@@ -17,7 +17,7 @@ file:
     - version_identifier:
       - quoted_literal: '''1.0'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_extension_statement:
     - keyword: CREATE
     - keyword: EXTENSION
@@ -38,7 +38,7 @@ file:
     - version_identifier:
       - quoted_literal: '''1.0'''
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - create_extension_statement:
     - keyword: CREATE
     - keyword: EXTENSION
@@ -56,14 +56,14 @@ file:
     - version_identifier:
       - naked_identifier: from_named
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_extension_statement:
     - keyword: DROP
     - keyword: EXTENSION
     - extension_reference:
       - naked_identifier: amazing_extension
 - statement_terminator: ;
-- statement_segment:
+- statement:
   - drop_extension_statement:
     - keyword: DROP
     - keyword: EXTENSION

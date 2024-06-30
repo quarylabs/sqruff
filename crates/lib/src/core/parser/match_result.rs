@@ -3,50 +3,13 @@ use ahash::AHashMap;
 use super::segments::base::ErasedSegment;
 use crate::core::parser::matchable::Matchable;
 use crate::dialects::ansi::{self, Node};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
 pub enum Matched {
     SyntaxKind(SyntaxKind),
     ErasedSegment(ErasedSegment),
-}
-
-#[derive(Debug, Clone)]
-pub enum SyntaxKind {
-    SelectClauseModifierSegment,
-    WildcardIdentifierSegment,
-    WildcardExpressionSegment,
-    SelectClauseElementSegment,
-    SelectClauseSegment,
-    FunctionNameSegment,
-    FunctionSegment,
-    ObjectReferenceSegment,
-    TableReferenceSegment,
-    TableExpressionSegment,
-    SamplingExpressionSegment,
-    FromExpressionElementSegment,
-    JoinClauseSegment,
-    FromExpressionSegment,
-    FromClauseSegment,
-    ArrayTypeSegment,
-    TypedArrayLiteralSegment,
-    StructTypeSegment,
-    TypedStructLiteralSegment,
-    ArrayExpressionSegment,
-    ColumnReferenceSegment,
-    BracketedArguments,
-    DatatypeSegment,
-    LocalAliasSegment,
-    ShorthandCastSegment,
-    ExpressionSegment,
-    WhereClauseSegment,
-    UnorderedSelectStatementSegment,
-    SetExpressionSegment,
-    SelectStatementSegment,
-    StatementSegment,
-    FileSegment,
-
-    Skip,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -171,59 +134,9 @@ impl MatchResult {
             return result_segments;
         };
 
-        macro_rules! mk_from_kind {
-            ($kind:expr, $($variant:ident),*) => {
-                match $kind {
-                    $(
-                        SyntaxKind::$variant => Node::<ansi::$variant>::new().to_erased_segment(),
-                    )*
-
-                    _ => unimplemented!()
-                }
-            };
-        }
-
         let segment = match matched {
             Matched::SyntaxKind(kind) => {
-                if matches!(kind, SyntaxKind::FileSegment) {
-                    return vec![ansi::FileSegment::default().mk_from_segments(result_segments)];
-                }
-                let mut kind = mk_from_kind!(
-                    kind,
-                    SelectClauseModifierSegment,
-                    WildcardIdentifierSegment,
-                    WildcardExpressionSegment,
-                    SelectClauseElementSegment,
-                    SelectClauseSegment,
-                    FunctionNameSegment,
-                    FunctionSegment,
-                    ObjectReferenceSegment,
-                    TableReferenceSegment,
-                    TableExpressionSegment,
-                    SamplingExpressionSegment,
-                    FromExpressionElementSegment,
-                    JoinClauseSegment,
-                    FromExpressionSegment,
-                    FromClauseSegment,
-                    ArrayTypeSegment,
-                    TypedArrayLiteralSegment,
-                    StructTypeSegment,
-                    TypedStructLiteralSegment,
-                    ArrayExpressionSegment,
-                    ColumnReferenceSegment,
-                    BracketedArguments,
-                    DatatypeSegment,
-                    LocalAliasSegment,
-                    ShorthandCastSegment,
-                    ExpressionSegment,
-                    WhereClauseSegment,
-                    UnorderedSelectStatementSegment,
-                    SetExpressionSegment,
-                    SelectStatementSegment,
-                    StatementSegment
-                );
-                kind.get_mut().set_segments(result_segments);
-                return vec![kind];
+                return vec![Node::new(kind, result_segments).to_erased_segment()];
             }
             Matched::ErasedSegment(segment) => segment,
         };

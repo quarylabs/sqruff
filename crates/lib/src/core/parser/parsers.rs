@@ -331,3 +331,91 @@ impl Matchable for MultiStringParser {
         self.cache
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use ahash::AHashSet;
+
+    use super::TypedParser;
+    use crate::core::dialects::init::dialect_selector;
+    use crate::core::parser::context::ParseContext;
+    use crate::core::parser::matchable::Matchable;
+    use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser};
+    use crate::core::parser::segments::keyword::KeywordSegment;
+    use crate::core::parser::segments::test_functions::generate_test_segments_func;
+    use crate::helpers::ToErasedSegment;
+
+    // Test the simple method of TypedParser
+    #[test]
+    fn test__parser__typedparser__simple() {
+        let parser = TypedParser::new(
+            "single_quote",
+            |_| unimplemented!(),
+            <_>::default(),
+            <_>::default(),
+            <_>::default(),
+        );
+
+        let dialect = dialect_selector("ansi").unwrap();
+        let parse_cx = ParseContext::new(&dialect, <_>::default());
+
+        assert_eq!(
+            parser.simple(&parse_cx, None),
+            (AHashSet::new(), ["single_quote"].into()).into()
+        );
+    }
+
+    #[test]
+    fn test_stringparser_simple() {
+        // Initialize an instance of StringParser
+        let parser = StringParser::new("foo", |_| todo!(), None, false, None);
+
+        // Create a dummy ParseContext
+        let dialect = dialect_selector("ansi").unwrap();
+        let parse_cx = ParseContext::new(&dialect, <_>::default());
+
+        // Perform the test
+        assert_eq!(parser.simple(&parse_cx), (["FOO".to_string()].into(), AHashSet::new()));
+    }
+
+    #[test]
+    fn test_parser_regexparser_simple() {
+        let parser = RegexParser::new("b.r", |_| todo!(), None, false, None, None);
+        let dialect = dialect_selector("ansi").unwrap();
+        let ctx = ParseContext::new(&dialect, <_>::default());
+        assert_eq!(parser.simple(&ctx, None), None);
+    }
+
+    #[test]
+    fn test_parser_multistringparser_match() {
+        let parser = MultiStringParser::new(
+            vec!["foo".to_string(), "bar".to_string()],
+            /* KeywordSegment */
+            |segment| {
+                KeywordSegment::new(
+                    segment.raw().into(),
+                    segment.get_position_marker().unwrap().into(),
+                )
+                .to_erased_segment()
+            },
+            None,
+            false,
+            None,
+        );
+        let dialect = dialect_selector("ansi").unwrap();
+        let mut ctx = ParseContext::new(&dialect, <_>::default());
+
+        // Check directly
+        let segments = generate_test_segments_func(vec!["foo", "fo"]);
+
+        // Matches when it should
+        let result = parser.match_segments(&segments[0..1], &mut ctx).unwrap();
+        let result1 = &result.matched_segments[0];
+
+        assert_eq!(result1.raw(), "foo");
+
+        // Doesn't match when it shouldn't
+        let result = parser.match_segments(&segments[1..], &mut ctx).unwrap();
+        assert_eq!(result.matched_segments, &[]);
+    }
+}

@@ -49,6 +49,31 @@ impl Rule for RuleCV02 {
         "Use 'COALESCE' instead of 'IFNULL' or 'NVL'."
     }
 
+    fn long_description(&self) -> &'static str {
+        r#"
+**Anti-pattern**
+
+`IFNULL` or `NVL` are used to fill `NULL` values.
+
+```sql
+SELECT ifnull(foo, 0) AS bar,
+FROM baz;
+
+SELECT nvl(foo, 0) AS bar,
+FROM baz;
+```
+
+**Best practice**
+
+Use COALESCE instead. COALESCE is universally supported, whereas Redshift doesn’t support IFNULL and BigQuery doesn’t support NVL. Additionally, COALESCE is more flexible and accepts an arbitrary number of arguments.
+
+```sql
+SELECT coalesce(foo, 0) AS bar,
+FROM baz;
+```
+"#
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Use "COALESCE" instead of "IFNULL" or "NVL".
         // We only care about function names, and they should be the
@@ -101,7 +126,7 @@ mod tests {
         // CV02 is raised for use of "IFNULL" or "NVL".
         let sql = "SELECT\n\tIFNULL(NULL, 100),\n\tNVL(NULL, 100);";
         let result = lint(
-            sql.to_string(),
+            sql.into(),
             get_default_dialect().to_string(),
             vec![RuleCV02::default().erased()],
             None,
@@ -119,7 +144,7 @@ mod tests {
         let sql = "SELECT coalesce(foo, 0) AS bar,\nFROM baz;";
 
         let result = lint(
-            sql.to_string(),
+            sql.into(),
             get_default_dialect().to_string(),
             vec![RuleCV02::default().erased()],
             None,
@@ -133,14 +158,14 @@ mod tests {
     #[test]
     fn test_fail_ifnull() {
         let sql = "SELECT ifnull(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql.to_string(), vec![RuleCV02::default().erased()]);
+        let result = fix(sql, vec![RuleCV02::default().erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 
     #[test]
     fn test_fail_nvl() {
         let sql = "SELECT nvl(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql.to_string(), vec![RuleCV02::default().erased()]);
+        let result = fix(sql, vec![RuleCV02::default().erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 }

@@ -145,13 +145,13 @@ pub fn longest_match(
 
     'matcher: for (matcher_idx, matcher) in enumerate(available_options) {
         let matcher_key = matcher.cache_key();
-        let res_match = parse_context.check_parse_cache(loc_key.clone(), matcher_key);
+        let res_match = parse_context.check_parse_cache(loc_key, matcher_key);
 
         let res_match = match res_match {
             Some(res_match) => res_match,
             None => {
                 let res_match = matcher.match_segments(segments, idx, parse_context)?;
-                parse_context.put_parse_cache(loc_key.clone(), matcher_key, res_match.clone());
+                parse_context.put_parse_cache(loc_key, matcher_key, res_match.clone());
                 res_match
             }
         };

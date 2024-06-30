@@ -198,7 +198,7 @@ impl Matchable for AnyNumberOf {
                 }
             }
 
-            matched = matched.append(&match_result);
+            matched = matched.append(match_result);
             matched_idx = matched.span.end;
             working_idx = matched_idx;
             if self.allow_gaps {

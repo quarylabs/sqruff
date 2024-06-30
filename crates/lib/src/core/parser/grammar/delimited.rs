@@ -150,7 +150,7 @@ impl Matchable for Delimited {
                     delimiters += 1;
                     working_match = working_match.append(delimiter_match);
                 }
-                working_match = working_match.append(&match_result);
+                working_match = working_match.append(match_result);
             }
 
             seeking_delimiter = !seeking_delimiter;
@@ -161,7 +161,7 @@ impl Matchable for Delimited {
             && !seeking_delimiter
         {
             delimiters += 1;
-            working_match = working_match.append(&delimiter_match);
+            working_match = working_match.append(delimiter_match);
         }
 
         if delimiters < self.min_delimiters {

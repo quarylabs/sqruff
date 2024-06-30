@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use ahash::AHashMap;
 
 use super::segments::base::ErasedSegment;
@@ -45,11 +47,12 @@ impl MatchResult {
         self.len() > other.len()
     }
 
-    pub(crate) fn append(self, other: &MatchResult) -> Self {
+    pub(crate) fn append<'a>(self, other: impl Into<Cow<'a, MatchResult>>) -> Self {
+        let other = other.into();
         let mut insert_segments = Vec::new();
 
         if self.len() == 0 && self.insert_segments.is_empty() {
-            return other.clone();
+            return other.into_owned();
         }
 
         if other.len() == 0 && other.insert_segments.is_empty() {
@@ -58,7 +61,7 @@ impl MatchResult {
 
         let new_span = Span { start: self.span.start, end: other.span.end };
         let mut child_matches = Vec::new();
-        for mut matched in [self, other.clone()] {
+        for mut matched in [self, other.into_owned()] {
             if matched.matched.is_some() {
                 child_matches.push(matched);
             } else {
@@ -142,6 +145,18 @@ impl MatchResult {
         };
 
         vec![if result_segments.is_empty() { segment } else { segment.new(result_segments) }]
+    }
+}
+
+impl<'a> From<&'a MatchResult> for Cow<'a, MatchResult> {
+    fn from(t: &'a MatchResult) -> Self {
+        Cow::Borrowed(t)
+    }
+}
+
+impl From<MatchResult> for Cow<'_, MatchResult> {
+    fn from(t: MatchResult) -> Self {
+        Cow::Owned(t)
     }
 }
 

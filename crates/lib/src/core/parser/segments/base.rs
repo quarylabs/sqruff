@@ -34,10 +34,12 @@ pub type SegmentConstructorFn<SegmentArgs> =
     &'static (dyn Fn(&str, Option<PositionMarker>, SegmentArgs) -> ErasedSegment + Sync + Send);
 
 pub trait CloneSegment {
+    #[track_caller]
     fn clone_box(&self) -> ErasedSegment;
 }
 
 impl<T: Segment> CloneSegment for T {
+    #[track_caller]
     fn clone_box(&self) -> ErasedSegment {
         dyn_clone::clone(self).to_erased_segment()
     }
@@ -423,6 +425,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         unimplemented!()
     }
 
+    #[track_caller]
     fn set_segments(&mut self, _segments: Vec<ErasedSegment>) {
         unimplemented!("{}", std::any::type_name::<Self>())
     }

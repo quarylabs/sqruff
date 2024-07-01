@@ -60,13 +60,13 @@ fn fix(c: &mut Criterion) {
 
     let linter = Linter::new(FluffConfig::default(), None, None);
 
-    for (name, source) in passes {
-        let parsed = linter.parse_string(source, None, None, None).unwrap();
+    // for (name, source) in passes {
+    //    let parsed = linter.parse_string(source, None, None, None).unwrap();
 
-        c.bench_function(name, |b| {
-            b.iter(|| black_box(linter.lint_parsed(parsed.clone(), linter._rules.clone(), true)));
-        });
-    }
+    //     c.bench_function(name, |b| {
+    //         // b.iter(|| black_box(linter.lint_parsed(parsed.clone(),
+    // linter._rules.clone(), true)));     });
+    // }
 }
 #[cfg(unix)]
 criterion_group! {

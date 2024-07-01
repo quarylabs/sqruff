@@ -2197,7 +2197,7 @@ pub fn bigquery_dialect() -> Dialect {
                     Bracketed::new(vec_of_erased![
                         Bracketed::new(vec_of_erased![
                             Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar"),])
-                                .config(|this| this.min_delimiters = 1.into())
+                                .config(|this| this.min_delimiters = 1)
                         ]),
                         Ref::keyword("FOR"),
                         Ref::new("SingleIdentifierGrammar"),
@@ -2208,7 +2208,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     Delimited::new(vec_of_erased![Ref::new(
                                         "SingleIdentifierGrammar"
                                     ),])
-                                    .config(|this| this.min_delimiters = 1.into())
+                                    .config(|this| this.min_delimiters = 1)
                                 ]),
                                 Ref::new("UnpivotAliasExpressionSegment").optional(),
                             ]),

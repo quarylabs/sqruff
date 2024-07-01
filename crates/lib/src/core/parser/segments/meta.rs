@@ -121,6 +121,7 @@ impl<M: MetaSegmentKind + Send + Sync> Matchable for MetaSegment<M> {
     fn match_segments(
         &self,
         _segments: &[ErasedSegment],
+        _idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         panic!(

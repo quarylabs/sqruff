@@ -359,23 +359,20 @@ file:
                 - column_reference:
                   - naked_identifier: DoubleDelta
               - end_bracket: )
-          - comma: ','
+      - comma: ','
+      - column_definition:
+        - naked_identifier: slow_values
+        - data_type:
+          - '': Float32
+        - column_constraint_segment:
+          - keyword: CODEC
           - expression:
-            - column_reference:
-              - naked_identifier: slow_values
-          - expression:
-            - column_reference:
-              - naked_identifier: Float32
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: CODEC
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: Gorilla
-                - end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: Gorilla
+              - end_bracket: )
       - end_bracket: )
     - engine:
       - keyword: ENGINE

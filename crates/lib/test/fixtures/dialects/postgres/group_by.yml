@@ -132,9 +132,10 @@ file:
                   - naked_identifier: city
                 - end_bracket: )
             - comma: ','
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;
 - statement:

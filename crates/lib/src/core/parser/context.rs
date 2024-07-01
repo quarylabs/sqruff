@@ -11,7 +11,7 @@ use crate::core::dialects::base::Dialect;
 use crate::helpers::IndexSet;
 
 type LocKey = u32;
-type LocKeyData = (SmolStr, (usize, usize), &'static str, usize);
+type LocKeyData = (SmolStr, (usize, usize), &'static str, u32);
 
 #[cfg_attr(not(target_pointer_width = "64"), derive(Hash))]
 #[derive(Debug, PartialEq, Eq)]
@@ -32,7 +32,6 @@ impl std::hash::Hash for Cache {
         (((self.loc as u64) << 32) | (self.key as u64)).hash(h)
     }
 }
-
 #[derive(Debug)]
 pub struct ParseContext<'a> {
     dialect: &'a Dialect,
@@ -75,7 +74,6 @@ impl<'a> ParseContext<'a> {
         let (appended, terms) = self.set_terminators(clear_terminators, push_terminators);
 
         let ret = f(self);
-
         self.reset_terminators(appended, terms, clear_terminators);
 
         ret

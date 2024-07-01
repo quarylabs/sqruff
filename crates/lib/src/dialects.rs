@@ -424,6 +424,7 @@ pub enum SyntaxKind {
     CastExpression,
     DropObjectStatement,
     UnsetStatement,
+    Unparsable,
 }
 
 impl SyntaxKind {

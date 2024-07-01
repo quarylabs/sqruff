@@ -3,7 +3,7 @@ use fancy_regex::Regex;
 use smol_str::SmolStr;
 
 use super::context::ParseContext;
-use super::match_result::MatchResult;
+use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::Matchable;
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
@@ -46,14 +46,6 @@ impl TypedParser {
         }
     }
 
-    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
-        if !self.is_first_match(segment) {
-            return None;
-        }
-
-        (self.factory)(segment).into()
-    }
-
     pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
         self.target_types.iter().any(|typ| segment.is_type(typ))
     }
@@ -78,16 +70,20 @@ impl Matchable for TypedParser {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        if !segments.is_empty() {
-            let segment = &*segments[0];
-            if let Some(seg) = self.match_single(segment) {
-                return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
-            }
-        };
+        let segment = &segments[idx as usize];
+        if segment.is_type(self.template) {
+            return Ok(MatchResult {
+                span: Span { start: idx, end: idx + 1 },
+                matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                insert_segments: Vec::new(),
+                child_matches: Vec::new(),
+            });
+        }
 
-        Ok(MatchResult::from_unmatched(segments.to_vec()))
+        Ok(MatchResult::empty_at(idx))
     }
 }
 
@@ -133,16 +129,6 @@ impl StringParser {
     }
 }
 
-impl StringParser {
-    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
-        if !self.is_first_match(segment) {
-            return None;
-        }
-
-        (self.factory)(segment).into()
-    }
-}
-
 impl Segment for StringParser {}
 
 impl Matchable for StringParser {
@@ -161,15 +147,21 @@ impl Matchable for StringParser {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        if let Some((first, rest)) = segments.split_first()
-            && let Some(seg) = self.match_single(&**first)
-        {
-            return Ok(MatchResult::new(vec![seg], rest.to_vec()));
+        let segment = &segments[idx as usize];
+
+        if segment.is_code() && self.template.eq_ignore_ascii_case(&segment.raw()) {
+            return Ok(MatchResult {
+                span: Span { start: idx, end: idx + 1 },
+                matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                insert_segments: Vec::new(),
+                child_matches: Vec::new(),
+            });
         }
 
-        Ok(MatchResult::from_unmatched(segments.to_vec()))
+        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> u32 {
@@ -217,33 +209,6 @@ impl RegexParser {
             cache_key: next_cache_key(),
         }
     }
-
-    fn is_first_match(&self, segment: &dyn Segment) -> bool {
-        if segment.raw().is_empty() {
-            // TODO: Handle this case
-            return false;
-        }
-
-        let segment_raw_upper =
-            SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
-        if let Some(result) = self.template.find(&segment_raw_upper).ok().flatten() {
-            if result.as_str() == segment_raw_upper {
-                return !self.anti_template.as_ref().map_or(false, |anti_template| {
-                    anti_template.is_match(&segment_raw_upper).unwrap_or_default()
-                });
-            }
-        }
-        false
-    }
-
-    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
-        // Check if the segment matches the first condition.
-        if !self.is_first_match(segment) {
-            return None;
-        }
-
-        (self.factory)(segment).into()
-    }
 }
 
 impl Segment for RegexParser {}
@@ -266,16 +231,28 @@ impl Matchable for RegexParser {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        if !segments.is_empty() {
-            let segment = &*segments[0];
-            if let Some(seg) = self.match_single(segment) {
-                return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
+        let segment = &segments[idx as usize];
+        let segment_raw_upper =
+            SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
+        if let Some(result) = self.template.find(&segment_raw_upper).ok().flatten() {
+            if result.as_str() == segment_raw_upper {
+                if !self.anti_template.as_ref().map_or(false, |anti_template| {
+                    anti_template.is_match(&segment_raw_upper).unwrap_or_default()
+                }) {
+                    return Ok(MatchResult {
+                        span: Span { start: idx, end: idx + 1 },
+                        matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                        insert_segments: Vec::new(),
+                        child_matches: Vec::new(),
+                    });
+                }
             }
         }
 
-        Ok(MatchResult::from_unmatched(segments.to_vec()))
+        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> u32 {
@@ -288,7 +265,7 @@ pub struct MultiStringParser {
     templates: AHashSet<String>,
     simple: AHashSet<String>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    cache_key: u32,
+    cache: u32,
 }
 
 impl MultiStringParser {
@@ -310,20 +287,8 @@ impl MultiStringParser {
             templates: templates.into_iter().collect(),
             simple: _simple.into_iter().collect(),
             factory,
-            cache_key: next_cache_key(),
+            cache: next_cache_key(),
         }
-    }
-
-    fn is_first_match(&self, segment: &dyn Segment) -> bool {
-        segment.is_code() && self.templates.contains(&segment.raw().to_ascii_uppercase())
-    }
-
-    fn match_single(&self, segment: &dyn Segment) -> Option<ErasedSegment> {
-        if !self.is_first_match(segment) {
-            return None;
-        }
-
-        (self.factory)(segment).into()
     }
 }
 
@@ -345,20 +310,25 @@ impl Matchable for MultiStringParser {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        if !segments.is_empty() {
-            let segment = &*segments[0];
-            if let Some(seg) = self.match_single(segment) {
-                return Ok(MatchResult::new(vec![seg], segments[1..].to_vec()));
-            }
+        let segment = &segments[idx as usize];
+
+        if segment.is_code() && self.templates.contains(&segment.raw().to_ascii_uppercase()) {
+            return Ok(MatchResult {
+                span: Span { start: idx, end: idx + 1 },
+                matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                insert_segments: Vec::new(),
+                child_matches: Vec::new(),
+            });
         }
 
-        Ok(MatchResult::from_unmatched(segments.to_vec()))
+        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> u32 {
-        self.cache_key
+        self.cache
     }
 }
 

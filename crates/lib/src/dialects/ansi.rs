@@ -21,7 +21,7 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, Pattern};
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::match_result::{MatchResult, Matched};
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
@@ -70,7 +70,7 @@ pub struct Node {
 }
 
 impl Node {
-    fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
+    pub fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
         let position_marker = pos_marker(&segments);
         Self {
             kind,
@@ -188,34 +188,22 @@ impl Matchable for NodeMatcher {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        let Some(match_grammar) = self.match_grammar() else {
-            unimplemented!("{} has no match function implemented", std::any::type_name::<Self>())
-        };
-
-        if segments.len() == 1 && segments[0].get_type() == self.get_type() {
-            return Ok(MatchResult::from_matched(segments.to_vec()));
-        } else if segments.len() > 1 && segments[0].get_type() == self.get_type() {
-            let (first_segment, remaining_segments) =
-                segments.split_first().expect("segments should not be empty");
-            return Ok(MatchResult {
-                matched_segments: vec![first_segment.clone()],
-                unmatched_segments: remaining_segments.to_vec(),
-            });
+        if idx >= segments.len() as u32 {
+            return Ok(MatchResult::empty_at(idx));
         }
 
-        let match_result = match_grammar.match_segments(segments, parse_context)?;
-        if match_result.has_match() {
-            Ok(MatchResult {
-                matched_segments: vec![
-                    Node::new(self.node_kind, match_result.matched_segments).to_erased_segment(),
-                ],
-                unmatched_segments: match_result.unmatched_segments,
-            })
-        } else {
-            Ok(MatchResult::from_unmatched(segments.to_vec()))
+        if segments[idx as usize].get_type() == self.get_type() {
+            return Ok(MatchResult::from_span(idx, idx + 1));
         }
+
+        let grammar = self.match_grammar().unwrap();
+        let match_result = parse_context
+            .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
+
+        Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
     }
 
     fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
@@ -5836,73 +5824,45 @@ impl FileSegment {
         parse_context: &mut ParseContext,
         _f_name: Option<String>,
     ) -> Result<ErasedSegment, SQLParseError> {
-        // Trim the start
-        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0);
+        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0) as u32;
 
-        // Trim the end
-        // Note: The '+ 1' in the end is to include the segment at 'end_idx' in the
-        // slice.
-        let end_idx =
-            segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
+        let end_idx = segments
+            .iter()
+            .rposition(|segment| segment.is_code())
+            .map_or(start_idx, |idx| idx as u32 + 1);
 
         if start_idx == end_idx {
-            let mut file =
-                FileSegment { segments: segments.to_vec(), uuid: Uuid::new_v4(), pos_marker: None }
-                    .to_erased_segment();
-
-            let b = pos_marker(file.segments()).into();
-            file.get_mut().set_position_marker(b);
-
-            return Ok(file);
+            return Ok(self.new(segments.to_vec()));
         }
 
         let final_seg = segments.last().unwrap();
         assert!(final_seg.get_position_marker().is_some());
 
-        let _closing_position = final_seg.get_position_marker().unwrap().templated_slice.end;
+        let FileSegment = parse_context.dialect().r#ref("FileSegment");
 
-        let match_result = {
-            // NOTE: Don't call .match() on the segment class itself, but go
-            // straight to the match grammar inside.
-            let cls = parse_context.dialect().r#ref("FileSegment");
-            cls.match_grammar()
-                .unwrap()
-                .match_segments(&segments[start_idx..end_idx], parse_context)
-        }?;
+        let match_result = FileSegment.match_grammar().unwrap().match_segments(
+            &segments[..end_idx as usize],
+            start_idx,
+            parse_context,
+        )?;
 
+        let match_span = match_result.span;
         let has_match = match_result.has_match();
-        let MatchResult { matched_segments, unmatched_segments } = match_result;
+        let matched = match_result.apply(segments);
+        let unmatched = &segments[match_span.end as usize..end_idx as usize];
 
-        let content: Vec<_> = if !has_match {
-            vec![UnparsableSegment::new(segments[start_idx..end_idx].to_vec()).to_erased_segment()]
-        } else if !unmatched_segments.is_empty() {
-            let idx = unmatched_segments
-                .iter()
-                .position(|item| item.is_code())
-                .unwrap_or(unmatched_segments.len());
-            let mut result = Vec::new();
-            result.extend(matched_segments.clone());
-            result.extend(unmatched_segments.iter().take(idx).cloned());
-            if idx < unmatched_segments.len() {
-                result.push(
-                    UnparsableSegment::new(unmatched_segments[idx..].to_vec()).to_erased_segment(),
-                );
-            }
-
-            result
+        let content: &[ErasedSegment] = if !has_match {
+            unimplemented!()
+        } else if !unmatched.is_empty() {
+            dbg!(unmatched);
+            unimplemented!()
         } else {
-            chain(matched_segments, unmatched_segments).collect()
+            &[&matched, unmatched].concat()
         };
 
-        let mut result = Vec::new();
-        result.extend_from_slice(&segments[..start_idx]);
-        result.extend(content);
-        result.extend_from_slice(&segments[end_idx..]);
-
-        let mut file = Self { segments: result, uuid: Uuid::new_v4(), pos_marker: None };
-        file.set_position_marker(pos_marker(&file.segments).into());
-
-        Ok(file.to_erased_segment())
+        Ok(self.new(
+            [&segments[..start_idx as usize], content, &segments[end_idx as usize..]].concat(),
+        ))
     }
 }
 

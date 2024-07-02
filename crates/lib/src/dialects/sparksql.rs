@@ -3889,7 +3889,7 @@ mod tests {
         let files =
             glob::glob("test/fixtures/dialects/sparksql/*.sql").unwrap().flatten().collect_vec();
 
-        files.iter().for_each(|file| {
+        files.par_iter().for_each(|file| {
             let _panic = helpers::enter_panic(file.display().to_string());
 
             let yaml = file.with_extension("yml");

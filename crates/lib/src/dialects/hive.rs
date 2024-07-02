@@ -244,8 +244,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("STRUCT"),
             Ref::new("StructTypeSchemaSegment").optional()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     hive_dialect.replace_grammar(
@@ -258,8 +257,7 @@ pub fn raw_dialect() -> Dialect {
                 config.optional();
             })
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     hive_dialect

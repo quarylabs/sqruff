@@ -1813,8 +1813,7 @@ pub fn sparksql_dialect() -> Dialect {
             ]),
             MetaSegment::dedent()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.add([(
@@ -1884,8 +1883,7 @@ pub fn sparksql_dialect() -> Dialect {
                 config.optional();
             })
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -1905,15 +1903,13 @@ pub fn sparksql_dialect() -> Dialect {
             Ref::new("QuotedLiteralSegment"),
             Ref::new("ResourceLocationGrammar").optional()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
         "CreateTableStatementSegment",
         Sequence::new(vec_of_erased![Ref::keyword("CREATE"), Ref::new("TableDefinitionSegment")])
-            .to_matchable()
-            .into(),
+            .to_matchable(),
     );
 
     sparksql_dialect.add([(
@@ -1963,8 +1959,7 @@ pub fn sparksql_dialect() -> Dialect {
             }),
             Ref::new("WithNoSchemaBindingClauseSegment").optional()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([
         (
@@ -2034,8 +2029,7 @@ pub fn sparksql_dialect() -> Dialect {
             Ref::new("DatabaseReferenceSegment"),
             Ref::new("DropBehaviorGrammar").optional()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([(
         "DropFunctionStatementSegment".into(),
@@ -2067,8 +2061,7 @@ pub fn sparksql_dialect() -> Dialect {
             Ref::new("TableReferenceSegment"),
             Ref::new("PartitionSpecGrammar").optional()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([
         (
@@ -2323,8 +2316,7 @@ pub fn sparksql_dialect() -> Dialect {
             ]),
             MetaSegment::dedent()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -2343,8 +2335,7 @@ pub fn sparksql_dialect() -> Dialect {
                 )
             ])
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -2357,8 +2348,7 @@ pub fn sparksql_dialect() -> Dialect {
                 }
             )
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -2383,7 +2373,7 @@ pub fn sparksql_dialect() -> Dialect {
                     Ref::new("SortByClauseSegment").optional(),
                 ]),
                 None,
-                Some(Ref::new("LimitClauseSegment").optional().to_matchable().into()),
+                Some(Ref::new("LimitClauseSegment").optional().to_matchable()),
                 None,
                 Vec::new(),
                 false,
@@ -2391,12 +2381,11 @@ pub fn sparksql_dialect() -> Dialect {
             .copy(
                 Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
                 None,
-                Some(Ref::new("OrderByClauseSegment").optional().to_matchable().into()),
+                Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
                 None,
                 Vec::new(),
                 false,
-            )
-            .into(),
+            ),
     );
 
     sparksql_dialect.replace_grammar(
@@ -2427,8 +2416,7 @@ pub fn sparksql_dialect() -> Dialect {
             ]),
             MetaSegment::dedent()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([
         (
@@ -2508,8 +2496,7 @@ pub fn sparksql_dialect() -> Dialect {
                 ])
             ])
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([
         (
@@ -2641,8 +2628,7 @@ pub fn sparksql_dialect() -> Dialect {
             }),
             Ref::new("StatementSegment")
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.add([
@@ -3173,8 +3159,7 @@ pub fn sparksql_dialect() -> Dialect {
                 MetaSegment::dedent()
             ])
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -3201,8 +3186,7 @@ pub fn sparksql_dialect() -> Dialect {
                 .into();
             })
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -3238,8 +3222,7 @@ pub fn sparksql_dialect() -> Dialect {
             Ref::new("OrderByClauseSegment").optional(),
             Ref::new("LimitClauseSegment").optional()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -3270,8 +3253,7 @@ pub fn sparksql_dialect() -> Dialect {
             ]),
             Bracketed::new(vec_of_erased![Ref::new("SelectableGrammar")])
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([(
         "FileReferenceSegment".into(),
@@ -3313,8 +3295,7 @@ pub fn sparksql_dialect() -> Dialect {
             Ref::new("PivotClauseSegment").optional(),
             Ref::new("PostTableExpressionGrammar").optional()
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([
         (
@@ -3380,8 +3361,7 @@ pub fn sparksql_dialect() -> Dialect {
                 ])
             ])
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -3398,8 +3378,7 @@ pub fn sparksql_dialect() -> Dialect {
                 ])
             ])
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.replace_grammar(
@@ -3418,8 +3397,7 @@ pub fn sparksql_dialect() -> Dialect {
             Ref::new("SetClauseListSegment"),
             Ref::new("WhereClauseSegment")
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([(
         "IntervalLiteralSegment".into(),
@@ -3450,8 +3428,7 @@ pub fn sparksql_dialect() -> Dialect {
                 Ref::new("QuotedLiteralSegment")
             ])
         ])
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
     sparksql_dialect.add([
         (
@@ -3697,16 +3674,14 @@ pub fn sparksql_dialect() -> Dialect {
 
     sparksql_dialect.replace_grammar(
         "WildcardExpressionSegment",
-        ansi::wildcard_expression_segment()
-            .copy(
-                Some(vec_of_erased![Ref::new("ExceptClauseSegment").optional()]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                false,
-            )
-            .into(),
+        ansi::wildcard_expression_segment().copy(
+            Some(vec_of_erased![Ref::new("ExceptClauseSegment").optional()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
     );
 
     sparksql_dialect.add([
@@ -3846,8 +3821,7 @@ pub fn sparksql_dialect() -> Dialect {
                 ])
             ])
         }
-        .to_matchable()
-        .into(),
+        .to_matchable(),
     );
 
     sparksql_dialect.expand();

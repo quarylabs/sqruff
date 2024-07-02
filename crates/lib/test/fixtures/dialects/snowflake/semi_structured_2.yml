@@ -9,9 +9,9 @@ file:
             - column_reference:
               - naked_identifier: value
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: data
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: to
             - casting_operator: '::'
             - data_type:
@@ -26,9 +26,9 @@ file:
             - column_reference:
               - naked_identifier: value
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: data
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: from
             - casting_operator: '::'
             - data_type:

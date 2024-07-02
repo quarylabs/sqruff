@@ -132,13 +132,13 @@ file:
           - struct_type_schema:
             - start_angle_bracket: <
             - naked_identifier: x
-            - remove me: ':'
+            - colon: ':'
             - data_type:
               - primitive_type:
                 - keyword: double
             - comma: ','
             - naked_identifier: y
-            - remove me: ':'
+            - colon: ':'
             - data_type:
               - primitive_type:
                 - keyword: double
@@ -192,13 +192,13 @@ file:
               - struct_type_schema:
                 - start_angle_bracket: <
                 - naked_identifier: x
-                - remove me: ':'
+                - colon: ':'
                 - data_type:
                   - primitive_type:
                     - keyword: double
                 - comma: ','
                 - naked_identifier: y
-                - remove me: ':'
+                - colon: ':'
                 - data_type:
                   - primitive_type:
                     - keyword: double
@@ -254,7 +254,7 @@ file:
             - struct_type_schema:
               - start_angle_bracket: <
               - naked_identifier: x
-              - remove me: ':'
+              - colon: ':'
               - data_type:
                 - primitive_type:
                   - keyword: int
@@ -266,7 +266,7 @@ file:
             - struct_type_schema:
               - start_angle_bracket: <
               - naked_identifier: a
-              - remove me: ':'
+              - colon: ':'
               - data_type:
                 - primitive_type:
                   - keyword: int

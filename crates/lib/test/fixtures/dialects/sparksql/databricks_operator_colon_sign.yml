@@ -8,7 +8,7 @@ file:
           - column_reference:
             - naked_identifier: c1
           - semi_structured_expression:
-            - remove me: ':'
+            - colon: ':'
             - semi_structured_element: price
     - from_clause:
       - keyword: FROM
@@ -41,7 +41,7 @@ file:
             - column_reference:
               - naked_identifier: c1
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - start_square_bracket: '['
               - semi_structured_element: '''price'''
               - end_square_bracket: ']'

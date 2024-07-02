@@ -405,13 +405,13 @@ file:
             - struct_type_schema:
               - start_angle_bracket: <
               - naked_identifier: street
-              - remove me: ':'
+              - colon: ':'
               - data_type:
                 - primitive_type:
                   - keyword: STRING
               - comma: ','
               - naked_identifier: city
-              - remove me: ':'
+              - colon: ':'
               - data_type:
                 - primitive_type:
                   - keyword: STRING

@@ -19,7 +19,7 @@ file:
               - column_reference:
                 - naked_identifier: VALUE
               - semi_structured_expression:
-                - remove me: ':'
+                - colon: ':'
                 - semi_structured_element: id
               - casting_operator: '::'
               - data_type:
@@ -512,7 +512,7 @@ file:
               - column_reference:
                 - column_index_identifier_segment: $1
               - semi_structured_expression:
-                - remove me: ':'
+                - colon: ':'
                 - semi_structured_element: o_custkey
               - casting_operator: '::'
               - data_type:
@@ -524,7 +524,7 @@ file:
               - column_reference:
                 - column_index_identifier_segment: $1
               - semi_structured_expression:
-                - remove me: ':'
+                - colon: ':'
                 - semi_structured_element: o_orderdate
               - casting_operator: '::'
               - data_type:
@@ -536,7 +536,7 @@ file:
               - column_reference:
                 - column_index_identifier_segment: $1
               - semi_structured_expression:
-                - remove me: ':'
+                - colon: ':'
                 - semi_structured_element: o_orderstatus
               - casting_operator: '::'
               - data_type:
@@ -548,7 +548,7 @@ file:
               - column_reference:
                 - column_index_identifier_segment: $1
               - semi_structured_expression:
-                - remove me: ':'
+                - colon: ':'
                 - semi_structured_element: o_totalprice
               - casting_operator: '::'
               - data_type:

@@ -64,8 +64,10 @@ CREATE TABLE t (
             || context.segment.is_type("data_type")
         {
             for seg in context.segment.segments() {
-                if seg.is_type("symbol") && seg.is_type("symbol") && seg.is_type("symbol")
-                    || seg.get_raw_segments().is_empty()
+                if seg.is_type("symbol")
+                    || seg.is_type("identifier")
+                    || seg.is_type("quoted_literal")
+                    || !seg.segments().is_empty()
                 {
                     continue;
                 }

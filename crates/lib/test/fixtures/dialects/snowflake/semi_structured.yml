@@ -12,7 +12,7 @@ file:
           - column_reference:
             - naked_identifier: value
           - semi_structured_expression:
-            - remove me: ':'
+            - colon: ':'
             - semi_structured_element: value
         - alias_expression:
           - keyword: AS
@@ -24,7 +24,7 @@ file:
             - column_reference:
               - naked_identifier: value
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: id
             - casting_operator: '::'
             - data_type:
@@ -39,7 +39,7 @@ file:
             - column_reference:
               - naked_identifier: value
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: value
             - casting_operator: '::'
             - data_type:
@@ -53,7 +53,7 @@ file:
           - column_reference:
             - naked_identifier: value
           - semi_structured_expression:
-            - remove me: ':'
+            - colon: ':'
             - semi_structured_element: thing
             - array_accessor:
               - start_square_bracket: '['
@@ -71,7 +71,7 @@ file:
             - column_reference:
               - naked_identifier: value
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: thing
               - array_accessor:
                 - start_square_bracket: '['
@@ -143,11 +143,11 @@ file:
             - column_reference:
               - naked_identifier: value
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: point
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: from
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: latitude
             - casting_operator: '::'
             - data_type:
@@ -169,11 +169,11 @@ file:
             - column_reference:
               - naked_identifier: value
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: point
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: from
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: longitude
             - casting_operator: '::'
             - data_type:

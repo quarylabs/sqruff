@@ -20,7 +20,6 @@
   ],
   "main": "./dist/native.js",
   "browser": "./dist/browser.js",
-  "type": "module",
   "scripts": {
     "vscode:prepublish": "npm run lint && npm run build:wasm_lsp-release && npm run check-types && node esbuild.js --production",
     "compile": "npm run check-types && npm run lint && node esbuild.js",

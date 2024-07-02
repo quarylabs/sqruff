@@ -11,7 +11,7 @@ file:
               - dot: .
               - naked_identifier: y
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: _z
             - casting_operator: '::'
             - data_type:

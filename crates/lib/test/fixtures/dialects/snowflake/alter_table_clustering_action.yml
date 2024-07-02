@@ -78,9 +78,9 @@ file:
             - column_reference:
               - naked_identifier: v
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: '"Data"'
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: id
             - casting_operator: '::'
             - data_type:

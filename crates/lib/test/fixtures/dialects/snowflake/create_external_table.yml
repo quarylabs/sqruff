@@ -94,7 +94,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c1
                 - casting_operator: '::'
                 - data_type:
@@ -121,7 +121,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c2
                 - casting_operator: '::'
                 - data_type:
@@ -146,7 +146,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c3
                 - casting_operator: '::'
                 - data_type:
@@ -171,7 +171,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c4
                 - casting_operator: '::'
                 - data_type:
@@ -193,7 +193,7 @@ file:
             - column_reference:
               - naked_identifier: VALUE
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: c5
             - casting_operator: '::'
             - data_type:
@@ -215,7 +215,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c6
                 - casting_operator: '::'
                 - data_type:
@@ -240,7 +240,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c7
                 - casting_operator: '::'
                 - data_type:
@@ -265,7 +265,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c8
                 - casting_operator: '::'
                 - data_type:
@@ -286,7 +286,7 @@ file:
             - column_reference:
               - naked_identifier: VALUE
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: c9
             - casting_operator: '::'
             - data_type:
@@ -308,7 +308,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c10
                 - casting_operator: '::'
                 - data_type:
@@ -333,7 +333,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c11
                 - casting_operator: '::'
                 - data_type:
@@ -358,7 +358,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c12
                 - casting_operator: '::'
                 - data_type:
@@ -379,7 +379,7 @@ file:
             - column_reference:
               - naked_identifier: VALUE
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: c13
             - casting_operator: '::'
             - data_type:
@@ -397,7 +397,7 @@ file:
             - column_reference:
               - naked_identifier: VALUE
             - semi_structured_expression:
-              - remove me: ':'
+              - colon: ':'
               - semi_structured_element: c14
             - casting_operator: '::'
             - data_type:
@@ -419,7 +419,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c15
                 - casting_operator: '::'
                 - data_type:
@@ -444,7 +444,7 @@ file:
                 - column_reference:
                   - naked_identifier: VALUE
                 - semi_structured_expression:
-                  - remove me: ':'
+                  - colon: ':'
                   - semi_structured_element: c16
                 - casting_operator: '::'
                 - data_type:

@@ -43,7 +43,7 @@ file:
                   - naked_identifier: metadata
               - end_bracket: )
           - semi_structured_expression:
-            - remove me: ':'
+            - colon: ':'
             - semi_structured_element: customer_id
         - alias_expression:
           - keyword: AS

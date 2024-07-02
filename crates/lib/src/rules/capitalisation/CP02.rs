@@ -33,6 +33,7 @@ impl Rule for RuleCP02 {
                     .as_string()
                     .unwrap()
                     .into(),
+                cap_policy_name: "extended_capitalisation_policy".into(),
                 ..Default::default()
             },
             ..Default::default()
@@ -82,6 +83,16 @@ from foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+        if matches!(context.dialect.name, "databricks" | "sparksql")
+            && context
+                .parent_stack
+                .last()
+                .map_or(false, |it| it.get_type() == "property_name_identifier")
+            && context.segment.raw() == "enableChangeDataFeed"
+        {
+            return Vec::new();
+        }
+
         if identifiers_policy_applicable(self.unquoted_identifiers_policy, &context.parent_stack) {
             self.base.eval(context)
         } else {

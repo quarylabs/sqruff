@@ -1,0 +1,12 @@
+file:
+- statement:
+  - reset_statement:
+    - keyword: RESET
+- statement_terminator: ;
+- statement:
+  - reset_statement:
+    - keyword: RESET
+    - naked_identifier: spark
+    - dot: .
+    - naked_identifier: abc
+- statement_terminator: ;

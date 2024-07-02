@@ -1,0 +1,39 @@
+file:
+- statement:
+  - drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: dbname
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+  - drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: dbname
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: inventory_db
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: inventory_db
+    - keyword: CASCADE
+- statement_terminator: ;

@@ -1,0 +1,13 @@
+file:
+- statement:
+  - remove_widget_statement:
+    - keyword: REMOVE
+    - keyword: WIDGET
+    - widget_name_identifier: state
+- statement_terminator: ;
+- statement:
+  - remove_widget_statement:
+    - keyword: REMOVE
+    - keyword: WIDGET
+    - widget_name_identifier: database
+- statement_terminator: ;

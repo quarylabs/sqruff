@@ -1,0 +1,234 @@
+file:
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - alias_expression:
+      - keyword: as
+      - naked_identifier: t
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - alias_expression:
+      - naked_identifier: t
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - alias_expression:
+      - keyword: as
+      - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+      - keyword: as
+      - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - alias_expression:
+      - keyword: as
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - alias_expression:
+      - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - alias_expression:
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+      - keyword: as
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+      - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+      - bracketed:
+        - start_bracket: (
+        - identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+        - end_bracket: )
+- statement_terminator: ;

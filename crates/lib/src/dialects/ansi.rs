@@ -832,25 +832,21 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ParameterNameSegment".into(),
-            SegmentGenerator::new(|_dialect| {
-                let pattern = r#"\"?[A-Z][A-Z0-9_]*\"?"#;
-
-                RegexParser::new(
-                    pattern,
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs::default(),
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                )
-                .boxed()
-            })
+            RegexParser::new(
+                r#"\"?[A-Z][A-Z0-9_]*\"?"#,
+                |segment| {
+                    CodeSegment::create(
+                        &segment.raw(),
+                        segment.get_position_marker(),
+                        CodeSegmentNewArgs::default(),
+                    )
+                },
+                None,
+                false,
+                None,
+                None,
+            )
+            .to_matchable()
             .into(),
         ),
         (
@@ -4980,9 +4976,9 @@ pub fn raw_dialect() -> Dialect {
     // This is a hook point to allow subclassing for other dialects
     ansi_dialect.add([(
         "AliasedTableReferenceGrammar".into(),
-        Sequence::new(vec![
-            Ref::new("TableReferenceSegment").boxed(),
-            Ref::new("AliasExpressionSegment").boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::new("TableReferenceSegment"),
+            Ref::new("AliasExpressionSegment"),
         ])
         .to_matchable()
         .into(),

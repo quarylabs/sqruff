@@ -1,0 +1,59 @@
+file:
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+      - keyword: PARQUET
+      - dot: .
+      - quoted_identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+      - keyword: PARQUET
+      - dot: .
+      - quoted_identifier: '`/data/events/`'
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: part
+        - data_type:
+          - primitive_type:
+            - keyword: int
+      - comma: ','
+      - column_definition:
+        - naked_identifier: part2
+        - data_type:
+          - primitive_type:
+            - keyword: int
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+      - keyword: ICEBERG
+      - dot: .
+      - quoted_identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - file_reference:
+      - keyword: ICEBERG
+      - dot: .
+      - quoted_identifier: '`/data/events/`'
+    - keyword: NO
+    - keyword: STATISTICS
+- statement_terminator: ;

@@ -1,0 +1,24 @@
+file:
+- statement:
+  - describe_detail_statement:
+    - keyword: DESCRIBE
+    - keyword: DETAIL
+    - quoted_literal: '''/data/events/'''
+- statement_terminator: ;
+- statement:
+  - describe_detail_statement:
+    - keyword: DESCRIBE
+    - keyword: DETAIL
+    - table_reference:
+      - object_reference:
+        - naked_identifier: eventstable
+- statement_terminator: ;
+- statement:
+  - describe_detail_statement:
+    - keyword: DESCRIBE
+    - keyword: DETAIL
+    - file_reference:
+      - keyword: DELTA
+      - dot: .
+      - quoted_identifier: '`/data/events/`'
+- statement_terminator: ;

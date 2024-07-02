@@ -1,0 +1,79 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - primitive_type:
+            - keyword: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: student_name
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: age
+        - data_type:
+          - primitive_type:
+            - keyword: INT
+      - end_bracket: )
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - properties_naked_identifier: delta
+        - dot: .
+        - properties_naked_identifier: enableChangeDataFeed
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_delta_table
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - properties_naked_identifier: delta
+        - dot: .
+        - properties_naked_identifier: enableChangeDataFeed
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: databricks
+      - dot: .
+      - properties_naked_identifier: delta
+      - dot: .
+      - properties_naked_identifier: properties
+      - dot: .
+      - properties_naked_identifier: defaults
+      - dot: .
+      - properties_naked_identifier: enableChangeDataFeed
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'true'
+- statement_terminator: ;

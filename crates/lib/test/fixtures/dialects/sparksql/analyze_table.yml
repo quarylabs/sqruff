@@ -1,0 +1,73 @@
+file:
+- statement:
+  - analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: students
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+    - keyword: NOSCAN
+- statement_terminator: ;
+- statement:
+  - analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: students
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+  - analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: student_id
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '111111'
+      - end_bracket: )
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+  - analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: students
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+    - keyword: FOR
+    - keyword: COLUMNS
+    - column_reference:
+      - naked_identifier: name
+- statement_terminator: ;
+- statement:
+  - analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLES
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: school_db
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+    - keyword: NOSCAN
+- statement_terminator: ;
+- statement:
+  - analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLES
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+- statement_terminator: ;

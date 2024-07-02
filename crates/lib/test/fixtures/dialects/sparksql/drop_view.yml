@@ -1,0 +1,39 @@
+file:
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: view_identifier
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: employeeview
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: userdb
+        - dot: .
+        - naked_identifier: employeeview
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: employeeview
+- statement_terminator: ;

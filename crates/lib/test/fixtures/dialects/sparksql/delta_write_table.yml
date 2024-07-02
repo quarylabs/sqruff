@@ -1,0 +1,94 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: default
+        - dot: .
+        - naked_identifier: people10m
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: more_people
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: default
+        - dot: .
+        - naked_identifier: people10m
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: more_people
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: databricks
+      - dot: .
+      - properties_naked_identifier: delta
+      - dot: .
+      - properties_naked_identifier: commitInfo
+      - dot: .
+      - properties_naked_identifier: userMetadata
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '"overwritten-for-fixing-incorrect-data"'
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: default
+        - dot: .
+        - naked_identifier: people10m
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: more_people
+- statement_terminator: ;

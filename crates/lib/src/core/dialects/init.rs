@@ -7,6 +7,7 @@ pub fn dialect_selector(s: &str) -> Option<Dialect> {
         "postgres" => Some(crate::dialects::postgres::postgres_dialect()),
         "snowflake" => Some(crate::dialects::snowflake::snowflake_dialect()),
         "clickhouse" => Some(crate::dialects::clickhouse::clickhouse_dialect()),
+        "sparksql" => Some(crate::dialects::sparksql::sparksql_dialect()),
         _ => None,
     }
 }

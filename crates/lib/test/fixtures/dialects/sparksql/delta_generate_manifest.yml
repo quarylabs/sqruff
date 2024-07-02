@@ -1,0 +1,30 @@
+file:
+- statement:
+  - generate_manifest_file_statement:
+    - keyword: GENERATE
+    - symlink_format_manifest: symlink_format_manifest
+    - keyword: FOR
+    - keyword: TABLE
+    - file_reference:
+      - keyword: DELTA
+      - dot: .
+      - quoted_identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+  - generate_manifest_file_statement:
+    - keyword: GENERATE
+    - symlink_format_manifest: symlink_format_manifest
+    - keyword: FOR
+    - keyword: TABLE
+    - quoted_literal: '''/data/events/'''
+- statement_terminator: ;
+- statement:
+  - generate_manifest_file_statement:
+    - keyword: GENERATE
+    - symlink_format_manifest: symlink_format_manifest
+    - keyword: FOR
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: events
+- statement_terminator: ;

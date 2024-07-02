@@ -1,0 +1,28 @@
+file:
+- statement:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+      - function_name_identifier: function_name
+- statement_terminator: ;
+- statement:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: test_avg
+- statement_terminator: ;
+- statement:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+      - function_name_identifier: test_avg
+- statement_terminator: ;

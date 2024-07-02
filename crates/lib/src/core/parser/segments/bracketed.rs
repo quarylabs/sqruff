@@ -11,7 +11,7 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
-use crate::helpers::ToErasedSegment;
+use crate::helpers::{next_cache_key, ToErasedSegment};
 
 #[derive(Debug, Clone)]
 #[allow(clippy::derived_hash_with_manual_eq)]
@@ -22,6 +22,7 @@ pub struct BracketedSegment {
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
+    cache_key: u32,
 }
 
 impl PartialEq for BracketedSegment {
@@ -46,6 +47,7 @@ impl BracketedSegment {
             pos_marker: None,
             uuid: Uuid::new_v4(),
             raw: OnceLock::new(),
+            cache_key: next_cache_key(),
         };
         if !hack {
             this.pos_marker = pos_marker(&this.segments).into();
@@ -116,5 +118,9 @@ impl Matchable for BracketedSegment {
         }
 
         Ok(MatchResult::from_unmatched(segments.to_vec()))
+    }
+
+    fn cache_key(&self) -> u32 {
+        self.cache_key
     }
 }

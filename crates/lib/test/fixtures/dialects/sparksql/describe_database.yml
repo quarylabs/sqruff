@@ -1,0 +1,30 @@
+file:
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: employees
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: DATABASE
+    - keyword: EXTENDED
+    - database_reference:
+      - naked_identifier: employees
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: deployment
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: employees
+- statement_terminator: ;

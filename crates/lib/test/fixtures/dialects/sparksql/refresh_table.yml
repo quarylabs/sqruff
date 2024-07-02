@@ -1,0 +1,35 @@
+file:
+- statement:
+  - refresh_statement:
+    - keyword: REFRESH
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+  - refresh_statement:
+    - keyword: REFRESH
+    - table_reference:
+      - object_reference:
+        - naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+  - refresh_statement:
+    - keyword: REFRESH
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: tempdb
+        - dot: .
+        - naked_identifier: view1
+- statement_terminator: ;
+- statement:
+  - refresh_statement:
+    - keyword: REFRESH
+    - table_reference:
+      - object_reference:
+        - naked_identifier: tempdb
+        - dot: .
+        - naked_identifier: view1
+- statement_terminator: ;

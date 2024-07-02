@@ -224,10 +224,10 @@ impl Matchable for NodeMatcher {
 }
 
 pub fn ansi_dialect() -> Dialect {
-    ansi_raw_dialect().config(|this| this.expand())
+    raw_dialect().config(|this| this.expand())
 }
 
-pub fn ansi_raw_dialect() -> Dialect {
+pub fn raw_dialect() -> Dialect {
     let mut ansi_dialect = Dialect::new("FileSegment");
 
     ansi_dialect.set_lexer_matchers(lexer_matchers());
@@ -832,25 +832,21 @@ pub fn ansi_raw_dialect() -> Dialect {
         ),
         (
             "ParameterNameSegment".into(),
-            SegmentGenerator::new(|_dialect| {
-                let pattern = r#"\"?[A-Z][A-Z0-9_]*\"?"#;
-
-                RegexParser::new(
-                    pattern,
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs::default(),
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                )
-                .boxed()
-            })
+            RegexParser::new(
+                r#"\"?[A-Z][A-Z0-9_]*\"?"#,
+                |segment| {
+                    CodeSegment::create(
+                        &segment.raw(),
+                        segment.get_position_marker(),
+                        CodeSegmentNewArgs::default(),
+                    )
+                },
+                None,
+                false,
+                None,
+                None,
+            )
+            .to_matchable()
             .into(),
         ),
         (
@@ -4980,9 +4976,9 @@ pub fn ansi_raw_dialect() -> Dialect {
     // This is a hook point to allow subclassing for other dialects
     ansi_dialect.add([(
         "AliasedTableReferenceGrammar".into(),
-        Sequence::new(vec![
-            Ref::new("TableReferenceSegment").boxed(),
-            Ref::new("AliasExpressionSegment").boxed(),
+        Sequence::new(vec_of_erased![
+            Ref::new("TableReferenceSegment"),
+            Ref::new("AliasExpressionSegment"),
         ])
         .to_matchable()
         .into(),
@@ -6111,7 +6107,7 @@ impl ObjectReferenceSegment {
         let refs = self.iter_raw_references();
 
         match dialect {
-            "ansi" | "postgres" | "clickhouse" => {
+            "ansi" | "postgres" | "clickhouse" | "sparksql" => {
                 let level = level as usize;
                 if refs.len() >= level && level > 0 {
                     refs.get(refs.len() - level).cloned().into_iter().collect()

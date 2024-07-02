@@ -1,0 +1,32 @@
+file:
+- statement:
+  - add_file_statement:
+    - keyword: ADD
+    - file_keyword: FILE
+    - quoted_literal: '"/path/to/file/abc.txt"'
+- statement_terminator: ;
+- statement:
+  - add_file_statement:
+    - keyword: ADD
+    - file_keyword: FILE
+    - quoted_literal: '''/another/test.txt'''
+- statement_terminator: ;
+- statement:
+  - add_file_statement:
+    - keyword: ADD
+    - file_keyword: FILE
+    - quoted_literal: '"/path with space/abc.txt"'
+- statement_terminator: ;
+- statement:
+  - add_file_statement:
+    - keyword: ADD
+    - file_keyword: FILE
+    - quoted_literal: '"/path/to/some/directory"'
+- statement_terminator: ;
+- statement:
+  - add_file_statement:
+    - keyword: ADD
+    - file_keyword: FILES
+    - quoted_literal: '"/path with space/cde.txt"'
+    - quoted_literal: '''/path with space/fgh.txt'''
+- statement_terminator: ;

@@ -1,0 +1,76 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: salesdb
+        - dot: .
+        - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: state
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''CA'''
+      - comma: ','
+      - column_reference:
+        - naked_identifier: city
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''Fremont'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: state
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''CA'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: city
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''San Jose'''
+      - end_bracket: )
+- statement_terminator: ;

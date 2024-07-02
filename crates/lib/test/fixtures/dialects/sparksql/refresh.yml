@@ -1,0 +1,6 @@
+file:
+- statement:
+  - refresh_statement:
+    - keyword: REFRESH
+    - quoted_literal: '"hdfs://path/to/table"'
+- statement_terminator: ;

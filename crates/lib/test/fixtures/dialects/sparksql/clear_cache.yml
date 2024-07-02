@@ -1,0 +1,6 @@
+file:
+- statement:
+  - clear_cache:
+    - keyword: CLEAR
+    - keyword: CACHE
+- statement_terminator: ;

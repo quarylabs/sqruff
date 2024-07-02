@@ -115,6 +115,12 @@ pub struct Sequence {
 }
 
 impl Sequence {
+    pub(crate) fn disallow_gaps(&mut self) {
+        self.allow_gaps = false;
+    }
+}
+
+impl Sequence {
     pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
         Self {
             elements,
@@ -489,9 +495,10 @@ impl Bracketed {
             }
         }
         Err(format!(
-            "bracket_type {:?} not found in bracket_pairs of {:?} dialect.",
+            "bracket_type {:?} not found in bracket_pairs ({}) of {:?} dialect.",
             self.bracket_type,
-            parse_context.dialect()
+            self.bracket_pairs_set,
+            parse_context.dialect().name
         ))
     }
 }

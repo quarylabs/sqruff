@@ -1,0 +1,29 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table_identifier
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: a
+        - data_type:
+          - primitive_type:
+            - keyword: LONG
+      - comma: ','
+      - column_definition:
+        - naked_identifier: b
+        - data_type:
+          - primitive_type:
+            - keyword: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+          - primitive_type:
+            - keyword: SMALLINT
+      - end_bracket: )
+- statement_terminator: ;

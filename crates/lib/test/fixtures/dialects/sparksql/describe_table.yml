@@ -1,0 +1,98 @@
+file:
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: salesdb
+        - dot: .
+        - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: state
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''AR'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - naked_identifier: salesdb
+    - dot: .
+    - naked_identifier: customer
+    - dot: .
+    - naked_identifier: name
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - naked_identifier: salesdb
+    - dot: .
+    - naked_identifier: customer
+    - dot: .
+    - naked_identifier: name
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - naked_identifier: customer
+    - dot: .
+    - naked_identifier: name
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customer
+    - naked_identifier: name
+- statement_terminator: ;

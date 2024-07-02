@@ -1,0 +1,70 @@
+file:
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: live
+                  - dot: .
+                  - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customers_silver
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: stream
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: live
+                      - dot: .
+                      - naked_identifier: customers_bronze
+                  - end_bracket: )
+- statement_terminator: ;

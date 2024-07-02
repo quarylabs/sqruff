@@ -1,0 +1,19 @@
+file:
+- statement:
+  - use_statement:
+    - keyword: USE
+    - database_reference:
+      - naked_identifier: database_name
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - database_reference:
+      - naked_identifier: userdb
+- statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: USE
+    - database_reference:
+      - naked_identifier: userdb1
+- statement_terminator: ;

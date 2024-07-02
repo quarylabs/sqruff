@@ -1,0 +1,23 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_expression:
+      - table_reference:
+        - object_reference:
+          - naked_identifier: test
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_expression:
+      - table_reference:
+        - object_reference:
+          - naked_identifier: test
+    - keyword: AS
+    - keyword: SERDE
+- statement_terminator: ;

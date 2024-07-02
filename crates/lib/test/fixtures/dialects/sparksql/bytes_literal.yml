@@ -1,0 +1,21 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - bytes_quoted_literal: X'123456'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: col
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - bytes_quoted_literal: X"123456"
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: col
+- statement_terminator: ;

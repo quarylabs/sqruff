@@ -1,0 +1,39 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: variable
+      - dot: .
+      - properties_naked_identifier: substitute
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - sql_conf_option:
+      - dash: '-'
+      - sql_conf_option: v
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: variable
+      - dot: .
+      - properties_naked_identifier: substitute
+- statement_terminator: ;

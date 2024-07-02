@@ -1,0 +1,52 @@
+file:
+- statement:
+  - msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table_identifier
+    - keyword: ADD
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+  - msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table_identifier
+    - keyword: DROP
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+  - msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table_identifier
+    - keyword: SYNC
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+  - msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table_identifier
+- statement_terminator: ;
+- statement:
+  - msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: t1
+- statement_terminator: ;

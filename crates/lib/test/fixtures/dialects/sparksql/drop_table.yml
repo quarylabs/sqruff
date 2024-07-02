@@ -1,0 +1,39 @@
+file:
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: table_identifier
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: employeetable
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: userdb
+        - dot: .
+        - naked_identifier: employeetable
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: employeetable
+- statement_terminator: ;

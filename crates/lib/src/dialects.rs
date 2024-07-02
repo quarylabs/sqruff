@@ -4,10 +4,13 @@ pub mod bigquery;
 pub mod bigquery_keywords;
 pub mod clickhouse;
 pub mod clickhouse_keywords;
+pub mod hive;
 pub mod postgres;
 pub mod postgres_keywords;
 pub mod snowflake;
 pub mod snowflake_keywords;
+pub mod sparksql;
+pub mod sparksql_keywords;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, strum_macros::IntoStaticStr)]
 #[strum(serialize_all = "snake_case")]
@@ -424,6 +427,51 @@ pub enum SyntaxKind {
     CastExpression,
     DropObjectStatement,
     UnsetStatement,
+    SqlConfOption,
+    BinaryOperator,
+    PrimitiveType,
+    CreateWidgetStatement,
+    ReplaceTableStatement,
+    RemoveWidgetStatement,
+    UseDatabaseStatement,
+    InsertOverwriteDirectoryStatement,
+    InsertOverwriteDirectoryHiveFmtStatement,
+    LoadDataStatement,
+    ClusterByClause,
+    DistributeByClause,
+    HintFunction,
+    SelectHint,
+    WithCubeRollupClause,
+    SortByClause,
+    LateralViewClause,
+    PivotClause,
+    TransformClause,
+    AddFileStatement,
+    AddJarStatement,
+    AnalyzeTableStatement,
+    CacheTable,
+    ClearCache,
+    ListFileStatement,
+    ListJarStatement,
+    RefreshStatement,
+    UncacheTable,
+    FileReference,
+    PropertyNameIdentifier,
+    GeneratedColumnDefinition,
+    IntervalLiteral,
+    DescribeHistoryStatement,
+    DescribeDetailStatement,
+    GenerateManifestFileStatement,
+    ConvertToDeltaStatement,
+    RestoreTableStatement,
+    ConstraintStatement,
+    ApplyChangesIntoStatement,
+    UsingClause,
+    DataSourceFormat,
+    IcebergTransformation,
+    MsckRepairTableStatement,
+    RowFormatClause,
+    SkewedByClause,
 }
 
 impl SyntaxKind {

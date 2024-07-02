@@ -1,0 +1,39 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: FROM
+    - database_reference:
+      - naked_identifier: userdb
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: global_temp
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: FROM
+    - database_reference:
+      - naked_identifier: default
+    - keyword: LIKE
+    - quoted_literal: '''sam*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: LIKE
+    - quoted_literal: '''sam|suj|temp*'''
+- statement_terminator: ;

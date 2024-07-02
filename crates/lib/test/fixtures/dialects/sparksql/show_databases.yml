@@ -1,0 +1,18 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+    - keyword: LIKE
+    - quoted_literal: '''pay*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+- statement_terminator: ;

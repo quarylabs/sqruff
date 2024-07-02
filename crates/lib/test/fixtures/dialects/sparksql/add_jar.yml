@@ -1,0 +1,74 @@
+file:
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - quoted_literal: '"/path/to/some.jar"'
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - quoted_literal: '''/some/other.jar'''
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - quoted_literal: '"/path with space/abc.jar"'
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JARS
+    - quoted_literal: '"/path with space/def.jar"'
+    - quoted_literal: '''/path with space/ghi.jar'''
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - quoted_literal: '"ivy://group:module:version"'
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - quoted_literal: '"ivy://group:module:version?transitive=false"'
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - quoted_literal: '"ivy://group:module:version?transitive=true"'
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - quoted_literal: '"ivy://group:module:version?exclude=group:module&transitive=true"'
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - file_literal: ivy://group:module:version?exclude=group:module&transitive=true
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - file_literal: /path/to/some.jar
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - file_literal: path/to/some.jar
+- statement_terminator: ;
+- statement:
+  - add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JAR
+    - file_literal: ivy://path/to/some.jar
+- statement_terminator: ;

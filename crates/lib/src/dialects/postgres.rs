@@ -19,7 +19,7 @@ use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
-use crate::dialects::ansi::{ansi_raw_dialect, NodeMatcher};
+use crate::dialects::ansi::{raw_dialect, NodeMatcher};
 use crate::dialects::postgres_keywords::{get_keywords, postgres_keywords};
 use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
@@ -39,7 +39,7 @@ impl<T> Boxed for T {
 }
 
 pub fn postgres_dialect() -> Dialect {
-    let mut postgres = ansi_raw_dialect();
+    let mut postgres = raw_dialect();
     postgres.name = "postgres";
 
     postgres.insert_lexer_matchers(

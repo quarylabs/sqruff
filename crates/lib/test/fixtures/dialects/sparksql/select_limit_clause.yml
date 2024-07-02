@@ -1,0 +1,92 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: age
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: person
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: name
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: age
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: person
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: name
+    - limit_clause:
+      - keyword: LIMIT
+      - keyword: ALL
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: age
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: person
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: name
+    - limit_clause:
+      - keyword: LIMIT
+      - function:
+        - function_name:
+          - function_name_identifier: length
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''SPARK'''
+          - end_bracket: )
+- statement_terminator: ;

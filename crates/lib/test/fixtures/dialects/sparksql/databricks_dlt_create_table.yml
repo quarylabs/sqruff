@@ -1,0 +1,215 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: taxi_raw
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - file_reference:
+                - keyword: JSON
+                - dot: .
+                - quoted_identifier: '`/databricks-datasets/nyctaxi/sample/json/`'
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: live
+                  - dot: .
+                  - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customers_bronze
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: CLOUD_FILES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '"/databricks-datasets/retail-org/customers/"'
+                  - comma: ','
+                  - expression:
+                    - quoted_literal: '"csv"'
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customers_silver
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: STREAM
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: live
+                      - dot: .
+                      - naked_identifier: customers_bronze
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: live
+                  - dot: .
+                  - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: TEMPORARY
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: customers_silver
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: STREAM
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: live
+                      - dot: .
+                      - naked_identifier: customers_bronze
+                  - end_bracket: )
+- statement_terminator: ;

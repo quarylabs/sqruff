@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use itertools::Itertools;
 
-use super::ansi::{self, ansi_raw_dialect};
+use super::ansi::{self, raw_dialect};
 use super::snowflake_keywords::{SNOWFLAKE_RESERVED_KEYWORDS, SNOWFLAKE_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::{any_set_of, one_of, optionally_bracketed, AnyNumberOf};
@@ -38,7 +38,7 @@ impl<T> Boxed for T {
 }
 
 pub fn snowflake_dialect() -> Dialect {
-    let mut snowflake_dialect = ansi_raw_dialect();
+    let mut snowflake_dialect = raw_dialect();
     snowflake_dialect.name = "snowflake";
 
     snowflake_dialect.replace_grammar(

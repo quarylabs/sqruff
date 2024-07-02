@@ -1,0 +1,38 @@
+file:
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: abs
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: FUNCTION
+    - keyword: EXTENDED
+    - function_name:
+      - function_name_identifier: abs
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: max
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: FUNCTION
+    - keyword: EXTENDED
+    - function_name:
+      - function_name_identifier: explode
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: max
+- statement_terminator: ;

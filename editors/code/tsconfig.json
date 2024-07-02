@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
-		"module": "Node16",
+		"module": "ES2022",
+		"moduleResolution": "Bundler",
 		"target": "ES2022",
 		"lib": [
 			"ES2022",

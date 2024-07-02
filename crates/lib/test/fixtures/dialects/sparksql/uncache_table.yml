@@ -1,0 +1,19 @@
+file:
+- statement:
+  - uncache_table:
+    - keyword: UNCACHE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: t1
+- statement_terminator: ;
+- statement:
+  - uncache_table:
+    - keyword: UNCACHE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: t1
+- statement_terminator: ;

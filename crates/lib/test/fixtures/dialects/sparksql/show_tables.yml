@@ -1,0 +1,39 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+      - naked_identifier: userdb
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: userdb
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: FROM
+    - database_reference:
+      - naked_identifier: default
+    - keyword: LIKE
+    - quoted_literal: '''sam*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: LIKE
+    - quoted_literal: '''sam*|suj'''
+- statement_terminator: ;

@@ -1,0 +1,58 @@
+file:
+- statement:
+  - insert_overwrite_directory_hive_fmt_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: LOCAL
+    - keyword: DIRECTORY
+    - quoted_literal: '''/tmp/destination'''
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+  - insert_overwrite_directory_hive_fmt_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: LOCAL
+    - keyword: DIRECTORY
+    - quoted_literal: '''/tmp/destination'''
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: ''','''
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: test_table
+- statement_terminator: ;

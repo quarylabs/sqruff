@@ -1,0 +1,63 @@
+file:
+- statement:
+  - constraint_statement:
+    - keyword: CONSTRAINT
+    - object_reference:
+      - naked_identifier: valid_timestamp
+    - keyword: EXPECT
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - naked_identifier: event_ts
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - quoted_literal: '''2012-01-01'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - constraint_statement:
+    - keyword: CONSTRAINT
+    - object_reference:
+      - naked_identifier: valid_current_page
+    - keyword: EXPECT
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - naked_identifier: current_page_id
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: current_page_title
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+      - end_bracket: )
+    - keyword: ON
+    - keyword: VIOLATION
+    - keyword: DROP
+    - keyword: ROW
+- statement_terminator: ;
+- statement:
+  - constraint_statement:
+    - keyword: CONSTRAINT
+    - object_reference:
+      - naked_identifier: valid_count
+    - keyword: EXPECT
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - naked_identifier: count
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '0'
+      - end_bracket: )
+    - keyword: ON
+    - keyword: VIOLATION
+    - keyword: FAIL
+    - keyword: UPDATE
+- statement_terminator: ;

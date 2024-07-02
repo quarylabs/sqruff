@@ -1,0 +1,16 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '123'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: INTEGER
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '123'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: INT

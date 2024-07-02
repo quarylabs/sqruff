@@ -1,0 +1,57 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - keyword: LIKE
+    - quoted_literal: '''employee'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - keyword: LIKE
+    - quoted_literal: '''employe*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: default
+    - keyword: LIKE
+    - quoted_literal: '''employee'''
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: grade
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: default
+    - keyword: LIKE
+    - quoted_literal: '''empl*'''
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: grade
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;

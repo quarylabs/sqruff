@@ -1,0 +1,79 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: c1
+          - semi_structured_expression:
+            - remove me: ':'
+            - semi_structured_element: price
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - values_clause:
+              - keyword: VALUES
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''{ "price": 5 }'''
+                - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: T
+                - bracketed:
+                  - start_bracket: (
+                  - identifier_list:
+                    - naked_identifier: c1
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: c1
+            - semi_structured_expression:
+              - remove me: ':'
+              - start_square_bracket: '['
+              - semi_structured_element: '''price'''
+              - end_square_bracket: ']'
+            - casting_operator: '::'
+            - data_type:
+              - primitive_type:
+                - keyword: DECIMAL
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - values_clause:
+              - keyword: VALUES
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''{ "price": 5 }'''
+                - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: T
+                - bracketed:
+                  - start_bracket: (
+                  - identifier_list:
+                    - naked_identifier: c1
+                  - end_bracket: )
+- statement_terminator: ;

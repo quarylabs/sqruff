@@ -318,7 +318,21 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ColonSegment".into(),
-            StringParser::new(":", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new(
+                ":",
+                |segment: &dyn Segment| {
+                    SymbolSegment::create(
+                        &segment.raw(),
+                        segment.get_position_marker(),
+                        SymbolSegmentNewArgs { r#type: "colon" },
+                    )
+                },
+                None,
+                false,
+                None,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "SliceSegment".into(),

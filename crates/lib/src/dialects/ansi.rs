@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 use std::fmt::Debug;
-use std::hash::Hash;
 use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
@@ -5831,18 +5830,13 @@ pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
     Sequence::new(vec![Ref::new("WildcardIdentifierSegment").boxed()]).to_matchable()
 }
 
-/// A segment representing a whole file or script.
-/// This is also the default "root" segment of the dialect,
-/// and so is usually instantiated directly. It therefore
-/// has no match_grammar.
-#[derive(Hash, Default, Debug, Clone, PartialEq)]
-pub struct FileSegment {
-    segments: Vec<ErasedSegment>,
-    pos_marker: Option<PositionMarker>,
-    uuid: Uuid,
-}
-
+#[derive(Debug, Clone, PartialEq)]
+pub struct FileSegment;
 impl FileSegment {
+    fn of(segments: Vec<ErasedSegment>) -> ErasedSegment {
+        Node::new(SyntaxKind::File, segments).to_erased_segment()
+    }
+
     pub fn root_parse(
         &self,
         segments: &[ErasedSegment],
@@ -5859,14 +5853,7 @@ impl FileSegment {
             segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
 
         if start_idx == end_idx {
-            let mut file =
-                FileSegment { segments: segments.to_vec(), uuid: Uuid::new_v4(), pos_marker: None }
-                    .to_erased_segment();
-
-            let b = pos_marker(file.segments()).into();
-            file.get_mut().set_position_marker(b);
-
-            return Ok(file);
+            return Ok(FileSegment::of(segments.to_vec()));
         }
 
         let final_seg = segments.last().unwrap();
@@ -5912,37 +5899,7 @@ impl FileSegment {
         result.extend(content);
         result.extend_from_slice(&segments[end_idx..]);
 
-        let mut file = Self { segments: result, uuid: Uuid::new_v4(), pos_marker: None };
-        file.set_position_marker(pos_marker(&file.segments).into());
-
-        Ok(file.to_erased_segment())
-    }
-}
-
-impl Segment for FileSegment {
-    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
-        FileSegment { segments, uuid: self.uuid, pos_marker: self.pos_marker.clone() }
-            .to_erased_segment()
-    }
-
-    fn get_type(&self) -> &'static str {
-        "file"
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.pos_marker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.pos_marker = position_marker;
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
-    }
-
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["file"].into()
+        Ok(Self::of(result))
     }
 }
 

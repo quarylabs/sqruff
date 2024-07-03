@@ -13,7 +13,7 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     pub fn new(config: &'a FluffConfig, _dialect: Option<String>) -> Self {
-        Self { config, root_segment: FileSegment::default() }
+        Self { config, root_segment: FileSegment }
     }
 
     pub fn parse(

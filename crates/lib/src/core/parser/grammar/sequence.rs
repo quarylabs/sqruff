@@ -103,8 +103,7 @@ fn position_metas(
     }
 }
 
-#[derive(Debug, Clone, Hash)]
-#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, Clone)]
 pub struct Sequence {
     elements: Vec<Arc<dyn Matchable>>,
     pub(crate) parse_mode: ParseMode,
@@ -456,12 +455,11 @@ impl Matchable for Sequence {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Bracketed {
     pub(crate) bracket_type: &'static str,
     pub(crate) bracket_pairs_set: &'static str,
     allow_gaps: bool,
-
     pub this: Sequence,
 }
 

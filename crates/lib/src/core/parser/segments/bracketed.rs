@@ -14,7 +14,6 @@ use crate::core::parser::matchable::Matchable;
 use crate::helpers::{next_cache_key, ToErasedSegment};
 
 #[derive(Debug, Clone)]
-#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct BracketedSegment {
     raw: OnceLock<String>,
     pub segments: Vec<ErasedSegment>,

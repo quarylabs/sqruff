@@ -18,8 +18,7 @@ use crate::helpers::{next_cache_key, ToMatchable};
 ///
 /// Note that if there are multiple elements passed in that they will be treated
 /// as different options of what can be delimited, rather than a sequence.
-#[derive(Clone, Debug, Hash)]
-#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Clone, Debug)]
 pub struct Delimited {
     base: AnyNumberOf,
     pub(crate) allow_trailing: bool,

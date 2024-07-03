@@ -76,7 +76,6 @@ impl TupleSerialisedSegment {
 }
 
 #[derive(Debug, Clone)]
-#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct ErasedSegment {
     value: Arc<dyn Segment>,
     hash: Arc<AtomicU64>,

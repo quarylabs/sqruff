@@ -73,8 +73,8 @@ pub fn simple(
     Some((simple_raws, simple_types))
 }
 
-#[derive(Debug, Clone, Hash)]
-#[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
+#[derive(Debug, Clone)]
+#[allow(clippy::field_reassign_with_default)]
 pub struct AnyNumberOf {
     pub(crate) exclude: Option<Arc<dyn Matchable>>,
     pub(crate) elements: Vec<Arc<dyn Matchable>>,

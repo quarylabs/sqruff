@@ -121,4 +121,3 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
 }
 
 dyn_clone::clone_trait_object!(Matchable);
-dyn_hash::hash_trait_object!(Matchable);

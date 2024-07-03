@@ -18,6 +18,7 @@ pub struct RuleCP01 {
     pub(crate) cap_policy_name: String,
     pub(crate) skip_literals: bool,
     pub(crate) exclude_parent_types: &'static [&'static str],
+    pub(crate) description_elem: &'static str,
 }
 
 impl Default for RuleCP01 {
@@ -32,6 +33,7 @@ impl Default for RuleCP01 {
                 "primitive_type",
                 "naked_identifier",
             ],
+            description_elem: "Keywords",
         }
     }
 }
@@ -92,7 +94,7 @@ from foo
 
         if (self.skip_literals && context.segment.is_type("literal"))
             || !self.exclude_parent_types.is_empty()
-                && self.exclude_parent_types.iter().all(|it| parent.is_type(it))
+                && self.exclude_parent_types.iter().any(|it| parent.is_type(it))
         {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
@@ -102,6 +104,7 @@ from foo
         }
 
         vec![handle_segment(
+            self.description_elem,
             &self.capitalisation_policy,
             &self.cap_policy_name,
             context.segment.clone(),
@@ -125,6 +128,7 @@ struct RefutedCases(AHashSet<&'static str>);
 struct LatestPossibleCase(String);
 
 pub fn handle_segment(
+    description_elem: &str,
     extended_capitalisation_policy: &str,
     cap_policy_name: &str,
     seg: ErasedSegment,
@@ -223,7 +227,8 @@ pub fn handle_segment(
     if fixed_raw == seg.raw() {
         LintResult::new(None, Vec::new(), None, None, None)
     } else {
-        let consistency = if concrete_policy == "consistent" { "consistently " } else { "" };
+        let consistency =
+            if extended_capitalisation_policy == "consistent" { "consistently " } else { "" };
         let policy = match concrete_policy {
             concrete_policy @ ("upper" | "lower") => format!("{} case.", concrete_policy),
             "capitalise" => "capitalised.".to_string(),
@@ -239,7 +244,7 @@ pub fn handle_segment(
                 None,
             )],
             None,
-            format!("{} must be {}{}", "Datatypes", consistency, policy).into(),
+            format!("{description_elem} must be {consistency}{policy}").into(),
             None,
         )
     }

@@ -22,6 +22,7 @@ pub struct BracketedSegment {
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
     cache_key: u32,
+    descendant_type_set: OnceLock<AHashSet<&'static str>>,
 }
 
 impl PartialEq for BracketedSegment {
@@ -47,6 +48,7 @@ impl BracketedSegment {
             uuid: Uuid::new_v4(),
             raw: OnceLock::new(),
             cache_key: next_cache_key(),
+            descendant_type_set: OnceLock::new(),
         };
         if !hack {
             this.pos_marker = pos_marker(&this.segments).into();
@@ -93,6 +95,18 @@ impl Segment for BracketedSegment {
 
     fn class_types(&self) -> AHashSet<&'static str> {
         ["bracketed"].into()
+    }
+
+    fn descendant_type_set(&self) -> &AHashSet<&'static str> {
+        self.descendant_type_set.get_or_init(|| {
+            let mut result_set = AHashSet::new();
+
+            for seg in self.segments() {
+                result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
+            }
+
+            result_set
+        })
     }
 }
 

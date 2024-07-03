@@ -97,18 +97,16 @@ impl Segment for Node {
         .to_erased_segment()
     }
 
-    fn descendant_type_set(&self) -> AHashSet<&'static str> {
-        self.descendant_type_set
-            .get_or_init(|| {
-                let mut result_set = AHashSet::new();
+    fn descendant_type_set(&self) -> &AHashSet<&'static str> {
+        self.descendant_type_set.get_or_init(|| {
+            let mut result_set = AHashSet::new();
 
-                for seg in self.segments() {
-                    result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
-                }
+            for seg in self.segments() {
+                result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
+            }
 
-                result_set
-            })
-            .clone()
+            result_set
+        })
     }
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {

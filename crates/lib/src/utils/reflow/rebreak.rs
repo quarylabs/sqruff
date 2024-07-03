@@ -471,7 +471,7 @@ fn reorder_and_insert(
 mod tests {
     use crate::core::parser::segments::test_functions::parse_ansi_string;
     use crate::helpers::enter_panic;
-    use crate::utils::reflow::sequence::ReflowSequence;
+    use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
     #[test]
     fn test_reflow__sequence_rebreak_root() {
@@ -520,7 +520,7 @@ mod tests {
             let root = parse_ansi_string(raw_sql_in);
             let target = &root.get_raw_segments()[target_idx];
             let config = <_>::default();
-            let seq = ReflowSequence::from_around_target(target, root, "both", &config);
+            let seq = ReflowSequence::from_around_target(target, root, TargetSide::Both, &config);
 
             assert_eq!(seq.raw(), seq_sql_in);
 

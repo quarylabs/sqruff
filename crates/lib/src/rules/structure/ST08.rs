@@ -9,7 +9,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
-use crate::utils::reflow::sequence::{Filter, ReflowSequence};
+use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleST08;
@@ -24,7 +24,7 @@ impl RuleST08 {
         let seq = ReflowSequence::from_around_target(
             anchor,
             context.parent_stack[0].clone(),
-            "before",
+            TargetSide::Before,
             context.config.unwrap(),
         )
         .replace(
@@ -102,7 +102,7 @@ SELECT DISTINCT a, b FROM foo
                     seq = Some(ReflowSequence::from_around_target(
                         &modifier[0],
                         context.parent_stack[0].clone(),
-                        "after",
+                        TargetSide::After,
                         context.config.unwrap(),
                     ));
                 }

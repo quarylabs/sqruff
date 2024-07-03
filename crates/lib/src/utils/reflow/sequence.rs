@@ -1,3 +1,4 @@
+use std::cmp::PartialEq;
 use std::mem::take;
 
 use itertools::Itertools;
@@ -17,6 +18,13 @@ pub struct ReflowSequence {
     lint_results: Vec<LintResult>,
     reflow_config: ReflowConfig,
     depth_map: DepthMap,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum TargetSide {
+    Both,
+    Before,
+    After,
 }
 
 impl ReflowSequence {
@@ -97,7 +105,7 @@ impl ReflowSequence {
     pub fn from_around_target(
         target_segment: &ErasedSegment,
         root_segment: ErasedSegment,
-        sides: &str,
+        sides: TargetSide,
         config: &FluffConfig,
     ) -> ReflowSequence {
         let all_raws = root_segment.get_raw_segments();
@@ -112,7 +120,7 @@ impl ReflowSequence {
         let mut pre_idx = pre_idx;
         let mut post_idx = post_idx;
 
-        if sides == "both" || sides == "before" {
+        if sides == TargetSide::Both || sides == TargetSide::Before {
             pre_idx -= 1;
             for i in (0..=pre_idx).rev() {
                 if all_raws[i].is_code() {
@@ -122,7 +130,7 @@ impl ReflowSequence {
             }
         }
 
-        if sides == "both" || sides == "after" {
+        if sides == TargetSide::Both || sides == TargetSide::After {
             for (i, it) in all_raws.iter().enumerate().skip(post_idx) {
                 if it.is_code() {
                     post_idx = i;

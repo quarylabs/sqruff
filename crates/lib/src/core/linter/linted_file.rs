@@ -1,7 +1,7 @@
 use std::ops::Range;
 
-use ahash::AHashSet;
 use itertools::Itertools;
+use rustc_hash::FxHashSet;
 
 use crate::core::errors::SQLBaseError;
 use crate::core::parser::segments::base::ErasedSegment;
@@ -85,9 +85,9 @@ impl LintedFile {
         templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
         let mut filtered_source_patches = Vec::new();
-        let mut dedupe_buffer = AHashSet::new();
+        let mut dedupe_buffer = FxHashSet::default();
 
-        for patch in tree.iter_patches(templated_file).into_iter() {
+        for patch in tree.iter_patches(templated_file) {
             if dedupe_buffer.insert(patch.dedupe_tuple()) {
                 filtered_source_patches.push(patch);
             }

@@ -76,7 +76,7 @@ pub struct Match<'a> {
 impl Match<'_> {
     /// A LexMatch is truthy if it contains a non-zero number of matched
     /// elements.
-    pub fn is_non_empty(self: &Self) -> bool {
+    pub fn is_non_empty(&self) -> bool {
         !self.elements.is_empty()
     }
 }

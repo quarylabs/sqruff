@@ -155,8 +155,11 @@ impl Segment for Node {
 
     fn class_types(&self) -> AHashSet<&'static str> {
         match self.kind {
-            SyntaxKind::ColumnReference => ["object_reference", self.get_type()].into(),
+            SyntaxKind::ColumnReference | SyntaxKind::SequenceReference => {
+                ["object_reference", self.get_type()].into()
+            }
             SyntaxKind::WildcardIdentifier => ["wildcard_identifier", "object_reference"].into(),
+            SyntaxKind::TableReference => ["object_reference", self.get_type()].into(),
             _ => [self.get_type()].into(),
         }
     }

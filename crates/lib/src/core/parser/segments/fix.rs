@@ -58,8 +58,8 @@ impl FixPatch {
     }
 
     /// Generate a tuple of this fix for deduping.
-    pub fn dedupe_tuple(&self) -> (Range<usize>, SmolStr) {
-        (self.source_slice.clone(), self.fixed_raw.clone())
+    pub fn dedupe_tuple(&self) -> Range<usize> {
+        self.source_slice.clone()
     }
 }
 

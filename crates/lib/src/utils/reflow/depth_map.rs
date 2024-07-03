@@ -4,7 +4,7 @@ use ahash::{AHashMap, AHashSet};
 use nohash_hasher::{IntMap, IntSet};
 use uuid::Uuid;
 
-use crate::core::parser::segments::base::{ErasedSegment, PathStep, SegmentExt as _};
+use crate::core::parser::segments::base::{ErasedSegment, PathStep};
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]

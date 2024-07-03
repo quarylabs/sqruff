@@ -20,7 +20,7 @@ use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::{ErasedSegment, SegmentExt};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};

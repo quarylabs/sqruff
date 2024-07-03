@@ -73,7 +73,6 @@ pub struct Match<'a> {
     pub elements: Vec<Element<'a>>,
 }
 
-#[allow(clippy::needless_arbitrary_self_type)]
 impl Match<'_> {
     /// A LexMatch is truthy if it contains a non-zero number of matched
     /// elements.

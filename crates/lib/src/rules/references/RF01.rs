@@ -7,7 +7,6 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::parser::segments::base::SegmentExt;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};

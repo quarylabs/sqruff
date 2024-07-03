@@ -2,7 +2,6 @@ use ahash::{AHashMap, AHashSet};
 use itertools::enumerate;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::SegmentExt;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};

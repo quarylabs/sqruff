@@ -1,5 +1,5 @@
 use super::elements::{ReflowElement, ReflowSequenceType};
-use crate::core::parser::segments::base::{ErasedSegment, SegmentExt};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::helpers::capitalize;
 use crate::utils::reflow::elements::ReflowPoint;

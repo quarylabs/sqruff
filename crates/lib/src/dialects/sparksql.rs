@@ -3131,7 +3131,7 @@ pub fn sparksql_dialect() -> Dialect {
                 MetaSegment::indent(),
                 Ref::new("FromExpressionElementSegment"),
                 MetaSegment::dedent(),
-                Conditional::new(MetaSegment::indent()),
+                Conditional::new(MetaSegment::indent()).indented_using_on(),
                 one_of(vec_of_erased![
                     Ref::new("JoinOnConditionSegment"),
                     Sequence::new(vec_of_erased![
@@ -3149,7 +3149,7 @@ pub fn sparksql_dialect() -> Dialect {
                 .config(|config| {
                     config.optional();
                 }),
-                Conditional::new(MetaSegment::dedent())
+                Conditional::new(MetaSegment::dedent()).indented_using_on()
             ]),
             Sequence::new(vec_of_erased![
                 Ref::new("NaturalJoinKeywordsGrammar"),

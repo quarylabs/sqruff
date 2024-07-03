@@ -190,42 +190,21 @@ mod test {
             // Simple replacement
             (
                 vec![0..1, 1..2, 2..3],
-                vec![FixPatch::new(
-                    1..2,
-                    "d".to_string(),
-                    "".to_string(),
-                    1..2,
-                    "b".to_string(),
-                    "b".to_string(),
-                )],
+                vec![FixPatch::new(1..2, "d".into(), "".into(), 1..2, "b".into(), "b".into())],
                 "abc",
                 "adc",
             ),
             // Simple insertion
             (
                 vec![0..1, 1..1, 1..2],
-                vec![FixPatch::new(
-                    1..1,
-                    "b".to_string(),
-                    "".to_string(),
-                    1..1,
-                    "".to_string(),
-                    "".to_string(),
-                )],
+                vec![FixPatch::new(1..1, "b".into(), "".into(), 1..1, "".into(), "".into())],
                 "ac",
                 "abc",
             ),
             // Simple deletion
             (
                 vec![0..1, 1..2, 2..3],
-                vec![FixPatch::new(
-                    1..2,
-                    "".to_string(),
-                    "".to_string(),
-                    1..2,
-                    "b".to_string(),
-                    "b".to_string(),
-                )],
+                vec![FixPatch::new(1..2, "".into(), "".into(), 1..2, "b".into(), "b".into())],
                 "abc",
                 "ac",
             ),
@@ -235,11 +214,11 @@ mod test {
                 vec![0..2, 2..7, 7..9],
                 vec![FixPatch::new(
                     2..3,
-                    "{{ b }}".to_string(),
-                    "".to_string(),
+                    "{{ b }}".into(),
+                    "".into(),
                     2..7,
-                    "b".to_string(),
-                    "{{b}}".to_string(),
+                    "b".into(),
+                    "{{b}}".into(),
                 )],
                 "a {{b}} c",
                 "a {{ b }} c",
@@ -278,14 +257,7 @@ mod test {
                 // We've yielded a patch to change a single character. This means
                 // we should get only slices for that character, and for the
                 // unchanged file around it.
-                vec![FixPatch::new(
-                    1..2,
-                    "d".to_string(),
-                    "".to_string(),
-                    1..2,
-                    "b".to_string(),
-                    "b".to_string(),
-                )],
+                vec![FixPatch::new(1..2, "d".into(), "".into(), 1..2, "b".into(), "b".into())],
                 vec![],
                 "abc",
                 vec![0..1, 1..2, 2..3],
@@ -307,13 +279,7 @@ mod test {
                 // comments, in this case no additional slicing is required
                 // because no edits have been made.
                 vec![],
-                vec![RawFileSlice::new(
-                    "{# b #}".to_string(),
-                    "comment".to_string(),
-                    2,
-                    None,
-                    None,
-                )],
+                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 2, None, None)],
                 "a {# b #} c",
                 vec![0..11],
             ),
@@ -322,21 +288,8 @@ mod test {
                 // We're making an edit adjacent to a source only slice. Edits
                 // _before_ source only slices currently don't trigger additional
                 // slicing. This is fine.
-                vec![FixPatch::new(
-                    0..1,
-                    "a ".to_string(),
-                    "".to_string(),
-                    0..1,
-                    "a".to_string(),
-                    "a".to_string(),
-                )],
-                vec![RawFileSlice::new(
-                    "{# b #}".to_string(),
-                    "comment".to_string(),
-                    1,
-                    None,
-                    None,
-                )],
+                vec![FixPatch::new(0..1, "a ".into(), "".into(), 0..1, "a".into(), "a".into())],
+                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 1, None, None)],
                 "a{# b #}c",
                 vec![0..1, 1..9],
             ),
@@ -346,21 +299,8 @@ mod test {
                 // which should trigger the logic to ensure that the source
                 // only slice isn't included in the source mapping of the
                 // edit.
-                vec![FixPatch::new(
-                    1..2,
-                    " c".to_string(),
-                    "".to_string(),
-                    8..9,
-                    "c".to_string(),
-                    "c".to_string(),
-                )],
-                vec![RawFileSlice::new(
-                    "{# b #}".to_string(),
-                    "comment".to_string(),
-                    1,
-                    None,
-                    None,
-                )],
+                vec![FixPatch::new(1..2, " c".into(), "".into(), 8..9, "c".into(), "c".into())],
+                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 1, None, None)],
                 "a{# b #}cc",
                 vec![0..1, 1..8, 8..9, 9..10],
             ),
@@ -371,19 +311,13 @@ mod test {
                 // generation when we're explicitly trying to edit the source.
                 vec![FixPatch::new(
                     2..2,
-                    "{# fixed #}".to_string(),
-                    "".to_string(),
+                    "{# fixed #}".into(),
+                    "".into(),
                     2..9,
-                    "".to_string(),
-                    "".to_string(),
+                    "".into(),
+                    "".into(),
                 )],
-                vec![RawFileSlice::new(
-                    "{# b #}".to_string(),
-                    "comment".to_string(),
-                    2,
-                    None,
-                    None,
-                )],
+                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 2, None, None)],
                 "a {# b #} c",
                 vec![0..2, 2..9, 9..11],
             ),
@@ -395,44 +329,32 @@ mod test {
                 vec![
                     FixPatch::new(
                         14..14,
-                        "{%+ if true -%}".to_string(),
-                        "source".to_string(),
+                        "{%+ if true -%}".into(),
+                        "source".into(),
                         14..27,
-                        "".to_string(),
-                        "{%+if true-%}".to_string(),
+                        "".into(),
+                        "{%+if true-%}".into(),
                     ),
                     FixPatch::new(
                         14..14,
-                        "{{ ref('foo') }}".to_string(),
-                        "source".to_string(),
+                        "{{ ref('foo') }}".into(),
+                        "source".into(),
                         28..42,
-                        "".to_string(),
-                        "{{ref('foo')}}".to_string(),
+                        "".into(),
+                        "{{ref('foo')}}".into(),
                     ),
                     FixPatch::new(
                         17..17,
-                        "{%- endif %}".to_string(),
-                        "source".to_string(),
+                        "{%- endif %}".into(),
+                        "source".into(),
                         43..53,
-                        "".to_string(),
-                        "{%-endif%}".to_string(),
+                        "".into(),
+                        "{%-endif%}".into(),
                     ),
                 ],
                 vec![
-                    RawFileSlice::new(
-                        "{%+if true-%}".to_string(),
-                        "block_start".to_string(),
-                        14,
-                        None,
-                        None,
-                    ),
-                    RawFileSlice::new(
-                        "{%-endif%}".to_string(),
-                        "block_end".to_string(),
-                        43,
-                        None,
-                        None,
-                    ),
+                    RawFileSlice::new("{%+if true-%}".into(), "block_start".into(), 14, None, None),
+                    RawFileSlice::new("{%-endif%}".into(), "block_end".into(), 43, None, None),
                 ],
                 "SELECT 1 from {%+if true-%} {{ref('foo')}} {%-endif%}",
                 vec![0..14, 14..27, 27..28, 28..42, 42..43, 43..53],
@@ -451,24 +373,24 @@ mod test {
 
     #[allow(dead_code)]
     fn templated_file_1() -> TemplatedFile {
-        TemplatedFile::from_string("abc".to_string())
+        TemplatedFile::from_string("abc".into())
     }
 
     #[allow(dead_code)]
     fn templated_file_2() -> TemplatedFile {
         TemplatedFile::new(
-            "{# blah #}{{ foo }}bc".to_string(),
-            "<testing>".to_string(),
-            Some("abc".to_string()),
+            "{# blah #}{{ foo }}bc".into(),
+            "<testing>".into(),
+            Some("abc".into()),
             Some(vec![
                 TemplatedFileSlice::new("comment", 0..10, 0..0),
                 TemplatedFileSlice::new("templated", 10..19, 0..1),
                 TemplatedFileSlice::new("literal", 19..21, 1..3),
             ]),
             Some(vec![
-                RawFileSlice::new("{# blah #}".to_string(), "comment".to_string(), 0, None, None),
-                RawFileSlice::new("{{ foo }}".to_string(), "templated".to_string(), 10, None, None),
-                RawFileSlice::new("bc".to_string(), "literal".to_string(), 19, None, None),
+                RawFileSlice::new("{# blah #}".into(), "comment".into(), 0, None, None),
+                RawFileSlice::new("{{ foo }}".into(), "templated".into(), 10, None, None),
+                RawFileSlice::new("bc".into(), "literal".into(), 19, None, None),
             ]),
         )
         .unwrap()

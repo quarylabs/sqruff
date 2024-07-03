@@ -1,11 +1,13 @@
 use std::ops::Range;
 
+use smol_str::SmolStr;
+
 use crate::core::rules::base::{EditType, LintFix};
 
 /// A stored reference to a fix in the non-templated file.
 #[derive(Hash, Debug, Clone, PartialEq, Eq)]
 pub struct SourceFix {
-    pub(crate) edit: String,
+    pub(crate) edit: SmolStr,
     pub(crate) source_slice: Range<usize>,
     // TODO: It might be possible to refactor this to not require
     // a templated_slice (because in theory it's unnecessary).
@@ -16,7 +18,7 @@ pub struct SourceFix {
 }
 
 impl SourceFix {
-    pub fn new(edit: String, source_slice: Range<usize>, templated_slice: Range<usize>) -> Self {
+    pub fn new(edit: SmolStr, source_slice: Range<usize>, templated_slice: Range<usize>) -> Self {
         SourceFix { edit, source_slice, templated_slice }
     }
 }
@@ -26,7 +28,7 @@ impl SourceFix {
 #[allow(dead_code)]
 pub struct FixPatch {
     templated_slice: Range<usize>,
-    pub fixed_raw: String,
+    pub fixed_raw: SmolStr,
     // The patch category, functions mostly for debugging and explanation
     // than for function. It allows traceability of *why* this patch was
     // generated. It has no significance for processing.
@@ -39,7 +41,7 @@ pub struct FixPatch {
 impl FixPatch {
     pub fn new(
         templated_slice: Range<usize>,
-        fixed_raw: String,
+        fixed_raw: SmolStr,
         patch_category: String,
         source_slice: Range<usize>,
         templated_str: String,
@@ -56,7 +58,7 @@ impl FixPatch {
     }
 
     /// Generate a tuple of this fix for deduping.
-    pub fn dedupe_tuple(&self) -> (Range<usize>, String) {
+    pub fn dedupe_tuple(&self) -> (Range<usize>, SmolStr) {
         (self.source_slice.clone(), self.fixed_raw.clone())
     }
 }

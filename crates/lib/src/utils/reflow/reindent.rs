@@ -845,7 +845,7 @@ fn fix_long_line_with_integer_targets(
 
 pub fn lint_line_length(
     elements: &ReflowSequenceType,
-    root_segment: ErasedSegment,
+    root_segment: &ErasedSegment,
     single_indent: &str,
     line_length_limit: usize,
     allow_implicit_indents: bool,

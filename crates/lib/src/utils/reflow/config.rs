@@ -2,7 +2,7 @@ use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
-use crate::utils::reflow::depth_map::DepthInfo;
+use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 
 type ConfigElementType = AHashMap<String, String>;
 type ConfigDictType = AHashMap<String, ConfigElementType>;
@@ -103,11 +103,17 @@ impl ReflowConfig {
             for (idx, key) in depth_info.stack_hashes.iter().rev().enumerate() {
                 let stack_position = &depth_info.stack_positions[key];
 
-                if !["solo", "start"].contains(&stack_position.type_) {
+                if !matches!(
+                    stack_position.type_,
+                    Some(StackPositionType::Solo) | Some(StackPositionType::Start)
+                ) {
                     parent_start = false;
                 }
 
-                if !["solo", "end"].contains(&stack_position.type_) {
+                if !matches!(
+                    stack_position.type_,
+                    Some(StackPositionType::Solo) | Some(StackPositionType::End)
+                ) {
                     parent_end = false;
                 }
 

@@ -2,6 +2,7 @@ use super::elements::{ReflowElement, ReflowSequenceType};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::helpers::capitalize;
+use crate::utils::reflow::depth_map::StackPositionType;
 use crate::utils::reflow::elements::ReflowPoint;
 use crate::utils::reflow::helpers::deduce_line_indent;
 
@@ -143,8 +144,10 @@ pub fn identify_rebreak_spans(
 
                 if !end_block.depth_info.stack_positions.contains_key(key) {
                     final_idx = (end_idx - 2).into();
-                } else if matches!(end_block.depth_info.stack_positions[key].type_, "end" | "solo")
-                {
+                } else if matches!(
+                    end_block.depth_info.stack_positions[key].type_,
+                    Some(StackPositionType::End) | Some(StackPositionType::Solo)
+                ) {
                     final_idx = end_idx.into();
                 }
 

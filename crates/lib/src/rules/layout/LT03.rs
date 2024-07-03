@@ -5,7 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::utils::reflow::sequence::ReflowSequence;
+use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT03 {}
@@ -80,7 +80,7 @@ FROM foo
         ReflowSequence::from_around_target(
             &context.segment,
             context.parent_stack.first().unwrap().clone(),
-            "both",
+            TargetSide::Both,
             context.config.unwrap(),
         )
         .rebreak()

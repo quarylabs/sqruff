@@ -6,7 +6,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
-use crate::utils::reflow::sequence::{Filter, ReflowSequence};
+use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Aliasing {
@@ -104,7 +104,7 @@ FROM foo AS voo
                         ReflowSequence::from_around_target(
                             &as_keyword,
                             rule_cx.parent_stack[0].clone(),
-                            "both",
+                            TargetSide::Both,
                             rule_cx.config.unwrap(),
                         )
                         .without(&as_keyword)
@@ -129,7 +129,7 @@ FROM foo AS voo
                     ReflowSequence::from_around_target(
                         &identifier,
                         rule_cx.parent_stack[0].clone(),
-                        "before",
+                        TargetSide::Before,
                         rule_cx.config.unwrap(),
                     )
                     .insert(

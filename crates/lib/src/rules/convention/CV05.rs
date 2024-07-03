@@ -10,7 +10,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
 use crate::utils::functional::segments::Segments;
-use crate::utils::reflow::sequence::{Filter, ReflowSequence};
+use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
 
 #[derive(Debug)]
 enum CorrectionListItem {
@@ -137,7 +137,7 @@ WHERE a IS NULL
         let fixes = ReflowSequence::from_around_target(
             &context.segment,
             context.parent_stack[0].clone(),
-            "both",
+            TargetSide::Both,
             context.config.unwrap(),
         )
         .replace(context.segment.clone(), &seg)

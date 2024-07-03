@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn test_pass_bigquery_trailing_comma() {
-        let sql = lint("SELECT 1, 2,".into(), "ansi".into(), rules(), None, None).unwrap();
+        let sql = lint("SELECT 1, 2,".into(), "bigquery".into(), rules(), None, None).unwrap();
         assert_eq!(sql, &[]);
     }
 
@@ -595,6 +595,29 @@ mod tests {
     }
 
     #[test]
+    fn test_sparksql_datatype() {
+        let sql = lint(
+            "
+            SELECT
+                1::DECIMAL(3, 1),
+                1::DEC(3, 1),
+                1::NUMERIC(3, 1),
+                'bar'::CHAR(3),
+                col1::STRUCT<foo: int>,
+                col2::ARRAY<int>
+            "
+            .into(),
+            "sparksql".into(),
+            rules(),
+            None,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(sql, &[]);
+    }
+
+    #[test]
     fn test_pass_bigquery_udf_triple_double_quote() {
         let sql = lint(
             r#"
@@ -712,9 +735,7 @@ mod tests {
         assert_eq!(sql, "SELECT 1 + 2");
     }
 
-    // configs: core: dialect: bigquery
     #[test]
-    #[ignore = "bigquery"]
     fn pass_bigquery_hyphen() {
         let sql = lint(
             "SELECT col_foo FROM foo-bar.foo.bar".into(),
@@ -724,6 +745,13 @@ mod tests {
             None,
         )
         .unwrap();
+        assert_eq!(sql, &[]);
+    }
+
+    #[test]
+    fn test_spark_set_statement() {
+        let sql = lint("SET -v;".into(), "sparksql".into(), rules(), None, None).unwrap();
+
         assert_eq!(sql, &[]);
     }
 

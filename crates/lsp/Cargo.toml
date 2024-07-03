@@ -1,5 +1,6 @@
 [package]
 name = "sqruff-lsp"
+description = "sqruff LSP server."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

@@ -14,96 +14,10 @@ use crate::core::parser::match_algorithms::{greedy_match, prune_options};
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
-use crate::core::parser::types::ParseMode;
 use crate::helpers::{capitalize, next_cache_key, ToMatchable};
 use crate::stack::ensure_sufficient_stack;
 
-#[derive(Clone, Debug, Hash)]
-#[allow(clippy::derived_hash_with_manual_eq)]
-pub struct BaseGrammar {
-    elements: Vec<Arc<dyn Matchable>>,
-    allow_gaps: bool,
-    optional: bool,
-    terminators: Vec<Arc<dyn Matchable>>,
-    reset_terminators: bool,
-    parse_mode: ParseMode,
-    cache_key: u32,
-}
-
-impl PartialEq for BaseGrammar {
-    fn eq(&self, other: &Self) -> bool {
-        // self.elements == other.elements &&
-        self.allow_gaps == other.allow_gaps
-            && self.optional == other.optional
-            //   && self.terminators == other.terminators
-            && self.reset_terminators == other.reset_terminators
-            && self.parse_mode == other.parse_mode
-            && self.cache_key == other.cache_key
-    }
-}
-
-impl BaseGrammar {
-    pub fn new(
-        elements: Vec<Arc<dyn Matchable>>,
-        allow_gaps: bool,
-        optional: bool,
-        terminators: Vec<Arc<dyn Matchable>>,
-        reset_terminators: bool,
-        parse_mode: ParseMode,
-    ) -> Self {
-        let cache_key = next_cache_key();
-
-        Self {
-            elements,
-            allow_gaps,
-            optional,
-            terminators,
-            reset_terminators,
-            parse_mode,
-            cache_key,
-        }
-    }
-
-    // Placeholder for the _resolve_ref method
-    fn _resolve_ref(elem: Arc<dyn Matchable>) -> Arc<dyn Matchable> {
-        // Placeholder implementation
-        elem
-    }
-}
-
-impl Segment for BaseGrammar {}
-
-#[allow(unused_variables)]
-impl Matchable for BaseGrammar {
-    fn is_optional(&self) -> bool {
-        self.optional
-    }
-
-    fn simple(
-        &self,
-        parse_context: &ParseContext,
-        crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
-        // Placeholder implementation
-        None
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        // Placeholder implementation
-        Ok(MatchResult::new(Vec::new(), Vec::new()))
-    }
-
-    fn cache_key(&self) -> u32 {
-        self.cache_key
-    }
-}
-
 #[derive(Clone)]
-#[allow(clippy::derived_hash_with_manual_eq)]
 pub struct Ref {
     pub(crate) reference: Cow<'static, str>,
     pub(crate) exclude: Option<Arc<dyn Matchable>>,
@@ -240,8 +154,7 @@ impl Matchable for Ref {
     }
 }
 
-#[derive(Clone, Debug, Hash)]
-#[allow(clippy::derived_hash_with_manual_eq)]
+#[derive(Clone, Debug)]
 pub struct Anything {
     cache: u32,
     terminators: Vec<Arc<dyn Matchable>>,

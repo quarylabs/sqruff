@@ -89,7 +89,7 @@ impl LintedFile {
 
         for patch in tree.iter_patches(templated_file).into_iter() {
             if dedupe_buffer.insert(patch.dedupe_tuple()) {
-                filtered_source_patches.push(patch.clone());
+                filtered_source_patches.push(patch);
             }
         }
 

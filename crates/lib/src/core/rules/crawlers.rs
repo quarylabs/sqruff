@@ -71,7 +71,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
             return acc;
         }
 
-        if self.types.intersection(&context.segment.descendant_type_set()).next().is_none() {
+        if self.types.intersection(context.segment.descendant_type_set()).next().is_none() {
             if self.provide_raw_stack {
                 context.raw_stack.append(&mut context.segment.get_raw_segments());
             }

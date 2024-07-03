@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use ahash::{AHashMap, AHashSet};
 use dyn_clone::DynClone;
@@ -519,14 +519,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         acc
     }
 
-    fn descendant_type_set(&self) -> AHashSet<&'static str> {
-        let mut result_set = AHashSet::new();
-
-        for seg in self.segments() {
-            result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
-        }
-
-        result_set
+    fn descendant_type_set(&self) -> &AHashSet<&'static str> {
+        // FIXME: const { &AHashSet::new() }
+        static EMPTY: OnceLock<AHashSet<&'static str>> = OnceLock::new();
+        EMPTY.get_or_init(AHashSet::new)
     }
 
     fn raw(&self) -> Cow<str> {

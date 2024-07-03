@@ -185,11 +185,6 @@ impl Dialect {
     }
 
     pub fn r#ref(&self, name: &str) -> Arc<dyn Matchable> {
-        // TODO:
-        // if !self.expanded {
-        //     panic!("Dialect must be expanded before use.");
-        // }
-
         match self.library.get(name) {
             Some(DialectElementType::Matchable(matchable)) => matchable.clone(),
             Some(DialectElementType::SegmentGenerator(_)) => {

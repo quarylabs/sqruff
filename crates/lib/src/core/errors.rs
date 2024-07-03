@@ -125,26 +125,6 @@ impl From<SQLLintError> for SQLBaseError {
     }
 }
 
-//
-// impl Error for SQLLintError {}
-//
-// impl fmt::Display for SQLLintError {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         write!(f, "An error which occurred during linting.")
-//     }
-// }
-//
-// #[derive(Debug)]
-// struct SQLFluffUserError;
-//
-// impl Error for SQLFluffUserError {}
-//
-// impl fmt::Display for SQLFluffUserError {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         write!(f, "An error which should be fed back to the user.")
-//     }
-// }
-
 #[derive(Debug, PartialEq, Clone)]
 pub struct SQLTemplaterError {}
 

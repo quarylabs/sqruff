@@ -29,6 +29,7 @@ Sqruff currently supports the following SQL dialects:
 - [**Clickhouse**](https://clickhouse.com/docs/en/sql-reference/)
 - [**PostgreSQL**](https://www.postgresql.org/docs/current/sql.html)
 - [**Snowflake**](https://docs.snowflake.com/en/sql-reference.html)
+- [**SparkSql**](https://spark.apache.org/sql/)
 
 While those above are the supported dialects, we are working on adding support for more dialects in the future.
 

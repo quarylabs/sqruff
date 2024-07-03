@@ -80,37 +80,19 @@ impl LintedFile {
         )
     }
 
-    #[allow(unused_variables)]
     fn generate_source_patches(
         tree: ErasedSegment,
         templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
-        // Placeholder for logger setup or integration
         let mut filtered_source_patches = Vec::new();
         let mut dedupe_buffer = AHashSet::new();
 
-        for (idx, patch) in tree.iter_patches(templated_file).into_iter().enumerate() {
-            // Log patch details
-            // Logger::debug(format!("{} Yielded patch: {:?}", idx, patch));
-
-            // Check for duplicates
-            if dedupe_buffer.contains(&patch.dedupe_tuple()) {
-                // Logger::info(format!("Skipping. Source space Duplicate: {:?}",
-                // patch.dedupe_tuple()));
-                continue;
+        for patch in tree.iter_patches(templated_file).into_iter() {
+            if dedupe_buffer.insert(patch.dedupe_tuple()) {
+                filtered_source_patches.push(patch.clone());
             }
-
-            // Implement logic to process patches
-            // This involves translating the logic from Python to Rust, considering how
-            // patches are evaluated, and how they interact with templated
-            // sections.
-
-            // Add valid patch to filtered list and dedupe buffer
-            filtered_source_patches.push(patch.clone());
-            dedupe_buffer.insert(patch.dedupe_tuple());
         }
 
-        // Sort patches before returning
         filtered_source_patches.sort_by_key(|x| x.source_slice.start);
         filtered_source_patches
     }

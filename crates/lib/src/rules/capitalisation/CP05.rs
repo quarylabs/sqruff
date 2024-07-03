@@ -73,6 +73,7 @@ CREATE TABLE t (
                 }
 
                 results.push(handle_segment(
+                    "Datatypes",
                     &self.extended_capitalisation_policy,
                     "extended_capitalisation_policy",
                     seg.clone(),

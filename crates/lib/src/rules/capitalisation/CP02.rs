@@ -18,6 +18,7 @@ impl Default for RuleCP02 {
         Self {
             base: RuleCP01 {
                 cap_policy_name: "extended_capitalisation_policy".into(),
+                description_elem: "Unquoted identifiers",
                 ..Default::default()
             },
             unquoted_identifiers_policy: "all",
@@ -34,6 +35,7 @@ impl Rule for RuleCP02 {
                     .unwrap()
                     .into(),
                 cap_policy_name: "extended_capitalisation_policy".into(),
+                description_elem: "Unquoted identifiers",
                 ..Default::default()
             },
             ..Default::default()

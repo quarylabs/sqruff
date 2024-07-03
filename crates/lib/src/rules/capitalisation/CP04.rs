@@ -17,6 +17,7 @@ impl Default for RuleCP04 {
             base: RuleCP01 {
                 skip_literals: false,
                 exclude_parent_types: &[],
+                description_elem: "Boolean/null literals",
                 ..Default::default()
             },
         }

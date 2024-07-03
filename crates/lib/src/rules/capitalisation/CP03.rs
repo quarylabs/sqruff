@@ -31,6 +31,7 @@ impl Rule for RuleCP03 {
                     .as_string()
                     .unwrap()
                     .into(),
+                description_elem: "Function names",
                 ..Default::default()
             },
         }

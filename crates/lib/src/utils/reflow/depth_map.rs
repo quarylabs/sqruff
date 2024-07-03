@@ -50,7 +50,7 @@ impl DepthMap {
         let mut depth_info = AHashMap::with_capacity(raws_with_stack.len());
 
         for (raw, stack) in raws_with_stack {
-            depth_info.insert(raw.get_uuid(), DepthInfo::from_raw_and_stack(raw, stack));
+            depth_info.insert(raw.get_uuid(), DepthInfo::from_raw_and_stack(&raw, stack));
         }
 
         Self { depth_info }
@@ -62,13 +62,13 @@ impl DepthMap {
 
     pub fn copy_depth_info(
         &mut self,
-        anchor: ErasedSegment,
-        new_segment: ErasedSegment,
+        anchor: &ErasedSegment,
+        new_segment: &ErasedSegment,
         trim: u32,
     ) {
         self.depth_info.insert(
             new_segment.get_uuid(),
-            self.get_depth_info(&anchor).trim(trim.try_into().unwrap()),
+            self.get_depth_info(anchor).trim(trim.try_into().unwrap()),
         );
     }
 
@@ -78,7 +78,7 @@ impl DepthMap {
 
     pub fn from_raws_and_root(
         raw_segments: Vec<ErasedSegment>,
-        root_segment: ErasedSegment,
+        root_segment: &ErasedSegment,
     ) -> DepthMap {
         let mut buff = Vec::new();
 
@@ -104,7 +104,7 @@ pub struct DepthInfo {
 
 impl DepthInfo {
     #[allow(unused_variables)]
-    fn from_raw_and_stack(raw: ErasedSegment, stack: Vec<PathStep>) -> DepthInfo {
+    fn from_raw_and_stack(raw: &ErasedSegment, stack: Vec<PathStep>) -> DepthInfo {
         let stack_hashes: Vec<u64> = stack.iter().map(|ps| ps.segment.hash_value()).collect();
         let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
 

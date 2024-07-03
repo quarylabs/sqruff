@@ -45,9 +45,8 @@ impl ReflowSequence {
         depth_map: Option<DepthMap>,
     ) -> Self {
         let reflow_config = ReflowConfig::from_fluff_config(config);
-        let depth_map = depth_map.unwrap_or_else(|| {
-            DepthMap::from_raws_and_root(segments.clone(), root_segment.clone())
-        });
+        let depth_map = depth_map
+            .unwrap_or_else(|| DepthMap::from_raws_and_root(segments.clone(), &root_segment));
         let elements = Self::elements_from_raw_segments(segments, &depth_map, &reflow_config);
 
         Self { root_segment, elements, lint_results: Vec::new(), reflow_config, depth_map }
@@ -287,8 +286,8 @@ impl ReflowSequence {
 
         for edit_raw in &edit_raws {
             self.depth_map.copy_depth_info(
-                target_raws[0].clone(),
-                edit_raw.clone(),
+                &target_raws[0],
+                edit_raw,
                 trim_amount.try_into().unwrap(),
             );
         }

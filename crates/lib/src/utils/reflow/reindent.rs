@@ -27,17 +27,6 @@ fn has_untemplated_newline(point: &ReflowPoint) -> bool {
         {
             return true;
         }
-
-        // if seg.is_type("placeholder") {
-        //     // Safe to assume seg can be treated as TemplateSegment based on
-        // context     let template_seg =
-        // seg.as_any().downcast_ref::<TemplateSegment>().expect("Expected
-        // TemplateSegment");     assert_eq!(template_seg.block_type,
-        // "literal", "Expected only literal placeholders in ReflowPoint.");
-        //     if template_seg.source_str.contains('\n') {
-        //         return true;
-        //     }
-        // }
     }
 
     false

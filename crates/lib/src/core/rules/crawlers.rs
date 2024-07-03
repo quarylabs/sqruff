@@ -79,12 +79,9 @@ impl BaseCrawler for SegmentSeekerCrawler {
             return acc;
         }
 
-        let mut new_parent_stack = std::mem::take(&mut context.parent_stack);
-        new_parent_stack.push(context.segment.clone());
-
+        context.parent_stack.push(context.segment.clone());
         for (idx, child) in context.segment.gather_segments().into_iter().enumerate() {
             context.segment = child;
-            context.parent_stack.clone_from(&new_parent_stack);
             context.segment_idx = idx;
 
             acc.extend(self.crawl(context.clone()));

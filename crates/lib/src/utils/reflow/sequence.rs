@@ -27,6 +27,11 @@ pub enum TargetSide {
     After,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum ReflowInsertPosition {
+    Before,
+}
+
 impl ReflowSequence {
     pub fn raw(&self) -> String {
         self.elements.iter().map(|it| it.raw()).join("")
@@ -148,7 +153,7 @@ impl ReflowSequence {
         self,
         insertion: ErasedSegment,
         target: ErasedSegment,
-        pos: &'static str,
+        pos: ReflowInsertPosition,
     ) -> Self {
         let target_idx = self.find_element_idx_with(&target);
 
@@ -158,7 +163,7 @@ impl ReflowSequence {
             self.depth_map.get_depth_info(&target),
         );
 
-        if pos == "before" {
+        if pos == ReflowInsertPosition::Before {
             let mut new_elements = self.elements[..target_idx].to_vec();
             new_elements.push(new_block.into());
             new_elements.push(ReflowPoint::default().into());
@@ -364,7 +369,7 @@ impl ReflowSequence {
 
         let (elements, length_results) = lint_line_length(
             &self.elements,
-            self.root_segment.clone(),
+            &self.root_segment,
             &single_indent,
             self.reflow_config.max_line_length,
             self.reflow_config.allow_implicit_indents,

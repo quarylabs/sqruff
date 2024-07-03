@@ -11,22 +11,29 @@ use crate::core::parser::segments::base::{ErasedSegment, PathStep};
 pub struct StackPosition {
     pub idx: usize,
     pub len: usize,
-    pub type_: &'static str,
+    pub type_: Option<StackPositionType>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum StackPositionType {
+    Solo,
+    Start,
+    End,
 }
 
 impl StackPosition {
     /// Interpret a path step for stack_positions.
-    fn stack_pos_interpreter(path_step: &PathStep) -> &'static str {
+    fn stack_pos_interpreter(path_step: &PathStep) -> Option<StackPositionType> {
         if path_step.code_idxs.is_empty() {
-            ""
+            None
         } else if path_step.code_idxs.len() == 1 {
-            "solo"
+            Some(StackPositionType::Solo)
         } else if path_step.idx == *path_step.code_idxs.first().unwrap() {
-            "start"
+            Some(StackPositionType::Start)
         } else if path_step.idx == *path_step.code_idxs.last().unwrap() {
-            "end"
+            Some(StackPositionType::End)
         } else {
-            ""
+            None
         }
     }
 

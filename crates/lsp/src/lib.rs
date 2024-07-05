@@ -19,13 +19,7 @@ use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 fn load_config() -> FluffConfig {
-    match FluffConfig::from_root(None, false, None) {
-        Ok(config) => config,
-        Err(_) => {
-            // TODO: show error message to the user
-            FluffConfig::default()
-        }
-    }
+    FluffConfig::from_root(None, false, None).unwrap_or_default()
 }
 
 #[cfg(target_arch = "wasm32")]

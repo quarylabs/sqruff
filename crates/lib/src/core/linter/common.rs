@@ -3,27 +3,6 @@ use crate::core::errors::{SQLBaseError, SQLTemplaterError};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
 
-/// Rule Tuple object for describing rules.
-#[derive(Debug, PartialEq, Clone)]
-pub struct RuleTuple {
-    code: String,
-    name: String,
-    description: String,
-    groups: Vec<String>,
-    aliases: Vec<String>,
-}
-
-/// Parsed version of a 'noqa' comment.
-#[derive(Debug, PartialEq, Clone)]
-pub struct NoQaDirective {
-    /// Source line number
-    line_no: u32,
-    /// Affected rule names
-    rules: Option<Vec<String>>,
-    /// "enable", "disable", or "None"
-    action: Option<String>,
-}
-
 /// An object to store the result of a templated file/string.
 ///
 /// This is notable as it's the intermediate state between what happens

@@ -1,18 +1,47 @@
 use std::sync::Arc;
 
-use ahash::AHashSet;
-use itertools::{chain, enumerate, multiunzip, Itertools};
+use ahash::{AHashMap, AHashSet};
+use itertools::{enumerate, multiunzip, Itertools as _};
+use smol_str::ToSmolStr;
 
 use super::context::ParseContext;
-use super::helpers::trim_non_code_segments;
-use super::match_result::MatchResult;
+use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::Matchable;
-use super::segments::base::{ErasedSegment, Segment};
-use super::segments::bracketed::BracketedSegment;
+use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
-use crate::helpers::ToErasedSegment;
+use crate::core::parser::segments::meta::IndentChange;
 
-pub fn first_trimmed_raw(seg: &dyn Segment) -> String {
+pub fn skip_start_index_forward_to_code(
+    segments: &[ErasedSegment],
+    start_idx: u32,
+    max_idx: u32,
+) -> u32 {
+    let mut idx = start_idx;
+    while idx < max_idx {
+        if segments[idx as usize].is_code() {
+            break;
+        }
+        idx += 1;
+    }
+    idx
+}
+
+pub fn skip_stop_index_backward_to_code(
+    segments: &[ErasedSegment],
+    stop_idx: u32,
+    min_idx: u32,
+) -> u32 {
+    let mut idx = stop_idx;
+    while idx > min_idx {
+        if segments[idx as usize - 1].is_code() {
+            break;
+        }
+        idx -= 1;
+    }
+    idx
+}
+
+pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
     seg.get_raw_upper()
         .unwrap()
         .split(char::is_whitespace)
@@ -21,8 +50,11 @@ pub fn first_trimmed_raw(seg: &dyn Segment) -> String {
         .unwrap_or_default()
 }
 
-pub fn first_non_whitespace(segments: &[ErasedSegment]) -> Option<(String, AHashSet<&str>)> {
-    for segment in segments {
+pub fn first_non_whitespace(
+    segments: &[ErasedSegment],
+    start_idx: u32,
+) -> Option<(String, AHashSet<&str>)> {
+    for segment in segments.iter().skip(start_idx as usize) {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
         }
@@ -31,43 +63,16 @@ pub fn first_non_whitespace(segments: &[ErasedSegment]) -> Option<(String, AHash
     None
 }
 
-#[derive(Debug)]
-pub struct BracketInfo {
-    bracket: ErasedSegment,
-    segments: Vec<ErasedSegment>,
-    bracket_type: &'static str,
-}
-
-impl BracketInfo {
-    fn to_segment(&self, end_bracket: Vec<ErasedSegment>) -> BracketedSegment {
-        // Turn the contained segments into a bracketed segment.
-        if end_bracket.len() != 1 {
-            panic!("Expected end_bracket to contain exactly one element");
-        }
-
-        BracketedSegment::new(
-            self.segments.clone(),
-            vec![self.bracket.clone()],
-            vec![end_bracket[0].clone()],
-            false,
-        )
-    }
-}
-
-/// Use the simple matchers to prune which options to match on.
-///
-/// Works in the context of a grammar making choices between options
-/// such as AnyOf or the content of Delimited.
 pub fn prune_options(
     options: &[Arc<dyn Matchable>],
     segments: &[ErasedSegment],
     parse_context: &mut ParseContext,
+    start_idx: u32,
 ) -> Vec<Arc<dyn Matchable>> {
     let mut available_options = vec![];
-    let mut prune_buff = vec![];
 
     // Find the first code element to match against.
-    let Some((first_raw, first_types)) = first_non_whitespace(segments) else {
+    let Some((first_raw, first_types)) = first_non_whitespace(segments, start_idx) else {
         return options.to_vec();
     };
 
@@ -97,646 +102,419 @@ pub fn prune_options(
 
         if !matched && first_types.intersection(&simple_types).next().is_some() {
             available_options.push(opt.clone());
-            matched = true;
-        }
-
-        if !matched {
-            prune_buff.push(opt.clone());
         }
     }
 
     available_options
 }
 
-// Look ahead for matches beyond the first element of the segments list.
-// This function also contains the performance improved hash-matching approach
-// to searching for matches, which should significantly improve performance.
-// Prioritise the first match, and if multiple match at the same point the
-// longest. If two matches of the same length match at the same time, then it's
-// the first in the iterable of matchers.
-// Returns:
-//  `tuple` of (unmatched_segments, match_object, matcher).
-pub fn look_ahead_match(
+pub fn longest_match(
     segments: &[ErasedSegment],
-    matchers: Vec<Arc<dyn Matchable>>,
+    matchers: &[Arc<dyn Matchable>],
+    idx: u32,
     parse_context: &mut ParseContext,
-) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
-    // Have we been passed an empty tuple?
-    if segments.is_empty() {
-        return Ok((Vec::new(), MatchResult::from_empty(), None));
+) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
+    let max_idx = segments.len() as u32;
+
+    if matchers.is_empty() || idx == max_idx {
+        return Ok((MatchResult::empty_at(idx), None));
     }
 
-    // Here we enable a performance optimisation. Most of the time in this cycle
-    // happens in loops looking for simple matchers which we should
-    // be able to find a shortcut for.
-    // let best_simple_match = None;
-    let mut best_simple_match = None;
-    let mut simple_match = None;
+    let available_options = prune_options(matchers, segments, parse_context, idx);
+    let available_options_count = available_options.len();
 
-    for (idx, seg) in enumerate(segments) {
-        let seg: &dyn Segment = &*seg.clone();
-        let trimmed_seg = first_trimmed_raw(seg);
-        for matcher in &matchers {
-            let Some((simple_raws, simple_types)) = matcher.simple(parse_context, None) else {
-                panic!(
-                    "All matchers passed to `look_ahead_match()` are assumed to have a \
-                     functioning `simple()` option. In a future release it will be compulsory for \
-                     _all_ matchables to implement `simple()`. Please report this as a bug on \
-                     GitHub along with your current query and dialect.\nProblematic matcher: \
-                     {matcher:?}"
+    if available_options.is_empty() {
+        return Ok((MatchResult::empty_at(idx), None));
+    }
+
+    let terminators = parse_context.terminators.clone();
+    let cache_position = segments[idx as usize].get_position_marker().unwrap();
+
+    let loc_key = (
+        segments[idx as usize].raw().to_smolstr(),
+        cache_position.working_loc(),
+        segments[idx as usize].get_type(),
+        max_idx,
+    );
+
+    let loc_key = parse_context.loc_key(loc_key);
+
+    let mut best_match = MatchResult::empty_at(idx);
+    let mut best_matcher = None;
+
+    'matcher: for (matcher_idx, matcher) in enumerate(available_options) {
+        let matcher_key = matcher.cache_key();
+        let res_match = parse_context.check_parse_cache(loc_key, matcher_key);
+
+        let res_match = match res_match {
+            Some(res_match) => res_match,
+            None => {
+                let res_match = matcher.match_segments(segments, idx, parse_context)?;
+                parse_context.put_parse_cache(loc_key, matcher_key, res_match.clone());
+                res_match
+            }
+        };
+
+        if res_match.has_match() && res_match.span.end == max_idx {
+            return Ok((res_match, matcher.into()));
+        }
+
+        if res_match.is_better_than(&best_match) {
+            best_match = res_match;
+            best_matcher = matcher.into();
+
+            if matcher_idx == available_options_count - 1 {
+                break 'matcher;
+            } else if !terminators.is_empty() {
+                let next_code_idx = skip_start_index_forward_to_code(
+                    segments,
+                    best_match.span.end,
+                    segments.len() as u32,
                 );
-            };
 
-            assert!(
-                !simple_raws.is_empty() || !simple_types.is_empty(),
-                "Both simple_raws and simple_types are empty"
-            );
+                if next_code_idx == segments.len() as u32 {
+                    break 'matcher;
+                }
 
-            if !simple_raws.is_empty() && simple_raws.contains(&trimmed_seg) {
-                simple_match = Some(matcher);
+                for terminator in &terminators {
+                    let terminator_match =
+                        terminator.match_segments(segments, next_code_idx, parse_context)?;
+
+                    if terminator_match.has_match() {
+                        break 'matcher;
+                    }
+                }
             }
-
-            if !simple_types.is_empty() && simple_match.is_none() {
-                unimplemented!()
-                // let intersection: AHashSet<_> =
-                //     simple_types.intersection(&seg.class_types).collect();
-                // if !intersection.is_empty() {
-                //     simple_match = Some(matcher);
-                // }
-            }
-
-            // If we couldn't achieve a simple match, move on to the next option.
-            let Some(simple_match) = simple_match else {
-                continue;
-            };
-
-            let match_result = simple_match.match_segments(&segments[idx..], parse_context)?;
-
-            if !match_result.has_match() {
-                continue;
-            }
-
-            best_simple_match =
-                (segments[..idx].to_vec(), match_result, Some(simple_match.clone())).into();
-            // Stop looking through matchers
-            break;
-        }
-
-        // If we have a valid match, stop looking through segments
-        if best_simple_match.is_some() {
-            break;
         }
     }
 
-    Ok(if let Some(best_simple_match) = best_simple_match {
-        best_simple_match
-    } else {
-        (Vec::new(), MatchResult::from_unmatched(segments.to_vec()), None)
-    })
+    Ok((best_match, best_matcher))
 }
 
-// Same as `look_ahead_match` but with bracket counting.
-// NB: Given we depend on `look_ahead_match` we can also utilise
-// the same performance optimisations which are implemented there.
-// bracket_pairs_set: Allows specific segments to override the available
-//     bracket pairs. See the definition of "angle_bracket_pairs" in the
-//     BigQuery dialect for additional context on why this exists.
-// Returns:
-//    `tuple` of (unmatched_segments, match_object, matcher).
-pub fn bracket_sensitive_look_ahead_match(
-    segments: Vec<ErasedSegment>,
-    matchers: Vec<Arc<dyn Matchable>>,
-    parse_cx: &mut ParseContext,
-    start_bracket: Option<Arc<dyn Matchable>>,
-    end_bracket: Option<Arc<dyn Matchable>>,
-    bracket_pairs_set: Option<&'static str>,
-) -> Result<(Vec<ErasedSegment>, MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
-    let bracket_pairs_set = bracket_pairs_set.unwrap_or("bracket_pairs");
+fn next_match(
+    segments: &[ErasedSegment],
+    idx: u32,
+    matchers: &[Arc<dyn Matchable>],
+    parse_context: &mut ParseContext,
+) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
+    let max_idx = segments.len() as u32;
 
-    // Have we been passed an empty tuple?
-    if segments.is_empty() {
-        return Ok((Vec::new(), MatchResult::from_unmatched(segments), None));
+    if idx >= max_idx {
+        return Ok((MatchResult::empty_at(idx), None));
     }
 
-    // Get hold of the bracket matchers from the dialect, and append them
-    // to the list of matchers. We get them from the relevant set on the
-    // dialect.
-    let (bracket_types, start_bracket_refs, end_bracket_refs, persists): (
-        Vec<_>,
-        Vec<_>,
-        Vec<_>,
-        Vec<_>,
-    ) = multiunzip(parse_cx.dialect().bracket_sets(bracket_pairs_set));
+    let mut raw_simple_map: AHashMap<String, Vec<usize>> = AHashMap::new();
+    let mut type_simple_map: AHashMap<&'static str, Vec<usize>> = AHashMap::new();
 
-    // These are matchables, probably StringParsers.
-    let mut start_brackets = start_bracket_refs
-        .into_iter()
-        .map(|seg_ref| parse_cx.dialect().r#ref(seg_ref))
-        .collect_vec();
+    for (idx, matcher) in enumerate(matchers) {
+        let (raws, types) = matcher.simple(parse_context, None).unwrap();
 
-    let mut end_brackets =
-        end_bracket_refs.into_iter().map(|seg_ref| parse_cx.dialect().r#ref(seg_ref)).collect_vec();
+        raw_simple_map.reserve(raws.len());
+        type_simple_map.reserve(types.len());
 
-    // Add any bracket-like things passed as arguments
-    if let Some(start_bracket) = start_bracket {
-        start_brackets.push(start_bracket);
+        for raw in raws {
+            raw_simple_map.entry(raw).or_default().push(idx);
+        }
+
+        for typ in types {
+            type_simple_map.entry(typ).or_default().push(idx);
+        }
     }
 
-    if let Some(end_bracket) = end_bracket {
-        end_brackets.push(end_bracket);
-    }
+    for idx in idx..max_idx {
+        let seg = &segments[idx as usize];
+        let idxs = raw_simple_map.get(&first_trimmed_raw(seg)).cloned().unwrap_or_default();
+        let mut matcher_idxs = Vec::from_iter(idxs);
 
-    let bracket_matchers = chain(start_brackets.clone(), end_brackets.clone()).collect_vec();
+        let class_types = seg.class_types();
+        let keys = type_simple_map.keys().copied().collect();
+        let type_overlap = class_types.intersection(&keys);
 
-    // Make some buffers
-    let mut seg_buff = segments;
-    let mut pre_seg_buff = Vec::new();
-    let mut bracket_stack: Vec<BracketInfo> = Vec::new();
+        for typ in type_overlap {
+            matcher_idxs.extend(type_simple_map[typ].clone());
+        }
 
-    loop {
-        if !seg_buff.is_empty() {
-            if !bracket_stack.is_empty() {
-                // Yes, we're just looking for the closing bracket, or
-                // another opening bracket.
-                let (pre, match_result, matcher) =
-                    look_ahead_match(&seg_buff, bracket_matchers.clone(), parse_cx)?;
+        if matcher_idxs.is_empty() {
+            continue;
+        }
 
-                if match_result.has_match() {
-                    // NB: We can only consider this as a nested bracket if the start
-                    // and end tokens are not the same. If a matcher is both a start
-                    // and end token we cannot deepen the bracket stack. In general,
-                    // quoted strings are a typical example where the start and end
-                    // tokens are the same. Currently, though, quoted strings are
-                    // handled elsewhere in the parser, and there are no cases where
-                    // *this* code has to handle identical start and end brackets.
-                    // For now, consider this a small, speculative investment in a
-                    // possible future requirement.
-                    let matcher = &*matcher.unwrap();
-                    let has_matching_start_bracket =
-                        start_brackets.iter().any(|item| item.dyn_eq(matcher));
-                    let has_matching_end_bracket =
-                        end_brackets.iter().any(|item| item.dyn_eq(matcher));
+        matcher_idxs.sort();
+        for matcher_idx in matcher_idxs {
+            let matcher = &matchers[matcher_idx];
+            let match_result = matcher.match_segments(segments, idx, parse_context)?;
 
-                    if has_matching_start_bracket && !has_matching_end_bracket {
-                        // Add any segments leading up to this to the previous
-                        // bracket.
-                        bracket_stack.last_mut().unwrap().segments.extend(pre);
-                        // Add a bracket to the stack and add the matches from
-                        // the segment.
-                        let bracket_type_idx =
-                            start_brackets.iter().position(|item| item.dyn_eq(matcher)).unwrap();
-                        bracket_stack.push(BracketInfo {
-                            bracket: match_result.matched_segments[0].clone(),
-                            segments: match_result.matched_segments,
-                            bracket_type: bracket_types[bracket_type_idx],
-                        });
-                        seg_buff = match_result.unmatched_segments;
-                        continue;
-                    } else if has_matching_end_bracket {
-                        // Found an end bracket. Does its type match that of
-                        // the innermost start bracket? E.g. ")" matches "(",
-                        // "]" matches "[".
-                        let end_type = bracket_types
-                            [end_brackets.iter().position(|x| x.dyn_eq(matcher)).unwrap()];
-                        if let Some(last_bracket) = bracket_stack.last_mut() {
-                            if last_bracket.bracket_type == end_type {
-                                // Yes, the types match. So we've found a
-                                // matching end bracket. Pop the stack, construct
-                                // a bracketed segment and carry on.
-
-                                // Complete the bracketed info
-                                last_bracket.segments.extend(pre.iter().cloned());
-                                last_bracket
-                                    .segments
-                                    .extend(match_result.matched_segments.iter().cloned());
-
-                                // Construct a bracketed segment (as a tuple) if allowed.
-                                let persist_bracket = persists
-                                    [end_brackets.iter().position(|x| x.dyn_eq(matcher)).unwrap()];
-
-                                let new_segments = if persist_bracket {
-                                    vec![
-                                        last_bracket
-                                            .to_segment(match_result.matched_segments)
-                                            .to_erased_segment()
-                                            as ErasedSegment,
-                                    ]
-                                // Assuming to_segment returns a segment
-                                } else {
-                                    last_bracket.segments.clone()
-                                };
-
-                                // Remove the bracket set from the stack
-                                bracket_stack.pop();
-
-                                // If we're still in a bracket, add the new segments to
-                                // that bracket, otherwise add them to the buffer
-                                if let Some(last_bracket) = bracket_stack.last_mut() {
-                                    last_bracket.segments.extend(new_segments);
-                                } else {
-                                    pre_seg_buff.extend(new_segments);
-                                }
-                                seg_buff.clone_from(&match_result.unmatched_segments);
-                                continue;
-                            }
-                        }
-
-                        // The types don't match. Error.
-                        return Err(SQLParseError {
-                            description: format!(
-                                "Found unexpected end bracket!, was expecting {end_type:?}, but \
-                                 got {matcher:?}"
-                            ),
-                            segment: None,
-                        });
-                    }
-                } else {
-                    let segment = bracket_stack.pop().unwrap().bracket;
-                    return Err(SQLParseError {
-                        description: "Couldn't find closing bracket for opening bracket."
-                            .to_string(),
-                        segment: Some(segment),
-                    });
-                }
-            } else {
-                // No, we're open to more opening brackets or the thing(s)
-                // that we're otherwise looking for.
-                let (pre, match_result, matcher) = look_ahead_match(
-                    &seg_buff,
-                    chain(matchers.clone(), bracket_matchers.clone()).collect_vec(),
-                    parse_cx,
-                )?;
-
-                if !match_result.matched_segments.is_empty() {
-                    let matcher_dyn: &dyn Matchable = &*matcher.clone().unwrap();
-                    let has_matching_start_bracket =
-                        start_brackets.iter().any(|item| item.dyn_eq(matcher_dyn));
-                    let has_matching_end_bracket =
-                        end_brackets.iter().any(|item| item.dyn_eq(matcher_dyn));
-
-                    if matchers.iter().any(|it| it.dyn_eq(matcher_dyn)) {
-                        // It's one of the things we were looking for!
-                        // Return.
-                        return Ok((
-                            pre_seg_buff.into_iter().chain(pre).collect_vec(),
-                            match_result,
-                            matcher,
-                        ));
-                    } else if has_matching_start_bracket {
-                        // We've found the start of a bracket segment.
-                        // NB: It might not *actually* be the bracket itself,
-                        // but could be some non-code element preceding it.
-                        // That's actually ok.
-
-                        // Add the bracket to the stack.
-                        bracket_stack.push(BracketInfo {
-                            bracket: match_result.matched_segments[0].clone(),
-                            segments: match_result.matched_segments.clone(),
-                            bracket_type: bracket_types[start_brackets
-                                .iter()
-                                .position(|x| x.dyn_eq(matcher_dyn))
-                                .unwrap()],
-                        });
-
-                        // The matched element has already been added to the bracket.
-                        // Add anything before it to the pre segment buffer.
-                        // Reset the working buffer.
-                        pre_seg_buff.extend(pre.iter().cloned());
-                        seg_buff.clone_from(&match_result.unmatched_segments);
-                        continue;
-                    } else if has_matching_end_bracket {
-                        // We've found an unexpected end bracket! This is likely
-                        // because we're matching a section which should have
-                        // ended. If we had a match, it
-                        // would have matched by now, so this
-                        // means no match.
-                        // From here we'll drop out to the happy unmatched exit.
-                    } else {
-                        // This shouldn't happen!?
-                        panic!(
-                            "This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match."
-                        );
-                    }
-                }
+            if match_result.has_match() {
+                return Ok((match_result, matcher.clone().into()));
             }
-        } else if !bracket_stack.is_empty() {
+        }
+    }
+
+    Ok((MatchResult::empty_at(idx), None))
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn resolve_bracket(
+    segments: &[ErasedSegment],
+    opening_match: MatchResult,
+    opening_matcher: Arc<dyn Matchable>,
+    start_brackets: &[Arc<dyn Matchable>],
+    end_brackets: &[Arc<dyn Matchable>],
+    bracket_persists: &[bool],
+    parse_context: &mut ParseContext,
+    nested_match: bool,
+) -> Result<MatchResult, SQLParseError> {
+    let type_idx =
+        start_brackets.iter().position(|it| it.dyn_eq(opening_matcher.as_ref())).unwrap();
+    let mut matched_idx = opening_match.span.end;
+    let mut child_matches = vec![opening_match.clone()];
+
+    let matchers = [start_brackets, end_brackets].concat();
+    loop {
+        let (match_result, matcher) = next_match(segments, matched_idx, &matchers, parse_context)?;
+
+        if !match_result.has_match() {
             return Err(SQLParseError {
-                description: format!(
-                    "Couldn't find closing bracket for opened brackets: `{bracket_stack:?}`."
-                ),
-                segment: bracket_stack.last().unwrap().bracket.clone().into(),
+                description: "Couldn't find closing bracket for opening bracket.".into(),
+                segment: segments[opening_match.span.start as usize].clone().into(),
             });
         }
 
-        // This is the happy unmatched path. This occurs when:
-        // - We reached the end with no open brackets.
-        // - No match while outside a bracket stack.
-        // - We found an unexpected end bracket before matching something
-        // interesting. We return with the mutated segments so we can reuse any
-        // bracket matching.
-        return Ok((
-            Vec::new(),
-            MatchResult::from_unmatched(chain(pre_seg_buff, seg_buff).collect_vec()),
-            None,
-        ));
+        let matcher = matcher.unwrap();
+        if end_brackets.iter().any(|it| it.dyn_eq(matcher.as_ref())) {
+            let closing_idx =
+                end_brackets.iter().position(|it| it.dyn_eq(matcher.as_ref())).unwrap();
+
+            if closing_idx == type_idx {
+                let match_span = match_result.span;
+                let persists = bracket_persists[type_idx];
+                let insert_segments = vec![
+                    (opening_match.span.end, IndentChange::Indent),
+                    (match_result.span.start, IndentChange::Dedent),
+                ];
+
+                child_matches.push(match_result);
+                let match_result = MatchResult {
+                    span: Span { start: opening_match.span.start, end: match_span.end },
+                    matched: None,
+                    insert_segments,
+                    child_matches,
+                };
+
+                if !persists {
+                    return Ok(match_result);
+                }
+
+                return Ok(match_result.wrap(Matched::BracketedSegment {
+                    start_bracket: opening_match.span.start,
+                    end_bracket: match_span.start,
+                }));
+            }
+
+            return Err(SQLParseError {
+                description: "Found unexpected end bracket!".into(),
+                segment: segments[(match_result.span.end - 1) as usize].clone().into(),
+            });
+        }
+
+        let inner_match = resolve_bracket(
+            segments,
+            match_result,
+            matcher,
+            start_brackets,
+            end_brackets,
+            bracket_persists,
+            parse_context,
+            false,
+        )?;
+
+        matched_idx = inner_match.span.end;
+        if nested_match {
+            child_matches.push(inner_match);
+        }
     }
 }
 
-/// Looks ahead to claim everything up to some future terminators.
-pub fn greedy_match(
-    segments: Vec<ErasedSegment>,
+fn next_ex_bracket_match(
+    segments: &[ErasedSegment],
+    idx: u32,
+    matchers: &[Arc<dyn Matchable>],
     parse_context: &mut ParseContext,
-    matchers: Vec<Arc<dyn Matchable>>,
-    include_terminator: bool,
-) -> Result<MatchResult, SQLParseError> {
-    let mut seg_buff = segments.clone();
-    let mut seg_bank = Vec::new();
+    bracket_pairs_set: &'static str,
+) -> Result<(MatchResult, Option<Arc<dyn Matchable>>, Vec<MatchResult>), SQLParseError> {
+    let max_idx = segments.len() as u32;
+
+    if idx >= max_idx {
+        return Ok((MatchResult::empty_at(idx), None, Vec::new()));
+    }
+
+    let (_, start_bracket_refs, end_bracket_refs, bracket_persists): (
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+    ) = multiunzip(parse_context.dialect().bracket_sets(bracket_pairs_set));
+
+    let start_brackets = start_bracket_refs
+        .into_iter()
+        .map(|seg_ref| parse_context.dialect().r#ref(seg_ref))
+        .collect_vec();
+
+    let end_brackets = end_bracket_refs
+        .into_iter()
+        .map(|seg_ref| parse_context.dialect().r#ref(seg_ref))
+        .collect_vec();
+
+    let all_matchers = [matchers, &start_brackets, &end_brackets].concat();
+
+    let mut matched_idx = idx;
+    let mut child_matches: Vec<MatchResult> = Vec::new();
 
     loop {
-        let (pre, mat, matcher) = parse_context.deeper_match(false, &[], |this| {
-            bracket_sensitive_look_ahead_match(
-                seg_buff.clone(),
-                matchers.clone(),
-                this,
-                None,
-                None,
-                None,
-            )
-        })?;
-
-        if !mat.has_match() {
-            // No terminator match? Return everything
-            return Ok(MatchResult::from_matched(segments));
+        let (match_result, matcher) =
+            next_match(segments, matched_idx, &all_matchers, parse_context)?;
+        if !match_result.has_match() {
+            return Ok((match_result, matcher.clone(), child_matches));
         }
 
-        let matcher = matcher.unwrap_or_else(|| panic!("Match without matcher: {mat}"));
-        let (strings, types) = matcher
-            .simple(parse_context, None)
-            .unwrap_or_else(|| panic!("Terminators require a simple method: {matcher:?}"));
+        if let Some(matcher) = &matcher
+            && matchers.iter().any(|item| item.dyn_eq(matcher.as_ref()))
+        {
+            return Ok((match_result, Some(matcher.clone()), child_matches));
+        }
 
-        if strings.iter().all(|s| s.chars().all(|c| c.is_alphabetic())) && types.is_empty() {
-            let mut allowable_match = false;
+        if let Some(matcher) = &matcher
+            && end_brackets.iter().any(|item| item.dyn_eq(matcher.as_ref()))
+        {
+            return Ok((MatchResult::empty_at(idx), None, Vec::new()));
+        }
 
-            if pre.is_empty() {
-                allowable_match = true;
-            }
+        let bracket_match = resolve_bracket(
+            segments,
+            match_result,
+            matcher.unwrap(),
+            &start_brackets,
+            &end_brackets,
+            &bracket_persists,
+            parse_context,
+            true,
+        )?;
 
-            for element in pre.iter().rev() {
-                if element.is_meta() {
+        matched_idx = bracket_match.span.end;
+        child_matches.push(bracket_match);
+    }
+}
+
+pub fn greedy_match(
+    segments: &[ErasedSegment],
+    idx: u32,
+    parse_context: &mut ParseContext,
+    matchers: &[Arc<dyn Matchable>],
+    include_terminator: bool,
+    nested_match: bool,
+) -> Result<MatchResult, SQLParseError> {
+    let mut working_idx = idx;
+    let mut stop_idx: u32;
+    let mut child_matches = Vec::new();
+    let mut matched;
+
+    loop {
+        let (match_result, matcher, inner_matches) =
+            parse_context.deeper_match(false, &[], |ctx| {
+                next_ex_bracket_match(segments, working_idx, matchers, ctx, "bracket_pairs")
+            })?;
+
+        matched = match_result;
+
+        if nested_match {
+            child_matches.extend(inner_matches);
+        }
+
+        if !matched.has_match() {
+            return Ok(MatchResult {
+                span: Span { start: idx, end: segments.len() as u32 },
+                matched: None,
+                insert_segments: Vec::new(),
+                child_matches,
+            });
+        }
+
+        let start_idx = matched.span.start;
+        stop_idx = matched.span.end;
+
+        let matcher = matcher.unwrap();
+        let (strings, types) = matcher.simple(parse_context, None).unwrap();
+
+        if types.is_empty() && strings.iter().all(|s| s.chars().all(|c| c.is_alphabetic())) {
+            let mut allowable_match = start_idx == working_idx;
+
+            for idx in (working_idx..=start_idx).rev() {
+                if segments[idx as usize - 1].is_meta() {
                     continue;
-                } else if element.is_type("whitespace") || element.is_type("newline") {
+                } else if matches!(segments[idx as usize - 1].get_type(), "whitespace" | "newline")
+                {
                     allowable_match = true;
                     break;
                 } else {
-                    // Found something other than metas and whitespace/newline.
                     break;
                 }
             }
 
             if !allowable_match {
-                seg_bank = chain!(seg_bank, pre, mat.matched_segments).collect_vec();
-                seg_buff = mat.unmatched_segments;
+                working_idx = stop_idx;
                 continue;
             }
         }
 
-        if include_terminator {
-            return Ok(MatchResult {
-                matched_segments: seg_bank
-                    .iter()
-                    .chain(pre.iter())
-                    .chain(mat.matched_segments.iter())
-                    .cloned()
-                    .collect(),
-                unmatched_segments: mat.unmatched_segments.clone(),
-            });
-        }
-
-        // We can't claim any non-code segments, so we trim them off the end.
-        let buf = chain(seg_bank, pre).collect_vec();
-        let (leading_nc, pre_seg_mid, trailing_nc) = trim_non_code_segments(&buf);
-
-        let n = MatchResult {
-            matched_segments: chain(leading_nc.to_vec(), pre_seg_mid.to_vec()).collect_vec(),
-            unmatched_segments: chain(trailing_nc.to_vec(), mat.all_segments()).collect_vec(),
-        };
-
-        return Ok(n);
+        break;
     }
+
+    if include_terminator {
+        return Ok(MatchResult {
+            span: Span { start: idx, end: stop_idx },
+            ..MatchResult::default()
+        });
+    }
+
+    let stop_idx = skip_stop_index_backward_to_code(segments, matched.span.start, idx);
+
+    let span = if idx == stop_idx {
+        Span { start: idx, end: matched.span.start }
+    } else {
+        Span { start: idx, end: stop_idx }
+    };
+
+    Ok(MatchResult { span, child_matches, ..Default::default() })
 }
 
-#[cfg(test)]
-mod tests {
-    use std::sync::Arc;
-
-    use itertools::Itertools;
-
-    use super::{bracket_sensitive_look_ahead_match, look_ahead_match};
-    use crate::core::parser::context::ParseContext;
-    use crate::core::parser::matchable::Matchable;
-    use crate::core::parser::parsers::StringParser;
-    use crate::core::parser::segments::keyword::KeywordSegment;
-    use crate::core::parser::segments::test_functions::{
-        bracket_segments, fresh_ansi_dialect, generate_test_segments_func, make_result_tuple,
-        test_segments,
-    };
-    use crate::helpers::ToErasedSegment;
-
-    #[test]
-    fn test__parser__algorithms__look_ahead_match() {
-        let test_segments = test_segments();
-        let cases = [(["bar", "foo"].as_slice(), 0..1, "bar"), (["foo"].as_slice(), 2..3, "foo")];
-
-        for (matcher_keywords, result_slice, winning_matcher) in cases {
-            let matchers = matcher_keywords
-                .iter()
-                .map(|kw| {
-                    Arc::new(StringParser::new(
-                        kw,
-                        |segment| {
-                            KeywordSegment::new(
-                                segment.raw().into(),
-                                segment.get_position_marker().unwrap().into(),
-                            )
-                            .to_erased_segment()
-                        },
-                        None,
-                        false,
-                        None,
-                    )) as Arc<dyn Matchable>
-                })
-                .collect_vec();
-
-            let winning_matcher: &dyn Matchable = &*matchers
-                [matcher_keywords.iter().position(|&it| it == winning_matcher).unwrap()]
-            .clone();
-
-            let dialect = fresh_ansi_dialect();
-            let mut cx = ParseContext::new(&dialect, <_>::default());
-            let (_result_pre_match, result_match, result_matcher) =
-                look_ahead_match(&test_segments, matchers, &mut cx).unwrap();
-
-            assert!(result_matcher.unwrap().dyn_eq(winning_matcher));
-
-            let expected_result =
-                make_result_tuple(result_slice.into(), matcher_keywords, &test_segments);
-            assert_eq!(result_match.matched_segments, expected_result);
-        }
+pub fn trim_to_terminator(
+    segments: &[ErasedSegment],
+    idx: u32,
+    terminators: &[Arc<dyn Matchable>],
+    parse_context: &mut ParseContext,
+) -> Result<u32, SQLParseError> {
+    if idx >= segments.len() as u32 {
+        return Ok(segments.len() as u32);
     }
 
-    // Test the bracket_sensitive_look_ahead_match method of the BaseGrammar.
-    #[test]
-    fn test__parser__algorithms__bracket_sensitive_look_ahead_match() {
-        let bs = Arc::new(StringParser::new(
-            "bar",
-            |segment| {
-                KeywordSegment::new(
-                    segment.raw().into(),
-                    segment.get_position_marker().unwrap().into(),
-                )
-                .to_erased_segment()
-            },
-            None,
-            false,
-            None,
-        ));
+    let early_return = parse_context.deeper_match(false, &[], |ctx| {
+        let pruned_terms = prune_options(terminators, segments, ctx, idx);
 
-        let fs = Arc::new(StringParser::new(
-            "foo",
-            |segment| {
-                KeywordSegment::new(
-                    segment.raw().into(),
-                    segment.get_position_marker().unwrap().into(),
-                )
-                .to_erased_segment()
-            },
-            None,
-            false,
-            None,
-        ));
-
-        // We need a dialect here to do bracket matching
-        let dialect = fresh_ansi_dialect();
-        let mut parse_cx = ParseContext::new(&dialect, <_>::default());
-
-        // Basic version, we should find bar first
-        let (pre_section, match_result, _matcher) = bracket_sensitive_look_ahead_match(
-            bracket_segments(),
-            vec![bs.clone(), fs.clone()],
-            &mut parse_cx,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(pre_section, Vec::new());
-        // matcher.unwrap().dyn_eq(&*fs);
-
-        // NB the middle element is a match object
-        assert_eq!(match_result.matched_segments[0].raw(), "bar");
-        assert_eq!(match_result.len(), 1);
-
-        // Look ahead for foo, we should find the one AFTER the brackets, not the
-        // on IN the brackets.
-        let (pre_section, match_result, _matcher) = bracket_sensitive_look_ahead_match(
-            bracket_segments(), // assuming this is a function call or a variable
-            vec![fs.clone()],   // assuming fs is a variable
-            &mut parse_cx,      // assuming ctx is a variable
-            None,
-            None,
-            None,
-        )
-        .unwrap();
-
-        // NB: The bracket segments will have been mutated, so we can't directly
-        // compare. Make sure we've got a bracketed section in there.
-        assert_eq!(pre_section.len(), 5);
-        assert!(pre_section[2].is_type("bracketed"));
-        assert!(pre_section[2].is_type("bracketed"));
-        assert_eq!(pre_section[2].segments().len(), 4);
-
-        // FIXME:
-        // assert!(matcher.unwrap() == fs);
-
-        // We shouldn't match the whitespace with the keyword
-        assert_eq!(match_result.matched_segments[0].raw(), "foo");
-        assert_eq!(match_result.matched_segments.len(), 1);
-    }
-
-    #[test]
-    fn test__parser__algorithms__bracket_fail_with_open_paren_close_square_mismatch() {
-        // Assuming 'StringParser' and 'KeywordSegment' are defined elsewhere
-        let fs = Arc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None))
-            as Arc<dyn Matchable>;
-
-        // Assuming 'ParseContext' is defined elsewhere and requires a dialect
-        let dialect = fresh_ansi_dialect();
-        let mut ctx = ParseContext::new(&dialect, <_>::default()); // Placeholder for dialect
-
-        // Rust's error handling pattern using 'Result'
-        let result = bracket_sensitive_look_ahead_match(
-            generate_test_segments_func(vec![
-                "select", " ", "*", " ", "from", "(", "foo",
-                "]", // Bracket types don't match (parens vs square)
-            ]),
-            vec![fs],
-            &mut ctx,
-            None,
-            None,
-            None,
-        )
-        .unwrap_err();
-
-        assert!(result.matches("Found unexpected end bracket!"));
-
-        // Asserting that the result is an error and matches the expected error
-        // pattern
-    }
-
-    #[test]
-    fn test__parser__algorithms__bracket_fail_with_unexpected_end_bracket() {
-        // Assuming 'StringParser', 'KeywordSegment', 'ParseContext', and other
-        // necessary types are defined elsewhere
-        let fs = Arc::new(StringParser::new("foo", |_| unimplemented!(), None, false, None));
-
-        // Creating a ParseContext with a dialect
-        let dialect = fresh_ansi_dialect();
-        let mut ctx = ParseContext::new(&dialect, <_>::default()); // Placeholder for dialect
-
-        // Assuming the function 'bracket_sensitive_look_ahead_match' returns a Result
-        // with a tuple
-        let result = bracket_sensitive_look_ahead_match(
-            generate_test_segments_func(vec![
-                "bar", "(", // This bracket pair should be mutated
-                ")", " ", ")", // This is the unmatched bracket
-                " ", "foo",
-            ]),
-            vec![fs],
-            &mut ctx,
-            None,
-            None,
-            None,
-        );
-
-        match result {
-            Ok((_, match_result, _)) => {
-                // Check we don't match (even though there's a 'foo' at the end)
-                assert!(!match_result.has_match());
-
-                // Assuming we have a way to get unmatched_segments from match_result
-                let segs = match_result.unmatched_segments;
-
-                // Check the first bracket pair have been mutated
-                assert_eq!(segs[1].raw(), "()");
-                // assert!(segs[1].is_bracketed());
-                assert_eq!(segs[1].segments().len(), 2);
-
-                // Check the trailing 'foo' hasn't been mutated
-                assert_eq!(segs[5].raw(), "foo");
-                // assert!(!segs[5].is_keyword_segment());
+        for term in pruned_terms {
+            if term.match_segments(segments, idx, ctx)?.has_match() {
+                return Ok(Some(idx));
             }
-            Err(_) => panic!("Test failed due to an unexpected error"),
         }
+
+        Ok(None)
+    })?;
+
+    if let Some(idx) = early_return {
+        return Ok(idx);
     }
+
+    let term_match = parse_context.deeper_match(false, &[], |ctx| {
+        greedy_match(segments, idx, ctx, terminators, false, false)
+    })?;
+
+    Ok(skip_stop_index_backward_to_code(segments, term_match.span.end, idx))
 }

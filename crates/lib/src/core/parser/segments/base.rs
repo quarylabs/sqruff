@@ -34,10 +34,12 @@ pub type SegmentConstructorFn<SegmentArgs> =
     &'static (dyn Fn(&str, Option<PositionMarker>, SegmentArgs) -> ErasedSegment + Sync + Send);
 
 pub trait CloneSegment {
+    #[track_caller]
     fn clone_box(&self) -> ErasedSegment;
 }
 
 impl<T: Segment> CloneSegment for T {
+    #[track_caller]
     fn clone_box(&self) -> ErasedSegment {
         dyn_clone::clone(self).to_erased_segment()
     }
@@ -582,6 +584,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         unimplemented!()
     }
 
+    #[track_caller]
     fn set_segments(&mut self, _segments: Vec<ErasedSegment>) {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
@@ -1430,52 +1433,7 @@ impl SymbolSegment {
     }
 }
 
-#[derive(Debug, Hash, Clone, PartialEq)]
-pub struct UnparsableSegment {
-    uuid: Uuid,
-    pub segments: Vec<ErasedSegment>,
-    position_marker: Option<PositionMarker>,
-}
-
-impl UnparsableSegment {
-    pub fn new(segments: Vec<ErasedSegment>) -> Self {
-        let mut this = Self { uuid: Uuid::new_v4(), segments, position_marker: None };
-        this.uuid = Uuid::new_v4();
-        this.set_position_marker(pos_marker(&this.segments).into());
-        this
-    }
-}
-
-impl Segment for UnparsableSegment {
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        self.clone().to_erased_segment()
-    }
-
-    fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
-        self.segments = segments;
-    }
-
-    fn get_type(&self) -> &'static str {
-        "unparsable"
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_marker = position_marker;
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
-    }
-
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
-    }
-}
-
+#[track_caller]
 pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
     let markers = segments.iter().flat_map(|seg| seg.get_position_marker());
 

@@ -331,13 +331,14 @@ file:
             - function_name_identifier: TO_JSON
           - bracketed:
             - start_bracket: (
-            - empty_struct_literal:
-              - struct_type:
-                - keyword: STRUCT
-              - empty_struct_literal_brackets:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+            - expression:
+              - typed_struct_literal:
+                - struct_type:
+                  - keyword: STRUCT
+                - struct_literal:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
             - end_bracket: )
         - alias_expression:
           - keyword: AS

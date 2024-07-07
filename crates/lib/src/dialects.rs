@@ -15,6 +15,7 @@ pub mod sparksql_keywords;
 #[derive(Debug, PartialEq, Eq, Clone, Copy, strum_macros::IntoStaticStr)]
 #[strum(serialize_all = "snake_case")]
 pub enum SyntaxKind {
+    Unparsable,
     File,
     ColumnReference,
     ObjectReference,

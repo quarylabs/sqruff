@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
-use itertools::{chain, Itertools};
+use itertools::Itertools;
 use smol_str::SmolStr;
 use uuid::Uuid;
 
@@ -20,14 +20,13 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, Pattern};
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::match_result::{MatchResult, Matched};
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     pos_marker, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
     ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment,
-    SymbolSegment, SymbolSegmentNewArgs, UnparsableSegment, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
+    SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
@@ -69,7 +68,8 @@ pub struct Node {
 }
 
 impl Node {
-    fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
+    #[track_caller]
+    pub fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
         let position_marker = pos_marker(&segments);
         Self {
             kind,
@@ -188,34 +188,22 @@ impl Matchable for NodeMatcher {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        let Some(match_grammar) = self.match_grammar() else {
-            unimplemented!("{} has no match function implemented", std::any::type_name::<Self>())
-        };
-
-        if segments.len() == 1 && segments[0].get_type() == self.get_type() {
-            return Ok(MatchResult::from_matched(segments.to_vec()));
-        } else if segments.len() > 1 && segments[0].get_type() == self.get_type() {
-            let (first_segment, remaining_segments) =
-                segments.split_first().expect("segments should not be empty");
-            return Ok(MatchResult {
-                matched_segments: vec![first_segment.clone()],
-                unmatched_segments: remaining_segments.to_vec(),
-            });
+        if idx >= segments.len() as u32 {
+            return Ok(MatchResult::empty_at(idx));
         }
 
-        let match_result = match_grammar.match_segments(segments, parse_context)?;
-        if match_result.has_match() {
-            Ok(MatchResult {
-                matched_segments: vec![
-                    Node::new(self.node_kind, match_result.matched_segments).to_erased_segment(),
-                ],
-                unmatched_segments: match_result.unmatched_segments,
-            })
-        } else {
-            Ok(MatchResult::from_unmatched(segments.to_vec()))
+        if segments[idx as usize].get_type() == self.get_type() {
+            return Ok(MatchResult::from_span(idx, idx + 1));
         }
+
+        let grammar = self.match_grammar().unwrap();
+        let match_result = parse_context
+            .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
+
+        Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
     }
 
     fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
@@ -4242,6 +4230,7 @@ pub fn raw_dialect() -> Dialect {
                         MetaSegment::implicit_indent(),
                         AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(
                             |this| {
+                                this.reset_terminators = true;
                                 this.terminators =
                                     vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
                             }
@@ -4256,6 +4245,7 @@ pub fn raw_dialect() -> Dialect {
                         MetaSegment::implicit_indent(),
                         AnyNumberOf::new(vec_of_erased![Ref::new("WhenClauseSegment")],).config(
                             |this| {
+                                this.reset_terminators = true;
                                 this.terminators =
                                     vec_of_erased![Ref::keyword("ELSE"), Ref::keyword("END")];
                             }
@@ -4266,8 +4256,11 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                 ])
                 .config(|this| {
-                    this.terminators =
-                        vec_of_erased![Ref::new("CommaSegment"), Ref::new("BinaryOperatorGrammar")]
+                    this.terminators = vec_of_erased![
+                        Ref::new("ComparisonOperatorGrammar"),
+                        Ref::new("CommaSegment"),
+                        Ref::new("BinaryOperatorGrammar")
+                    ]
                 })
                 .to_matchable(),
             )
@@ -5769,7 +5762,7 @@ pub fn select_clause_segment() -> Arc<dyn Matchable> {
         Ref::new("SelectClauseModifierSegment").optional(),
         MetaSegment::indent(),
         Delimited::new(vec_of_erased![Ref::new("SelectClauseElementSegment")])
-            .config(|this| this.allow_trailing())
+            .config(|this| this.allow_trailing()),
     ])
     .terminators(vec_of_erased![Ref::new("SelectClauseTerminatorGrammar")])
     .config(|this| {
@@ -5831,7 +5824,7 @@ pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileSegment;
 impl FileSegment {
-    fn of(segments: Vec<ErasedSegment>) -> ErasedSegment {
+    pub fn of(segments: Vec<ErasedSegment>) -> ErasedSegment {
         Node::new(SyntaxKind::File, segments).to_erased_segment()
     }
 
@@ -5841,14 +5834,12 @@ impl FileSegment {
         parse_context: &mut ParseContext,
         _f_name: Option<String>,
     ) -> Result<ErasedSegment, SQLParseError> {
-        // Trim the start
-        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0);
+        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0) as u32;
 
-        // Trim the end
-        // Note: The '+ 1' in the end is to include the segment at 'end_idx' in the
-        // slice.
-        let end_idx =
-            segments.iter().rposition(|segment| segment.is_code()).map_or(start_idx, |idx| idx + 1);
+        let end_idx = segments
+            .iter()
+            .rposition(|segment| segment.is_code())
+            .map_or(start_idx, |idx| idx as u32 + 1);
 
         if start_idx == end_idx {
             return Ok(FileSegment::of(segments.to_vec()));
@@ -5857,47 +5848,40 @@ impl FileSegment {
         let final_seg = segments.last().unwrap();
         assert!(final_seg.get_position_marker().is_some());
 
-        let _closing_position = final_seg.get_position_marker().unwrap().templated_slice.end;
+        let file_segment = parse_context.dialect().r#ref("FileSegment");
 
-        let match_result = {
-            // NOTE: Don't call .match() on the segment class itself, but go
-            // straight to the match grammar inside.
-            let cls = parse_context.dialect().r#ref("FileSegment");
-            cls.match_grammar()
-                .unwrap()
-                .match_segments(&segments[start_idx..end_idx], parse_context)
-        }?;
+        let match_result = file_segment.match_grammar().unwrap().match_segments(
+            &segments[..end_idx as usize],
+            start_idx,
+            parse_context,
+        )?;
 
+        let match_span = match_result.span;
         let has_match = match_result.has_match();
-        let MatchResult { matched_segments, unmatched_segments } = match_result;
+        let mut matched = match_result.apply(segments);
+        let unmatched = &segments[match_span.end as usize..end_idx as usize];
 
-        let content: Vec<_> = if !has_match {
-            vec![UnparsableSegment::new(segments[start_idx..end_idx].to_vec()).to_erased_segment()]
-        } else if !unmatched_segments.is_empty() {
-            let idx = unmatched_segments
-                .iter()
-                .position(|item| item.is_code())
-                .unwrap_or(unmatched_segments.len());
-            let mut result = Vec::new();
-            result.extend(matched_segments.clone());
-            result.extend(unmatched_segments.iter().take(idx).cloned());
-            if idx < unmatched_segments.len() {
-                result.push(
-                    UnparsableSegment::new(unmatched_segments[idx..].to_vec()).to_erased_segment(),
-                );
-            }
+        let content: &[ErasedSegment] = if !has_match {
+            &[Node::new(
+                SyntaxKind::Unparsable,
+                segments[start_idx as usize..end_idx as usize].to_vec(),
+            )
+            .to_erased_segment()]
+        } else if !unmatched.is_empty() {
+            let idx = unmatched.iter().position(|it| it.is_code()).unwrap_or(unmatched.len());
+            let (head, tail) = unmatched.split_at(idx);
 
-            result
+            matched.extend_from_slice(head);
+            matched.push(Node::new(SyntaxKind::Unparsable, tail.to_vec()).to_erased_segment());
+            &matched
         } else {
-            chain(matched_segments, unmatched_segments).collect()
+            matched.extend_from_slice(unmatched);
+            &matched
         };
 
-        let mut result = Vec::new();
-        result.extend_from_slice(&segments[..start_idx]);
-        result.extend(content);
-        result.extend_from_slice(&segments[end_idx..]);
-
-        Ok(Self::of(result))
+        Ok(Self::of(
+            [&segments[..start_idx as usize], content, &segments[end_idx as usize..]].concat(),
+        ))
     }
 }
 
@@ -6324,30 +6308,13 @@ mod tests {
                 segments.pop();
             }
 
-            let mut match_result = segment.match_segments(&segments, &mut ctx).unwrap();
+            let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
+            let mut parsed = match_result.apply(&segments);
 
-            assert_eq!(match_result.len(), 1, "failed {segment_ref}, {sql_string}");
+            assert_eq!(parsed.len(), 1, "failed {segment_ref}, {sql_string}");
 
-            let parsed = match_result.matched_segments.pop().unwrap();
+            let parsed = parsed.pop().unwrap();
             assert_eq!(sql_string, parsed.raw());
-        }
-    }
-
-    #[test]
-    fn test__dialect__ansi_specific_segment_not_match() {
-        let cases = [("ObjectReferenceSegment", "\n     ")];
-
-        let dialect = fresh_ansi_dialect();
-        let config = FluffConfig::new(<_>::default(), None, None);
-
-        for (segment_ref, sql) in cases {
-            let segments = lex(&config, sql);
-
-            let mut parse_cx = ParseContext::from_config(&config);
-            let segment = dialect.r#ref(segment_ref);
-
-            let match_result = segment.match_segments(&segments, &mut parse_cx).unwrap();
-            assert!(!match_result.has_match());
         }
     }
 

@@ -88,7 +88,10 @@ fn parse(c: &mut Criterion) {
         let config = FluffConfig::default();
         let (mut ctx, segment, segments) = mk_segments(&dialect, &config, source);
         c.bench_function(name, |b| {
-            b.iter(|| black_box(segment.match_segments(&segments, &mut ctx).unwrap()));
+            b.iter(|| {
+                let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
+                black_box(match_result);
+            });
         });
     }
 }

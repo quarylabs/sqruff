@@ -446,10 +446,12 @@ impl<'a> Lexer<'a> {
         let mut segments = iter_segments(elements, templated_file);
 
         // Add an end of file marker
-        let position_maker =
-            segments.last().map(|segment| segment.get_position_marker().unwrap()).unwrap_or_else(
-                || PositionMarker::from_point(0, 0, templated_file.clone(), None, None),
-            );
+        let position_maker = segments
+            .last()
+            .map(|segment| segment.get_position_marker().unwrap().end_point_marker())
+            .unwrap_or_else(|| {
+                PositionMarker::from_point(0, 0, templated_file.clone(), None, None)
+            });
         segments.push(EndOfFile::create(position_maker));
 
         segments

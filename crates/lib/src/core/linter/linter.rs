@@ -268,7 +268,6 @@ impl Linter {
 
                     let (linting_errors, fixes) =
                         rule.crawl(&self.config.dialect, fix, tree.clone(), &self.config);
-                    let mut anchor_info = compute_anchor_edit_info(fixes.clone());
 
                     if is_first_linter_pass {
                         initial_linting_errors.extend(linting_errors);
@@ -288,6 +287,7 @@ impl Linter {
                             continue;
                         }
 
+                        let mut anchor_info = compute_anchor_edit_info(fixes);
                         let (new_tree, _, _, valid) = tree.apply_fixes(&mut anchor_info);
 
                         if false {

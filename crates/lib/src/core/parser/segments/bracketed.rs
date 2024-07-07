@@ -62,6 +62,7 @@ impl Segment for BracketedSegment {
         let mut this = self.clone();
         this.segments = segments;
         this.raw = OnceLock::new();
+        this.pos_marker = pos_marker(&this.segments).into();
         this.to_erased_segment()
     }
 
@@ -122,15 +123,14 @@ impl Matchable for BracketedSegment {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        if let Some((first, rest)) = segments.split_first()
-            && first.as_any().downcast_ref::<BracketedSegment>().is_some()
-        {
-            return Ok(MatchResult::new(vec![first.clone()], rest.to_vec()));
+        if segments[idx as usize].as_any().downcast_ref::<BracketedSegment>().is_some() {
+            return Ok(MatchResult::from_span(idx, idx + 1));
         }
 
-        Ok(MatchResult::from_unmatched(segments.to_vec()))
+        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> u32 {

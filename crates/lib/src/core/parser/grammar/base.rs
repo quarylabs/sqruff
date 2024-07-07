@@ -3,19 +3,15 @@ use std::ops::Deref;
 use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
-use smol_str::ToSmolStr;
-use uuid::Uuid;
 
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
-use crate::core::parser::helpers::trim_non_code_segments;
-use crate::core::parser::match_algorithms::{greedy_match, prune_options};
+use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::helpers::{capitalize, next_cache_key, ToMatchable};
-use crate::stack::ensure_sufficient_stack;
 
 #[derive(Clone)]
 pub struct Ref {
@@ -115,21 +111,20 @@ impl Matchable for Ref {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        // Implement the logic for `_get_elem`
         let elem = self._get_elem(parse_context.dialect());
 
-        // Check the exclude condition
         if let Some(exclude) = &self.exclude {
             let ctx =
                 parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
-                    if !exclude
-                        .match_segments(segments, this)
+                    if exclude
+                        .match_segments(segments, idx, this)
                         .map_err(|e| dbg!(e))
-                        .map_or(false, |match_result| !match_result.has_match())
+                        .map_or(false, |match_result| match_result.has_match())
                     {
-                        return Some(MatchResult::from_unmatched(segments.to_vec()));
+                        return Some(MatchResult::empty_at(idx));
                     }
 
                     None
@@ -140,12 +135,8 @@ impl Matchable for Ref {
             }
         }
 
-        ensure_sufficient_stack(|| {
-            // Match against that. NB We're not incrementing the match_depth here.
-            // References shouldn't really count as a depth of match.
-            parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
-                elem.match_segments(segments, this)
-            })
+        parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
+            elem.match_segments(segments, idx, this)
         })
     }
 
@@ -156,7 +147,7 @@ impl Matchable for Ref {
 
 #[derive(Clone, Debug)]
 pub struct Anything {
-    cache: u32,
+    cache_key: u32,
     terminators: Vec<Arc<dyn Matchable>>,
 }
 
@@ -175,7 +166,7 @@ impl Default for Anything {
 
 impl Anything {
     pub fn new() -> Self {
-        Self { cache: next_cache_key(), terminators: Vec::new() }
+        Self { cache_key: next_cache_key(), terminators: Vec::new() }
     }
 
     pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
@@ -184,31 +175,31 @@ impl Anything {
     }
 }
 
-impl Segment for Anything {
-    fn get_uuid(&self) -> Uuid {
-        todo!()
-    }
-}
+impl Segment for Anything {}
 
 impl Matchable for Anything {
     fn cache_key(&self) -> u32 {
-        self.cache
+        self.cache_key
     }
 
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
+        idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        if self.terminators.is_empty() {
-            return Ok(MatchResult::from_matched(segments.to_vec()));
+        if self.terminators.is_empty() && parse_context.terminators.is_empty() {
+            return Ok(MatchResult::from_span(idx, segments.len() as u32));
         }
 
-        greedy_match(segments.to_vec(), parse_context, self.terminators.clone(), false)
+        let mut terminators = self.terminators.clone();
+        terminators.extend_from_slice(&parse_context.terminators);
+
+        greedy_match(segments, idx, parse_context, &terminators, false, true)
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Hash)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Nothing {}
 
 impl Default for Nothing {
@@ -228,291 +219,10 @@ impl Segment for Nothing {}
 impl Matchable for Nothing {
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        _segments: &[ErasedSegment],
+        idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        Ok(MatchResult::from_unmatched(segments.to_vec()))
-    }
-}
-
-pub fn longest_trimmed_match(
-    mut segments: &[ErasedSegment],
-    matchers: Vec<Arc<dyn Matchable>>,
-    parse_context: &mut ParseContext,
-    trim_noncode: bool,
-) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
-    // Have we been passed an empty list?
-    if segments.is_empty() {
-        return Ok((MatchResult::from_empty(), None));
-    }
-    // If presented with no options, return no match
-    else if matchers.is_empty() {
-        return Ok((MatchResult::from_unmatched(segments.to_vec()), None));
-    }
-
-    let available_options = prune_options(&matchers, segments, parse_context);
-    if available_options.is_empty() {
-        return Ok((MatchResult::from_unmatched(segments.to_vec()), None));
-    }
-
-    let mut pre_nc = &[][..];
-    let mut post_nc = &[][..];
-
-    if trim_noncode {
-        (pre_nc, segments, post_nc) = trim_non_code_segments(segments);
-    }
-
-    let loc_key = (
-        segments[0].raw().to_smolstr(),
-        segments[0].get_position_marker().unwrap().working_loc(),
-        segments[0].get_type(),
-        segments.len(),
-    );
-
-    let loc_key = parse_context.loc_key(loc_key);
-
-    let mut best_match_length = 0;
-    let mut best_match = None;
-
-    for matcher in available_options {
-        let matcher_key = matcher.cache_key();
-
-        let match_result = match parse_context.check_parse_cache(loc_key, matcher_key) {
-            Some(match_result) => match_result,
-            None => {
-                let match_result = matcher.match_segments(segments, parse_context)?;
-                parse_context.put_parse_cache(loc_key, matcher_key, match_result.clone());
-                match_result
-            }
-        };
-
-        // No match. Skip this one.
-        if !match_result.has_match() {
-            continue;
-        }
-
-        if match_result.is_complete() {
-            // Just return it! (WITH THE RIGHT OTHER STUFF)
-            return if trim_noncode {
-                let mut matched_segments = pre_nc.to_vec();
-                matched_segments.extend(match_result.matched_segments);
-                matched_segments.extend(post_nc.to_vec());
-
-                Ok((MatchResult::from_matched(matched_segments), matcher.into()))
-            } else {
-                Ok((match_result, matcher.into()))
-            };
-        } else if match_result.has_match()
-            && match_result.trimmed_matched_length() > best_match_length
-        {
-            best_match_length = match_result.trimmed_matched_length();
-            best_match = (match_result, matcher).into();
-        }
-    }
-
-    // If we get here, then there wasn't a complete match. If we
-    // has a best_match, return that.
-    if best_match_length > 0 {
-        let (match_result, matchable) = best_match.unwrap();
-        return if trim_noncode {
-            let mut matched_segments = pre_nc.to_vec();
-            matched_segments.extend(match_result.matched_segments);
-
-            let mut unmatched_segments = match_result.unmatched_segments;
-            unmatched_segments.extend(post_nc.iter().cloned());
-
-            Ok((MatchResult { matched_segments, unmatched_segments }, matchable.into()))
-        } else {
-            Ok((match_result, matchable.into()))
-        };
-    }
-
-    // If no match at all, return nothing
-    Ok((MatchResult::from_unmatched(segments.to_vec()), None))
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use super::*;
-    use crate::core::parser::grammar::anyof::one_of;
-    use crate::core::parser::grammar::sequence::Sequence;
-    use crate::core::parser::parsers::StringParser;
-    use crate::core::parser::segments::keyword::KeywordSegment;
-    use crate::core::parser::segments::test_functions::{
-        fresh_ansi_dialect, generate_test_segments_func, make_result_tuple, test_segments,
-    };
-    use crate::helpers::ToErasedSegment;
-
-    #[test]
-    fn test__parser__grammar__ref_eq() {
-        // Assuming Ref implements Clone and PartialEq
-        let r1 = Ref::new("foo".to_string());
-        let r2 = Ref::new("foo".to_string());
-
-        // Rust does not directly compare object identities like Python's `is`,
-        // but we can ensure they are not the same object by comparing memory addresses
-        assert_ne!(&r1 as *const _, &r2 as *const _);
-        assert_eq!(r1, r2);
-
-        // For lists, we use Vec in Rust
-        let mut check_list = vec![r2.clone()];
-
-        // In Rust, we use `contains` to check for presence in a Vec
-        assert!(check_list.contains(&r1));
-
-        // Finding the index of an item in a Vec
-        let index = check_list.iter().position(|x| *x == r1).expect("Item not found");
-        assert_eq!(index, 0);
-
-        // Removing an item from a Vec
-        check_list.retain(|x| *x != r1);
-        assert!(!check_list.contains(&r1));
-    }
-
-    #[test]
-    fn test__parser__grammar__ref_repr() {
-        // Assuming that Ref has a constructor that accepts a &str and an optional bool
-        let r1 = Ref::new("foo".to_string());
-        assert_eq!(format!("{:?}", r1), "<Ref: foo>");
-
-        let r2 = Ref::new("bar".to_string()).optional();
-        assert_eq!(format!("{:?}", r2), "<Ref: bar [opt]>");
-    }
-
-    #[test]
-    fn test__parser__grammar_ref_exclude() {
-        // Assuming 'Ref' and 'NakedIdentifierSegment' are defined elsewhere
-        let ni = Ref::new("NakedIdentifierSegment".to_string()).exclude(Ref::keyword("ABS"));
-
-        // Assuming 'generate_test_segments' and 'fresh_ansi_dialect' are implemented
-        // elsewhere
-        let ts = generate_test_segments_func(vec!["ABS", "ABSOLUTE"]);
-        let dialect = fresh_ansi_dialect();
-        let mut ctx = ParseContext::new(&dialect, <_>::default());
-
-        // Assert ABS does not match, due to the exclude
-        assert!(ni.match_segments(&[ts[0].clone()], &mut ctx).unwrap().matched_segments.is_empty());
-
-        // Assert ABSOLUTE does match
-        assert!(
-            !ni.match_segments(&[ts[1].clone()], &mut ctx).unwrap().matched_segments.is_empty()
-        );
-    }
-
-    #[test]
-    fn test_parser_grammar_nothing() {
-        let dialect = fresh_ansi_dialect();
-        let mut ctx = ParseContext::new(&dialect, <_>::default());
-
-        assert!(
-            Nothing::new()
-                .match_segments(&test_segments(), &mut ctx)
-                .unwrap()
-                .matched_segments
-                .is_empty()
-        );
-    }
-
-    #[test]
-    fn test__parser__grammar__base__longest_trimmed_match__basic() {
-        let test_segments = test_segments();
-        let cases = [
-            // Matching the first element of the list
-            (0..test_segments.len(), "bar", false, (0..1).into()),
-            // Matching with a bit of whitespace before
-            (1..test_segments.len(), "foo", true, (1..3).into()),
-            // Matching with a bit of whitespace before (not trim_noncode)
-            (1..test_segments.len(), "foo", false, None),
-            // Matching with whitespace after
-            (0..2, "bar", true, (0..2).into()),
-        ];
-
-        let dialect = fresh_ansi_dialect();
-        let mut ctx = ParseContext::new(&dialect, <_>::default());
-        for (segments_slice, matcher_keyword, trim_noncode, result_slice) in cases {
-            let matchers = vec![
-                StringParser::new(
-                    matcher_keyword,
-                    |segment| {
-                        KeywordSegment::new(
-                            segment.raw().into(),
-                            segment.get_position_marker().unwrap().into(),
-                        )
-                        .to_erased_segment()
-                    },
-                    None,
-                    false,
-                    None,
-                )
-                .to_matchable(),
-            ];
-
-            let (m, _) = longest_trimmed_match(
-                &test_segments[segments_slice],
-                matchers,
-                &mut ctx,
-                trim_noncode,
-            )
-            .unwrap();
-
-            let expected_result =
-                make_result_tuple(result_slice, &[matcher_keyword], &test_segments);
-
-            assert_eq!(expected_result, m.matched_segments);
-        }
-    }
-
-    #[test]
-    fn test__parser__grammar__base__longest_trimmed_match__adv() {
-        let bs = Arc::new(StringParser::new(
-            "bar",
-            |segment| {
-                KeywordSegment::new(
-                    segment.raw().into(),
-                    segment.get_position_marker().unwrap().into(),
-                )
-                .to_erased_segment()
-            },
-            None,
-            false,
-            None,
-        )) as Arc<dyn Matchable>;
-
-        let fs = Arc::new(StringParser::new(
-            "foo",
-            |segment| {
-                KeywordSegment::new(
-                    segment.raw().into(),
-                    segment.get_position_marker().unwrap().into(),
-                )
-                .to_erased_segment()
-            },
-            None,
-            false,
-            None,
-        )) as Arc<dyn Matchable>;
-
-        let matchers: Vec<Arc<dyn Matchable>> = vec![
-            bs.clone(),
-            fs.clone(),
-            Arc::new(Sequence::new(vec![bs.clone(), fs.clone()])),
-            Arc::new(one_of(vec![bs.clone(), fs.clone()])),
-            Arc::new(Sequence::new(vec![bs, fs])),
-        ];
-
-        let dialect = fresh_ansi_dialect();
-        let mut ctx = ParseContext::new(&dialect, <_>::default());
-        // Matching the first element of the list
-        let (match_result, matcher) =
-            longest_trimmed_match(&test_segments(), matchers.clone(), &mut ctx, true).unwrap();
-
-        // Check we got a match
-        assert!(match_result.has_match());
-        // Check we got the right one.
-        assert!(matcher.unwrap().dyn_eq(&*matchers[2]));
-        // And it matched the first three segments
-        assert_eq!(match_result.len(), 3);
+        Ok(MatchResult::empty_at(idx))
     }
 }

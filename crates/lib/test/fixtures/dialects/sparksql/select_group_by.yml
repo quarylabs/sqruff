@@ -290,9 +290,10 @@ file:
                     - naked_identifier: car_model
                 - end_bracket: )
             - comma: ','
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
           - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
@@ -373,9 +374,10 @@ file:
                     - naked_identifier: car_model
                 - end_bracket: )
             - comma: ','
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
           - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
@@ -457,9 +459,10 @@ file:
                     - naked_identifier: car_model
                 - end_bracket: )
             - comma: ','
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
           - end_bracket: )
     - orderby_clause:
       - keyword: ORDER

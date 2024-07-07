@@ -87,6 +87,7 @@ impl PositionMarker {
         self.source_position().1
     }
 
+    #[track_caller]
     pub fn from_child_markers(markers: impl Iterator<Item = PositionMarker>) -> PositionMarker {
         let mut source_start = usize::MAX;
         let mut source_end = usize::MIN;

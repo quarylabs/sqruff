@@ -36,7 +36,7 @@ pub trait MetaSegmentKind: Debug + Hash + Clone + PartialEq + 'static {
 pub struct MetaSegment<M> {
     uuid: Uuid,
     position_marker: Option<PositionMarker>,
-    kind: M,
+    pub(crate) kind: M,
 }
 
 impl MetaSegment<TemplateSegment> {
@@ -50,7 +50,7 @@ impl MetaSegment<TemplateSegment> {
 }
 
 impl Indent {
-    fn from_kind(kind: IndentChange) -> Self {
+    pub fn from_kind(kind: IndentChange) -> Self {
         Self { kind, position_marker: None, uuid: Uuid::new_v4() }
     }
 
@@ -121,6 +121,7 @@ impl<M: MetaSegmentKind + Send + Sync> Matchable for MetaSegment<M> {
     fn match_segments(
         &self,
         _segments: &[ErasedSegment],
+        _idx: u32,
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         panic!(

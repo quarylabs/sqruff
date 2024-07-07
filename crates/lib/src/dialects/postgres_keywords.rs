@@ -1022,9 +1022,6 @@ pub fn postgres_keywords() -> Vec<(&'static str, &'static str)> {
 
 #[cfg(test)]
 mod tests {
-
-    use itertools::Itertools;
-
     use super::priority_keyword_merge;
     use crate::dialects::postgres_keywords::get_keywords;
 
@@ -1035,14 +1032,6 @@ mod tests {
 
     #[test]
     fn test_priority_keyword_merge() {
-        println!(
-            "{}",
-            crate::dialects::postgres_keywords::postgres_keywords()
-                .iter()
-                .map(|(k, v)| format!("{k} {v}"))
-                .join("\n")
-        );
-
         let kw_list_1 = &[("A", "not-keyword"), ("B", "non-reserved")];
         let kw_list_2 = &[("A", "reserved"), ("C", "non-reserved")];
 

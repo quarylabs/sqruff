@@ -1,12 +1,11 @@
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
-use crate::core::parser::match_result::MatchResult;
+use crate::core::parser::match_result::{MatchResult, Span};
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::segments::meta::Indent;
-use crate::helpers::ToErasedSegment;
 
-#[derive(Clone, Debug, Hash, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Conditional {
     meta: Indent,
     indented_joins: bool,
@@ -91,16 +90,18 @@ impl Segment for Conditional {}
 impl Matchable for Conditional {
     fn match_segments(
         &self,
-        segments: &[ErasedSegment],
+        _segments: &[ErasedSegment],
+        idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         if !self.is_enabled(parse_context) {
-            return Ok(MatchResult::from_unmatched(segments.to_vec()));
+            return Ok(MatchResult::empty_at(idx));
         }
 
         Ok(MatchResult {
-            matched_segments: vec![self.meta.clone().to_erased_segment()],
-            unmatched_segments: segments.to_vec(),
+            span: Span { start: idx, end: idx },
+            insert_segments: vec![(idx, self.meta.kind)],
+            ..Default::default()
         })
     }
 }

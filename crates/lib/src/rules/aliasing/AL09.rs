@@ -9,7 +9,7 @@ pub struct RuleAL09;
 
 impl Rule for RuleAL09 {
     fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        RuleAL09::default().erased()
+        RuleAL09.erased()
     }
 
     fn name(&self) -> &'static str {

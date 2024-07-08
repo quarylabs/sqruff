@@ -6,22 +6,29 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
 
-struct PriorGroupByOrderByConvention(String);
+struct PriorGroupByOrderByConvention(GroupByAndOrderByConvention);
 
 #[derive(Debug, Clone)]
 pub struct RuleAM06 {
-    group_by_and_order_by_style: String,
+    group_by_and_order_by_style: GroupByAndOrderByConvention,
 }
 
 impl Default for RuleAM06 {
     fn default() -> Self {
-        Self { group_by_and_order_by_style: "consistent".into() }
+        Self { group_by_and_order_by_style: GroupByAndOrderByConvention::Consistent }
     }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum GroupByAndOrderByConvention {
+    Consistent,
+    Explicit,
+    Implicit,
 }
 
 impl Rule for RuleAM06 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAM06 { group_by_and_order_by_style: "consistent".into() }.erased()
+        RuleAM06 { group_by_and_order_by_style: GroupByAndOrderByConvention::Consistent }.erased()
     }
 
     fn name(&self) -> &'static str {
@@ -69,9 +76,11 @@ ORDER BY a ASC, b DESC
 
         // Initialize the map
         let mut column_reference_category_map = AHashMap::new();
-        column_reference_category_map.insert("column_reference", "explicit");
-        column_reference_category_map.insert("expression", "explicit");
-        column_reference_category_map.insert("numeric_literal", "implicit");
+        column_reference_category_map
+            .insert("column_reference", GroupByAndOrderByConvention::Explicit);
+        column_reference_category_map.insert("expression", GroupByAndOrderByConvention::Explicit);
+        column_reference_category_map
+            .insert("numeric_literal", GroupByAndOrderByConvention::Implicit);
 
         let mut column_reference_category_set: Vec<_> = context
             .segment
@@ -85,7 +94,7 @@ ORDER BY a ASC, b DESC
             return Vec::new();
         }
 
-        if self.group_by_and_order_by_style == "consistent" {
+        if self.group_by_and_order_by_style == GroupByAndOrderByConvention::Consistent {
             if column_reference_category_set.len() > 1 {
                 return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
             } else {
@@ -107,12 +116,12 @@ ORDER BY a ASC, b DESC
                 }
 
                 context.memory.borrow_mut().insert(PriorGroupByOrderByConvention(
-                    current_group_by_order_by_convention.to_string(),
+                    current_group_by_order_by_convention.clone(),
                 ));
             }
         } else if column_reference_category_set
-            .iter()
-            .any(|&&category| category != self.group_by_and_order_by_style)
+            .into_iter()
+            .any(|category| *category != self.group_by_and_order_by_style)
         {
             return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
         }
@@ -132,11 +141,11 @@ ORDER BY a ASC, b DESC
 mod tests {
     use pretty_assertions::assert_eq;
 
-    use super::RuleAM06;
+    use super::{GroupByAndOrderByConvention, RuleAM06};
     use crate::api::simple::lint;
     use crate::core::rules::base::{Erased, ErasedRule};
 
-    fn rules(group_by_and_order_by_style: Option<&str>) -> Vec<ErasedRule> {
+    fn rules(group_by_and_order_by_style: Option<GroupByAndOrderByConvention>) -> Vec<ErasedRule> {
         let mut rule = RuleAM06::default();
         if let Some(group_by_and_order_by_style) = group_by_and_order_by_style {
             rule.group_by_and_order_by_style = group_by_and_order_by_style.into();
@@ -346,7 +355,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY foo, bar".into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -360,7 +369,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY 1, 2".into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -381,7 +390,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY 1, bar".into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -402,7 +411,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar FROM fake_table ORDER BY foo, bar".into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -416,7 +425,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar FROM fake_table ORDER BY 1, 2".into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -438,7 +447,7 @@ mod tests {
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY 1, 2 ORDER BY 1, 2"
                 .into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -468,7 +477,7 @@ mod tests {
              2"
             .into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -498,7 +507,7 @@ mod tests {
              bar"
             .into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -519,7 +528,7 @@ mod tests {
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table ORDER BY foo, power(bar, 2)"
                 .into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -534,7 +543,7 @@ mod tests {
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table ORDER BY 1, power(bar, 2)"
                 .into(),
             "ansi".into(),
-            rules("explicit".into()),
+            rules(GroupByAndOrderByConvention::Explicit.into()),
             None,
             None,
         )
@@ -554,7 +563,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY 1, 2".into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -568,7 +577,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY foo, bar".into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -588,7 +597,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar FROM fake_table ORDER BY 1, 2".into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -602,7 +611,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar FROM fake_table ORDER BY foo, bar".into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -622,7 +631,7 @@ mod tests {
         let violations = lint(
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY 1, bar".into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -643,7 +652,7 @@ mod tests {
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table GROUP BY 1, 2 ORDER BY 1, 2"
                 .into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -659,7 +668,7 @@ mod tests {
              foo, bar"
                 .into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -687,7 +696,7 @@ mod tests {
              2"
             .into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -715,7 +724,7 @@ mod tests {
              bar"
             .into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -736,7 +745,7 @@ mod tests {
             "SELECT foo, bar, sum(baz) AS sum_value FROM fake_table ORDER BY foo, power(bar, 2)"
                 .into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )
@@ -758,7 +767,7 @@ mod tests {
              field_1) AS field_3_window_sum FROM table1 GROUP BY 1, 2 ORDER BY 1, 2"
                 .into(),
             "ansi".into(),
-            rules("implicit".into()),
+            rules(GroupByAndOrderByConvention::Implicit.into()),
             None,
             None,
         )

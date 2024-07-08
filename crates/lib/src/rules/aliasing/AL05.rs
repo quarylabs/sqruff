@@ -26,7 +26,7 @@ pub struct RuleAL05;
 
 impl Rule for RuleAL05 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL05::default().erased()
+        RuleAL05.erased()
     }
 
     fn name(&self) -> &'static str {

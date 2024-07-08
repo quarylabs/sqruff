@@ -13,7 +13,7 @@ pub struct RuleAL04;
 
 impl Rule for RuleAL04 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL04::default().erased()
+        RuleAL04.erased()
     }
 
     fn name(&self) -> &'static str {

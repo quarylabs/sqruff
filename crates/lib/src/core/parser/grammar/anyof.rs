@@ -80,7 +80,7 @@ pub struct AnyNumberOf {
     pub(crate) allow_gaps: bool,
     pub(crate) optional: bool,
     pub(crate) parse_mode: ParseMode,
-    cache_key: u32,
+    cache_key: u64,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -265,7 +265,7 @@ impl Matchable for AnyNumberOf {
         Arc::new(new_grammar)
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }

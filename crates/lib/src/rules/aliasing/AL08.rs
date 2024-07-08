@@ -9,7 +9,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleAL08 {}
+pub struct RuleAL08;
 
 impl Rule for RuleAL08 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {

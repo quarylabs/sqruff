@@ -22,7 +22,7 @@ struct AL05Query {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleAL05 {}
+pub struct RuleAL05;
 
 impl Rule for RuleAL05 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {

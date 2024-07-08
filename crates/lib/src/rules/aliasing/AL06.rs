@@ -7,8 +7,8 @@ use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone, Default)]
 pub struct RuleAL06 {
-    min_alias_lenght: Option<usize>,
-    max_alias_lenght: Option<usize>,
+    min_alias_length: Option<usize>,
+    max_alias_length: Option<usize>,
 }
 
 impl RuleAL06 {
@@ -29,19 +29,19 @@ impl RuleAL06 {
                 return Vec::new();
             };
 
-            if let Some(min_alias_lenght) = self.min_alias_lenght {
+            if let Some(min_alias_length) = self.min_alias_length {
                 if let Some(alias_identifier_ref) =
                     alias_exp_ref.child(&["identifier", "naked_identifier"])
                 {
                     let alias_identifier = alias_identifier_ref.raw();
-                    if alias_identifier.len() < min_alias_lenght {
+                    if alias_identifier.len() < min_alias_length {
                         violation_buff.push(LintResult::new(
                             Some(alias_identifier_ref),
                             Vec::new(),
                             None,
                             format!(
                                 "Aliases should be at least '{:?}' character(s) long",
-                                self.min_alias_lenght
+                                self.min_alias_length
                             )
                             .into(),
                             None,
@@ -50,20 +50,20 @@ impl RuleAL06 {
                 }
             }
 
-            if let Some(max_alias_lenght) = self.max_alias_lenght {
+            if let Some(max_alias_length) = self.max_alias_length {
                 if let Some(alias_identifier_ref) =
                     alias_exp_ref.child(&["identifier", "naked_identifier"])
                 {
                     let alias_identifier = alias_identifier_ref.raw();
 
-                    if alias_identifier.len() > max_alias_lenght {
+                    if alias_identifier.len() > max_alias_length {
                         violation_buff.push(LintResult::new(
                             Some(alias_identifier_ref),
                             Vec::new(),
                             None,
                             format!(
                                 "Aliases should be no more than '{:?}' character(s) long.",
-                                self.max_alias_lenght
+                                self.max_alias_length
                             )
                             .into(),
                             None,
@@ -142,8 +142,8 @@ mod tests {
     use crate::core::rules::base::{Erased, ErasedRule};
     use crate::rules::aliasing::AL06::RuleAL06;
 
-    fn rules(min_alias_lenght: Option<usize>, max_alias_lenght: Option<usize>) -> Vec<ErasedRule> {
-        vec![RuleAL06 { min_alias_lenght, max_alias_lenght }.erased()]
+    fn rules(min_alias_length: Option<usize>, max_alias_length: Option<usize>) -> Vec<ErasedRule> {
+        vec![RuleAL06 { min_alias_length, max_alias_length }.erased()]
     }
 
     #[test]

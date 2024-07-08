@@ -9,7 +9,7 @@ pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;
 
     vec![
-        CV02::RuleCV02::default().erased(),
+        CV02::RuleCV02.erased(),
         CV03::RuleCV03::default().erased(),
         CV04::RuleCV04::default().erased(),
     ]

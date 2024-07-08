@@ -18,17 +18,17 @@ pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;
 
     vec![
-        LT01::RuleLT01::default().erased(),
-        LT02::RuleLT02::default().erased(),
-        LT03::RuleLT03::default().erased(),
+        LT01::RuleLT01.erased(),
+        LT02::RuleLT02.erased(),
+        LT03::RuleLT03.erased(),
         LT04::RuleLT04::default().erased(),
         LT05::RuleLT05::default().erased(),
-        LT06::RuleLT06::default().erased(),
-        LT07::RuleLT07::default().erased(),
-        LT08::RuleLT08::default().erased(),
+        LT06::RuleLT06.erased(),
+        LT07::RuleLT07.erased(),
+        LT08::RuleLT08.erased(),
         LT09::RuleLT09::default().erased(),
-        LT10::RuleLT10::default().erased(),
+        LT10::RuleLT10.erased(),
         LT11::RuleLT11.erased(),
-        LT12::RuleLT12::default().erased(),
+        LT12::RuleLT12.erased(),
     ]
 }

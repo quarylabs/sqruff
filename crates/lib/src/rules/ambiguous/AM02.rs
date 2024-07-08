@@ -9,11 +9,11 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug, Default)]
-pub struct RuleAM02 {}
+pub struct RuleAM02;
 
 impl Rule for RuleAM02 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAM02::default().erased())
+        Ok(RuleAM02.erased())
     }
 
     fn name(&self) -> &'static str {

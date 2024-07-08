@@ -20,7 +20,7 @@ jemalloc = ["jemallocator"]
 codegen-docs = ["clap-markdown", "minijinja", "serde"]
 
 [dependencies]
-sqruff-lib = { version = "0.8", path = "../lib" }
+sqruff-lib = { version = "0.9", path = "../lib" }
 lsp = { version = "*", package = "sqruff-lsp", path = "../lsp" }
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"

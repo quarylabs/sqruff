@@ -12,8 +12,8 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleAL08;
 
 impl Rule for RuleAL08 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL08.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL08.erased())
     }
 
     fn name(&self) -> &'static str {

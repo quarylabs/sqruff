@@ -162,8 +162,8 @@ impl RuleRF01 {
 }
 
 impl Rule for RuleRF01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleRF01.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleRF01.erased())
     }
 
     fn name(&self) -> &'static str {

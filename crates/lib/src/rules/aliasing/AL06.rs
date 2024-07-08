@@ -1,3 +1,5 @@
+use ahash::AHashMap;
+
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
@@ -78,8 +80,8 @@ impl RuleAL06 {
 }
 
 impl Rule for RuleAL06 {
-    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        RuleAL06::default().erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL06::default().erased())
     }
 
     fn name(&self) -> &'static str {

@@ -12,8 +12,8 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleAL03;
 
 impl Rule for RuleAL03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL03.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL03.erased())
     }
 
     fn name(&self) -> &'static str {

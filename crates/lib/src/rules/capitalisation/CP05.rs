@@ -12,14 +12,14 @@ pub struct RuleCP05 {
 }
 
 impl Rule for RuleCP05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleCP05 {
-            extended_capitalisation_policy: config["extended_capitalisation_policy"]
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleCP05 {
+            extended_capitalisation_policy: _config["extended_capitalisation_policy"]
                 .as_string()
                 .unwrap()
                 .to_string(),
         }
-        .erased()
+        .erased())
     }
 
     fn name(&self) -> &'static str {

@@ -27,8 +27,9 @@ enum GroupByAndOrderByConvention {
 }
 
 impl Rule for RuleAM06 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAM06 { group_by_and_order_by_style: GroupByAndOrderByConvention::Consistent }.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAM06 { group_by_and_order_by_style: GroupByAndOrderByConvention::Consistent }
+            .erased())
     }
 
     fn name(&self) -> &'static str {

@@ -39,12 +39,12 @@ impl Default for RuleCP01 {
 }
 
 impl Rule for RuleCP01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleCP01 {
-            capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleCP01 {
+            capitalisation_policy: _config["capitalisation_policy"].as_string().unwrap().into(),
             ..Default::default()
         }
-        .erased()
+        .erased())
     }
 
     fn lint_phase(&self) -> LintPhase {

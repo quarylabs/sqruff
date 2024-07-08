@@ -181,8 +181,8 @@ impl RuleAL07 {
 }
 
 impl Rule for RuleAL07 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL07 { force_enable: config["force_enable"].as_bool().unwrap() }.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL07 { force_enable: _config["force_enable"].as_bool().unwrap() }.erased())
     }
     fn name(&self) -> &'static str {
         "aliasing.forbid"

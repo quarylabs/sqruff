@@ -14,8 +14,8 @@ use crate::helpers::IndexMap;
 pub struct RuleLT08 {}
 
 impl Rule for RuleLT08 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleLT08::default().erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleLT08::default().erased())
     }
 
     fn name(&self) -> &'static str {

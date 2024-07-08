@@ -10,8 +10,8 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT02 {}
 
 impl Rule for RuleLT02 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleLT02::default().erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleLT02::default().erased())
     }
 
     fn name(&self) -> &'static str {

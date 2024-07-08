@@ -1,3 +1,5 @@
+use ahash::AHashMap;
+
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
 use crate::core::rules::context::RuleContext;
@@ -8,8 +10,8 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleAL09;
 
 impl Rule for RuleAL09 {
-    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        RuleAL09.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL09.erased())
     }
 
     fn name(&self) -> &'static str {

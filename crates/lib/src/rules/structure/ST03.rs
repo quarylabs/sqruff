@@ -13,8 +13,8 @@ use crate::utils::analysis::query::Query;
 pub struct RuleST03 {}
 
 impl Rule for RuleST03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleST03::default().erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleST03::default().erased())
     }
 
     fn name(&self) -> &'static str {

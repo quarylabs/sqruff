@@ -79,7 +79,7 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
     // A method to generate a unique cache key for the matchable object.
     //
     // Returns none for no caching key
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 

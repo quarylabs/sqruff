@@ -21,7 +21,7 @@ pub struct BracketedSegment {
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
-    cache_key: u32,
+    cache_key: u64,
     descendant_type_set: OnceLock<AHashSet<&'static str>>,
 }
 
@@ -133,7 +133,7 @@ impl Matchable for BracketedSegment {
         Ok(MatchResult::empty_at(idx))
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }

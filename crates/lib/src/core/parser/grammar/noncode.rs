@@ -50,7 +50,7 @@ impl Matchable for NonCodeMatcher {
         Ok(MatchResult::empty_at(idx))
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         0
     }
 }

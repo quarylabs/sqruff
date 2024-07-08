@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::hash::BuildHasherDefault;
 use std::panic;
 use std::path::{Component, Path, PathBuf};
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Once};
 
 use crate::core::parser::matchable::Matchable;
@@ -179,11 +179,11 @@ fn with_ctx(f: impl FnOnce(&mut Vec<String>)) {
     CTX.with(|ctx| f(&mut ctx.borrow_mut()));
 }
 
-pub fn next_cache_key() -> u32 {
+pub fn next_cache_key() -> u64 {
     // The value 0 is reserved for NonCodeMatcher. This grammar matcher is somewhat
     // of a singleton, so we don't need a unique ID in the same way as other grammar
     // matchers.
-    static ID: AtomicU32 = AtomicU32::new(1);
+    static ID: AtomicU64 = AtomicU64::new(1);
 
     ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)).unwrap()
 }

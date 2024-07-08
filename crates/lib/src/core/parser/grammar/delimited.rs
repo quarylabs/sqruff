@@ -25,7 +25,7 @@ pub struct Delimited {
     delimiter: Arc<dyn Matchable>,
     pub(crate) min_delimiters: usize,
     optional: bool,
-    cache_key: u32,
+    cache_key: u64,
 }
 
 impl Delimited {
@@ -173,7 +173,7 @@ impl Matchable for Delimited {
         Ok(working_match)
     }
 
-    fn cache_key(&self) -> u32 {
+    fn cache_key(&self) -> u64 {
         self.cache_key
     }
 }

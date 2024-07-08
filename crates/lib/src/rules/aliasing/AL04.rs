@@ -97,10 +97,8 @@ impl RuleAL04 {
         let mut seen: AHashSet<_> = AHashSet::new();
 
         for alias in table_aliases.iter() {
-            if seen.contains(&alias.ref_str) && !alias.ref_str.is_empty() {
-                duplicates.insert(alias.clone());
-            } else {
-                seen.insert(alias.ref_str.clone());
+            if !seen.insert(&alias.ref_str) && !alias.ref_str.is_empty() {
+                duplicates.insert(alias);
             }
         }
 
@@ -112,7 +110,7 @@ impl RuleAL04 {
                     .into_iter()
                     .map(|alias| {
                         LintResult::new(
-                            alias.segment,
+                            alias.segment.clone(),
                             Vec::new(),
                             None,
                             format!(

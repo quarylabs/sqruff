@@ -1,3 +1,5 @@
+use ahash::AHashMap;
+
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, SymbolSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
@@ -17,16 +19,16 @@ impl Default for RuleCV03 {
 }
 
 impl Rule for RuleCV03 {
-    fn load_from_config(&self, config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        RuleCV03 {
-            select_clause_trailing_comma: config
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleCV03 {
+            select_clause_trailing_comma: _config
                 .get("select_clause_trailing_comma")
                 .unwrap()
                 .as_string()
                 .unwrap()
                 .to_owned(),
         }
-        .erased()
+        .erased())
     }
 
     fn name(&self) -> &'static str {

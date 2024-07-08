@@ -12,8 +12,8 @@ use crate::utils::analysis::select::get_select_statement_info;
 pub struct RuleAL04;
 
 impl Rule for RuleAL04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL04.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL04.erased())
     }
 
     fn name(&self) -> &'static str {

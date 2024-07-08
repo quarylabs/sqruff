@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use ahash::AHashMap;
+
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{
     ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
@@ -36,7 +38,7 @@ fn create_base_is_null_sequence(is_upper: bool, operator_raw: Cow<str>) -> Corre
 }
 
 impl Rule for RuleCV05 {
-    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         unimplemented!()
     }
 

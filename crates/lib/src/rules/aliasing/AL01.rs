@@ -42,15 +42,18 @@ impl Default for RuleAL01 {
 }
 
 impl Rule for RuleAL01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
-        let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        let aliasing = match _config.get("aliasing").unwrap().as_string().unwrap() {
             "explicit" => Aliasing::Explicit,
             "implicit" => Aliasing::Implicit,
             _ => unreachable!(),
         };
 
-        RuleAL01 { aliasing, target_parent_types: &["from_expression_element", "merge_statement"] }
-            .erased()
+        Ok(RuleAL01 {
+            aliasing,
+            target_parent_types: &["from_expression_element", "merge_statement"],
+        }
+        .erased())
     }
 
     fn name(&self) -> &'static str {

@@ -246,7 +246,7 @@ pub enum LintPhase {
 }
 
 pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule;
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String>;
 
     fn lint_phase(&self) -> LintPhase {
         LintPhase::Main
@@ -532,7 +532,8 @@ impl RuleSet {
             let specific_rule_config =
                 rules.get(rule_config_ref).and_then(|section| section.as_map()).unwrap_or(&tmp);
 
-            instantiated_rules.push(rule.load_from_config(specific_rule_config));
+            // TODO fail the rulepack if any need unwrapping
+            instantiated_rules.push(rule.load_from_config(specific_rule_config).unwrap());
         }
 
         RulePack { rules: instantiated_rules, _reference_map: reference_map }

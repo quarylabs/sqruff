@@ -16,20 +16,20 @@ pub struct RuleCV04 {
 }
 
 impl Rule for RuleCV04 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleCV04 {
-            prefer_count_1: config
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleCV04 {
+            prefer_count_1: _config
                 .get("prefer_count_1")
                 .unwrap_or(&Value::Bool(false))
                 .as_bool()
                 .unwrap(),
-            prefer_count_0: config
+            prefer_count_0: _config
                 .get("prefer_count_0")
                 .unwrap_or(&Value::Bool(false))
                 .as_bool()
                 .unwrap(),
         }
-        .erased()
+        .erased())
     }
 
     fn name(&self) -> &'static str {

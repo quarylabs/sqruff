@@ -363,7 +363,10 @@ mod tests {
         struct RuleGhost;
 
         impl Rule for RuleGhost {
-            fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
+            fn load_from_config(
+                &self,
+                _config: &AHashMap<String, Value>,
+            ) -> Result<ErasedRule, String> {
                 unimplemented!()
             }
 

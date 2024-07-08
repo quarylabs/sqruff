@@ -14,12 +14,12 @@ pub struct RuleLT05 {
 }
 
 impl Rule for RuleLT05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleLT05 {
-            ignore_comment_lines: config["ignore_comment_lines"].as_bool().unwrap(),
-            ignore_comment_clauses: config["ignore_comment_lines"].as_bool().unwrap(),
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleLT05 {
+            ignore_comment_lines: _config["ignore_comment_lines"].as_bool().unwrap(),
+            ignore_comment_clauses: _config["ignore_comment_lines"].as_bool().unwrap(),
         }
-        .erased()
+        .erased())
     }
 
     fn name(&self) -> &'static str {

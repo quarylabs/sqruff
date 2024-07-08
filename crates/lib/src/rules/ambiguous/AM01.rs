@@ -10,8 +10,8 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleAM01;
 
 impl Rule for RuleAM01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAM01 {}.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAM01 {}.erased())
     }
 
     fn name(&self) -> &'static str {

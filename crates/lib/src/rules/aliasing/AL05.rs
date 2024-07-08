@@ -25,8 +25,8 @@ struct AL05Query {
 pub struct RuleAL05;
 
 impl Rule for RuleAL05 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleAL05.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL05.erased())
     }
 
     fn name(&self) -> &'static str {

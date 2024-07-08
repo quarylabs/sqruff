@@ -37,8 +37,8 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 pub struct RuleCV02 {}
 
 impl Rule for RuleCV02 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleCV02::default().erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleCV02::default().erased())
     }
 
     fn name(&self) -> &'static str {

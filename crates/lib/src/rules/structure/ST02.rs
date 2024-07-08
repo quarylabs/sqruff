@@ -17,8 +17,8 @@ use crate::utils::functional::segments::Segments;
 pub struct RuleST02 {}
 
 impl Rule for RuleST02 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleST02::default().erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleST02::default().erased())
     }
 
     fn name(&self) -> &'static str {

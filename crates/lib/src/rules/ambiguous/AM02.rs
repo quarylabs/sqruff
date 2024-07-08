@@ -1,3 +1,5 @@
+use ahash::AHashMap;
+
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{WhitespaceSegment, WhitespaceSegmentNewArgs};
 use crate::core::parser::segments::keyword::KeywordSegment;
@@ -10,8 +12,8 @@ use crate::helpers::ToErasedSegment;
 pub struct RuleAM02 {}
 
 impl Rule for RuleAM02 {
-    fn load_from_config(&self, _config: &ahash::AHashMap<String, Value>) -> ErasedRule {
-        RuleAM02::default().erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAM02::default().erased())
     }
 
     fn name(&self) -> &'static str {

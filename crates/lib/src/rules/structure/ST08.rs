@@ -41,8 +41,8 @@ impl RuleST08 {
 }
 
 impl Rule for RuleST08 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {
-        RuleST08.erased()
+    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleST08.erased())
     }
 
     fn name(&self) -> &'static str {

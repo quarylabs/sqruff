@@ -40,6 +40,7 @@ The following rules are available in this create. This list is generated from th
 | LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. | 
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
 | RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
+| RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
 | ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). | 
 | ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
@@ -1300,6 +1301,36 @@ SELECT
     foo.a,
     foo.b
 FROM foo
+```
+
+
+### references.keywords
+
+Keywords should not be used as identifiers.
+
+**Code:** RF04
+
+**Fixable:** No
+
+
+**Anti-pattern**
+
+In this example, `SUM` (a built-in function) is used as an alias.
+
+```sql
+SELECT
+    sum.a
+FROM foo AS sum
+```
+
+**Best practice**
+
+Avoid using keywords as the name of an alias.
+
+```sql
+SELECT
+    vee.a
+FROM foo AS vee
 ```
 
 

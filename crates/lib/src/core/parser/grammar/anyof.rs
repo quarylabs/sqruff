@@ -11,11 +11,11 @@ use crate::core::parser::match_algorithms::{
     longest_match, skip_start_index_forward_to_code, trim_to_terminator,
 };
 use crate::core::parser::match_result::{MatchResult, Matched, Span};
-use crate::core::parser::matchable::Matchable;
+use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::types::ParseMode;
 use crate::dialects::SyntaxKind;
-use crate::helpers::{next_cache_key, ToMatchable};
+use crate::helpers::ToMatchable;
 
 fn parse_mode_match_result(
     segments: &[ErasedSegment],
@@ -80,7 +80,7 @@ pub struct AnyNumberOf {
     pub(crate) allow_gaps: bool,
     pub(crate) optional: bool,
     pub(crate) parse_mode: ParseMode,
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
 }
 
 impl PartialEq for AnyNumberOf {
@@ -102,7 +102,7 @@ impl AnyNumberOf {
             reset_terminators: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
-            cache_key: next_cache_key(),
+            cache_key: next_matchable_cache_key(),
         }
     }
 
@@ -265,7 +265,7 @@ impl Matchable for AnyNumberOf {
         Arc::new(new_grammar)
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 }

@@ -3,7 +3,7 @@ use ahash::AHashSet;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_result::{MatchResult, Span};
-use crate::core::parser::matchable::Matchable;
+use crate::core::parser::matchable::{Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -50,7 +50,7 @@ impl Matchable for NonCodeMatcher {
         Ok(MatchResult::empty_at(idx))
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         0
     }
 }

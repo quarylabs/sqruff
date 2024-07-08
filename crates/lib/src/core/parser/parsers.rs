@@ -4,10 +4,9 @@ use smol_str::SmolStr;
 
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
-use super::matchable::Matchable;
+use super::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
-use crate::helpers::next_cache_key;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
@@ -16,7 +15,7 @@ pub struct TypedParser {
     instance_types: Vec<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
     factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
@@ -42,7 +41,7 @@ impl TypedParser {
             instance_types,
             optional,
             trim_chars,
-            cache_key: next_cache_key(),
+            cache_key: next_matchable_cache_key(),
         }
     }
 
@@ -54,7 +53,7 @@ impl TypedParser {
 impl Segment for TypedParser {}
 
 impl Matchable for TypedParser {
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 
@@ -95,7 +94,7 @@ pub struct StringParser {
     type_: Option<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
 }
 
 impl StringParser {
@@ -116,7 +115,7 @@ impl StringParser {
             type_,
             optional,
             trim_chars,
-            cache_key: next_cache_key(),
+            cache_key: next_matchable_cache_key(),
         }
     }
 
@@ -164,7 +163,7 @@ impl Matchable for StringParser {
         Ok(MatchResult::empty_at(idx))
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 }
@@ -174,7 +173,7 @@ pub struct RegexParser {
     template: Regex,
     anti_template: Option<Regex>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
 }
 
 impl PartialEq for RegexParser {
@@ -206,7 +205,7 @@ impl RegexParser {
             template: template_pattern,
             anti_template: anti_template_pattern,
             factory,
-            cache_key: next_cache_key(),
+            cache_key: next_matchable_cache_key(),
         }
     }
 }
@@ -255,7 +254,7 @@ impl Matchable for RegexParser {
         Ok(MatchResult::empty_at(idx))
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 }
@@ -265,7 +264,7 @@ pub struct MultiStringParser {
     templates: AHashSet<String>,
     simple: AHashSet<String>,
     factory: fn(&dyn Segment) -> ErasedSegment,
-    cache: u64,
+    cache: MatchableCacheKey,
 }
 
 impl MultiStringParser {
@@ -287,7 +286,7 @@ impl MultiStringParser {
             templates: templates.into_iter().collect(),
             simple: _simple.into_iter().collect(),
             factory,
-            cache: next_cache_key(),
+            cache: next_matchable_cache_key(),
         }
     }
 }
@@ -326,7 +325,7 @@ impl Matchable for MultiStringParser {
         Ok(MatchResult::empty_at(idx))
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache
     }
 }

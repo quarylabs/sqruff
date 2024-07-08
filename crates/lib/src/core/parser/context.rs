@@ -5,7 +5,7 @@ use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
-use super::matchable::Matchable;
+use super::matchable::{Matchable, MatchableCacheKey};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::helpers::IndexSet;
@@ -17,11 +17,11 @@ type LocKeyData = (SmolStr, (usize, usize), &'static str, u32);
 #[derive(Debug, PartialEq, Eq)]
 pub struct Cache {
     loc: LocKey,
-    key: u64,
+    key: MatchableCacheKey,
 }
 
 impl Cache {
-    pub fn new(loc: LocKey, key: u64) -> Self {
+    pub fn new(loc: LocKey, key: MatchableCacheKey) -> Self {
         Self { loc, key }
     }
 }
@@ -29,7 +29,7 @@ impl Cache {
 #[cfg(target_pointer_width = "64")]
 impl std::hash::Hash for Cache {
     fn hash<H: std::hash::Hasher>(&self, h: &mut H) {
-        (((self.loc as u64) << 32) | (self.key)).hash(h)
+        (((self.loc as u64) << 32) | (self.key as u64)).hash(h)
     }
 }
 #[derive(Debug)]
@@ -127,7 +127,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn check_parse_cache(
         &self,
         loc_key: LocKey,
-        matcher_key: u64,
+        matcher_key: MatchableCacheKey,
     ) -> Option<MatchResult> {
         self.parse_cache.get(&Cache::new(loc_key, matcher_key)).cloned()
     }
@@ -135,7 +135,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn put_parse_cache(
         &mut self,
         loc_key: LocKey,
-        matcher_key: u64,
+        matcher_key: MatchableCacheKey,
         match_result: MatchResult,
     ) {
         self.parse_cache.insert(Cache::new(loc_key, matcher_key), match_result);

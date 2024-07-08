@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::fmt::Debug;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 
 use ahash::AHashSet;
@@ -79,7 +80,7 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
     // A method to generate a unique cache key for the matchable object.
     //
     // Returns none for no caching key
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
@@ -95,6 +96,17 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
     ) -> Arc<dyn Matchable> {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
+}
+
+pub type MatchableCacheKey = u32;
+
+pub fn next_matchable_cache_key() -> MatchableCacheKey {
+    // The value 0 is reserved for NonCodeMatcher. This grammar matcher is somewhat
+    // of a singleton, so we don't need a unique ID in the same way as other grammar
+    // matchers.
+    static ID: AtomicU32 = AtomicU32::new(1);
+
+    ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)).unwrap()
 }
 
 dyn_clone::clone_trait_object!(Matchable);

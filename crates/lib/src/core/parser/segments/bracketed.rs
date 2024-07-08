@@ -10,8 +10,8 @@ use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::MatchResult;
-use crate::core::parser::matchable::Matchable;
-use crate::helpers::{next_cache_key, ToErasedSegment};
+use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
 pub struct BracketedSegment {
@@ -21,7 +21,7 @@ pub struct BracketedSegment {
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
     descendant_type_set: OnceLock<AHashSet<&'static str>>,
 }
 
@@ -47,7 +47,7 @@ impl BracketedSegment {
             pos_marker: None,
             uuid: Uuid::new_v4(),
             raw: OnceLock::new(),
-            cache_key: next_cache_key(),
+            cache_key: next_matchable_cache_key(),
             descendant_type_set: OnceLock::new(),
         };
         if !hack {
@@ -133,7 +133,7 @@ impl Matchable for BracketedSegment {
         Ok(MatchResult::empty_at(idx))
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 }

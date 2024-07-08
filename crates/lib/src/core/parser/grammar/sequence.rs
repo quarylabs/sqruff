@@ -12,12 +12,11 @@ use crate::core::parser::match_algorithms::{
     trim_to_terminator,
 };
 use crate::core::parser::match_result::{MatchResult, Matched, Span};
-use crate::core::parser::matchable::Matchable;
+use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::segments::meta::{Indent, IndentChange, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
 use crate::dialects::SyntaxKind;
-use crate::helpers::next_cache_key;
 
 fn flush_metas(
     tpre_nc_idx: u32,
@@ -37,7 +36,7 @@ pub struct Sequence {
     pub(crate) allow_gaps: bool,
     is_optional: bool,
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
 }
 
 impl Sequence {
@@ -54,7 +53,7 @@ impl Sequence {
             is_optional: false,
             parse_mode: ParseMode::Strict,
             terminators: Vec::new(),
-            cache_key: next_cache_key(),
+            cache_key: next_matchable_cache_key(),
         }
     }
 
@@ -259,7 +258,7 @@ impl Matchable for Sequence {
         })
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 
@@ -444,7 +443,7 @@ impl Matchable for Bracketed {
         Ok(MatchResult { child_matches, ..bracketed_match })
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.this.cache_key()
     }
 }

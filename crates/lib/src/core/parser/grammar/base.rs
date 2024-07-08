@@ -9,9 +9,9 @@ use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
-use crate::core::parser::matchable::Matchable;
+use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
-use crate::helpers::{capitalize, next_cache_key, ToMatchable};
+use crate::helpers::{capitalize, ToMatchable};
 
 #[derive(Clone)]
 pub struct Ref {
@@ -21,7 +21,7 @@ pub struct Ref {
     reset_terminators: bool,
     allow_gaps: bool,
     optional: bool,
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
     simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<&'static str>)>>,
 }
 
@@ -41,7 +41,7 @@ impl Ref {
             reset_terminators: false,
             allow_gaps: true,
             optional: false,
-            cache_key: next_cache_key(),
+            cache_key: next_matchable_cache_key(),
             simple_cache: OnceLock::new(),
         }
     }
@@ -140,14 +140,14 @@ impl Matchable for Ref {
         })
     }
 
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 }
 
 #[derive(Clone, Debug)]
 pub struct Anything {
-    cache_key: u64,
+    cache_key: MatchableCacheKey,
     terminators: Vec<Arc<dyn Matchable>>,
 }
 
@@ -166,7 +166,7 @@ impl Default for Anything {
 
 impl Anything {
     pub fn new() -> Self {
-        Self { cache_key: next_cache_key(), terminators: Vec::new() }
+        Self { cache_key: next_matchable_cache_key(), terminators: Vec::new() }
     }
 
     pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
@@ -178,7 +178,7 @@ impl Anything {
 impl Segment for Anything {}
 
 impl Matchable for Anything {
-    fn cache_key(&self) -> u64 {
+    fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
 

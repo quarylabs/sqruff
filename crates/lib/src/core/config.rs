@@ -5,6 +5,7 @@ use std::str::FromStr;
 use ahash::AHashMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
+use serde::Deserialize;
 
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
@@ -122,7 +123,7 @@ pub fn split_comma_separated_string(raw_str: &str) -> Value {
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
     pub(crate) indentation: FluffConfigIndentation,
-    pub(crate) raw: AHashMap<String, Value>,
+    pub raw: AHashMap<String, Value>,
     extra_config_path: Option<String>,
     _configs: AHashMap<String, AHashMap<String, String>>,
     pub(crate) dialect: Dialect,
@@ -522,7 +523,8 @@ impl ConfigLoader {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(untagged)]
 pub enum Value {
     Int(i32),
     Bool(bool),
@@ -538,8 +540,12 @@ impl Value {
         matches!(self, Value::None)
     }
 
-    pub fn as_array(&self) -> Option<&[Value]> {
-        if let Self::Array(v) = self { Some(v) } else { None }
+    pub fn as_array(&self) -> Option<Vec<Value>> {
+        match self {
+            Self::Array(v) => Some(v.clone()),
+            v @ Self::String(_) => Some(vec![v.clone()]),
+            _ => None,
+        }
     }
 }
 
@@ -567,6 +573,13 @@ impl Value {
         }
     }
 
+    pub fn map<T>(&self, f: impl Fn(&Self) -> T) -> Option<T> {
+        if self == &Value::None {
+            return None;
+        }
+
+        Some(f(self))
+    }
     pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
         if let Self::Map(map) = self { Some(map) } else { None }
     }

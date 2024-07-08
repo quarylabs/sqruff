@@ -1,6 +1,6 @@
 use crate::core::parser::segments::base::ErasedSegment;
 
-pub fn identifiers_policy_applicable(policy: &'static str, parent_stack: &[ErasedSegment]) -> bool {
+pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment]) -> bool {
     match policy {
         "all" => true,
         "none" => false,

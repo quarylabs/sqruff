@@ -394,6 +394,7 @@ pub struct RuleManifest {
     pub rule_class: ErasedRule,
 }
 
+#[derive(Clone)]
 pub struct RulePack {
     pub(crate) rules: Vec<ErasedRule>,
     _reference_map: AHashMap<&'static str, AHashSet<&'static str>>,

@@ -10,6 +10,10 @@ crate-type = ["cdylib", "rlib"]
 bench = false
 doctest = false
 
+[[test]]
+name = "rules"
+harness = false
+
 [[bench]]
 name = "parsing"
 harness = false
@@ -41,7 +45,7 @@ anstyle = "1.0"
 tracing = "0.1.40"
 pretty_assertions = "1.4.0"
 slyce = "0.3.1"
-ahash = { version = "0.8.11", features = ["compile-time-rng"] }
+ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
 lazy-regex = "3.1.0"
 anymap = { package = "anymap3", version = "1.0" }
 rayon = "1.10.0"
@@ -50,6 +54,7 @@ serde_yaml = "0.9.34"
 nohash-hasher = "0.2.0"
 rustc-hash = "2.0.0"
 strum_macros = "0.26.4"
+strum = "0.26.3"
 
 [dev-dependencies]
 criterion = "0.5"
@@ -57,5 +62,6 @@ expect-test = "1.5"
 glob = "0.3"
 serde_json = "1"
 tempdir = "0.3"
+serde_with = "3.8"
 [target.'cfg(unix)'.dependencies]
 pprof = { version = "0.13", features = ["flamegraph", "criterion"] }

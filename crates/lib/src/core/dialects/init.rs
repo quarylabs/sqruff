@@ -1,14 +1,26 @@
+use std::str::FromStr;
+
 use super::base::Dialect;
 
+#[derive(strum_macros::EnumString)]
+#[strum(serialize_all = "snake_case")]
+pub enum DialectKind {
+    Ansi,
+    Bigquery,
+    Postgres,
+    Snowflake,
+    Clickhouse,
+    Sparksql,
+}
+
 pub fn dialect_selector(s: &str) -> Option<Dialect> {
-    match s {
-        "ansi" => Some(crate::dialects::ansi::ansi_dialect()),
-        "bigquery" => Some(crate::dialects::bigquery::bigquery_dialect()),
-        "postgres" => Some(crate::dialects::postgres::postgres_dialect()),
-        "snowflake" => Some(crate::dialects::snowflake::snowflake_dialect()),
-        "clickhouse" => Some(crate::dialects::clickhouse::clickhouse_dialect()),
-        "sparksql" => Some(crate::dialects::sparksql::sparksql_dialect()),
-        _ => None,
+    match DialectKind::from_str(s).ok()? {
+        DialectKind::Ansi => Some(crate::dialects::ansi::ansi_dialect()),
+        DialectKind::Bigquery => Some(crate::dialects::bigquery::bigquery_dialect()),
+        DialectKind::Postgres => Some(crate::dialects::postgres::postgres_dialect()),
+        DialectKind::Snowflake => Some(crate::dialects::snowflake::snowflake_dialect()),
+        DialectKind::Clickhouse => Some(crate::dialects::clickhouse::clickhouse_dialect()),
+        DialectKind::Sparksql => Some(crate::dialects::sparksql::sparksql_dialect()),
     }
 }
 

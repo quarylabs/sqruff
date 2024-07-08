@@ -9,7 +9,7 @@ use crate::helpers::IndexSet;
 use crate::utils::analysis::select::get_select_statement_info;
 
 #[derive(Debug, Clone, Default)]
-pub struct RuleAL04 {}
+pub struct RuleAL04;
 
 impl Rule for RuleAL04 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> ErasedRule {

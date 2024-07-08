@@ -8,6 +8,30 @@ use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::dialects::init::DialectKind;
 use sqruff_lib::core::linter::linter::Linter;
 
+#[derive(Default)]
+pub struct Args {
+    list: bool,
+    ignored: bool,
+    no_capture: bool,
+}
+
+impl Args {
+    fn parse_args(&mut self, mut iter: impl Iterator<Item = String>) {
+        while let Some(arg) = iter.next() {
+            if arg == "--" {
+                continue;
+            }
+
+            match arg.as_str() {
+                "--list" => self.list = true,
+                "--ignored" => self.ignored = true,
+                "--no-capture" => self.no_capture = true,
+                _ => {}
+            }
+        }
+    }
+}
+
 #[serde_as]
 #[derive(Debug, Deserialize)]
 struct TestFile {
@@ -43,8 +67,20 @@ enum TestCaseKind {
     },
 }
 
-// FIXME: Simplify config handling. It's quite chaotic right now.
+// FIXME: Simplify FluffConfig handling. It's quite chaotic right now.
 fn main() {
+    let mut args = Args::default();
+    args.parse_args(std::env::args().skip(1));
+
+    // FIXME: improve support for nextest
+    if args.list {
+        if !args.ignored {
+            println!("rules: test");
+        }
+
+        return;
+    }
+
     let mut linter = Linter::new(FluffConfig::default(), None, None);
     let mut core = AHashMap::new();
     core.insert("core".to_string(), Value::Map(<_>::default()));
@@ -71,16 +107,19 @@ fn main() {
                 .unwrap_or("ansi");
 
             let dialect = DialectKind::from_str(dialect_name);
-            let message = if dialect.is_err() {
-                format!(" ignored, dialect {dialect_name} is not supported")
-            } else {
-                String::new()
-            };
-
-            println!("test {}::{}{message}", file.rule, case.name);
+            if !args.no_capture {
+                print!("test {}::{}", file.rule, case.name);
+            }
 
             if dialect.is_err() {
+                if !args.no_capture {
+                    println!(" ignored, dialect {dialect_name} is not supported");
+                }
+
                 continue;
+            }
+            if !args.no_capture {
+                println!();
             }
 
             let has_config = !case.configs.is_empty();

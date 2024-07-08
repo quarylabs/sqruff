@@ -97,20 +97,19 @@ FROM foo AS voo
                 .segment
                 .segments()
                 .iter()
-                .find(|seg| seg.get_raw_upper() == Some("AS".into()))
-                .cloned();
+                .find(|seg| seg.get_raw_upper() == Some("AS".into()));
 
             if let Some(as_keyword) = as_keyword {
                 if self.aliasing == Aliasing::Implicit {
                     return vec![LintResult::new(
                         as_keyword.clone().into(),
                         ReflowSequence::from_around_target(
-                            &as_keyword,
+                            as_keyword,
                             rule_cx.parent_stack[0].clone(),
                             TargetSide::Both,
                             rule_cx.config.unwrap(),
                         )
-                        .without(&as_keyword)
+                        .without(as_keyword)
                         .respace(false, Filter::All)
                         .fixes(),
                         None,
@@ -122,13 +121,12 @@ FROM foo AS voo
                 let identifier = rule_cx
                     .segment
                     .get_raw_segments()
-                    .iter()
+                    .into_iter()
                     .find(|seg| seg.is_code())
-                    .expect("Failed to find identifier. Raise this as a bug on GitHub.")
-                    .clone();
+                    .expect("Failed to find identifier. Raise this as a bug on GitHub.");
 
                 return vec![LintResult::new(
-                    rule_cx.segment.clone().into(),
+                    rule_cx.segment.into(),
                     ReflowSequence::from_around_target(
                         &identifier,
                         rule_cx.parent_stack[0].clone(),
@@ -137,7 +135,7 @@ FROM foo AS voo
                     )
                     .insert(
                         KeywordSegment::new("AS".into(), None).to_erased_segment(),
-                        identifier.clone(),
+                        identifier,
                         ReflowInsertPosition::Before,
                     )
                     .respace(false, Filter::All)

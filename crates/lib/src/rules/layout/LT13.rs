@@ -8,7 +8,7 @@ use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleLT13 {}
+pub struct RuleLT13;
 
 impl Rule for RuleLT13 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {

@@ -11,11 +11,11 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::IndexMap;
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleLT08 {}
+pub struct RuleLT08;
 
 impl Rule for RuleLT08 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT08::default().erased())
+        Ok(RuleLT08.erased())
     }
 
     fn name(&self) -> &'static str {

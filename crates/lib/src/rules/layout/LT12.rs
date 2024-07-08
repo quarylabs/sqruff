@@ -38,11 +38,11 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleLT12 {}
+pub struct RuleLT12;
 
 impl Rule for RuleLT12 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT12::default().erased())
+        Ok(RuleLT12.erased())
     }
 
     fn lint_phase(&self) -> LintPhase {

@@ -7,11 +7,11 @@ use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Default, Debug, Clone)]
-pub struct RuleLT02 {}
+pub struct RuleLT02;
 
 impl Rule for RuleLT02 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT02::default().erased())
+        Ok(RuleLT02.erased())
     }
 
     fn name(&self) -> &'static str {

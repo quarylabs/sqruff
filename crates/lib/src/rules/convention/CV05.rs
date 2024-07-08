@@ -23,7 +23,7 @@ enum CorrectionListItem {
 type CorrectionList = Vec<CorrectionListItem>;
 
 #[derive(Default, Clone, Debug)]
-pub struct RuleCV05 {}
+pub struct RuleCV05;
 
 fn create_base_is_null_sequence(is_upper: bool, operator_raw: Cow<str>) -> CorrectionList {
     let is_seg = CorrectionListItem::KeywordSegment(if is_upper { "IS" } else { "is" }.to_string());

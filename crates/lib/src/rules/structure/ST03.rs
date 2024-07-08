@@ -10,11 +10,11 @@ use crate::helpers::IndexMap;
 use crate::utils::analysis::query::Query;
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleST03 {}
+pub struct RuleST03;
 
 impl Rule for RuleST03 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST03::default().erased())
+        Ok(RuleST03.erased())
     }
 
     fn name(&self) -> &'static str {

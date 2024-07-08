@@ -14,11 +14,11 @@ use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
 #[derive(Default, Debug, Clone)]
-pub struct RuleST02 {}
+pub struct RuleST02;
 
 impl Rule for RuleST02 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST02::default().erased())
+        Ok(RuleST02.erased())
     }
 
     fn name(&self) -> &'static str {

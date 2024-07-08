@@ -8,11 +8,11 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Default, Debug, Clone)]
-pub struct RuleST01 {}
+pub struct RuleST01;
 
 impl Rule for RuleST01 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST01::default().erased())
+        Ok(RuleST01.erased())
     }
 
     fn name(&self) -> &'static str {

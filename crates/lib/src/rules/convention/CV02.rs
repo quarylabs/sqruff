@@ -34,11 +34,11 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 /// FROM baz;
 /// ```
 #[derive(Debug, Default, Clone)]
-pub struct RuleCV02 {}
+pub struct RuleCV02;
 
 impl Rule for RuleCV02 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCV02::default().erased())
+        Ok(RuleCV02.erased())
     }
 
     fn name(&self) -> &'static str {

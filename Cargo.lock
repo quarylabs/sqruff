@@ -1513,7 +1513,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "clap",
  "clap-markdown",
@@ -1528,7 +1528,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "ahash",
  "anstyle",
@@ -1567,7 +1567,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lsp"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "ahash",
  "console_error_panic_hook",

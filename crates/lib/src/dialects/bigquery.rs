@@ -2517,10 +2517,10 @@ pub fn bigquery_dialect() -> Dialect {
             TypedParser::new(
                 "back_quote",
                 |segment| {
-                    IdentifierSegment::create(
+                    CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: "quoted_identifier", ..Default::default() },
                     )
                 },
                 "quoted_identifier".to_owned().into(),

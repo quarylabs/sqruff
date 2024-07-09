@@ -46,7 +46,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - naked_identifier: '`project.dataset.table1`'
+              - quoted_identifier: '`project.dataset.table1`'
           - keyword: FOR
           - keyword: SYSTEM_TIME
           - keyword: AS
@@ -77,7 +77,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - naked_identifier: '`project.dataset.table1`'
+              - quoted_identifier: '`project.dataset.table1`'
           - keyword: FOR
           - keyword: SYSTEM
           - keyword: TIME

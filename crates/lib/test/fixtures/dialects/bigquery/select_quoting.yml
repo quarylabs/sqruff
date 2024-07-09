@@ -18,7 +18,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - naked_identifier: '`database.schema.benchmark_user_map`'
+              - quoted_identifier: '`database.schema.benchmark_user_map`'
     - where_clause:
       - keyword: WHERE
       - expression:

@@ -18,6 +18,7 @@ The following rules are available in this create. This list is generated from th
 | AM01 | [ambiguous.distinct](#ambiguousdistinct) | Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'. | 
 | AM02 | [ambiguous.union](#ambiguousunion) | Look for UNION keyword not immediately followed by DISTINCT or ALL | 
 | AM03 | [ambiguous.order_by](#ambiguousorder_by) | Ambiguous ordering directions for columns in order by clause. | 
+| AM05 | [ambiguous.join](#ambiguousjoin) | Join clauses should be fully qualified. | 
 | AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. | 
 | CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. | 
 | CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. | 
@@ -496,6 +497,38 @@ SELECT
     a, b
 FROM foo
 ORDER BY a ASC, b DESC
+```
+
+
+### ambiguous.join
+
+Join clauses should be fully qualified.
+
+**Code:** AM05
+
+**Groups:** `all`, `ambiguous`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+In this example, `UNION DISTINCT` should be preferred over `UNION`, because explicit is better than implicit.
+
+
+```sql
+SELECT a, b FROM table_1
+UNION
+SELECT a, b FROM table_2
+```
+
+**Best practice**
+
+Specify `DISTINCT` or `ALL` after `UNION` (note that `DISTINCT` is the default behavior).
+
+```sql
+SELECT a, b FROM table_1
+UNION DISTINCT
+SELECT a, b FROM table_2
 ```
 
 

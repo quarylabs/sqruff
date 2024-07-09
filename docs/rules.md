@@ -24,6 +24,7 @@ The following rules are available in this create. This list is generated from th
 | CP03 | [capitalisation.functions](#capitalisationfunctions) | Inconsistent capitalisation of function names. | 
 | CP04 | [capitalisation.literals](#capitalisationliterals) | Inconsistent capitalisation of boolean/null literal. | 
 | CP05 | [capitalisation.types](#capitalisationtypes) | Inconsistent capitalisation of datatypes. | 
+| CV01 | [convention.not_equal](#conventionnot_equal) | Consistent usage of ``!=`` or ``<>`` for "not equal to" operator. | 
 | CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. | 
 | CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause | 
 | CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
@@ -719,6 +720,33 @@ CREATE TABLE t (
     a INT UNSIGNED,
     b VARCHAR(15)
 );
+```
+
+
+### convention.not_equal
+
+Consistent usage of ``!=`` or ``<>`` for "not equal to" operator.
+
+**Code:** CV01
+
+**Groups:** `all`, `convention`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Consistent usage of `!=` or `<>` for "not equal to" operator.
+
+```sql
+SELECT * FROM X WHERE 1 <> 2 AND 3 != 4;
+```
+
+**Best practice**
+
+Ensure all "not equal to" comparisons are consistent, not mixing `!=` and `<>`.
+
+```sql
+SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
 ```
 
 

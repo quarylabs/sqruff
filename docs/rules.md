@@ -26,6 +26,7 @@ The following rules are available in this create. This list is generated from th
 | CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. | 
 | CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause | 
 | CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
+| CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
 | LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
 | LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. | 
@@ -780,6 +781,43 @@ Use count(*) unless specified otherwise by config prefer_count_1, or prefer_coun
 select
     count(*)
 from table_a
+```
+
+
+### convention.left_join
+
+Use LEFT JOIN instead of RIGHT JOIN.
+
+**Code:** CV08
+
+**Groups:** `all`, `convention`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+`RIGHT JOIN` is used.
+
+```sql
+SELECT
+    foo.col1,
+    bar.col2
+FROM foo
+RIGHT JOIN bar
+    ON foo.bar_id = bar.id;
+```
+
+**Best practice**
+
+Refactor and use ``LEFT JOIN`` instead.
+
+```sql
+SELECT
+    foo.col1,
+    bar.col2
+FROM bar
+LEFT JOIN foo
+   ON foo.bar_id = bar.id;
 ```
 
 

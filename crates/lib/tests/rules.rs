@@ -54,17 +54,9 @@ struct TestCase {
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum TestCaseKind {
-    Pass {
-        pass_str: String,
-    },
-    Fail {
-        fail_str: String,
-    },
-    #[allow(dead_code)]
-    Fix {
-        pass_str: String,
-        fail_str: String,
-    },
+    Pass { pass_str: String },
+    Fix { fail_str: String, fix_str: String },
+    Fail { fail_str: String },
 }
 
 // FIXME: Simplify FluffConfig handling. It's quite chaotic right now.
@@ -140,7 +132,13 @@ fn main() {
                     let f = linter.lint_string_wrapped(&fail_str, None, None, rule_pack);
                     assert_ne!(&f.paths[0].files[0].violations, &[]);
                 }
-                TestCaseKind::Fix { .. } => unimplemented!(),
+                TestCaseKind::Fix { fail_str, fix_str } => {
+                    let f =
+                        linter.lint_string_wrapped(&fail_str, None, Some(true), rule_pack).paths[0]
+                            .files[0]
+                            .fix_string();
+                    assert_eq!(f, fix_str);
+                }
             }
 
             if has_config {

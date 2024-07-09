@@ -2,7 +2,7 @@ use ahash::{AHashMap, AHashSet};
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -14,7 +14,6 @@ impl Rule for RuleLT07 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT07.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.cte_bracket"
     }
@@ -48,6 +47,10 @@ WITH zoo AS (
 SELECT * FROM zoo
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segments = FunctionalContext::new(context.clone())
@@ -128,7 +131,7 @@ mod tests {
     use crate::rules::layout::LT07::RuleLT07;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT07::default().erased()]
+        vec![RuleLT07.erased()]
     }
 
     #[test]

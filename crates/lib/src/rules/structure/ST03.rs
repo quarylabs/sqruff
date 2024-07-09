@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::IndexMap;
@@ -61,6 +61,10 @@ FROM cte1
 "#
     }
 
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Structure]
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut result = Vec::new();
         let query: Query<'_, ()> = Query::from_root(context.segment.clone(), context.dialect);
@@ -112,7 +116,7 @@ mod tests {
     use crate::rules::structure::ST03::RuleST03;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleST03::default().erased()]
+        vec![RuleST03.erased()]
     }
 
     #[test]

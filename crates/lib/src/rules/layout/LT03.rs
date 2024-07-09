@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
@@ -14,7 +14,6 @@ impl Rule for RuleLT03 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT03.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.operators"
     }
@@ -22,6 +21,7 @@ impl Rule for RuleLT03 {
     fn description(&self) -> &'static str {
         "Operators should follow a standard for being before/after newlines."
     }
+
     fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
@@ -55,6 +55,9 @@ SELECT
 FROM foo
 ```
 "#
+    }
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Layout]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -166,9 +169,7 @@ select
 from foo
 "#;
 
-        let result =
-            lint(sql.into(), "ansi".into(), vec![RuleLT03::default().erased()], None, None)
-                .unwrap();
+        let result = lint(sql.into(), "ansi".into(), vec![RuleLT03.erased()], None, None).unwrap();
 
         assert_eq!(result, &[]);
     }
@@ -182,7 +183,7 @@ select
 from foo
 "#;
 
-        let result = fix(sql, vec![RuleLT03::default().erased()]);
+        let result = fix(sql, vec![RuleLT03.erased()]);
         println!("{}", result);
     }
 }

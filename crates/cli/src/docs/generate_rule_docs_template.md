@@ -16,7 +16,8 @@ The following rules are available in this create. This list is generated from th
 
 **Code:** {{ rule.code }}
 
-**Fixable:** {% if rule.fixable %}Yes{% else %}No{% endif %}
+**Groups:** {% for group in rule.groups %}`{{ group }}`{% if not loop.last %}, {%endif %}{% endfor %}
 
+**Fixable:** {% if rule.fixable %}Yes{% else %}No{% endif %}
 {{ rule.long_description }}
 {% endfor %}

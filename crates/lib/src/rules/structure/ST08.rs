@@ -4,7 +4,7 @@ use crate::core::config::Value;
 use crate::core::parser::segments::base::{
     ErasedSegment, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -71,6 +71,10 @@ Remove parentheses to be clear that the DISTINCT applies to both columns.
 SELECT DISTINCT a, b FROM foo
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Structure]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

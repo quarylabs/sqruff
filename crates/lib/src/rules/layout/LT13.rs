@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
@@ -79,6 +79,10 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
 "#
     }
 
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Layout]
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut raw_segments = Vec::new();
 
@@ -127,7 +131,7 @@ mod tests {
     use crate::core::rules::base::{Erased, ErasedRule};
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT13::default().erased()]
+        vec![RuleLT13.erased()]
     }
 
     #[test]

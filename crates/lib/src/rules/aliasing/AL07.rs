@@ -6,7 +6,7 @@ use smol_str::ToSmolStr;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, IdentifierSegment, SymbolSegment};
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -184,10 +184,10 @@ impl Rule for RuleAL07 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAL07 { force_enable: _config["force_enable"].as_bool().unwrap() }.erased())
     }
+
     fn name(&self) -> &'static str {
         "aliasing.forbid"
     }
-
     fn description(&self) -> &'static str {
         "Avoid table aliases in from clauses and join conditions."
     }
@@ -228,6 +228,10 @@ FROM
         table1.foreign_key = table_alias.foreign_key
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Aliasing]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

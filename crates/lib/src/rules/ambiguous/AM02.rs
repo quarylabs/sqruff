@@ -3,7 +3,7 @@ use ahash::AHashMap;
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{WhitespaceSegment, WhitespaceSegmentNewArgs};
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
@@ -47,6 +47,10 @@ UNION DISTINCT
 SELECT a, b FROM table_2
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Ambiguous]
     }
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
         let supported_dialects = ["ansi", "hive", "mysql", "redshift"];
@@ -106,7 +110,7 @@ mod tests {
     use crate::rules::ambiguous::AM02::RuleAM02;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleAM02::default().erased()]
+        vec![RuleAM02.erased()]
     }
 
     #[test]

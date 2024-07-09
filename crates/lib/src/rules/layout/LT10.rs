@@ -5,7 +5,7 @@ use crate::core::config::Value;
 use crate::core::parser::segments::base::{
     ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -17,7 +17,6 @@ impl Rule for RuleLT10 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT10.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.select_modifiers"
     }
@@ -50,6 +49,10 @@ select distinct
 from x
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
@@ -156,7 +159,7 @@ mod tests {
     use crate::rules::layout::LT10::RuleLT10;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT10::default().erased()]
+        vec![RuleLT10.erased()]
     }
 
     #[test]

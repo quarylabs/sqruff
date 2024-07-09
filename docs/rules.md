@@ -38,6 +38,7 @@ The following rules are available in this create. This list is generated from th
 | LT10 | [layout.select_modifiers](#layoutselect_modifiers) | 'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'. | 
 | LT11 | [layout.set_operators](#layoutset_operators) | Set operators should be surrounded by newlines. | 
 | LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. | 
+| LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. | 
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
 | RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
 | RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
@@ -55,8 +56,9 @@ Implicit/explicit aliasing of table.
 
 **Code:** AL01
 
-**Fixable:** Yes
+**Groups:** `all`, `aliasing`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -85,8 +87,9 @@ Implicit/explicit aliasing of columns.
 
 **Code:** AL02
 
-**Fixable:** No
+**Groups:** `all`, `core`, `aliasing`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -115,8 +118,9 @@ Column expression without alias. Use explicit `AS` clause.
 
 **Code:** AL03
 
-**Fixable:** No
+**Groups:** `all`, `core`, `aliasing`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -147,8 +151,9 @@ Table aliases should be unique within each clause.
 
 **Code:** AL04
 
-**Fixable:** No
+**Groups:** `all`, `core`, `aliasing`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -199,8 +204,9 @@ Tables should not be aliased if that alias is not used.
 
 **Code:** AL05
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `aliasing`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -235,8 +241,9 @@ Identify aliases in from clause and join conditions
 
 **Code:** AL06
 
-**Fixable:** No
+**Groups:** `all`, `core`, `aliasing`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -276,8 +283,9 @@ Avoid table aliases in from clauses and join conditions.
 
 **Code:** AL07
 
-**Fixable:** Yes
+**Groups:** `all`, `aliasing`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -320,8 +328,9 @@ Column aliases should be unique within each clause.
 
 **Code:** AL08
 
-**Fixable:** No
+**Groups:** `all`, `core`, `aliasing`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -364,8 +373,9 @@ Find self-aliased columns and fix them
 
 **Code:** AL09
 
-**Fixable:** No
+**Groups:** `all`, `core`, `aliasing`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -394,8 +404,9 @@ Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'.
 
 **Code:** AM01
 
-**Fixable:** No
+**Groups:** `all`, `core`, `ambiguous`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -426,8 +437,9 @@ Look for UNION keyword not immediately followed by DISTINCT or ALL
 
 **Code:** AM02
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `ambiguous`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -457,8 +469,9 @@ Inconsistent column references in 'GROUP BY/ORDER BY' clauses.
 
 **Code:** AM06
 
-**Fixable:** No
+**Groups:** `all`, `core`, `ambiguous`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -489,8 +502,9 @@ Inconsistent capitalisation of keywords.
 
 **Code:** CP01
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `capitalisation`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -525,8 +539,9 @@ Inconsistent capitalisation of unquoted identifiers.
 
 **Code:** CP02
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `capitalisation`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -564,8 +579,9 @@ Inconsistent capitalisation of function names.
 
 **Code:** CP03
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `capitalisation`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -597,8 +613,9 @@ Inconsistent capitalisation of boolean/null literal.
 
 **Code:** CP04
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `capitalisation`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -642,8 +659,9 @@ Inconsistent capitalisation of datatypes.
 
 **Code:** CP05
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `capitalisation`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -674,8 +692,9 @@ Use 'COALESCE' instead of 'IFNULL' or 'NVL'.
 
 **Code:** CV02
 
-**Fixable:** No
+**Groups:** `all`, `convention`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -705,8 +724,9 @@ Trailing commas within select clause
 
 **Code:** CV03
 
-**Fixable:** No
+**Groups:** `all`, `core`, `convention`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -737,8 +757,9 @@ Use consistent syntax to express "count number of rows".
 
 **Code:** CV04
 
-**Fixable:** No
+**Groups:** `all`, `core`, `convention`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -767,8 +788,9 @@ Inappropriate Spacing.
 
 **Code:** LT01
 
-**Fixable:** No
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -801,8 +823,9 @@ Incorrect Indentation.
 
 **Code:** LT02
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -835,8 +858,9 @@ Operators should follow a standard for being before/after newlines.
 
 **Code:** LT03
 
-**Fixable:** Yes
+**Groups:** `all`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -876,8 +900,9 @@ Leading/Trailing comma enforcement.
 
 **Code:** LT04
 
-**Fixable:** Yes
+**Groups:** `all`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -919,8 +944,9 @@ Line is too long.
 
 **Code:** LT05
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -958,8 +984,9 @@ Function name not immediately followed by parenthesis.
 
 **Code:** LT06
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -988,8 +1015,9 @@ FROM foo
 
 **Code:** LT07
 
-**Fixable:** No
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -1021,8 +1049,9 @@ Blank line expected but not found after CTE closing bracket.
 
 **Code:** LT08
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1054,8 +1083,9 @@ Select targets should be on a new line unless there is only one select target.
 
 **Code:** LT09
 
-**Fixable:** Yes
+**Groups:** `all`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1107,8 +1137,9 @@ FROM test_table;
 
 **Code:** LT10
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1139,8 +1170,9 @@ Set operators should be surrounded by newlines.
 
 **Code:** LT11
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1168,8 +1200,9 @@ Files must end with a single trailing newline.
 
 **Code:** LT12
 
-**Fixable:** Yes
+**Groups:** `all`, `core`, `layout`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1236,14 +1269,74 @@ Add trailing newline to the end. The $ character represents end of file.
 ```
 
 
+### layout.start_of_file
+
+Files must not begin with newlines or whitespace.
+
+**Code:** LT13
+
+**Groups:** `all`, `layout`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+The file begins with newlines or whitespace. The ^ represents the beginning of the file.
+
+```sql
+ ^
+
+ SELECT
+     a
+ FROM foo
+
+ -- Beginning on an indented line is also forbidden,
+ -- (the • represents space).
+
+ ••••SELECT
+ ••••a
+ FROM
+ ••••foo
+```
+
+**Best practice**
+
+Start file on either code or comment. (The ^ represents the beginning of the file.)
+
+```sql
+ ^SELECT
+     a
+ FROM foo
+
+ -- Including an initial block comment.
+
+ ^/*
+ This is a description of my SQL code.
+ */
+ SELECT
+     a
+ FROM
+     foo
+
+ -- Including an initial inline comment.
+
+ ^--This is a description of my SQL code.
+ SELECT
+     a
+ FROM
+     foo
+```
+
+
 ### references.from
 
 References cannot reference objects not present in 'FROM' clause.
 
 **Code:** RF01
 
-**Fixable:** No
+**Groups:** `all`, `core`, `references`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -1272,8 +1365,9 @@ References should be consistent in statements with a single table.
 
 **Code:** RF03
 
-**Fixable:** Yes
+**Groups:** `all`, `references`
 
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1311,8 +1405,9 @@ Keywords should not be used as identifiers.
 
 **Code:** RF04
 
-**Fixable:** No
+**Groups:** `all`, `references`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -1341,8 +1436,9 @@ Do not use special characters in identifiers.
 
 **Code:** RF05
 
-**Fixable:** No
+**Groups:** `all`, `references`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -1379,8 +1475,9 @@ Do not specify 'else null' in a case when statement (redundant).
 
 **Code:** ST01
 
-**Fixable:** No
+**Groups:** `all`, `structure`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -1409,8 +1506,9 @@ Unnecessary 'CASE' statement.
 
 **Code:** ST02
 
-**Fixable:** No
+**Groups:** `all`, `structure`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -1473,8 +1571,9 @@ Query defines a CTE (common-table expression) but does not use it.
 
 **Code:** ST03
 
-**Fixable:** No
+**Groups:** `all`, `core`, `structure`
 
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -1515,8 +1614,9 @@ Looking for DISTINCT before a bracket
 
 **Code:** ST08
 
-**Fixable:** No
+**Groups:** `all`, `core`, `structure`
 
+**Fixable:** No
 
 **Anti-pattern**
 

@@ -5,7 +5,9 @@ use crate::core::config::Value;
 use crate::core::parser::segments::base::{
     ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
-use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{
+    EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
+};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -34,7 +36,6 @@ impl Rule for RuleLT09 {
         Ok(RuleLT09 { wildcard_policy: _config["wildcard_policy"].as_string().unwrap().to_owned() }
             .erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.select_targets"
     }
@@ -88,6 +89,10 @@ SELECT
 FROM test_table;
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Layout]
     }
     #[allow(unused_variables)]
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

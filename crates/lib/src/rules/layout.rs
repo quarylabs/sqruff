@@ -30,5 +30,6 @@ pub fn rules() -> Vec<ErasedRule> {
         LT10::RuleLT10.erased(),
         LT11::RuleLT11.erased(),
         LT12::RuleLT12.erased(),
+        LT13::RuleLT13.erased(),
     ]
 }

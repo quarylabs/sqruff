@@ -2,7 +2,7 @@ use ahash::{AHashMap, AHashSet};
 
 use crate::core::config::Value;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::IndexSet;
@@ -70,6 +70,10 @@ FROM
 "#
     }
 
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let Some(select_info) =
             get_select_statement_info(&context.segment, context.dialect.into(), true)
@@ -134,7 +138,7 @@ mod tests {
     use crate::rules::aliasing::AL04::RuleAL04;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleAL04::default().erased()]
+        vec![RuleAL04.erased()]
     }
 
     #[test]

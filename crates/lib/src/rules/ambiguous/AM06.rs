@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -39,6 +39,7 @@ impl Rule for RuleAM06 {
     fn description(&self) -> &'static str {
         "Inconsistent column references in 'GROUP BY/ORDER BY' clauses."
     }
+
     fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
@@ -63,6 +64,9 @@ FROM foo
 ORDER BY a ASC, b DESC
 ```
 "#
+    }
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Ambiguous]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -149,7 +153,7 @@ mod tests {
     fn rules(group_by_and_order_by_style: Option<GroupByAndOrderByConvention>) -> Vec<ErasedRule> {
         let mut rule = RuleAM06::default();
         if let Some(group_by_and_order_by_style) = group_by_and_order_by_style {
-            rule.group_by_and_order_by_style = group_by_and_order_by_style.into();
+            rule.group_by_and_order_by_style = group_by_and_order_by_style;
         }
         vec![rule.erased()]
     }

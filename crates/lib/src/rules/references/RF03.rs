@@ -9,7 +9,7 @@ use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::parser::segments::base::{
     CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, SymbolSegment,
 };
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceSegment;
@@ -316,6 +316,10 @@ SELECT
 FROM foo
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::References]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

@@ -7,7 +7,7 @@ use crate::core::parser::segments::base::{
     ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::rules::base::{ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
@@ -74,6 +74,10 @@ FROM foo
 WHERE a IS NULL
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Convention]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -168,14 +172,8 @@ mod test {
                                 FROM foo
                                 WHERE a IS NULL"#;
 
-        let violations = lint(
-            pass_str.to_owned(),
-            "ansi".into(),
-            vec![RuleCV05::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str.to_owned(), "ansi".into(), vec![RuleCV05.erased()], None, None).unwrap();
         assert_eq!(violations, []);
     }
 
@@ -185,14 +183,8 @@ mod test {
         FROM foo
         WHERE a IS NOT NULL"#;
 
-        let violations = lint(
-            pass_str.to_owned(),
-            "ansi".into(),
-            vec![RuleCV05::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str.to_owned(), "ansi".into(), vec![RuleCV05.erased()], None, None).unwrap();
         assert_eq!(violations, []);
     }
 
@@ -201,7 +193,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a <> NULL";
         let fix_str = "SELECT a FROM foo WHERE a IS NOT NULL";
 
-        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05.erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -215,7 +207,7 @@ mod test {
                                 FROM foo
                                 WHERE a IS NOT NULL AND b IS NOT NULL AND c = 'foo'"#;
 
-        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05.erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -224,7 +216,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a <> null";
         let fix_str = "SELECT a FROM foo WHERE a is not null";
 
-        let actual = fix(fail_str, vec![RuleCV05::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCV05.erased()]);
         assert_eq!(fix_str, actual);
     }
 
@@ -238,7 +230,7 @@ mod test {
                                 FROM foo
                                 WHERE a IS NULL"#;
 
-        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05.erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -247,7 +239,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a=NULL";
         let fix_str = "SELECT a FROM foo WHERE a IS NULL";
 
-        let result = fix(fail_str, vec![RuleCV05::default().erased()]);
+        let result = fix(fail_str, vec![RuleCV05.erased()]);
         assert_eq!(fix_str, result);
     }
 
@@ -256,7 +248,7 @@ mod test {
         let fail_str = "SELECT a FROM foo WHERE a = b or (c > d or e = NULL)";
         let fix_str = "SELECT a FROM foo WHERE a = b or (c > d or e IS NULL)";
 
-        let actual = fix(fail_str, vec![RuleCV05::default().erased()]);
+        let actual = fix(fail_str, vec![RuleCV05.erased()]);
         assert_eq!(fix_str, actual);
     }
 
@@ -265,14 +257,8 @@ mod test {
         let pass_str = r#"UPDATE table1 SET col = NULL 
                                 WHERE col = """#;
 
-        let violations = lint(
-            pass_str.to_owned(),
-            "ansi".into(),
-            vec![RuleCV05::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str.to_owned(), "ansi".into(), vec![RuleCV05.erased()], None, None).unwrap();
         assert_eq!(violations, []);
     }
 
@@ -282,14 +268,9 @@ mod test {
         let pass_str = r#"ALTER TABLE table
                                 SET OPTIONS (expiration_timestamp = NULL);"#;
 
-        let violations = lint(
-            pass_str.to_owned(),
-            "bigquery".into(),
-            vec![RuleCV05::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str.to_owned(), "bigquery".into(), vec![RuleCV05.erased()], None, None)
+                .unwrap();
         assert_eq!(violations, []);
     }
 
@@ -302,14 +283,8 @@ mod test {
                                 @param3 = null,
                                 @param4 = 'blah'"#;
 
-        let violations = lint(
-            pass_str.to_owned(),
-            "tsql".into(),
-            vec![RuleCV05::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str.to_owned(), "tsql".into(), vec![RuleCV05.erased()], None, None).unwrap();
         assert_eq!(violations, []);
     }
 
@@ -318,14 +293,8 @@ mod test {
     fn test_tsql_alternate_alias_syntax() {
         let pass_str = r#"select name = null from t"#;
 
-        let violations = lint(
-            pass_str.to_owned(),
-            "tsql".into(),
-            vec![RuleCV05::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str.to_owned(), "tsql".into(), vec![RuleCV05.erased()], None, None).unwrap();
         assert_eq!(violations, []);
     }
 
@@ -333,14 +302,9 @@ mod test {
     fn test_exclude_constraint() {
         let pass_str = r#"alter table abc add constraint xyz exclude (field WITH =);"#;
 
-        let violations = lint(
-            pass_str.to_owned(),
-            "postgres".into(),
-            vec![RuleCV05::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let violations =
+            lint(pass_str.to_owned(), "postgres".into(), vec![RuleCV05.erased()], None, None)
+                .unwrap();
         assert_eq!(violations, []);
     }
 }

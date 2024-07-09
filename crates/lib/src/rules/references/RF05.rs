@@ -2,7 +2,7 @@ use ahash::{AHashMap, AHashSet};
 use regex::Regex;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::identifers::identifiers_policy_applicable;
@@ -92,6 +92,10 @@ CREATE TABLE DBO.ColumnNames
 )
 ```
 "
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::References]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

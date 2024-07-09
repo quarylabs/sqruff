@@ -43,6 +43,7 @@ The following rules are available in this create. This list is generated from th
 | RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
 | RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
 | RF05 | [references.special_chars](#referencesspecial_chars) | Do not use special characters in identifiers. | 
+| RF06 | [references.quoting](#referencesquoting) | Unnecessary quoted identifier. | 
 | ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). | 
 | ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
@@ -1468,6 +1469,55 @@ CREATE TABLE DBO.ColumnNames
 )
 ```
 
+
+### references.quoting
+
+Unnecessary quoted identifier.
+
+**Code:** RF06
+
+**Groups:** `all`, `references`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+In this example, a valid unquoted identifier, that is also not a reserved keyword, is needlessly quoted.
+
+```sql
+SELECT 123 as "foo"
+```
+
+**Best practice**
+
+Use unquoted identifiers where possible.
+
+```sql
+SELECT 123 as foo
+```
+
+When `prefer_quoted_identifiers = True`, the quotes are always necessary, no matter if the identifier is valid, a reserved keyword, or contains special characters.
+
+> **Note**
+> Note due to different quotes being used by different dialects supported by `SQLFluff`, and those quotes meaning different things in different contexts, this mode is not `sqlfluff fix` compatible.
+
+**Anti-pattern**
+
+In this example, a valid unquoted identifier, that is also not a reserved keyword, is required to be quoted.
+
+```sql
+SELECT 123 as foo
+```
+
+**Best practice**
+
+Use quoted identifiers.
+
+```sql
+SELECT 123 as "foo" -- For ANSI, ...
+-- or
+SELECT 123 as `foo` -- For BigQuery, MySql, ...
+```
 
 ### structure.else_null
 

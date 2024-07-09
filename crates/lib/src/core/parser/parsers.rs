@@ -170,8 +170,8 @@ impl Matchable for StringParser {
 
 #[derive(Debug, Clone)]
 pub struct RegexParser {
-    template: Regex,
-    anti_template: Option<Regex>,
+    pub(crate) template: Regex,
+    pub(crate) anti_template: Option<Regex>,
     factory: fn(&dyn Segment) -> ErasedSegment,
     cache_key: MatchableCacheKey,
 }

@@ -341,7 +341,7 @@ file:
                 - start_bracket: (
                 - expression:
                   - column_reference:
-                    - naked_identifier: '`grand_total`'
+                    - quoted_identifier: '`grand_total`'
                 - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
@@ -358,7 +358,7 @@ file:
                         - start_bracket: (
                         - expression:
                           - column_reference:
-                            - naked_identifier: '`media_type`'
+                            - quoted_identifier: '`media_type`'
                         - end_bracket: )
                   - comma: ','
                   - expression:
@@ -417,12 +417,12 @@ file:
                 - start_bracket: (
                 - expression:
                   - column_reference:
-                    - naked_identifier: '`grand_total`'
+                    - quoted_identifier: '`grand_total`'
                 - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:
               - column_reference:
-                - naked_identifier: '`media_type`'
+                - quoted_identifier: '`media_type`'
             - keyword: IN
             - bracketed:
               - start_bracket: (
@@ -473,7 +473,7 @@ file:
                 - start_bracket: (
                 - expression:
                   - column_reference:
-                    - naked_identifier: '`grand_total`'
+                    - quoted_identifier: '`grand_total`'
                 - end_bracket: )
             - keyword: FOR
             - pivot_for_clause:

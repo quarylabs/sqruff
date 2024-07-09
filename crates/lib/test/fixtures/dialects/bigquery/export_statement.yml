@@ -72,7 +72,7 @@ file:
     - keyword: WITH
     - keyword: CONNECTION
     - object_reference:
-      - naked_identifier: '`PROJECT_ID.LOCATION.CONNECTION_ID`'
+      - quoted_identifier: '`PROJECT_ID.LOCATION.CONNECTION_ID`'
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (

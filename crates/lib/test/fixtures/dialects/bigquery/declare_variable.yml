@@ -251,14 +251,14 @@ file:
 - statement:
   - declare_segment:
     - keyword: declare
-    - naked_identifier: '`var1`'
+    - quoted_identifier: '`var1`'
     - data_type:
       - '': string
 - statement_terminator: ;
 - statement:
   - declare_segment:
     - keyword: declare
-    - naked_identifier: '`var1`'
+    - quoted_identifier: '`var1`'
     - data_type:
       - '': string
     - keyword: default
@@ -267,9 +267,9 @@ file:
 - statement:
   - declare_segment:
     - keyword: declare
-    - naked_identifier: '`var1`'
+    - quoted_identifier: '`var1`'
     - comma: ','
-    - naked_identifier: '`var1`'
+    - quoted_identifier: '`var1`'
     - data_type:
       - '': string
 - statement_terminator: ;
@@ -278,7 +278,7 @@ file:
     - keyword: declare
     - naked_identifier: var1
     - comma: ','
-    - naked_identifier: '`var2`'
+    - quoted_identifier: '`var2`'
     - data_type:
       - '': string
 - statement_terminator: ;
@@ -287,7 +287,7 @@ file:
     - keyword: declare
     - naked_identifier: var1
     - comma: ','
-    - naked_identifier: '`var2`'
+    - quoted_identifier: '`var2`'
     - data_type:
       - '': string
     - keyword: default

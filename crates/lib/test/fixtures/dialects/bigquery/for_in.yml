@@ -176,7 +176,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - naked_identifier: '`database.user`'
+                  - quoted_identifier: '`database.user`'
       - end_bracket: )
     - keyword: DO
     - for_in_statements:

@@ -24,7 +24,7 @@ file:
                     - naked_identifier: MODEL
                 - expression:
                   - column_reference:
-                    - naked_identifier: '`project.dataset.model`'
+                    - quoted_identifier: '`project.dataset.model`'
                 - end_bracket: )
     - orderby_clause:
       - keyword: ORDER

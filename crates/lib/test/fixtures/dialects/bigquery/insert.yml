@@ -49,7 +49,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - naked_identifier: '`project.dataset.table`'
+      - quoted_identifier: '`project.dataset.table`'
     - bracketed:
       - start_bracket: (
       - select_statement:

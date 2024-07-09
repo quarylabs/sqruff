@@ -24,7 +24,7 @@ file:
                     - naked_identifier: MODEL
                 - expression:
                   - column_reference:
-                    - naked_identifier: '`project.dataset.model`'
+                    - quoted_identifier: '`project.dataset.model`'
                 - comma: ','
                 - expression:
                   - bracketed:
@@ -42,6 +42,6 @@ file:
                             - from_expression_element:
                               - table_expression:
                                 - table_reference:
-                                  - naked_identifier: '`project.dataset.stats`'
+                                  - quoted_identifier: '`project.dataset.stats`'
                     - end_bracket: )
                 - end_bracket: )

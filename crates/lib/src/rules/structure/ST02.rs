@@ -6,7 +6,7 @@ use crate::core::parser::segments::base::{
     ErasedSegment, SymbolSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
@@ -85,6 +85,10 @@ select fab as fab_clean
 from fancy_table
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Structure]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -300,7 +304,7 @@ mod tests {
     use crate::rules::structure::ST02::RuleST02;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleST02::default().erased()]
+        vec![RuleST02.erased()]
     }
 
     #[test]

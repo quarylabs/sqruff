@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use regex::Regex;
 
-use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::identifers::identifiers_policy_applicable;
@@ -78,6 +78,10 @@ SELECT
 FROM foo AS vee
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::References]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

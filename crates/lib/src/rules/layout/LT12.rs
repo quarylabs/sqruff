@@ -2,7 +2,9 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule};
+use crate::core::rules::base::{
+    Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups,
+};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -44,7 +46,6 @@ impl Rule for RuleLT12 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT12.erased())
     }
-
     fn lint_phase(&self) -> LintPhase {
         LintPhase::Post
     }
@@ -56,6 +57,7 @@ impl Rule for RuleLT12 {
     fn description(&self) -> &'static str {
         "Files must end with a single trailing newline."
     }
+
     fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
@@ -123,6 +125,9 @@ Add trailing newline to the end. The $ character represents end of file.
 ```
 "#
     }
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
+    }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let (parent_stack, segment) =
@@ -180,7 +185,7 @@ mod tests {
     use crate::core::rules::base::{Erased, ErasedRule};
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT12::default().erased()]
+        vec![RuleLT12.erased()]
     }
 
     #[test]

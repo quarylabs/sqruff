@@ -7,7 +7,7 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
@@ -196,6 +196,10 @@ SELECT
 FROM foo
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::References]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

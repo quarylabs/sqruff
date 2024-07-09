@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -47,6 +47,10 @@ FROM foo
 "#
     }
 
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Structure]
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let anchor = context.segment.clone();
 
@@ -86,7 +90,7 @@ mod tests {
     use crate::rules::structure::ST01::RuleST01;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleST01::default().erased()]
+        vec![RuleST01.erased()]
     }
 
     #[test]

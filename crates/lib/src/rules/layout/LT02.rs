@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -13,7 +13,6 @@ impl Rule for RuleLT02 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT02.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.indent"
     }
@@ -50,6 +49,10 @@ FROM foo
 "#
     }
 
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_root(context.segment, context.config.unwrap()).reindent().results()
     }
@@ -70,7 +73,7 @@ mod tests {
     use crate::rules::layout::LT02::RuleLT02;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT02::default().erased()]
+        vec![RuleLT02.erased()]
     }
 
     #[test]

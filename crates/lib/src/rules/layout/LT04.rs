@@ -4,7 +4,7 @@ use ahash::AHashMap;
 
 use super::LT03::RuleLT03;
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
@@ -18,7 +18,6 @@ impl Rule for RuleLT04 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT04::default().erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.commas"
     }
@@ -26,6 +25,7 @@ impl Rule for RuleLT04 {
     fn description(&self) -> &'static str {
         "Leading/Trailing comma enforcement."
     }
+
     fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
@@ -61,6 +61,9 @@ SELECT
 FROM foo
 ```
 "#
+    }
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Layout]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
@@ -13,7 +13,6 @@ impl Rule for RuleLT11 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT11.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.set_operators"
     }
@@ -43,6 +42,10 @@ UNION ALL
 SELECT 'b' AS col
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_around_target(

@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -125,6 +125,10 @@ JOIN
     ON replacement_orders.id = previous_orders.replacement_id
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

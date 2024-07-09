@@ -2,7 +2,7 @@ use ahash::{AHashMap, AHashSet};
 use itertools::enumerate;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::ReflowSequence;
@@ -21,7 +21,6 @@ impl Rule for RuleLT05 {
         }
         .erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.long_lines"
     }
@@ -61,6 +60,10 @@ SELECT
     my_expression_function(col6, col7 + col8, arg4)
     = col9 + col10 as another_relatively_long_alias
 FROM my_table"#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut results =

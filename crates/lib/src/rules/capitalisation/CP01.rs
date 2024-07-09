@@ -3,7 +3,9 @@ use itertools::Itertools;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule};
+use crate::core::rules::base::{
+    Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups,
+};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::capitalize;
@@ -87,6 +89,10 @@ select
 from foo
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Capitalisation]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

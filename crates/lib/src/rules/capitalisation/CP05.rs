@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use super::CP01::handle_segment;
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -54,6 +54,10 @@ CREATE TABLE t (
 );
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Capitalisation]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

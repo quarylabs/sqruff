@@ -40,6 +40,7 @@ struct Rule {
     pub description: &'static str,
     pub fixable: bool,
     pub long_description: &'static str,
+    pub groups: Vec<&'static str>,
 }
 
 impl From<ErasedRule> for Rule {
@@ -51,6 +52,7 @@ impl From<ErasedRule> for Rule {
             fixable: value.is_fix_compatible(),
             description: value.description(),
             long_description: value.long_description(),
+            groups: value.groups().iter().map(|g| g.as_ref()).collect(),
         }
     }
 }

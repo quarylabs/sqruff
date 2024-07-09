@@ -314,7 +314,7 @@ mod tests {
     use crate::core::errors::SQLLintError;
     use crate::core::parser::markers::PositionMarker;
     use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
-    use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+    use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
     use crate::core::templaters::base::TemplatedFile;
@@ -368,6 +368,10 @@ mod tests {
                 _config: &AHashMap<String, Value>,
             ) -> Result<ErasedRule, String> {
                 unimplemented!()
+            }
+
+            fn groups(&self) -> &'static [RuleGroups] {
+                todo!()
             }
 
             fn name(&self) -> &'static str {

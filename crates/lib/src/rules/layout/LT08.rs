@@ -5,7 +5,9 @@ use itertools::Itertools;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::NewlineSegment;
-use crate::core::rules::base::{EditType, Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{
+    EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
+};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::IndexMap;
@@ -17,7 +19,6 @@ impl Rule for RuleLT08 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT08.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.cte_newline"
     }
@@ -51,6 +52,10 @@ WITH plop AS (
 SELECT a FROM plop
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
@@ -211,7 +216,7 @@ mod tests {
     use crate::rules::layout::LT08::RuleLT08;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT08::default().erased()]
+        vec![RuleLT08.erased()]
     }
 
     #[test]

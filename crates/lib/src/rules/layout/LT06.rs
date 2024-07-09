@@ -3,7 +3,7 @@ use itertools::Itertools;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -15,7 +15,6 @@ impl Rule for RuleLT06 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT06.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.functions"
     }
@@ -46,6 +45,10 @@ SELECT
 FROM foo
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context).segment();
@@ -100,8 +103,7 @@ mod tests {
     fn passing_example() {
         let sql = "SELECT SUM(1)";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleLT06.erased()], None, None).unwrap();
 
         assert_eq!(result, &[]);
     }
@@ -110,15 +112,14 @@ mod tests {
     fn passing_example_window_function() {
         let sql = "SELECT AVG(c) OVER (PARTITION BY a)";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleLT06.erased()], None, None).unwrap();
         assert_eq!(result, &[]);
     }
 
     #[test]
     fn simple_fail() {
         let sql = "SELECT SUM (1)";
-        let result = fix(sql, vec![RuleLT06::default().erased()]);
+        let result = fix(sql, vec![RuleLT06.erased()]);
         assert_eq!(result, "SELECT SUM(1)");
     }
 
@@ -126,8 +127,7 @@ mod tests {
     fn complex_fail_1() {
         let sql = "SELECT SUM /* SOMETHING */ (1)";
         let violations =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleLT06.erased()], None, None).unwrap();
 
         assert_eq!(violations[0].desc(), "Function name not immediately followed by parenthesis.");
         assert_eq!(violations.len(), 1);
@@ -142,8 +142,7 @@ mod tests {
       (1)";
 
         let violations =
-            lint(sql.to_string(), "ansi".into(), vec![RuleLT06::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleLT06.erased()], None, None).unwrap();
 
         assert_eq!(violations[0].desc(), "Function name not immediately followed by parenthesis.");
         assert_eq!(violations.len(), 1);

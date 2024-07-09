@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -74,6 +74,10 @@ FROM baz;
 "#
     }
 
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Convention]
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Use "COALESCE" instead of "IFNULL" or "NVL".
         // We only care about function names, and they should be the
@@ -128,7 +132,7 @@ mod tests {
         let result = lint(
             sql.into(),
             get_default_dialect().to_string(),
-            vec![RuleCV02::default().erased()],
+            vec![RuleCV02.erased()],
             None,
             None,
         )
@@ -146,7 +150,7 @@ mod tests {
         let result = lint(
             sql.into(),
             get_default_dialect().to_string(),
-            vec![RuleCV02::default().erased()],
+            vec![RuleCV02.erased()],
             None,
             None,
         )
@@ -158,14 +162,14 @@ mod tests {
     #[test]
     fn test_fail_ifnull() {
         let sql = "SELECT ifnull(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql, vec![RuleCV02::default().erased()]);
+        let result = fix(sql, vec![RuleCV02.erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 
     #[test]
     fn test_fail_nvl() {
         let sql = "SELECT nvl(foo, 0) AS bar,\nFROM baz;";
-        let result = fix(sql, vec![RuleCV02::default().erased()]);
+        let result = fix(sql, vec![RuleCV02.erased()]);
         assert_eq!(result, "SELECT COALESCE(foo, 0) AS bar,\nFROM baz;")
     }
 }

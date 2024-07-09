@@ -7,7 +7,7 @@ use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceLevel;
@@ -65,6 +65,10 @@ SELECT
 FROM foo
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -190,7 +194,7 @@ mod tests {
     use crate::rules::aliasing::AL05::RuleAL05;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleAL05::default().erased()]
+        vec![RuleAL05.erased()]
     }
 
     #[test]

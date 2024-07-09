@@ -7,6 +7,7 @@ use std::sync::Arc;
 use ahash::{AHashMap, AHashSet};
 use anymap::AnyMap;
 use itertools::chain;
+use strum_macros::AsRefStr;
 
 use super::context::RuleContext;
 use super::crawlers::{BaseCrawler, Crawler};
@@ -25,6 +26,20 @@ pub struct LintResult {
     memory: Option<AHashMap<String, String>>, // Adjust type as needed
     description: Option<String>,
     source: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Copy, Hash, Eq, AsRefStr)]
+#[strum(serialize_all = "lowercase")]
+pub enum RuleGroups {
+    All,
+    Core,
+    Aliasing,
+    Ambiguous,
+    Capitalisation,
+    Convention,
+    Layout,
+    References,
+    Structure,
 }
 
 impl LintResult {
@@ -262,9 +277,10 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
 
     fn long_description(&self) -> &'static str;
 
-    fn groups(&self) -> &'static [&'static str] {
-        &["all"]
-    }
+    /// All the groups this rule belongs to, including 'all' because that is a
+    /// given. There should be no duplicates and 'all' should be the first
+    /// element.
+    fn groups(&self) -> &'static [RuleGroups];
 
     fn code(&self) -> &'static str {
         let name = std::any::type_name::<Self>();
@@ -389,7 +405,7 @@ pub struct RuleManifest {
     pub code: &'static str,
     pub name: &'static str,
     pub description: &'static str,
-    pub groups: &'static [&'static str],
+    pub groups: &'static [RuleGroups],
     pub aliases: Vec<&'static str>,
     pub rule_class: ErasedRule,
 }
@@ -444,7 +460,8 @@ impl RuleSet {
         let mut group_map: AHashMap<_, AHashSet<&'static str>> = AHashMap::new();
         for manifest in self.register.values() {
             for group in manifest.groups {
-                if let Some(codes) = reference_map.get(*group) {
+                let group = group.as_ref();
+                if let Some(codes) = reference_map.get(group) {
                     tracing::warn!(
                         "Rule {} defines group '{}' which is already defined as a name or code of \
                          {:?}. This group will not be available for use as a result of this \
@@ -454,7 +471,7 @@ impl RuleSet {
                         codes
                     );
                 } else {
-                    group_map.entry(*group).or_insert_with(AHashSet::new).insert(manifest.code);
+                    group_map.entry(group).or_insert_with(AHashSet::new).insert(manifest.code);
                 }
             }
         }

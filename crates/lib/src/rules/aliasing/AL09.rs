@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
@@ -44,6 +44,10 @@ SELECT
 FROM table;
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -120,7 +124,7 @@ mod tests {
     use crate::rules::aliasing::AL09::RuleAL09;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleAL09::default().erased()]
+        vec![RuleAL09.erased()]
     }
 
     #[test]

@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
@@ -13,7 +13,6 @@ impl Rule for RuleLT01 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT01.erased())
     }
-
     fn name(&self) -> &'static str {
         "layout.spacing"
     }
@@ -50,6 +49,10 @@ JOIN bar USING (a)
 "#
     }
 
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
+    }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let sequence = ReflowSequence::from_root(context.segment, context.config.unwrap());
         sequence.respace(false, Filter::All).results()
@@ -73,7 +76,7 @@ mod tests {
     use crate::rules::layout::LT01::RuleLT01;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT01::default().erased()]
+        vec![RuleLT01.erased()]
     }
 
     // LT01-commas.yml

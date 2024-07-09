@@ -4,7 +4,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 
@@ -60,6 +60,10 @@ FROM
         table1.foreign_key = table_alias.foreign_key
 ```
 "#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Aliasing]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
@@ -123,8 +127,7 @@ mod tests {
     fn test_fail_references() {
         let sql = "select foo, foo";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
         assert_eq!(result.len(), 1);
@@ -134,8 +137,7 @@ mod tests {
     fn test_fail_aliases() {
         let sql = "select a as foo, b as foo";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
         assert_eq!(result.len(), 1);
@@ -145,8 +147,7 @@ mod tests {
     fn test_fail_alias_refs() {
         let sql = "select foo, b as foo";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
         assert_eq!(result.len(), 1);
@@ -156,8 +157,7 @@ mod tests {
     fn test_fail_locs() {
         let sql = "select foo, b as foo, c as bar, bar, d foo";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
         assert_eq!(result[1].desc(), "Reuse of column alias 'bar' from line 1.");
@@ -168,14 +168,8 @@ mod tests {
     #[test]
     fn test_fail_alias_quoted() {
         let sql = "select foo, b as \"foo\"";
-        let result = lint(
-            sql.to_string(),
-            "snowflake".into(),
-            vec![RuleAL08::default().erased()],
-            None,
-            None,
-        )
-        .unwrap();
+        let result =
+            lint(sql.to_string(), "snowflake".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result[0].desc(), "Reuse of column alias '\"foo\"' from line 1.");
     }
@@ -184,8 +178,7 @@ mod tests {
     fn test_fail_alias_case() {
         let sql = "select foo, b as FOO";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result[0].desc(), "Reuse of column alias 'FOO' from line 1.");
         assert_eq!(result.len(), 1);
@@ -195,8 +188,7 @@ mod tests {
     fn test_fail_qualified() {
         let sql = "select a.foo, b as foo from a";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result[0].desc(), "Reuse of column alias 'foo' from line 1.");
         assert_eq!(result.len(), 1);
@@ -206,8 +198,7 @@ mod tests {
     fn test_pass_table_names() {
         let sql = "select a.b, b.c, c.d from a, b, c";
         let result =
-            lint(sql.to_string(), "ansi".into(), vec![RuleAL08::default().erased()], None, None)
-                .unwrap();
+            lint(sql.to_string(), "ansi".into(), vec![RuleAL08.erased()], None, None).unwrap();
 
         assert_eq!(result, []);
     }

@@ -41,6 +41,7 @@ The following rules are available in this create. This list is generated from th
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
 | RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
 | RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
+| RF05 | [references.special_chars](#referencesspecial_chars) | Do not use special characters in identifiers. | 
 | ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). | 
 | ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
@@ -1331,6 +1332,44 @@ Avoid using keywords as the name of an alias.
 SELECT
     vee.a
 FROM foo AS vee
+```
+
+
+### references.special_chars
+
+Do not use special characters in identifiers.
+
+**Code:** RF05
+
+**Fixable:** No
+
+
+**Anti-pattern**
+
+Using special characters within identifiers when creating or aliasing objects.
+
+```sql
+CREATE TABLE DBO.ColumnNames
+(
+    [Internal Space] INT,
+    [Greater>Than] INT,
+    [Less<Than] INT,
+    Number# INT
+)
+```
+
+**Best practice**
+
+Identifiers should include only alphanumerics and underscores.
+
+```sql
+CREATE TABLE DBO.ColumnNames
+(
+    [Internal_Space] INT,
+    [GreaterThan] INT,
+    [LessThan] INT,
+    NumberVal INT
+)
 ```
 
 

@@ -111,7 +111,7 @@ FROM mytable
 
         let x2 = case2
             .children(Some(|it| it.is_code()))
-            .select(None, None, case2_first_case.into(), case2_first_when.into())
+            .select(None, None, case2_first_case, case2_first_when)
             .into_iter()
             .map(|it| it.get_raw_upper().unwrap());
 
@@ -238,9 +238,7 @@ fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegm
             || (prior_newline && seg.is_comment())
         {
             buff.push(NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}));
-            buff.push(
-                WhitespaceSegment::create(indent_str, None, WhitespaceSegmentNewArgs {}).into(),
-            );
+            buff.push(WhitespaceSegment::create(indent_str, None, WhitespaceSegmentNewArgs {}));
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();
@@ -248,10 +246,11 @@ fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegm
             prior_newline = true;
             prior_whitespace.clear();
         } else if !prior_newline && seg.is_comment() {
-            buff.push(
-                WhitespaceSegment::create(&prior_whitespace, None, WhitespaceSegmentNewArgs {})
-                    .into(),
-            );
+            buff.push(WhitespaceSegment::create(
+                &prior_whitespace,
+                None,
+                WhitespaceSegmentNewArgs {},
+            ));
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();

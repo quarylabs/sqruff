@@ -45,6 +45,7 @@ struct TestFile {
 struct TestCase {
     #[serde(rename = "$key$")]
     name: String,
+    ignored: Option<String>,
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
@@ -103,9 +104,12 @@ fn main() {
                 print!("test {}::{}", file.rule, case.name);
             }
 
-            if dialect.is_err() {
+            if dialect.is_err() || case.ignored.is_some() {
                 if !args.no_capture {
-                    println!(" ignored, dialect {dialect_name} is not supported");
+                    let message = case.ignored.unwrap_or_else(|| {
+                        format!("ignored, dialect {dialect_name} is not supported")
+                    });
+                    println!(" ignored, {message}");
                 }
 
                 continue;

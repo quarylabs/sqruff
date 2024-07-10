@@ -83,6 +83,12 @@ pub struct ErasedSegment {
     hash: Arc<AtomicU64>,
 }
 
+impl ErasedSegment {
+    pub(crate) fn is_keyword(&self, p0: &str) -> bool {
+        self.is_type("keyword") && self.raw().eq_ignore_ascii_case(p0)
+    }
+}
+
 impl Hash for ErasedSegment {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.hash_value().hash(state);

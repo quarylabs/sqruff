@@ -97,6 +97,10 @@ impl Segment for Node {
         .to_erased_segment()
     }
 
+    fn is_comment(&self) -> bool {
+        false
+    }
+
     fn descendant_type_set(&self) -> &AHashSet<&'static str> {
         self.descendant_type_set.get_or_init(|| {
             let mut result_set = AHashSet::new();

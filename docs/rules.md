@@ -51,6 +51,7 @@ The following rules are available in this create. This list is generated from th
 | ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). | 
 | ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
+| ST04 | [structure.nested_case](#structurenested_case) | Nested ``CASE`` statement in ``ELSE`` clause could be flattened. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 
 ## Rule Details
@@ -1788,6 +1789,46 @@ WITH cte1 AS (
 
 SELECT *
 FROM cte1
+```
+
+
+### structure.nested_case
+
+Nested ``CASE`` statement in ``ELSE`` clause could be flattened.
+
+**Code:** ST04
+
+**Groups:** `all`, `structure`
+
+**Fixable:** Yes
+
+## Anti-pattern
+
+In this example, the outer `CASE`'s `ELSE` is an unnecessary, nested `CASE`.
+
+```sql
+SELECT
+  CASE
+    WHEN species = 'Cat' THEN 'Meow'
+    ELSE
+    CASE
+       WHEN species = 'Dog' THEN 'Woof'
+    END
+  END as sound
+FROM mytable
+```
+
+## Best practice
+
+Move the body of the inner `CASE` to the end of the outer one.
+
+```sql
+SELECT
+  CASE
+    WHEN species = 'Cat' THEN 'Meow'
+    WHEN species = 'Dog' THEN 'Woof'
+  END AS sound
+FROM mytable
 ```
 
 

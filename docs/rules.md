@@ -17,6 +17,7 @@ The following rules are available in this create. This list is generated from th
 | AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) | Find self-aliased columns and fix them | 
 | AM01 | [ambiguous.distinct](#ambiguousdistinct) | Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'. | 
 | AM02 | [ambiguous.union](#ambiguousunion) | Look for UNION keyword not immediately followed by DISTINCT or ALL | 
+| AM03 | [ambiguous.order_by](#ambiguousorder_by) | Ambiguous ordering directions for columns in order by clause. | 
 | AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. | 
 | CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. | 
 | CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. | 
@@ -462,6 +463,39 @@ Specify `DISTINCT` or `ALL` after `UNION` (note that `DISTINCT` is the default b
 SELECT a, b FROM table_1
 UNION DISTINCT
 SELECT a, b FROM table_2
+```
+
+
+### ambiguous.order_by
+
+Ambiguous ordering directions for columns in order by clause.
+
+**Code:** AM03
+
+**Groups:** `all`, `ambiguous`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+In this example, the `ORDER BY` clause is ambiguous because some columns are explicitly ordered, while others are not.
+
+```sql
+SELECT
+    a, b
+FROM foo
+ORDER BY a, b DESC
+```
+
+**Best practice**
+
+If any columns in the `ORDER BY` clause specify `ASC` or `DESC`, they should all do so.
+
+```sql
+SELECT
+    a, b
+FROM foo
+ORDER BY a ASC, b DESC
 ```
 
 

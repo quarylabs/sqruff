@@ -5,6 +5,7 @@ use itertools::Itertools;
 use super::ansi::{self, raw_dialect};
 use super::bigquery_keywords::{BIGQUERY_RESERVED_KEYWORDS, BIGQUERY_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
@@ -25,7 +26,7 @@ use crate::vec_of_erased;
 
 pub fn bigquery_dialect() -> Dialect {
     let mut dialect = raw_dialect();
-    dialect.name = "bigquery";
+    dialect.name = DialectKind::Bigquery;
 
     dialect.insert_lexer_matchers(
         vec![

@@ -1,6 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::segments::base::{WhitespaceSegment, WhitespaceSegmentNewArgs};
 use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
@@ -53,8 +54,8 @@ SELECT a, b FROM table_2
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Ambiguous]
     }
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
-        let supported_dialects = ["ansi", "hive", "mysql", "redshift"];
-        if !supported_dialects.contains(&rule_cx.dialect.name) {
+        // TODO: add ansi, hive, mysql, redshift
+        if !matches!(rule_cx.dialect.name, DialectKind::Ansi) {
             return Vec::new();
         }
 

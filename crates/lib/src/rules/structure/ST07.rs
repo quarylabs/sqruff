@@ -3,6 +3,7 @@ use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
 
 use crate::core::config::Value;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::segments::base::{
     CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, SymbolSegment, SymbolSegmentNewArgs,
     WhitespaceSegment, WhitespaceSegmentNewArgs,
@@ -67,7 +68,7 @@ INNER JOIN table_b
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if context.dialect.name == "clickhouse" {
+        if context.dialect.name == DialectKind::Clickhouse {
             return Vec::new();
         }
 

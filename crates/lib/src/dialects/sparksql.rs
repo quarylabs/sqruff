@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use super::sparksql_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::grammar::anyof::{any_set_of, one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::{Anything, Ref};
 use crate::core::parser::grammar::conditional::Conditional;
@@ -25,7 +26,7 @@ pub fn sparksql_dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
     let hive_dialect = super::hive::raw_dialect();
     let mut sparksql_dialect = ansi_dialect;
-    sparksql_dialect.name = "sparksql";
+    sparksql_dialect.name = DialectKind::Sparksql;
 
     sparksql_dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"(--)[^\n]*", |slice, marker| {

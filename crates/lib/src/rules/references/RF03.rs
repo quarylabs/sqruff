@@ -6,6 +6,7 @@ use smol_str::SmolStr;
 
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::segments::base::{
     CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, SymbolSegment,
 };
@@ -323,9 +324,8 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let dialects_with_structs = ["bigquery", "hive", "redshift"];
-
-        if dialects_with_structs.contains(&context.dialect.name) {
+        // TODO: add hive, redshift"
+        if context.dialect.name == DialectKind::Bigquery {
             return Vec::new();
         }
 

@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::StringParser;
@@ -15,7 +16,7 @@ use crate::helpers::{capitalize, ToErasedSegment};
 
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
-    pub(crate) name: &'static str,
+    pub(crate) name: DialectKind,
     root_segment_name: &'static str,
     lexer_matchers: Option<Vec<Matcher>>,
     // TODO: Can we use PHF here? https://crates.io/crates/phf
@@ -32,7 +33,7 @@ impl PartialEq for Dialect {
 
 impl Dialect {
     pub fn new(root_segment_name: &'static str) -> Self {
-        Dialect { name: "ansi", root_segment_name, ..Default::default() }
+        Dialect { name: DialectKind::Ansi, root_segment_name, ..Default::default() }
     }
 
     pub fn add(

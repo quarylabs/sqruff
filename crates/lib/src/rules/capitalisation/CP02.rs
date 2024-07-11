@@ -2,6 +2,7 @@ use ahash::AHashMap;
 
 use super::CP01::RuleCP01;
 use crate::core::config::Value;
+use crate::core::dialects::init::DialectKind;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -89,7 +90,8 @@ from foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if matches!(context.dialect.name, "databricks" | "sparksql")
+        // TODO: add databricks
+        if context.dialect.name == DialectKind::Sparksql
             && context
                 .parent_stack
                 .last()

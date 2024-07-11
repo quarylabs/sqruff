@@ -7,6 +7,7 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
+use crate::core::dialects::init::DialectKind;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -204,10 +205,8 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let dialects_disabled_by_default =
-            ["bigquery", "databricks", "hive", "redshift", "soql", "sparksql"];
-
-        if dialects_disabled_by_default.contains(&context.dialect.name) {
+        // ["bigquery", "databricks", "hive", "redshift", "soql", "sparksql"]
+        if matches!(&context.dialect.name, DialectKind::Bigquery | DialectKind::Sparksql) {
             return Vec::new();
         }
 

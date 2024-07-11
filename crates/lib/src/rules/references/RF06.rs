@@ -1,6 +1,7 @@
 use regex::Regex;
 
 use crate::core::config::Value;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::parsers::RegexParser;
 use crate::core::parser::segments::base::{CodeSegmentNewArgs, IdentifierSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
@@ -103,7 +104,9 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if matches!(context.dialect.name, "postgres" | "snowflake") && !self.force_enable {
+        if matches!(context.dialect.name, DialectKind::Postgres | DialectKind::Snowflake)
+            && !self.force_enable
+        {
             return Vec::new();
         }
 

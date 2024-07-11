@@ -44,6 +44,7 @@ The following rules are available in this create. This list is generated from th
 | LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. | 
 | LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. | 
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
+| RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. | 
 | RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
 | RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
 | RF05 | [references.special_chars](#referencesspecial_chars) | Do not use special characters in identifiers. | 
@@ -1492,6 +1493,17 @@ SELECT
     a
 FROM foo
 ```
+
+
+### references.qualification
+
+References should be qualified if select has more than one referenced table/view.
+
+**Code:** RF02
+
+**Groups:** `all`, `references`
+
+**Fixable:** No
 
 
 ### references.consistent

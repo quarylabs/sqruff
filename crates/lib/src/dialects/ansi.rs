@@ -11,6 +11,7 @@ use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 use super::SyntaxKind;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
+use crate::core::dialects::init::DialectKind;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
@@ -6072,12 +6073,15 @@ impl ObjectReferenceSegment {
     pub fn extract_possible_references(
         &self,
         level: ObjectReferenceLevel,
-        dialect: &str,
+        dialect: DialectKind,
     ) -> Vec<ObjectReferencePart> {
         let refs = self.iter_raw_references();
 
         match dialect {
-            "ansi" | "postgres" | "clickhouse" | "sparksql" => {
+            DialectKind::Ansi
+            | DialectKind::Postgres
+            | DialectKind::Clickhouse
+            | DialectKind::Sparksql => {
                 let level = level as usize;
                 if refs.len() >= level && level > 0 {
                     refs.get(refs.len() - level).cloned().into_iter().collect()
@@ -6085,7 +6089,7 @@ impl ObjectReferenceSegment {
                     vec![]
                 }
             }
-            "bigquery" => {
+            DialectKind::Bigquery => {
                 if level == ObjectReferenceLevel::Schema && refs.len() >= 3 {
                     return vec![refs[0].clone()];
                 }
@@ -6098,7 +6102,7 @@ impl ObjectReferenceSegment {
                     return vec![refs[1].clone(), refs[2].clone()];
                 }
 
-                self.extract_possible_references(level, "ansi")
+                self.extract_possible_references(level, DialectKind::Ansi)
             }
             _ => unimplemented!(),
         }

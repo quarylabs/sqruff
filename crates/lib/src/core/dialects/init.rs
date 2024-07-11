@@ -2,9 +2,10 @@ use std::str::FromStr;
 
 use super::base::Dialect;
 
-#[derive(strum_macros::EnumString)]
+#[derive(strum_macros::EnumString, Debug, Clone, Copy, Default, Ord, PartialOrd, Eq, PartialEq)]
 #[strum(serialize_all = "snake_case")]
 pub enum DialectKind {
+    #[default]
     Ansi,
     Bigquery,
     Postgres,

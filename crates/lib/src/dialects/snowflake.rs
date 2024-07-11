@@ -5,6 +5,7 @@ use itertools::Itertools;
 use super::ansi::{self, raw_dialect};
 use super::snowflake_keywords::{SNOWFLAKE_RESERVED_KEYWORDS, SNOWFLAKE_UNRESERVED_KEYWORDS};
 use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::grammar::anyof::{any_set_of, one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::{Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
@@ -39,7 +40,7 @@ impl<T> Boxed for T {
 
 pub fn snowflake_dialect() -> Dialect {
     let mut snowflake_dialect = raw_dialect();
-    snowflake_dialect.name = "snowflake";
+    snowflake_dialect.name = DialectKind::Snowflake;
 
     snowflake_dialect.replace_grammar(
         "SelectClauseElementSegment",

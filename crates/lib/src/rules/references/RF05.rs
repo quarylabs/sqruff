@@ -2,6 +2,7 @@ use ahash::{AHashMap, AHashSet};
 use regex::Regex;
 
 use crate::core::config::Value;
+use crate::core::dialects::init::DialectKind;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -118,7 +119,7 @@ CREATE TABLE DBO.ColumnNames
                 return Vec::new();
             }
 
-            if context.dialect.name == "bigquery"
+            if context.dialect.name == DialectKind::Bigquery
                 && context.parent_stack.last().map_or(false, |it| it.is_type("table_reference"))
             {
                 if identifier.ends_with('*') {
@@ -127,9 +128,8 @@ CREATE TABLE DBO.ColumnNames
                 identifier = identifier.replace(".", "");
             }
 
-            if ["databricks", "sparksql"].contains(&context.dialect.name)
-                && !context.parent_stack.is_empty()
-            {
+            // TODO: add databricks
+            if context.dialect.name == DialectKind::Sparksql && !context.parent_stack.is_empty() {
                 if context.parent_stack.last().unwrap().is_type("file_reference") {
                     return Vec::new();
                 }
@@ -146,7 +146,7 @@ CREATE TABLE DBO.ColumnNames
 
         identifier = identifier.replace("_", "");
 
-        if context.dialect.name == "redshift"
+        if context.dialect.name == DialectKind::Snowflake
             && identifier.starts_with('#')
             && context.parent_stack.last().map_or(false, |it| it.get_type() == "table_reference")
         {
@@ -174,10 +174,10 @@ CREATE TABLE DBO.ColumnNames
 }
 
 impl RuleRF05 {
-    fn get_additional_allowed_characters(&self, dialect_name: &str) -> AHashSet<char> {
+    fn get_additional_allowed_characters(&self, dialect_name: DialectKind) -> AHashSet<char> {
         let mut result = AHashSet::new();
         result.extend(self.additional_allowed_characters.chars());
-        if dialect_name == "bigquery" {
+        if dialect_name == DialectKind::Bigquery {
             result.insert('-');
         }
         result

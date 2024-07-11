@@ -5,6 +5,7 @@ use itertools::Itertools;
 use super::ansi;
 use super::postgres_keywords::POSTGRES_POSTGIS_DATATYPE_KEYWORDS;
 use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::grammar::anyof::{any_set_of, one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::{Anything, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
@@ -40,7 +41,7 @@ impl<T> Boxed for T {
 
 pub fn postgres_dialect() -> Dialect {
     let mut postgres = raw_dialect();
-    postgres.name = "postgres";
+    postgres.name = DialectKind::Postgres;
 
     postgres.insert_lexer_matchers(
         vec![Matcher::string("right_arrow", "=>", |slice, marker| {

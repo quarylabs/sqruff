@@ -31,6 +31,7 @@ The following rules are available in this create. This list is generated from th
 | CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
 | CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. | 
 | CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
+| CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
 | LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
 | LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. | 
@@ -961,6 +962,49 @@ SELECT
 FROM bar
 LEFT JOIN foo
    ON foo.bar_id = bar.id;
+```
+
+
+### convention.blocked_words
+
+Block a list of configurable words from being used.
+
+**Code:** CV09
+
+**Groups:** `all`, `convention`
+
+**Fixable:** No
+
+This generic rule can be useful to prevent certain keywords, functions, or objects
+from being used. Only whole words can be blocked, not phrases, nor parts of words.
+
+This block list is case insensitive.
+
+**Example use cases**
+
+* We prefer ``BOOL`` over ``BOOLEAN`` and there is no existing rule to enforce
+  this. Until such a rule is written, we can add ``BOOLEAN`` to the deny list
+  to cause a linting error to flag this.
+* We have deprecated a schema/table/function and want to prevent it being used
+  in future. We can add that to the denylist and then add a ``-- noqa: CV09`` for
+  the few exceptions that still need to be in the code base for now.
+
+**Anti-pattern**
+
+If the ``blocked_words`` config is set to ``deprecated_table,bool`` then the following will flag:
+
+```sql
+SELECT * FROM deprecated_table WHERE 1 = 1;
+CREATE TABLE myschema.t1 (a BOOL);
+```
+
+**Best practice**
+
+Do not used any blocked words.
+
+```sql
+SELECT * FROM my_table WHERE 1 = 1;
+CREATE TABLE myschema.t1 (a BOOL);
 ```
 
 

@@ -55,6 +55,7 @@ The following rules are available in this create. This list is generated from th
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
 | ST04 | [structure.nested_case](#structurenested_case) | Nested ``CASE`` statement in ``ELSE`` clause could be flattened. | 
 | ST06 | [structure.column_order](#structurecolumn_order) | Select wildcards then simple targets before calculations and aggregates. | 
+| ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 
 ## Rule Details
@@ -1941,6 +1942,41 @@ select
     b,
     row_number() over (partition by id order by date) as y
 from x
+```
+
+### structure.using
+
+Prefer specifying join keys instead of using ``USING``.
+
+**Code:** ST07
+
+**Groups:** `all`, `structure`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+```sql
+SELECT
+    table_a.field_1,
+    table_b.field_2
+FROM
+    table_a
+INNER JOIN table_b USING (id)
+```
+
+**Best practice**
+
+Specify the keys directly
+
+```sql
+SELECT
+    table_a.field_1,
+    table_b.field_2
+FROM
+    table_a
+INNER JOIN table_b
+    ON table_a.id = table_b.id
 ```
 
 ### structure.distinct

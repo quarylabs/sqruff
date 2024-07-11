@@ -11,7 +11,7 @@ The following rules are available in this create. This list is generated from th
 | AL03 | [aliasing.expression](#aliasingexpression) | Column expression without alias. Use explicit `AS` clause. | 
 | AL04 | [aliasing.unique.table](#aliasinguniquetable) | Table aliases should be unique within each clause. | 
 | AL05 | [aliasing.unused](#aliasingunused) | Tables should not be aliased if that alias is not used. | 
-| AL06 | [aliasing.lenght](#aliasinglenght) | Identify aliases in from clause and join conditions | 
+| AL06 | [aliasing.length](#aliasinglength) | Identify aliases in from clause and join conditions | 
 | AL07 | [aliasing.forbid](#aliasingforbid) | Avoid table aliases in from clauses and join conditions. | 
 | AL08 | [layout.cte_newline](#layoutcte_newline) | Column aliases should be unique within each clause. | 
 | AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) | Find self-aliased columns and fix them | 
@@ -245,7 +245,7 @@ FROM foo
 ```
 
 
-### aliasing.lenght
+### aliasing.length
 
 Identify aliases in from clause and join conditions
 

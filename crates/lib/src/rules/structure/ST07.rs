@@ -26,10 +26,6 @@ impl Rule for RuleST07 {
         Ok(RuleST07.erased())
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "structure.using"
     }
@@ -143,6 +139,10 @@ INNER JOIN table_b
         fixes.extend(to_delete.into_iter().map(LintFix::delete));
 
         vec![LintResult::new(using_anchor.clone().into(), fixes, None, None, None)]
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

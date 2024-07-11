@@ -85,7 +85,7 @@ impl Rule for RuleAL06 {
     }
 
     fn name(&self) -> &'static str {
-        "aliasing.lenght"
+        "aliasing.length"
     }
 
     fn description(&self) -> &'static str {

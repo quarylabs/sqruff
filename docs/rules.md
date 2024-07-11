@@ -1505,6 +1505,26 @@ References should be qualified if select has more than one referenced table/view
 
 **Fixable:** No
 
+**Anti-pattern**
+
+In this example, the reference `vee` has not been declared, and the variables `a` and `b` are potentially ambiguous.
+
+```sql
+SELECT a, b
+FROM foo
+LEFT JOIN vee ON vee.a = foo.a
+```
+
+**Best practice**
+
+Add the references.
+
+```sql
+SELECT foo.a, vee.b
+FROM foo
+LEFT JOIN vee ON vee.a = foo.a
+```
+
 
 ### references.consistent
 

@@ -69,13 +69,14 @@ pub struct Node {
 
 impl Node {
     #[track_caller]
-    pub fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>) -> Self {
-        let position_marker = pos_marker(&segments);
+    pub fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>, calc_position_marker: bool) -> Self {
+        let position_marker =
+            if calc_position_marker { pos_marker(&segments).into() } else { None };
         Self {
             kind,
             segments,
             uuid: Uuid::new_v4(),
-            position_marker: position_marker.into(),
+            position_marker,
             raw: OnceLock::new(),
             source_fixes: Vec::new(),
             descendant_type_set: OnceLock::new(),
@@ -5829,7 +5830,7 @@ pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
 pub struct FileSegment;
 impl FileSegment {
     pub fn of(segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Node::new(SyntaxKind::File, segments).to_erased_segment()
+        Node::new(SyntaxKind::File, segments, true).to_erased_segment()
     }
 
     pub fn root_parse(
@@ -5869,6 +5870,7 @@ impl FileSegment {
             &[Node::new(
                 SyntaxKind::Unparsable,
                 segments[start_idx as usize..end_idx as usize].to_vec(),
+                true,
             )
             .to_erased_segment()]
         } else if !unmatched.is_empty() {
@@ -5876,7 +5878,8 @@ impl FileSegment {
             let (head, tail) = unmatched.split_at(idx);
 
             matched.extend_from_slice(head);
-            matched.push(Node::new(SyntaxKind::Unparsable, tail.to_vec()).to_erased_segment());
+            matched
+                .push(Node::new(SyntaxKind::Unparsable, tail.to_vec(), true).to_erased_segment());
             &matched
         } else {
             matched.extend_from_slice(unmatched);

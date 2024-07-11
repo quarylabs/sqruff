@@ -245,7 +245,6 @@ fn validate(
     seen_band_elements: &mut [Vec<ErasedSegment>],
 ) {
     if seen_band_elements[i + 1..] != vec![Vec::new(); seen_band_elements[i + 1..].len()] {
-        dbg!(segment.raw());
         *violation_exists = true;
     }
 

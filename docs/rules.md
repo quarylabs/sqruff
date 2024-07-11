@@ -53,6 +53,7 @@ The following rules are available in this create. This list is generated from th
 | ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
 | ST04 | [structure.nested_case](#structurenested_case) | Nested ``CASE`` statement in ``ELSE`` clause could be flattened. | 
+| ST06 | [structure.column_order](#structurecolumn_order) | Select wildcards then simple targets before calculations and aggregates. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 
 ## Rule Details
@@ -1863,6 +1864,40 @@ SELECT
 FROM mytable
 ```
 
+
+### structure.column_order
+
+Select wildcards then simple targets before calculations and aggregates.
+
+**Code:** ST06
+
+**Groups:** `all`, `structure`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+```sql
+select
+    a,
+    *,
+    row_number() over (partition by id order by date) as y,
+    b
+from x
+```
+
+**Best practice**
+
+Order `select` targets in ascending complexity
+
+```sql
+select
+    *,
+    a,
+    b,
+    row_number() over (partition by id order by date) as y
+from x
+```
 
 ### structure.distinct
 

@@ -29,6 +29,7 @@ The following rules are available in this create. This list is generated from th
 | CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. | 
 | CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause | 
 | CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
+| CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. | 
 | CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
 | LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
@@ -879,6 +880,49 @@ Use count(*) unless specified otherwise by config prefer_count_1, or prefer_coun
 select
     count(*)
 from table_a
+```
+
+
+### convention.statement_brackets
+
+Top-level statements should not be wrapped in brackets.
+
+**Code:** CV07
+
+**Groups:** `all`, `convention`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+A top-level statement is wrapped in brackets.
+
+```sql
+ (SELECT
+     foo
+ FROM bar)
+
+ -- This also applies to statements containing a sub-query.
+
+ (SELECT
+     foo
+ FROM (SELECT * FROM bar))
+```
+
+**Best practice**
+
+Don’t wrap top-level statements in brackets.
+
+```sql
+ SELECT
+     foo
+ FROM bar
+
+ -- Likewise for statements containing a sub-query.
+
+ SELECT
+     foo
+ FROM (SELECT * FROM bar)
 ```
 
 

@@ -112,6 +112,10 @@ Don’t wrap top-level statements in brackets.
         results
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler.into()
     }

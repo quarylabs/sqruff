@@ -891,7 +891,7 @@ Top-level statements should not be wrapped in brackets.
 
 **Groups:** `all`, `convention`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 

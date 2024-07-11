@@ -169,7 +169,7 @@ impl MatchResult {
 
         let segment = match matched {
             Matched::SyntaxKind(kind) => {
-                return vec![Node::new(kind, result_segments).to_erased_segment()];
+                return vec![Node::new(kind, result_segments, true).to_erased_segment()];
             }
             Matched::ErasedSegment(segment) => segment,
             Matched::BracketedSegment { start_bracket, end_bracket } => {

@@ -1,19 +1,39 @@
+use std::fmt::Debug;
+
 use ahash::{AHashMap, AHashSet};
+use smol_str::SmolStr;
 
 use crate::core::config::Value;
-use crate::core::dialects::common::AliasInfo;
+use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::helpers::IndexSet;
 use crate::utils::analysis::select::get_select_statement_info;
 
-#[derive(Debug, Clone, Default)]
-pub struct RuleAL04;
+#[derive(Debug, Clone)]
+pub struct RuleAL04<T = ()> {
+    pub(crate) lint_references_and_aliases: fn(
+        Vec<AliasInfo>,
+        Vec<SmolStr>,
+        Vec<ObjectReferenceSegment>,
+        Vec<ColumnAliasInfo>,
+        Vec<SmolStr>,
+        &T,
+    ) -> Vec<LintResult>,
+    pub(crate) context: T,
+}
 
-impl Rule for RuleAL04 {
+impl Default for RuleAL04 {
+    fn default() -> Self {
+        RuleAL04 { lint_references_and_aliases: Self::lint_references_and_aliases, context: () }
+    }
+}
+
+impl<T: Clone + Debug + Send + Sync + 'static> Rule for RuleAL04<T> {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL04.erased())
+        Ok(RuleAL04::default().erased())
     }
 
     fn name(&self) -> &'static str {
@@ -84,7 +104,14 @@ FROM
         let _parent_select =
             context.parent_stack.iter().rev().find(|seg| seg.is_type("select_statement"));
 
-        self.lint_references_and_aliases(select_info.table_aliases).unwrap_or_default()
+        (self.lint_references_and_aliases)(
+            select_info.table_aliases,
+            select_info.standalone_aliases,
+            select_info.reference_buffer,
+            select_info.col_aliases,
+            select_info.using_cols,
+            &self.context,
+        )
     }
 
     fn crawl_behaviour(&self) -> Crawler {
@@ -94,9 +121,13 @@ FROM
 
 impl RuleAL04 {
     pub fn lint_references_and_aliases(
-        &self,
         table_aliases: Vec<AliasInfo>,
-    ) -> Option<Vec<LintResult>> {
+        _: Vec<SmolStr>,
+        _: Vec<ObjectReferenceSegment>,
+        _: Vec<ColumnAliasInfo>,
+        _: Vec<SmolStr>,
+        _: &(),
+    ) -> Vec<LintResult> {
         let mut duplicates = IndexSet::default();
         let mut seen: AHashSet<_> = AHashSet::new();
 
@@ -106,28 +137,22 @@ impl RuleAL04 {
             }
         }
 
-        if duplicates.is_empty() {
-            None
-        } else {
-            Some(
-                duplicates
-                    .into_iter()
-                    .map(|alias| {
-                        LintResult::new(
-                            alias.segment.clone(),
-                            Vec::new(),
-                            None,
-                            format!(
-                                "Duplicate table alias '{}'. Table aliases should be unique.",
-                                alias.ref_str
-                            )
-                            .into(),
-                            None,
-                        )
-                    })
-                    .collect(),
-            )
-        }
+        duplicates
+            .into_iter()
+            .map(|alias| {
+                LintResult::new(
+                    alias.segment.clone(),
+                    Vec::new(),
+                    None,
+                    format!(
+                        "Duplicate table alias '{}'. Table aliases should be unique.",
+                        alias.ref_str
+                    )
+                    .into(),
+                    None,
+                )
+            })
+            .collect()
     }
 }
 
@@ -138,7 +163,7 @@ mod tests {
     use crate::rules::aliasing::AL04::RuleAL04;
 
     fn rules() -> Vec<ErasedRule> {
-        vec![RuleAL04.erased()]
+        vec![RuleAL04::default().erased()]
     }
 
     #[test]

@@ -19,7 +19,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::ObjectReferenceSegment;
+use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
@@ -123,7 +123,14 @@ impl ErasedSegment {
     }
 
     pub fn reference(&self) -> ObjectReferenceSegment {
-        ObjectReferenceSegment(self.clone())
+        ObjectReferenceSegment(
+            self.clone(),
+            match self.get_type() {
+                "table_reference" => ObjectReferenceKind::Table,
+                "wildcard_identifier" => ObjectReferenceKind::WildcardIdentifier,
+                _ => ObjectReferenceKind::Object,
+            },
+        )
     }
 
     pub fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {

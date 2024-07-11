@@ -43,7 +43,8 @@ impl RuleRF01 {
             }
 
             if let Some(object_reference) = &alias.object_reference {
-                let references = ObjectReferenceSegment(object_reference.clone())
+                let references = object_reference
+                    .reference()
                     .iter_raw_references()
                     .into_iter()
                     .map(|it| it.part.into())
@@ -217,7 +218,7 @@ FROM foo
         let dml_target_table = if !context.segment.is_type("select_statement") {
             let refs = context.segment.recursive_crawl(&["table_reference"], true, None, true);
             if let Some(reference) = refs.first() {
-                let reference = ObjectReferenceSegment(reference.clone());
+                let reference = reference.reference();
 
                 tmp = reference
                     .iter_raw_references()

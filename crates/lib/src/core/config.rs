@@ -543,7 +543,10 @@ impl Value {
     pub fn as_array(&self) -> Option<Vec<Value>> {
         match self {
             Self::Array(v) => Some(v.clone()),
-            v @ Self::String(_) => Some(vec![v.clone()]),
+            Self::String(q) => {
+                let xs = q.split(',').map(|it| Value::String(it.into())).collect_vec();
+                Some(xs)
+            }
             _ => None,
         }
     }

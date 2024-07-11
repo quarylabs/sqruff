@@ -3,8 +3,8 @@ use std::fmt::Debug;
 use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
-use itertools::Itertools;
-use smol_str::SmolStr;
+use itertools::{enumerate, Itertools};
+use smol_str::{SmolStr, ToSmolStr};
 use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
@@ -6048,7 +6048,14 @@ pub struct ObjectReferencePart {
 }
 
 #[derive(Clone)]
-pub struct ObjectReferenceSegment(pub ErasedSegment);
+pub struct ObjectReferenceSegment(pub ErasedSegment, pub ObjectReferenceKind);
+
+#[derive(Clone)]
+pub enum ObjectReferenceKind {
+    Object,
+    Table,
+    WildcardIdentifier,
+}
 
 impl ObjectReferenceSegment {
     pub fn is_qualified(&self) -> bool {
@@ -6116,13 +6123,81 @@ impl ObjectReferenceSegment {
     }
 
     pub fn iter_raw_references(&self) -> Vec<ObjectReferencePart> {
-        let mut acc = Vec::new();
+        match self.1 {
+            ObjectReferenceKind::Object => {
+                let mut acc = Vec::new();
 
-        for elem in self.0.recursive_crawl(&["identifier", "naked_identifier"], true, None, true) {
-            acc.extend(self.iter_reference_parts(elem));
+                for elem in
+                    self.0.recursive_crawl(&["identifier", "naked_identifier"], true, None, true)
+                {
+                    acc.extend(self.iter_reference_parts(elem));
+                }
+
+                acc
+            }
+            ObjectReferenceKind::Table => {
+                let mut acc = Vec::new();
+                let mut parts = Vec::new();
+                let mut elems_for_parts = Vec::new();
+
+                let mut flush =
+                    |parts: &mut Vec<SmolStr>, elems_for_parts: &mut Vec<ErasedSegment>| {
+                        acc.push(ObjectReferencePart {
+                            part: std::mem::take(parts).iter().join(""),
+                            segments: std::mem::take(elems_for_parts),
+                        });
+                    };
+
+                for elem in self.0.recursive_crawl(
+                    &["identifier", "naked_identifier", "literal", "dash", "dot", "star"],
+                    true,
+                    None,
+                    true,
+                ) {
+                    if !elem.is_type("dot") {
+                        if elem.is_type("identifier") || elem.is_type("naked_identifier") {
+                            let elem_raw = elem.raw();
+                            let elem_subparts = elem_raw.split(".").collect_vec();
+                            let elem_subparts_count = elem_subparts.len();
+
+                            for (idx, part) in enumerate(elem_subparts) {
+                                parts.push(part.to_smolstr());
+                                elems_for_parts.push(elem.clone());
+
+                                if idx != elem_subparts_count - 1 {
+                                    flush(&mut parts, &mut elems_for_parts);
+                                }
+                            }
+                        } else {
+                            parts.push(elem.raw().to_smolstr());
+                            elems_for_parts.push(elem);
+                        }
+                    } else {
+                        flush(&mut parts, &mut elems_for_parts);
+                    }
+                }
+
+                if !parts.is_empty() {
+                    flush(&mut parts, &mut elems_for_parts);
+                }
+
+                acc
+            }
+            ObjectReferenceKind::WildcardIdentifier => {
+                let mut acc = Vec::new();
+
+                for elem in self.0.recursive_crawl(
+                    &["identifier", "star", "naked_identifier"],
+                    true,
+                    None,
+                    true,
+                ) {
+                    acc.extend(self.iter_reference_parts(elem));
+                }
+
+                acc
+            }
         }
-
-        acc
     }
 
     fn iter_reference_parts(&self, elem: ErasedSegment) -> Vec<ObjectReferencePart> {

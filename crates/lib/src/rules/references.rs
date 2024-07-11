@@ -1,7 +1,7 @@
 use crate::core::rules::base::ErasedRule;
 
 pub mod RF01;
-mod RF02;
+pub mod RF02;
 pub mod RF03;
 pub mod RF04;
 pub mod RF05;

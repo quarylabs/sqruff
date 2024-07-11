@@ -18,10 +18,6 @@ pub struct RuleRF06 {
 }
 
 impl Rule for RuleRF06 {
-    fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::References]
-    }
-
     fn load_from_config(
         &self,
         config: &ahash::AHashMap<String, Value>,
@@ -100,6 +96,10 @@ SELECT 123 as "foo" -- For ANSI, ...
 -- or
 SELECT 123 as `foo` -- For BigQuery, MySql, ...
 ```"#
+    }
+
+    fn groups(&self) -> &'static [RuleGroups] {
+        &[RuleGroups::All, RuleGroups::References]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

@@ -56,10 +56,6 @@ from x
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut violation_exists = false;
 
@@ -224,6 +220,10 @@ from x
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

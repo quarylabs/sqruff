@@ -27,10 +27,6 @@ impl Rule for RuleST04 {
         "structure.nested_case"
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn description(&self) -> &'static str {
         "Nested ``CASE`` statement in ``ELSE`` clause could be flattened."
     }
@@ -186,6 +182,10 @@ FROM mytable
         ));
 
         vec![LintResult::new(case2.first().cloned(), fixes, None, None, None)]
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

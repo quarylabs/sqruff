@@ -68,7 +68,7 @@ impl Rule for RuleRF02 {
 
     fn long_description(&self) -> &'static str {
         r"
-## Anti-pattern
+**Anti-pattern**
 
 In this example, the reference `vee` has not been declared, and the variables `a` and `b` are potentially ambiguous.
 
@@ -78,7 +78,7 @@ FROM foo
 LEFT JOIN vee ON vee.a = foo.a
 ```
 
-## Best practice
+**Best practice**
 
 Add the references.
 

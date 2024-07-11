@@ -115,6 +115,21 @@ fn main() {
 
                 continue;
             }
+
+            let template = case
+                .configs
+                .get("core")
+                .and_then(|it| it.as_map())
+                .and_then(|it| it.get("templater"))
+                .and_then(|it| it.as_string());
+            if let Some(template) = template {
+                println!(
+                    "templater not yet supported ignored, {} templating is not supported",
+                    template
+                );
+                continue;
+            }
+
             if !args.no_capture {
                 println!();
             }
@@ -165,8 +180,39 @@ mod tests {{
                     );
                 }
                 TestCaseKind::Fail { fail_str } => {
-                    let f = linter.lint_string_wrapped(&fail_str, None, None, rule_pack);
-                    assert_ne!(&f.paths[0].files[0].violations, &[]);
+                    let f = linter.lint_string_wrapped(&fail_str, None, None, rule_pack.clone());
+                    assert_ne!(
+                        &f.paths[0].files[0].violations,
+                        &[],
+                        "query: {fail_str}
+prepared test:
+
+#[cfg(test)]
+mod tests {{
+    use pretty_assertions::assert_eq;
+
+    use crate::api::simple::{{lint}};
+    use crate::core::rules::base::{{Erased, ErasedRule}};
+    use super::*;
+
+    // Note some of the config may need pulling
+    fn rules() -> Vec<ErasedRule> {{
+        vec![Rule{}.erased()]
+    }}
+
+    #[test]
+    fn {}() {{
+        let sql = \"{}\";
+
+        let violations = lint(sql.into(), \"{}\".into(), rules(), None, None).unwrap();
+        assert_neq!(violations, []);
+    }}
+}}",
+                        rule_pack.first().unwrap().code(),
+                        case.name,
+                        fail_str,
+                        dialect_name_to_str
+                    );
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
                     let f =

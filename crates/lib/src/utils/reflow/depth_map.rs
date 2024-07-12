@@ -53,13 +53,10 @@ pub struct DepthMap {
 }
 
 impl DepthMap {
-    fn new(raws_with_stack: Vec<(ErasedSegment, Vec<PathStep>)>) -> Self {
-        let mut depth_info = AHashMap::with_capacity(raws_with_stack.len());
-
-        for (raw, stack) in raws_with_stack {
-            depth_info.insert(raw.get_uuid(), DepthInfo::from_raw_and_stack(&raw, stack));
-        }
-
+    fn new(raws_with_stack: impl Iterator<Item = (ErasedSegment, Vec<PathStep>)>) -> Self {
+        let depth_info = raws_with_stack
+            .map(|(raw, stack)| (raw.get_uuid(), DepthInfo::from_raw_and_stack(&raw, stack)))
+            .collect();
         Self { depth_info }
     }
 
@@ -80,21 +77,17 @@ impl DepthMap {
     }
 
     pub fn from_parent(parent: &ErasedSegment) -> Self {
-        Self::new(parent.raw_segments_with_ancestors())
+        Self::new(parent.raw_segments_with_ancestors().into_iter())
     }
 
     pub fn from_raws_and_root(
-        raw_segments: Vec<ErasedSegment>,
+        raw_segments: impl Iterator<Item = ErasedSegment>,
         root_segment: &ErasedSegment,
     ) -> DepthMap {
-        let mut buff = Vec::new();
-
-        for raw in raw_segments {
-            let stack = root_segment.path_to(&raw);
-            buff.push((raw.clone(), stack));
-        }
-
-        DepthMap::new(buff)
+        DepthMap::new(raw_segments.map(|raw| {
+            let path = root_segment.path_to(&raw);
+            (raw, path)
+        }))
     }
 }
 

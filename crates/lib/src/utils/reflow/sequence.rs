@@ -59,7 +59,7 @@ impl ReflowSequence {
     ) -> Self {
         let reflow_config = ReflowConfig::from_fluff_config(config);
         let depth_map = depth_map
-            .unwrap_or_else(|| DepthMap::from_raws_and_root(segments.clone(), &root_segment));
+            .unwrap_or_else(|| DepthMap::from_raws_and_root(segments.clone().into_iter(), &root_segment));
         let elements = Self::elements_from_raw_segments(segments, &depth_map, &reflow_config);
 
         Self { root_segment, elements, lint_results: Vec::new(), reflow_config, depth_map }

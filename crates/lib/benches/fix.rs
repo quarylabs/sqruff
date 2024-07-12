@@ -4,6 +4,14 @@ use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
 
+#[cfg(all(
+    not(target_os = "windows"),
+    not(target_os = "openbsd"),
+    any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")
+))]
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 const COMPLEX_QUERY: &str = r#"
 WITH employee_data AS (
     SELECT emp.employee_id AS emp_id, emp.first_name, emp.last_name, emp.salary, emp.department_id, dept.department_name, emp.hire_date 

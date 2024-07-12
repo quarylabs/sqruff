@@ -8,6 +8,14 @@ use sqruff_lib::core::parser::matchable::Matchable;
 use sqruff_lib::core::parser::segments::base::ErasedSegment;
 use sqruff_lib::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
 
+#[cfg(all(
+    not(target_os = "windows"),
+    not(target_os = "openbsd"),
+    any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")
+))]
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 const SIMPLE_QUERY: &str = r#"select 1 from dual"#;
 
 const EXPRESSION_RECURSION: &str = r#"select

@@ -1748,6 +1748,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "tempdir",
+ "tikv-jemallocator",
  "tracing",
  "unicase",
  "uuid",

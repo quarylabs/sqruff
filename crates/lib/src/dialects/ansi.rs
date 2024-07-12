@@ -5909,6 +5909,8 @@ impl FileSegment {
     }
 }
 
+pub struct CTEDefinitionSegment(pub ErasedSegment);
+
 pub struct FromExpressionElementSegment(pub ErasedSegment);
 pub struct FromClauseSegment(pub ErasedSegment);
 

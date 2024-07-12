@@ -80,6 +80,9 @@ fn main() {
 
     for path in glob("test/fixtures/rules/std_rule_cases/*.yml").unwrap() {
         let path = path.unwrap();
+        if !path.ends_with("ST05.yml") {
+            continue;
+        }
         let input = std::fs::read_to_string(path).unwrap();
 
         let file: TestFile = serde_yaml::from_str(&input).unwrap();

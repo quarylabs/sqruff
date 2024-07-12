@@ -21,6 +21,7 @@ pub trait BaseCrawler {
 pub enum Crawler {
     RootOnlyCrawler,
     SegmentSeekerCrawler,
+    TokenSeekerCrawler,
 }
 
 /// A crawler that doesn't crawl.
@@ -77,6 +78,28 @@ impl BaseCrawler for SegmentSeekerCrawler {
             }
 
             return acc;
+        }
+
+        context.parent_stack.push(context.segment.clone());
+        for (idx, child) in context.segment.gather_segments().into_iter().enumerate() {
+            context.segment = child;
+            context.segment_idx = idx;
+
+            acc.extend(self.crawl(context.clone()));
+        }
+
+        acc
+    }
+}
+
+pub struct TokenSeekerCrawler;
+
+impl BaseCrawler for TokenSeekerCrawler {
+    fn crawl<'a>(&self, mut context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
+        let mut acc = Vec::new();
+
+        if context.segment.segments().is_empty() {
+            acc.push(context.clone());
         }
 
         context.parent_stack.push(context.segment.clone());

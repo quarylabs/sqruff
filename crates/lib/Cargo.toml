@@ -66,5 +66,9 @@ glob = "0.3"
 serde_json = "1"
 tempdir = "0.3"
 serde_with = "3.8"
+
+[target.'cfg(all(not(target_os = "windows"), not(target_os = "openbsd"), any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")))'.dependencies]
+jemallocator = { version = "0.5", package = "tikv-jemallocator" }
+
 [target.'cfg(unix)'.dependencies]
 pprof = { version = "0.13", features = ["flamegraph", "criterion"] }

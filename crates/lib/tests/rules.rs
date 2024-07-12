@@ -98,6 +98,7 @@ fn main() {
                 .and_then(|it| it.get("dialect"))
                 .and_then(|it| it.as_string())
                 .unwrap_or("ansi");
+            let dialect_name_to_str = dialect_name.to_string();
 
             let dialect = DialectKind::from_str(dialect_name);
             if !args.no_capture {
@@ -129,8 +130,39 @@ fn main() {
 
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {
-                    let f = linter.lint_string_wrapped(&pass_str, None, None, rule_pack);
-                    assert_eq!(&f.paths[0].files[0].violations, &[]);
+                    let f = linter.lint_string_wrapped(&pass_str, None, None, rule_pack.clone());
+                    assert_eq!(
+                        &f.paths[0].files[0].violations,
+                        &[],
+                        "query: {pass_str}
+prepared test:
+
+#[cfg(test)]
+mod tests {{
+    use pretty_assertions::assert_eq;
+
+    use crate::api::simple::{{lint}};
+    use crate::core::rules::base::{{Erased, ErasedRule}};
+    use super::*;
+
+    // Note some of the config may need pulling
+    fn rules() -> Vec<ErasedRule> {{
+        vec![Rule{}.erased()]
+    }}
+
+    #[test]
+    fn {}() {{
+        let sql = \"{}\";
+
+        let violations = lint(sql.into(), \"{}\".into(), rules(), None, None).unwrap();
+        assert_eq!(violations, []);
+    }}
+}}",
+                        rule_pack.first().unwrap().code(),
+                        case.name,
+                        pass_str,
+                        dialect_name_to_str
+                    );
                 }
                 TestCaseKind::Fail { fail_str } => {
                     let f = linter.lint_string_wrapped(&fail_str, None, None, rule_pack);

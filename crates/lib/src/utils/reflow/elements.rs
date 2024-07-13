@@ -12,6 +12,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
 };
@@ -75,13 +76,11 @@ impl ReflowPoint {
 
     pub fn get_indent_segment(&self) -> Option<ErasedSegment> {
         let mut indent = None;
-
         for seg in self.segments.iter().rev() {
             match &seg.get_position_marker() {
                 Some(marker) if !marker.is_literal() => continue,
                 _ => (),
             }
-
             match seg.get_type() {
                 "newline" => return indent,
                 "whitespace" => indent = Some(seg.clone()),
@@ -92,7 +91,6 @@ impl ReflowPoint {
                 }
             }
         }
-
         None
     }
 
@@ -459,7 +457,7 @@ pub struct ReflowBlock {
     pub segments: Vec<ErasedSegment>,
     pub spacing_before: String,
     pub spacing_after: String,
-    pub line_position: Option<String>,
+    pub line_position: Option<Vec<LinePosition>>,
     pub depth_info: DepthInfo,
     pub stack_spacing_configs: IntMap<u64, String>,
     pub line_position_configs: IntMap<u64, String>,
@@ -495,11 +493,14 @@ impl ReflowBlock {
             }
         }
 
+        let line_position = block_config
+            .line_position
+            .map(|line_position| line_position.split(':').map(|it| it.parse().unwrap()).collect());
         Self {
             segments,
             spacing_before: block_config.spacing_before,
             spacing_after: block_config.spacing_after,
-            line_position: block_config.line_position,
+            line_position,
             stack_spacing_configs,
             line_position_configs,
             depth_info,

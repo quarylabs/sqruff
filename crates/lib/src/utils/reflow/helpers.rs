@@ -1,12 +1,13 @@
-use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
 
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
 
 /// Return a list of fixes from an iterable of LintResult.
-pub fn fixes_from_results(results: impl Iterator<Item = LintResult>) -> Vec<LintFix> {
-    results.into_iter().flat_map(|result| result.fixes).collect_vec()
+pub fn fixes_from_results(
+    results: impl Iterator<Item = LintResult>,
+) -> impl Iterator<Item = LintFix> {
+    results.flat_map(|result| result.fixes)
 }
 
 /// Given a raw segment, deduce the indent of its line.

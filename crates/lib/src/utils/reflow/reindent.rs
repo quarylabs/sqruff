@@ -7,7 +7,7 @@ use smol_str::SmolStr;
 
 use super::elements::{ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::helpers::fixes_from_results;
-use super::rebreak::{identify_rebreak_spans, RebreakSpan};
+use super::rebreak::{identify_rebreak_spans, LinePosition, RebreakSpan};
 use crate::core::parser::segments::base::{
     ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
@@ -149,7 +149,7 @@ fn prune_untaken_indents(
     };
 
     let mut pruned_untaken_indents: Vec<_> =
-        untaken_indents.iter().cloned().filter(|&x| x <= new_balance_threshold).collect();
+        untaken_indents.iter().filter(|&x| x <= &new_balance_threshold).cloned().collect();
 
     if indent_stats.impulse > indent_stats.trough && !has_newline {
         for i in indent_stats.trough..indent_stats.impulse {
@@ -173,7 +173,7 @@ fn update_crawl_balances(
         prune_untaken_indents(untaken_indents, incoming_balance, indent_stats, has_newline);
     let new_balance = incoming_balance + indent_stats.impulse;
 
-    (new_balance, new_untaken_indents.into_iter().collect_vec())
+    (new_balance, new_untaken_indents)
 }
 
 #[allow(unused_variables)]
@@ -568,14 +568,16 @@ fn source_char_len(elements: &[ReflowElement]) -> usize {
 }
 
 fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
-    let mut rebreak_priority = AHashMap::new();
+    let mut rebreak_priority = AHashMap::with_capacity(spans.len());
 
     for span in spans {
-        let rebreak_indices: &[usize] = match span.line_position.as_str() {
-            "leading" => &[span.start_idx - 1],
-            "trailing" => &[span.end_idx + 1],
-            "alone" => &[span.start_idx - 1, span.end_idx + 1],
-            _ => unimplemented!("Unexpected line position: {}", span.line_position),
+        let rebreak_indices: &[usize] = match span.line_position {
+            LinePosition::Leading => &[span.start_idx - 1],
+            LinePosition::Trailing => &[span.end_idx + 1],
+            LinePosition::Alone => &[span.start_idx - 1, span.end_idx + 1],
+            _ => {
+                unimplemented!()
+            }
         };
 
         let span_raw = span.target.raw().to_uppercase();
@@ -706,7 +708,7 @@ fn fix_long_line_with_comment(
         let (results, new_point) =
             anchor_point.indent_to(current_indent, None, comment_seg.clone().into(), None, None);
         elements.splice(last_elem_idx - 1..last_elem_idx, [new_point.into()].iter().cloned());
-        return (elements, fixes_from_results(results.into_iter()));
+        return (elements, fixes_from_results(results.into_iter()).collect());
     }
 
     let mut fixes = chain(
@@ -749,7 +751,7 @@ fn fix_long_line_with_comment(
         .chain(elements.iter().skip(last_elem_idx + 1).cloned())
         .collect();
 
-    (elements.clone(), fixes)
+    (elements, fixes)
 }
 
 fn fix_long_line_with_fractional_targets(
@@ -920,7 +922,7 @@ pub fn lint_line_length(
             } else {
                 tracing::debug!("Handling as normal line.");
                 let target_balance =
-                    matched_indents.keys().fold(f64::INFINITY, |a, &b| a.min(b.into_f64()));
+                    matched_indents.keys().map(|k| k.into_f64()).fold(f64::INFINITY, f64::min);
                 let mut desired_indent = current_indent.to_string();
 
                 if target_balance >= 1.0 {
@@ -930,7 +932,7 @@ pub fn lint_line_length(
                 let mut target_breaks =
                     matched_indents[&FloatTypeWrapper::new(target_balance)].clone();
 
-                if let Some(pos) = target_breaks.iter().position(|x| *x == i) {
+                if let Some(pos) = target_breaks.iter().position(|&x| x == i) {
                     target_breaks.remove(pos);
                 }
 
@@ -950,7 +952,7 @@ pub fn lint_line_length(
                     )
                 };
 
-                fixes = fixes_from_results(line_results.into_iter());
+                fixes = fixes_from_results(line_results.into_iter()).collect();
             }
 
             results.push(LintResult::new(first_seg.into(), fixes, None, desc.into(), None))

@@ -1,3 +1,8 @@
+use std::cmp::PartialEq;
+use std::str::FromStr;
+
+use strum_macros::{AsRefStr, EnumString};
+
 use super::elements::{ReflowElement, ReflowSequenceType};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
@@ -11,7 +16,7 @@ pub struct RebreakSpan {
     pub(crate) target: ErasedSegment,
     pub(crate) start_idx: usize,
     pub(crate) end_idx: usize,
-    pub(crate) line_position: String,
+    pub(crate) line_position: LinePosition,
     pub(crate) strict: bool,
 }
 
@@ -77,8 +82,17 @@ pub struct RebreakLocation {
     target: ErasedSegment,
     prev: RebreakIndices,
     next: RebreakIndices,
-    line_position: String,
+    line_position: LinePosition,
     strict: bool,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy, AsRefStr, EnumString)]
+#[strum(serialize_all = "lowercase")]
+pub enum LinePosition {
+    Leading,
+    Trailing,
+    Alone,
+    Strict,
 }
 
 impl RebreakLocation {
@@ -120,13 +134,14 @@ pub fn identify_rebreak_spans(
             continue;
         };
 
-        if let Some(line_position) = &block.line_position {
+        if let Some(original_line_position) = &block.line_position {
+            let line_position = original_line_position.first().unwrap();
             spans.push(RebreakSpan {
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
                 end_idx: idx,
-                line_position: line_position.split(':').next().unwrap_or_default().into(),
-                strict: line_position.ends_with("strict"),
+                line_position: *line_position,
+                strict: original_line_position.last() == Some(&LinePosition::Strict),
             });
         }
 
@@ -159,15 +174,15 @@ pub fn identify_rebreak_spans(
                         .segment
                         .clone();
 
+                    let line_position_configs =
+                        block.line_position_configs[key].split(':').next().unwrap();
+                    let line_position = LinePosition::from_str(line_position_configs).unwrap();
+
                     spans.push(RebreakSpan {
                         target,
                         start_idx: idx,
                         end_idx: final_idx,
-                        line_position: block.line_position_configs[key]
-                            .split(':')
-                            .next()
-                            .unwrap()
-                            .into(),
+                        line_position,
                         strict: block.line_position_configs[key].ends_with("strict"),
                     });
 
@@ -220,7 +235,7 @@ pub fn rebreak_sequence(
         let next_point = elem_buff[loc.next.adj_pt_idx as usize].as_point().unwrap().clone();
 
         // So we know we have a preference, is it ok?
-        let new_results = if loc.line_position == "leading" {
+        let new_results = if loc.line_position == LinePosition::Leading {
             if elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() != 0 {
                 // We're good. It's already leading.
                 continue;
@@ -295,7 +310,7 @@ pub fn rebreak_sequence(
 
                 new_results
             }
-        } else if loc.line_position == "trailing" {
+        } else if loc.line_position == LinePosition::Trailing {
             if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0 {
                 continue;
             }
@@ -353,7 +368,7 @@ pub fn rebreak_sequence(
 
                 new_results
             }
-        } else if loc.line_position == "alone" {
+        } else if loc.line_position == LinePosition::Alone {
             let mut new_results = Vec::new();
 
             if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 0 {
@@ -390,7 +405,7 @@ pub fn rebreak_sequence(
 
             new_results
         } else {
-            unimplemented!("Unexpected line_position config: {}", loc.line_position)
+            unimplemented!("Unexpected line_position config: {}", loc.line_position.as_ref())
         };
 
         lint_results.extend(new_results);

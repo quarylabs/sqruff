@@ -2,7 +2,9 @@ use ahash::AHashMap;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{
+    Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups,
+};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::utils::functional::segments::Segments;
@@ -12,7 +14,7 @@ pub struct RuleLT13;
 
 impl Rule for RuleLT13 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        unimplemented!()
+        Ok(RuleLT13.erased())
     }
 
     fn lint_phase(&self) -> LintPhase {

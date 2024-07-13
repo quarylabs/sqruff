@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use std::fmt::Debug;
+use std::rc::Rc;
 use std::sync::{Arc, OnceLock};
 
 use ahash::AHashSet;
@@ -40,20 +41,20 @@ use crate::helpers::{Config, ToErasedSegment, ToMatchable};
 #[macro_export]
 macro_rules! vec_of_erased {
     ($($elem:expr),* $(,)?) => {{
-        vec![$(Arc::new($elem)),*]
+        vec![$(Rc::new($elem)),*]
     }};
 }
 
 trait BoxedE {
-    fn boxed(self) -> Arc<Self>;
+    fn boxed(self) -> Rc<Self>;
 }
 
 impl<T> BoxedE for T {
-    fn boxed(self) -> Arc<Self>
+    fn boxed(self) -> Rc<Self>
     where
         Self: Sized,
     {
-        Arc::new(self)
+        Rc::new(self)
     }
 }
 
@@ -183,11 +184,11 @@ impl Segment for Node {
 #[derive(Debug, Clone)]
 pub struct NodeMatcher {
     node_kind: SyntaxKind,
-    pub(crate) match_grammar: Arc<dyn Matchable>,
+    pub(crate) match_grammar: Rc<dyn Matchable>,
 }
 
 impl NodeMatcher {
-    pub fn new(node_kind: SyntaxKind, match_grammar: Arc<dyn Matchable>) -> Self {
+    pub fn new(node_kind: SyntaxKind, match_grammar: Rc<dyn Matchable>) -> Self {
         Self { node_kind, match_grammar }
     }
 }
@@ -224,7 +225,7 @@ impl Matchable for NodeMatcher {
         Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
     }
 
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+    fn match_grammar(&self) -> Option<Rc<dyn Matchable>> {
         self.match_grammar.clone().into()
     }
 }
@@ -5437,7 +5438,7 @@ pub fn raw_dialect() -> Dialect {
     ansi_dialect
 }
 
-pub fn select_clause_element() -> Arc<dyn Matchable> {
+pub fn select_clause_element() -> Rc<dyn Matchable> {
     one_of(vec_of_erased![
         // *, blah.*, blah.blah.*, etc.
         Ref::new("WildcardExpressionSegment"),
@@ -5730,7 +5731,7 @@ pub fn explainable_stmt() -> AnyNumberOf {
     ])
 }
 
-pub fn get_unordered_select_statement_segment_grammar() -> Arc<dyn Matchable> {
+pub fn get_unordered_select_statement_segment_grammar() -> Rc<dyn Matchable> {
     Sequence::new(vec_of_erased![
         Ref::new("SelectClauseSegment"),
         MetaSegment::dedent(),
@@ -5754,7 +5755,7 @@ pub fn get_unordered_select_statement_segment_grammar() -> Arc<dyn Matchable> {
     .to_matchable()
 }
 
-pub fn select_statement() -> Arc<dyn Matchable> {
+pub fn select_statement() -> Rc<dyn Matchable> {
     get_unordered_select_statement_segment_grammar().copy(
         Some(vec_of_erased![
             Ref::new("OrderByClauseSegment").optional(),
@@ -5774,7 +5775,7 @@ pub fn select_statement() -> Arc<dyn Matchable> {
     )
 }
 
-pub fn select_clause_segment() -> Arc<dyn Matchable> {
+pub fn select_clause_segment() -> Rc<dyn Matchable> {
     Sequence::new(vec_of_erased![
         Ref::keyword("SELECT"),
         Ref::new("SelectClauseModifierSegment").optional(),
@@ -5789,7 +5790,7 @@ pub fn select_clause_segment() -> Arc<dyn Matchable> {
     .to_matchable()
 }
 
-pub fn statement_segment() -> Arc<dyn Matchable> {
+pub fn statement_segment() -> Rc<dyn Matchable> {
     one_of(vec![
         Ref::new("SelectableGrammar").boxed(),
         Ref::new("MergeStatementSegment").boxed(),
@@ -5835,7 +5836,7 @@ pub fn statement_segment() -> Arc<dyn Matchable> {
     .to_matchable()
 }
 
-pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
+pub fn wildcard_expression_segment() -> Rc<dyn Matchable> {
     Sequence::new(vec![Ref::new("WildcardIdentifierSegment").boxed()]).to_matchable()
 }
 

@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::sync::Arc;
 
 use ahash::AHashMap;
@@ -35,7 +36,7 @@ impl std::hash::Hash for Cache {
 #[derive(Debug)]
 pub struct ParseContext<'a> {
     dialect: &'a Dialect,
-    pub(crate) terminators: Vec<Arc<dyn Matchable>>,
+    pub(crate) terminators: Vec<Rc<dyn Matchable>>,
     loc_keys: IndexSet<LocKeyData>,
     parse_cache: FxHashMap<Cache, MatchResult>,
     pub(crate) indentation_config: AHashMap<String, bool>,
@@ -68,7 +69,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn deeper_match<T>(
         &mut self,
         clear_terminators: bool,
-        push_terminators: &[Arc<dyn Matchable>],
+        push_terminators: &[Rc<dyn Matchable>],
         f: impl FnOnce(&mut Self) -> T,
     ) -> T {
         let (appended, terms) = self.set_terminators(clear_terminators, push_terminators);
@@ -82,8 +83,8 @@ impl<'a> ParseContext<'a> {
     fn set_terminators(
         &mut self,
         clear_terminators: bool,
-        push_terminators: &[Arc<dyn Matchable>],
-    ) -> (usize, Vec<Arc<dyn Matchable>>) {
+        push_terminators: &[Rc<dyn Matchable>],
+    ) -> (usize, Vec<Rc<dyn Matchable>>) {
         let mut appended = 0;
         let terminators = self.terminators.clone();
 
@@ -108,7 +109,7 @@ impl<'a> ParseContext<'a> {
     fn reset_terminators(
         &mut self,
         appended: usize,
-        terminators: Vec<Arc<dyn Matchable>>,
+        terminators: Vec<Rc<dyn Matchable>>,
         clear_terminators: bool,
     ) {
         if clear_terminators {

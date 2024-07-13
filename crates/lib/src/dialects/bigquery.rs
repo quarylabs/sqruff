@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::rc::Rc;
 
 use itertools::Itertools;
 
@@ -294,7 +295,7 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "ExtendedDatetimeUnitSegment".into(),
             SegmentGenerator::new(|dialect| {
-                Arc::new(MultiStringParser::new(
+                Rc::new(MultiStringParser::new(
                     dialect
                         .sets("extended_datetime_units")
                         .into_iter()
@@ -431,7 +432,7 @@ pub fn bigquery_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({})$", pattern);
 
-                Arc::new(RegexParser::new(
+                Rc::new(RegexParser::new(
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
                         IdentifierSegment::create(

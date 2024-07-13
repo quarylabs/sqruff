@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
@@ -46,7 +46,7 @@ fn parse_mode_match_result(
 }
 
 pub fn simple(
-    elements: &[Arc<dyn Matchable>],
+    elements: &[Rc<dyn Matchable>],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
 ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
@@ -70,9 +70,9 @@ pub fn simple(
 
 #[derive(Debug, Clone)]
 pub struct AnyNumberOf {
-    pub(crate) exclude: Option<Arc<dyn Matchable>>,
-    pub(crate) elements: Vec<Arc<dyn Matchable>>,
-    pub(crate) terminators: Vec<Arc<dyn Matchable>>,
+    pub(crate) exclude: Option<Rc<dyn Matchable>>,
+    pub(crate) elements: Vec<Rc<dyn Matchable>>,
+    pub(crate) terminators: Vec<Rc<dyn Matchable>>,
     pub(crate) reset_terminators: bool,
     pub(crate) max_times: Option<usize>,
     pub(crate) min_times: usize,
@@ -90,7 +90,7 @@ impl PartialEq for AnyNumberOf {
 }
 
 impl AnyNumberOf {
-    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Rc<dyn Matchable>>) -> Self {
         Self {
             elements,
             exclude: None,
@@ -226,13 +226,13 @@ impl Matchable for AnyNumberOf {
     #[track_caller]
     fn copy(
         &self,
-        insert: Option<Vec<Arc<dyn Matchable>>>,
+        insert: Option<Vec<Rc<dyn Matchable>>>,
         at: Option<usize>,
-        before: Option<Arc<dyn Matchable>>,
-        remove: Option<Vec<Arc<dyn Matchable>>>,
-        terminators: Vec<Arc<dyn Matchable>>,
+        before: Option<Rc<dyn Matchable>>,
+        remove: Option<Vec<Rc<dyn Matchable>>>,
+        terminators: Vec<Rc<dyn Matchable>>,
         replace_terminators: bool,
-    ) -> Arc<dyn Matchable> {
+    ) -> Rc<dyn Matchable> {
         let mut new_elements = self.elements.clone();
 
         if let Some(insert_elements) = insert {
@@ -250,7 +250,7 @@ impl Matchable for AnyNumberOf {
         }
 
         if let Some(remove_elements) = remove {
-            new_elements.retain(|elem| !remove_elements.iter().any(|r| Arc::ptr_eq(elem, r)));
+            new_elements.retain(|elem| !remove_elements.iter().any(|r| Rc::ptr_eq(elem, r)));
         }
 
         let mut new_grammar = self.clone();
@@ -262,7 +262,7 @@ impl Matchable for AnyNumberOf {
             [self.terminators.clone(), terminators].concat()
         };
 
-        Arc::new(new_grammar)
+        Rc::new(new_grammar)
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
@@ -270,14 +270,14 @@ impl Matchable for AnyNumberOf {
     }
 }
 
-pub fn one_of(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
+pub fn one_of(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
     let mut matcher = AnyNumberOf::new(elements);
     matcher.max_times(1);
     matcher.min_times(1);
     matcher
 }
 
-pub fn optionally_bracketed(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
+pub fn optionally_bracketed(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
     let mut args = vec![Bracketed::new(elements.clone()).to_matchable()];
 
     if elements.len() == 1 {
@@ -289,7 +289,7 @@ pub fn optionally_bracketed(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
     one_of(args)
 }
 
-pub fn any_set_of(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
+pub fn any_set_of(elements: Vec<Rc<dyn Matchable>>) -> AnyNumberOf {
     let mut any_number_of = AnyNumberOf::new(elements);
     any_number_of.max_times = None;
     any_number_of.max_times_per_element = Some(1);

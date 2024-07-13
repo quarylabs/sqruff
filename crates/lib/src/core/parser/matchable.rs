@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::fmt::Debug;
+use std::rc::Rc;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 
@@ -23,7 +24,7 @@ impl<T: Any> AsAnyMut for T {
     }
 }
 
-pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
+pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut {
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
@@ -33,11 +34,11 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
         todo!()
     }
 
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+    fn match_grammar(&self) -> Option<Rc<dyn Matchable>> {
         None
     }
 
-    fn hack_eq(&self, rhs: &Arc<dyn Matchable>) -> bool {
+    fn hack_eq(&self, rhs: &Rc<dyn Matchable>) -> bool {
         let lhs = self.as_any().downcast_ref::<Ref>();
         let rhs = rhs.as_any().downcast_ref::<Ref>();
 
@@ -87,13 +88,13 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
     #[track_caller]
     fn copy(
         &self,
-        _insert: Option<Vec<Arc<dyn Matchable>>>,
+        _insert: Option<Vec<Rc<dyn Matchable>>>,
         _at: Option<usize>,
-        _before: Option<Arc<dyn Matchable>>,
-        _remove: Option<Vec<Arc<dyn Matchable>>>,
-        _terminators: Vec<Arc<dyn Matchable>>,
+        _before: Option<Rc<dyn Matchable>>,
+        _remove: Option<Vec<Rc<dyn Matchable>>>,
+        _terminators: Vec<Rc<dyn Matchable>>,
         _replace_terminators: bool,
-    ) -> Arc<dyn Matchable> {
+    ) -> Rc<dyn Matchable> {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 }

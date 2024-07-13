@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::ops::Deref;
-use std::sync::{Arc, OnceLock};
+use std::rc::Rc;
+use std::sync::OnceLock;
 
 use ahash::AHashSet;
 
@@ -9,15 +10,15 @@ use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
-use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::core::parser::matchable::{Matchable, MatchableCacheKey, next_matchable_cache_key};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::helpers::{capitalize, ToMatchable};
 
 #[derive(Clone)]
 pub struct Ref {
     pub(crate) reference: Cow<'static, str>,
-    pub(crate) exclude: Option<Arc<dyn Matchable>>,
-    terminators: Vec<Arc<dyn Matchable>>,
+    pub(crate) exclude: Option<Rc<dyn Matchable>>,
+    terminators: Vec<Rc<dyn Matchable>>,
     reset_terminators: bool,
     allow_gaps: bool,
     optional: bool,
@@ -57,7 +58,7 @@ impl Ref {
     }
 
     // Method to get the referenced element
-    fn _get_elem(&self, dialect: &Dialect) -> Arc<dyn Matchable> {
+    fn _get_elem(&self, dialect: &Dialect) -> Rc<dyn Matchable> {
         dialect.r#ref(&self.reference)
     }
 
@@ -148,7 +149,7 @@ impl Matchable for Ref {
 #[derive(Clone, Debug)]
 pub struct Anything {
     cache_key: MatchableCacheKey,
-    terminators: Vec<Arc<dyn Matchable>>,
+    terminators: Vec<Rc<dyn Matchable>>,
 }
 
 impl PartialEq for Anything {
@@ -169,7 +170,7 @@ impl Anything {
         Self { cache_key: next_matchable_cache_key(), terminators: Vec::new() }
     }
 
-    pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn terminators(mut self, terminators: Vec<Rc<dyn Matchable>>) -> Self {
         self.terminators = terminators;
         self
     }

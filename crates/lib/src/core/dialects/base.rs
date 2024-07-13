@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::fmt::Debug;
+use std::rc::Rc;
 use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
@@ -43,7 +44,7 @@ impl Dialect {
         self.library.extend(iter);
     }
 
-    pub fn grammar(&self, name: &str) -> Arc<dyn Matchable> {
+    pub fn grammar(&self, name: &str) -> Rc<dyn Matchable> {
         match self.library.get(name).unwrap_or_else(|| panic!("not found {name}")) {
             DialectElementType::Matchable(matchable) => matchable.clone(),
             DialectElementType::SegmentGenerator(_) => {
@@ -53,10 +54,10 @@ impl Dialect {
     }
 
     #[track_caller]
-    pub fn replace_grammar(&mut self, name: &str, match_grammar: Arc<dyn Matchable>) {
+    pub fn replace_grammar(&mut self, name: &str, match_grammar: Rc<dyn Matchable>) {
         match self.library.get_mut(name).unwrap() {
             DialectElementType::Matchable(matchable) => {
-                Arc::get_mut(matchable)
+                Rc::get_mut(matchable)
                     .unwrap()
                     .as_any_mut()
                     .downcast_mut::<NodeMatcher>()
@@ -185,7 +186,7 @@ impl Dialect {
         }
     }
 
-    pub fn r#ref(&self, name: &str) -> Arc<dyn Matchable> {
+    pub fn r#ref(&self, name: &str) -> Rc<dyn Matchable> {
         match self.library.get(name) {
             Some(DialectElementType::Matchable(matchable)) => matchable.clone(),
             Some(DialectElementType::SegmentGenerator(_)) => {
@@ -242,7 +243,7 @@ impl Dialect {
                         );
 
                         self.library
-                            .insert(n.into(), DialectElementType::Matchable(Arc::new(parser)));
+                            .insert(n.into(), DialectElementType::Matchable(Rc::new(parser)));
                     }
                 }
             }
@@ -253,7 +254,7 @@ impl Dialect {
         self.root_segment_name
     }
 
-    pub fn get_root_segment(&self) -> Arc<dyn Matchable> {
+    pub fn get_root_segment(&self) -> Rc<dyn Matchable> {
         self.r#ref(self.root_segment_name())
     }
 }

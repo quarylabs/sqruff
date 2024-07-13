@@ -41,7 +41,7 @@ impl Runner for ParallelRunner {
         let rule_pack = linter.get_rulepack();
 
         paths
-            .par_iter()
+            .iter()
             .map(|path| {
                 let rendered = linter.render_file(path.clone());
                 linter.lint_rendered(rendered, &rule_pack, fix)

@@ -1,5 +1,5 @@
 use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
+use std::rc::Rc;
 
 use ahash::AHashSet;
 
@@ -22,14 +22,14 @@ use crate::helpers::ToMatchable;
 pub struct Delimited {
     base: AnyNumberOf,
     pub(crate) allow_trailing: bool,
-    delimiter: Arc<dyn Matchable>,
+    delimiter: Rc<dyn Matchable>,
     pub(crate) min_delimiters: usize,
     optional: bool,
     cache_key: MatchableCacheKey,
 }
 
 impl Delimited {
-    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Rc<dyn Matchable>>) -> Self {
         Self {
             base: one_of(elements),
             allow_trailing: false,

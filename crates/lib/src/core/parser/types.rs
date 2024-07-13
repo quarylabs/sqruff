@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::sync::Arc;
 
 use super::matchable::Matchable;
@@ -5,12 +6,12 @@ use super::segments::generator::SegmentGenerator;
 
 #[derive(Debug, Clone)]
 pub enum DialectElementType {
-    Matchable(Arc<dyn Matchable>),
+    Matchable(Rc<dyn Matchable>),
     SegmentGenerator(SegmentGenerator),
 }
 
-impl From<Arc<dyn Matchable>> for DialectElementType {
-    fn from(value: Arc<dyn Matchable>) -> Self {
+impl From<Rc<dyn Matchable>> for DialectElementType {
+    fn from(value: Rc<dyn Matchable>) -> Self {
         DialectElementType::Matchable(value)
     }
 }

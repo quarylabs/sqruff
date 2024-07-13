@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::grammar::anyof::one_of;

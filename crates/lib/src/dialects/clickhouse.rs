@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use super::ansi::{self, raw_dialect};
 use crate::core::dialects::base::Dialect;

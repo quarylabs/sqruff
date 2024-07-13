@@ -3,15 +3,16 @@ use std::borrow::Cow;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
+use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, OnceLock};
+use std::sync::OnceLock;
 
 use ahash::{AHashMap, AHashSet};
 use dyn_clone::DynClone;
 use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
-use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
+use serde::ser::SerializeMap;
 use smol_str::SmolStr;
 use uuid::Uuid;
 
@@ -28,7 +29,7 @@ pub struct PathStep {
     pub segment: ErasedSegment,
     pub idx: usize,
     pub len: usize,
-    pub code_idxs: Arc<[usize]>,
+    pub code_idxs: Rc<[usize]>,
 }
 
 pub type SegmentConstructorFn<SegmentArgs> =
@@ -80,8 +81,8 @@ impl TupleSerialisedSegment {
 
 #[derive(Debug, Clone)]
 pub struct ErasedSegment {
-    value: Arc<dyn Segment>,
-    hash: Arc<AtomicU64>,
+    value: Rc<dyn Segment>,
+    hash: Rc<AtomicU64>,
 }
 
 impl ErasedSegment {
@@ -120,7 +121,7 @@ impl ErasedSegment {
 
     #[track_caller]
     pub fn get_mut(&mut self) -> &mut dyn Segment {
-        Arc::get_mut(&mut self.value).unwrap()
+        Rc::get_mut(&mut self.value).unwrap()
     }
 
     pub fn reference(&self) -> ObjectReferenceSegment {
@@ -187,7 +188,7 @@ impl ErasedSegment {
     pub fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)> {
         let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
             Vec::with_capacity(self.segments().len());
-        let code_idxs: Arc<[usize]> = self.code_indices().into();
+        let code_idxs: Rc<[usize]> = self.code_indices().into();
 
         for (idx, seg) in self.segments().iter().enumerate() {
             let new_step = vec![PathStep {
@@ -365,11 +366,11 @@ impl PartialEq for ErasedSegment {
 
 impl ErasedSegment {
     pub fn of<T: Segment>(value: T) -> Self {
-        Self { value: Arc::new(value), hash: Arc::new(AtomicU64::new(0)) }
+        Self { value: Rc::new(value), hash: Rc::new(AtomicU64::new(0)) }
     }
 }
 
-pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
+pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment  {
     #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     #[track_caller]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
@@ -1462,9 +1463,10 @@ pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
     use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
+
+    use super::*;
 
     const TEMP_SEGMENTS_ARGS: RawSegmentArgs = RawSegmentArgs {
         _type: None,

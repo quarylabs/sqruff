@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::sync::Arc;
 
 use itertools::Itertools;
@@ -27,15 +28,15 @@ use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
 trait Boxed {
-    fn boxed(self) -> Arc<Self>;
+    fn boxed(self) -> Rc<Self>;
 }
 
 impl<T> Boxed for T {
-    fn boxed(self) -> Arc<Self>
+    fn boxed(self) -> Rc<Self>
     where
         Self: Sized,
     {
-        Arc::new(self)
+        Rc::new(self)
     }
 }
 

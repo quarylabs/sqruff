@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
@@ -31,7 +32,7 @@ use crate::rules::get_ruleset;
 pub struct Linter {
     config: FluffConfig,
     pub formatter: Option<OutputStreamFormatter>,
-    templater: Arc<dyn Templater>,
+    templater: Rc<dyn Templater>,
     pub _rules: Vec<ErasedRule>,
 }
 
@@ -39,7 +40,7 @@ impl Linter {
     pub fn new(
         config: FluffConfig,
         formatter: Option<OutputStreamFormatter>,
-        templater: Option<Arc<dyn Templater>>,
+        templater: Option<Rc<dyn Templater>>,
     ) -> Linter {
         let rules = crate::rules::layout::rules();
         match templater {
@@ -47,7 +48,7 @@ impl Linter {
             None => Linter {
                 config,
                 formatter,
-                templater: Arc::<RawTemplater>::default(),
+                templater: Rc::<RawTemplater>::default(),
                 _rules: rules,
             },
         }

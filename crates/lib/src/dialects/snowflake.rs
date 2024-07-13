@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::rc::Rc;
 
 use itertools::Itertools;
 
@@ -26,15 +27,15 @@ use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
 trait Boxed {
-    fn boxed(self) -> Arc<Self>;
+    fn boxed(self) -> Rc<Self>;
 }
 
 impl<T> Boxed for T {
-    fn boxed(self) -> Arc<Self>
+    fn boxed(self) -> Rc<Self>
     where
         Self: Sized,
     {
-        Arc::new(self)
+        Rc::new(self)
     }
 }
 
@@ -80,7 +81,7 @@ pub fn snowflake_dialect() -> Dialect {
             Ref::new("SamplingExpressionSegment").optional(),
             Ref::new("PostTableExpressionGrammar").optional(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.patch_lexer_matchers(vec![
@@ -274,8 +275,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FunctionAssignerSegment".into(),
@@ -292,8 +293,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "WalrusOperatorSegment".into(),
@@ -310,8 +311,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "QuotedStarSegment".into(),
@@ -328,8 +329,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 vec!['\''].into(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "NakedSemiStructuredElementSegment".into(),
@@ -350,8 +351,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "QuotedSemiStructuredElementSegment".into(),
@@ -368,8 +369,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ColumnIndexIdentifierSegment".into(),
@@ -390,8 +391,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "LocalVariableNameSegment".into(),
@@ -409,8 +410,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ReferencedVariableNameSegment".into(),
@@ -428,8 +429,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "WarehouseType".into(),
@@ -476,8 +477,8 @@ pub fn snowflake_dialect() -> Dialect {
                     None,
                 )
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "WarehouseSize".into(),
@@ -524,8 +525,8 @@ pub fn snowflake_dialect() -> Dialect {
                     None,
                 )
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CompressionType".into(),
@@ -571,8 +572,8 @@ pub fn snowflake_dialect() -> Dialect {
                     None,
                 )
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ScalingPolicy".into(),
@@ -619,8 +620,8 @@ pub fn snowflake_dialect() -> Dialect {
                     None,
                 )
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ValidationModeOptionSegment".into(),
@@ -641,8 +642,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CopyOptionOnErrorSegment".into(),
@@ -663,8 +664,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DoubleQuotedUDFBody".into(),
@@ -681,8 +682,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "SingleQuotedUDFBody".into(),
@@ -699,8 +700,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DollarQuotedUDFBody".into(),
@@ -717,8 +718,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "StagePath".into(),
@@ -736,8 +737,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "S3Path".into(),
@@ -755,8 +756,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "GCSPath".into(),
@@ -774,8 +775,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AzureBlobStoragePath".into(),
@@ -793,8 +794,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "UnquotedFilePath".into(),
@@ -811,8 +812,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "SnowflakeEncryptionOption".into(),
@@ -935,8 +936,8 @@ pub fn snowflake_dialect() -> Dialect {
                     None,
                 )
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "IntegerSegment".into(),
@@ -957,8 +958,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "SystemFunctionName".into(),
@@ -979,8 +980,8 @@ pub fn snowflake_dialect() -> Dialect {
                 None,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "GroupByContentsGrammar".into(),
@@ -992,7 +993,7 @@ pub fn snowflake_dialect() -> Dialect {
                     // Can `GROUP BY coalesce(col, 1)`
                     Ref::new("ExpressionSegment"),
                 ])
-            ]).config(|this|this.terminators = vec_of_erased![
+            ]).config(|this| this.terminators = vec_of_erased![
                 Ref::keyword("ORDER"),
                 Ref::keyword("LIMIT"),
                 Ref::keyword("FETCH"),
@@ -1027,8 +1028,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "EndExcludeBracketSegment".into(),
@@ -1047,8 +1048,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "QuestionMarkSegment".into(),
@@ -1067,8 +1068,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CaretSegment".into(),
@@ -1087,8 +1088,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DollarSegment".into(),
@@ -1107,8 +1108,8 @@ pub fn snowflake_dialect() -> Dialect {
                 false,
                 None,
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "PatternQuantifierGrammar".into(),
@@ -1253,9 +1254,9 @@ pub fn snowflake_dialect() -> Dialect {
                     anti_template.into(),
                     None,
                 )
-                .boxed()
+                    .boxed()
             })
-            .into(),
+                .into(),
         ),
         (
             "LiteralGrammar".into(),
@@ -1277,8 +1278,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::new("ArrayAccessorSegment"),
                 Ref::new("SemiStructuredAccessorSegment")
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "PreTableFunctionKeywordsGrammar".into(),
@@ -1299,8 +1300,8 @@ pub fn snowflake_dialect() -> Dialect {
                     .config(|this| this.optional())
                 ])
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "JoinLikeClauseGrammar".into(),
@@ -1317,8 +1318,8 @@ pub fn snowflake_dialect() -> Dialect {
                 .config(|this| this.min_times = 1),
                 Ref::new("AliasExpressionSegment").optional()
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "SingleIdentifierGrammar".into(),
@@ -1336,8 +1337,8 @@ pub fn snowflake_dialect() -> Dialect {
                     ])]),
                 ]),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "PostFunctionGrammar".into(),
@@ -1350,8 +1351,8 @@ pub fn snowflake_dialect() -> Dialect {
                 .config(|this| this.optional()),
                 Ref::new("OverClauseSegment").optional(),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "TemporaryGrammar".into(),
@@ -1363,9 +1364,9 @@ pub fn snowflake_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![Ref::keyword("VOLATILE")])
                     .config(|this| this.optional()),
             ])
-            .config(|this| this.optional())
-            .to_matchable()
-            .into(),
+                .config(|this| this.optional())
+                .to_matchable()
+                .into(),
         ),
         (
             "TemporaryTransientGrammar".into(),
@@ -1426,8 +1427,8 @@ pub fn snowflake_dialect() -> Dialect {
                     None
                 )
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "LikeGrammar".into(),
@@ -1444,8 +1445,8 @@ pub fn snowflake_dialect() -> Dialect {
                 ]),
                 Ref::keyword("REGEXP"),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "SelectClauseTerminatorGrammar".into(),
@@ -1458,8 +1459,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::keyword("OFFSET"),
                 Ref::new("SetOperatorSegment"),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FromClauseTerminatorGrammar".into(),
@@ -1477,8 +1478,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::new("WithNoSchemaBindingClauseSegment"),
                 Ref::new("WithDataClauseSegment"),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "WhereClauseTerminatorGrammar".into(),
@@ -1493,8 +1494,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::keyword("WINDOW"),
                 Ref::keyword("OVERLAPS"),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "OrderByClauseTerminators".into(),
@@ -1509,8 +1510,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::keyword("OFFSET"),
                 Ref::keyword("MEASURES"),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         ("TrimParametersGrammar".into(), Nothing::new().to_matchable().into()),
         (
@@ -1524,8 +1525,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::keyword("QUALIFY"),
                 Ref::keyword("WINDOW"),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "HavingClauseTerminatorGrammar".into(),
@@ -1537,8 +1538,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::keyword("FETCH"),
                 Ref::keyword("OFFSET"),
             ])
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -1676,10 +1677,10 @@ pub fn snowflake_dialect() -> Dialect {
                 ]),
             ]),
         ])
-        .config(|this| {
-            this.allow_gaps = false;
-        })
-        .to_matchable(),
+            .config(|this| {
+                this.allow_gaps = false;
+            })
+            .to_matchable(),
     );
 
     snowflake_dialect.add([(
@@ -1700,10 +1701,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("ColumnReferenceSegment"),
                 ])])
             ])
-            .to_matchable(),
+                .to_matchable(),
         )
-        .to_matchable()
-        .into(),
+            .to_matchable()
+            .into(),
     )]);
 
     snowflake_dialect.replace_grammar(
@@ -1729,7 +1730,7 @@ pub fn snowflake_dialect() -> Dialect {
             ]),
             MetaSegment::dedent(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -1747,7 +1748,7 @@ pub fn snowflake_dialect() -> Dialect {
                 }),
             ]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([(
@@ -1811,10 +1812,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                 ]),
             ])
-            .to_matchable(),
+                .to_matchable(),
         )
-        .to_matchable()
-        .into(),
+            .to_matchable()
+            .into(),
     )]);
 
     snowflake_dialect.replace_grammar(
@@ -1828,7 +1829,7 @@ pub fn snowflake_dialect() -> Dialect {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -1923,10 +1924,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CallStoredProcedureSegment".into(),
@@ -1935,8 +1936,8 @@ pub fn snowflake_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![Ref::keyword("CALL"), Ref::new("FunctionSegment"),])
                     .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "WithinGroupClauseSegment".into(),
@@ -1950,10 +1951,10 @@ pub fn snowflake_dialect() -> Dialect {
                             this.parse_mode = ParseMode::Greedy;
                         }),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "PatternSegment".into(),
@@ -1968,10 +1969,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                     Ref::new("DollarSegment").optional(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "MatchRecognizeClauseSegment".into(),
@@ -2065,10 +2066,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ChangesClauseSegment".into(),
@@ -2120,10 +2121,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FromAtExpressionSegment".into(),
@@ -2141,10 +2142,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("ExpressionSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FromBeforeExpressionSegment".into(),
@@ -2165,10 +2166,10 @@ pub fn snowflake_dialect() -> Dialect {
                         this.parse_mode = ParseMode::Greedy;
                     }),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FromPivotExpressionSegment".into(),
@@ -2186,10 +2187,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FromUnpivotExpressionSegment".into(),
@@ -2207,10 +2208,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -2238,7 +2239,7 @@ pub fn snowflake_dialect() -> Dialect {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -2255,10 +2256,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("ExpressionSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "SemiStructuredAccessorSegment".into(),
@@ -2291,13 +2292,13 @@ pub fn snowflake_dialect() -> Dialect {
                         this.allow_gaps = true;
                     }),
                 ])
-                .config(|this| {
-                    this.allow_gaps = true;
-                })
-                .to_matchable(),
+                    .config(|this| {
+                        this.allow_gaps = true;
+                    })
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "QualifyClauseSegment".into(),
@@ -2312,10 +2313,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -2361,10 +2362,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("SingleIdentifierGrammar"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "RenameClauseSegment".into(),
@@ -2387,10 +2388,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ReplaceClauseSegment".into(),
@@ -2406,10 +2407,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]
                     ),]),]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -2421,7 +2422,7 @@ pub fn snowflake_dialect() -> Dialect {
             Sequence::new(vec_of_erased![Ref::keyword("TOP"), Ref::new("NumericLiteralSegment"),])
                 .config(|this| this.optional()),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -2480,7 +2481,7 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::new("AlterTableTableColumnActionSegment"),
             ]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -2667,10 +2668,10 @@ pub fn snowflake_dialect() -> Dialect {
                         .config(|this| this.optional()),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterTableClusteringActionSegment".into(),
@@ -2707,10 +2708,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::keyword("KEY"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterTableConstraintActionSegment".into(),
@@ -2778,10 +2779,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("NakedIdentifierSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterWarehouseStatementSegment".into(),
@@ -2848,10 +2849,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterShareStatementSegment".into(),
@@ -2903,10 +2904,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterStorageIntegrationSegment".into(),
@@ -3000,10 +3001,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterExternalTableStatementSegment".into(),
@@ -3062,10 +3063,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CommentEqualsClauseSegment".into(),
@@ -3076,10 +3077,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("EqualsSegment"),
                     Ref::new("QuotedLiteralSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "TagBracketedEqualsSegment".into(),
@@ -3097,10 +3098,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]
                     )])]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "TagEqualsSegment".into(),
@@ -3114,10 +3115,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("QuotedLiteralSegment"),
                     ])])
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -3218,7 +3219,7 @@ pub fn snowflake_dialect() -> Dialect {
                     "PIPE",
                 ];
 
-                let schema_object_names_keywrods: Vec<Arc<dyn Matchable>> = schema_object_names
+                let schema_object_names_keywrods: Vec<Rc<dyn Matchable>> = schema_object_names
                     .iter()
                     .map(|name| Ref::keyword(name).to_matchable())
                     .collect();
@@ -3494,10 +3495,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("DropBehaviorGrammar").optional(),
                     ]),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateCloneStatementSegment".into(),
@@ -3534,10 +3535,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateDatabaseFromShareStatementSegment".into(),
@@ -3550,10 +3551,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("SHARE"),]),
                     Ref::new("ObjectReferenceSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateProcedureStatementSegment".into(),
@@ -3669,10 +3670,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("ScriptingBlockStatementSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ReturnStatementSegment".into(),
@@ -3682,10 +3683,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::keyword("RETURN"),
                     Ref::new("ExpressionSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ScriptingBlockStatementSegment".into(),
@@ -3698,10 +3699,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                     Sequence::new(vec_of_erased![Ref::keyword("END")]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ScriptingLetStatementSegment".into(),
@@ -3760,10 +3761,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateFunctionStatementSegment".into(),
@@ -3874,10 +3875,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterFunctionStatementSegment".into(),
@@ -3964,10 +3965,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateExternalFunctionStatementSegment".into(),
@@ -4060,10 +4061,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::keyword("AS"),
                     Ref::new("SingleQuotedIdentifierSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "WarehouseObjectPropertiesSegment".into(),
@@ -4124,10 +4125,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("NakedIdentifierSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "WarehouseObjectParamsSegment".into(),
@@ -4150,10 +4151,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ConstraintPropertiesSegment".into(),
@@ -4205,10 +4206,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -4288,7 +4289,7 @@ pub fn snowflake_dialect() -> Dialect {
                 Ref::new("BracketedColumnReferenceListGrammar").optional(),
             ]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([(
@@ -4370,10 +4371,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                 ]),
             ])
-            .to_matchable(),
+                .to_matchable(),
         )
-        .to_matchable()
-        .into(),
+            .to_matchable()
+            .into(),
     )]);
 
     snowflake_dialect.replace_grammar(
@@ -4394,7 +4395,7 @@ pub fn snowflake_dialect() -> Dialect {
             Ref::new("SchemaObjectParamsSegment").optional(),
             Ref::new("TagBracketedEqualsSegment").optional(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -4440,10 +4441,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterSchemaStatementSegment".into(),
@@ -4501,10 +4502,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "SchemaObjectParamsSegment".into(),
@@ -4528,10 +4529,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                     Ref::new("CommentEqualsClauseSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -4641,7 +4642,7 @@ pub fn snowflake_dialect() -> Dialect {
                 .config(|this| this.optional()),
             ]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -4724,10 +4725,10 @@ pub fn snowflake_dialect() -> Dialect {
                         MetaSegment::dedent(),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "TaskExpressionSegment".into(),
@@ -4745,10 +4746,10 @@ pub fn snowflake_dialect() -> Dialect {
                         "BooleanBinaryOperatorGrammar"
                     ),]))),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateStatementSegment".into(),
@@ -5035,10 +5036,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateUserSegment".into(),
@@ -5176,10 +5177,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -5218,7 +5219,7 @@ pub fn snowflake_dialect() -> Dialect {
             Ref::keyword("AS"),
             optionally_bracketed(vec_of_erased![Ref::new("SelectableGrammar"),]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -5326,10 +5327,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterMaterializedViewStatementSegment".into(),
@@ -5376,10 +5377,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateFileFormatSegment".into(),
@@ -5405,10 +5406,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterFileFormatSegment".into(),
@@ -5443,10 +5444,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CsvFileFormatTypeParameters".into(),
@@ -5569,10 +5570,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Delimited::new(vec_of_erased![file_format_type_parameter.clone()]),
                     AnyNumberOf::new(vec_of_erased![file_format_type_parameter]),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "JsonFileFormatTypeParameters".into(),
@@ -5669,10 +5670,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Delimited::new(vec_of_erased![file_format_type_parameter.clone()]),
                     AnyNumberOf::new(vec_of_erased![file_format_type_parameter]),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AvroFileFormatTypeParameters".into(),
@@ -5734,10 +5735,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Delimited::new(vec_of_erased![file_format_type_parameter.clone()]),
                     AnyNumberOf::new(vec_of_erased![file_format_type_parameter]),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "OrcFileFormatTypeParameters".into(),
@@ -5794,10 +5795,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Delimited::new(vec_of_erased![file_format_type_parameter.clone()]),
                     AnyNumberOf::new(vec_of_erased![file_format_type_parameter]),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ParquetFileFormatTypeParameters".into(),
@@ -5863,10 +5864,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Delimited::new(vec_of_erased![file_format_type_parameter.clone()]),
                     AnyNumberOf::new(vec_of_erased![file_format_type_parameter]),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "XmlFileFormatTypeParameters".into(),
@@ -5927,10 +5928,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Delimited::new(vec_of_erased![file_format_type_parameter.clone()]),
                     AnyNumberOf::new(vec_of_erased![file_format_type_parameter]),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterPipeSegment".into(),
@@ -5989,10 +5990,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                     Ref::new("CommaSegment").optional(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FileFormatSegment".into(),
@@ -6025,10 +6026,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("FormatTypeOptions").optional(),
                     ]),]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "FormatTypeOptions".into(),
@@ -6137,10 +6138,10 @@ pub fn snowflake_dialect() -> Dialect {
                     // COPY INTO <table>, open for extension
                     any_set_of(vec_of_erased![]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateExternalTableSegment".into(),
@@ -6236,10 +6237,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("CommentEqualsClauseSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -6268,7 +6269,7 @@ pub fn snowflake_dialect() -> Dialect {
                 .config(|this| this.optional()),
             ]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -6285,10 +6286,10 @@ pub fn snowflake_dialect() -> Dialect {
                     )]),]),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CopyIntoLocationStatementSegment".into(),
@@ -6336,10 +6337,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CopyIntoTableStatementSegment".into(),
@@ -6397,10 +6398,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "StorageLocation".into(),
@@ -6412,10 +6413,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("GCSPath"),
                     Ref::new("AzureBlobStoragePath"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "InternalStageParameters".into(),
@@ -6433,10 +6434,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "S3ExternalStageParameters".into(),
@@ -6516,10 +6517,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "GCSExternalStageParameters".into(),
@@ -6554,10 +6555,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AzureBlobStorageExternalStageParameters".into(),
@@ -6603,10 +6604,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateStageSegment".into(),
@@ -6752,10 +6753,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("CommentEqualsClauseSegment").optional(),
                     MetaSegment::dedent(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterStageSegment".into(),
@@ -6841,10 +6842,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CreateStreamStatementSegment".into(),
@@ -6904,10 +6905,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ]),
                     Ref::new("CommentEqualsClauseSegment").optional(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterStreamStatementSegment".into(),
@@ -6948,10 +6949,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ShowStatementSegment".into(),
@@ -7091,10 +7092,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable()
+                    .to_matchable()
             })
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterUserStatementSegment".into(),
@@ -7167,10 +7168,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -7195,7 +7196,7 @@ pub fn snowflake_dialect() -> Dialect {
             ])
             .config(|this| this.optional()),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -7213,7 +7214,7 @@ pub fn snowflake_dialect() -> Dialect {
             .config(|this| this.optional()),
             ansi::explainable_stmt(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -7229,10 +7230,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("AlterSessionUnsetClauseSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterSessionSetClauseSegment".into(),
@@ -7248,10 +7249,10 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment"),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterSessionUnsetClauseSegment".into(),
@@ -7261,10 +7262,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::keyword("UNSET"),
                     Delimited::new(vec_of_erased![Ref::new("ParameterNameSegment")]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterTaskStatementSegment".into(),
@@ -7304,10 +7305,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterTaskSpecialSetClauseSegment".into(),
@@ -7337,10 +7338,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.min_times(1)),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterTaskSetClauseSegment".into(),
@@ -7358,10 +7359,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "AlterTaskUnsetClauseSegment".into(),
@@ -7371,10 +7372,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::keyword("UNSET"),
                     Delimited::new(vec_of_erased![Ref::new("ParameterNameSegment")]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ExecuteTaskClauseSegment".into(),
@@ -7385,10 +7386,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::keyword("TASK"),
                     Ref::new("ObjectReferenceSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -7399,7 +7400,7 @@ pub fn snowflake_dialect() -> Dialect {
             Ref::new("SetClauseListSegment"),
             Ref::new("WhereClauseSegment").optional(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -7408,7 +7409,7 @@ pub fn snowflake_dialect() -> Dialect {
             Ref::keyword("DELETE"),
             Ref::new("WhereClauseSegment").optional(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -7421,7 +7422,7 @@ pub fn snowflake_dialect() -> Dialect {
             Ref::new("ValuesClauseSegment").optional(),
             Ref::new("WhereClauseSegment").optional(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -7446,10 +7447,10 @@ pub fn snowflake_dialect() -> Dialect {
                     .config(|this| this.optional()),
                     Ref::new("WhereClauseSegment").optional(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DescribeStatementSegment".into(),
@@ -7604,10 +7605,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -7636,7 +7637,7 @@ pub fn snowflake_dialect() -> Dialect {
             Sequence::new(vec_of_erased![Ref::keyword("COMMIT"), Ref::keyword("WORK").optional(),]),
             Ref::keyword("ROLLBACK"),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -7648,7 +7649,7 @@ pub fn snowflake_dialect() -> Dialect {
                 .config(|this| this.optional()),
             Ref::new("TableReferenceSegment"),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([
@@ -7665,10 +7666,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ),]),]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "UndropStatementSegment".into(),
@@ -7691,10 +7692,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "CommentStatementSegment".into(),
@@ -7763,10 +7764,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::keyword("IS"),
                     Ref::new("QuotedLiteralSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -7798,7 +7799,7 @@ pub fn snowflake_dialect() -> Dialect {
                 ]),
             ]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([(
@@ -7813,10 +7814,10 @@ pub fn snowflake_dialect() -> Dialect {
                         .config(|this| this.parse_mode(ParseMode::Greedy)),
                 ]),
             ])
-            .to_matchable(),
+                .to_matchable(),
         )
-        .to_matchable()
-        .into(),
+            .to_matchable()
+            .into(),
     )]);
 
     snowflake_dialect.replace_grammar(
@@ -7856,7 +7857,7 @@ pub fn snowflake_dialect() -> Dialect {
                 MetaSegment::dedent(),
             ]),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar(
@@ -7899,7 +7900,7 @@ pub fn snowflake_dialect() -> Dialect {
             ]),
             MetaSegment::dedent(),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.replace_grammar("FrameClauseSegment", {
@@ -7927,7 +7928,7 @@ pub fn snowflake_dialect() -> Dialect {
                 ]),
             ]),
         ])
-        .to_matchable()
+            .to_matchable()
     });
 
     snowflake_dialect.add([
@@ -7942,10 +7943,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("FunctionNameSegment"),
                     Ref::new("FunctionParameterListGrammar"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DropExternalTableStatementSegment".into(),
@@ -7959,10 +7960,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("TableReferenceSegment"),
                     Ref::new("DropBehaviorGrammar").optional(),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DropFunctionStatementSegment".into(),
@@ -7976,10 +7977,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("FunctionNameSegment"),
                     Ref::new("FunctionParameterListGrammar"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DropMaterializedViewStatementSegment".into(),
@@ -7992,10 +7993,10 @@ pub fn snowflake_dialect() -> Dialect {
                     Ref::new("IfExistsGrammar").optional(),
                     Ref::new("TableReferenceSegment"),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "DropObjectStatementSegment".into(),
@@ -8085,10 +8086,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "ListStatementSegment".into(),
@@ -8104,10 +8105,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "GetStatementSegment".into(),
@@ -8136,10 +8137,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "PutStatementSegment".into(),
@@ -8175,10 +8176,10 @@ pub fn snowflake_dialect() -> Dialect {
                         ]),
                     ]),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
         (
             "RemoveStatementSegment".into(),
@@ -8197,10 +8198,10 @@ pub fn snowflake_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                 ])
-                .to_matchable(),
+                    .to_matchable(),
             )
-            .to_matchable()
-            .into(),
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -8218,7 +8219,7 @@ pub fn snowflake_dialect() -> Dialect {
             ]),
             Ref::keyword("MINUS"),
         ])
-        .to_matchable(),
+            .to_matchable(),
     );
 
     snowflake_dialect.add([(
@@ -8241,10 +8242,10 @@ pub fn snowflake_dialect() -> Dialect {
                 ]),])
                 .config(|this| this.min_times(1)),
             ])
-            .to_matchable(),
+                .to_matchable(),
         )
-        .to_matchable()
-        .into(),
+            .to_matchable()
+            .into(),
     )]);
 
     snowflake_dialect.expand();
@@ -8275,7 +8276,7 @@ mod tests {
                     "core".into(),
                     Value::Map([("dialect".into(), Value::String("snowflake".into()))].into()),
                 )]
-                .into(),
+                    .into(),
                 None,
                 None,
             ),

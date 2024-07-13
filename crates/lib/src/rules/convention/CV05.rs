@@ -7,7 +7,7 @@ use crate::core::parser::segments::base::{
     ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::keyword::KeywordSegment;
-use crate::core::rules::base::{ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::helpers::ToErasedSegment;
@@ -39,7 +39,7 @@ fn create_base_is_null_sequence(is_upper: bool, operator_raw: Cow<str>) -> Corre
 
 impl Rule for RuleCV05 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        unimplemented!()
+        Ok(RuleCV05.erased())
     }
 
     fn name(&self) -> &'static str {

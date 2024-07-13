@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use smol_str::SmolStr;
 use uuid::Uuid;
 
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
@@ -370,8 +371,14 @@ impl ErasedSegment {
 
 pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
+    #[track_caller]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    #[track_caller]
+    fn dialect(&self) -> DialectKind {
+        todo!("{}", std::any::type_name::<Self>())
     }
 
     fn type_name(&self) -> &'static str {

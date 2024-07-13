@@ -36,7 +36,12 @@ impl<'a> Parser<'a> {
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
-        let mut root = self.root_segment.root_parse(segments, &mut parse_cx, f_name)?;
+        let mut root = self.root_segment.root_parse(
+            parse_cx.dialect().name,
+            segments,
+            &mut parse_cx,
+            f_name,
+        )?;
 
         // FIXME: remove hack
         let pos = pos_marker(root.segments());

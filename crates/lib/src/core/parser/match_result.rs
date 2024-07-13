@@ -5,6 +5,7 @@ use ahash::HashMapExt;
 use nohash_hasher::IntMap;
 
 use super::segments::base::{ErasedSegment, Segment};
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::{Indent, IndentChange};
@@ -105,7 +106,7 @@ impl MatchResult {
         Self { span, matched: Some(outer_matched), insert_segments, child_matches }
     }
 
-    pub fn apply(self, segments: &[ErasedSegment]) -> Vec<ErasedSegment> {
+    pub fn apply(self, dialect: DialectKind, segments: &[ErasedSegment]) -> Vec<ErasedSegment> {
         enum Trigger {
             MatchResult(MatchResult),
             Meta(IndentChange),
@@ -146,7 +147,7 @@ impl MatchResult {
                 match trigger {
                     Trigger::MatchResult(trigger) => {
                         max_idx = trigger.span.end;
-                        result_segments.append(&mut trigger.apply(segments));
+                        result_segments.append(&mut trigger.apply(dialect, segments));
                     }
                     Trigger::Meta(meta) => {
                         let mut meta = Indent::from_kind(meta);
@@ -169,7 +170,7 @@ impl MatchResult {
 
         let segment = match matched {
             Matched::SyntaxKind(kind) => {
-                return vec![Node::new(kind, result_segments, true).to_erased_segment()];
+                return vec![Node::new(dialect, kind, result_segments, true).to_erased_segment()];
             }
             Matched::ErasedSegment(segment) => segment,
             Matched::BracketedSegment { start_bracket, end_bracket } => {

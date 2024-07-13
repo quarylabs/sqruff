@@ -129,6 +129,7 @@ INNER JOIN table_b
         ];
 
         edit_segments.append(&mut generate_join_conditions(
+            context.dialect.name,
             &table_a.ref_str,
             &table_b.ref_str,
             extract_cols_from_using(segment, using_anchor),
@@ -165,6 +166,7 @@ fn extract_cols_from_using(join_clause: Segments, using_segs: &ErasedSegment) ->
 }
 
 fn generate_join_conditions(
+    dialect: DialectKind,
     table_a_ref: &str,
     table_b_ref: &str,
     columns: Vec<SmolStr>,
@@ -173,11 +175,11 @@ fn generate_join_conditions(
 
     for col in columns {
         edit_segments.extend_from_slice(&[
-            create_col_reference(table_a_ref, &col),
+            create_col_reference(dialect, table_a_ref, &col),
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
             SymbolSegment::create("=", None, SymbolSegmentNewArgs { r#type: "symbol" }),
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
-            create_col_reference(table_b_ref, &col),
+            create_col_reference(dialect, table_b_ref, &col),
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
             KeywordSegment::new("AND".into(), None).to_erased_segment(),
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
@@ -217,8 +219,9 @@ fn extract_deletion_sequence_and_anchor(
     (to_delete, insert_anchor.unwrap())
 }
 
-fn create_col_reference(table_ref: &str, column_name: &str) -> ErasedSegment {
+fn create_col_reference(dialect: DialectKind, table_ref: &str, column_name: &str) -> ErasedSegment {
     Node::new(
+        dialect,
         SyntaxKind::ColumnReference,
         vec![
             IdentifierSegment::create(

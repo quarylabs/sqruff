@@ -60,6 +60,7 @@ impl<T> BoxedE for T {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Node {
     kind: SyntaxKind,
+    dialect: DialectKind,
     segments: Vec<ErasedSegment>,
     uuid: Uuid,
     position_marker: Option<PositionMarker>,
@@ -70,11 +71,17 @@ pub struct Node {
 
 impl Node {
     #[track_caller]
-    pub fn new(kind: SyntaxKind, segments: Vec<ErasedSegment>, calc_position_marker: bool) -> Self {
+    pub fn new(
+        dialect: DialectKind,
+        kind: SyntaxKind,
+        segments: Vec<ErasedSegment>,
+        calc_position_marker: bool,
+    ) -> Self {
         let position_marker =
             if calc_position_marker { pos_marker(&segments).into() } else { None };
         Self {
             kind,
+            dialect,
             segments,
             uuid: Uuid::new_v4(),
             position_marker,
@@ -90,6 +97,7 @@ impl Segment for Node {
         Self {
             kind: self.kind,
             uuid: self.uuid,
+            dialect: self.dialect,
             segments,
             position_marker: self.position_marker.clone(),
             raw: OnceLock::new(),
@@ -97,6 +105,10 @@ impl Segment for Node {
             descendant_type_set: OnceLock::new(),
         }
         .to_erased_segment()
+    }
+
+    fn dialect(&self) -> DialectKind {
+        self.dialect
     }
 
     fn is_comment(&self) -> bool {
@@ -5830,12 +5842,13 @@ pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileSegment;
 impl FileSegment {
-    pub fn of(segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Node::new(SyntaxKind::File, segments, true).to_erased_segment()
+    pub fn of(dialect: DialectKind, segments: Vec<ErasedSegment>) -> ErasedSegment {
+        Node::new(dialect, SyntaxKind::File, segments, true).to_erased_segment()
     }
 
     pub fn root_parse(
         &self,
+        dialect: DialectKind,
         segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
         _f_name: Option<String>,
@@ -5848,7 +5861,7 @@ impl FileSegment {
             .map_or(start_idx, |idx| idx as u32 + 1);
 
         if start_idx == end_idx {
-            return Ok(FileSegment::of(segments.to_vec()));
+            return Ok(FileSegment::of(dialect, segments.to_vec()));
         }
 
         let final_seg = segments.last().unwrap();
@@ -5864,11 +5877,12 @@ impl FileSegment {
 
         let match_span = match_result.span;
         let has_match = match_result.has_match();
-        let mut matched = match_result.apply(segments);
+        let mut matched = match_result.apply(dialect, segments);
         let unmatched = &segments[match_span.end as usize..end_idx as usize];
 
         let content: &[ErasedSegment] = if !has_match {
             &[Node::new(
+                dialect,
                 SyntaxKind::Unparsable,
                 segments[start_idx as usize..end_idx as usize].to_vec(),
                 true,
@@ -5879,8 +5893,9 @@ impl FileSegment {
             let (head, tail) = unmatched.split_at(idx);
 
             matched.extend_from_slice(head);
-            matched
-                .push(Node::new(SyntaxKind::Unparsable, tail.to_vec(), true).to_erased_segment());
+            matched.push(
+                Node::new(dialect, SyntaxKind::Unparsable, tail.to_vec(), true).to_erased_segment(),
+            );
             &matched
         } else {
             matched.extend_from_slice(unmatched);
@@ -5888,6 +5903,7 @@ impl FileSegment {
         };
 
         Ok(Self::of(
+            dialect,
             [&segments[..start_idx as usize], content, &segments[end_idx as usize..]].concat(),
         ))
     }
@@ -6131,18 +6147,7 @@ impl ObjectReferenceSegment {
 
     pub fn iter_raw_references(&self) -> Vec<ObjectReferencePart> {
         match self.1 {
-            ObjectReferenceKind::Object => {
-                let mut acc = Vec::new();
-
-                for elem in
-                    self.0.recursive_crawl(&["identifier", "naked_identifier"], true, None, true)
-                {
-                    acc.extend(self.iter_reference_parts(elem));
-                }
-
-                acc
-            }
-            ObjectReferenceKind::Table => {
+            ObjectReferenceKind::Table if self.0.dialect() == DialectKind::Bigquery => {
                 let mut acc = Vec::new();
                 let mut parts = Vec::new();
                 let mut elems_for_parts = Vec::new();
@@ -6186,6 +6191,17 @@ impl ObjectReferenceSegment {
 
                 if !parts.is_empty() {
                     flush(&mut parts, &mut elems_for_parts);
+                }
+
+                acc
+            }
+            ObjectReferenceKind::Object | ObjectReferenceKind::Table => {
+                let mut acc = Vec::new();
+
+                for elem in
+                    self.0.recursive_crawl(&["identifier", "naked_identifier"], true, None, true)
+                {
+                    acc.extend(self.iter_reference_parts(elem));
                 }
 
                 acc
@@ -6257,6 +6273,7 @@ mod tests {
     use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
     use crate::core::config::FluffConfig;
+    use crate::core::dialects::init::DialectKind;
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
@@ -6395,7 +6412,7 @@ mod tests {
             }
 
             let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
-            let mut parsed = match_result.apply(&segments);
+            let mut parsed = match_result.apply(DialectKind::Ansi, &segments);
 
             assert_eq!(parsed.len(), 1, "failed {segment_ref}, {sql_string}");
 

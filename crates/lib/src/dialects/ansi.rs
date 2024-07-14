@@ -6065,7 +6065,7 @@ pub enum ObjectReferenceLevel {
 
 #[derive(Clone, Debug)]
 pub struct ObjectReferencePart {
-    pub part: String,
+    pub part: SmolStr,
     pub segments: Vec<ErasedSegment>,
 }
 
@@ -6157,7 +6157,9 @@ impl ObjectReferenceSegment {
                 let mut flush =
                     |parts: &mut Vec<SmolStr>, elems_for_parts: &mut Vec<ErasedSegment>| {
                         acc.push(ObjectReferencePart {
-                            part: std::mem::take(parts).iter().join(""),
+                            part: SmolStr::from_iter(
+                                std::mem::take(parts).iter().map(|it| it.as_str()),
+                            ),
                             segments: std::mem::take(elems_for_parts),
                         });
                     };

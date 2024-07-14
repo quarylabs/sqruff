@@ -137,7 +137,7 @@ impl RuleAL05 {
         }
     }
 
-    fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: String) {
+    fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: SmolStr) {
         if RefCell::borrow(&query.inner).payload.aliases.iter().any(|it| it.ref_str == r#ref) {
             RefCell::borrow_mut(&query.inner).payload.tbl_refs.push(r#ref.into());
         } else if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {

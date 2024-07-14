@@ -67,7 +67,7 @@ FROM cte1
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut result = Vec::new();
-        let query: Query<'_, ()> = Query::from_root(context.segment.clone(), context.dialect);
+        let query: Query<'_, ()> = Query::from_root(&context.segment, context.dialect).unwrap();
 
         let mut remaining_ctes: IndexMap<_, _> = RefCell::borrow(&query.inner)
             .ctes

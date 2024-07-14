@@ -142,12 +142,15 @@ impl<T: Default + Clone> Query<'_, T> {
         acc
     }
 
-    pub fn from_root(root_segment: ErasedSegment, dialect: &Dialect) -> Query<'_, T> {
-        let selectable_segment =
-            root_segment.recursive_crawl(SELECTABLE_TYPES, true, "merge_statement".into(), true)[0]
-                .clone();
+    pub fn from_root<'a>(
+        root_segment: &ErasedSegment,
+        dialect: &'a Dialect,
+    ) -> Option<Query<'a, T>> {
+        let stmts =
+            root_segment.recursive_crawl(SELECTABLE_TYPES, true, "merge_statement".into(), true);
+        let selectable_segment = stmts.first()?;
 
-        Query::from_segment(&selectable_segment, dialect, None)
+        Some(Query::from_segment(selectable_segment, dialect, None))
     }
 
     pub fn from_segment<'a>(

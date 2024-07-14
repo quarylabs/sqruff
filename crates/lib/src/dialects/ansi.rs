@@ -1,6 +1,7 @@
 use std::borrow::Cow;
+use std::cell::OnceCell;
 use std::fmt::Debug;
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
 
 use ahash::AHashSet;
 use itertools::{enumerate, Itertools};
@@ -29,7 +30,7 @@ use crate::core::parser::segments::base::{
     ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment,
     SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
-use crate::core::parser::segments::bracketed::BracketedSegment;
+use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::fix::SourceFix;
 use crate::core::parser::segments::generator::SegmentGenerator;
@@ -64,9 +65,9 @@ pub struct Node {
     segments: Vec<ErasedSegment>,
     uuid: Uuid,
     position_marker: Option<PositionMarker>,
-    raw: OnceLock<String>,
+    raw: OnceCell<String>,
     source_fixes: Vec<SourceFix>,
-    descendant_type_set: OnceLock<AHashSet<&'static str>>,
+    descendant_type_set: OnceCell<AHashSet<&'static str>>,
 }
 
 impl Node {
@@ -85,9 +86,9 @@ impl Node {
             segments,
             uuid: Uuid::new_v4(),
             position_marker,
-            raw: OnceLock::new(),
+            raw: OnceCell::new(),
             source_fixes: Vec::new(),
-            descendant_type_set: OnceLock::new(),
+            descendant_type_set: OnceCell::new(),
         }
     }
 }
@@ -100,9 +101,9 @@ impl Segment for Node {
             dialect: self.dialect,
             segments,
             position_marker: self.position_marker.clone(),
-            raw: OnceLock::new(),
+            raw: OnceCell::new(),
             source_fixes: Vec::new(),
-            descendant_type_set: OnceLock::new(),
+            descendant_type_set: OnceCell::new(),
         }
         .to_erased_segment()
     }
@@ -5428,10 +5429,7 @@ pub fn raw_dialect() -> Dialect {
     // This is a hook point to allow subclassing for other dialects
     ansi_dialect.add([
         ("PostTableExpressionGrammar".into(), Nothing::new().to_matchable().into()),
-        (
-            "BracketedSegment".into(),
-            BracketedSegment::new(vec![], vec![], vec![], true).to_matchable().into(),
-        ),
+        ("BracketedSegment".into(), BracketedSegmentMatcher::new().to_matchable().into()),
     ]);
 
     ansi_dialect

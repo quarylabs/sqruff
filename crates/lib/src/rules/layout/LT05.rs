@@ -234,8 +234,8 @@ mod tests {
     }
 
     fn fix(sql: &'static str, options: Options) -> String {
-        let result = lint_inner(sql, options);
-        result.paths[0].files[0].fix_string()
+        let mut result = lint_inner(sql, options);
+        std::mem::take(&mut result.paths[0].files[0]).fix_string()
     }
 
     #[test]

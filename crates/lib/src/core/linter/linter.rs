@@ -205,7 +205,7 @@ impl Linter {
 
         let linted_file = LintedFile {
             path: parsed_string.f_name,
-            tree,
+            patches: tree.iter_patches(&parsed_string.templated_file),
             templated_file: parsed_string.templated_file,
             violations,
         };

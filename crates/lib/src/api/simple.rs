@@ -69,6 +69,6 @@ pub fn lint_with_formatter(
 pub fn fix(sql: &str, rules: Vec<ErasedRule>) -> String {
     let cfg = get_simple_config(Some("ansi".into()), None, None, None).unwrap();
     let mut linter = Linter::new(cfg, None, None);
-    let result = linter.lint_string_wrapped(sql, None, Some(true), rules);
-    result.paths[0].files[0].fix_string()
+    let mut result = linter.lint_string_wrapped(sql, None, Some(true), rules);
+    take(&mut result.paths[0].files[0]).fix_string()
 }

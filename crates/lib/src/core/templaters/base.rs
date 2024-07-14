@@ -32,7 +32,7 @@ impl TemplatedFileSlice {
 /// This is the response of a `templater`'s `.process()` method
 /// and contains both references to the original file and also
 /// the capability to split up that file when lexing.
-#[derive(Debug, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, Default)]
 pub struct TemplatedFile {
     inner: Arc<TemplatedFileInner>,
 }
@@ -74,7 +74,7 @@ impl Deref for TemplatedFile {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, Default)]
 pub struct TemplatedFileInner {
     pub source_str: String,
     f_name: String,

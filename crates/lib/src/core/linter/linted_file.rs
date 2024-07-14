@@ -4,14 +4,13 @@ use itertools::Itertools;
 use rustc_hash::FxHashSet;
 
 use crate::core::errors::SQLBaseError;
-use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::fix::FixPatch;
 use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct LintedFile {
     pub path: String,
-    pub tree: ErasedSegment,
+    pub patches: Vec<FixPatch>,
     pub templated_file: TemplatedFile,
     pub violations: Vec<SQLBaseError>,
 }
@@ -54,12 +53,12 @@ impl LintedFile {
         str_buff
     }
 
-    pub fn fix_string(&self) -> String {
+    pub fn fix_string(self) -> String {
         // Generate patches from the fixed tree. In the process we sort
         // and deduplicate them so that the resultant list is in the
         // the right order for the source file without any duplicates.
         let filtered_source_patches =
-            Self::generate_source_patches(self.tree.clone(), &self.templated_file);
+            Self::generate_source_patches(self.patches, &self.templated_file);
 
         // Any Template tags in the source file are off limits, unless we're explicitly
         // fixing the source file.
@@ -81,13 +80,13 @@ impl LintedFile {
     }
 
     fn generate_source_patches(
-        tree: ErasedSegment,
-        templated_file: &TemplatedFile,
+        patches: Vec<FixPatch>,
+        _templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
         let mut filtered_source_patches = Vec::new();
         let mut dedupe_buffer = FxHashSet::default();
 
-        for patch in tree.iter_patches(templated_file) {
+        for patch in patches {
             if dedupe_buffer.insert(patch.dedupe_tuple()) {
                 filtered_source_patches.push(patch);
             }

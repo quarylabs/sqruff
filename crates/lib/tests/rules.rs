@@ -215,10 +215,13 @@ mod tests {{
                     );
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
-                    let f =
-                        linter.lint_string_wrapped(&fail_str, None, Some(true), rule_pack).paths[0]
-                            .files[0]
-                            .fix_string();
+                    let f = std::mem::take(
+                        &mut linter
+                            .lint_string_wrapped(&fail_str, None, Some(true), rule_pack)
+                            .paths[0]
+                            .files[0],
+                    )
+                    .fix_string();
                     assert_eq!(f, fix_str);
                 }
             }

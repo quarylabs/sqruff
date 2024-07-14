@@ -14,7 +14,7 @@ use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, Segment, SymbolSegment,
     SymbolSegmentNewArgs,
 };
-use crate::core::parser::segments::bracketed::BracketedSegment;
+use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::dialects::ansi::NodeMatcher;
@@ -428,7 +428,7 @@ pub fn sparksql_dialect() -> Dialect {
                 Ref::new("BinaryOperatorGrammar"),
                 Ref::new("DelimiterGrammar"),
                 Ref::new("JoinLikeClauseGrammar"),
-                BracketedSegment::new(vec![], vec![], vec![], true)
+                BracketedSegmentMatcher::new()
             ])
             .to_matchable()
             .into(),

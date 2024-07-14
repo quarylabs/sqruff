@@ -82,9 +82,10 @@ fn main() {
             }
 
             for linted_dir in result.paths {
-                for file in linted_dir.files {
+                for mut file in linted_dir.files {
+                    let path = std::mem::take(&mut file.path);
                     let write_buff = file.fix_string();
-                    std::fs::write(file.path, write_buff).unwrap();
+                    std::fs::write(path, write_buff).unwrap();
                 }
             }
 

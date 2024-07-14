@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::sync::OnceLock;
+use std::cell::OnceCell;
 
 use ahash::AHashSet;
 use itertools::Itertools;
@@ -15,14 +15,13 @@ use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
 pub struct BracketedSegment {
-    raw: OnceLock<String>,
+    raw: OnceCell<String>,
     pub segments: Vec<ErasedSegment>,
     pub start_bracket: Vec<ErasedSegment>,
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
-    cache_key: MatchableCacheKey,
-    descendant_type_set: OnceLock<AHashSet<&'static str>>,
+    descendant_type_set: OnceCell<AHashSet<&'static str>>,
 }
 
 impl PartialEq for BracketedSegment {
@@ -46,9 +45,8 @@ impl BracketedSegment {
             end_bracket,
             pos_marker: None,
             uuid: Uuid::new_v4(),
-            raw: OnceLock::new(),
-            cache_key: next_matchable_cache_key(),
-            descendant_type_set: OnceLock::new(),
+            raw: OnceCell::new(),
+            descendant_type_set: OnceCell::new(),
         };
         if !hack {
             this.pos_marker = pos_marker(&this.segments).into();
@@ -61,7 +59,7 @@ impl Segment for BracketedSegment {
     fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let mut this = self.clone();
         this.segments = segments;
-        this.raw = OnceLock::new();
+        this.raw = OnceCell::new();
         this.pos_marker = pos_marker(&this.segments).into();
         this.to_erased_segment()
     }
@@ -111,7 +109,24 @@ impl Segment for BracketedSegment {
     }
 }
 
-impl Matchable for BracketedSegment {
+#[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+pub struct BracketedSegmentMatcher {
+    cache_key: MatchableCacheKey,
+}
+
+impl BracketedSegmentMatcher {
+    pub fn new() -> Self {
+        Self { cache_key: next_matchable_cache_key() }
+    }
+}
+
+impl Default for BracketedSegmentMatcher {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Matchable for BracketedSegmentMatcher {
     fn simple(
         &self,
         _parse_context: &ParseContext,

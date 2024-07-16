@@ -535,7 +535,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
             acc.push(FixPatch::new(
                 self.get_position_marker().unwrap().templated_slice,
                 self.raw().into(),
-                "literal".into(),
+                // "literal".into(),
                 self.get_position_marker().unwrap().source_slice,
                 templated_file.templated_str.as_ref().unwrap()
                     [self.get_position_marker().unwrap().templated_slice]
@@ -662,7 +662,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
             patches.push(FixPatch::new(
                 source_fix.templated_slice.clone(),
                 source_fix.edit.clone(),
-                String::from("source"),
+                // String::from("source"),
                 source_fix.source_slice.clone(),
                 templated_file.templated_str.clone().unwrap()[source_fix.templated_slice.clone()]
                     .to_string(),

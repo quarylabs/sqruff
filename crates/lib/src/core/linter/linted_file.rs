@@ -189,21 +189,21 @@ mod test {
             // Simple replacement
             (
                 vec![0..1, 1..2, 2..3],
-                vec![FixPatch::new(1..2, "d".into(), "".into(), 1..2, "b".into(), "b".into())],
+                vec![FixPatch::new(1..2, "d".into(), 1..2, "b".into(), "b".into())],
                 "abc",
                 "adc",
             ),
             // Simple insertion
             (
                 vec![0..1, 1..1, 1..2],
-                vec![FixPatch::new(1..1, "b".into(), "".into(), 1..1, "".into(), "".into())],
+                vec![FixPatch::new(1..1, "b".into(), 1..1, "".into(), "".into())],
                 "ac",
                 "abc",
             ),
             // Simple deletion
             (
                 vec![0..1, 1..2, 2..3],
-                vec![FixPatch::new(1..2, "".into(), "".into(), 1..2, "b".into(), "b".into())],
+                vec![FixPatch::new(1..2, "".into(), 1..2, "b".into(), "b".into())],
                 "abc",
                 "ac",
             ),
@@ -211,14 +211,7 @@ mod test {
             // shouldn't care if it's templated).
             (
                 vec![0..2, 2..7, 7..9],
-                vec![FixPatch::new(
-                    2..3,
-                    "{{ b }}".into(),
-                    "".into(),
-                    2..7,
-                    "b".into(),
-                    "{{b}}".into(),
-                )],
+                vec![FixPatch::new(2..3, "{{ b }}".into(), 2..7, "b".into(), "{{b}}".into())],
                 "a {{b}} c",
                 "a {{ b }} c",
             ),
@@ -256,7 +249,7 @@ mod test {
                 // We've yielded a patch to change a single character. This means
                 // we should get only slices for that character, and for the
                 // unchanged file around it.
-                vec![FixPatch::new(1..2, "d".into(), "".into(), 1..2, "b".into(), "b".into())],
+                vec![FixPatch::new(1..2, "d".into(), 1..2, "b".into(), "b".into())],
                 vec![],
                 "abc",
                 vec![0..1, 1..2, 2..3],
@@ -287,7 +280,7 @@ mod test {
                 // We're making an edit adjacent to a source only slice. Edits
                 // _before_ source only slices currently don't trigger additional
                 // slicing. This is fine.
-                vec![FixPatch::new(0..1, "a ".into(), "".into(), 0..1, "a".into(), "a".into())],
+                vec![FixPatch::new(0..1, "a ".into(), 0..1, "a".into(), "a".into())],
                 vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 1, None, None)],
                 "a{# b #}c",
                 vec![0..1, 1..9],
@@ -298,7 +291,7 @@ mod test {
                 // which should trigger the logic to ensure that the source
                 // only slice isn't included in the source mapping of the
                 // edit.
-                vec![FixPatch::new(1..2, " c".into(), "".into(), 8..9, "c".into(), "c".into())],
+                vec![FixPatch::new(1..2, " c".into(), 8..9, "c".into(), "c".into())],
                 vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 1, None, None)],
                 "a{# b #}cc",
                 vec![0..1, 1..8, 8..9, 9..10],
@@ -311,7 +304,7 @@ mod test {
                 vec![FixPatch::new(
                     2..2,
                     "{# fixed #}".into(),
-                    "".into(),
+                    // "".into(),
                     2..9,
                     "".into(),
                     "".into(),
@@ -329,7 +322,7 @@ mod test {
                     FixPatch::new(
                         14..14,
                         "{%+ if true -%}".into(),
-                        "source".into(),
+                        // "source".into(),
                         14..27,
                         "".into(),
                         "{%+if true-%}".into(),
@@ -337,7 +330,7 @@ mod test {
                     FixPatch::new(
                         14..14,
                         "{{ ref('foo') }}".into(),
-                        "source".into(),
+                        // "source".into(),
                         28..42,
                         "".into(),
                         "{{ref('foo')}}".into(),
@@ -345,7 +338,7 @@ mod test {
                     FixPatch::new(
                         17..17,
                         "{%- endif %}".into(),
-                        "source".into(),
+                        // "source".into(),
                         43..53,
                         "".into(),
                         "{%-endif%}".into(),

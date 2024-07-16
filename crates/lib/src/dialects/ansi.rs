@@ -5996,7 +5996,6 @@ impl FromExpressionElementSegment {
                 .and_then(|bracketed| bracketed.child(&["table_expression"]))
         });
 
-        dbg!(tbl_expression.is_some());
         if let Some(tbl_expression_inner) = &tbl_expression
             && tbl_expression_inner.child(&["object_reference", "table_reference"]).is_none()
         {
@@ -6204,7 +6203,6 @@ impl ObjectReferenceSegment {
                     None,
                     true,
                 ) {
-                    dbg!(elem.get_type());
                     acc.extend(self.iter_reference_parts(elem));
                 }
 

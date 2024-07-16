@@ -86,6 +86,12 @@ pub struct ErasedSegment {
 }
 
 impl ErasedSegment {
+    pub fn direct_descendant_type_set(&self) -> AHashSet<&'static str> {
+        self.segments().iter().flat_map(|it| it.class_types()).collect()
+    }
+}
+
+impl ErasedSegment {
     pub(crate) fn is_keyword(&self, p0: &str) -> bool {
         self.is_type("keyword") && self.raw().eq_ignore_ascii_case(p0)
     }

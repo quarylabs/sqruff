@@ -8,9 +8,9 @@ use lsp_types::request::{Formatting, Request as _};
 use lsp_types::{
     Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, DidSaveTextDocumentParams, DocumentFormattingParams,
-    InitializeParams, InitializeResult, OneOf, Position, PublishDiagnosticsParams, Registration,
-    ServerCapabilities, TextDocumentIdentifier, TextDocumentItem, TextDocumentSyncCapability,
-    TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
+    InitializeParams, InitializeResult, NumberOrString, OneOf, Position, PublishDiagnosticsParams,
+    Registration, ServerCapabilities, TextDocumentIdentifier, TextDocumentItem,
+    TextDocumentSyncCapability, TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
 use sqruff_lib::core::config::FluffConfig;
@@ -191,11 +191,14 @@ impl LanguageServer {
                     lsp_types::Range::new(pos, pos)
                 };
 
+                let code =
+                    violation.rule.map(|rule| NumberOrString::String(rule.code().to_string()));
+
                 Diagnostic::new(
                     range,
                     DiagnosticSeverity::WARNING.into(),
-                    None,
-                    None,
+                    code,
+                    Some("sqruff".to_string()),
                     violation.description,
                     None,
                     None,

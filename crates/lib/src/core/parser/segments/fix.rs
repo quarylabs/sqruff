@@ -31,8 +31,8 @@ pub struct FixPatch {
     pub fixed_raw: SmolStr,
     // The patch category, functions mostly for debugging and explanation
     // than for function. It allows traceability of *why* this patch was
-    // generated. It has no significance for processing.
-    patch_category: String,
+    // generated. It has no significance for processing. Brought over from sqlfluff
+    // patch_category: FixPatchCategory,
     pub source_slice: Range<usize>,
     templated_str: String,
     source_str: String,
@@ -42,19 +42,11 @@ impl FixPatch {
     pub fn new(
         templated_slice: Range<usize>,
         fixed_raw: SmolStr,
-        patch_category: String,
         source_slice: Range<usize>,
         templated_str: String,
         source_str: String,
     ) -> Self {
-        FixPatch {
-            templated_slice,
-            fixed_raw,
-            patch_category,
-            source_slice,
-            templated_str,
-            source_str,
-        }
+        FixPatch { templated_slice, fixed_raw, source_slice, templated_str, source_str }
     }
 
     /// Generate a tuple of this fix for deduping.

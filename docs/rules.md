@@ -58,6 +58,7 @@ The following rules are available in this create. This list is generated from th
 | ST06 | [structure.column_order](#structurecolumn_order) | Select wildcards then simple targets before calculations and aggregates. | 
 | ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
+| ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. | 
 
 ## Rule Details
 
@@ -2047,5 +2048,51 @@ Remove parentheses to be clear that the DISTINCT applies to both columns.
 
 ```sql
 SELECT DISTINCT a, b FROM foo
+```
+
+
+### structure.join_condition_order
+
+Joins should list the table referenced earlier/later first.
+
+**Code:** ST09
+
+**Groups:** `core`, `structure`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+In this example, the tables that were referenced later are listed first
+and the `preferred_first_table_in_join_clause` configuration
+is set to `earlier`.
+
+```sql
+select
+    foo.a,
+    foo.b,
+    bar.c
+from foo
+left join bar
+    -- This subcondition does not list
+    -- the table referenced earlier first:
+    on bar.a = foo.a
+    -- Neither does this subcondition:
+    and bar.b = foo.b
+```
+
+**Best practice**
+
+List the tables that were referenced earlier first.
+
+```sql
+select
+    foo.a,
+    foo.b,
+    bar.c
+from foo
+left join bar
+    on foo.a = bar.a
+    and foo.b = bar.b
 ```
 

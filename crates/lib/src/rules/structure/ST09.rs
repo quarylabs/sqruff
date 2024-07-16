@@ -75,7 +75,7 @@ left join bar
     }
 
     fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::Core, RuleGroups::Structure]
+        &[RuleGroups::All, RuleGroups::Structure]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

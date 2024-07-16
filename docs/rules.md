@@ -2057,7 +2057,7 @@ Joins should list the table referenced earlier/later first.
 
 **Code:** ST09
 
-**Groups:** `core`, `structure`
+**Groups:** `all`, `structure`
 
 **Fixable:** No
 

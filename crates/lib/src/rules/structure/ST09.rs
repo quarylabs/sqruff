@@ -160,7 +160,6 @@ left join bar
                 _ => unimplemented!(),
             };
 
-
             if !table_aliases.contains(&first_table) || !table_aliases.contains(&second_table) {
                 continue;
             }

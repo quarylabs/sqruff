@@ -27,7 +27,6 @@ pub struct SQLBaseError {
     pub line_no: usize,
     pub line_pos: usize,
     pub description: String,
-    pub rule_code: String,
     pub rule: Option<ErasedRule>,
 }
 
@@ -46,13 +45,12 @@ impl SQLBaseError {
             warning: false,
             line_no: 0,
             line_pos: 0,
-            rule_code: "????".into(),
             rule: None,
         }
     }
 
-    pub fn rule_code(&self) -> &str {
-        &self.rule_code
+    pub fn rule_code(&self) -> &'static str {
+        self.rule.as_ref().map_or("????", |rule| rule.code())
     }
 
     pub fn set_position_marker(&mut self, position_marker: PositionMarker) {
@@ -116,11 +114,7 @@ impl DerefMut for SQLLintError {
 }
 
 impl From<SQLLintError> for SQLBaseError {
-    fn from(mut value: SQLLintError) -> Self {
-        if let Some(rule) = &value.rule {
-            value.base.rule_code = rule.code().into();
-        }
-
+    fn from(value: SQLLintError) -> Self {
         value.base
     }
 }

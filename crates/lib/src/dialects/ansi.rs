@@ -5996,8 +5996,9 @@ impl FromExpressionElementSegment {
                 .and_then(|bracketed| bracketed.child(&["table_expression"]))
         });
 
+        dbg!(tbl_expression.is_some());
         if let Some(tbl_expression_inner) = &tbl_expression
-            && tbl_expression_inner.child(&["object_reference"]).is_none()
+            && tbl_expression_inner.child(&["object_reference", "table_reference"]).is_none()
         {
             let bracketed = tbl_expression_inner.child(&["bracketed"]);
             if let Some(bracketed) = bracketed {
@@ -6028,6 +6029,7 @@ impl FromExpressionElementSegment {
 
         if let Some(reference) = &reference {
             let references = reference.iter_raw_references();
+
             if !references.is_empty() {
                 let penultimate_ref = references.last().unwrap();
                 return AliasInfo {
@@ -6196,9 +6198,13 @@ impl ObjectReferenceSegment {
             ObjectReferenceKind::Object | ObjectReferenceKind::Table => {
                 let mut acc = Vec::new();
 
-                for elem in
-                    self.0.recursive_crawl(&["identifier", "naked_identifier"], true, None, true)
-                {
+                for elem in self.0.recursive_crawl(
+                    &["identifier", "naked_identifier", "quoted_identifier"],
+                    true,
+                    None,
+                    true,
+                ) {
+                    dbg!(elem.get_type());
                     acc.extend(self.iter_reference_parts(elem));
                 }
 
@@ -6208,7 +6214,7 @@ impl ObjectReferenceSegment {
                 let mut acc = Vec::new();
 
                 for elem in self.0.recursive_crawl(
-                    &["identifier", "star", "naked_identifier"],
+                    &["identifier", "star", "naked_identifier", "quoted_identifier"],
                     true,
                     None,
                     true,
@@ -6235,10 +6241,10 @@ impl ObjectReferenceSegment {
     }
 }
 
-pub struct JoinClauseSegment(ErasedSegment);
+pub struct JoinClauseSegment(pub ErasedSegment);
 
 impl JoinClauseSegment {
-    fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
+    pub fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
         let mut buff = Vec::new();
 
         let from_expression = self.0.child(&["from_expression_element"]).unwrap();

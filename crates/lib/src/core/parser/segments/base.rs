@@ -80,13 +80,33 @@ impl TupleSerialisedSegment {
 
 #[derive(Debug, Clone)]
 pub struct ErasedSegment {
-    value: Arc<dyn Segment>,
+    pub value: Arc<dyn Segment>,
     hash: Arc<AtomicU64>,
 }
 
 impl ErasedSegment {
+    pub fn is(&self, other: &ErasedSegment) -> bool {
+        Arc::ptr_eq(&self.value, &other.value)
+    }
+
+    pub fn addr(&self) -> usize {
+        fn addr<T: ?Sized>(t: *const T) -> usize {
+            let c: *const () = t.cast();
+            sptr::Strict::addr(c)
+        }
+
+        addr(Arc::as_ptr(&self.value))
+    }
+
     pub(crate) fn is_keyword(&self, p0: &str) -> bool {
         self.is_type("keyword") && self.raw().eq_ignore_ascii_case(p0)
+    }
+
+    pub fn copy(&self) -> ErasedSegment {
+        let mut it = self.deep_clone();
+        let segments = it.segments().iter().map(|it| it.copy()).collect();
+        it.get_mut().set_segments(segments);
+        it
     }
 }
 
@@ -114,7 +134,7 @@ impl ErasedSegment {
         hash
     }
 
-    fn deep_clone(&self) -> Self {
+    pub(crate) fn deep_clone(&self) -> Self {
         self.clone_box()
     }
 
@@ -376,6 +396,8 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn reset_cache(&mut self) {}
+
     #[track_caller]
     fn dialect(&self) -> DialectKind {
         todo!("{}", std::any::type_name::<Self>())
@@ -605,9 +627,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment + Send + Sync {
     }
 
     #[track_caller]
-    fn set_segments(&mut self, _segments: Vec<ErasedSegment>) {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
+    fn set_segments(&self, _segments: Vec<ErasedSegment>) {}
 
     // get_segments is the way the segment returns its children 'self.segments' in
     // Python.

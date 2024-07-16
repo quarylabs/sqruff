@@ -11,12 +11,13 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::dialects::ansi::VecCell;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
 pub struct BracketedSegment {
     raw: OnceLock<String>,
-    pub segments: Vec<ErasedSegment>,
+    pub segments: VecCell<ErasedSegment>,
     pub start_bracket: Vec<ErasedSegment>,
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
@@ -41,7 +42,7 @@ impl BracketedSegment {
         hack: bool,
     ) -> Self {
         let mut this = BracketedSegment {
-            segments,
+            segments: VecCell:,
             start_bracket,
             end_bracket,
             pos_marker: None,
@@ -82,8 +83,8 @@ impl Segment for BracketedSegment {
         &self.segments
     }
 
-    fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
-        self.segments = segments;
+    fn set_segments(&self, segments: Vec<ErasedSegment>) {
+        self.segments.swap(segments);
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {

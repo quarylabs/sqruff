@@ -222,7 +222,8 @@ mod tests {{
                         linter.lint_string_wrapped(&fail_str, None, Some(true), rule_pack).paths[0]
                             .files[0]
                             .fix_string();
-                    assert_eq!(f, fix_str);
+
+                    pretty_assertions::assert_eq!(f, fix_str);
                 }
             }
 

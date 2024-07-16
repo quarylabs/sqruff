@@ -8,5 +8,5 @@ members = ["crates/lib", "crates/cli", "crates/lsp"]
 resolver = "2"
 
 # https://github.com/rustwasm/wasm-bindgen/issues/3451#issuecomment-1562982835
-[profile.dev]
-opt-level = "s"
+# [profile.dev]
+# opt-level = "s"

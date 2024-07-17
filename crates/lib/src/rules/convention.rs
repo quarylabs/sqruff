@@ -8,6 +8,7 @@ pub mod CV05;
 pub mod CV07;
 pub mod CV08;
 pub mod CV09;
+mod CV10;
 mod CV11;
 
 pub fn rules() -> Vec<ErasedRule> {
@@ -21,6 +22,7 @@ pub fn rules() -> Vec<ErasedRule> {
         CV07::RuleCV07.erased(),
         CV08::RuleCV08.erased(),
         CV09::RuleCV09::default().erased(),
+        CV10::RuleCV10::default().erased(),
         CV11::RuleCV11::default().erased(),
     ]
 }

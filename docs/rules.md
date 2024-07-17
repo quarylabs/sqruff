@@ -32,6 +32,7 @@ The following rules are available in this create. This list is generated from th
 | CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. | 
 | CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
 | CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
+| CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. | 
 | LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
 | LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. | 
@@ -1006,6 +1007,41 @@ Do not used any blocked words.
 ```sql
 SELECT * FROM my_table WHERE 1 = 1;
 CREATE TABLE myschema.t1 (a BOOL);
+```
+
+
+### convention.casting_style
+
+Enforce consistent type casting style.
+
+**Code:** CV11
+
+**Groups:** `all`, `convention`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Using a mixture of `CONVERT`, `::`, and `CAST` when `preferred_type_casting_style` config is set to `consistent` (default).
+
+```sql
+SELECT
+    CONVERT(int, 1) AS bar,
+    100::int::text,
+    CAST(10 AS text) AS coo
+FROM foo;
+```
+
+**Best Practice**
+
+Use a consistent type casting style.
+
+```sql
+SELECT
+    CAST(1 AS int) AS bar,
+    CAST(CAST(100 AS int) AS text),
+    CAST(10 AS text) AS coo
+FROM foo;
 ```
 
 

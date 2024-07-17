@@ -143,9 +143,9 @@ impl Segments {
     }
 
     #[track_caller]
-    pub fn select(
+    pub fn select<SelectIf: Fn(&ErasedSegment) -> bool>(
         &self,
-        select_if: PredicateType,
+        select_if: Option<SelectIf>,
         loop_while: PredicateType,
         start_seg: Option<&ErasedSegment>,
         stop_seg: Option<&ErasedSegment>,

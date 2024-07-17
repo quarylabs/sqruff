@@ -84,7 +84,8 @@ FROM mytable
         let case1_else_expressions =
             case1_else_clause.children(Some(|it| it.is_type("expression")));
         let expression_children = case1_else_expressions.children(None);
-        let case2 = expression_children.select(None, None, None, None);
+        let case2 =
+            expression_children.select::<fn(&ErasedSegment) -> bool>(None, None, None, None);
         let case2_children = case2.children(None);
         let case2_case_list =
             case2_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));
@@ -101,13 +102,18 @@ FROM mytable
 
         let x1 = segment
             .children(Some(|it| it.is_code()))
-            .select(None, None, case1_first_case.into(), case1_first_when.into())
+            .select::<fn(&ErasedSegment) -> bool>(
+                None,
+                None,
+                case1_first_case.into(),
+                case1_first_when.into(),
+            )
             .into_iter()
             .map(|it| it.get_raw_upper().unwrap());
 
         let x2 = case2
             .children(Some(|it| it.is_code()))
-            .select(None, None, case2_first_case, case2_first_when)
+            .select::<fn(&ErasedSegment) -> bool>(None, None, case2_first_case, case2_first_when)
             .into_iter()
             .map(|it| it.get_raw_upper().unwrap());
 
@@ -117,8 +123,12 @@ FROM mytable
 
         let case1_else_clause_seg = case1_else_clause.first().unwrap();
 
-        let case1_to_delete =
-            case1_children.select(None, None, case1_last_when.into(), case1_else_clause_seg.into());
+        let case1_to_delete = case1_children.select::<fn(&ErasedSegment) -> bool>(
+            None,
+            None,
+            case1_last_when.into(),
+            case1_else_clause_seg.into(),
+        );
 
         let comments = case1_to_delete.find_last(Some(|it: &ErasedSegment| it.is_comment()));
         let after_last_comment_index = comments
@@ -126,14 +136,14 @@ FROM mytable
             .and_then(|comment| case1_to_delete.iter().position(|it| it == comment))
             .map_or(0, |n| n + 1);
 
-        let case1_comments_to_restore = case1_to_delete.select(
+        let case1_comments_to_restore = case1_to_delete.select::<fn(&ErasedSegment) -> bool>(
             None,
             None,
             None,
             case1_to_delete.base.get(after_last_comment_index),
         );
         let after_else_comment = case1_else_clause.children(None).select(
-            Some(|it| {
+            Some(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
                     "newline" | "inline_comment" | "block_comment" | "comment" | "whitespace"
@@ -200,11 +210,11 @@ fn indentation(
     indent_unit: &str,
 ) -> String {
     let leading_whitespace = parent_segments
-        .select(None, None, None, segment.into())
+        .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
         .reversed()
         .find_first(Some(|it: &ErasedSegment| it.is_type("whitespace")));
     let seg_indent = parent_segments
-        .select(None, None, None, segment.into())
+        .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
         .find_last(Some(|it| it.is_type("indent")));
     let mut indent_level = 1;
     if let Some(segment_indent) = seg_indent.last()
@@ -268,7 +278,7 @@ fn nested_end_trailing_comment(
     end_indent_str: &str,
 ) -> Vec<LintFix> {
     // Prepend newline spacing to comments on the final nested `END` line.
-    let trailing_end = case1_children.select(
+    let trailing_end = case1_children.select::<fn(&ErasedSegment) -> bool>(
         None,
         Some(|seg: &ErasedSegment| !seg.is_type("newline")),
         Some(case1_else_clause_seg),

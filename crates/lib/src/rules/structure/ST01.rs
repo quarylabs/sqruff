@@ -59,7 +59,7 @@ FROM foo
 
         if !else_clause.children(Some(|child| child.raw().eq_ignore_ascii_case("NULL"))).is_empty()
         {
-            let before_else = children.reversed().select(
+            let before_else = children.reversed().select::<fn(&ErasedSegment) -> bool>(
                 None,
                 Some(|it| matches!(it.get_type(), "whitespace" | "newline") | it.is_meta()),
                 else_clause.first().unwrap().into(),

@@ -75,11 +75,11 @@ FROM foo
 
         if !children
             .children(None)
-            .select(Some(|it| it.is_type("cast_expression")), None, None, None)
+            .select(Some(|it: &ErasedSegment| it.is_type("cast_expression")), None, None, None)
             .is_empty()
             && !children
                 .children(None)
-                .select(Some(|it| it.is_type("cast_expression")), None, None, None)
+                .select(Some(|it: &ErasedSegment| it.is_type("cast_expression")), None, None, None)
                 .children(None)
                 .any(Some(|it| it.is_type("function")))
         {
@@ -97,7 +97,7 @@ FROM foo
         }
 
         let select_clause_children =
-            children.select(Some(|it| !it.is_type("star")), None, None, None);
+            children.select(Some(|it: &ErasedSegment| !it.is_type("star")), None, None, None);
         let is_complex_clause = recursively_check_is_complex(select_clause_children);
 
         if !is_complex_clause {

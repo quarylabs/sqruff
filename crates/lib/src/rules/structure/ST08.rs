@@ -83,14 +83,22 @@ SELECT DISTINCT a, b FROM foo
         let children = FunctionalContext::new(context.clone()).segment().children(None);
 
         if context.segment.is_type("select_clause") {
-            let modifier =
-                children.select(Some(|it| it.is_type("select_clause_modifier")), None, None, None);
-            let selected_elements =
-                children.select(Some(|it| it.is_type("select_clause_element")), None, None, None);
+            let modifier = children.select(
+                Some(|it: &ErasedSegment| it.is_type("select_clause_modifier")),
+                None,
+                None,
+                None,
+            );
+            let selected_elements = children.select(
+                Some(|it: &ErasedSegment| it.is_type("select_clause_element")),
+                None,
+                None,
+                None,
+            );
             let first_element = selected_elements.find_first::<fn(&_) -> _>(None);
             let expression = first_element
                 .children(Some(|it| it.is_type("expression")))
-                .find_first::<fn(&_) -> _>(None);
+                .find_first::<fn(&ErasedSegment) -> bool>(None);
             let expression = if expression.is_empty() { first_element } else { expression };
             let bracketed = expression
                 .children(Some(|it| it.get_type() == "bracketed"))
@@ -118,8 +126,12 @@ SELECT DISTINCT a, b FROM foo
                 return Vec::new();
             }
 
-            let selected_functions =
-                children.select(Some(|it| it.is_type("function_name")), None, None, None);
+            let selected_functions = children.select(
+                Some(|it: &ErasedSegment| it.is_type("function_name")),
+                None,
+                None,
+                None,
+            );
             let function_name = selected_functions.first();
             let bracketed = children.find_first(Some(|it: &ErasedSegment| it.is_type("bracketed")));
 

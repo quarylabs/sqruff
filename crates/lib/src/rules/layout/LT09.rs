@@ -130,7 +130,7 @@ impl RuleLT09 {
         let children = FunctionalContext::new(context.clone()).segment().children(None);
 
         let select_targets = children.select(
-            Some(|segment| segment.is_type("select_clause_element")),
+            Some(|segment: &ErasedSegment| segment.is_type("select_clause_element")),
             None,
             None,
             None,
@@ -139,7 +139,7 @@ impl RuleLT09 {
         let first_select_target_idx = select_targets.get(0, None).and_then(|it| children.find(&it));
 
         let selects = children.select(
-            Some(|segment| {
+            Some(|segment: &ErasedSegment| {
                 segment.get_type() == "keyword" && segment.raw().eq_ignore_ascii_case("select")
             }),
             None,
@@ -150,7 +150,8 @@ impl RuleLT09 {
         let select_idx =
             (!selects.is_empty()).then(|| children.find(&selects.get(0, None).unwrap()).unwrap());
 
-        let newlines = children.select(Some(|it| it.is_type("newline")), None, None, None);
+        let newlines =
+            children.select(Some(|it: &ErasedSegment| it.is_type("newline")), None, None, None);
 
         let first_new_line_idx =
             (!newlines.is_empty()).then(|| children.find(&newlines.get(0, None).unwrap()).unwrap());
@@ -158,7 +159,7 @@ impl RuleLT09 {
 
         if !newlines.is_empty() {
             let comment_after_select = children.select(
-                Some(|seg| seg.is_type("comment")),
+                Some(|seg: &ErasedSegment| seg.is_type("comment")),
                 Some(|seg| seg.is_type("comment") | seg.is_type("whitespace") | seg.is_meta()),
                 selects.get(0, None).as_ref(),
                 newlines.get(0, None).as_ref(),
@@ -173,7 +174,7 @@ impl RuleLT09 {
         let mut first_whitespace_idx = None;
         if let Some(first_new_line_idx) = first_new_line_idx {
             let segments_after_first_line = children.select(
-                Some(|seg| seg.is_type("whitespace")),
+                Some(|seg: &ErasedSegment| seg.is_type("whitespace")),
                 None,
                 Some(&children[first_new_line_idx]),
                 None,
@@ -191,7 +192,7 @@ impl RuleLT09 {
             .find_first::<fn(&ErasedSegment) -> bool>(None)
             .get(0, None);
         let pre_from_whitespace = siblings_post.select(
-            Some(|seg| seg.is_type("whitespace")),
+            Some(|seg: &ErasedSegment| seg.is_type("whitespace")),
             None,
             None,
             from_segment.as_ref(),
@@ -367,8 +368,13 @@ impl RuleLT09 {
                         select_children[select_targets_info.first_new_line_idx.unwrap()].clone()
                     };
 
-                    let move_after_select_clause =
-                        select_children.select(None, None, (&start_seg).into(), (&stop_seg).into());
+                    let move_after_select_clause = select_children
+                        .select::<fn(&ErasedSegment) -> bool>(
+                            None,
+                            None,
+                            (&start_seg).into(),
+                            (&stop_seg).into(),
+                        );
                     let mut local_fixes = Vec::new();
                     let mut all_deletes = fixes
                         .iter()
@@ -407,12 +413,13 @@ impl RuleLT09 {
 
             if select_stmt.segments().len() > after_select_clause_idx {
                 if select_stmt.segments()[after_select_clause_idx].is_type("newline") {
-                    let to_delete = select_children.reversed().select(
-                        None,
-                        Some(|seg| seg.is_type("whitespace")),
-                        (&select_children[start_idx]).into(),
-                        None,
-                    );
+                    let to_delete =
+                        select_children.reversed().select::<fn(&ErasedSegment) -> bool>(
+                            None,
+                            Some(|seg| seg.is_type("whitespace")),
+                            (&select_children[start_idx]).into(),
+                            None,
+                        );
 
                     if !to_delete.is_empty() {
                         let delete_last_newline =
@@ -453,12 +460,13 @@ impl RuleLT09 {
                         &select_children[select_clause_idx - 1]
                     };
 
-                    let to_delete = select_children.reversed().select(
-                        None,
-                        Some(|it| it.is_type("whitespace")),
-                        Some(start_seg),
-                        None,
-                    );
+                    let to_delete =
+                        select_children.reversed().select::<fn(&ErasedSegment) -> bool>(
+                            None,
+                            Some(|it| it.is_type("whitespace")),
+                            Some(start_seg),
+                            None,
+                        );
 
                     if !to_delete.is_empty() {
                         let add_newline = to_delete.iter().any(|it| it.is_type("newline"));

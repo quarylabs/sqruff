@@ -60,8 +60,12 @@ FROM foo
         let start_bracket =
             children.find_first(Some(|segment: &ErasedSegment| segment.is_type("bracketed"))).pop();
 
-        let mut intermediate_segments =
-            children.select(None, None, Some(&function_name), Some(&start_bracket));
+        let mut intermediate_segments = children.select::<fn(&ErasedSegment) -> bool>(
+            None,
+            None,
+            Some(&function_name),
+            Some(&start_bracket),
+        );
 
         if !intermediate_segments.is_empty() {
             return if intermediate_segments

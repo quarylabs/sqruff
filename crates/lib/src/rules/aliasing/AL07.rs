@@ -241,7 +241,7 @@ FROM
 
         let children = FunctionalContext::new(context.clone()).segment().children(None);
         let from_clause_segment = children
-            .select(Some(|it| it.is_type("from_clause")), None, None, None)
+            .select(Some(|it: &ErasedSegment| it.is_type("from_clause")), None, None, None)
             .find_first::<fn(&_) -> _>(None);
 
         let base_table = from_clause_segment
@@ -260,7 +260,12 @@ FROM
         let mut from_expression_elements = Vec::new();
         let mut column_reference_segments = Vec::new();
 
-        let after_from_clause = children.select(None, None, Some(&from_clause_segment[0]), None);
+        let after_from_clause = children.select::<fn(&ErasedSegment) -> bool>(
+            None,
+            None,
+            Some(&from_clause_segment[0]),
+            None,
+        );
         for clause in chain(from_clause_segment, after_from_clause) {
             for from_expression_element in
                 clause.recursive_crawl(&["from_expression_element"], true, None, true)

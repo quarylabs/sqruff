@@ -166,7 +166,7 @@ impl RuleAL05 {
         let mut fixes = vec![LintFix::delete(alias.alias_expression.clone().unwrap())];
         let to_delete = Segments::from_vec(alias.from_expression_element.segments().to_vec(), None)
             .reversed()
-            .select(
+            .select::<fn(&ErasedSegment) -> bool>(
                 None,
                 Some(|it| it.is_whitespace() || it.is_meta()),
                 alias.alias_expression.as_ref().unwrap().into(),

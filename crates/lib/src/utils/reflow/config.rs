@@ -12,8 +12,8 @@ type ConfigDictType = AHashMap<String, ConfigElementType>;
 pub struct BlockConfig {
     pub spacing_before: &'static str,
     pub spacing_after: &'static str,
-    pub spacing_within: Option<String>,
-    pub line_position: Option<String>,
+    pub spacing_within: Option<&'static str>,
+    pub line_position: Option<&'static str>,
 }
 
 impl Default for BlockConfig {
@@ -45,13 +45,33 @@ impl BlockConfig {
         }
     }
 
+    fn convert_line_position(line_position: &str) -> &'static str {
+        match line_position {
+            "alone" => "alone",
+            "leading" => "leading",
+            "trailing" => "trailing",
+            "alone:strict" => "alone:strict",
+            _ => unreachable!("Expected 'alone', 'leading' found '{}'", line_position),
+        }
+    }
+
+    fn convert_space_within(space_within: &str) -> &'static str {
+        match space_within {
+            "alone" => "alone",
+            "touch:inline" => "touch:inline",
+            "touch" => "touch",
+            "single:inline" => "single:inline",
+            _ => unreachable!("Expected 'alone', 'touch:inline', 'touch' found '{}'", space_within),
+        }
+    }
+
     /// Mutate the config based on additional information
     pub fn incorporate(
         &mut self,
         before: Option<&'static str>,
         after: Option<&'static str>,
-        within: Option<&str>,
-        line_position: Option<&str>,
+        within: Option<&'static str>,
+        line_position: Option<&'static str>,
         config: Option<&ConfigElementType>,
     ) {
         let empty = AHashMap::new();
@@ -77,11 +97,21 @@ impl BlockConfig {
             })
             .unwrap_or(self.spacing_after);
 
-        self.spacing_within =
-            within.map(ToOwned::to_owned).or(config.get("spacing_within").cloned());
+        self.spacing_within = within.or_else(|| {
+            let space_within = config.get("spacing_within");
+            match space_within {
+                Some(value) => Some(Self::convert_space_within(value)),
+                None => None,
+            }
+        });
 
-        self.line_position =
-            line_position.map(ToOwned::to_owned).or(config.get("line_position").cloned());
+        self.line_position = line_position.or_else(|| {
+            let line_position = config.get("line_position");
+            match line_position {
+                Some(value) => Some(Self::convert_line_position(value)),
+                None => None,
+            }
+        });
     }
 }
 
@@ -101,7 +131,6 @@ pub struct ReflowConfig {
     pub(crate) indent_unit: String,
     pub(crate) max_line_length: usize,
     pub(crate) hanging_indents: bool,
-    pub(crate) skip_indentation_in: AHashSet<String>,
     pub(crate) allow_implicit_indents: bool,
     pub(crate) trailing_comments: String,
 }
@@ -217,12 +246,6 @@ impl ReflowConfig {
             hanging_indents: config.raw["indentation"]["hanging_indents"]
                 .as_bool()
                 .unwrap_or_default(),
-            skip_indentation_in: config.raw["indentation"]["indent_unit"]
-                .as_string()
-                .unwrap()
-                .split(',')
-                .map(ToOwned::to_owned)
-                .collect(),
             allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]
                 .as_bool()
                 .unwrap(),

@@ -459,8 +459,8 @@ pub struct ReflowBlock {
     pub spacing_after: &'static str,
     pub line_position: Option<Vec<LinePosition>>,
     pub depth_info: DepthInfo,
-    pub stack_spacing_configs: IntMap<u64, String>,
-    pub line_position_configs: IntMap<u64, String>,
+    pub stack_spacing_configs: IntMap<u64, &'static str>,
+    pub line_position_configs: IntMap<u64, &'static str>,
 }
 
 impl ReflowBlock {

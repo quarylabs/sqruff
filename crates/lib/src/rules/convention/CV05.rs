@@ -113,7 +113,8 @@ WHERE a IS NULL
         let segment = context.parent_stack.last().unwrap().segments().to_vec();
 
         let siblings = Segments::from_vec(segment, None);
-        let after_op_list = siblings.select(None, None, Some(&context.segment), None);
+        let after_op_list =
+            siblings.select::<fn(&ErasedSegment) -> bool>(None, None, Some(&context.segment), None);
 
         let next_code = after_op_list.find_first(Some(|sp: &ErasedSegment| sp.is_code()));
 

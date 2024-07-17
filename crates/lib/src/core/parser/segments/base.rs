@@ -383,6 +383,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn can_start_end_non_code(&self) -> bool {
+        false
+    }
+
     #[track_caller]
     fn dialect(&self) -> DialectKind {
         todo!("{}", std::any::type_name::<Self>())
@@ -527,6 +531,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         let mut acc = Vec::new();
 
         if self.get_position_marker().is_none() {
+            todo!();
             return Vec::new();
         }
 

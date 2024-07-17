@@ -95,10 +95,18 @@ from fancy_table
         if context.segment.segments()[0].raw().eq_ignore_ascii_case("CASE") {
             let children = FunctionalContext::new(context.clone()).segment().children(None);
 
-            let when_clauses =
-                children.select(Some(|it| it.is_type("when_clause")), None, None, None);
-            let else_clauses =
-                children.select(Some(|it| it.is_type("else_clause")), None, None, None);
+            let when_clauses = children.select(
+                Some(|it: &ErasedSegment| it.is_type("when_clause")),
+                None,
+                None,
+                None,
+            );
+            let else_clauses = children.select(
+                Some(|it: &ErasedSegment| it.is_type("else_clause")),
+                None,
+                None,
+                None,
+            );
 
             if when_clauses.len() > 1 {
                 return Vec::new();

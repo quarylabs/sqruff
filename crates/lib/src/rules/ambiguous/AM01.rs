@@ -1,6 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -61,7 +62,9 @@ FROM foo
                 .children(Some(|it| it.is_type("select_clause_modifier")))
                 .children(Some(|it| it.is_type("keyword")))
                 .select(
-                    Some(|it| it.is_type("keyword") && it.get_raw_upper().unwrap() == "DISTINCT"),
+                    Some(|it: &ErasedSegment| {
+                        it.is_type("keyword") && it.get_raw_upper().unwrap() == "DISTINCT"
+                    }),
                     None,
                     None,
                     None,

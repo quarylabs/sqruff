@@ -1,6 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -55,9 +56,12 @@ FROM table;
 
         let children = FunctionalContext::new(context).segment().children(None);
 
-        for clause_element in
-            children.select(Some(|sp| sp.is_type("select_clause_element")), None, None, None)
-        {
+        for clause_element in children.select(
+            Some(|sp: &ErasedSegment| sp.is_type("select_clause_element")),
+            None,
+            None,
+            None,
+        ) {
             let clause_element_raw_segment = clause_element.get_raw_segments();
 
             let column = clause_element.child(&["column_reference"]);

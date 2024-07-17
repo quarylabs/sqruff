@@ -108,6 +108,10 @@ impl Segment for Node {
         .to_erased_segment()
     }
 
+    fn can_start_end_non_code(&self) -> bool {
+        matches!(self.kind, SyntaxKind::File | SyntaxKind::Unparsable)
+    }
+
     fn dialect(&self) -> DialectKind {
         self.dialect
     }

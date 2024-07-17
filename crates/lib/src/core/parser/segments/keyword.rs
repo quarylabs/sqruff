@@ -40,7 +40,7 @@ impl Segment for KeywordSegment {
     }
 
     fn is_comment(&self) -> bool {
-        todo!()
+        false
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {

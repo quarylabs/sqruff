@@ -1011,76 +1011,6 @@ CREATE TABLE myschema.t1 (a BOOL);
 ```
 
 
-### convention.casting_style
-
-Enforce consistent type casting style.
-
-**Code:** CV11
-
-**Groups:** `all`, `convention`
-
-**Fixable:** Yes
-
-**Anti-pattern**
-
-Using a mixture of `CONVERT`, `::`, and `CAST` when `preferred_type_casting_style` config is set to `consistent` (default).
-
-```sql
-SELECT
-    CONVERT(int, 1) AS bar,
-    100::int::text,
-    CAST(10 AS text) AS coo
-FROM foo;
-```
-
-**Best Practice**
-
-Use a consistent type casting style.
-
-```sql
-SELECT
-    CAST(1 AS int) AS bar,
-    CAST(CAST(100 AS int) AS text),
-    CAST(10 AS text) AS coo
-FROM foo;
-```
-
-
-### convention.casting_style
-
-Enforce consistent type casting style.
-
-**Code:** CV11
-
-**Groups:** `all`, `convention`
-
-**Fixable:** Yes
-
-**Anti-pattern**
-
-Using a mixture of `CONVERT`, `::`, and `CAST` when `preferred_type_casting_style` config is set to `consistent` (default).
-
-```sql
-SELECT
-    CONVERT(int, 1) AS bar,
-    100::int::text,
-    CAST(10 AS text) AS coo
-FROM foo;
-```
-
-**Best Practice**
-
-Use a consistent type casting style.
-
-```sql
-SELECT
-    CAST(1 AS int) AS bar,
-    CAST(CAST(100 AS int) AS text),
-    CAST(10 AS text) AS coo
-FROM foo;
-```
-
-
 ### convention.quoted_literals
 
 Consistent usage of preferred quotes for quoted literals.
@@ -1089,7 +1019,7 @@ Consistent usage of preferred quotes for quoted literals.
 
 **Groups:** `all`, `convention`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1114,6 +1044,41 @@ select
     "abc" = "abc"
 from foo
 ```P        
+
+
+### convention.casting_style
+
+Enforce consistent type casting style.
+
+**Code:** CV11
+
+**Groups:** `all`, `convention`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Using a mixture of `CONVERT`, `::`, and `CAST` when `preferred_type_casting_style` config is set to `consistent` (default).
+
+```sql
+SELECT
+    CONVERT(int, 1) AS bar,
+    100::int::text,
+    CAST(10 AS text) AS coo
+FROM foo;
+```
+
+**Best Practice**
+
+Use a consistent type casting style.
+
+```sql
+SELECT
+    CAST(1 AS int) AS bar,
+    CAST(CAST(100 AS int) AS text),
+    CAST(10 AS text) AS coo
+FROM foo;
+```
 
 
 ### layout.spacing

@@ -34,7 +34,32 @@ impl Rule for RuleCV06 {
     }
 
     fn long_description(&self) -> &'static str {
-        todo!()
+        r"
+**Anti-pattern**
+
+A statement is not immediately terminated with a semi-colon. The `•` represents space.
+
+```sql
+SELECT
+    a
+FROM foo
+
+;
+
+SELECT
+    b
+FROM bar••;
+```
+
+**Best practice**
+
+Immediately terminate the statement with a semi-colon.
+
+```sql
+SELECT
+    a
+FROM foo;
+```"
     }
 
     fn groups(&self) -> &'static [RuleGroups] {

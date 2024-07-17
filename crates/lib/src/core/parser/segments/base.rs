@@ -531,7 +531,6 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         let mut acc = Vec::new();
 
         if self.get_position_marker().is_none() {
-            todo!();
             return Vec::new();
         }
 

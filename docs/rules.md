@@ -32,6 +32,7 @@ The following rules are available in this create. This list is generated from th
 | CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. | 
 | CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
 | CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
+| CV10 | [convention.quoted_literals](#conventionquoted_literals) | Consistent usage of preferred quotes for quoted literals. | 
 | CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. | 
 | LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
@@ -1043,6 +1044,76 @@ SELECT
     CAST(10 AS text) AS coo
 FROM foo;
 ```
+
+
+### convention.casting_style
+
+Enforce consistent type casting style.
+
+**Code:** CV11
+
+**Groups:** `all`, `convention`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Using a mixture of `CONVERT`, `::`, and `CAST` when `preferred_type_casting_style` config is set to `consistent` (default).
+
+```sql
+SELECT
+    CONVERT(int, 1) AS bar,
+    100::int::text,
+    CAST(10 AS text) AS coo
+FROM foo;
+```
+
+**Best Practice**
+
+Use a consistent type casting style.
+
+```sql
+SELECT
+    CAST(1 AS int) AS bar,
+    CAST(CAST(100 AS int) AS text),
+    CAST(10 AS text) AS coo
+FROM foo;
+```
+
+
+### convention.quoted_literals
+
+Consistent usage of preferred quotes for quoted literals.
+
+**Code:** CV10
+
+**Groups:** `all`, `convention`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+```sql
+select
+    "abc",
+    'abc',
+    "\"",
+    "abc" = 'abc'
+from foo
+```
+
+**Best practice**
+
+Ensure all quoted literals use preferred quotes, unless escaping can be reduced by using alternate quotes.
+
+```sql
+select
+    "abc",
+    "abc",
+    '"',
+    "abc" = "abc"
+from foo
+```P        
 
 
 ### layout.spacing

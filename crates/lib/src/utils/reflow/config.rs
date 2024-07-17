@@ -10,8 +10,8 @@ type ConfigDictType = AHashMap<String, ConfigElementType>;
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct BlockConfig {
-    pub spacing_before: String,
-    pub spacing_after: String,
+    pub spacing_before: &'static str,
+    pub spacing_after: &'static str,
     pub spacing_within: Option<String>,
     pub line_position: Option<String>,
 }
@@ -25,18 +25,31 @@ impl Default for BlockConfig {
 impl BlockConfig {
     pub fn new() -> Self {
         BlockConfig {
-            spacing_before: "single".to_string(),
-            spacing_after: "single".to_string(),
+            spacing_before: "single",
+            spacing_after: "single",
             spacing_within: None,
             line_position: None,
+        }
+    }
+
+    fn convert_spacing(spacing: &str) -> &'static str {
+        match spacing {
+            "single" => "single",
+            "touch" => "touch",
+            "touch:inline" => "touch:inline",
+            "any" => "any",
+            _ => unreachable!(
+                "Expected 'single', 'touch', 'touch:inline', 'any', found '{}'",
+                spacing
+            ),
         }
     }
 
     /// Mutate the config based on additional information
     pub fn incorporate(
         &mut self,
-        before: Option<&str>,
-        after: Option<&str>,
+        before: Option<&'static str>,
+        after: Option<&'static str>,
         within: Option<&str>,
         line_position: Option<&str>,
         config: Option<&ConfigElementType>,
@@ -45,16 +58,24 @@ impl BlockConfig {
         let config = config.unwrap_or(&empty);
 
         self.spacing_before = before
-            .map(ToOwned::to_owned)
-            .or(config.get("spacing_before").cloned())
-            .unwrap_or(self.spacing_before.clone())
-            .to_string();
+            .or_else(|| {
+                let before = config.get("spacing_before");
+                match before {
+                    Some(value) => Some(Self::convert_spacing(value)),
+                    None => None,
+                }
+            })
+            .unwrap_or(self.spacing_before);
 
         self.spacing_after = after
-            .map(ToOwned::to_owned)
-            .or(config.get("spacing_after").cloned())
-            .unwrap_or(self.spacing_after.clone())
-            .to_string();
+            .or_else(|| {
+                let after = config.get("spacing_after");
+                match after {
+                    Some(value) => Some(Self::convert_spacing(value)),
+                    None => None,
+                }
+            })
+            .unwrap_or(self.spacing_after);
 
         self.spacing_within =
             within.map(ToOwned::to_owned).or(config.get("spacing_within").cloned());
@@ -132,32 +153,44 @@ impl ReflowConfig {
                 if parent_start {
                     for seg_type in &configured_parent_types {
                         let seg_type = seg_type.to_string();
-                        block_config.incorporate(
-                            self.configs
-                                .get(&seg_type)
-                                .and_then(|conf| conf.get("spacing_before"))
-                                .map(|it| it.as_str()),
-                            None,
-                            None,
-                            None,
-                            None,
-                        );
+                        let before = self
+                            .configs
+                            .get(&seg_type)
+                            .and_then(|conf| conf.get("spacing_before"))
+                            .map(|it| it.as_str());
+                        let before = match before {
+                            Some("single") => Some("single"),
+                            Some("touch") => Some("touch"),
+                            Some("touch:inline") => Some("touch:inline"),
+                            None => None,
+                            Some(value) => {
+                                unreachable!("Expected 'single' or 'touch', found '{}'", value)
+                            }
+                        };
+
+                        block_config.incorporate(before, None, None, None, None);
                     }
                 }
 
                 if parent_end {
                     for seg_type in &configured_parent_types {
                         let seg_type = seg_type.to_string();
-                        block_config.incorporate(
-                            None,
-                            self.configs
-                                .get(&seg_type)
-                                .and_then(|conf| conf.get("spacing_after"))
-                                .map(|it| it.as_str()),
-                            None,
-                            None,
-                            None,
-                        );
+                        let after = self
+                            .configs
+                            .get(&seg_type)
+                            .and_then(|conf| conf.get("spacing_after"))
+                            .map(|it| it.as_str());
+                        let after = match after {
+                            Some("single") => Some("single"),
+                            Some("touch") => Some("touch"),
+                            Some("touch:inline") => Some("touch:inline"),
+                            None => None,
+                            Some(value) => {
+                                unreachable!("Expected 'single' or 'touch', found '{}'", value)
+                            }
+                        };
+
+                        block_config.incorporate(None, after, None, None, None);
                     }
                 }
             }

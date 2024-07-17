@@ -35,12 +35,12 @@ pub fn determine_constraints(
 ) -> (String, String, bool) {
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block { &prev_block.spacing_after } else { "single" },
+        if let Some(prev_block) = prev_block { prev_block.spacing_after } else { "single" },
         strip_newlines,
     );
 
     let (mut post_constraint, mut strip_newlines) = unpack_constraint(
-        if let Some(next_block) = next_block { &next_block.spacing_before } else { "single" },
+        if let Some(next_block) = next_block { next_block.spacing_before } else { "single" },
         strip_newlines,
     );
 

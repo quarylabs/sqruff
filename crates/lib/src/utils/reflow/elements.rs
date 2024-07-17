@@ -455,8 +455,8 @@ impl IndentStats {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ReflowBlock {
     pub segments: Vec<ErasedSegment>,
-    pub spacing_before: String,
-    pub spacing_after: String,
+    pub spacing_before: &'static str,
+    pub spacing_after: &'static str,
     pub line_position: Option<Vec<LinePosition>>,
     pub depth_info: DepthInfo,
     pub stack_spacing_configs: IntMap<u64, String>,

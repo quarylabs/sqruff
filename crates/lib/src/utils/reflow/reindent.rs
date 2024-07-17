@@ -19,17 +19,12 @@ fn has_untemplated_newline(point: &ReflowPoint) -> bool {
     if !point.class_types().into_iter().any(|x| x == "newline" || x == "placeholder") {
         return false;
     }
-
-    for seg in &point.segments {
-        if seg.is_type("newline")
-            && (seg.get_position_marker().is_none()
-                || seg.get_position_marker().unwrap().is_literal())
-        {
-            return true;
-        }
-    }
-
-    false
+    point.segments.iter().any(|segment| {
+        segment.is_type("newline")
+            && (segment
+                .get_position_marker()
+                .map_or(true, |position_marker| position_marker.is_literal()))
+    })
 }
 
 #[derive(Debug, Clone)]

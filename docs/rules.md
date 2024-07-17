@@ -29,6 +29,7 @@ The following rules are available in this create. This list is generated from th
 | CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. | 
 | CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause | 
 | CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
+| CV06 | [convention.terminator](#conventionterminator) | Statements must end with a semi-colon. | 
 | CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. | 
 | CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
 | CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
@@ -887,6 +888,42 @@ select
 from table_a
 ```
 
+
+### convention.terminator
+
+Statements must end with a semi-colon.
+
+**Code:** CV06
+
+**Groups:** `all`, `convention`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+A statement is not immediately terminated with a semi-colon. The `•` represents space.
+
+```sql
+SELECT
+    a
+FROM foo
+
+;
+
+SELECT
+    b
+FROM bar••;
+```
+
+**Best practice**
+
+Immediately terminate the statement with a semi-colon.
+
+```sql
+SELECT
+    a
+FROM foo;
+```
 
 ### convention.statement_brackets
 

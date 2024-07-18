@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
-use crate::utils::reflow::reindent::TrailingComments;
+use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
 type ConfigElementType = AHashMap<String, String>;
 type ConfigDictType = AHashMap<String, ConfigElementType>;
@@ -130,8 +130,7 @@ pub struct ReflowConfig {
     /// In production, these values are almost _always_ set because we
     /// use `.from_fluff_config`, but the defaults are here to aid in
     /// testing.
-    pub(crate) tab_space_size: usize,
-    pub(crate) indent_unit: String,
+    pub(crate) indent_unit: IndentUnit,
     pub(crate) max_line_length: usize,
     pub(crate) hanging_indents: bool,
     pub(crate) allow_implicit_indents: bool,
@@ -243,11 +242,14 @@ impl ReflowConfig {
         let trailing_comments = config.raw["indentation"]["trailing_comments"].as_string().unwrap();
         let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
 
+        let tab_space_size = config.raw["indentation"]["tab_space_size"].as_int().unwrap() as usize;
+        let indent_unit = config.raw["indentation"]["indent_unit"].as_string().unwrap();
+        let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
+
         ReflowConfig {
             configs: convert_to_config_dict(configs),
             config_types,
-            tab_space_size: config.raw["indentation"]["tab_space_size"].as_int().unwrap() as usize,
-            indent_unit: config.raw["indentation"]["indent_unit"].as_string().unwrap().into(),
+            indent_unit,
             max_line_length: config.raw["core"]["max_line_length"].as_int().unwrap() as usize,
             hanging_indents: config.raw["indentation"]["hanging_indents"]
                 .as_bool()

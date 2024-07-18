@@ -124,11 +124,32 @@ fn revise_templated_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) 
 #[allow(unused_variables, dead_code)]
 fn revise_comment_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) {}
 
-pub fn construct_single_indent(indent_unit: &str, tab_space_size: usize) -> Cow<'static, str> {
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum IndentUnit {
+    Tab,
+    Space(usize),
+}
+
+impl Default for IndentUnit {
+    fn default() -> Self {
+        IndentUnit::Space(4)
+    }
+}
+
+impl IndentUnit {
+    pub fn from_type_and_size(indent_type: &str, indent_size: usize) -> Self {
+        match indent_type {
+            "tab" => IndentUnit::Tab,
+            "space" => IndentUnit::Space(indent_size),
+            _ => unreachable!("Invalid indent type {}", indent_type),
+        }
+    }
+}
+
+pub fn construct_single_indent(indent_unit: IndentUnit) -> Cow<'static, str> {
     match indent_unit {
-        "tab" => "\t".into(),
-        "space" => " ".repeat(tab_space_size).into(),
-        _ => unimplemented!("Expected indent_unit of 'tab' or 'space', instead got {indent_unit}"),
+        IndentUnit::Tab => "\t".into(),
+        IndentUnit::Space(space_size) => " ".repeat(space_size).into(),
     }
 }
 

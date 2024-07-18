@@ -7,7 +7,7 @@ use super::config::ReflowConfig;
 use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::rebreak::rebreak_sequence;
-use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length};
+use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length, IndentUnit};
 use crate::core::config::FluffConfig;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
@@ -343,7 +343,7 @@ impl ReflowSequence {
             panic!("reindent cannot currently handle pre-existing embodied fixes");
         }
 
-        let single_indent = construct_single_indent("space", 4);
+        let single_indent = construct_single_indent(IndentUnit::Space(4));
 
         let (elements, indent_results) =
             lint_indent_points(self.elements, &single_indent, <_>::default(), <_>::default());
@@ -362,10 +362,7 @@ impl ReflowSequence {
             panic!("break_long_lines cannot currently handle pre-existing embodied fixes");
         }
 
-        let single_indent = construct_single_indent(
-            &self.reflow_config.indent_unit,
-            self.reflow_config.tab_space_size,
-        );
+        let single_indent = construct_single_indent(self.reflow_config.indent_unit);
 
         let (elements, length_results) = lint_line_length(
             &self.elements,

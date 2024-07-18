@@ -13,7 +13,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
-use crate::utils::reflow::reindent::construct_single_indent;
+use crate::utils::reflow::reindent::{construct_single_indent, IndentUnit};
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleST04;
@@ -160,11 +160,10 @@ FROM mytable
             context.config.unwrap().raw["indentation"]["tab_space_size"].as_int().unwrap() as usize;
         let indent_unit =
             context.config.unwrap().raw["indentation"]["indent_unit"].as_string().unwrap();
+        let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
-        let when_indent_str =
-            indentation(&case1_children, case1_last_when, tab_space_size, indent_unit);
-        let end_indent_str =
-            indentation(&case1_children, case1_first_case, tab_space_size, indent_unit);
+        let when_indent_str = indentation(&case1_children, case1_last_when, indent_unit);
+        let end_indent_str = indentation(&case1_children, case1_first_case, indent_unit);
 
         let nested_clauses = case2.children(Some(|it: &ErasedSegment| {
             matches!(
@@ -206,8 +205,7 @@ FROM mytable
 fn indentation(
     parent_segments: &Segments,
     segment: &ErasedSegment,
-    tab_space_size: usize,
-    indent_unit: &str,
+    indent_unit: IndentUnit,
 ) -> String {
     let leading_whitespace = parent_segments
         .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
@@ -227,10 +225,10 @@ fn indentation(
         if !leading_whitespace.is_empty() && whitespace_seg.raw().len() > 1 {
             leading_whitespace.iter().map(|seg| seg.raw().to_string()).collect::<String>()
         } else {
-            construct_single_indent(indent_unit, tab_space_size).repeat(indent_level)
+            construct_single_indent(indent_unit).repeat(indent_level)
         }
     } else {
-        construct_single_indent(indent_unit, tab_space_size).repeat(indent_level)
+        construct_single_indent(indent_unit).repeat(indent_level)
     };
     indent_str
 }

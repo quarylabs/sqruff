@@ -8,7 +8,6 @@ use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 
@@ -64,7 +63,7 @@ impl<'me> Selectable<'me> {
         for seg in select_info.select_targets {
             if seg.0.child(&["wildcard_expression"]).is_some() {
                 if seg.0.raw().contains('.') {
-                    let table = seg.0.raw().rsplitn(2, '.').nth(1).unwrap_or("").to_smolstr();
+                    let table = seg.0.raw().rsplit_once('.').map(|x|x.0).unwrap_or_default().to_smolstr();
                     buff.push(WildcardInfo { segment: seg.0.clone(), tables: vec![table] });
                 } else {
                     let tables = select_info
@@ -163,7 +162,7 @@ impl<'me, T: Clone + Default> Query<'me, T> {
             false,
         ) {
             if seg.is_type("table_reference") {
-                let _seg = ObjectReferenceSegment(seg.clone());
+                let _seg = seg.reference();
                 if !_seg.is_qualified() && lookup_cte {
                     if let Some(cte) = self.lookup_cte(seg.raw().as_ref(), pop) {
                         acc.push(Source::Query(cte));

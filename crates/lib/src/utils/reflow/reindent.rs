@@ -4,6 +4,7 @@ use std::mem::take;
 use ahash::{AHashMap, AHashSet};
 use itertools::{chain, enumerate, Itertools};
 use smol_str::SmolStr;
+use strum_macros::EnumString;
 
 use super::elements::{ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::helpers::fixes_from_results;
@@ -674,13 +675,21 @@ fn match_indents(
     matched_indents
 }
 
+#[derive(Clone, Copy, PartialEq, Debug, Default, Eq, EnumString)]
+#[strum(serialize_all = "lowercase")]
+pub enum TrailingComments {
+    #[default]
+    Before,
+    After,
+}
+
 fn fix_long_line_with_comment(
     line_buffer: &ReflowSequenceType,
     elements: &ReflowSequenceType,
     current_indent: &str,
     line_length_limit: usize,
     last_indent_idx: Option<usize>,
-    trailing_comments: &str,
+    trailing_comments: TrailingComments,
 ) -> (ReflowSequenceType, Vec<LintFix>) {
     if line_buffer.last().unwrap().segments().last().unwrap().raw().contains("noqa") {
         return (elements.clone(), Vec::new());
@@ -697,7 +706,7 @@ fn fix_long_line_with_comment(
     let last_elem_idx =
         elements.iter().position(|elem| elem == line_buffer.last().unwrap()).unwrap();
 
-    if trailing_comments == "after" {
+    if trailing_comments == TrailingComments::After {
         let mut elements = elements.clone();
         let anchor_point = line_buffer[line_buffer.len() - 2].as_point().unwrap();
         let (results, new_point) =
@@ -846,7 +855,7 @@ pub fn lint_line_length(
     single_indent: &str,
     line_length_limit: usize,
     allow_implicit_indents: bool,
-    trailing_comments: &str,
+    trailing_comments: TrailingComments,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     if line_length_limit == 0 {
         return (elements.clone(), Vec::new());

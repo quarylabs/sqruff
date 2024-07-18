@@ -1,8 +1,11 @@
+use std::str::FromStr;
+
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
+use crate::utils::reflow::reindent::TrailingComments;
 
 type ConfigElementType = AHashMap<String, String>;
 type ConfigDictType = AHashMap<String, ConfigElementType>;
@@ -132,7 +135,7 @@ pub struct ReflowConfig {
     pub(crate) max_line_length: usize,
     pub(crate) hanging_indents: bool,
     pub(crate) allow_implicit_indents: bool,
-    pub(crate) trailing_comments: String,
+    pub(crate) trailing_comments: TrailingComments,
 }
 
 impl ReflowConfig {
@@ -237,6 +240,9 @@ impl ReflowConfig {
         let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
         let config_types = configs.keys().map(|x| x.to_string()).collect::<AHashSet<String>>();
 
+        let trailing_comments = config.raw["indentation"]["trailing_comments"].as_string().unwrap();
+        let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
+
         ReflowConfig {
             configs: convert_to_config_dict(configs),
             config_types,
@@ -249,10 +255,7 @@ impl ReflowConfig {
             allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]
                 .as_bool()
                 .unwrap(),
-            trailing_comments: config.raw["indentation"]["trailing_comments"]
-                .as_string()
-                .unwrap()
-                .into(),
+            trailing_comments,
         }
     }
 }

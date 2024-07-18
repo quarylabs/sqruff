@@ -61,6 +61,8 @@ jobs:
           node-version: 22
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: npm ci
+      - name: Display npm error log
+        run: cat /home/runner/.npm/_logs/$(date -u +%Y-%m-%dT%H_%M_%S)_*-debug-0.log
       - run: npm run build:wasm_lsp
       - run: npm run check-types
       - run: npm run lint

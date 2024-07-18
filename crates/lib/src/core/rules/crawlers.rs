@@ -53,6 +53,11 @@ impl SegmentSeekerCrawler {
         self
     }
 
+    pub fn provide_raw_stack(mut self) -> Self {
+        self.provide_raw_stack = true;
+        self
+    }
+
     fn is_self_match(&self, segment: &dyn Segment) -> bool {
         self.types.contains(segment.get_type())
     }

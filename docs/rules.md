@@ -21,6 +21,7 @@ The following rules are available in this create. This list is generated from th
 | AM04 | [ambiguous.column_count](#ambiguouscolumn_count) | Outermost query should produce known number of columns. | 
 | AM05 | [ambiguous.join](#ambiguousjoin) | Join clauses should be fully qualified. | 
 | AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. | 
+| AM07 | [ambiguous.set_columns](#ambiguousset_columns) | All queries in set expression should return the same number of columns. | 
 | CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. | 
 | CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. | 
 | CP03 | [capitalisation.functions](#capitalisationfunctions) | Inconsistent capitalisation of function names. | 
@@ -617,6 +618,56 @@ SELECT
     a, b
 FROM foo
 ORDER BY a ASC, b DESC
+```
+
+
+### ambiguous.set_columns
+
+All queries in set expression should return the same number of columns.
+
+**Code:** AM07
+
+**Groups:** `all`, `ambiguous`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+When writing set expressions, all queries must return the same number of columns.
+
+```sql
+WITH cte AS (
+    SELECT
+        a,
+        b
+    FROM foo
+)
+SELECT * FROM cte
+UNION
+SELECT
+    c,
+    d,
+    e
+ FROM t
+```
+
+**Best practice**
+
+Always specify columns when writing set queries and ensure that they all seleect same number of columns.
+
+```sql
+WITH cte AS (
+    SELECT a, b FROM foo
+)
+SELECT
+    a,
+    b
+FROM cte
+UNION
+SELECT
+    c,
+    d
+FROM t
 ```
 
 

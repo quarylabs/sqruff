@@ -2,12 +2,13 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use ahash::AHashMap;
-use smol_str::SmolStr;
+use smol_str::{SmolStr, ToSmolStr};
 
 use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
+use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 
@@ -31,12 +32,60 @@ pub enum QueryType {
     WithCompound,
 }
 
-pub enum WildcardInfo {}
+pub struct WildcardInfo {
+    pub segment: ErasedSegment,
+    pub tables: Vec<SmolStr>,
+}
 
 #[derive(Debug, Clone)]
 pub struct Selectable<'me> {
     pub selectable: ErasedSegment,
     pub dialect: &'me Dialect,
+}
+
+impl<'me> Selectable<'me> {
+    pub(crate) fn find_alias(&self, table: &str) -> Option<AliasInfo> {
+        self.select_info()
+            .as_ref()?
+            .table_aliases
+            .iter()
+            .find(|&t| t.aliased && t.ref_str == table)
+            .cloned()
+    }
+}
+
+impl<'me> Selectable<'me> {
+    pub fn wildcard_info(&self) -> Vec<WildcardInfo> {
+        let Some(select_info) = self.select_info() else {
+            return Vec::new();
+        };
+
+        let mut buff = Vec::new();
+        for seg in select_info.select_targets {
+            if seg.0.child(&["wildcard_expression"]).is_some() {
+                if seg.0.raw().contains('.') {
+                    let table = seg.0.raw().rsplitn(2, '.').nth(1).unwrap_or("").to_smolstr();
+                    buff.push(WildcardInfo { segment: seg.0.clone(), tables: vec![table] });
+                } else {
+                    let tables = select_info
+                        .table_aliases
+                        .iter()
+                        .filter(|it| !it.ref_str.is_empty())
+                        .map(|it| {
+                            if it.aliased {
+                                it.ref_str.clone()
+                            } else {
+                                it.from_expression_element.raw().into()
+                            }
+                        })
+                        .collect();
+                    buff.push(WildcardInfo { segment: seg.0.clone(), tables });
+                }
+            }
+        }
+
+        buff
+    }
 }
 
 impl<'me> Selectable<'me> {
@@ -97,16 +146,70 @@ pub struct QueryInner<'me, T> {
     pub payload: T,
 }
 
-impl<'me, T: Clone> Query<'me, T> {
+impl<'me, T: Clone + Default> Query<'me, T> {
+    pub fn crawl_sources(
+        &self,
+        segment: ErasedSegment,
+
+        pop: bool,
+        lookup_cte: bool,
+    ) -> Vec<Source<'me, T>> {
+        let mut acc = Vec::new();
+
+        for seg in segment.recursive_crawl(
+            &["table_reference", "set_expression", "select_statement", "values_clause"],
+            false,
+            None,
+            false,
+        ) {
+            if seg.is_type("table_reference") {
+                let _seg = ObjectReferenceSegment(seg.clone());
+                if !_seg.is_qualified() && lookup_cte {
+                    if let Some(cte) = self.lookup_cte(seg.raw().as_ref(), pop) {
+                        acc.push(Source::Query(cte));
+                    }
+                }
+                acc.push(Source::TableReference(seg.raw().into()));
+            } else {
+                acc.push(Source::Query(Query::from_segment(
+                    &seg,
+                    self.inner.borrow().dialect,
+                    Some(self.clone()),
+                )))
+            }
+        }
+
+        if acc.is_empty() {
+            if let Some(table_expr) = segment.child(&["table_expression"]) {
+                return vec![Source::TableReference(table_expr.raw().to_smolstr())];
+            }
+        }
+
+        acc
+    }
+
+    #[track_caller]
+    pub(crate) fn lookup_cte(&self, name: &str, pop: bool) -> Option<Query<'me, T>> {
+        let cte = if pop {
+            self.inner.borrow_mut().ctes.remove(&name.to_uppercase())
+        } else {
+            self.inner.borrow().ctes.get(&name.to_uppercase()).cloned()
+        };
+
+        cte.or_else(move || {
+            self.inner.borrow_mut().parent.as_mut().and_then(|it| it.lookup_cte(name, pop))
+        })
+    }
+
     fn post_init(&self) {
-        let parent = self.clone();
+        let this = self.clone();
 
         for subquery in &RefCell::borrow(&self.inner).subqueries {
-            RefCell::borrow_mut(&subquery.inner).parent = parent.clone().into();
+            RefCell::borrow_mut(&subquery.inner).parent = this.clone().into();
         }
 
         for cte in RefCell::borrow(&self.inner).ctes.values().cloned() {
-            RefCell::borrow_mut(&cte.inner).parent = parent.clone().into();
+            RefCell::borrow_mut(&cte.inner).parent = this.clone().into();
         }
     }
 }
@@ -121,15 +224,6 @@ impl<T: Default + Clone> Query<'_, T> {
             .cloned()
             .collect()
     }
-
-    #[allow(dead_code)]
-    fn as_dict() {}
-
-    #[allow(dead_code)]
-    fn lookup_cte() {}
-
-    #[allow(dead_code)]
-    fn crawl_sources() {}
 
     fn extract_subqueries<'a>(selectable: &Selectable, dialect: &'a Dialect) -> Vec<Query<'a, T>> {
         let mut acc = Vec::new();
@@ -241,4 +335,9 @@ impl<T: Default + Clone> Query<'_, T> {
         RefCell::borrow_mut(&outer_query.inner).ctes = ctes;
         outer_query
     }
+}
+
+pub enum Source<'a, T> {
+    TableReference(SmolStr),
+    Query(Query<'a, T>),
 }

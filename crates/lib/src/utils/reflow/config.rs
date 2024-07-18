@@ -183,10 +183,9 @@ impl ReflowConfig {
 
                 if parent_start {
                     for seg_type in &configured_parent_types {
-                        let seg_type = seg_type.to_string();
                         let before = self
                             .configs
-                            .get(&seg_type)
+                            .get(seg_type.as_str())
                             .and_then(|conf| conf.get("spacing_before"))
                             .map(|it| it.as_str());
                         let before = match before {
@@ -205,10 +204,9 @@ impl ReflowConfig {
 
                 if parent_end {
                     for seg_type in &configured_parent_types {
-                        let seg_type = seg_type.to_string();
                         let after = self
                             .configs
-                            .get(&seg_type)
+                            .get(seg_type.as_str())
                             .and_then(|conf| conf.get("spacing_after"))
                             .map(|it| it.as_str());
                         let after = match after {
@@ -228,8 +226,7 @@ impl ReflowConfig {
         }
 
         for seg_type in configured_types {
-            let seg_type = seg_type.to_string();
-            block_config.incorporate(None, None, None, None, self.configs.get(&seg_type));
+            block_config.incorporate(None, None, None, None, self.configs.get(seg_type.as_str()));
         }
 
         block_config

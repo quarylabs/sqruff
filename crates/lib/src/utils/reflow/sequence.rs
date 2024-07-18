@@ -373,7 +373,7 @@ impl ReflowSequence {
             &single_indent,
             self.reflow_config.max_line_length,
             self.reflow_config.allow_implicit_indents,
-            &self.reflow_config.trailing_comments,
+            self.reflow_config.trailing_comments,
         );
 
         ReflowSequence {

@@ -63,7 +63,8 @@ impl<'me> Selectable<'me> {
         for seg in select_info.select_targets {
             if seg.0.child(&["wildcard_expression"]).is_some() {
                 if seg.0.raw().contains('.') {
-                    let table = seg.0.raw().rsplit_once('.').map(|x|x.0).unwrap_or_default().to_smolstr();
+                    let table =
+                        seg.0.raw().rsplit_once('.').map(|x| x.0).unwrap_or_default().to_smolstr();
                     buff.push(WildcardInfo { segment: seg.0.clone(), tables: vec![table] });
                 } else {
                     let tables = select_info

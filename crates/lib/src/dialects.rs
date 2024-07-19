@@ -4,6 +4,7 @@ pub mod bigquery;
 pub mod bigquery_keywords;
 pub mod clickhouse;
 pub mod clickhouse_keywords;
+pub mod duckdb;
 pub mod hive;
 pub mod postgres;
 pub mod postgres_keywords;

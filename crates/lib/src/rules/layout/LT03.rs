@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
@@ -61,7 +62,7 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if context.segment.is_type("comparison_operator") {
+        if context.segment.is_type(SyntaxKind::ComparisonOperator) {
             if self.check_trail_lead_shortcut(
                 &context.segment,
                 context.parent_stack.last().unwrap(),
@@ -69,7 +70,7 @@ FROM foo
             ) {
                 return Vec::new();
             }
-        } else if context.segment.is_type("binary_operator") {
+        } else if context.segment.is_type(SyntaxKind::BinaryOperator) {
             let binary_positioning = "leading";
             if self.check_trail_lead_shortcut(
                 &context.segment,
@@ -95,7 +96,10 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["binary_operator", "comparison_operator"].into()).into()
+        SegmentSeekerCrawler::new(
+            [SyntaxKind::BinaryOperator, SyntaxKind::ComparisonOperator].into(),
+        )
+        .into()
     }
 }
 
@@ -140,11 +144,11 @@ impl RuleLT03 {
         let range = if dir == 1 { idx + 1..segments.len() } else { 0..idx };
 
         for segment in segments[range].iter().step_by(dir.unsigned_abs() as usize) {
-            if segment.is_type("newline") {
+            if segment.is_type(SyntaxKind::Newline) {
                 return true;
-            } else if !segment.is_type("whitespace")
-                && !segment.is_type("indent")
-                && !segment.is_type("comment")
+            } else if !segment.is_type(SyntaxKind::Whitespace)
+                && !segment.is_type(SyntaxKind::Indent)
+                && !segment.is_type(SyntaxKind::Comment)
             {
                 break;
             }

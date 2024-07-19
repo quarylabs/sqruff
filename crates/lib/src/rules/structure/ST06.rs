@@ -8,6 +8,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 
 #[derive(Clone, Debug)]
 pub struct RuleST06;
@@ -60,20 +61,20 @@ from x
         let mut violation_exists = false;
 
         static SELECT_ELEMENT_ORDER_PREFERENCE: &[&[Validate]] = &[
-            &[Validate::Types(&["wildcard_expression"])],
+            &[Validate::Types(&[SyntaxKind::WildcardExpression])],
             &[
-                Validate::Types(&["object_reference", "column_reference"]),
-                Validate::Types(&["literal"]),
-                Validate::Types(&["cast_expression"]),
+                Validate::Types(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]),
+                Validate::Types(&[SyntaxKind::Literal]),
+                Validate::Types(&[SyntaxKind::CastExpression]),
                 Validate::Function { name: "cast" },
-                Validate::Expression { child_typ: "cast_expression" },
+                Validate::Expression { child_typ: SyntaxKind::CastExpression },
             ],
         ];
 
         if context.parent_stack.len() >= 2
             && matches!(
                 context.parent_stack[context.parent_stack.len() - 2].get_type(),
-                "insert_statement" | "set_expression"
+                SyntaxKind::InsertStatement | SyntaxKind::SetExpression
             )
         {
             return Vec::new();
@@ -82,10 +83,10 @@ from x
         if context.parent_stack.len() >= 3
             && matches!(
                 context.parent_stack[context.parent_stack.len() - 3].get_type(),
-                "insert_statement" | "set_expression"
+                SyntaxKind::InsertStatement | SyntaxKind::SetExpression
             )
             && context.parent_stack[context.parent_stack.len() - 2].get_type()
-                == "with_compound_statement"
+                == SyntaxKind::WithCompoundStatement
         {
             return Vec::new();
         }
@@ -93,7 +94,7 @@ from x
         if context.parent_stack.len() >= 3
             && matches!(
                 context.parent_stack[context.parent_stack.len() - 3].get_type(),
-                "create_table_statement" | "merge_statement"
+                SyntaxKind::CreateTableStatement | SyntaxKind::MergeStatement
             )
         {
             return Vec::new();
@@ -102,16 +103,17 @@ from x
         if context.parent_stack.len() >= 4
             && matches!(
                 context.parent_stack[context.parent_stack.len() - 4].get_type(),
-                "create_table_statement" | "merge_statement"
+                SyntaxKind::CreateTableStatement | SyntaxKind::MergeStatement
             )
             && context.parent_stack[context.parent_stack.len() - 2].get_type()
-                == "with_compound_statement"
+                == SyntaxKind::WithCompoundStatement
         {
             return Vec::new();
         }
 
         let select_clause_segment = context.segment.clone();
-        let select_target_elements = select_clause_segment.children(&["select_clause_element"]);
+        let select_target_elements =
+            select_clause_segment.children(&[SyntaxKind::SelectClauseElement]);
 
         if select_target_elements.is_empty() {
             return Vec::new();
@@ -140,8 +142,8 @@ from x
                         }
                         Validate::Function { name } => {
                             (|| {
-                                let function = segment.child(&["function"])?;
-                                let function_name = function.child(&["function_name"])?;
+                                let function = segment.child(&[SyntaxKind::Function])?;
+                                let function_name = function.child(&[SyntaxKind::FunctionName])?;
                                 if function_name.raw() == *name {
                                     validate(
                                         i,
@@ -157,14 +159,14 @@ from x
                         }
                         Validate::Expression { child_typ } => {
                             (|| {
-                                let expression = segment.child(&["expression"])?;
-                                if expression.child(&[child_typ]).is_some()
+                                let expression = segment.child(&[SyntaxKind::Expression])?;
+                                if expression.child(&[*child_typ]).is_some()
                                     && matches!(
                                         expression.segments()[0].get_type(),
-                                        "column_reference"
-                                            | "object_reference"
-                                            | "literal"
-                                            | "cast_expression"
+                                        SyntaxKind::ColumnReference
+                                            | SyntaxKind::ObjectReference
+                                            | SyntaxKind::Literal
+                                            | SyntaxKind::CastExpression
                                     )
                                     && expression.segments().len() == 2
                                     || expression.segments().len() == 1
@@ -227,14 +229,14 @@ from x
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
     }
 }
 
 enum Validate {
-    Types(&'static [&'static str]),
+    Types(&'static [SyntaxKind]),
     Function { name: &'static str },
-    Expression { child_typ: &'static str },
+    Expression { child_typ: SyntaxKind },
 }
 
 fn validate(
@@ -253,10 +255,13 @@ fn validate(
 }
 
 fn implicit_column_references(segment: &ErasedSegment) -> bool {
-    if !matches!(segment.get_type(), "withingroup_clause" | "window_specification") {
-        if matches!(segment.get_type(), "groupby_clause" | "orderby_clause") {
+    if !matches!(
+        segment.get_type(),
+        SyntaxKind::WithingroupClause | SyntaxKind::WindowSpecification
+    ) {
+        if matches!(segment.get_type(), SyntaxKind::GroupbyClause | SyntaxKind::OrderbyClause) {
             for seg in segment.segments() {
-                if seg.is_type("numeric_literal") {
+                if seg.is_type(SyntaxKind::NumericLiteral) {
                     return true;
                 }
             }

@@ -6,6 +6,7 @@ use crate::core::dialects::init::DialectKind;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::identifers::identifiers_policy_applicable;
 
 #[derive(Clone, Default, Debug)]
@@ -109,7 +110,7 @@ CREATE TABLE DBO.ColumnNames
         let mut policy = self.unquoted_identifiers_policy.as_str();
         let mut identifier = context.segment.raw().to_string();
 
-        if context.segment.is_type("quoted_identifier") {
+        if context.segment.is_type(SyntaxKind::QuotedIdentifier) {
             policy = self.quoted_identifiers_policy.as_str();
             identifier = identifier[1..identifier.len() - 1].to_string();
 
@@ -120,7 +121,10 @@ CREATE TABLE DBO.ColumnNames
             }
 
             if context.dialect.name == DialectKind::Bigquery
-                && context.parent_stack.last().map_or(false, |it| it.is_type("table_reference"))
+                && context
+                    .parent_stack
+                    .last()
+                    .map_or(false, |it| it.is_type(SyntaxKind::TableReference))
             {
                 if identifier.ends_with('*') {
                     identifier.pop();
@@ -130,11 +134,12 @@ CREATE TABLE DBO.ColumnNames
 
             // TODO: add databricks
             if context.dialect.name == DialectKind::Sparksql && !context.parent_stack.is_empty() {
-                if context.parent_stack.last().unwrap().is_type("file_reference") {
+                if context.parent_stack.last().unwrap().is_type(SyntaxKind::FileReference) {
                     return Vec::new();
                 }
 
-                if context.parent_stack.last().unwrap().is_type("property_name_identifier") {
+                if context.parent_stack.last().unwrap().is_type(SyntaxKind::PropertyNameIdentifier)
+                {
                     identifier = identifier.replace(".", "");
                 }
             }
@@ -148,7 +153,10 @@ CREATE TABLE DBO.ColumnNames
 
         if context.dialect.name == DialectKind::Snowflake
             && identifier.starts_with('#')
-            && context.parent_stack.last().map_or(false, |it| it.get_type() == "table_reference")
+            && context
+                .parent_stack
+                .last()
+                .map_or(false, |it| it.get_type() == SyntaxKind::TableReference)
         {
             identifier = identifier[1..].to_string();
         }
@@ -169,7 +177,10 @@ CREATE TABLE DBO.ColumnNames
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["quoted_identifier", "naked_identifier"].into()).into()
+        SegmentSeekerCrawler::new(
+            [SyntaxKind::QuotedIdentifier, SyntaxKind::NakedIdentifier].into(),
+        )
+        .into()
     }
 }
 

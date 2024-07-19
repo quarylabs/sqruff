@@ -197,7 +197,7 @@ impl PositionMarker {
     /// the fix is still appropriate in the source file. This
     /// obviously applies to any slices which are the same in the
     /// source and the templated files. Slices which are zero-length
-    /// in the source are also "literal" because they can't be
+    /// in the source are also SyntaxKind::Literal because they can't be
     /// "broken" by any fixes, because they don't exist in the source.
     /// This includes meta segments and any segments added during
     /// the fixing process.

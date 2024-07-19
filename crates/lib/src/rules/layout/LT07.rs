@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default, Clone)]
@@ -55,21 +56,21 @@ SELECT * FROM zoo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segments = FunctionalContext::new(context.clone())
             .segment()
-            .children(Some(|seg| seg.is_type("common_table_expression")));
+            .children(Some(|seg| seg.is_type(SyntaxKind::CommonTableExpression)));
 
         let mut cte_end_brackets = AHashSet::new();
         for cte in segments.iterate_segments() {
             let cte_start_bracket = cte
                 .children(None)
-                .find_last(Some(|seg| seg.is_type("bracketed")))
+                .find_last(Some(|seg| seg.is_type(SyntaxKind::Bracketed)))
                 .children(None)
-                .find_first(Some(|seg: &ErasedSegment| seg.is_type("start_bracket")));
+                .find_first(Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::StartBracket)));
 
             let cte_end_bracket = cte
                 .children(None)
-                .find_last(Some(|seg| seg.is_type("bracketed")))
+                .find_last(Some(|seg| seg.is_type(SyntaxKind::Bracketed)))
                 .children(None)
-                .find_first(Some(|seg: &ErasedSegment| seg.is_type("end_bracket")));
+                .find_first(Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::EndBracket)));
 
             if !cte_start_bracket.is_empty() && !cte_end_bracket.is_empty() {
                 if cte_start_bracket[0].get_position_marker().unwrap().line_no()
@@ -86,11 +87,11 @@ SELECT * FROM zoo
             let idx = context.segment.get_raw_segments().iter().position(|it| it == &seg).unwrap();
             if idx > 0 {
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
-                    if elem.is_type("newline") {
+                    if elem.is_type(SyntaxKind::Newline) {
                         break;
-                    } else if !(elem.is_type("indent")
-                        || elem.is_type("dedent")
-                        || elem.is_type("whitespace"))
+                    } else if !(elem.is_type(SyntaxKind::Indent)
+                        || elem.is_type(SyntaxKind::Dedent)
+                        || elem.is_type(SyntaxKind::Whitespace))
                     {
                         contains_non_whitespace = true;
                         break;
@@ -120,7 +121,7 @@ SELECT * FROM zoo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::WithCompoundStatement].into()).into()
     }
 }
 

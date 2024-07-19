@@ -67,7 +67,7 @@ pub struct Node {
     position_marker: Option<PositionMarker>,
     raw: OnceCell<String>,
     source_fixes: Vec<SourceFix>,
-    descendant_type_set: OnceCell<AHashSet<&'static str>>,
+    descendant_type_set: OnceCell<AHashSet<SyntaxKind>>,
 }
 
 impl Node {
@@ -120,7 +120,7 @@ impl Segment for Node {
         false
     }
 
-    fn descendant_type_set(&self) -> &AHashSet<&'static str> {
+    fn descendant_type_set(&self) -> &AHashSet<SyntaxKind> {
         self.descendant_type_set.get_or_init(|| {
             let mut result_set = AHashSet::new();
 
@@ -149,8 +149,8 @@ impl Segment for Node {
         self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
     }
 
-    fn get_type(&self) -> &'static str {
-        self.kind.as_str()
+    fn get_type(&self) -> SyntaxKind {
+        self.kind
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -173,13 +173,13 @@ impl Segment for Node {
         self.uuid
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
         match self.kind {
-            SyntaxKind::ColumnReference | SyntaxKind::SequenceReference => {
-                ["object_reference", self.get_type()].into()
+            SyntaxKind::ColumnReference => [SyntaxKind::ObjectReference, self.get_type()].into(),
+            SyntaxKind::WildcardIdentifier => {
+                [SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference].into()
             }
-            SyntaxKind::WildcardIdentifier => ["wildcard_identifier", "object_reference"].into(),
-            SyntaxKind::TableReference => ["object_reference", self.get_type()].into(),
+            SyntaxKind::TableReference => [SyntaxKind::ObjectReference, self.get_type()].into(),
             _ => [self.get_type()].into(),
         }
     }
@@ -204,8 +204,8 @@ impl PartialEq for NodeMatcher {
 }
 
 impl Matchable for NodeMatcher {
-    fn get_type(&self) -> &'static str {
-        self.node_kind.as_str()
+    fn get_type(&self) -> SyntaxKind {
+        self.node_kind
     }
 
     fn match_segments(
@@ -302,7 +302,7 @@ pub fn raw_dialect() -> Dialect {
         SymbolSegment::create(
             &segment.raw(),
             segment.get_position_marker(),
-            SymbolSegmentNewArgs { r#type: "remove me" },
+            SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
         )
     };
 
@@ -317,7 +317,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "statement_terminator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
                     )
                 },
                 Some("statement_terminator".into()),
@@ -335,7 +335,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "colon" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Colon },
                     )
                 },
                 None,
@@ -367,7 +367,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker().unwrap().into(),
-                        SymbolSegmentNewArgs { r#type: "start_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
                     )
                 },
                 None,
@@ -385,7 +385,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker().unwrap().into(),
-                        SymbolSegmentNewArgs { r#type: "end_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
                     )
                 },
                 None,
@@ -403,7 +403,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker().unwrap().into(),
-                        SymbolSegmentNewArgs { r#type: "start_square_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartSquareBracket },
                     )
                 },
                 None,
@@ -421,7 +421,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "end_square_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndSquareBracket },
                     )
                 },
                 None,
@@ -439,7 +439,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "start_curly_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartCurlyBracket },
                     )
                 },
                 None,
@@ -457,7 +457,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "end_curly_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndCurlyBracket },
                     )
                 },
                 None,
@@ -475,7 +475,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "comma" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Comma },
                     )
                 },
                 None,
@@ -493,7 +493,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "dot" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Dot },
                     )
                 },
                 None,
@@ -511,7 +511,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "star" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Star },
                     )
                 },
                 None,
@@ -529,7 +529,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "tilde" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Tilde },
                     )
                 },
                 None,
@@ -551,7 +551,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "casting_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::CastingOperator },
                     )
                 },
                 Some("casting_operator".into()),
@@ -569,7 +569,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -587,7 +587,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -605,7 +605,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "sign_indicator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::SignIndicator },
                     )
                 },
                 None,
@@ -623,7 +623,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "sign_indicator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::SignIndicator },
                     )
                 },
                 None,
@@ -641,7 +641,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -659,7 +659,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -677,7 +677,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -703,7 +703,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "pipe" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Pipe },
                     )
                 },
                 None,
@@ -721,7 +721,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -734,7 +734,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "LikeOperatorSegment".into(),
             TypedParser::new(
-                "like_operator",
+                SyntaxKind::LikeOperator,
                 |it| {
                     ComparisonOperatorSegment::create(&it.raw(), &it.get_position_marker().unwrap())
                 },
@@ -757,7 +757,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
                     )
                 },
                 None,
@@ -775,7 +775,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
                     )
                 },
                 None,
@@ -793,7 +793,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "raw_comparison_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
                     )
                 },
                 None,
@@ -813,7 +813,10 @@ pub fn raw_dialect() -> Dialect {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            CodeSegmentNewArgs { code_type: "bare_function", ..Default::default() },
+                            CodeSegmentNewArgs {
+                                code_type: SyntaxKind::BareFunction,
+                                ..Default::default()
+                            },
                         )
                     },
                     None,
@@ -841,7 +844,7 @@ pub fn raw_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "naked_identifier",
+                                code_type: SyntaxKind::NakedIdentifier,
                                 ..Default::default()
                             },
                         )
@@ -877,12 +880,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "FunctionNameIdentifierSegment".into(),
             TypedParser::new(
-                "word",
+                SyntaxKind::Word,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
                     )
                 },
                 None,
@@ -934,7 +937,10 @@ pub fn raw_dialect() -> Dialect {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            CodeSegmentNewArgs { code_type: "date_part", ..Default::default() },
+                            CodeSegmentNewArgs {
+                                code_type: SyntaxKind::DatePart,
+                                ..Default::default()
+                            },
                         )
                     },
                     None,
@@ -972,12 +978,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "QuotedIdentifierSegment".into(),
             TypedParser::new(
-                "double_quote",
+                SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "quoted_identifier" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
                     )
                 },
                 None,
@@ -989,19 +995,19 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "QuotedLiteralSegment".into(),
-            TypedParser::new("single_quote", symbol_factory, None, false, None)
+            TypedParser::new(SyntaxKind::SingleQuote, symbol_factory, None, false, None)
                 .to_matchable()
                 .into(),
         ),
         (
             "SingleQuotedIdentifierSegment".into(),
             TypedParser::new(
-                "single_quote",
+                SyntaxKind::SingleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "quoted_identifier" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
                     )
                 },
                 None,
@@ -1014,7 +1020,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "NumericLiteralSegment".into(),
             TypedParser::new(
-                "numeric_literal",
+                SyntaxKind::NumericLiteral,
                 |seg| {
                     LiteralSegment {
                         raw: seg.raw().into(),
@@ -1040,7 +1046,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "null_literal" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::NullLiteral },
                     )
                 },
                 None,
@@ -1058,7 +1064,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "null_literal" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::NullLiteral },
                     )
                 },
                 None,
@@ -1076,7 +1082,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "boolean_literal" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BooleanLiteral },
                     )
                 },
                 None,
@@ -1094,7 +1100,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "boolean_literal" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BooleanLiteral },
                     )
                 },
                 None,
@@ -1198,7 +1204,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("INTERVAL")
                 ]),
                 TypedParser::new(
-                    "single_quote",
+                    SyntaxKind::SingleQuote,
                     |seg| LiteralSegment::create(&seg.raw(), &seg.get_position_marker().unwrap()),
                     None,
                     false,
@@ -1242,7 +1248,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -1260,7 +1266,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -1278,7 +1284,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "keyword" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Keyword },
                     )
                 },
                 None,
@@ -1959,13 +1965,13 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::new("SlashSegment"),
                         Delimited::new(vec_of_erased![TypedParser::new(
-                            "word",
+                            SyntaxKind::Word,
                             |segment: &dyn Segment| {
                                 CodeSegment::create(
                                     &segment.raw(),
                                     segment.get_position_marker(),
                                     CodeSegmentNewArgs {
-                                        code_type: "path_segment",
+                                        code_type: SyntaxKind::PathSegment,
                                         ..Default::default()
                                     },
                                 )
@@ -2038,7 +2044,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "RollupFunctionNameSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::RollupFunctionName,
+                SyntaxKind::FunctionName,
                 StringParser::new(
                     "ROLLUP",
                     |segment| {
@@ -2060,7 +2066,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "CubeFunctionNameSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::CubeFunctionName,
+                SyntaxKind::FunctionName,
                 StringParser::new(
                     "CUBE",
                     |segment| {
@@ -2475,7 +2481,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "SchemaReferenceSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::SchemaReference,
+                SyntaxKind::TableReference,
                 Ref::new("ObjectReferenceSegment").to_matchable(),
             )
             .to_matchable()
@@ -2484,7 +2490,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "SingleIdentifierListSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::SingleIdentifierList,
+                SyntaxKind::IdentifierList,
                 Delimited::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -2495,7 +2501,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "GroupByClauseSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::GroupByClause,
+                SyntaxKind::GroupbyClause,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("GROUP"),
                     Ref::keyword("BY"),
@@ -2593,7 +2599,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "SequenceReferenceSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::SequenceReference,
+                SyntaxKind::ColumnReference,
                 Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
                     .config(|this| {
                         this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
@@ -2687,7 +2693,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "IndexReferenceSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::IndexReference,
+                SyntaxKind::DatabaseReference,
                 Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
                     .config(|this| {
                         this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
@@ -2778,7 +2784,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "PartitionClauseSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::PartitionByClause,
+                SyntaxKind::PartitionbyClause,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PARTITION"),
                     Ref::keyword("BY"),
@@ -4013,7 +4019,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "NotEqualToSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::NotEqualTo,
+                SyntaxKind::ComparisonOperator,
                 one_of(vec![
                     Sequence::new(vec![
                         Ref::new("RawNotSegment").boxed(),
@@ -4036,7 +4042,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "ConcatSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::Concat,
+                SyntaxKind::BinaryOperator,
                 Sequence::new(vec![
                     Ref::new("PipeSegment").boxed(),
                     Ref::new("PipeSegment").boxed(),
@@ -4112,20 +4118,26 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "BitwiseAndSegment".into(),
-            NodeMatcher::new(SyntaxKind::BitwiseAnd, Ref::new("AmpersandSegment").to_matchable())
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Ref::new("AmpersandSegment").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "BitwiseOrSegment".into(),
-            NodeMatcher::new(SyntaxKind::BitwiseOr, Ref::new("PipeSegment").to_matchable())
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Ref::new("PipeSegment").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "BitwiseLShiftSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::BitwiseLShift,
+                SyntaxKind::ComparisonOperator,
                 Sequence::new(vec![
                     Ref::new("RawLessThanSegment").boxed(),
                     Ref::new("RawLessThanSegment").boxed(),
@@ -4139,7 +4151,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "BitwiseRShiftSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::BitwiseRShift,
+                SyntaxKind::ComparisonOperator,
                 Sequence::new(vec![
                     Ref::new("RawGreaterThanSegment").boxed(),
                     Ref::new("RawGreaterThanSegment").boxed(),
@@ -4152,14 +4164,17 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "LessThanSegment".into(),
-            NodeMatcher::new(SyntaxKind::LessThan, Ref::new("RawLessThanSegment").to_matchable())
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Ref::new("RawLessThanSegment").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "GreaterThanOrEqualToSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::GreaterThanOrEqualTo,
+                SyntaxKind::ComparisonOperator,
                 Sequence::new(vec![
                     Ref::new("RawGreaterThanSegment").boxed(),
                     Ref::new("RawEqualsSegment").boxed(),
@@ -4173,7 +4188,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "LessThanOrEqualToSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::LessThanOrEqualTo,
+                SyntaxKind::ComparisonOperator,
                 Sequence::new(vec![
                     Ref::new("RawLessThanSegment").boxed(),
                     Ref::new("RawEqualsSegment").boxed(),
@@ -4186,14 +4201,17 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "EqualsSegment".into(),
-            NodeMatcher::new(SyntaxKind::Equals, Ref::new("RawEqualsSegment").to_matchable())
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(
+                SyntaxKind::ComparisonOperator,
+                Ref::new("RawEqualsSegment").to_matchable(),
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "GreaterThanSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::GreaterThan,
+                SyntaxKind::ComparisonOperator,
                 Ref::new("RawGreaterThanSegment").to_matchable(),
             )
             .to_matchable()
@@ -4202,7 +4220,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "QualifiedNumericLiteralSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::QualifiedNumericLiteral,
+                SyntaxKind::NumericLiteral,
                 Sequence::new(vec![
                     Ref::new("SignedSegmentGrammar").boxed(),
                     Ref::new("NumericLiteralSegment").boxed(),
@@ -4550,7 +4568,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "ShorthandCastSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::ShorthandCast,
+                SyntaxKind::CastExpression,
                 Sequence::new(vec_of_erased![
                     one_of(vec_of_erased![
                         Ref::new("Expression_D_Grammar"),
@@ -4842,7 +4860,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "OrderByClauseSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::OrderByClause,
+                SyntaxKind::OrderbyClause,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ORDER"),
                     Ref::keyword("BY"),
@@ -5461,7 +5479,7 @@ fn lexer_matchers() -> Vec<Matcher> {
                 slice,
                 marker.into(),
                 CommentSegmentNewArgs {
-                    r#type: "inline_comment",
+                    r#type: SyntaxKind::InlineComment,
                     trim_start: Some(vec!["--", "#"]),
                 },
             )
@@ -5470,7 +5488,7 @@ fn lexer_matchers() -> Vec<Matcher> {
             CommentSegment::create(
                 slice,
                 marker.into(),
-                CommentSegmentNewArgs { r#type: "block_comment", trim_start: None },
+                CommentSegmentNewArgs { r#type: SyntaxKind::BlockComment, trim_start: None },
             )
         })
         .subdivider(Pattern::regex("newline", r"\r\n|\n", |slice, marker| {
@@ -5483,28 +5501,28 @@ fn lexer_matchers() -> Vec<Matcher> {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "single_quote", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::SingleQuote, ..Default::default() },
             )
         }),
         Matcher::regex("double_quote", r#""([^"\\]|\\.)*""#, |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "double_quote", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::DoubleQuote, ..Default::default() },
             )
         }),
         Matcher::regex("back_quote", r"`[^`]*`", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "back_quote", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::BackQuote, ..Default::default() },
             )
         }),
         Matcher::regex("dollar_quote", r"\$(\w*)\$[\s\S]*?\$\1\$", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "dollar_quote", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::DollarQuote, ..Default::default() },
             )
         }),
         Matcher::regex(
@@ -5514,7 +5532,10 @@ fn lexer_matchers() -> Vec<Matcher> {
                 CodeSegment::create(
                     raw,
                     position_maker.into(),
-                    CodeSegmentNewArgs { code_type: "numeric_literal", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::NumericLiteral,
+                        ..Default::default()
+                    },
                 )
             },
         ),
@@ -5522,7 +5543,7 @@ fn lexer_matchers() -> Vec<Matcher> {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "like_operator", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::LikeOperator, ..Default::default() },
             )
         }),
         Matcher::regex("newline", r"\r\n|\n", |slice, marker| {
@@ -5532,175 +5553,196 @@ fn lexer_matchers() -> Vec<Matcher> {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "casting_operator", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::CastingOperator, ..Default::default() },
             )
         }),
         Matcher::string("equals", "=", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "equals", ..Default::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::RawComparisonOperator,
+                    ..Default::default()
+                },
             )
         }),
         Matcher::string("greater_than", ">", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "greater_than", ..Default::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::RawComparisonOperator,
+                    ..Default::default()
+                },
             )
         }),
         Matcher::string("less_than", "<", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "less_than", ..Default::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::RawComparisonOperator,
+                    ..Default::default()
+                },
             )
         }),
         Matcher::string("not", "!", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "not", ..Default::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::RawComparisonOperator,
+                    ..Default::default()
+                },
             )
         }),
         Matcher::string("dot", ".", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "dot", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Dot, ..Default::default() },
             )
         }),
         Matcher::string("comma", ",", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "comma", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Comma, ..Default::default() },
             )
         }),
         Matcher::string("plus", "+", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "plus", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Plus, ..Default::default() },
             )
         }),
         Matcher::string("minus", "-", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "minus", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Minus, ..Default::default() },
             )
         }),
         Matcher::string("divide", "/", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "divide", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Divide, ..Default::default() },
             )
         }),
         Matcher::string("percent", "%", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "percent", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Percent, ..Default::default() },
             )
         }),
         Matcher::string("question", "?", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "question", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Question, ..Default::default() },
             )
         }),
         Matcher::string("ampersand", "&", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "ampersand", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Ampersand, ..Default::default() },
             )
         }),
         Matcher::string("vertical_bar", "|", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "vertical_bar", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::VerticalBar, ..Default::default() },
             )
         }),
         Matcher::string("caret", "^", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "caret", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Caret, ..Default::default() },
             )
         }),
         Matcher::string("star", "*", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "star", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Star, ..Default::default() },
             )
         }),
         Matcher::string("start_bracket", "(", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "start_bracket", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::StartBracket, ..Default::default() },
             )
         }),
         Matcher::string("end_bracket", ")", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "end_bracket", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::EndBracket, ..Default::default() },
             )
         }),
         Matcher::string("start_square_bracket", "[", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "start_square_bracket", ..Default::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::StartSquareBracket,
+                    ..Default::default()
+                },
             )
         }),
         Matcher::string("end_square_bracket", "]", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "end_square_bracket", ..Default::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::EndSquareBracket,
+                    ..Default::default()
+                },
             )
         }),
         Matcher::string("start_curly_bracket", "{", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "start_curly_bracket", ..Default::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::StartCurlyBracket,
+                    ..Default::default()
+                },
             )
         }),
         Matcher::string("end_curly_bracket", "}", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "end_curly_bracket", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::EndCurlyBracket, ..Default::default() },
             )
         }),
         Matcher::string("colon", ":", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "colon", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Colon, ..Default::default() },
             )
         }),
         Matcher::string("semicolon", ";", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "semicolon", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Semicolon, ..Default::default() },
             )
         }),
         Matcher::regex("word", "[0-9a-zA-Z_]+", |slice, marker| {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "word", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Word, ..Default::default() },
             )
         }),
     ]
@@ -5920,9 +5962,10 @@ impl FromClauseSegment {
         let mut direct_table_children = Vec::new();
         let mut join_clauses = Vec::new();
 
-        for from_expression in self.0.children(&["from_expression"]) {
-            direct_table_children.extend(from_expression.children(&["from_expression_element"]));
-            join_clauses.extend(from_expression.children(&["join_clause"]));
+        for from_expression in self.0.children(&[SyntaxKind::FromExpression]) {
+            direct_table_children
+                .extend(from_expression.children(&[SyntaxKind::FromExpressionElement]));
+            join_clauses.extend(from_expression.children(&[SyntaxKind::JoinClause]));
         }
 
         for clause in &direct_table_children {
@@ -5933,7 +5976,7 @@ impl FromClauseSegment {
             let table_expr = if direct_table_children.contains(clause) {
                 clause
             } else {
-                tmp = clause.child(&["from_expression_element"]).unwrap();
+                tmp = clause.child(&[SyntaxKind::FromExpressionElement]).unwrap();
                 &tmp
             };
 
@@ -5957,13 +6000,15 @@ pub struct SelectClauseElementSegment(pub ErasedSegment);
 
 impl SelectClauseElementSegment {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
-        let alias_expression_segment =
-            self.0.recursive_crawl(&["alias_expression"], true, None, true).first()?.clone();
+        let alias_expression_segment = self
+            .0
+            .recursive_crawl(&[SyntaxKind::AliasExpression], true, None, true)
+            .first()?
+            .clone();
 
-        let alias_identifier_segment = alias_expression_segment
-            .segments()
-            .iter()
-            .find(|it| matches!(it.get_type(), "naked_identifier" | "identifier"))?;
+        let alias_identifier_segment = alias_expression_segment.segments().iter().find(|it| {
+            matches!(it.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::Identifier)
+        })?;
 
         let aliased_segment = self
             .0
@@ -5973,11 +6018,11 @@ impl SelectClauseElementSegment {
             .unwrap();
 
         let mut column_reference_segments = Vec::new();
-        if aliased_segment.is_type("column_reference") {
+        if aliased_segment.is_type(SyntaxKind::ColumnReference) {
             column_reference_segments.push(aliased_segment.clone());
         } else {
             column_reference_segments.extend(aliased_segment.recursive_crawl(
-                &["column_reference"],
+                &[SyntaxKind::ColumnReference],
                 true,
                 None,
                 true,
@@ -5994,30 +6039,33 @@ impl SelectClauseElementSegment {
 
 impl FromExpressionElementSegment {
     pub fn eventual_alias(&self) -> AliasInfo {
-        let mut tbl_expression = self.0.child(&["table_expression"]).or_else(|| {
+        let mut tbl_expression = self.0.child(&[SyntaxKind::TableExpression]).or_else(|| {
             self.0
-                .child(&["bracketed"])
-                .and_then(|bracketed| bracketed.child(&["table_expression"]))
+                .child(&[SyntaxKind::Bracketed])
+                .and_then(|bracketed| bracketed.child(&[SyntaxKind::TableExpression]))
         });
 
         if let Some(tbl_expression_inner) = &tbl_expression
-            && tbl_expression_inner.child(&["object_reference", "table_reference"]).is_none()
+            && tbl_expression_inner
+                .child(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference])
+                .is_none()
         {
-            let bracketed = tbl_expression_inner.child(&["bracketed"]);
+            let bracketed = tbl_expression_inner.child(&[SyntaxKind::Bracketed]);
             if let Some(bracketed) = bracketed {
-                tbl_expression = bracketed.child(&["table_expression"]);
+                tbl_expression = bracketed.child(&[SyntaxKind::TableExpression]);
             }
         }
 
         let reference = tbl_expression.and_then(|tbl_expression| {
-            tbl_expression.child(&["object_reference", "table_reference"])
+            tbl_expression.child(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference])
         });
 
         let reference = reference.as_ref().map(|reference| reference.reference());
 
-        let alias_expression = self.0.child(&["alias_expression"]);
+        let alias_expression = self.0.child(&[SyntaxKind::AliasExpression]);
         if let Some(alias_expression) = alias_expression {
-            let segment = alias_expression.child(&["identifier", "naked_identifier"]);
+            let segment =
+                alias_expression.child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]);
             if let Some(segment) = segment {
                 return AliasInfo {
                     ref_str: segment.raw().into(),
@@ -6164,13 +6212,22 @@ impl ObjectReferenceSegment {
                     };
 
                 for elem in self.0.recursive_crawl(
-                    &["identifier", "naked_identifier", "literal", "dash", "dot", "star"],
+                    &[
+                        SyntaxKind::Identifier,
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::Literal,
+                        SyntaxKind::Dash,
+                        SyntaxKind::Dot,
+                        SyntaxKind::Star,
+                    ],
                     true,
                     None,
                     true,
                 ) {
-                    if !elem.is_type("dot") {
-                        if elem.is_type("identifier") || elem.is_type("naked_identifier") {
+                    if !elem.is_type(SyntaxKind::Dot) {
+                        if elem.is_type(SyntaxKind::Identifier)
+                            || elem.is_type(SyntaxKind::NakedIdentifier)
+                        {
                             let elem_raw = elem.raw();
                             let elem_subparts = elem_raw.split(".").collect_vec();
                             let elem_subparts_count = elem_subparts.len();
@@ -6202,7 +6259,11 @@ impl ObjectReferenceSegment {
                 let mut acc = Vec::new();
 
                 for elem in self.0.recursive_crawl(
-                    &["identifier", "naked_identifier", "quoted_identifier"],
+                    &[
+                        SyntaxKind::Identifier,
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::QuotedIdentifier,
+                    ],
                     true,
                     None,
                     true,
@@ -6216,7 +6277,12 @@ impl ObjectReferenceSegment {
                 let mut acc = Vec::new();
 
                 for elem in self.0.recursive_crawl(
-                    &["identifier", "star", "naked_identifier", "quoted_identifier"],
+                    &[
+                        SyntaxKind::Identifier,
+                        SyntaxKind::Star,
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::QuotedIdentifier,
+                    ],
                     true,
                     None,
                     true,
@@ -6249,14 +6315,17 @@ impl JoinClauseSegment {
     pub fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
         let mut buff = Vec::new();
 
-        let from_expression = self.0.child(&["from_expression_element"]).unwrap();
+        let from_expression = self.0.child(&[SyntaxKind::FromExpressionElement]).unwrap();
         let alias = FromExpressionElementSegment(from_expression.clone()).eventual_alias();
 
         buff.push((from_expression.clone(), alias));
 
-        for join_clause in
-            self.0.recursive_crawl(&["join_clause"], true, "select_statement".into(), true)
-        {
+        for join_clause in self.0.recursive_crawl(
+            &[SyntaxKind::JoinClause],
+            true,
+            SyntaxKind::SelectStatement.into(),
+            true,
+        ) {
             if join_clause.get_uuid() == join_clause.get_uuid() {
                 continue;
             }
@@ -6285,6 +6354,7 @@ mod tests {
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
     use crate::core::parser::segments::base::ErasedSegment;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
+    use crate::dialects::SyntaxKind;
     use crate::helpers;
 
     #[test]
@@ -6413,7 +6483,7 @@ mod tests {
             let segment = dialect.r#ref(segment_ref);
             let mut segments = lex(&config, sql_string);
 
-            if segments.last().unwrap().get_type() == "end_of_file" {
+            if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
                 segments.pop();
             }
 
@@ -6463,7 +6533,7 @@ mod tests {
         let parsed = lnt.parse_string(&file_content, None, None, None).unwrap();
 
         for raw_seg in parsed.tree.unwrap().get_raw_segments() {
-            if raw_seg.is_type("whitespace") || raw_seg.is_type("newline") {
+            if raw_seg.is_type(SyntaxKind::Whitespace) || raw_seg.is_type(SyntaxKind::Newline) {
                 assert!(raw_seg.is_whitespace());
             }
         }

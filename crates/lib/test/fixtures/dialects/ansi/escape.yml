@@ -21,6 +21,6 @@ file:
         - column_reference:
           - naked_identifier: z
         - keyword: LIKE
-        - remove me: '''^_f'''
+        - '': '''^_f'''
         - keyword: ESCAPE
-        - remove me: '''^'''
+        - '': '''^'''

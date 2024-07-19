@@ -6,6 +6,7 @@ use strum_macros::{AsRefStr, EnumString};
 use super::elements::{ReflowElement, ReflowSequenceType};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::SyntaxKind;
 use crate::helpers::capitalize;
 use crate::utils::reflow::depth_map::StackPositionType;
 use crate::utils::reflow::elements::ReflowPoint;
@@ -42,7 +43,7 @@ impl RebreakIndices {
         while (dir == 1 && newline_point_idx < limit as isize)
             || (dir == -1 && newline_point_idx >= 0)
         {
-            if elements[newline_point_idx as usize].class_types1().contains("newline")
+            if elements[newline_point_idx as usize].class_types1().contains(&SyntaxKind::Newline)
                 || elements[(newline_point_idx + dir as isize) as usize]
                     .segments()
                     .iter()
@@ -119,7 +120,7 @@ impl RebreakLocation {
     }
 
     fn pretty_target_name(&self) -> String {
-        format!("{} {}", self.target.get_type(), self.target.raw())
+        format!("{} {}", self.target.get_type().as_str(), self.target.raw())
     }
 }
 

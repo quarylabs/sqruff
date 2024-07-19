@@ -21,19 +21,19 @@ file:
         - column_reference:
           - naked_identifier: a
         - numeric_literal: '!~'
-        - remove me: '''[a-z]'''
+        - '': '''[a-z]'''
         - binary_operator: AND
         - column_reference:
           - naked_identifier: d
         - numeric_literal: '!~~*'
-        - remove me: '''[a-z]'''
+        - '': '''[a-z]'''
         - binary_operator: AND
         - column_reference:
           - naked_identifier: b
         - keyword: LIKE
-        - remove me: '''Spec\''s%'''
+        - '': '''Spec\''s%'''
         - binary_operator: AND
         - column_reference:
           - naked_identifier: c
         - numeric_literal: '!~*'
-        - remove me: '''^([0-9]){1,}(\.)([0-9]{1,})$'''
+        - '': '''^([0-9]){1,}(\.)([0-9]{1,})$'''

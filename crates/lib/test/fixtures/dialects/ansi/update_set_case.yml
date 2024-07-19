@@ -24,7 +24,7 @@ file:
                   - naked_identifier: column
                 - comparison_operator:
                   - raw_comparison_operator: =
-                - remove me: '''T'''
+                - '': '''T'''
               - keyword: THEN
               - expression:
                 - boolean_literal: 'TRUE'
@@ -37,7 +37,7 @@ file:
                   - naked_identifier: column
                 - comparison_operator:
                   - raw_comparison_operator: =
-                - remove me: '''F'''
+                - '': '''F'''
               - keyword: THEN
               - expression:
                 - boolean_literal: 'FALSE'

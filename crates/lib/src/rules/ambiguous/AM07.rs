@@ -4,6 +4,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
 #[derive(Debug, Clone)]
@@ -70,14 +71,14 @@ FROM t
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        debug_assert!(context.segment.is_type("set_expression"));
+        debug_assert!(context.segment.is_type(SyntaxKind::SetExpression));
 
         let mut root = &context.segment;
 
         // Is the parent of the set expression a WITH expression?
         // NOTE: Backward slice to work outward.
         for parent in context.parent_stack.iter().rev() {
-            if parent.is_type("with_compound_statement") {
+            if parent.is_type(SyntaxKind::WithCompoundStatement) {
                 root = parent;
                 break;
             }
@@ -96,7 +97,7 @@ FROM t
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["set_expression"].into()).provide_raw_stack().into()
+        SegmentSeekerCrawler::new([SyntaxKind::SetExpression].into()).provide_raw_stack().into()
     }
 }
 

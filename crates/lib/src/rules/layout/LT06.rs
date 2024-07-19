@@ -6,6 +6,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default, Clone)]
@@ -55,10 +56,11 @@ FROM foo
         let children = segment.children(None);
 
         let function_name = children
-            .find_first(Some(|segment: &ErasedSegment| segment.is_type("function_name")))
+            .find_first(Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::FunctionName)))
             .pop();
-        let start_bracket =
-            children.find_first(Some(|segment: &ErasedSegment| segment.is_type("bracketed"))).pop();
+        let start_bracket = children
+            .find_first(Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::Bracketed)))
+            .pop();
 
         let mut intermediate_segments = children.select::<fn(&ErasedSegment) -> bool>(
             None,
@@ -68,9 +70,9 @@ FROM foo
         );
 
         if !intermediate_segments.is_empty() {
-            return if intermediate_segments
-                .all(Some(|seg| matches!(seg.get_type(), "whitespace" | "newline")))
-            {
+            return if intermediate_segments.all(Some(|seg| {
+                matches!(seg.get_type(), SyntaxKind::Whitespace | SyntaxKind::Newline)
+            })) {
                 vec![LintResult::new(
                     intermediate_segments.first().cloned(),
                     intermediate_segments.into_iter().map(LintFix::delete).collect_vec(),
@@ -91,7 +93,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::Function].into()).into()
     }
 }
 

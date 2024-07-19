@@ -12,6 +12,7 @@ use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, Segment, SymbolSegment, SymbolSegmentNewArgs,
 };
 use crate::core::parser::segments::meta::MetaSegment;
+use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
@@ -45,7 +46,7 @@ pub fn raw_dialect() -> Dialect {
                         SymbolSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: "binary_operator" },
+                            SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                         )
                     },
                     None,
@@ -58,7 +59,7 @@ pub fn raw_dialect() -> Dialect {
                         SymbolSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: "binary_operator" },
+                            SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                         )
                     },
                     None,
@@ -93,7 +94,10 @@ pub fn raw_dialect() -> Dialect {
             CodeSegment::create(
                 slice,
                 Some(pos),
-                CodeSegmentNewArgs { code_type: "double_divide", ..CodeSegmentNewArgs::default() },
+                CodeSegmentNewArgs {
+                    code_type: SyntaxKind::DoubleDivide,
+                    ..CodeSegmentNewArgs::default()
+                },
             )
         })],
         "divide",

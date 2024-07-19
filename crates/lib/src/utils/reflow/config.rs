@@ -4,6 +4,7 @@ use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
+use crate::dialects::SyntaxKind;
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
@@ -140,11 +141,11 @@ pub struct ReflowConfig {
 impl ReflowConfig {
     pub fn get_block_config(
         &self,
-        block_class_types: &AHashSet<&str>,
+        block_class_types: &AHashSet<SyntaxKind>,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
         let configured_types =
-            block_class_types.iter().filter(|&&typ| self.config_types.contains(typ));
+            block_class_types.iter().filter(|&&typ| self.config_types.contains(typ.as_str()));
 
         let mut block_config = BlockConfig::new();
 
@@ -175,7 +176,7 @@ impl ReflowConfig {
                 let parent_classes =
                     &depth_info.stack_class_types[depth_info.stack_class_types.len() - 1 - idx];
                 let parent_classes: AHashSet<String> =
-                    parent_classes.iter().map(|s| s.to_string()).collect();
+                    parent_classes.iter().map(|s| s.as_str().to_string()).collect();
 
                 let configured_parent_types =
                     self.config_types.intersection(&parent_classes).collect_vec();
@@ -225,7 +226,7 @@ impl ReflowConfig {
         }
 
         for &seg_type in configured_types {
-            block_config.incorporate(None, None, None, None, self.configs.get(seg_type));
+            block_config.incorporate(None, None, None, None, self.configs.get(seg_type.as_str()));
         }
 
         block_config

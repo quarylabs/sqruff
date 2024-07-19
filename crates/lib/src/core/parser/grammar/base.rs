@@ -11,6 +11,7 @@ use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::dialects::SyntaxKind;
 use crate::helpers::{capitalize, ToMatchable};
 
 #[derive(Clone)]
@@ -22,7 +23,7 @@ pub struct Ref {
     allow_gaps: bool,
     optional: bool,
     cache_key: MatchableCacheKey,
-    simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<&'static str>)>>,
+    simple_cache: OnceLock<Option<(AHashSet<String>, AHashSet<SyntaxKind>)>>,
 }
 
 impl std::fmt::Debug for Ref {
@@ -90,7 +91,7 @@ impl Matchable for Ref {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
         self.simple_cache
             .get_or_init(|| {
                 if let Some(ref c) = crumbs {

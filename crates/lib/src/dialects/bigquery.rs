@@ -34,21 +34,27 @@ pub fn bigquery_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "right_arrow", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::RightArrow, ..Default::default() },
                 )
             }),
             Matcher::string("question_mark", "?", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "question_mark", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::QuestionMark,
+                        ..Default::default()
+                    },
                 )
             }),
             Matcher::regex("at_sign_literal", r"@[a-zA-Z_][\w]*", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "at_sign_literal", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::AtSignLiteral,
+                        ..Default::default()
+                    },
                 )
             }),
         ],
@@ -63,7 +69,7 @@ pub fn bigquery_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "single_quote", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::SingleQuote, ..Default::default() },
                 )
             }
         ),
@@ -74,7 +80,7 @@ pub fn bigquery_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "double_quote", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::DoubleQuote, ..Default::default() },
                 )
             }
         ),
@@ -84,12 +90,12 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "DoubleQuotedLiteralSegment".into(),
             TypedParser::new(
-                "double_quote",
+                SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                     )
                 },
                 None,
@@ -102,12 +108,15 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "SingleQuotedLiteralSegment".into(),
             TypedParser::new(
-                "single_quote",
+                SyntaxKind::SingleQuote,
                 |segment| {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "quoted_literal", ..Default::default() },
+                        CodeSegmentNewArgs {
+                            code_type: SyntaxKind::QuotedLiteral,
+                            ..Default::default()
+                        },
                     )
                 },
                 "quoted_literal".to_owned().into(),
@@ -120,12 +129,12 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "DoubleQuotedUDFBody".into(),
             TypedParser::new(
-                "double_quote",
+                SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "udf_body" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
                     )
                 },
                 None,
@@ -138,12 +147,12 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "SingleQuotedUDFBody".into(),
             TypedParser::new(
-                "single_quote",
+                SyntaxKind::SingleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "udf_body" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
                     )
                 },
                 None,
@@ -161,7 +170,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "start_angle_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartAngleBracket },
                     )
                 },
                 "start_angle_bracket".to_owned().into(),
@@ -179,7 +188,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "end_angle_bracket" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndAngleBracket },
                     )
                 },
                 "end_angle_bracket".to_owned().into(),
@@ -197,7 +206,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "remove me" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
                     )
                 },
                 "right_arrow".to_owned().into(),
@@ -215,7 +224,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "dash" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Dash },
                     )
                 },
                 "dash".to_owned().into(),
@@ -243,7 +252,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "question_mark" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuestionMark },
                     )
                 },
                 "dash".to_owned().into(),
@@ -256,12 +265,12 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "AtSignLiteralSegment".into(),
             TypedParser::new(
-                "at_sign_literal",
+                SyntaxKind::AtSignLiteral,
                 |segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "at_sign_literal" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::AtSignLiteral },
                     )
                 },
                 "quoted_literal".to_owned().into(),
@@ -304,7 +313,10 @@ pub fn bigquery_dialect() -> Dialect {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            CodeSegmentNewArgs { code_type: "date_part", ..Default::default() },
+                            CodeSegmentNewArgs {
+                                code_type: SyntaxKind::DatePart,
+                                ..Default::default()
+                            },
                         )
                     },
                     None,
@@ -323,7 +335,7 @@ pub fn bigquery_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "naked_identifier_all",
+                            code_type: SyntaxKind::NakedIdentifierAll,
                             ..Default::default()
                         },
                     )
@@ -344,7 +356,10 @@ pub fn bigquery_dialect() -> Dialect {
                     IdentifierSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
+                        CodeSegmentNewArgs {
+                            code_type: SyntaxKind::NakedIdentifier,
+                            ..Default::default()
+                        },
                     )
                 },
                 None,
@@ -365,7 +380,7 @@ pub fn bigquery_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "procedure_name_identifier",
+                                code_type: SyntaxKind::ProcedureNameIdentifier,
                                 ..Default::default()
                             },
                         )
@@ -382,7 +397,7 @@ pub fn bigquery_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "procedure_name_identifier",
+                                code_type: SyntaxKind::ProcedureNameIdentifier,
                                 ..Default::default()
                             },
                         )
@@ -438,7 +453,7 @@ pub fn bigquery_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "naked_identifier",
+                                code_type: SyntaxKind::NakedIdentifier,
                                 ..Default::default()
                             },
                         )
@@ -479,7 +494,10 @@ pub fn bigquery_dialect() -> Dialect {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            CodeSegmentNewArgs { code_type: "parameter", ..Default::default() },
+                            CodeSegmentNewArgs {
+                                code_type: SyntaxKind::Parameter,
+                                ..Default::default()
+                            },
                         )
                     },
                     None,
@@ -493,7 +511,10 @@ pub fn bigquery_dialect() -> Dialect {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            CodeSegmentNewArgs { code_type: "parameter", ..Default::default() },
+                            CodeSegmentNewArgs {
+                                code_type: SyntaxKind::Parameter,
+                                ..Default::default()
+                            },
                         )
                     },
                     None,
@@ -515,13 +536,13 @@ pub fn bigquery_dialect() -> Dialect {
                     Ref::keyword("TIMESTAMP")
                 ]),
                 TypedParser::new(
-                    "single_quote",
+                    SyntaxKind::SingleQuote,
                     |segment| {
                         IdentifierSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "date_constructor_literal",
+                                code_type: SyntaxKind::DateConstructorLiteral,
                                 ..Default::default()
                             },
                         )
@@ -677,7 +698,7 @@ pub fn bigquery_dialect() -> Dialect {
                                 SymbolSegment::create(
                                     &segment.raw(),
                                     segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: "procedure_option" },
+                                    SymbolSegmentNewArgs { r#type: SyntaxKind::ProcedureOption },
                                 )
                             },
                             "procedure_option".to_owned().into(),
@@ -804,7 +825,7 @@ pub fn bigquery_dialect() -> Dialect {
         ),
         (
             "SetOperatorSegment".into(),
-            NodeMatcher::new(SyntaxKind::SetOperatorSegment, {
+            NodeMatcher::new(SyntaxKind::SetOperator, {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("UNION"),
@@ -1217,7 +1238,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                            SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
                         )
                     },
                     "function_name_identifier".to_owned().into(),
@@ -1239,7 +1260,7 @@ pub fn bigquery_dialect() -> Dialect {
                         SymbolSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                            SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
                         )
                     },
                     "function_name_identifier".to_owned().into(),
@@ -1283,7 +1304,7 @@ pub fn bigquery_dialect() -> Dialect {
                             SymbolSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                                SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
                             )
                         },
                         None,
@@ -1296,7 +1317,7 @@ pub fn bigquery_dialect() -> Dialect {
                             SymbolSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                                SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
                             )
                         },
                         None,
@@ -2386,7 +2407,9 @@ pub fn bigquery_dialect() -> Dialect {
                                         SymbolSegment::create(
                                             &segment.raw(),
                                             segment.get_position_marker(),
-                                            SymbolSegmentNewArgs { r#type: "export_option" },
+                                            SymbolSegmentNewArgs {
+                                                r#type: SyntaxKind::ExportOption,
+                                            },
                                         )
                                     },
                                     None,
@@ -2399,7 +2422,9 @@ pub fn bigquery_dialect() -> Dialect {
                                         SymbolSegment::create(
                                             &segment.raw(),
                                             segment.get_position_marker(),
-                                            SymbolSegmentNewArgs { r#type: "export_option" },
+                                            SymbolSegmentNewArgs {
+                                                r#type: SyntaxKind::ExportOption,
+                                            },
                                         )
                                     },
                                     None,
@@ -2412,7 +2437,9 @@ pub fn bigquery_dialect() -> Dialect {
                                         SymbolSegment::create(
                                             &segment.raw(),
                                             segment.get_position_marker(),
-                                            SymbolSegmentNewArgs { r#type: "export_option" },
+                                            SymbolSegmentNewArgs {
+                                                r#type: SyntaxKind::ExportOption,
+                                            },
                                         )
                                     },
                                     None,
@@ -2425,7 +2452,9 @@ pub fn bigquery_dialect() -> Dialect {
                                         SymbolSegment::create(
                                             &segment.raw(),
                                             segment.get_position_marker(),
-                                            SymbolSegmentNewArgs { r#type: "export_option" },
+                                            SymbolSegmentNewArgs {
+                                                r#type: SyntaxKind::ExportOption,
+                                            },
                                         )
                                     },
                                     None,
@@ -2444,7 +2473,9 @@ pub fn bigquery_dialect() -> Dialect {
                                         SymbolSegment::create(
                                             &segment.raw(),
                                             segment.get_position_marker(),
-                                            SymbolSegmentNewArgs { r#type: "export_option" },
+                                            SymbolSegmentNewArgs {
+                                                r#type: SyntaxKind::ExportOption,
+                                            },
                                         )
                                     },
                                     None,
@@ -2457,7 +2488,9 @@ pub fn bigquery_dialect() -> Dialect {
                                         SymbolSegment::create(
                                             &segment.raw(),
                                             segment.get_position_marker(),
-                                            SymbolSegmentNewArgs { r#type: "export_option" },
+                                            SymbolSegmentNewArgs {
+                                                r#type: SyntaxKind::ExportOption,
+                                            },
                                         )
                                     },
                                     None,
@@ -2470,7 +2503,9 @@ pub fn bigquery_dialect() -> Dialect {
                                         SymbolSegment::create(
                                             &segment.raw(),
                                             segment.get_position_marker(),
-                                            SymbolSegmentNewArgs { r#type: "export_option" },
+                                            SymbolSegmentNewArgs {
+                                                r#type: SyntaxKind::ExportOption,
+                                            },
                                         )
                                     },
                                     None,
@@ -2516,12 +2551,15 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "QuotedIdentifierSegment".into(),
             TypedParser::new(
-                "back_quote",
+                SyntaxKind::BackQuote,
                 |segment| {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "quoted_identifier", ..Default::default() },
+                        CodeSegmentNewArgs {
+                            code_type: SyntaxKind::QuotedIdentifier,
+                            ..Default::default()
+                        },
                     )
                 },
                 "quoted_identifier".to_owned().into(),
@@ -2535,13 +2573,13 @@ pub fn bigquery_dialect() -> Dialect {
             "NumericLiteralSegment".into(),
             one_of(vec_of_erased![
                 TypedParser::new(
-                    "numeric_literal",
+                    SyntaxKind::NumericLiteral,
                     |segment| {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "numeric_literal",
+                                code_type: SyntaxKind::NumericLiteral,
                                 ..Default::default()
                             },
                         )
@@ -2616,7 +2654,7 @@ pub fn bigquery_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "function_name_identifier",
+                                code_type: SyntaxKind::FunctionNameIdentifier,
                                 ..Default::default()
                             },
                         )
@@ -2633,7 +2671,7 @@ pub fn bigquery_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "function_name_identifier",
+                                code_type: SyntaxKind::FunctionNameIdentifier,
                                 ..Default::default()
                             },
                         )

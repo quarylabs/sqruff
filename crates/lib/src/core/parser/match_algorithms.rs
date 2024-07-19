@@ -10,6 +10,7 @@ use super::matchable::Matchable;
 use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::segments::meta::IndentChange;
+use crate::dialects::SyntaxKind;
 
 pub fn skip_start_index_forward_to_code(
     segments: &[ErasedSegment],
@@ -53,7 +54,7 @@ pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
 pub fn first_non_whitespace(
     segments: &[ErasedSegment],
     start_idx: u32,
-) -> Option<(String, AHashSet<&str>)> {
+) -> Option<(String, AHashSet<SyntaxKind>)> {
     for segment in segments.iter().skip(start_idx as usize) {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
@@ -204,7 +205,7 @@ fn next_match(
     }
 
     let mut raw_simple_map: AHashMap<String, Vec<usize>> = AHashMap::new();
-    let mut type_simple_map: AHashMap<&'static str, Vec<usize>> = AHashMap::new();
+    let mut type_simple_map: AHashMap<SyntaxKind, Vec<usize>> = AHashMap::new();
 
     for (idx, matcher) in enumerate(matchers) {
         let (raws, types) = matcher.simple(parse_context, None).unwrap();
@@ -450,8 +451,10 @@ pub fn greedy_match(
             for idx in (working_idx..=start_idx).rev() {
                 if segments[idx as usize - 1].is_meta() {
                     continue;
-                } else if matches!(segments[idx as usize - 1].get_type(), "whitespace" | "newline")
-                {
+                } else if matches!(
+                    segments[idx as usize - 1].get_type(),
+                    SyntaxKind::Whitespace | SyntaxKind::Newline
+                ) {
                     allowable_match = true;
                     break;
                 } else {

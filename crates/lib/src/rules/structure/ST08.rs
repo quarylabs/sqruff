@@ -7,6 +7,7 @@ use crate::core::parser::segments::base::{
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
@@ -82,26 +83,26 @@ SELECT DISTINCT a, b FROM foo
         let mut anchor: Option<ErasedSegment> = None;
         let children = FunctionalContext::new(context.clone()).segment().children(None);
 
-        if context.segment.is_type("select_clause") {
+        if context.segment.is_type(SyntaxKind::SelectClause) {
             let modifier = children.select(
-                Some(|it: &ErasedSegment| it.is_type("select_clause_modifier")),
+                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectClauseModifier)),
                 None,
                 None,
                 None,
             );
             let selected_elements = children.select(
-                Some(|it: &ErasedSegment| it.is_type("select_clause_element")),
+                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectClauseElement)),
                 None,
                 None,
                 None,
             );
             let first_element = selected_elements.find_first::<fn(&_) -> _>(None);
             let expression = first_element
-                .children(Some(|it| it.is_type("expression")))
+                .children(Some(|it| it.is_type(SyntaxKind::Expression)))
                 .find_first::<fn(&ErasedSegment) -> bool>(None);
             let expression = if expression.is_empty() { first_element } else { expression };
             let bracketed = expression
-                .children(Some(|it| it.get_type() == "bracketed"))
+                .children(Some(|it| it.get_type() == SyntaxKind::Bracketed))
                 .find_first::<fn(&_) -> _>(None);
 
             if !modifier.is_empty() && !bracketed.is_empty() {
@@ -119,21 +120,22 @@ SELECT DISTINCT a, b FROM foo
                     ));
                 }
             }
-        } else if context.segment.is_type("function") {
+        } else if context.segment.is_type(SyntaxKind::Function) {
             let anchor = context.parent_stack.last().unwrap();
 
-            if !anchor.is_type("expression") || anchor.segments().len() != 1 {
+            if !anchor.is_type(SyntaxKind::Expression) || anchor.segments().len() != 1 {
                 return Vec::new();
             }
 
             let selected_functions = children.select(
-                Some(|it: &ErasedSegment| it.is_type("function_name")),
+                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::FunctionName)),
                 None,
                 None,
                 None,
             );
             let function_name = selected_functions.first();
-            let bracketed = children.find_first(Some(|it: &ErasedSegment| it.is_type("bracketed")));
+            let bracketed =
+                children.find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)));
 
             if function_name.is_none()
                 || function_name.unwrap().get_raw_upper() != Some(String::from("DISTINCT"))
@@ -147,7 +149,7 @@ SELECT DISTINCT a, b FROM foo
                 SymbolSegment::create(
                     "DISTINCT",
                     None,
-                    SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                    SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
                 ),
                 WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
             ];
@@ -179,7 +181,7 @@ SELECT DISTINCT a, b FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause", "function"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectClause, SyntaxKind::Function].into()).into()
     }
 }
 

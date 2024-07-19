@@ -3,6 +3,7 @@ use enum_dispatch::enum_dispatch;
 
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::context::RuleContext;
+use crate::dialects::SyntaxKind;
 
 #[enum_dispatch]
 pub trait BaseCrawler {
@@ -11,7 +12,7 @@ pub trait BaseCrawler {
     }
 
     fn passes_filter(&self, segment: &dyn Segment) -> bool {
-        self.works_on_unparsable() || !segment.is_type("unparsable")
+        self.works_on_unparsable() || !segment.is_type(SyntaxKind::Unparsable)
     }
 
     fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>>;
@@ -38,13 +39,13 @@ impl BaseCrawler for RootOnlyCrawler {
 }
 
 pub struct SegmentSeekerCrawler {
-    types: AHashSet<&'static str>,
+    types: AHashSet<SyntaxKind>,
     provide_raw_stack: bool,
     allow_recurse: bool,
 }
 
 impl SegmentSeekerCrawler {
-    pub fn new(types: AHashSet<&'static str>) -> Self {
+    pub fn new(types: AHashSet<SyntaxKind>) -> Self {
         Self { types, provide_raw_stack: false, allow_recurse: true }
     }
 
@@ -59,7 +60,7 @@ impl SegmentSeekerCrawler {
     }
 
     fn is_self_match(&self, segment: &dyn Segment) -> bool {
-        self.types.contains(segment.get_type())
+        self.types.contains(&segment.get_type())
     }
 }
 

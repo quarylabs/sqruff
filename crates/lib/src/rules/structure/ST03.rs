@@ -6,6 +6,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::IndexMap;
 use crate::utils::analysis::query::Query;
 
@@ -76,9 +77,9 @@ FROM cte1
             .collect();
 
         for reference in context.segment.recursive_crawl(
-            &["table_reference"],
+            &[SyntaxKind::TableReference],
             true,
-            Some("with_compound_statement"),
+            Some(SyntaxKind::WithCompoundStatement),
             true,
         ) {
             remaining_ctes.shift_remove(&reference.get_raw_upper().unwrap());
@@ -103,7 +104,7 @@ FROM cte1
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::WithCompoundStatement].into()).into()
     }
 }
 

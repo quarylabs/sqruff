@@ -4,6 +4,7 @@ use regex::Regex;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::identifers::identifiers_policy_applicable;
 
 #[derive(Debug, Clone, Default)]
@@ -96,7 +97,7 @@ FROM foo AS vee
         let upper_segment = raw_segment[1..raw_segment.len() - 1].to_uppercase();
 
         // FIXME: simplify the condition
-        if (context.segment.is_type("naked_identifier")
+        if (context.segment.is_type(SyntaxKind::NakedIdentifier)
             && identifiers_policy_applicable(
                 &self.unquoted_identifiers_policy,
                 &context.parent_stack,
@@ -105,7 +106,7 @@ FROM foo AS vee
                 .dialect
                 .sets("unreserved_keywords")
                 .contains(context.segment.raw().to_uppercase().as_str()))
-            || (context.segment.is_type("quoted_identifier")
+            || (context.segment.is_type(SyntaxKind::QuotedIdentifier)
                 && self.quoted_identifiers_policy.as_ref().map_or(
                     false,
                     |quoted_identifiers_policy| {
@@ -125,6 +126,9 @@ FROM foo AS vee
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["naked_identifier", "quoted_identifier"].into()).into()
+        SegmentSeekerCrawler::new(
+            [SyntaxKind::NakedIdentifier, SyntaxKind::QuotedIdentifier].into(),
+        )
+        .into()
     }
 }

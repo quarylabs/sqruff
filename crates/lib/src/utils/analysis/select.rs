@@ -7,6 +7,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::ansi::{
     FromClauseSegment, ObjectReferenceSegment, SelectClauseElementSegment,
 };
+use crate::dialects::SyntaxKind;
 
 #[derive(Clone)]
 pub struct SelectStatementColumnsAndTables {
@@ -22,9 +23,9 @@ pub struct SelectStatementColumnsAndTables {
 pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
     segment
         .recursive_crawl(
-            &["object_reference", "column_reference"],
+            &[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference],
             true,
-            "select_statement".into(),
+            SyntaxKind::SelectStatement.into(),
             true,
         )
         .into_iter()
@@ -43,45 +44,57 @@ pub fn get_select_statement_info(
         return None;
     }
 
-    let sc = segment.child(&["select_clause"])?;
+    let sc = segment.child(&[SyntaxKind::SelectClause])?;
     let mut reference_buffer = get_object_references(&sc);
-    for potential_clause in
-        ["where_clause", "groupby_clause", "having_clause", "orderby_clause", "qualify_clause"]
-    {
+    for potential_clause in [
+        SyntaxKind::WhereClause,
+        SyntaxKind::GroupbyClause,
+        SyntaxKind::HavingClause,
+        SyntaxKind::OrderbyClause,
+        SyntaxKind::QualifyClause,
+    ] {
         let clause = segment.child(&[potential_clause]);
         if let Some(clause) = clause {
             reference_buffer.extend(get_object_references(&clause));
         }
     }
 
-    let select_clause = segment.child(&["select_clause"]).unwrap();
-    let select_targets = select_clause.children(&["select_clause_element"]);
+    let select_clause = segment.child(&[SyntaxKind::SelectClause]).unwrap();
+    let select_targets = select_clause.children(&[SyntaxKind::SelectClauseElement]);
     let select_targets =
         select_targets.iter().map(|it| SelectClauseElementSegment(it.clone())).collect_vec();
 
     let col_aliases = select_targets.iter().flat_map(|s| s.alias()).collect_vec();
 
     let mut using_cols: Vec<SmolStr> = Vec::new();
-    let fc = segment.child(&["from_clause"]);
+    let fc = segment.child(&[SyntaxKind::FromClause]);
 
     if let Some(fc) = fc {
-        for join_clause in
-            fc.recursive_crawl(&["join_clause"], true, "select_statement".into(), true)
-        {
+        for join_clause in fc.recursive_crawl(
+            &[SyntaxKind::JoinClause],
+            true,
+            SyntaxKind::SelectStatement.into(),
+            true,
+        ) {
             let mut seen_using = false;
 
             for seg in join_clause.segments() {
-                if seg.is_type("keyword") && seg.get_raw_upper().unwrap() == "USING" {
+                if seg.is_type(SyntaxKind::Keyword) && seg.get_raw_upper().unwrap() == "USING" {
                     seen_using = true;
-                } else if seg.is_type("join_on_condition") {
+                } else if seg.is_type(SyntaxKind::JoinOnCondition) {
                     for on_seg in seg.segments() {
-                        if matches!(on_seg.get_type(), "bracketed" | "expression") {
+                        if matches!(
+                            on_seg.get_type(),
+                            SyntaxKind::Bracketed | SyntaxKind::Expression
+                        ) {
                             reference_buffer.extend(get_object_references(seg));
                         }
                     }
-                } else if seen_using && seg.is_type("bracketed") {
+                } else if seen_using && seg.is_type(SyntaxKind::Bracketed) {
                     for subseg in seg.segments() {
-                        if subseg.is_type("identifier") || subseg.is_type("naked_identifier") {
+                        if subseg.is_type(SyntaxKind::Identifier)
+                            || subseg.is_type(SyntaxKind::NakedIdentifier)
+                        {
                             using_cols.push(subseg.raw().into());
                         }
                     }
@@ -107,7 +120,7 @@ pub fn get_aliases_from_select(
     segment: &ErasedSegment,
     dialect: Option<&Dialect>,
 ) -> (Vec<AliasInfo>, Vec<SmolStr>) {
-    let fc = segment.child(&["from_clause"]);
+    let fc = segment.child(&[SyntaxKind::FromClause]);
     let Some(fc) = fc else {
         return (Vec::new(), Vec::new());
     };
@@ -138,7 +151,7 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
         return false;
     };
 
-    for function_name in table_expr.recursive_crawl(&["function_name"], true, None, true) {
+    for function_name in table_expr.recursive_crawl(&[SyntaxKind::FunctionName], true, None, true) {
         if dialect.sets("value_table_functions").contains(function_name.raw().to_uppercase().trim())
         {
             return true;
@@ -153,14 +166,14 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
         return Vec::new();
     };
 
-    let fc = segment.recursive_crawl(&["from_pivot_expression"], true, None, true);
+    let fc = segment.recursive_crawl(&[SyntaxKind::FromPivotExpression], true, None, true);
     if !fc.is_empty() {
         return Vec::new();
     }
 
     let mut pivot_table_column_aliases = Vec::new();
     for pivot_table_column_alias in
-        segment.recursive_crawl(&["pivot_column_reference"], true, None, true)
+        segment.recursive_crawl(&[SyntaxKind::PivotColumnReference], true, None, true)
     {
         let raw = pivot_table_column_alias.raw().into();
         if !pivot_table_column_aliases.contains(&raw) {

@@ -7,6 +7,7 @@ use sqruff_lib::core::parser::context::ParseContext;
 use sqruff_lib::core::parser::matchable::Matchable;
 use sqruff_lib::core::parser::segments::base::ErasedSegment;
 use sqruff_lib::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
+use sqruff_lib::dialects::SyntaxKind;
 
 #[cfg(all(
     not(target_os = "windows"),
@@ -113,7 +114,7 @@ fn mk_segments<'a>(
     let segment = dialect.r#ref("FileSegment");
     let mut segments = lex(config, source);
 
-    if segments.last().unwrap().get_type() == "end_of_file" {
+    if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
         segments.pop();
     }
 

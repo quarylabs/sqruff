@@ -8,6 +8,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::capitalize;
 
 fn is_capitalizable(character: char) -> bool {
@@ -19,7 +20,7 @@ pub struct RuleCP01 {
     pub(crate) capitalisation_policy: String,
     pub(crate) cap_policy_name: String,
     pub(crate) skip_literals: bool,
-    pub(crate) exclude_parent_types: &'static [&'static str],
+    pub(crate) exclude_parent_types: &'static [SyntaxKind],
     pub(crate) description_elem: &'static str,
 }
 
@@ -30,10 +31,10 @@ impl Default for RuleCP01 {
             cap_policy_name: "capitalisation_policy".into(),
             skip_literals: true,
             exclude_parent_types: &[
-                "data_type",
-                "datetime_type_identifier",
-                "primitive_type",
-                "naked_identifier",
+                SyntaxKind::DataType,
+                SyntaxKind::DatetimeTypeIdentifier,
+                SyntaxKind::PrimitiveType,
+                SyntaxKind::NakedIdentifier,
             ],
             description_elem: "Keywords",
         }
@@ -98,14 +99,14 @@ from foo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
 
-        if (self.skip_literals && context.segment.is_type("literal"))
+        if (self.skip_literals && context.segment.is_type(SyntaxKind::Literal))
             || !self.exclude_parent_types.is_empty()
-                && self.exclude_parent_types.iter().any(|it| parent.is_type(it))
+                && self.exclude_parent_types.iter().any(|&it| parent.is_type(it))
         {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
 
-        if parent.get_type() == "function_name" && parent.segments().len() != 1 {
+        if parent.get_type() == SyntaxKind::FunctionName && parent.segments().len() != 1 {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
 
@@ -123,7 +124,10 @@ from foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["keyword", "binary_operator", "date_part"].into()).into()
+        SegmentSeekerCrawler::new(
+            [SyntaxKind::Keyword, SyntaxKind::BinaryOperator, SyntaxKind::DatePart].into(),
+        )
+        .into()
     }
 }
 

@@ -7,6 +7,7 @@ use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default, Clone)]
@@ -69,19 +70,22 @@ from table_a
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let Some(function_name) = context.segment.child(&["function_name"]) else {
+        let Some(function_name) = context.segment.child(&[SyntaxKind::FunctionName]) else {
             return Vec::new();
         };
 
         if function_name.get_raw_upper().unwrap() == "COUNT" {
             let f_content = FunctionalContext::new(context.clone())
                 .segment()
-                .children(Some(|it: &ErasedSegment| it.is_type("bracketed")))
+                .children(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)))
                 .children(Some(|it: &ErasedSegment| {
                     !it.is_meta()
                         && !matches!(
                             it.get_type(),
-                            "start_bracket" | "end_bracket" | "whitespace" | "newline"
+                            SyntaxKind::StartBracket
+                                | SyntaxKind::EndBracket
+                                | SyntaxKind::Whitespace
+                                | SyntaxKind::Newline
                         )
                 }));
 
@@ -97,7 +101,9 @@ from table_a
                 "*"
             };
 
-            if f_content[0].is_type("star") && (self.prefer_count_0 || self.prefer_count_1) {
+            if f_content[0].is_type(SyntaxKind::Star)
+                && (self.prefer_count_0 || self.prefer_count_1)
+            {
                 let new_segment = LiteralSegment::create(preferred, &<_>::default());
                 return vec![LintResult::new(
                     context.segment.into(),
@@ -108,13 +114,16 @@ from table_a
                 )];
             }
 
-            if f_content[0].is_type("expression") {
+            if f_content[0].is_type(SyntaxKind::Expression) {
                 let expression_content =
                     f_content[0].segments().iter().filter(|it| !it.is_meta()).collect_vec();
 
                 let raw = expression_content[0].raw();
                 if expression_content.len() == 1
-                    && matches!(expression_content[0].get_type(), "numeric_literal" | "literal")
+                    && matches!(
+                        expression_content[0].get_type(),
+                        SyntaxKind::NumericLiteral | SyntaxKind::Literal
+                    )
                     && (raw == "0" || raw == "1")
                     && raw != preferred
                 {
@@ -148,7 +157,7 @@ from table_a
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::Function].into()).into()
     }
 }
 

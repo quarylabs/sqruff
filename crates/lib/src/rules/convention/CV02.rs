@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 
 /// Prefer using `COALESCE` over `IFNULL` or `NVL`.
 ///
@@ -82,7 +83,7 @@ FROM baz;
         // Use "COALESCE" instead of "IFNULL" or "NVL".
         // We only care about function names, and they should be the
         // only things we get.
-        // assert!(context.segment.is_type("function_name_identifier"));
+        // assert!(context.segment.is_type(SyntaxKind::FunctionNameIdentifier));
 
         // Only care if the function is "IFNULL" or "NVL".
 
@@ -96,7 +97,7 @@ FROM baz;
             vec![SymbolSegment::create(
                 "COALESCE",
                 None,
-                SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+                SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
             )],
             None,
         );
@@ -114,7 +115,7 @@ FROM baz;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function_name_identifier"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::FunctionNameIdentifier].into()).into()
     }
 }
 

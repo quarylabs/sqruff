@@ -5,6 +5,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleCP05 {
@@ -63,14 +64,14 @@ CREATE TABLE t (
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut results = Vec::new();
 
-        if context.segment.is_type("primitive_type")
-            || context.segment.is_type("datetime_type_identifier")
-            || context.segment.is_type("data_type")
+        if context.segment.is_type(SyntaxKind::PrimitiveType)
+            || context.segment.is_type(SyntaxKind::DatetimeTypeIdentifier)
+            || context.segment.is_type(SyntaxKind::DataType)
         {
             for seg in context.segment.segments() {
-                if seg.is_type("symbol")
-                    || seg.is_type("identifier")
-                    || seg.is_type("quoted_literal")
+                if seg.is_type(SyntaxKind::Symbol)
+                    || seg.is_type(SyntaxKind::Identifier)
+                    || seg.is_type(SyntaxKind::QuotedLiteral)
                     || !seg.segments().is_empty()
                 {
                     continue;
@@ -95,8 +96,13 @@ CREATE TABLE t (
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            ["data_type_identifier", "primitive_type", "datetime_type_identifier", "data_type"]
-                .into(),
+            [
+                SyntaxKind::DataTypeIdentifier,
+                SyntaxKind::PrimitiveType,
+                SyntaxKind::DatetimeTypeIdentifier,
+                SyntaxKind::DataType,
+            ]
+            .into(),
         )
         .into()
     }

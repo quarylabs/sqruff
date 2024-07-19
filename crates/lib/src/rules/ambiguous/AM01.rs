@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone, Default)]
@@ -56,14 +57,14 @@ FROM foo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context.clone()).segment();
 
-        if !segment.children(Some(|it| it.is_type("groupby_clause"))).is_empty() {
+        if !segment.children(Some(|it| it.is_type(SyntaxKind::GroupbyClause))).is_empty() {
             let distinct = segment
-                .children(Some(|it| it.is_type("select_clause")))
-                .children(Some(|it| it.is_type("select_clause_modifier")))
-                .children(Some(|it| it.is_type("keyword")))
+                .children(Some(|it| it.is_type(SyntaxKind::SelectClause)))
+                .children(Some(|it| it.is_type(SyntaxKind::SelectClauseModifier)))
+                .children(Some(|it| it.is_type(SyntaxKind::Keyword)))
                 .select(
                     Some(|it: &ErasedSegment| {
-                        it.is_type("keyword") && it.get_raw_upper().unwrap() == "DISTINCT"
+                        it.is_type(SyntaxKind::Keyword) && it.get_raw_upper().unwrap() == "DISTINCT"
                     }),
                     None,
                     None,
@@ -85,7 +86,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectStatement].into()).into()
     }
 }
 

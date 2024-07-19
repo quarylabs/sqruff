@@ -85,11 +85,11 @@ file:
                 - expression:
                   - array_literal:
                     - start_square_bracket: '['
-                    - remove me: '''a'''
+                    - '': '''a'''
                     - comma: ','
-                    - remove me: '''b'''
+                    - '': '''b'''
                     - comma: ','
-                    - remove me: '''c'''
+                    - '': '''c'''
                     - end_square_bracket: ']'
                 - end_bracket: )
           - alias_expression:

@@ -15,6 +15,7 @@ use crate::core::parser::segments::base::{
     WhitespaceSegmentNewArgs,
 };
 use crate::core::templaters::base::TemplatedFile;
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 pub fn fresh_ansi_dialect() -> Dialect {
@@ -80,20 +81,20 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
             SymbolSegment::create(
                 elem,
                 position_marker.clone().into(),
-                SymbolSegmentNewArgs { r#type: "remove me" },
+                SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
             )
         } else if elem.starts_with("--") {
             CommentSegment::create(
                 elem,
                 position_marker.into(),
-                CommentSegmentNewArgs { r#type: "inline", trim_start: None },
+                CommentSegmentNewArgs { r#type: SyntaxKind::InlineComment, trim_start: None },
             )
         } else if elem.starts_with('\"') {
             CodeSegment::create(
                 elem,
                 position_marker.clone().into(),
                 CodeSegmentNewArgs {
-                    code_type: "double_quote",
+                    code_type: SyntaxKind::DoubleQuote,
                     instance_types: vec![],
                     trim_start: None,
                     trim_chars: None,
@@ -105,7 +106,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
                 elem,
                 position_marker.clone().into(),
                 CodeSegmentNewArgs {
-                    code_type: "single_quote",
+                    code_type: SyntaxKind::SingleQuote,
                     instance_types: vec![],
                     trim_start: None,
                     trim_chars: None,
@@ -117,7 +118,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
                 elem,
                 position_marker.clone().into(),
                 CodeSegmentNewArgs {
-                    code_type: "",
+                    code_type: SyntaxKind::RemoveMe,
                     instance_types: vec![],
                     trim_start: None,
                     trim_chars: None,

@@ -7,6 +7,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -14,9 +15,12 @@ fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
     let mut result = Vec::new();
 
     for seg in segment.recursive_crawl_all(true) {
-        if seg.is_type("newline") {
+        if seg.is_type(SyntaxKind::Newline) {
             result.push(seg.clone());
-        } else if !seg.is_whitespace() && !seg.is_type("dedent") && !seg.is_type("end_of_file") {
+        } else if !seg.is_whitespace()
+            && !seg.is_type(SyntaxKind::Dedent)
+            && !seg.is_type(SyntaxKind::EndOfFile)
+        {
             break;
         }
     }
@@ -32,7 +36,7 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
 
         if !children.is_empty() {
             parent_stack.push(segment.first().unwrap().clone());
-            segment = children.find_last(Some(|s| !s.is_type("end_of_file")));
+            segment = children.find_last(Some(|s| !s.is_type(SyntaxKind::EndOfFile)));
         } else {
             return (parent_stack, segment);
         }

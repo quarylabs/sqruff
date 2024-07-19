@@ -9,6 +9,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug)]
@@ -87,13 +88,13 @@ SELECT a, b FROM table_2
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        assert!(context.segment.is_type("join_clause"));
+        assert!(context.segment.is_type(SyntaxKind::JoinClause));
 
         let join_clause_keywords = context
             .segment
             .segments()
             .iter()
-            .filter(|segment| segment.is_type("keyword"))
+            .filter(|segment| segment.is_type(SyntaxKind::Keyword))
             .collect::<Vec<_>>();
 
         // Identify LEFT/RIGHT/OUTER JOIN and if the next keyword is JOIN.
@@ -150,6 +151,6 @@ SELECT a, b FROM table_2
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["join_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::JoinClause].into()).into()
     }
 }

@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Default, Clone, Debug)]
@@ -57,39 +58,43 @@ FROM table;
         let children = FunctionalContext::new(context).segment().children(None);
 
         for clause_element in children.select(
-            Some(|sp: &ErasedSegment| sp.is_type("select_clause_element")),
+            Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::SelectClauseElement)),
             None,
             None,
             None,
         ) {
             let clause_element_raw_segment = clause_element.get_raw_segments();
 
-            let column = clause_element.child(&["column_reference"]);
-            let alias_expression = clause_element.child(&["alias_expression"]);
+            let column = clause_element.child(&[SyntaxKind::ColumnReference]);
+            let alias_expression = clause_element.child(&[SyntaxKind::AliasExpression]);
 
             if let Some(column) = column {
                 if let Some(alias_expression) = alias_expression {
-                    if column.child(&["identifier", "naked_identifier"]).is_some()
-                        || column.child(&["quoted_identifier"]).is_some()
+                    if column
+                        .child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
+                        .is_some()
+                        || column.child(&[SyntaxKind::QuotedIdentifier]).is_some()
                     {
-                        let Some(whitespace) = clause_element.child(&["whitespace"]) else {
+                        let Some(whitespace) = clause_element.child(&[SyntaxKind::Whitespace])
+                        else {
                             return Vec::new();
                         };
 
-                        let column_identifier =
-                            if let Some(quoted_identifier) = column.child(&["quoted_identifier"]) {
-                                quoted_identifier.clone()
-                            } else {
-                                column
-                                    .children(&["identifier", "naked_identifier"])
-                                    .last()
-                                    .expect("No naked_identifier found")
-                                    .clone()
-                            };
+                        let column_identifier = if let Some(quoted_identifier) =
+                            column.child(&[SyntaxKind::QuotedIdentifier])
+                        {
+                            quoted_identifier.clone()
+                        } else {
+                            column
+                                .children(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
+                                .last()
+                                .expect("No naked_identifier found")
+                                .clone()
+                        };
 
                         let alias_identifier = alias_expression
-                            .child(&["naked_identifier"])
-                            .or_else(|| alias_expression.child(&["quoted_identifier"]))
+                            .child(&[SyntaxKind::NakedIdentifier])
+                            .or_else(|| alias_expression.child(&[SyntaxKind::QuotedIdentifier]))
                             .expect("identifier is none");
 
                         if column_identifier.get_raw_upper() == alias_identifier.get_raw_upper() {
@@ -115,7 +120,7 @@ FROM table;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
     }
 }
 

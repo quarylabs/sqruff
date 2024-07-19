@@ -4,6 +4,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, TokenSeekerCrawler};
+use crate::dialects::SyntaxKind;
 
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV09 {
@@ -83,8 +84,10 @@ CREATE TABLE myschema.t1 (a BOOL);
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if matches!(context.segment.get_type(), "comment" | "inline_comment" | "block_comment")
-            || self.blocked_words.is_empty() && self.blocked_regex.is_empty()
+        if matches!(
+            context.segment.get_type(),
+            SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment
+        ) || self.blocked_words.is_empty() && self.blocked_regex.is_empty()
         {
             return vec![];
         }

@@ -13,7 +13,7 @@ file:
       - '': MODEL_TYPE
       - comparison_operator:
         - raw_comparison_operator: =
-      - remove me: '''LOGISTIC_REG'''
+      - '': '''LOGISTIC_REG'''
       - comma: ','
       - '': AUTO_CLASS_WEIGHTS
       - comparison_operator:
@@ -25,7 +25,7 @@ file:
         - raw_comparison_operator: =
       - array_literal:
         - start_square_bracket: '['
-        - remove me: '''label_str'''
+        - '': '''label_str'''
         - end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS

@@ -8,6 +8,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug, Default)]
@@ -93,7 +94,7 @@ ORDER BY a ASC, b DESC
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["orderby_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::OrderbyClause].into()).into()
     }
 }
 
@@ -105,16 +106,16 @@ struct OrderByColumnInfo {
 
 impl RuleAM03 {
     fn get_order_by_info(segment: ErasedSegment) -> Vec<OrderByColumnInfo> {
-        assert!(segment.is_type("orderby_clause"));
+        assert!(segment.is_type(SyntaxKind::OrderbyClause));
 
         let mut result = vec![];
         let mut column_reference = None;
         let mut ordering_reference = None;
 
         for child_segment in segment.segments() {
-            if child_segment.is_type("column_reference") {
+            if child_segment.is_type(SyntaxKind::ColumnReference) {
                 column_reference = Some(child_segment.clone());
-            } else if child_segment.is_type("keyword")
+            } else if child_segment.is_type(SyntaxKind::Keyword)
                 && (child_segment.get_raw_upper() == Some("ASC".into())
                     || child_segment.get_raw_upper() == Some("DESC".into()))
             {

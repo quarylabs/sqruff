@@ -7,6 +7,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleAL08;
@@ -70,10 +71,10 @@ FROM
         let mut used_aliases = AHashMap::new();
         let mut violations = Vec::new();
 
-        for clause_element in context.segment.children(&["select_clause_element"]) {
+        for clause_element in context.segment.children(&[SyntaxKind::SelectClauseElement]) {
             let mut column_alias = None;
 
-            if let Some(alias_expression) = clause_element.child(&["alias_expression"]) {
+            if let Some(alias_expression) = clause_element.child(&[SyntaxKind::AliasExpression]) {
                 for it in alias_expression.segments() {
                     if !it.is_code() || it.get_raw_upper().unwrap() == "AS" {
                         continue;
@@ -82,7 +83,9 @@ FROM
                     column_alias = it.clone().into();
                     break;
                 }
-            } else if let Some(column_reference) = clause_element.child(&["column_reference"]) {
+            } else if let Some(column_reference) =
+                clause_element.child(&[SyntaxKind::ColumnReference])
+            {
                 column_alias = column_reference.segments().last().cloned();
             }
 
@@ -113,7 +116,7 @@ FROM
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
     }
 }
 

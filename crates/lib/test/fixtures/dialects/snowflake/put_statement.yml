@@ -1,67 +1,48 @@
 file:
-- statement:
-  - put_statement:
-    - keyword: put
-    - unquoted_file_path: file:///tmp/data/mydata.csv
-    - stage_path: '@my_int_stage'
-- statement_terminator: ;
-- statement:
-  - put_statement:
-    - keyword: put
-    - unquoted_file_path: file:///tmp/data/orders_001.csv
-    - stage_path: '@%orderstiny_ext'
-    - keyword: auto_compress
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - boolean_literal: 'false'
-- statement_terminator: ;
-- statement:
-  - put_statement:
-    - keyword: put
-    - unquoted_file_path: file:///tmp/data/orders_*01.csv
-    - stage_path: '@%orderstiny_ext'
-    - keyword: auto_compress
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - boolean_literal: 'false'
-- statement_terminator: ;
-- statement:
-  - put_statement:
-    - keyword: put
-    - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - stage_path: '@~'
-    - keyword: auto_compress
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - boolean_literal: 'true'
-- statement_terminator: ;
-- statement:
-  - put_statement:
-    - keyword: put
-    - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - stage_path: '@~'
-    - keyword: parallel
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - integer_literal: '1'
-- statement_terminator: ;
-- statement:
-  - put_statement:
-    - keyword: put
-    - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - stage_path: '@~'
-    - keyword: source_compression
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - compression_type: '''auto_detect'''
-- statement_terminator: ;
-- statement:
-  - put_statement:
-    - keyword: put
-    - unquoted_file_path: file://c:\temp\data\mydata.csv
-    - stage_path: '@~'
-    - keyword: overwrite
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - boolean_literal: 'true'
-- statement_terminator: ;
+- unparsable:
+  - word: put
+  - walrus_operator: file:///tmp/data/mydata.csv
+  - stage_path: '@my_int_stage'
+  - semicolon: ;
+  - word: put
+  - walrus_operator: file:///tmp/data/orders_001.csv
+  - stage_path: '@%orderstiny_ext'
+  - word: auto_compress
+  - raw_comparison_operator: =
+  - word: 'false'
+  - semicolon: ;
+  - word: put
+  - walrus_operator: file:///tmp/data/orders_*01.csv
+  - stage_path: '@%orderstiny_ext'
+  - word: auto_compress
+  - raw_comparison_operator: =
+  - word: 'false'
+  - semicolon: ;
+  - word: put
+  - walrus_operator: file://c:\temp\data\mydata.csv
+  - stage_path: '@~'
+  - word: auto_compress
+  - raw_comparison_operator: =
+  - word: 'true'
+  - semicolon: ;
+  - word: put
+  - walrus_operator: file://c:\temp\data\mydata.csv
+  - stage_path: '@~'
+  - word: parallel
+  - raw_comparison_operator: =
+  - numeric_literal: '1'
+  - semicolon: ;
+  - word: put
+  - walrus_operator: file://c:\temp\data\mydata.csv
+  - stage_path: '@~'
+  - word: source_compression
+  - raw_comparison_operator: =
+  - single_quote: '''auto_detect'''
+  - semicolon: ;
+  - word: put
+  - walrus_operator: file://c:\temp\data\mydata.csv
+  - stage_path: '@~'
+  - word: overwrite
+  - raw_comparison_operator: =
+  - word: 'true'
+  - semicolon: ;

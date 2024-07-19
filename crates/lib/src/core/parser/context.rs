@@ -8,10 +8,11 @@ use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
+use crate::dialects::SyntaxKind;
 use crate::helpers::IndexSet;
 
 type LocKey = u32;
-type LocKeyData = (SmolStr, (usize, usize), &'static str, u32);
+type LocKeyData = (SmolStr, (usize, usize), SyntaxKind, u32);
 
 #[cfg_attr(not(target_pointer_width = "64"), derive(Hash))]
 #[derive(Debug, PartialEq, Eq)]

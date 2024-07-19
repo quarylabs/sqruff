@@ -14,7 +14,7 @@ file:
                 - naked_identifier: a
             - keyword: from
             - expression:
-              - remove me: '''abc'''
+              - '': '''abc'''
             - end_bracket: )
         - alias_expression:
           - keyword: as

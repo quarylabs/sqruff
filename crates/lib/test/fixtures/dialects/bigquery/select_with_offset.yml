@@ -18,7 +18,7 @@ file:
                     - column_reference:
                       - naked_identifier: value
                     - comparison_operator:
-                      - remove me: '!'
+                      - '': '!'
                       - raw_comparison_operator: =
                     - column_reference:
                       - naked_identifier: previous_value
@@ -55,7 +55,7 @@ file:
                             - column_reference:
                               - naked_identifier: ix
                             - comparison_operator:
-                              - remove me: '!'
+                              - '': '!'
                               - raw_comparison_operator: =
                             - numeric_literal: '0'
                           - keyword: THEN

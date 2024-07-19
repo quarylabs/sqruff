@@ -13,6 +13,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
 use crate::dialects::ansi::{ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment};
+use crate::dialects::SyntaxKind;
 use crate::utils::analysis::query::{Query, Selectable};
 
 #[derive(Debug, Default, Clone)]
@@ -156,7 +157,7 @@ impl RuleRF01 {
         let ref_path = selectable.selectable.path_to(&reference.0);
 
         if !ref_path.is_empty() {
-            ref_path.iter().any(|ps| ps.segment.is_type("into_table_clause"))
+            ref_path.iter().any(|ps| ps.segment.is_type(SyntaxKind::IntoTableClause))
         } else {
             false
         }
@@ -214,8 +215,9 @@ FROM foo
         let mut violations = Vec::new();
         let tmp;
 
-        let dml_target_table = if !context.segment.is_type("select_statement") {
-            let refs = context.segment.recursive_crawl(&["table_reference"], true, None, true);
+        let dml_target_table = if !context.segment.is_type(SyntaxKind::SelectStatement) {
+            let refs =
+                context.segment.recursive_crawl(&[SyntaxKind::TableReference], true, None, true);
             if let Some(reference) = refs.first() {
                 let reference = reference.reference();
 
@@ -239,7 +241,13 @@ FROM foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            ["delete_statement", "merge_statement", "select_statement", "update_statement"].into(),
+            [
+                SyntaxKind::DeleteStatement,
+                SyntaxKind::MergeStatement,
+                SyntaxKind::SelectStatement,
+                SyntaxKind::UpdateStatement,
+            ]
+            .into(),
         )
         .disallow_recurse()
         .into()

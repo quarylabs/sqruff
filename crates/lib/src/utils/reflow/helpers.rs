@@ -2,6 +2,7 @@ use smol_str::{SmolStr, ToSmolStr};
 
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::SyntaxKind;
 
 /// Return a list of fixes from an iterable of LintResult.
 pub fn fixes_from_results(
@@ -19,9 +20,9 @@ pub fn deduce_line_indent(raw_segment: &ErasedSegment, root_segment: &ErasedSegm
         for seg in raw_segments[..=idx].iter().rev() {
             if seg.is_code() {
                 indent_seg = None;
-            } else if seg.is_type("whitespace") {
+            } else if seg.is_type(SyntaxKind::Whitespace) {
                 indent_seg = Some(seg);
-            } else if seg.is_type("newline") {
+            } else if seg.is_type(SyntaxKind::Newline) {
                 break;
             }
         }

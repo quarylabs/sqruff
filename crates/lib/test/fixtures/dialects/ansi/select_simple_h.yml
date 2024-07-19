@@ -32,7 +32,7 @@ file:
                     - end_bracket: )
             - comma: ','
             - expression:
-              - remove me: '''2014-01-01'''
+              - '': '''2014-01-01'''
             - end_bracket: )
         - alias_expression:
           - keyword: AS

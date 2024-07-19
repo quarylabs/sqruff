@@ -10,6 +10,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::segments::Segments;
 
 #[derive(Default, Clone, Debug)]
@@ -67,12 +68,12 @@ FROM foo;
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        debug_assert!(context.segment.is_type("file"));
+        debug_assert!(context.segment.is_type(SyntaxKind::File));
 
         let mut results = vec![];
         for (idx, segment) in context.segment.segments().iter().enumerate() {
             let mut res = None;
-            if segment.is_type("statement_terminator") {
+            if segment.is_type(SyntaxKind::StatementTerminator) {
                 // First we can simply handle the case of existing semi-colon alignment.
                 // If it's a terminator then we know it's raw.
 
@@ -109,14 +110,19 @@ impl RuleCV06 {
         // See if we have a trailing inline comment on the same line as the preceding
         // segment.
         for comment_segment in parent_segment
-            .recursive_crawl(&["comment", "inline_comment", "block_comment"], true, None, false)
+            .recursive_crawl(
+                &[SyntaxKind::Comment, SyntaxKind::InlineComment, SyntaxKind::BlockComment],
+                true,
+                None,
+                false,
+            )
             .iter()
         {
             assert!(comment_segment.get_position_marker().is_some());
             assert!(anchor_segment.get_position_marker().is_some());
             if comment_segment.get_position_marker().unwrap().working_line_no
                 == anchor_segment.get_position_marker().unwrap().working_line_no
-                && !comment_segment.is_type("block_comment")
+                && !comment_segment.is_type(SyntaxKind::BlockComment)
             {
                 return comment_segment.clone();
             }
@@ -128,15 +134,15 @@ impl RuleCV06 {
         let statement_segment = parent_segment
             .path_to(&segment)
             .iter()
-            .filter(|&it| it.segment.is_type("statement"))
+            .filter(|&it| it.segment.is_type(SyntaxKind::Statement))
             .map(|it| it.segment.clone())
             .next();
 
         match statement_segment {
             None => false,
-            Some(statement_segment) => {
-                statement_segment.recursive_crawl(&["newline"], true, None, true).is_empty()
-            }
+            Some(statement_segment) => statement_segment
+                .recursive_crawl(&[SyntaxKind::Newline], true, None, true)
+                .is_empty(),
         }
     }
 
@@ -176,7 +182,7 @@ impl RuleCV06 {
             vec![SymbolSegment::create(
                 ";",
                 None,
-                SymbolSegmentNewArgs { r#type: "statement_terminator" },
+                SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
             )],
         );
 
@@ -196,7 +202,7 @@ impl RuleCV06 {
 
         let same_line_comment = before_segment.iter().find(|s| {
             s.is_comment()
-                && !s.is_type("block_comment")
+                && !s.is_type(SyntaxKind::BlockComment)
                 && s.get_position_marker().is_some()
                 && s.get_position_marker().unwrap().working_loc().0
                     == anchor_segment
@@ -237,7 +243,8 @@ impl RuleCV06 {
         );
 
         if before_segment.len() == 1
-            && before_segment.all(Some(|segment: &ErasedSegment| segment.is_type("newline")))
+            && before_segment
+                .all(Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::Newline)))
         {
             return None;
         }
@@ -255,7 +262,7 @@ impl RuleCV06 {
                     SymbolSegment::create(
                         ";",
                         None,
-                        SymbolSegmentNewArgs { r#type: "statement_terminator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
                     ),
                 ],
                 None,
@@ -271,7 +278,7 @@ impl RuleCV06 {
                     SymbolSegment::create(
                         ";",
                         None,
-                        SymbolSegmentNewArgs { r#type: "statement_terminator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
                     ),
                 ],
             )
@@ -326,7 +333,7 @@ impl RuleCV06 {
         let mut found_code = false;
         for segment in parent_segment.segments().iter().rev() {
             anchor_segment = Some(segment.clone());
-            if segment.is_type("statement_terminator") {
+            if segment.is_type(SyntaxKind::StatementTerminator) {
                 semi_colon_exist_flag = true;
             } else if segment.is_code() {
                 is_one_line = Self::is_one_line_statement(parent_segment.clone(), segment.clone());
@@ -352,7 +359,7 @@ impl RuleCV06 {
                     vec![SymbolSegment::create(
                         ";",
                         None,
-                        SymbolSegmentNewArgs { r#type: "statement_terminator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
                     )],
                     None,
                 )];
@@ -378,7 +385,7 @@ impl RuleCV06 {
                         SymbolSegment::create(
                             ";",
                             None,
-                            SymbolSegmentNewArgs { r#type: "statement_terminator" },
+                            SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
                         ),
                     ],
                     None,

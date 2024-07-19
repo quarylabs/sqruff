@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Default, Debug, Clone)]
@@ -55,13 +56,17 @@ FROM foo
         let anchor = context.segment.clone();
 
         let children = FunctionalContext::new(context).segment().children(None);
-        let else_clause = children.find_first(Some(|it: &ErasedSegment| it.is_type("else_clause")));
+        let else_clause =
+            children.find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::ElseClause)));
 
         if !else_clause.children(Some(|child| child.raw().eq_ignore_ascii_case("NULL"))).is_empty()
         {
             let before_else = children.reversed().select::<fn(&ErasedSegment) -> bool>(
                 None,
-                Some(|it| matches!(it.get_type(), "whitespace" | "newline") | it.is_meta()),
+                Some(|it| {
+                    matches!(it.get_type(), SyntaxKind::Whitespace | SyntaxKind::Newline)
+                        | it.is_meta()
+                }),
                 else_clause.first().unwrap().into(),
                 None,
             );
@@ -77,7 +82,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["case_expression"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::CaseExpression].into()).into()
     }
 }
 

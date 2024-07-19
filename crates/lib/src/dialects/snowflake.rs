@@ -88,7 +88,7 @@ pub fn snowflake_dialect() -> Dialect {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "single_quote", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::SingleQuote, ..Default::default() },
             )
         }),
         Matcher::regex("inline_comment", r"(--|#|//)[^\n]*", |slice, marker| {
@@ -96,7 +96,7 @@ pub fn snowflake_dialect() -> Dialect {
                 slice,
                 marker.into(),
                 CommentSegmentNewArgs {
-                    r#type: "inline_comment",
+                    r#type: SyntaxKind::InlineComment,
                     trim_start: Some(vec!["--", "#", "//"]),
                 },
             )
@@ -109,42 +109,54 @@ pub fn snowflake_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "parameter_assigner", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::ParameterAssigner,
+                        ..Default::default()
+                    },
                 )
             }),
             Matcher::string("function_assigner", "->", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "function_assigner", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::FunctionAssigner,
+                        ..Default::default()
+                    },
                 )
             }),
             Matcher::regex("stage_path", r"(?:@[^\s;)]+|'@[^']+')", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "stage_path", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::StagePath, ..Default::default() },
                 )
             }),
             Matcher::regex("column_selector", r"\$[0-9]+", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "column_selector", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::ColumnSelector,
+                        ..Default::default()
+                    },
                 )
             }),
             Matcher::regex("dollar_quote", r"\$\$.*\$\$", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "dollar_quote", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::DollarQuote, ..Default::default() },
                 )
             }),
             Matcher::regex("dollar_literal", r"[$][a-zA-Z0-9_.]*", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "dollar_literal", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::DollarLiteral,
+                        ..Default::default()
+                    },
                 )
             }),
             Matcher::regex(
@@ -154,7 +166,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         slice,
                         marker.into(),
-                        CodeSegmentNewArgs { code_type: "raw", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::Raw, ..Default::default() },
                     )
                 },
             ),
@@ -166,7 +178,7 @@ pub fn snowflake_dialect() -> Dialect {
                         slice,
                         marker.into(),
                         CodeSegmentNewArgs {
-                            code_type: "unquoted_file_path",
+                            code_type: SyntaxKind::WalrusOperator,
                             ..Default::default()
                         },
                     )
@@ -176,21 +188,30 @@ pub fn snowflake_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "question_mark", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::QuestionMark,
+                        ..Default::default()
+                    },
                 )
             }),
             Matcher::string("exclude_bracket_open", "{-", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "exclude_bracket_open", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::ExcludeBracketOpen,
+                        ..Default::default()
+                    },
                 )
             }),
             Matcher::string("exclude_bracket_close", "-}", |slice, marker| {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "exclude_bracket_close", ..Default::default() },
+                    CodeSegmentNewArgs {
+                        code_type: SyntaxKind::ExcludeBracketClose,
+                        ..Default::default()
+                    },
                 )
             }),
         ],
@@ -202,7 +223,7 @@ pub fn snowflake_dialect() -> Dialect {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "walrus_operator", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::WalrusOperator, ..Default::default() },
             )
         })],
         "equals",
@@ -267,7 +288,7 @@ pub fn snowflake_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "parameter_assigner" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::ParameterAssigner },
                     )
                 },
                 None,
@@ -285,7 +306,7 @@ pub fn snowflake_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "function_assigner" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionAssigner },
                     )
                 },
                 None,
@@ -303,7 +324,7 @@ pub fn snowflake_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "assignment_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::AssignmentOperator },
                     )
                 },
                 None,
@@ -321,7 +342,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "quoted_star", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::QuotedStar, ..Default::default() },
                     )
                 },
                 None,
@@ -340,7 +361,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "semi_structured_element",
+                            code_type: SyntaxKind::SemiStructuredElement,
                             ..Default::default()
                         },
                     )
@@ -356,12 +377,12 @@ pub fn snowflake_dialect() -> Dialect {
         (
             "QuotedSemiStructuredElementSegment".into(),
             TypedParser::new(
-                "double_quote",
+                SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "semi_structured_element" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::SemiStructuredElement },
                     )
                 },
                 None,
@@ -380,7 +401,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "column_index_identifier_segment",
+                            code_type: SyntaxKind::ColumnIndexIdentifierSegment,
                             ..Default::default()
                         },
                     )
@@ -401,7 +422,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "variable", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::Variable, ..Default::default() },
                     )
                 },
                 None,
@@ -420,7 +441,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "variable", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::Variable, ..Default::default() },
                     )
                 },
                 None,
@@ -446,7 +467,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "warehouse_size",
+                                code_type: SyntaxKind::WarehouseSize,
                                 ..Default::default()
                             },
                         )
@@ -466,7 +487,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "warehouse_size",
+                                code_type: SyntaxKind::WarehouseSize,
                                 ..Default::default()
                             },
                         )
@@ -494,7 +515,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "warehouse_size",
+                                code_type: SyntaxKind::WarehouseSize,
                                 ..Default::default()
                             },
                         )
@@ -514,7 +535,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "warehouse_size",
+                                code_type: SyntaxKind::WarehouseSize,
                                 ..Default::default()
                             },
                         )
@@ -541,7 +562,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "compression_type",
+                                code_type: SyntaxKind::CompressionType,
                                 ..Default::default()
                             },
                         )
@@ -561,7 +582,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "compression_type",
+                                code_type: SyntaxKind::CompressionType,
                                 ..Default::default()
                             },
                         )
@@ -589,7 +610,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "scaling_policy",
+                                code_type: SyntaxKind::ScalingPolicy,
                                 ..Default::default()
                             },
                         )
@@ -609,7 +630,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "scaling_policy",
+                                code_type: SyntaxKind::ScalingPolicy,
                                 ..Default::default()
                             },
                         )
@@ -631,7 +652,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "validation_mode_option",
+                            code_type: SyntaxKind::ValidationModeOption,
                             ..Default::default()
                         },
                     )
@@ -653,7 +674,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "copy_on_error_option",
+                            code_type: SyntaxKind::CopyOnErrorOption,
                             ..Default::default()
                         },
                     )
@@ -669,12 +690,12 @@ pub fn snowflake_dialect() -> Dialect {
         (
             "DoubleQuotedUDFBody".into(),
             TypedParser::new(
-                "double_quote",
+                SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "udf_body" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
                     )
                 },
                 None,
@@ -687,12 +708,12 @@ pub fn snowflake_dialect() -> Dialect {
         (
             "SingleQuotedUDFBody".into(),
             TypedParser::new(
-                "single_quote",
+                SyntaxKind::SingleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "udf_body" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
                     )
                 },
                 None,
@@ -705,12 +726,12 @@ pub fn snowflake_dialect() -> Dialect {
         (
             "DollarQuotedUDFBody".into(),
             TypedParser::new(
-                "dollar_quote",
+                SyntaxKind::DollarQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "udf_body" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
                     )
                 },
                 None,
@@ -728,7 +749,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "stage_path", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::StagePath, ..Default::default() },
                     )
                 },
                 None,
@@ -747,7 +768,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "bucket_path", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::BucketPath, ..Default::default() },
                     )
                 },
                 None,
@@ -766,7 +787,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "bucket_path", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::BucketPath, ..Default::default() },
                     )
                 },
                 None,
@@ -785,7 +806,7 @@ pub fn snowflake_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "bucket_path", ..Default::default() },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::BucketPath, ..Default::default() },
                     )
                 },
                 None,
@@ -799,12 +820,12 @@ pub fn snowflake_dialect() -> Dialect {
         (
             "UnquotedFilePath".into(),
             TypedParser::new(
-                "unquoted_file_path",
+                SyntaxKind::UnquotedFilePath,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "unquoted_file_path" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::UnquotedFilePath },
                     )
                 },
                 None,
@@ -823,7 +844,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "stage_encryption_option",
+                            code_type: SyntaxKind::StageEncryptionOption,
                             ..Default::default()
                         },
                     )
@@ -842,7 +863,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "stage_encryption_option",
+                            code_type: SyntaxKind::StageEncryptionOption,
                             ..Default::default()
                         },
                     )
@@ -861,7 +882,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "stage_encryption_option",
+                            code_type: SyntaxKind::StageEncryptionOption,
                             ..Default::default()
                         },
                     )
@@ -880,7 +901,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "stage_encryption_option",
+                            code_type: SyntaxKind::StageEncryptionOption,
                             ..Default::default()
                         },
                     )
@@ -905,7 +926,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "file_type",
+                                code_type: SyntaxKind::FileType,
                                 ..Default::default()
                             },
                         )
@@ -925,7 +946,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "file_type",
+                                code_type: SyntaxKind::FileType,
                                 ..Default::default()
                             },
                         )
@@ -947,7 +968,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "integer_literal",
+                            code_type: SyntaxKind::IntegerLiteral,
                             ..Default::default()
                         },
                     )
@@ -969,7 +990,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "system_function_name",
+                            code_type: SyntaxKind::SystemFunctionName,
                             ..Default::default()
                         },
                     )
@@ -1019,7 +1040,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
-                            r#type: "start_exclude_bracket",
+                            r#type: SyntaxKind::StartExcludeBracket,
                         },
                     )
                 },
@@ -1039,7 +1060,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
-                            r#type: "end_exclude_bracket",
+                            r#type: SyntaxKind::EndExcludeBracket,
                         },
                     )
                 },
@@ -1059,7 +1080,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
-                            r#type: "question_mark",
+                            r#type: SyntaxKind::QuestionMark,
                         },
                     )
                 },
@@ -1079,7 +1100,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
-                            r#type: "caret",
+                            r#type: SyntaxKind::Caret,
                         },
                     )
                 },
@@ -1099,7 +1120,7 @@ pub fn snowflake_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
-                            r#type: "dollar",
+                            r#type: SyntaxKind::Dollar,
                         },
                     )
                 },
@@ -1243,7 +1264,7 @@ pub fn snowflake_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "naked_identifier",
+                                code_type: SyntaxKind::NakedIdentifier,
                                 ..Default::default()
                             },
                         )
@@ -1394,13 +1415,13 @@ pub fn snowflake_dialect() -> Dialect {
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
                 TypedParser::new(
-                    "single_quote",
+                    SyntaxKind::SingleQuote,
                     |segment: &dyn Segment| {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "quoted_literal",
+                                code_type: SyntaxKind::QuotedLiteral,
                                 ..Default::default()
                             },
                         )
@@ -1410,13 +1431,13 @@ pub fn snowflake_dialect() -> Dialect {
                     None
                 ),
                 TypedParser::new(
-                    "dollar_quote",
+                    SyntaxKind::DollarQuote,
                     |segment: &dyn Segment| {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "quoted_literal",
+                                code_type: SyntaxKind::QuotedLiteral,
                                 ..Default::default()
                             },
                         )
@@ -4932,7 +4953,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker(),
-                                        SymbolSegmentNewArgs { r#type: "literal" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::Literal },
                                     )
                                 },
                                 None,
@@ -5462,7 +5483,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5475,7 +5496,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5588,7 +5609,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5601,7 +5622,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5688,7 +5709,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5701,7 +5722,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5753,7 +5774,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5766,7 +5787,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5813,7 +5834,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5826,7 +5847,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5882,7 +5903,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,
@@ -5895,7 +5916,7 @@ pub fn snowflake_dialect() -> Dialect {
                                     SymbolSegment::create(
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: "file_type" },
+                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
                                     )
                                 },
                                 None,

@@ -4,6 +4,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
@@ -63,7 +64,7 @@ SELECT 'b' AS col
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["set_operator"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SetOperator].into()).into()
     }
 }
 

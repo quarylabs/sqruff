@@ -545,7 +545,7 @@ file:
           - dot: .
           - naked_identifier: zipcode
         - comparison_operator:
-          - remove me: '!'
+          - '': '!'
           - raw_comparison_operator: =
         - quoted_literal: '''21201'''
 - statement_terminator: ;

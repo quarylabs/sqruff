@@ -7,6 +7,7 @@ use uuid::Uuid;
 use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
@@ -42,8 +43,8 @@ impl Segment for LiteralSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "numeric_literal"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::NumericLiteral
     }
 
     fn is_code(&self) -> bool {
@@ -82,8 +83,8 @@ impl Segment for LiteralSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["numeric_literal"].into()
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
+        [SyntaxKind::NumericLiteral].into()
     }
 }
 
@@ -111,8 +112,8 @@ impl Segment for ComparisonOperatorSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "numeric_literal"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::NumericLiteral
     }
 
     fn is_code(&self) -> bool {
@@ -151,7 +152,7 @@ impl Segment for ComparisonOperatorSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["numeric_literal"].into()
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
+        [SyntaxKind::NumericLiteral].into()
     }
 }

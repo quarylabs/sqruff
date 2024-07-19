@@ -10,6 +10,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::IndexMap;
 
 #[derive(Debug, Default, Clone)]
@@ -60,13 +61,14 @@ SELECT a FROM plop
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
         let global_comma_style = "trailing";
-        let expanded_segments =
-            context.segment.iter_segments(["common_table_expression"].as_slice().into(), false);
+        let expanded_segments = context
+            .segment
+            .iter_segments([SyntaxKind::CommonTableExpression].as_slice().into(), false);
 
         let bracket_indices = expanded_segments
             .iter()
             .enumerate()
-            .filter_map(|(idx, seg)| seg.is_type("bracketed").then_some(idx));
+            .filter_map(|(idx, seg)| seg.is_type(SyntaxKind::Bracketed).then_some(idx));
 
         for bracket_idx in bracket_indices {
             let forward_slice = &expanded_segments[bracket_idx..];
@@ -79,8 +81,10 @@ SELECT a FROM plop
             let mut line_starts = IndexMap::default();
             let mut comment_lines = Vec::new();
 
-            while forward_slice[seg_idx].is_type("comma") || !forward_slice[seg_idx].is_code() {
-                if forward_slice[seg_idx].is_type("newline") {
+            while forward_slice[seg_idx].is_type(SyntaxKind::Comma)
+                || !forward_slice[seg_idx].is_code()
+            {
+                if forward_slice[seg_idx].is_type(SyntaxKind::Newline) {
                     if line_blank {
                         // It's a blank line!
                         blank_lines += 1;
@@ -88,13 +92,13 @@ SELECT a FROM plop
                     line_blank = true;
                     line_idx += 1;
                     line_starts.insert(line_idx, seg_idx + 1);
-                } else if forward_slice[seg_idx].is_type("comment")
-                    || forward_slice[seg_idx].is_type("inline_comment")
+                } else if forward_slice[seg_idx].is_type(SyntaxKind::Comment)
+                    || forward_slice[seg_idx].is_type(SyntaxKind::InlineComment)
                 {
                     // Lines with comments aren't blank
                     line_blank = false;
                     comment_lines.push(line_idx);
-                } else if forward_slice[seg_idx].is_type("comma") {
+                } else if forward_slice[seg_idx].is_type(SyntaxKind::Comma) {
                     // Keep track of where the comma is.
                     // We'll evaluate it later.
                     comma_line_idx = line_idx.into();
@@ -126,7 +130,7 @@ SELECT a FROM plop
             let num_newlines = if comma_style == "oneline" {
                 if global_comma_style == "trailing" {
                     fix_point = forward_slice[comma_seg_idx + 1].clone().into();
-                    if forward_slice[comma_seg_idx + 1].is_type("whitespace") {
+                    if forward_slice[comma_seg_idx + 1].is_type(SyntaxKind::Whitespace) {
                         fix_type = EditType::Replace;
                     }
                 } else if global_comma_style == "leading" {
@@ -139,7 +143,7 @@ SELECT a FROM plop
             } else {
                 if comment_lines.is_empty() || !comment_lines.contains(&(line_idx - 1)) {
                     if matches!(comma_style, "trailing" | "final" | "floating") {
-                        if forward_slice[seg_idx - 1].is_type("whitespace") {
+                        if forward_slice[seg_idx - 1].is_type(SyntaxKind::Whitespace) {
                             fix_point = forward_slice[seg_idx - 1].clone().into();
                             fix_type = EditType::Replace;
                         } else {
@@ -203,7 +207,7 @@ SELECT a FROM plop
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["with_compound_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::WithCompoundStatement].into()).into()
     }
 }
 

@@ -11,6 +11,7 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
@@ -21,7 +22,7 @@ pub struct BracketedSegment {
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
-    descendant_type_set: OnceCell<AHashSet<&'static str>>,
+    descendant_type_set: OnceCell<AHashSet<SyntaxKind>>,
 }
 
 impl PartialEq for BracketedSegment {
@@ -68,8 +69,8 @@ impl Segment for BracketedSegment {
         self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "bracketed"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::Bracketed
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -92,11 +93,11 @@ impl Segment for BracketedSegment {
         self.uuid
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["bracketed"].into()
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
+        [SyntaxKind::Bracketed].into()
     }
 
-    fn descendant_type_set(&self) -> &AHashSet<&'static str> {
+    fn descendant_type_set(&self) -> &AHashSet<SyntaxKind> {
         self.descendant_type_set.get_or_init(|| {
             let mut result_set = AHashSet::new();
 
@@ -131,7 +132,7 @@ impl Matchable for BracketedSegmentMatcher {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
         None
     }
 

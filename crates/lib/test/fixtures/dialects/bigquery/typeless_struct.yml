@@ -81,7 +81,7 @@ file:
                   - dot: .
                   - naked_identifier: xxx
                 - comparison_operator:
-                  - remove me: '!'
+                  - '': '!'
                   - raw_comparison_operator: =
                 - column_reference:
                   - naked_identifier: b

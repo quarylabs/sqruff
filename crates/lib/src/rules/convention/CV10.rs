@@ -10,6 +10,7 @@ use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 
 #[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
 #[strum(serialize_all = "snake_case")]
@@ -147,7 +148,7 @@ from foo
                     vec![SymbolSegment::create(
                         &fixed_string,
                         None,
-                        SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                     )],
                     None,
                 )],
@@ -161,7 +162,7 @@ from foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["quoted_literal"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::QuotedLiteral].into()).into()
     }
 }
 

@@ -96,7 +96,9 @@ INNER JOIN table_b
             .unwrap()
             .segments()
             .iter()
-            .filter(|it| matches!(it.get_type(), "join_clause" | "from_expression_element"))
+            .filter(|it| {
+                matches!(it.get_type(), SyntaxKind::JoinClause | SyntaxKind::FromExpressionElement)
+            })
             .cloned()
             .collect_vec();
 
@@ -104,8 +106,8 @@ INNER JOIN table_b
             return vec![unfixable_result];
         }
 
-        let stmts =
-            parent_stack.find_last(Some(|it: &ErasedSegment| it.is_type("select_statement")));
+        let stmts = parent_stack
+            .find_last(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectStatement)));
         let parent_select = stmts.first();
 
         let Some(parent_select) = parent_select else { return vec![unfixable_result] };
@@ -148,17 +150,22 @@ INNER JOIN table_b
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["join_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::JoinClause].into()).into()
     }
 }
 
 fn extract_cols_from_using(join_clause: Segments, using_segs: &ErasedSegment) -> Vec<SmolStr> {
     join_clause
         .children(None)
-        .select(Some(|it: &ErasedSegment| it.is_type("bracketed")), None, Some(using_segs), None)
+        .select(
+            Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
+            None,
+            Some(using_segs),
+            None,
+        )
         .find_first::<fn(&ErasedSegment) -> bool>(None)
         .children(Some(|it: &ErasedSegment| {
-            it.is_type("identifier") || it.is_type("naked_identifier")
+            it.is_type(SyntaxKind::Identifier) || it.is_type(SyntaxKind::NakedIdentifier)
         }))
         .into_iter()
         .map(|it| it.raw().to_smolstr())
@@ -177,7 +184,7 @@ fn generate_join_conditions(
         edit_segments.extend_from_slice(&[
             create_col_reference(dialect, table_a_ref, &col),
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
-            SymbolSegment::create("=", None, SymbolSegmentNewArgs { r#type: "symbol" }),
+            SymbolSegment::create("=", None, SymbolSegmentNewArgs { r#type: SyntaxKind::Symbol }),
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
             create_col_reference(dialect, table_b_ref, &col),
             WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
@@ -208,7 +215,7 @@ fn extract_deletion_sequence_and_anchor(
             continue;
         }
 
-        if to_delete.last().unwrap().is_type("bracketed") {
+        if to_delete.last().unwrap().is_type(SyntaxKind::Bracketed) {
             insert_anchor = Some(seg);
             break;
         }
@@ -228,16 +235,16 @@ fn create_col_reference(dialect: DialectKind, table_ref: &str, column_name: &str
                 table_ref,
                 None,
                 CodeSegmentNewArgs {
-                    code_type: "naked_identifier",
+                    code_type: SyntaxKind::NakedIdentifier,
                     ..CodeSegmentNewArgs::default()
                 },
             ),
-            SymbolSegment::create(".", None, SymbolSegmentNewArgs { r#type: "symbol" }),
+            SymbolSegment::create(".", None, SymbolSegmentNewArgs { r#type: SyntaxKind::Symbol }),
             IdentifierSegment::create(
                 column_name,
                 None,
                 CodeSegmentNewArgs {
-                    code_type: "naked_identifier",
+                    code_type: SyntaxKind::NakedIdentifier,
                     ..CodeSegmentNewArgs::default()
                 },
             ),

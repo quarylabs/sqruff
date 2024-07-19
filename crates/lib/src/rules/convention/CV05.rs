@@ -10,6 +10,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 use crate::utils::functional::segments::Segments;
 use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
@@ -82,7 +83,11 @@ WHERE a IS NULL
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if context.parent_stack.len() >= 2 {
-            for type_str in &["set_clause_list", "execute_script_statement", "options_segment"] {
+            for type_str in [
+                SyntaxKind::SetClauseList,
+                SyntaxKind::ExecuteScriptStatement,
+                SyntaxKind::OptionsSegment,
+            ] {
                 if context.parent_stack[context.parent_stack.len() - 2].is_type(type_str) {
                     return Vec::new();
                 }
@@ -90,8 +95,11 @@ WHERE a IS NULL
         }
 
         if !context.parent_stack.is_empty() {
-            for type_str in &["set_clause_list", "execute_script_statement", "assignment_operator"]
-            {
+            for type_str in [
+                SyntaxKind::SetClauseList,
+                SyntaxKind::ExecuteScriptStatement,
+                SyntaxKind::AssignmentOperator,
+            ] {
                 if context.parent_stack[context.parent_stack.len() - 1].is_type(type_str) {
                     return Vec::new();
                 }
@@ -100,7 +108,7 @@ WHERE a IS NULL
 
         if !context.parent_stack.is_empty()
             && context.parent_stack[context.parent_stack.len() - 1]
-                .is_type("exclusion_constraint_element")
+                .is_type(SyntaxKind::ExclusionConstraintElement)
         {
             return Vec::new();
         }
@@ -118,7 +126,7 @@ WHERE a IS NULL
 
         let next_code = after_op_list.find_first(Some(|sp: &ErasedSegment| sp.is_code()));
 
-        if !next_code.all(Some(|it| it.is_type("null_literal"))) {
+        if !next_code.all(Some(|it| it.is_type(SyntaxKind::NullLiteral))) {
             return Vec::new();
         }
 
@@ -155,7 +163,7 @@ WHERE a IS NULL
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["comparison_operator"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::ComparisonOperator].into()).into()
     }
 }
 

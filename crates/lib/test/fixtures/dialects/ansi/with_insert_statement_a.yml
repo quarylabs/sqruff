@@ -51,11 +51,11 @@ file:
         - keyword: VALUES
         - bracketed:
           - start_bracket: (
-          - remove me: '''value1'''
+          - '': '''value1'''
           - comma: ','
-          - remove me: '''value2'''
+          - '': '''value2'''
           - comma: ','
-          - remove me: '''value3'''
+          - '': '''value3'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -109,10 +109,10 @@ file:
         - keyword: VALUES
         - bracketed:
           - start_bracket: (
-          - remove me: '''value1'''
+          - '': '''value1'''
           - comma: ','
-          - remove me: '''value2'''
+          - '': '''value2'''
           - comma: ','
-          - remove me: '''value3'''
+          - '': '''value3'''
           - end_bracket: )
 - statement_terminator: ;

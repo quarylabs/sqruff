@@ -13,14 +13,14 @@ file:
             - when_clause:
               - keyword: WHEN
               - expression:
-                - remove me: '''hello'''
+                - '': '''hello'''
               - keyword: THEN
               - expression:
                 - numeric_literal: '3'
             - when_clause:
               - keyword: WHEN
               - expression:
-                - remove me: '''hi'''
+                - '': '''hi'''
               - keyword: THEN
               - expression:
                 - numeric_literal: '12'

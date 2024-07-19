@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone, Default)]
@@ -18,22 +19,25 @@ impl RuleAL06 {
         let mut violation_buff = Vec::new();
 
         for from_expression_element in from_expression_elements {
-            let table_ref =
-                from_expression_element.child(&["table_expression"]).and_then(|table_expression| {
-                    table_expression.child(&["object_reference", "table_reference"])
-                });
+            let table_ref = from_expression_element.child(&[SyntaxKind::TableExpression]).and_then(
+                |table_expression| {
+                    table_expression
+                        .child(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference])
+                },
+            );
 
             let Some(_table_ref) = table_ref else {
                 return Vec::new();
             };
 
-            let Some(alias_exp_ref) = from_expression_element.child(&["alias_expression"]) else {
+            let Some(alias_exp_ref) = from_expression_element.child(&[SyntaxKind::AliasExpression])
+            else {
                 return Vec::new();
             };
 
             if let Some(min_alias_length) = self.min_alias_length {
                 if let Some(alias_identifier_ref) =
-                    alias_exp_ref.child(&["identifier", "naked_identifier"])
+                    alias_exp_ref.child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
                 {
                     let alias_identifier = alias_identifier_ref.raw();
                     if alias_identifier.len() < min_alias_length {
@@ -54,7 +58,7 @@ impl RuleAL06 {
 
             if let Some(max_alias_length) = self.max_alias_length {
                 if let Some(alias_identifier_ref) =
-                    alias_exp_ref.child(&["identifier", "naked_identifier"])
+                    alias_exp_ref.child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
                 {
                     let alias_identifier = alias_identifier_ref.raw();
 
@@ -133,12 +137,13 @@ JOIN
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let children = FunctionalContext::new(context.clone()).segment().children(None);
-        let from_expression_elements = children.recursive_crawl(&["from_expression_element"], true);
+        let from_expression_elements =
+            children.recursive_crawl(&[SyntaxKind::FromExpressionElement], true);
         self.lint_aliases(from_expression_elements.base)
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectStatement].into()).into()
     }
 }
 

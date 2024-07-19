@@ -44,7 +44,7 @@ file:
     - bracketed:
       - start_bracket: (
       - word: SUBTYPE
-      - equals: =
+      - raw_comparison_operator: =
       - word: FLOAT
       - end_bracket: )
 - statement_terminator: ;
@@ -58,11 +58,11 @@ file:
     - bracketed:
       - start_bracket: (
       - word: INPUT
-      - equals: =
+      - raw_comparison_operator: =
       - word: foo
       - comma: ','
       - word: OUTPUT
-      - equals: =
+      - raw_comparison_operator: =
       - word: bar
       - end_bracket: )
 - statement_terminator: ;

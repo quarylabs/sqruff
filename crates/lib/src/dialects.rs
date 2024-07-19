@@ -20,6 +20,7 @@ pub mod sparksql_keywords;
     Clone,
     Copy,
     strum_macros::IntoStaticStr,
+    strum_macros::EnumString,
     Hash,
     PartialOrd,
     Ord,
@@ -567,6 +568,10 @@ pub enum SyntaxKind {
     ValidationModeOption,
     EndExcludeBracket,
     IdentifierList,
+    TemplateLoop,
+    ColonDelimiter,
+    SqlcmdOperator,
+    Slice,
 }
 
 impl SyntaxKind {

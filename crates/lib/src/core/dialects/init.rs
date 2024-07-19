@@ -12,16 +12,18 @@ pub enum DialectKind {
     Snowflake,
     Clickhouse,
     Sparksql,
+    Duckdb,
 }
 
 pub fn dialect_selector(s: &str) -> Option<Dialect> {
     match DialectKind::from_str(s).ok()? {
         DialectKind::Ansi => Some(crate::dialects::ansi::ansi_dialect()),
         DialectKind::Bigquery => Some(crate::dialects::bigquery::bigquery_dialect()),
-        DialectKind::Postgres => Some(crate::dialects::postgres::postgres_dialect()),
+        DialectKind::Postgres => Some(crate::dialects::postgres::dialect()),
         DialectKind::Snowflake => Some(crate::dialects::snowflake::snowflake_dialect()),
         DialectKind::Clickhouse => Some(crate::dialects::clickhouse::clickhouse_dialect()),
         DialectKind::Sparksql => Some(crate::dialects::sparksql::sparksql_dialect()),
+        DialectKind::Duckdb => Some(crate::dialects::duckdb::dialect()),
     }
 }
 

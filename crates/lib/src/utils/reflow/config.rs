@@ -1,7 +1,6 @@
 use std::str::FromStr;
 
 use ahash::{AHashMap, AHashSet};
-use itertools::Itertools;
 
 use crate::core::config::{FluffConfig, Value};
 use crate::dialects::SyntaxKind;
@@ -127,7 +126,7 @@ impl BlockConfig {
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
-    config_types: AHashSet<String>,
+    config_types: AHashSet<SyntaxKind>,
     /// In production, these values are almost _always_ set because we
     /// use `.from_fluff_config`, but the defaults are here to aid in
     /// testing.
@@ -144,8 +143,7 @@ impl ReflowConfig {
         block_class_types: &AHashSet<SyntaxKind>,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
-        let configured_types =
-            block_class_types.iter().filter(|&&typ| self.config_types.contains(typ.as_str()));
+        let configured_types = block_class_types.intersection(&self.config_types);
 
         let mut block_config = BlockConfig::new();
 
@@ -175,14 +173,11 @@ impl ReflowConfig {
 
                 let parent_classes =
                     &depth_info.stack_class_types[depth_info.stack_class_types.len() - 1 - idx];
-                let parent_classes: AHashSet<String> =
-                    parent_classes.iter().map(|s| s.as_str().to_string()).collect();
 
-                let configured_parent_types =
-                    self.config_types.intersection(&parent_classes).collect_vec();
+                let configured_parent_types = self.config_types.intersection(parent_classes);
 
                 if parent_start {
-                    for seg_type in &configured_parent_types {
+                    for &seg_type in configured_parent_types.clone() {
                         let before = self
                             .configs
                             .get(seg_type.as_str())
@@ -203,7 +198,7 @@ impl ReflowConfig {
                 }
 
                 if parent_end {
-                    for seg_type in &configured_parent_types {
+                    for seg_type in configured_parent_types {
                         let after = self
                             .configs
                             .get(seg_type.as_str())
@@ -234,7 +229,10 @@ impl ReflowConfig {
 
     pub fn from_fluff_config(config: &FluffConfig) -> ReflowConfig {
         let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
-        let config_types = configs.keys().map(|x| x.to_string()).collect::<AHashSet<String>>();
+        let config_types = configs
+            .keys()
+            .map(|x| x.parse().unwrap_or_else(|_| unimplemented!("{x}")))
+            .collect::<AHashSet<_>>();
 
         let trailing_comments = config.raw["indentation"]["trailing_comments"].as_string().unwrap();
         let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();

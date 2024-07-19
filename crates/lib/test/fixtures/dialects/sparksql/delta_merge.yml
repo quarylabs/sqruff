@@ -406,7 +406,7 @@ file:
                 - dot: .
                 - naked_identifier: address
               - comparison_operator:
-                - remove me: '!'
+                - '': '!'
                 - raw_comparison_operator: =
               - column_reference:
                 - naked_identifier: customers
@@ -445,7 +445,7 @@ file:
             - dot: .
             - naked_identifier: address
           - comparison_operator:
-            - remove me: '!'
+            - '': '!'
             - raw_comparison_operator: =
           - column_reference:
             - naked_identifier: staged_updates

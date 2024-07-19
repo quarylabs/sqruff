@@ -136,7 +136,7 @@ file:
                 - naked_identifier: City
               - comparison_operator:
                 - raw_comparison_operator: =
-              - remove me: '''Sandnes'''
+              - '': '''Sandnes'''
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

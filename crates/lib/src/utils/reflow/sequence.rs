@@ -11,6 +11,7 @@ use super::reindent::{construct_single_indent, lint_indent_points, lint_line_len
 use crate::core::config::FluffConfig;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::SyntaxKind;
 
 pub struct ReflowSequence {
     root_segment: ErasedSegment,
@@ -79,7 +80,13 @@ impl ReflowSequence {
             // This is to facilitate better evaluation of the ends of files.
             // NOTE: This also allows us to include literal placeholders for
             // whitespace only strings.
-            if matches!(seg.get_type(), "whitespace" | "newline" | "indent" | "dedent") {
+            if matches!(
+                seg.get_type(),
+                SyntaxKind::Whitespace
+                    | SyntaxKind::Newline
+                    | SyntaxKind::Indent
+                    | SyntaxKind::Dedent
+            ) {
                 // Add to the buffer and move on.
                 seg_buff.push(seg);
                 continue;
@@ -236,8 +243,8 @@ impl ReflowSequence {
             let (new_lint_results, mut new_point) =
                 point.respace_point(pre, post, lint_results.clone(), strip_newlines);
 
-            let ignore = if new_point.segments.iter().any(|seg| seg.is_type("newline"))
-                || post.as_ref().map_or(false, |p| p.class_types().contains("end_of_file"))
+            let ignore = if new_point.segments.iter().any(|seg| seg.is_type(SyntaxKind::Newline))
+                || post.as_ref().map_or(false, |p| p.class_types().contains(&SyntaxKind::EndOfFile))
             {
                 filter == Filter::Inline
             } else {

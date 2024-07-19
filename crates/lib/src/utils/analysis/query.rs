@@ -8,21 +8,22 @@ use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
+use crate::dialects::SyntaxKind;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 
-static SELECTABLE_TYPES: &[&str] =
-    &["with_compound_statement", "set_expression", "select_statement"];
+static SELECTABLE_TYPES: &[SyntaxKind] =
+    &[SyntaxKind::WithCompoundStatement, SyntaxKind::SetExpression, SyntaxKind::SelectStatement];
 
-static SUBSELECT_TYPES: &[&str] = &[
-    "merge_statement",
-    "update_statement",
-    "delete_statement",
+static SUBSELECT_TYPES: &[SyntaxKind] = &[
+    SyntaxKind::MergeStatement,
+    SyntaxKind::UpdateStatement,
+    SyntaxKind::DeleteStatement,
     // NOTE: Values clauses won't have sub selects, but it's
     // also harmless to look, and they may appear in similar
     // locations. We include them here because they come through
     // the same code paths - although are likely to return nothing.
-    "values_clause",
+    SyntaxKind::ValuesClause,
 ];
 
 #[derive(Debug, Clone, Copy)]
@@ -61,7 +62,7 @@ impl<'me> Selectable<'me> {
 
         let mut buff = Vec::new();
         for seg in select_info.select_targets {
-            if seg.0.child(&["wildcard_expression"]).is_some() {
+            if seg.0.child(&[SyntaxKind::WildcardExpression]).is_some() {
                 if seg.0.raw().contains('.') {
                     let table =
                         seg.0.raw().rsplit_once('.').map(|x| x.0).unwrap_or_default().to_smolstr();
@@ -90,16 +91,16 @@ impl<'me> Selectable<'me> {
 
 impl<'me> Selectable<'me> {
     pub fn select_info(&self) -> Option<SelectStatementColumnsAndTables> {
-        if self.selectable.is_type("select_statement") {
+        if self.selectable.is_type(SyntaxKind::SelectStatement) {
             return get_select_statement_info(&self.selectable, self.dialect.into(), false);
         }
 
         let values = Segments::new(self.selectable.clone(), None);
         let alias_expression = values
             .children(None)
-            .find_first(Some(|it: &ErasedSegment| it.is_type("alias_expression")));
+            .find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::AliasExpression)));
         let name = alias_expression.children(None).find_first(Some(|it: &ErasedSegment| {
-            matches!(it.get_type(), "naked_identifier" | "quoted_identifier",)
+            matches!(it.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier,)
         }));
 
         let alias_info = AliasInfo {
@@ -157,12 +158,17 @@ impl<'me, T: Clone + Default> Query<'me, T> {
         let mut acc = Vec::new();
 
         for seg in segment.recursive_crawl(
-            &["table_reference", "set_expression", "select_statement", "values_clause"],
+            &[
+                SyntaxKind::TableReference,
+                SyntaxKind::SetExpression,
+                SyntaxKind::SelectStatement,
+                SyntaxKind::ValuesClause,
+            ],
             false,
             None,
             false,
         ) {
-            if seg.is_type("table_reference") {
+            if seg.is_type(SyntaxKind::TableReference) {
                 let _seg = seg.reference();
                 if !_seg.is_qualified() && lookup_cte {
                     if let Some(cte) = self.lookup_cte(seg.raw().as_ref(), pop) {
@@ -180,7 +186,7 @@ impl<'me, T: Clone + Default> Query<'me, T> {
         }
 
         if acc.is_empty() {
-            if let Some(table_expr) = segment.child(&["table_expression"]) {
+            if let Some(table_expr) = segment.child(&[SyntaxKind::TableExpression]) {
                 return vec![Source::TableReference(table_expr.raw().to_smolstr())];
             }
         }
@@ -237,9 +243,13 @@ impl<T: Default + Clone> Query<'_, T> {
     }
 
     pub fn from_root(root_segment: ErasedSegment, dialect: &Dialect) -> Query<'_, T> {
-        let selectable_segment =
-            root_segment.recursive_crawl(SELECTABLE_TYPES, true, "merge_statement".into(), true)[0]
-                .clone();
+        let selectable_segment = root_segment.recursive_crawl(
+            SELECTABLE_TYPES,
+            true,
+            SyntaxKind::MergeStatement.into(),
+            true,
+        )[0]
+        .clone();
 
         Query::from_segment(&selectable_segment, dialect, None)
     }
@@ -254,14 +264,14 @@ impl<T: Default + Clone> Query<'_, T> {
         let mut cte_defs: Vec<ErasedSegment> = Vec::new();
         let mut query_type = QueryType::Simple;
 
-        if segment.is_type("select_statement")
-            || SUBSELECT_TYPES.iter().any(|ty| segment.is_type(ty))
+        if segment.is_type(SyntaxKind::SelectStatement)
+            || SUBSELECT_TYPES.iter().any(|&ty| segment.is_type(ty))
         {
             selectables.push(Selectable { selectable: segment.clone(), dialect });
-        } else if segment.is_type("set_expression") {
+        } else if segment.is_type(SyntaxKind::SetExpression) {
             selectables.extend(
                 segment
-                    .children(&["select_statement"])
+                    .children(&[SyntaxKind::SelectStatement])
                     .into_iter()
                     .map(|selectable| Selectable { selectable, dialect }),
             )
@@ -269,18 +279,18 @@ impl<T: Default + Clone> Query<'_, T> {
             query_type = QueryType::WithCompound;
 
             for seg in segment.recursive_crawl(
-                &["select_statement"],
+                &[SyntaxKind::SelectStatement],
                 false,
-                "common_table_expression".into(),
+                SyntaxKind::CommonTableExpression.into(),
                 true,
             ) {
                 selectables.push(Selectable { selectable: seg, dialect });
             }
 
             for seg in segment.recursive_crawl(
-                &["common_table_expression"],
+                &[SyntaxKind::CommonTableExpression],
                 false,
-                "with_compound_statement".into(),
+                SyntaxKind::WithCompoundStatement.into(),
                 true,
             ) {
                 cte_defs.push(seg);
@@ -316,7 +326,7 @@ impl<T: Default + Clone> Query<'_, T> {
             let name_seg = cte.segments()[0].clone();
             let name = name_seg.get_raw_upper().unwrap();
 
-            let types = [SELECTABLE_TYPES, &["values_clause"], SUBSELECT_TYPES].concat();
+            let types = [SELECTABLE_TYPES, &[SyntaxKind::ValuesClause], SUBSELECT_TYPES].concat();
             let queries = cte.recursive_crawl(&types, true, None, true);
 
             if queries.is_empty() {

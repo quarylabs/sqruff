@@ -11,6 +11,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, Ru
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceLevel;
+use crate::dialects::SyntaxKind;
 use crate::utils::analysis::query::Query;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
@@ -107,7 +108,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectStatement].into()).into()
     }
 }
 
@@ -146,15 +147,20 @@ impl RuleAL05 {
     }
 
     fn is_alias_required(from_expression_element: &ErasedSegment) -> bool {
-        for segment in from_expression_element.iter_segments(Some(&["bracketed"]), false) {
-            if segment.is_type("table_expression") {
-                return if segment.child(&["values_clause"]).is_some() {
+        for segment in from_expression_element.iter_segments(Some(&[SyntaxKind::Bracketed]), false)
+        {
+            if segment.is_type(SyntaxKind::TableExpression) {
+                return if segment.child(&[SyntaxKind::ValuesClause]).is_some() {
                     false
                 } else {
-                    segment.iter_segments(Some(&["bracketed"]), false).iter().any(|seg| {
-                        ["select_statement", "set_expression", "with_compound_statement"]
-                            .iter()
-                            .any(|it| seg.is_type(it))
+                    segment.iter_segments(Some(&[SyntaxKind::Bracketed]), false).iter().any(|seg| {
+                        [
+                            SyntaxKind::SelectStatement,
+                            SyntaxKind::SetExpression,
+                            SyntaxKind::WithCompoundStatement,
+                        ]
+                        .iter()
+                        .any(|&it| seg.is_type(it))
                     })
                 };
             }

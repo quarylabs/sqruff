@@ -6,6 +6,7 @@ use crate::core::parser::segments::base::{
     ErasedSegment, Segment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::rules::base::{EditType, LintFix, LintResult};
+use crate::dialects::SyntaxKind;
 
 fn unpack_constraint(constraint: &str, mut strip_newlines: bool) -> (String, bool) {
     let (constraint, modifier) = if constraint.starts_with("align") {
@@ -104,18 +105,18 @@ pub fn process_spacing(
     // Loop through the existing segments looking for spacing.
     for seg in &segment_buffer {
         // If it's whitespace, store it.
-        if seg.is_type("whitespace") {
+        if seg.is_type(SyntaxKind::Whitespace) {
             last_whitespace.push(seg.clone());
         }
         // If it's a newline, react accordingly.
         // NOTE: This should only trigger on literal newlines.
-        else if matches!(seg.get_type(), "newline" | "end_of_file") {
+        else if matches!(seg.get_type(), SyntaxKind::Newline | SyntaxKind::EndOfFile) {
             if seg.get_position_marker().is_some_and(|pos_marker| !pos_marker.is_literal()) {
                 last_whitespace = Vec::new();
                 continue;
             }
 
-            if strip_newlines && seg.is_type("newline") {
+            if strip_newlines && seg.is_type(SyntaxKind::Newline) {
                 removal_buffer.push(seg.clone());
                 result_buffer.push(LintResult::new(
                     seg.clone().into(),

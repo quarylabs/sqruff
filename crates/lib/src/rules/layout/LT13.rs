@@ -7,6 +7,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::segments::Segments;
 
 #[derive(Debug, Default, Clone)]
@@ -93,7 +94,13 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
                 continue;
             }
 
-            if matches!(seg.get_type(), "newline" | "whitespace" | "indent" | "dedent") {
+            if matches!(
+                seg.get_type(),
+                SyntaxKind::Newline
+                    | SyntaxKind::Whitespace
+                    | SyntaxKind::Indent
+                    | SyntaxKind::Dedent
+            ) {
                 raw_segments.push(seg);
                 continue;
             }

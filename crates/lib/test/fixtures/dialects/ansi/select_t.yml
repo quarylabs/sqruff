@@ -46,7 +46,7 @@ file:
                           - naked_identifier: COL_2
                         - comparison_operator:
                           - raw_comparison_operator: =
-                        - remove me: '''B'''
+                        - '': '''B'''
                   - set_operator:
                     - keyword: UNION
                     - keyword: ALL

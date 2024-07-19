@@ -98,13 +98,13 @@ pub fn clickhouse_dialect() -> Dialect {
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
                 TypedParser::new(
-                    "single_quote",
+                    SyntaxKind::SingleQuote,
                     |segment: &dyn Segment| {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "quoted_literal",
+                                code_type: SyntaxKind::QuotedLiteral,
                                 ..Default::default()
                             },
                         )
@@ -114,13 +114,13 @@ pub fn clickhouse_dialect() -> Dialect {
                     None,
                 ),
                 TypedParser::new(
-                    "dollar_quote",
+                    SyntaxKind::DollarQuote,
                     |segment: &dyn Segment| {
                         CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "quoted_literal",
+                                code_type: SyntaxKind::QuotedLiteral,
                                 ..Default::default()
                             },
                         )
@@ -137,7 +137,11 @@ pub fn clickhouse_dialect() -> Dialect {
 
     clickhouse_dialect.insert_lexer_matchers(
         vec![Matcher::string("lambda", "->", |slice, m| {
-            SymbolSegment::create(slice, m.into(), SymbolSegmentNewArgs { r#type: "lambda" })
+            SymbolSegment::create(
+                slice,
+                m.into(),
+                SymbolSegmentNewArgs { r#type: SyntaxKind::Lambda },
+            )
         })],
         "newline",
     );
@@ -230,12 +234,12 @@ pub fn clickhouse_dialect() -> Dialect {
         (
             "LambdaFunctionSegment".into(),
             TypedParser::new(
-                "lambda",
+                SyntaxKind::Lambda,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "lambda" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::Lambda },
                     )
                 },
                 None,

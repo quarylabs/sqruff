@@ -14,6 +14,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, Ru
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceSegment;
+use crate::dialects::SyntaxKind;
 use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
 
@@ -175,7 +176,7 @@ fn validate_one_reference(
     seen_ref_types: &AHashSet<&str>,
     fixable: bool,
 ) -> Option<LintResult> {
-    if !ref_.is_qualified() && ref_.0.is_type("wildcard_identifier") {
+    if !ref_.is_qualified() && ref_.0.is_type(SyntaxKind::WildcardIdentifier) {
         return None;
     }
 
@@ -247,7 +248,7 @@ fn validate_one_reference(
                     table_ref_str,
                     None,
                     CodeSegmentNewArgs {
-                        code_type: "naked_identifier",
+                        code_type: SyntaxKind::NakedIdentifier,
                         ..CodeSegmentNewArgs::default()
                     },
                 ),
@@ -341,7 +342,12 @@ FROM foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            ["select_statement", "set_expression", "with_compound_statement"].into(),
+            [
+                SyntaxKind::SelectStatement,
+                SyntaxKind::SetExpression,
+                SyntaxKind::WithCompoundStatement,
+            ]
+            .into(),
         )
         .disallow_recurse()
         .into()

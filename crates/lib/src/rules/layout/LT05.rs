@@ -5,6 +5,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Debug, Default, Clone)]
@@ -76,8 +77,8 @@ FROM my_table"#
         if self.ignore_comment_lines {
             let raw_segments = context.segment.get_raw_segments();
             for (res_idx, res) in enumerate(&results) {
-                if res.anchor.as_ref().unwrap().is_type("comment")
-                    || res.anchor.as_ref().unwrap().is_type("inline_comment")
+                if res.anchor.as_ref().unwrap().is_type(SyntaxKind::Comment)
+                    || res.anchor.as_ref().unwrap().is_type(SyntaxKind::InlineComment)
                 {
                     to_remove.insert(res_idx);
                     continue;
@@ -94,10 +95,10 @@ FROM my_table"#
                         break;
                     }
 
-                    if seg.is_type("comment") || seg.is_type("inline_comment") {
+                    if seg.is_type(SyntaxKind::Comment) || seg.is_type(SyntaxKind::InlineComment) {
                         to_remove.insert(res_idx);
                         break;
-                    } else if seg.is_type("placeholder") {
+                    } else if seg.is_type(SyntaxKind::Placeholder) {
                         unimplemented!()
                     }
                 }
@@ -126,8 +127,8 @@ FROM my_table"#
                     let mut is_break = false;
 
                     for ps in context.segment.path_to(seg) {
-                        if ps.segment.is_type("comment_clause")
-                            || ps.segment.is_type("comment_equals_clause")
+                        if ps.segment.is_type(SyntaxKind::CommentClause)
+                            || ps.segment.is_type(SyntaxKind::CommentEqualsClause)
                         {
                             let line_pos =
                                 ps.segment.get_position_marker().unwrap().working_line_pos;

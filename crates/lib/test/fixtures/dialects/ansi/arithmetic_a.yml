@@ -107,7 +107,7 @@ file:
         - expression:
           - numeric_literal: '4'
           - comparison_operator:
-            - remove me: '&'
+            - '': '&'
           - tilde: '~'
           - numeric_literal: '8'
           - comparison_operator:
@@ -368,7 +368,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - remove me: '''abc'''
+          - '': '''abc'''
           - keyword: LIKE
           - sign_indicator: '-'
           - numeric_literal:
@@ -381,7 +381,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - remove me: '''abc'''
+          - '': '''abc'''
           - keyword: LIKE
           - tilde: '~'
           - tilde: '~'

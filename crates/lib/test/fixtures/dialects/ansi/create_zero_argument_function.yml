@@ -16,7 +16,7 @@ file:
       - '': integer
     - function_definition:
       - keyword: AS
-      - remove me: |-
+      - '': |-
           '
               SELECT 1;
           '
@@ -38,7 +38,7 @@ file:
       - '': integer
     - function_definition:
       - keyword: AS
-      - remove me: |-
+      - '': |-
           '
               SELECT 1;
           '

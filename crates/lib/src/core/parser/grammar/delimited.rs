@@ -12,6 +12,7 @@ use crate::core::parser::match_algorithms::{longest_match, skip_start_index_forw
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToMatchable;
 
 /// Match an arbitrary number of elements separated by a delimiter.
@@ -67,7 +68,7 @@ impl Matchable for Delimited {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
         super::anyof::simple(&self.elements, parse_context, crumbs)
     }
 

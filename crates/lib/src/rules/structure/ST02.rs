@@ -9,6 +9,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -96,13 +97,13 @@ from fancy_table
             let children = FunctionalContext::new(context.clone()).segment().children(None);
 
             let when_clauses = children.select(
-                Some(|it: &ErasedSegment| it.is_type("when_clause")),
+                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::WhenClause)),
                 None,
                 None,
                 None,
             );
             let else_clauses = children.select(
-                Some(|it: &ErasedSegment| it.is_type("else_clause")),
+                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::ElseClause)),
                 None,
                 None,
                 None,
@@ -113,13 +114,13 @@ from fancy_table
             }
 
             let condition_expression =
-                when_clauses.children(Some(|it| it.is_type("expression")))[0].clone();
+                when_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression)))[0].clone();
             let then_expression =
-                when_clauses.children(Some(|it| it.is_type("expression")))[1].clone();
+                when_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression)))[1].clone();
 
             if !else_clauses.is_empty() {
                 if let Some(else_expression) =
-                    else_clauses.children(Some(|it| it.is_type("expression"))).first()
+                    else_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression))).first()
                 {
                     let upper_bools = ["TRUE", "FALSE"];
 
@@ -172,14 +173,14 @@ from fancy_table
                 let is_not_prefix = condition_expression_segments_raw.contains("NOT");
 
                 let tmp = Segments::new(condition_expression.clone(), None)
-                    .children(Some(|it| it.is_type("column_reference")));
+                    .children(Some(|it| it.is_type(SyntaxKind::ColumnReference)));
 
                 let Some(column_reference_segment) = tmp.first() else {
                     return Vec::new();
                 };
 
                 let array_accessor_segment = Segments::new(condition_expression.clone(), None)
-                    .children(Some(|it: &ErasedSegment| it.is_type("array_accessor")))
+                    .children(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::ArrayAccessor)))
                     .first()
                     .cloned();
 
@@ -192,8 +193,9 @@ from fancy_table
                 };
 
                 if !else_clauses.is_empty() {
-                    let else_expression =
-                        else_clauses.children(Some(|it| it.is_type("expression")))[0].clone();
+                    let else_expression = else_clauses
+                        .children(Some(|it| it.is_type(SyntaxKind::Expression)))[0]
+                        .clone();
 
                     let (coalesce_arg_1, coalesce_arg_2) = if !is_not_prefix
                         && column_reference_segment_raw_upper
@@ -260,7 +262,7 @@ from fancy_table
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["case_expression"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::CaseExpression].into()).into()
     }
 }
 

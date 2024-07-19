@@ -9,6 +9,7 @@ use crate::core::parser::segments::base::{ErasedSegment, IdentifierSegment, Symb
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug)]
@@ -64,17 +65,20 @@ impl RuleAL07 {
                     continue;
                 }
 
-                let select_clause = segment.child(&["select_clause"]).unwrap();
+                let select_clause = segment.child(&[SyntaxKind::SelectClause]).unwrap();
                 let mut ids_refs = Vec::new();
 
                 let alias_name = alias_identifier_ref.raw();
                 if !alias_name.is_empty() {
                     // Find all references to alias in select clause
-                    for alias_with_column in
-                        select_clause.recursive_crawl(&["object_reference"], true, None, true)
-                    {
-                        if let Some(used_alias_ref) =
-                            alias_with_column.child(&["identifier", "naked_identifier"])
+                    for alias_with_column in select_clause.recursive_crawl(
+                        &[SyntaxKind::ObjectReference],
+                        true,
+                        None,
+                        true,
+                    ) {
+                        if let Some(used_alias_ref) = alias_with_column
+                            .child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
                         {
                             if used_alias_ref.raw() == alias_name {
                                 ids_refs.push(used_alias_ref);
@@ -85,10 +89,10 @@ impl RuleAL07 {
                     // Find all references to alias in column references
                     for exp_ref in column_reference_segments.clone() {
                         if let Some(used_alias_ref) =
-                            exp_ref.child(&["identifier", "naked_identifier"])
+                            exp_ref.child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
                         {
                             if used_alias_ref.raw() == alias_name
-                                && exp_ref.child(&["dot"]).is_some()
+                                && exp_ref.child(&[SyntaxKind::Dot]).is_some()
                             {
                                 ids_refs.push(used_alias_ref);
                             }
@@ -143,12 +147,13 @@ impl RuleAL07 {
         let mut acc = Vec::new();
 
         for from_expression in from_expression_elements {
-            let table_expression = from_expression.child(&["table_expression"]);
+            let table_expression = from_expression.child(&[SyntaxKind::TableExpression]);
             let Some(table_expression) = table_expression else {
                 continue;
             };
 
-            let table_ref = table_expression.child(&["object_reference", "table_reference"]);
+            let table_ref =
+                table_expression.child(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]);
             let Some(table_ref) = table_ref else {
                 continue;
             };
@@ -159,14 +164,15 @@ impl RuleAL07 {
                 }
             }
 
-            let whitespace_ref = from_expression.child(&["whitespace"]);
+            let whitespace_ref = from_expression.child(&[SyntaxKind::Whitespace]);
 
-            let alias_exp_ref = from_expression.child(&["alias_expression"]);
+            let alias_exp_ref = from_expression.child(&[SyntaxKind::AliasExpression]);
             let Some(alias_exp_ref) = alias_exp_ref else {
                 continue;
             };
 
-            let alias_identifier_ref = alias_exp_ref.child(&["identifier", "naked_identifier"]);
+            let alias_identifier_ref =
+                alias_exp_ref.child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]);
 
             acc.push(TableAliasInfo {
                 table_ref,
@@ -241,17 +247,19 @@ FROM
 
         let children = FunctionalContext::new(context.clone()).segment().children(None);
         let from_clause_segment = children
-            .select(Some(|it: &ErasedSegment| it.is_type("from_clause")), None, None, None)
+            .select(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::FromClause)), None, None, None)
             .find_first::<fn(&_) -> _>(None);
 
         let base_table = from_clause_segment
-            .children(Some(|it| it.is_type("from_expression")))
+            .children(Some(|it| it.is_type(SyntaxKind::FromExpression)))
             .find_first::<fn(&_) -> _>(None)
-            .children(Some(|it| it.is_type("from_expression_element")))
+            .children(Some(|it| it.is_type(SyntaxKind::FromExpressionElement)))
             .find_first::<fn(&_) -> _>(None)
-            .children(Some(|it| it.is_type("table_expression")))
+            .children(Some(|it| it.is_type(SyntaxKind::TableExpression)))
             .find_first::<fn(&_) -> _>(None)
-            .children(Some(|it| it.is_type("object_reference") || it.is_type("table_reference")));
+            .children(Some(|it| {
+                it.is_type(SyntaxKind::ObjectReference) || it.is_type(SyntaxKind::TableReference)
+            }));
 
         if base_table.is_empty() {
             return Vec::new();
@@ -268,13 +276,13 @@ FROM
         );
         for clause in chain(from_clause_segment, after_from_clause) {
             for from_expression_element in
-                clause.recursive_crawl(&["from_expression_element"], true, None, true)
+                clause.recursive_crawl(&[SyntaxKind::FromExpressionElement], true, None, true)
             {
                 from_expression_elements.push(from_expression_element);
             }
 
             for from_expression_element in
-                clause.recursive_crawl(&["column_reference"], true, None, true)
+                clause.recursive_crawl(&[SyntaxKind::ColumnReference], true, None, true)
             {
                 column_reference_segments.push(from_expression_element);
             }
@@ -293,7 +301,7 @@ FROM
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectStatement].into()).into()
     }
 }
 

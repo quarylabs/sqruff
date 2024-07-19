@@ -12,6 +12,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::SyntaxKind;
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
@@ -20,11 +21,11 @@ use crate::utils::reflow::respace::{
 fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
     let segment = segment?;
 
-    if segment.is_type("placeholder") {
+    if segment.is_type(SyntaxKind::Placeholder) {
         None
     } else {
         // match segment.block_type.as_ref() {
-        //     "literal" => Some(segment.source_str),
+        //     SyntaxKind::Literal => Some(segment.source_str),
         //     _ => None,
         // }
         None
@@ -47,7 +48,7 @@ impl ReflowPoint {
         self.segments.iter().map(|it| it.raw()).join("")
     }
 
-    pub fn class_types(&self) -> AHashSet<&str> {
+    pub fn class_types(&self) -> AHashSet<SyntaxKind> {
         ReflowElement::class_types(&self.segments)
     }
 
@@ -82,8 +83,8 @@ impl ReflowPoint {
                 _ => (),
             }
             match seg.get_type() {
-                "newline" => return indent,
-                "whitespace" => indent = Some(seg.clone()),
+                SyntaxKind::Newline => return indent,
+                SyntaxKind::Whitespace => indent = Some(seg.clone()),
                 _ => {
                     if get_consumed_whitespace(Some(seg)).unwrap_or_default().contains('\n') {
                         return Some(seg.clone());
@@ -99,7 +100,7 @@ impl ReflowPoint {
             .iter()
             .map(|seg| {
                 let newline_in_class =
-                    seg.class_types().into_iter().any(|ct| ct == "newline") as usize;
+                    seg.class_types().into_iter().any(|ct| ct == SyntaxKind::Newline) as usize;
 
                 let consumed_whitespace = get_consumed_whitespace(seg.into()).unwrap_or_default();
                 newline_in_class + consumed_whitespace.matches('\n').count()
@@ -135,7 +136,7 @@ impl ReflowPoint {
         let indent_seg = self.get_indent_segment();
 
         if let Some(indent_seg) = &indent_seg
-            && indent_seg.is_type("placeholder")
+            && indent_seg.is_type(SyntaxKind::Placeholder)
         {
             unimplemented!()
         } else if self.num_newlines() != 0 {
@@ -189,7 +190,7 @@ impl ReflowPoint {
             // There isn't currently a newline.
             let new_newline = NewlineSegment::create("\n", None, <_>::default());
             // Check for whitespace
-            let ws_seg = self.segments.iter().find(|seg| seg.is_type("whitespace"));
+            let ws_seg = self.segments.iter().find(|seg| seg.is_type(SyntaxKind::Whitespace));
 
             if let Some(ws_seg) = ws_seg {
                 let new_segs = if desired_indent.is_empty() {
@@ -314,7 +315,7 @@ impl ReflowPoint {
             process_spacing(self.segments.clone(), strip_newlines);
 
         if let Some((next_block, whitespace)) = next_block.zip(last_whitespace.clone())
-            && next_block.class_types().contains("end_of_file")
+            && next_block.class_types().contains(&SyntaxKind::EndOfFile)
         {
             new_results.push(LintResult::new(
                 None,
@@ -330,18 +331,22 @@ impl ReflowPoint {
             last_whitespace = None;
         }
 
-        if segment_buffer.iter().any(|seg| seg.is_type("newline")) && !strip_newlines
-            || (next_block.is_some() && next_block.unwrap().class_types().contains("end_of_file"))
+        if segment_buffer.iter().any(|seg| seg.is_type(SyntaxKind::Newline)) && !strip_newlines
+            || (next_block.is_some()
+                && next_block.unwrap().class_types().contains(&SyntaxKind::EndOfFile))
         {
             if let Some(last_whitespace) = last_whitespace {
                 let ws_idx = self.segments.iter().position(|it| it == &last_whitespace).unwrap();
                 if ws_idx > 0 {
                     let segments_slice = &self.segments[..ws_idx];
 
-                    let prev_seg =
-                        segments_slice.iter().rev().find(|seg| !seg.is_type("indent")).unwrap();
+                    let prev_seg = segments_slice
+                        .iter()
+                        .rev()
+                        .find(|seg| !seg.is_type(SyntaxKind::Indent))
+                        .unwrap();
 
-                    if prev_seg.is_type("newline")
+                    if prev_seg.is_type(SyntaxKind::Newline)
                         && prev_seg.get_end_loc() < last_whitespace.get_start_loc()
                     {
                         segment_buffer.remove(ws_idx);
@@ -464,7 +469,7 @@ pub struct ReflowBlock {
 }
 
 impl ReflowBlock {
-    pub fn class_types(&self) -> AHashSet<&str> {
+    pub fn class_types(&self) -> AHashSet<SyntaxKind> {
         ReflowElement::class_types(&self.segments)
     }
 }
@@ -539,7 +544,7 @@ impl ReflowElement {
         }
     }
 
-    pub fn class_types1(&self) -> AHashSet<&str> {
+    pub fn class_types1(&self) -> AHashSet<SyntaxKind> {
         Self::class_types(self.segments())
     }
 
@@ -548,7 +553,7 @@ impl ReflowElement {
             .iter()
             .map(|seg| {
                 let newline_in_class =
-                    seg.class_types().into_iter().any(|ct| ct == "newline") as usize;
+                    seg.class_types().into_iter().any(|ct| ct == SyntaxKind::Newline) as usize;
 
                 let consumed_whitespace = get_consumed_whitespace(seg.into()).unwrap_or_default();
                 newline_in_class + consumed_whitespace.matches('\n').count()
@@ -566,7 +571,7 @@ impl ReflowElement {
 }
 
 impl ReflowElement {
-    pub fn class_types(segments: &[ErasedSegment]) -> AHashSet<&'static str> {
+    pub fn class_types(segments: &[ErasedSegment]) -> AHashSet<SyntaxKind> {
         segments.iter().flat_map(|seg| seg.combined_types()).collect()
     }
 }

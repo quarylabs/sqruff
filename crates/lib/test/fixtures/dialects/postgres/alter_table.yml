@@ -1950,8 +1950,8 @@ file:
                 - naked_identifier: during
             - keyword: WITH
             - comparison_operator:
-              - remove me: '&'
-              - remove me: '&'
+              - '': '&'
+              - '': '&'
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1987,8 +1987,8 @@ file:
                 - naked_identifier: during
             - keyword: WITH
             - comparison_operator:
-              - remove me: '&'
-              - remove me: '&'
+              - '': '&'
+              - '': '&'
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -2262,7 +2262,7 @@ file:
             - column_reference:
               - naked_identifier: field
             - comparison_operator:
-              - remove me: '!'
+              - '': '!'
               - raw_comparison_operator: =
             - quoted_literal: '''def'''
           - end_bracket: )

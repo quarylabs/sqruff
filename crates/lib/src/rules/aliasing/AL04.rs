@@ -9,6 +9,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups}
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceSegment;
+use crate::dialects::SyntaxKind;
 use crate::helpers::IndexSet;
 use crate::utils::analysis::select::get_select_statement_info;
 
@@ -102,7 +103,7 @@ FROM
         };
 
         let _parent_select =
-            context.parent_stack.iter().rev().find(|seg| seg.is_type("select_statement"));
+            context.parent_stack.iter().rev().find(|seg| seg.is_type(SyntaxKind::SelectStatement));
 
         (self.lint_references_and_aliases)(
             select_info.table_aliases,
@@ -115,7 +116,7 @@ FROM
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_statement"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectStatement].into()).into()
     }
 }
 

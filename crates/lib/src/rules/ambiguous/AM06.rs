@@ -4,6 +4,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 struct PriorGroupByOrderByConvention(GroupByAndOrderByConvention);
@@ -71,8 +72,12 @@ ORDER BY a ASC, b DESC
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let skip = FunctionalContext::new(context.clone()).parent_stack().any(Some(|it| {
-            let ignore_types = ["withingroup_clause", "window_specification", "aggregate_order_by"];
-            ignore_types.iter().any(|ty| it.is_type(ty))
+            let ignore_types = [
+                SyntaxKind::WithingroupClause,
+                SyntaxKind::WindowSpecification,
+                SyntaxKind::AggregateOrderBy,
+            ];
+            ignore_types.iter().any(|&ty| it.is_type(ty))
         }));
 
         if skip {
@@ -82,16 +87,17 @@ ORDER BY a ASC, b DESC
         // Initialize the map
         let mut column_reference_category_map = AHashMap::new();
         column_reference_category_map
-            .insert("column_reference", GroupByAndOrderByConvention::Explicit);
-        column_reference_category_map.insert("expression", GroupByAndOrderByConvention::Explicit);
+            .insert(SyntaxKind::ColumnReference, GroupByAndOrderByConvention::Explicit);
         column_reference_category_map
-            .insert("numeric_literal", GroupByAndOrderByConvention::Implicit);
+            .insert(SyntaxKind::Expression, GroupByAndOrderByConvention::Explicit);
+        column_reference_category_map
+            .insert(SyntaxKind::NumericLiteral, GroupByAndOrderByConvention::Implicit);
 
         let mut column_reference_category_set: Vec<_> = context
             .segment
             .segments()
             .iter()
-            .filter_map(|segment| column_reference_category_map.get(segment.get_type()))
+            .filter_map(|segment| column_reference_category_map.get(&segment.get_type()))
             .collect();
         column_reference_category_set.dedup();
 
@@ -136,7 +142,12 @@ ORDER BY a ASC, b DESC
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            ["groupby_clause", "orderby_clause", "grouping_expression_list"].into(),
+            [
+                SyntaxKind::GroupbyClause,
+                SyntaxKind::OrderbyClause,
+                SyntaxKind::GroupingExpressionList,
+            ]
+            .into(),
         )
         .into()
     }

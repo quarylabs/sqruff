@@ -52,7 +52,7 @@ pub fn raw_dialect() -> Dialect {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "right_arrow", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::RightArrow, ..Default::default() },
             )
         })],
         "equals",
@@ -66,7 +66,7 @@ pub fn raw_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "unicode_single_quote", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::UnicodeSingleQuote, ..Default::default() },
                 )
             }
         ),
@@ -77,7 +77,7 @@ pub fn raw_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "escaped_single_quote", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::EscapedSingleQuote, ..Default::default() },
                 )
             }
         ),
@@ -88,7 +88,7 @@ pub fn raw_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "unicode_double_quote", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::UnicodeDoubleQuote, ..Default::default() },
                 )
             }
         ),
@@ -99,7 +99,7 @@ pub fn raw_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "json_operator", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::JsonOperator, ..Default::default() },
                 )
             }
         ),
@@ -110,7 +110,7 @@ pub fn raw_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "at", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::At, ..Default::default() },
                 )
             }
         ),
@@ -121,7 +121,7 @@ pub fn raw_dialect() -> Dialect {
                 CodeSegment::create(
                     slice,
                     marker.into(),
-                    CodeSegmentNewArgs { code_type: "bit_string_literal", ..Default::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::BitStringLiteral, ..Default::default() },
                 )
             }
         ),
@@ -136,7 +136,7 @@ pub fn raw_dialect() -> Dialect {
                     CommentSegment::create(
                         slice,
                         marker.into(),
-                        CommentSegmentNewArgs { r#type: "comment", trim_start: None },
+                        CommentSegmentNewArgs { r#type: SyntaxKind::Comment, trim_start: None },
                     )
                 },
             ),
@@ -145,7 +145,7 @@ pub fn raw_dialect() -> Dialect {
                     slice,
                     marker.into(),
                     CodeSegmentNewArgs {
-                        code_type: "dollar_numeric_literal",
+                        code_type: SyntaxKind::DollarNumericLiteral,
                         ..Default::default()
                     },
                 )
@@ -159,7 +159,10 @@ pub fn raw_dialect() -> Dialect {
             CommentSegment::create(
                 slice,
                 marker.into(),
-                CommentSegmentNewArgs { r#type: "inline_comment", trim_start: Some(vec!["--"]) },
+                CommentSegmentNewArgs {
+                    r#type: SyntaxKind::InlineComment,
+                    trim_start: Some(vec!["--"]),
+                },
             )
         }),
         Matcher::regex(
@@ -170,7 +173,7 @@ pub fn raw_dialect() -> Dialect {
                     slice,
                     marker.into(),
                     CodeSegmentNewArgs {
-                        code_type: "single_quote",
+                        code_type: SyntaxKind::SingleQuote,
                         instance_types: vec![],
                         trim_start: None,
                         trim_chars: None,
@@ -184,7 +187,7 @@ pub fn raw_dialect() -> Dialect {
                 slice,
                 marker.into(),
                 CodeSegmentNewArgs {
-                    code_type: "double_quote",
+                    code_type: SyntaxKind::DoubleQuote,
                     instance_types: vec![],
                     trim_start: None,
                     trim_chars: None,
@@ -196,7 +199,7 @@ pub fn raw_dialect() -> Dialect {
             CodeSegment::create(
                 slice,
                 marker.into(),
-                CodeSegmentNewArgs { code_type: "word", ..Default::default() },
+                CodeSegmentNewArgs { code_type: SyntaxKind::Word, ..Default::default() },
             )
         }),
     ]);
@@ -248,12 +251,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "JsonOperatorSegment".into(),
             TypedParser::new(
-                "json_operator",
+                SyntaxKind::JsonOperator,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "binary_operator" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
                     )
                 },
                 None,
@@ -272,7 +275,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "MultilineConcatenateNewline".into(),
             TypedParser::new(
-                "newline",
+                SyntaxKind::Newline,
                 |segment: &dyn Segment| {
                     NewlineSegment::create(
                         &segment.raw(),
@@ -300,12 +303,15 @@ pub fn raw_dialect() -> Dialect {
         (
             "NakedIdentifierFullSegment".into(),
             TypedParser::new(
-                "word",
+                SyntaxKind::Word,
                 |segment: &dyn Segment| {
                     IdentifierSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
+                        CodeSegmentNewArgs {
+                            code_type: SyntaxKind::NakedIdentifier,
+                            ..Default::default()
+                        },
                     )
                 },
                 None,
@@ -318,13 +324,13 @@ pub fn raw_dialect() -> Dialect {
         (
             "PropertiesNakedIdentifierSegment".into(),
             TypedParser::new(
-                "word",
+                SyntaxKind::Word,
                 |segment: &dyn Segment| {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "properties_naked_identifier",
+                            code_type: SyntaxKind::PropertiesNakedIdentifier,
                             ..Default::default()
                         },
                     )
@@ -385,7 +391,7 @@ pub fn raw_dialect() -> Dialect {
                     SymbolSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: "right_arrow" },
+                        SymbolSegmentNewArgs { r#type: SyntaxKind::RightArrow },
                     )
                 },
                 None,
@@ -403,7 +409,10 @@ pub fn raw_dialect() -> Dialect {
                     IdentifierSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "naked_identifier", ..Default::default() },
+                        CodeSegmentNewArgs {
+                            code_type: SyntaxKind::NakedIdentifier,
+                            ..Default::default()
+                        },
                     )
                 },
                 None,
@@ -416,7 +425,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "DollarNumericLiteralSegment".into(),
             TypedParser::new(
-                "dollar_numeric_literal",
+                SyntaxKind::DollarNumericLiteral,
                 |segment: &dyn Segment| {
                     LiteralSegment::create(&segment.raw(), &segment.get_position_marker().unwrap())
                 },
@@ -551,7 +560,7 @@ pub fn raw_dialect() -> Dialect {
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: "naked_identifier",
+                                code_type: SyntaxKind::NakedIdentifier,
                                 ..Default::default()
                             },
                         )
@@ -573,7 +582,10 @@ pub fn raw_dialect() -> Dialect {
                     CodeSegment::create(
                         &segment.raw(),
                         segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: "parameter", ..Default::default() },
+                        CodeSegmentNewArgs {
+                            code_type: SyntaxKind::Parameter,
+                            ..Default::default()
+                        },
                     )
                 },
                 None,
@@ -593,7 +605,7 @@ pub fn raw_dialect() -> Dialect {
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
-                            code_type: "function_name_identifier",
+                            code_type: SyntaxKind::FunctionNameIdentifier,
                             ..Default::default()
                         },
                     )
@@ -617,12 +629,12 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Sequence::new(vec_of_erased![
                     TypedParser::new(
-                        "single_quote",
+                        SyntaxKind::SingleQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                             )
                         },
                         None,
@@ -632,12 +644,12 @@ pub fn raw_dialect() -> Dialect {
                     AnyNumberOf::new(vec_of_erased![
                         Ref::new("MultilineConcatenateDelimiterGrammar"),
                         TypedParser::new(
-                            "single_quote",
+                            SyntaxKind::SingleQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
                                     &segment.raw(),
                                     segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                                 )
                             },
                             None,
@@ -648,12 +660,12 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Sequence::new(vec_of_erased![
                     TypedParser::new(
-                        "bit_string_literal",
+                        SyntaxKind::BitStringLiteral,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                             )
                         },
                         None,
@@ -663,12 +675,12 @@ pub fn raw_dialect() -> Dialect {
                     AnyNumberOf::new(vec_of_erased![
                         Ref::new("MultilineConcatenateDelimiterGrammar"),
                         TypedParser::new(
-                            "bit_string_literal",
+                            SyntaxKind::BitStringLiteral,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
                                     &segment.raw(),
                                     segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                                 )
                             },
                             None,
@@ -679,12 +691,12 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Delimited::new(vec_of_erased![
                     TypedParser::new(
-                        "unicode_single_quote",
+                        SyntaxKind::UnicodeSingleQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                             )
                         },
                         None,
@@ -694,12 +706,12 @@ pub fn raw_dialect() -> Dialect {
                     AnyNumberOf::new(vec_of_erased![
                         Ref::new("MultilineConcatenateDelimiterGrammar"),
                         TypedParser::new(
-                            "unicode_single_quote",
+                            SyntaxKind::UnicodeSingleQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
                                     &segment.raw(),
                                     segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                                 )
                             },
                             None,
@@ -710,12 +722,12 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Delimited::new(vec_of_erased![
                     TypedParser::new(
-                        "escaped_single_quote",
+                        SyntaxKind::EscapedSingleQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                             )
                         },
                         None,
@@ -725,12 +737,12 @@ pub fn raw_dialect() -> Dialect {
                     AnyNumberOf::new(vec_of_erased![
                         Ref::new("MultilineConcatenateDelimiterGrammar"),
                         TypedParser::new(
-                            "escaped_single_quote",
+                            SyntaxKind::EscapedSingleQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
                                     &segment.raw(),
                                     segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                                 )
                             },
                             None,
@@ -741,12 +753,12 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Delimited::new(vec_of_erased![
                     TypedParser::new(
-                        "dollar_quote",
+                        SyntaxKind::DollarQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                             )
                         },
                         None,
@@ -756,12 +768,12 @@ pub fn raw_dialect() -> Dialect {
                     AnyNumberOf::new(vec_of_erased![
                         Ref::new("MultilineConcatenateDelimiterGrammar"),
                         TypedParser::new(
-                            "dollar_quote",
+                            SyntaxKind::DollarQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
                                     &segment.raw(),
                                     segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                                 )
                             },
                             None,
@@ -778,12 +790,12 @@ pub fn raw_dialect() -> Dialect {
             "QuotedIdentifierSegment".into(),
             one_of(vec_of_erased![
                 TypedParser::new(
-                    "double_quote",
+                    SyntaxKind::DoubleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: "quoted_identifier" },
+                            SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
                         )
                     },
                     None,
@@ -791,12 +803,12 @@ pub fn raw_dialect() -> Dialect {
                     None
                 ),
                 TypedParser::new(
-                    "unicode_double_quote",
+                    SyntaxKind::UnicodeDoubleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: "quoted_literal" },
+                            SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
                         )
                     },
                     None,
@@ -1089,7 +1101,7 @@ pub fn raw_dialect() -> Dialect {
     postgres.add([(
         "DateTimeTypeIdentifier".into(),
         NodeMatcher::new(
-            SyntaxKind::DateTimeTypeIdentifier,
+            SyntaxKind::DatetimeTypeIdentifier,
             one_of(vec_of_erased![
                 Ref::keyword("DATE"),
                 Sequence::new(vec_of_erased![
@@ -1122,7 +1134,7 @@ pub fn raw_dialect() -> Dialect {
     postgres.add([(
         "DateTimeLiteralGrammar".into(),
         NodeMatcher::new(
-            SyntaxKind::DateTimeLiteral,
+            SyntaxKind::DatetimeLiteral,
             Sequence::new(vec_of_erased![
                 Ref::new("DateTimeTypeIdentifier").optional(),
                 Ref::new("QuotedLiteralSegment")
@@ -4590,7 +4602,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "CommentOnStatementSegment".into(),
             NodeMatcher::new(
-                SyntaxKind::CommentOnStatementSegment,
+                SyntaxKind::CommentClause,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("COMMENT"),
                     Ref::keyword("ON"),
@@ -5394,7 +5406,7 @@ pub fn raw_dialect() -> Dialect {
     postgres.add([(
         "AsAliasExpressionSegment".into(),
         NodeMatcher::new(
-            SyntaxKind::AsAliasExpression,
+            SyntaxKind::AliasExpression,
             Sequence::new(vec_of_erased![
                 MetaSegment::indent(),
                 Ref::keyword("AS"),

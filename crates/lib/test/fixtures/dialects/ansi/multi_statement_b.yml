@@ -24,11 +24,11 @@ file:
         - keyword: in
         - bracketed:
           - start_bracket: (
-          - remove me: '''RED'''
+          - '': '''RED'''
           - comma: ','
-          - remove me: '''GREEN'''
+          - '': '''GREEN'''
           - comma: ','
-          - remove me: '''BLUE'''
+          - '': '''BLUE'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:

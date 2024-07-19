@@ -13,6 +13,7 @@ use crate::core::errors::{SQLLexError, ValueError};
 use crate::core::parser::segments::base::Segment;
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
+use crate::dialects::SyntaxKind;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -368,7 +369,7 @@ impl<'a> Lexer<'a> {
     fn violations_from_segments(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
         segments
             .into_iter()
-            .filter(|s| s.is_type("unlexable"))
+            .filter(|s| s.is_type(SyntaxKind::Unlexable))
             .map(|s| {
                 SQLLexError::new(
                     format!(

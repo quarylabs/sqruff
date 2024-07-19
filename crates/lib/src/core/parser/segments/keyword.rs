@@ -7,6 +7,7 @@ use uuid::Uuid;
 use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, Default, PartialEq)]
@@ -31,8 +32,8 @@ impl Segment for KeywordSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "keyword"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::Keyword
     }
 
     fn is_code(&self) -> bool {
@@ -71,7 +72,7 @@ impl Segment for KeywordSegment {
         Self::new(raw.unwrap().into(), self.get_position_marker()).to_erased_segment()
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["keyword", "word"].into()
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
+        [SyntaxKind::Keyword, SyntaxKind::Word].into()
     }
 }

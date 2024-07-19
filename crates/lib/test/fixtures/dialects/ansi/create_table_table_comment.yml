@@ -20,4 +20,4 @@ file:
       - end_bracket: )
     - comment_clause:
       - keyword: COMMENT
-      - remove me: '''Table comment'''
+      - '': '''Table comment'''

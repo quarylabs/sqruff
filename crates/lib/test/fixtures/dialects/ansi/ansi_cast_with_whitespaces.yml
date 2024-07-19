@@ -265,5 +265,5 @@ file:
           - naked_identifier: favorite_cola
         - comparison_operator:
           - raw_comparison_operator: =
-        - remove me: '''RC Cola'''
+        - '': '''RC Cola'''
 - statement_terminator: ;

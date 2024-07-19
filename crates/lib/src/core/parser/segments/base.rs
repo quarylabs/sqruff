@@ -22,6 +22,7 @@ use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
@@ -86,14 +87,14 @@ pub struct ErasedSegment {
 }
 
 impl ErasedSegment {
-    pub fn direct_descendant_type_set(&self) -> AHashSet<&'static str> {
+    pub fn direct_descendant_type_set(&self) -> AHashSet<SyntaxKind> {
         self.segments().iter().flat_map(|it| it.class_types()).collect()
     }
 }
 
 impl ErasedSegment {
     pub(crate) fn is_keyword(&self, p0: &str) -> bool {
-        self.is_type("keyword") && self.raw().eq_ignore_ascii_case(p0)
+        self.is_type(SyntaxKind::Keyword) && self.raw().eq_ignore_ascii_case(p0)
     }
 }
 
@@ -134,8 +135,8 @@ impl ErasedSegment {
         ObjectReferenceSegment(
             self.clone(),
             match self.get_type() {
-                "table_reference" => ObjectReferenceKind::Table,
-                "wildcard_identifier" => ObjectReferenceKind::WildcardIdentifier,
+                SyntaxKind::TableReference => ObjectReferenceKind::Table,
+                SyntaxKind::WildcardIdentifier => ObjectReferenceKind::WildcardIdentifier,
                 _ => ObjectReferenceKind::Object,
             },
         )
@@ -161,13 +162,13 @@ impl ErasedSegment {
 
     pub fn recursive_crawl(
         &self,
-        seg_types: &[&str],
+        seg_types: &[SyntaxKind],
         recurse_into: bool,
-        no_recursive_seg_type: Option<&str>,
+        no_recursive_seg_type: Option<SyntaxKind>,
         allow_self: bool,
     ) -> Vec<ErasedSegment> {
         let mut acc = Vec::new();
-        let seg_types_set: AHashSet<&str> = AHashSet::from_iter(seg_types.iter().copied());
+        let seg_types_set: AHashSet<_> = AHashSet::from_iter(seg_types.iter().copied());
 
         let matches = allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it));
         if matches {
@@ -205,9 +206,9 @@ impl ErasedSegment {
             }];
 
             // Use seg.get_segments().is_empty() as a workaround to check if the segment is
-            // a "raw" type. In the original Python code, this was achieved
-            // using seg.is_type("raw"). Here, we assume that a "raw" segment is
-            // characterized by having no sub-segments.
+            // a SyntaxKind::Raw type. In the original Python code, this was achieved
+            // using seg.is_type(SyntaxKind::Raw). Here, we assume that a SyntaxKind::Raw
+            // segment is characterized by having no sub-segments.
 
             if seg.segments().is_empty() {
                 buffer.push((seg.clone(), new_step));
@@ -419,7 +420,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         include_meta: bool,
     ) -> TupleSerialisedSegment {
         if show_raw && self.segments().is_empty() {
-            TupleSerialisedSegment::sinlge(self.get_type().into(), self.raw().to_string())
+            TupleSerialisedSegment::sinlge(
+                self.get_type().as_str().to_string(),
+                self.raw().to_string(),
+            )
         } else if code_only {
             let segments = self
                 .segments()
@@ -428,7 +432,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
                 .collect_vec();
 
-            TupleSerialisedSegment::nested(self.get_type().into(), segments)
+            TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
         } else {
             let segments = self
                 .segments()
@@ -436,7 +440,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
                 .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
                 .collect_vec();
 
-            TupleSerialisedSegment::nested(self.get_type().into(), segments)
+            TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
         }
     }
 
@@ -482,11 +486,15 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         }
     }
 
-    fn iter_segments(&self, expanding: Option<&[&str]>, pass_through: bool) -> Vec<ErasedSegment> {
+    fn iter_segments(
+        &self,
+        expanding: Option<&[SyntaxKind]>,
+        pass_through: bool,
+    ) -> Vec<ErasedSegment> {
         let mut result = Vec::new();
         for s in self.gather_segments() {
             if let Some(expanding) = expanding {
-                if expanding.iter().any(|ty| s.is_type(ty)) {
+                if expanding.iter().any(|&ty| s.is_type(ty)) {
                     result.extend(
                         s.iter_segments(if pass_through { Some(expanding) } else { None }, false),
                     );
@@ -513,14 +521,14 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         None
     }
 
-    fn child(&self, seg_types: &[&str]) -> Option<ErasedSegment> {
-        self.gather_segments().into_iter().find(|seg| seg_types.iter().any(|ty| seg.is_type(ty)))
+    fn child(&self, seg_types: &[SyntaxKind]) -> Option<ErasedSegment> {
+        self.gather_segments().into_iter().find(|seg| seg_types.iter().any(|&ty| seg.is_type(ty)))
     }
 
-    fn children(&self, seg_types: &[&str]) -> Vec<ErasedSegment> {
+    fn children(&self, seg_types: &[SyntaxKind]) -> Vec<ErasedSegment> {
         let mut buff = Vec::new();
         for seg in self.gather_segments() {
-            if seg_types.iter().any(|ty| seg.is_type(ty)) {
+            if seg_types.iter().any(|&ty| seg.is_type(ty)) {
                 buff.push(seg);
             }
         }
@@ -539,7 +547,7 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
             acc.push(FixPatch::new(
                 self.get_position_marker().unwrap().templated_slice,
                 self.raw().into(),
-                // "literal".into(),
+                // SyntaxKind::Literal.into(),
                 self.get_position_marker().unwrap().source_slice,
                 templated_file.templated_str.as_ref().unwrap()
                     [self.get_position_marker().unwrap().templated_slice]
@@ -552,9 +560,9 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         acc
     }
 
-    fn descendant_type_set(&self) -> &AHashSet<&'static str> {
+    fn descendant_type_set(&self) -> &AHashSet<SyntaxKind> {
         // FIXME: const { &AHashSet::new() }
-        static EMPTY: OnceLock<AHashSet<&'static str>> = OnceLock::new();
+        static EMPTY: OnceLock<AHashSet<SyntaxKind>> = OnceLock::new();
         EMPTY.get_or_init(AHashSet::new)
     }
 
@@ -579,10 +587,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         None
     }
 
-    fn get_type(&self) -> &'static str {
-        std::any::type_name::<Self>().split("::").last().unwrap()
+    fn get_type(&self) -> SyntaxKind {
+        todo!()
     }
-    fn is_type(&self, type_: &str) -> bool {
+    fn is_type(&self, type_: SyntaxKind) -> bool {
         self.get_type() == type_
     }
     fn is_code(&self) -> bool {
@@ -703,17 +711,17 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         anchor_info
     }
 
-    fn instance_types(&self) -> AHashSet<&'static str> {
+    fn instance_types(&self) -> AHashSet<SyntaxKind> {
         AHashSet::new()
     }
 
-    fn combined_types(&self) -> AHashSet<&'static str> {
+    fn combined_types(&self) -> AHashSet<SyntaxKind> {
         let mut combined = self.instance_types();
         combined.extend(self.class_types());
         combined
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
         AHashSet::new()
     }
 }
@@ -851,7 +859,7 @@ pub fn position_segments(
 pub struct CodeSegment {
     raw: SmolStr,
     position_marker: Option<PositionMarker>,
-    pub code_type: &'static str,
+    pub code_type: SyntaxKind,
 
     // From RawSegment
     uuid: Uuid,
@@ -863,7 +871,7 @@ pub struct CodeSegment {
 
 #[derive(Debug, Clone, Default)]
 pub struct CodeSegmentNewArgs {
-    pub code_type: &'static str,
+    pub code_type: SyntaxKind,
 
     pub instance_types: Vec<String>,
     pub trim_start: Option<Vec<String>>,
@@ -900,7 +908,7 @@ impl Segment for CodeSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
+    fn get_type(&self) -> SyntaxKind {
         self.code_type
     }
     fn is_code(&self) -> bool {
@@ -959,7 +967,7 @@ impl Segment for CodeSegment {
         )
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
         [self.get_type()].into()
     }
 }
@@ -1000,9 +1008,10 @@ impl Segment for IdentifierSegment {
         self.base.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "naked_identifier"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::NakedIdentifier
     }
+
     fn is_code(&self) -> bool {
         true
     }
@@ -1047,24 +1056,24 @@ impl Segment for IdentifierSegment {
         )
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
         [self.get_type()].into()
     }
 }
 
 /// Segment containing a comment.
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CommentSegment {
     raw: SmolStr,
     position_maker: Option<PositionMarker>,
-    r#type: &'static str,
+    r#type: SyntaxKind,
     trim_start: Vec<&'static str>,
     uuid: Uuid,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CommentSegmentNewArgs {
-    pub r#type: &'static str,
+    pub r#type: SyntaxKind,
     pub trim_start: Option<Vec<&'static str>>,
 }
 
@@ -1094,7 +1103,7 @@ impl Segment for CommentSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
+    fn get_type(&self) -> SyntaxKind {
         self.r#type
     }
 
@@ -1132,8 +1141,8 @@ impl Segment for CommentSegment {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["comment"].into()
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
+        [SyntaxKind::Comment].into()
     }
 }
 
@@ -1172,8 +1181,8 @@ impl Segment for NewlineSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "newline"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::Newline
     }
 
     fn is_code(&self) -> bool {
@@ -1216,8 +1225,8 @@ impl Segment for NewlineSegment {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["newline"].into()
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
+        [SyntaxKind::Newline].into()
     }
 }
 
@@ -1257,8 +1266,8 @@ impl Segment for WhitespaceSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "whitespace"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::Whitespace
     }
 
     fn is_code(&self) -> bool {
@@ -1331,9 +1340,10 @@ impl Segment for UnlexableSegment {
         todo!()
     }
 
-    fn get_type(&self) -> &'static str {
-        "unlexable"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::Unlexable
     }
+
     fn is_code(&self) -> bool {
         true
     }
@@ -1367,12 +1377,12 @@ impl Segment for UnlexableSegment {
 ///     We rename the segment class here so that descendants of
 ///     _ProtoKeywordSegment can use the same functionality
 ///     but don't end up being labelled as a `keyword` later.
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SymbolSegment {
     raw: SmolStr,
     position_maker: Option<PositionMarker>,
     uuid: Uuid,
-    type_: &'static str,
+    type_: SyntaxKind,
 }
 
 impl Segment for SymbolSegment {
@@ -1390,7 +1400,7 @@ impl Segment for SymbolSegment {
         self.raw.as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
+    fn get_type(&self) -> SyntaxKind {
         self.type_
     }
 
@@ -1434,18 +1444,18 @@ impl Segment for SymbolSegment {
         SymbolSegment::create(&raw.unwrap(), self.position_maker.clone(), <_>::default())
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
         [self.get_type()].into()
     }
 
-    fn instance_types(&self) -> AHashSet<&'static str> {
+    fn instance_types(&self) -> AHashSet<SyntaxKind> {
         [self.type_].into()
     }
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct SymbolSegmentNewArgs {
-    pub r#type: &'static str,
+    pub r#type: SyntaxKind,
 }
 
 impl SymbolSegment {
@@ -1588,7 +1598,7 @@ mod tests {
         let args = UnlexableSegmentNewArgs { expected: None };
         let segment = UnlexableSegment::create("", PositionMarker::default().into(), args);
 
-        assert!(segment.is_type("unlexable"));
-        assert!(!segment.is_type("whitespace"));
+        assert!(segment.is_type(SyntaxKind::Unlexable));
+        assert!(!segment.is_type(SyntaxKind::Whitespace));
     }
 }

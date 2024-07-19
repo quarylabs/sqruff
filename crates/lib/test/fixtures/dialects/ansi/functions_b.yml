@@ -21,7 +21,7 @@ file:
                   - end_bracket: )
             - comma: ','
             - expression:
-              - remove me: ''' '''
+              - '': ''' '''
             - end_bracket: )
         - alias_expression:
           - keyword: AS

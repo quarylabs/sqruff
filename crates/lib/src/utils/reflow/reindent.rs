@@ -13,15 +13,20 @@ use crate::core::parser::segments::base::{
     ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::SyntaxKind;
 use crate::helpers::skip_last;
 use crate::utils::reflow::elements::IndentStats;
 
 fn has_untemplated_newline(point: &ReflowPoint) -> bool {
-    if !point.class_types().into_iter().any(|x| x == "newline" || x == "placeholder") {
+    if !point
+        .class_types()
+        .into_iter()
+        .any(|x| x == SyntaxKind::Newline || x == SyntaxKind::Placeholder)
+    {
         return false;
     }
     point.segments.iter().any(|segment| {
-        segment.is_type("newline")
+        segment.is_type(SyntaxKind::Newline)
             && (segment
                 .get_position_marker()
                 .map_or(true, |position_marker| position_marker.is_literal()))
@@ -265,7 +270,7 @@ fn crawl_indent_points(
                 last_line_break_idx = idx.into();
             }
 
-            if elements[idx + 1].class_types1().contains("comment") {
+            if elements[idx + 1].class_types1().contains(&SyntaxKind::Comment) {
                 cached_indent_stats = indent_stats.clone().into();
                 cached_point = indent_point.clone().into();
 
@@ -274,7 +279,7 @@ fn crawl_indent_points(
                 || indent_stats.impulse != 0
                 || indent_stats.trough != 0
                 || idx == 0
-                || elements[idx + 1].segments()[0].is_type("end_of_file")
+                || elements[idx + 1].segments()[0].is_type(SyntaxKind::EndOfFile)
             {
                 acc.push(indent_point);
             }
@@ -344,18 +349,18 @@ fn deduce_line_current_indent(
             .get_position_marker()
             .map_or(false, |marker| marker.working_loc() == (1, 1))
     {
-        if elements[0].segments()[0].is_type("placeholder") {
+        if elements[0].segments()[0].is_type(SyntaxKind::Placeholder) {
             unimplemented!()
         } else {
             for segment in elements[0].segments().iter().rev() {
-                if segment.is_type("whitespace") && !segment.is_templated() {
+                if segment.is_type(SyntaxKind::Whitespace) && !segment.is_templated() {
                     indent_seg = Some(segment.clone());
                     break;
                 }
             }
 
             if let Some(ref seg) = indent_seg {
-                if !seg.is_type("whitespace") {
+                if !seg.is_type(SyntaxKind::Whitespace) {
                     indent_seg = None;
                 }
             }
@@ -366,7 +371,7 @@ fn deduce_line_current_indent(
         return "".into();
     };
 
-    if indent_seg.is_type("placeholder") {
+    if indent_seg.is_type(SyntaxKind::Placeholder) {
         unimplemented!()
     } else if indent_seg.get_position_marker().is_none() || !indent_seg.is_templated() {
         return indent_seg.raw().into();
@@ -398,7 +403,7 @@ fn lint_line_starting_indent(
     }
 
     if initial_point_idx > 0 && initial_point_idx < elements.len() - 1 {
-        if elements[initial_point_idx + 1].class_types1().contains("comment") {
+        if elements[initial_point_idx + 1].class_types1().contains(&SyntaxKind::Comment) {
             let last_indent =
                 deduce_line_current_indent(elements, indent_points[0].last_line_break_idx);
             if current_indent.len() == last_indent.len() {
@@ -406,8 +411,8 @@ fn lint_line_starting_indent(
             }
         }
 
-        if elements[initial_point_idx - 1].class_types1().contains("block_comment")
-            && elements[initial_point_idx + 1].class_types1().contains("block_comment")
+        if elements[initial_point_idx - 1].class_types1().contains(&SyntaxKind::BlockComment)
+            && elements[initial_point_idx + 1].class_types1().contains(&SyntaxKind::BlockComment)
         {
             return Vec::new();
         }
@@ -415,7 +420,7 @@ fn lint_line_starting_indent(
 
     let (new_results, new_point) = if indent_points[0].idx == 0 && !indent_points[0].is_line_break {
         let init_seg = &elements[indent_points[0].idx].segments()[0];
-        let fixes = if init_seg.is_type("placeholder") {
+        let fixes = if init_seg.is_type(SyntaxKind::Placeholder) {
             unimplemented!()
         } else {
             initial_point.segments.clone().into_iter().map(LintFix::delete).collect_vec()
@@ -548,7 +553,7 @@ fn source_char_len(elements: &[ReflowElement]) -> usize {
     let mut last_source_slice = None;
 
     for seg in elements.iter().flat_map(|elem| elem.segments()) {
-        if seg.is_type("indent") || seg.is_type("dedent") {
+        if seg.is_type(SyntaxKind::Indent) || seg.is_type(SyntaxKind::Dedent) {
             continue;
         }
 
@@ -602,13 +607,13 @@ fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
 
         if span_raw == "," {
             priority = 1;
-        } else if span.target.is_type("assignment_operator") {
+        } else if span.target.is_type(SyntaxKind::AssignmentOperator) {
             priority = 2;
         } else if span_raw == "OR" {
             priority = 3;
         } else if span_raw == "AND" {
             priority = 4;
-        } else if span.target.is_type("comparison_operator") {
+        } else if span.target.is_type(SyntaxKind::ComparisonOperator) {
             priority = 5;
         } else if ["*", "/", "%"].contains(&span_raw.as_str()) {
             priority = 7;
@@ -741,7 +746,7 @@ fn fix_long_line_with_comment(
         line_buffer[line_buffer.len() - 2]
             .segments()
             .iter()
-            .filter(|ws| ws.is_type("whitespace"))
+            .filter(|ws| ws.is_type(SyntaxKind::Whitespace))
             .map(|ws| LintFix::delete(ws.clone())),
     )
     .collect_vec();
@@ -839,7 +844,9 @@ fn fix_long_line_with_integer_targets(
         let new_indent = if indent_stats.impulse < 0 {
             if elements[e_idx + 1]
                 .class_types1()
-                .intersection(&["statement_terminator", "comma"].into_iter().collect())
+                .intersection(
+                    &[SyntaxKind::StatementTerminator, SyntaxKind::Comma].into_iter().collect(),
+                )
                 .next()
                 .is_some()
             {
@@ -889,7 +896,7 @@ pub fn lint_line_length(
     let mut last_indent_idx = None;
     for (i, elem) in enumerate(elements) {
         if let ReflowElement::Point(point) = &elem
-            && (elem_buffer[i + 1].class_types1().contains("end_of_file")
+            && (elem_buffer[i + 1].class_types1().contains(&SyntaxKind::EndOfFile)
                 || has_untemplated_newline(point))
         {
             // In either case we want to process this, so carry on.
@@ -932,7 +939,13 @@ pub fn lint_line_length(
             let desc = format!("Line is too long ({line_len} > {line_length_limit}).");
 
             if line_buffer.len() > 1
-                && line_buffer.last().unwrap().segments().last().unwrap().is_type("inline_comment")
+                && line_buffer
+                    .last()
+                    .unwrap()
+                    .segments()
+                    .last()
+                    .unwrap()
+                    .is_type(SyntaxKind::InlineComment)
             {
                 (elem_buffer, fixes) = fix_long_line_with_comment(
                     &line_buffer,

@@ -11,6 +11,7 @@ use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 use crate::utils::reflow::reindent::{construct_single_indent, IndentUnit};
@@ -75,14 +76,16 @@ FROM mytable
             case1_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));
         let case1_first_case = case1_keywords.first().unwrap();
         let case1_when_list = case1_children.find_first(Some(|it: &ErasedSegment| {
-            matches!(it.get_type(), "when_clause" | "else_clause")
+            matches!(it.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
         }));
         let case1_first_when = case1_when_list.first().unwrap();
-        let when_clause_list = case1_children.find_last(Some(|it| it.is_type("when_clause")));
+        let when_clause_list =
+            case1_children.find_last(Some(|it| it.is_type(SyntaxKind::WhenClause)));
         let case1_last_when = when_clause_list.first();
-        let case1_else_clause = case1_children.find_last(Some(|it| it.is_type("else_clause")));
+        let case1_else_clause =
+            case1_children.find_last(Some(|it| it.is_type(SyntaxKind::ElseClause)));
         let case1_else_expressions =
-            case1_else_clause.children(Some(|it| it.is_type("expression")));
+            case1_else_clause.children(Some(|it| it.is_type(SyntaxKind::Expression)));
         let expression_children = case1_else_expressions.children(None);
         let case2 =
             expression_children.select::<fn(&ErasedSegment) -> bool>(None, None, None, None);
@@ -91,7 +94,7 @@ FROM mytable
             case2_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));
         let case2_first_case = case2_case_list.first();
         let case2_when_list = case2_children.find_first(Some(|it: &ErasedSegment| {
-            matches!(it.get_type(), "when_clause" | "else_clause")
+            matches!(it.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
         }));
         let case2_first_when = case2_when_list.first();
 
@@ -146,7 +149,11 @@ FROM mytable
             Some(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
-                    "newline" | "inline_comment" | "block_comment" | "comment" | "whitespace"
+                    SyntaxKind::Newline
+                        | SyntaxKind::InlineComment
+                        | SyntaxKind::BlockComment
+                        | SyntaxKind::Comment
+                        | SyntaxKind::Whitespace
                 )
             }),
             None,
@@ -168,13 +175,13 @@ FROM mytable
         let nested_clauses = case2.children(Some(|it: &ErasedSegment| {
             matches!(
                 it.get_type(),
-                "when_clause"
-                    | "else_clause"
-                    | "newline"
-                    | "inline_comment"
-                    | "block_comment"
-                    | "comment"
-                    | "whitespace"
+                SyntaxKind::WhenClause
+                    | SyntaxKind::ElseClause
+                    | SyntaxKind::Newline
+                    | SyntaxKind::InlineComment
+                    | SyntaxKind::BlockComment
+                    | SyntaxKind::Comment
+                    | SyntaxKind::Whitespace
             )
         }));
 
@@ -198,7 +205,7 @@ FROM mytable
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["case_expression"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::CaseExpression].into()).into()
     }
 }
 
@@ -210,10 +217,10 @@ fn indentation(
     let leading_whitespace = parent_segments
         .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
         .reversed()
-        .find_first(Some(|it: &ErasedSegment| it.is_type("whitespace")));
+        .find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Whitespace)));
     let seg_indent = parent_segments
         .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
-        .find_last(Some(|it| it.is_type("indent")));
+        .find_last(Some(|it| it.is_type(SyntaxKind::Indent)));
     let mut indent_level = 1;
     if let Some(segment_indent) = seg_indent.last()
         && let Some(segment_indent) = segment_indent.as_any().downcast_ref::<Indent>()
@@ -242,7 +249,7 @@ fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegm
     let mut prior_whitespace = String::new();
 
     for seg in nested_clauses {
-        if matches!(seg.get_type(), "when_clause" | "else_clause")
+        if matches!(seg.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
             || (prior_newline && seg.is_comment())
         {
             buff.push(NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}));
@@ -250,7 +257,7 @@ fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegm
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();
-        } else if seg.is_type("newline") {
+        } else if seg.is_type(SyntaxKind::Newline) {
             prior_newline = true;
             prior_whitespace.clear();
         } else if !prior_newline && seg.is_comment() {
@@ -278,7 +285,7 @@ fn nested_end_trailing_comment(
     // Prepend newline spacing to comments on the final nested `END` line.
     let trailing_end = case1_children.select::<fn(&ErasedSegment) -> bool>(
         None,
-        Some(|seg: &ErasedSegment| !seg.is_type("newline")),
+        Some(|seg: &ErasedSegment| !seg.is_type(SyntaxKind::Newline)),
         Some(case1_else_clause_seg),
         None,
     );

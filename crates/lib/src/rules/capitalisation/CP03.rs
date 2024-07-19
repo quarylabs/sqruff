@@ -5,6 +5,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 
 #[derive(Debug, Clone)]
 pub struct RuleCP03 {
@@ -86,7 +87,10 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function_name_identifier", "bare_function"].into()).into()
+        SegmentSeekerCrawler::new(
+            [SyntaxKind::FunctionNameIdentifier, SyntaxKind::BareFunction].into(),
+        )
+        .into()
     }
 }
 

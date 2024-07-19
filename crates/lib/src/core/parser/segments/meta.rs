@@ -14,13 +14,14 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
 pub type Indent = MetaSegment<IndentChange>;
 
 pub trait MetaSegmentKind: Debug + Hash + Clone + PartialEq + 'static {
-    fn kind(&self) -> &'static str {
-        "meta"
+    fn kind(&self) -> SyntaxKind {
+        SyntaxKind::Meta
     }
 
     fn indent_val(&self) -> i8 {
@@ -76,7 +77,7 @@ impl<M: MetaSegmentKind> Deref for MetaSegment<M> {
 }
 
 impl<M: MetaSegmentKind + Send + Sync> Segment for MetaSegment<M> {
-    fn get_type(&self) -> &'static str {
+    fn get_type(&self) -> SyntaxKind {
         self.kind.kind()
     }
 
@@ -114,7 +115,7 @@ impl<M: MetaSegmentKind + Send + Sync> Matchable for MetaSegment<M> {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<&'static str>)> {
+    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
         None
     }
 
@@ -146,11 +147,11 @@ pub enum IndentChange {
 }
 
 impl MetaSegmentKind for IndentChange {
-    fn kind(&self) -> &'static str {
+    fn kind(&self) -> SyntaxKind {
         match self {
-            IndentChange::Indent => "indent",
-            IndentChange::Implicit => "indent",
-            IndentChange::Dedent => "dedent",
+            IndentChange::Indent => SyntaxKind::Indent,
+            IndentChange::Implicit => SyntaxKind::Indent,
+            IndentChange::Dedent => SyntaxKind::Dedent,
         }
     }
 
@@ -185,8 +186,8 @@ impl Segment for EndOfFile {
         "".into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "end_of_file"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::EndOfFile
     }
 
     fn is_code(&self) -> bool {
@@ -229,8 +230,8 @@ impl Segment for EndOfFile {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<&'static str> {
-        ["end_of_file"].into()
+    fn class_types(&self) -> AHashSet<SyntaxKind> {
+        [SyntaxKind::EndOfFile].into()
     }
 }
 
@@ -258,7 +259,7 @@ impl TemplateSegment {
 }
 
 impl MetaSegmentKind for TemplateSegment {
-    fn kind(&self) -> &'static str {
-        "placeholder"
+    fn kind(&self) -> SyntaxKind {
+        SyntaxKind::Placeholder
     }
 }

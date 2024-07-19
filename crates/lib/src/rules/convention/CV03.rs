@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::{ErasedSegment, SymbolSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone)]
@@ -79,14 +80,14 @@ FROM foo
         let mut fixes = Vec::new();
 
         if self.select_clause_trailing_comma == "forbid" {
-            if last_content.is_type("comma") {
+            if last_content.is_type(SyntaxKind::Comma) {
                 if last_content.get_position_marker().is_none() {
                     fixes = vec![LintFix::delete(last_content.clone())];
                 } else {
                     let comma_pos = last_content.get_position_marker().unwrap().source_position();
 
                     for seg in rule_cx.segment.segments() {
-                        if seg.is_type("comma") {
+                        if seg.is_type(SyntaxKind::Comma) {
                             if seg.get_position_marker().is_none() {
                                 continue;
                             }
@@ -109,7 +110,9 @@ FROM foo
                     None,
                 )];
             }
-        } else if self.select_clause_trailing_comma == "require" && !last_content.is_type("comma") {
+        } else if self.select_clause_trailing_comma == "require"
+            && !last_content.is_type(SyntaxKind::Comma)
+        {
             let new_comma = SymbolSegment::create(",", None, <_>::default());
 
             let fix: Vec<LintFix> = vec![LintFix::replace(
@@ -130,7 +133,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
     }
 }
 

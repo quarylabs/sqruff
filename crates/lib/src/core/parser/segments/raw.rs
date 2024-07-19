@@ -5,6 +5,7 @@ use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{CloneSegment, Segment};
 use crate::core::parser::segments::fix::SourceFix;
+use crate::dialects::SyntaxKind;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct RawSegment {
@@ -42,8 +43,8 @@ impl Segment for RawSegment {
         self.raw.as_ref().unwrap().as_str().into()
     }
 
-    fn get_type(&self) -> &'static str {
-        "raw"
+    fn get_type(&self) -> SyntaxKind {
+        SyntaxKind::Raw
     }
 
     fn is_code(&self) -> bool {

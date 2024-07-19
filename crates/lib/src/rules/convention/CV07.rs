@@ -5,6 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::dialects::SyntaxKind;
 
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV07;
@@ -66,7 +67,7 @@ Don’t wrap top-level statements in brackets.
         let mut results = vec![];
 
         for (parent, bracketed_segment) in Self::iter_bracketed_statements(context.segment) {
-            let bracket_set = ["start_bracket", "end_bracket"];
+            let bracket_set = [SyntaxKind::StartBracket, SyntaxKind::EndBracket];
 
             let mut filtered_children: Vec<ErasedSegment> = bracketed_segment
                 .segments()
@@ -80,7 +81,8 @@ Don’t wrap top-level statements in brackets.
             // dialects generally don't allow this at lower levels of the parse
             // tree).
             let to_lift_predicate = |segment: &ErasedSegment| {
-                segment.is_type("whitespace") || segment.is_type("inline_comment")
+                segment.is_type(SyntaxKind::Whitespace)
+                    || segment.is_type(SyntaxKind::InlineComment)
             };
             let leading = filtered_children
                 .clone()
@@ -127,15 +129,15 @@ impl RuleCV07 {
             .segments()
             .iter()
             .filter_map(|seg| {
-                if seg.is_type("batch") {
+                if seg.is_type(SyntaxKind::Batch) {
                     Some(
                         seg.segments()
                             .iter()
-                            .filter(|seg| seg.is_type("statement"))
+                            .filter(|seg| seg.is_type(SyntaxKind::Statement))
                             .cloned()
                             .collect::<Vec<_>>(),
                     )
-                } else if seg.is_type("statement") {
+                } else if seg.is_type(SyntaxKind::Statement) {
                     Some(vec![seg.clone()])
                 } else {
                     None
@@ -154,7 +156,7 @@ impl RuleCV07 {
                 stmt.segments()
                     .iter()
                     .filter_map(|seg| {
-                        if seg.is_type("bracketed") {
+                        if seg.is_type(SyntaxKind::Bracketed) {
                             Some((stmt.clone(), seg.clone()))
                         } else {
                             None

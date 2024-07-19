@@ -8,6 +8,7 @@ use crate::core::parser::segments::base::{
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default, Clone)]
@@ -61,7 +62,7 @@ from x
 
         // See if we have a select_clause_modifier.
         let select_clause_modifier_seg = child_segments
-            .find_first(Some(|sp: &ErasedSegment| sp.is_type("select_clause_modifier")));
+            .find_first(Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::SelectClauseModifier)));
 
         // Rule doesn't apply if there's no select clause modifier.
         if select_clause_modifier_seg.is_empty() {
@@ -71,7 +72,7 @@ from x
         // Are there any newlines between the select keyword and the select clause
         // modifier.
         let leading_newline_segments = child_segments.select(
-            Some(|seg: &ErasedSegment| seg.is_type("newline")),
+            Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Newline)),
             Some(|seg| seg.is_whitespace() || seg.is_meta()),
             select_keyword.into(),
             None,
@@ -88,7 +89,7 @@ from x
         // We should check if there is whitespace before the select clause modifier and
         // remove this during the lint fix.
         let leading_whitespace_segments = child_segments.select(
-            Some(|seg: &ErasedSegment| seg.is_type("whitespace")),
+            Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Whitespace)),
             Some(|seg| seg.is_whitespace() || seg.is_meta()),
             select_keyword.into(),
             None,
@@ -97,7 +98,7 @@ from x
         // We should also check if the following select clause element
         // is on the same line as the select clause modifier.
         let trailing_newline_segments = child_segments.select(
-            Some(|seg: &ErasedSegment| seg.is_type("newline")),
+            Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::Newline)),
             Some(|seg| seg.is_whitespace() || seg.is_meta()),
             select_clause_modifier.into(),
             None,
@@ -146,7 +147,7 @@ from x
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["select_clause"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
     }
 }
 

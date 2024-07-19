@@ -6,6 +6,7 @@ use crate::core::dialects::init::DialectKind;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::identifers::identifiers_policy_applicable;
 
 #[derive(Clone, Debug)]
@@ -95,7 +96,7 @@ from foo
             && context
                 .parent_stack
                 .last()
-                .map_or(false, |it| it.get_type() == "property_name_identifier")
+                .map_or(false, |it| it.get_type() == SyntaxKind::PropertyNameIdentifier)
             && context.segment.raw() == "enableChangeDataFeed"
         {
             return Vec::new();
@@ -113,7 +114,10 @@ from foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["naked_identifier", "properties_naked_identifier"].into()).into()
+        SegmentSeekerCrawler::new(
+            [SyntaxKind::NakedIdentifier, SyntaxKind::PropertiesNakedIdentifier].into(),
+        )
+        .into()
     }
 }
 

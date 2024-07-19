@@ -11,6 +11,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -34,13 +35,13 @@ fn get_children(segments: Segments) -> Segments {
         !it.is_meta()
             && !matches!(
                 it.get_type(),
-                "start_bracket"
-                    | "end_bracket"
-                    | "whitespace"
-                    | "newline"
-                    | "casting_operator"
-                    | "comma"
-                    | "keyword"
+                SyntaxKind::StartBracket
+                    | SyntaxKind::EndBracket
+                    | SyntaxKind::Whitespace
+                    | SyntaxKind::Newline
+                    | SyntaxKind::CastingOperator
+                    | SyntaxKind::Comma
+                    | SyntaxKind::Keyword
             )
     }))
 }
@@ -52,16 +53,28 @@ fn shorthand_fix_list(
 ) -> Vec<LintFix> {
     let mut edits = if shorthand_arg_1.get_raw_segments().len() > 1 {
         vec![
-            SymbolSegment::create("(", None, SymbolSegmentNewArgs { r#type: "start_bracket" }),
+            SymbolSegment::create(
+                "(",
+                None,
+                SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
+            ),
             shorthand_arg_1,
-            SymbolSegment::create(")", None, SymbolSegmentNewArgs { r#type: "end_bracket" }),
+            SymbolSegment::create(
+                ")",
+                None,
+                SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
+            ),
         ]
     } else {
         vec![shorthand_arg_1]
     };
 
     edits.extend([
-        SymbolSegment::create("::", None, SymbolSegmentNewArgs { r#type: "casting_operator" }),
+        SymbolSegment::create(
+            "::",
+            None,
+            SymbolSegmentNewArgs { r#type: SyntaxKind::CastingOperator },
+        ),
         shorthand_arg_2,
     ]);
 
@@ -130,8 +143,8 @@ FROM foo;
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let current_type_casting_style = if context.segment.is_type("function") {
-            let Some(function_name) = context.segment.child(&["function_name"]) else {
+        let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
+            let Some(function_name) = context.segment.child(&[SyntaxKind::FunctionName]) else {
                 return Vec::new();
             };
             if function_name.raw().eq_ignore_ascii_case("CAST") {
@@ -141,7 +154,7 @@ FROM foo;
             } else {
                 TypeCastingStyle::None
             }
-        } else if context.segment.is_type("cast_expression") {
+        } else if context.segment.is_type(SyntaxKind::CastExpression) {
             TypeCastingStyle::Shorthand
         } else {
             TypeCastingStyle::None
@@ -163,11 +176,10 @@ FROM foo;
                 match prior_type_casting_style {
                     TypeCastingStyle::Cast => match current_type_casting_style {
                         TypeCastingStyle::Convert => {
-                            let convert_content = get_children(
-                                functional_context
-                                    .segment()
-                                    .children(Some(|it: &ErasedSegment| it.is_type("bracketed"))),
-                            );
+                            let convert_content =
+                                get_children(functional_context.segment().children(Some(
+                                    |it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed),
+                                )));
                             if convert_content.len() > 2 {
                                 if previous_skipped.is_none() {
                                     context.memory.borrow_mut().insert(PreviousSkipped);
@@ -200,11 +212,9 @@ FROM foo;
                     },
                     TypeCastingStyle::Convert => match current_type_casting_style {
                         TypeCastingStyle::Cast => {
-                            let cast_content = get_children(
-                                functional_context
-                                    .segment()
-                                    .children(Some(|it: &ErasedSegment| it.is_type("bracketed"))),
-                            );
+                            let cast_content = get_children(functional_context.segment().children(
+                                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
+                            ));
 
                             if cast_content.len() > 2 {
                                 return Vec::new();
@@ -236,11 +246,9 @@ FROM foo;
                     TypeCastingStyle::Shorthand => {
                         if current_type_casting_style == TypeCastingStyle::Cast {
                             // Get the content of CAST
-                            let cast_content = get_children(
-                                functional_context
-                                    .segment()
-                                    .children(Some(|it: &ErasedSegment| it.is_type("bracketed"))),
-                            );
+                            let cast_content = get_children(functional_context.segment().children(
+                                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
+                            ));
                             if cast_content.len() > 2 {
                                 return Vec::new();
                             }
@@ -251,11 +259,10 @@ FROM foo;
                                 cast_content[1].clone(),
                             );
                         } else if current_type_casting_style == TypeCastingStyle::Convert {
-                            let convert_content = get_children(
-                                functional_context
-                                    .segment()
-                                    .children(Some(|it: &ErasedSegment| it.is_type("bracketed"))),
-                            );
+                            let convert_content =
+                                get_children(functional_context.segment().children(Some(
+                                    |it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed),
+                                )));
                             if convert_content.len() > 2 {
                                 return Vec::new();
                             }
@@ -288,11 +295,9 @@ FROM foo;
                 match self.preferred_type_casting_style {
                     TypeCastingStyle::Cast => match current_type_casting_style {
                         TypeCastingStyle::Convert => {
-                            let segments = get_children(
-                                functional_context
-                                    .segment()
-                                    .children(Some(|it: &ErasedSegment| it.is_type("bracketed"))),
-                            );
+                            let segments = get_children(functional_context.segment().children(
+                                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
+                            ));
                             fixes = cast_fix_list(
                                 context.segment.clone(),
                                 &[segments[1].clone()],
@@ -306,7 +311,7 @@ FROM foo;
                                 get_children(functional_context.segment());
                             let data_type_idx = expression_datatype_segment
                                 .iter()
-                                .position(|seg| seg.is_type("data_type"))
+                                .position(|seg| seg.is_type(SyntaxKind::DataType))
                                 .unwrap();
 
                             fixes = cast_fix_list(
@@ -323,11 +328,9 @@ FROM foo;
                     },
                     TypeCastingStyle::Convert => match current_type_casting_style {
                         TypeCastingStyle::Cast => {
-                            let cast_content = get_children(
-                                functional_context
-                                    .segment()
-                                    .children(Some(|it: &ErasedSegment| it.is_type("bracketed"))),
-                            );
+                            let cast_content = get_children(functional_context.segment().children(
+                                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
+                            ));
 
                             fixes = convert_fix_list(
                                 context.segment.clone(),
@@ -348,38 +351,34 @@ FROM foo;
                         }
                         _ => {}
                     },
-                    TypeCastingStyle::Shorthand => {
-                        match current_type_casting_style {
-                            TypeCastingStyle::Cast => {
-                                let segments =
-                                    get_children(functional_context.segment().children(Some(
-                                        |it: &ErasedSegment| it.is_type("bracketed"),
-                                    )));
+                    TypeCastingStyle::Shorthand => match current_type_casting_style {
+                        TypeCastingStyle::Cast => {
+                            let segments = get_children(functional_context.segment().children(
+                                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
+                            ));
 
-                                fixes = shorthand_fix_list(
-                                    context.segment.clone(),
-                                    segments[0].clone(),
-                                    segments[1].clone(),
-                                );
-                                cast_content = Some(segments);
-                            }
-                            TypeCastingStyle::Convert => {
-                                let segments =
-                                    get_children(functional_context.segment().children(Some(
-                                        |it: &ErasedSegment| it.is_type("bracketed"),
-                                    )));
-
-                                fixes = shorthand_fix_list(
-                                    context.segment.clone(),
-                                    segments[1].clone(),
-                                    segments[0].clone(),
-                                );
-
-                                convert_content = Some(segments);
-                            }
-                            _ => {}
+                            fixes = shorthand_fix_list(
+                                context.segment.clone(),
+                                segments[0].clone(),
+                                segments[1].clone(),
+                            );
+                            cast_content = Some(segments);
                         }
-                    }
+                        TypeCastingStyle::Convert => {
+                            let segments = get_children(functional_context.segment().children(
+                                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
+                            ));
+
+                            fixes = shorthand_fix_list(
+                                context.segment.clone(),
+                                segments[1].clone(),
+                                segments[0].clone(),
+                            );
+
+                            convert_content = Some(segments);
+                        }
+                        _ => {}
+                    },
                     _ => {}
                 }
 
@@ -413,7 +412,7 @@ FROM foo;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["function", "cast_expression"].into()).into()
+        SegmentSeekerCrawler::new([SyntaxKind::Function, SyntaxKind::CastExpression].into()).into()
     }
 }
 
@@ -429,29 +428,32 @@ fn convert_fix_list(
         CodeSegment::create(
             "convert",
             None,
-            CodeSegmentNewArgs { code_type: "function_name_identifier", ..Default::default() },
+            CodeSegmentNewArgs {
+                code_type: SyntaxKind::FunctionNameIdentifier,
+                ..Default::default()
+            },
         ),
         CodeSegment::create(
             "(",
             None,
-            CodeSegmentNewArgs { code_type: "start_bracket", ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::StartBracket, ..Default::default() },
         ),
         convert_arg_1,
         CodeSegment::create(
             ",",
             None,
-            CodeSegmentNewArgs { code_type: "comma", ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::Comma, ..Default::default() },
         ),
         CodeSegment::create(
             " ",
             None,
-            CodeSegmentNewArgs { code_type: "whitespace", ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace, ..Default::default() },
         ),
         convert_arg_2,
         CodeSegment::create(
             ")",
             None,
-            CodeSegmentNewArgs { code_type: "end_bracket", ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::EndBracket, ..Default::default() },
         ),
     ];
 
@@ -490,9 +492,9 @@ fn cast_fix_list(
         SymbolSegment::create(
             "cast",
             None,
-            SymbolSegmentNewArgs { r#type: "function_name_identifier" },
+            SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
         ),
-        SymbolSegment::create("(", None, SymbolSegmentNewArgs { r#type: "start_bracket" }),
+        SymbolSegment::create("(", None, SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket }),
     ];
     edits.extend_from_slice(cast_arg_1);
     edits.extend([
@@ -500,7 +502,7 @@ fn cast_fix_list(
         KeywordSegment::new("as".into(), None).to_erased_segment(),
         WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
         cast_arg_2,
-        SymbolSegment::create(")", None, SymbolSegmentNewArgs { r#type: "end_bracket" }),
+        SymbolSegment::create(")", None, SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket }),
     ]);
 
     if let Some(later_types) = later_types {

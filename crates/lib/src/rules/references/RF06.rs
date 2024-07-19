@@ -7,6 +7,7 @@ use crate::core::parser::segments::base::{CodeSegmentNewArgs, IdentifierSegment}
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Default, Debug, Clone)]
@@ -110,10 +111,11 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return Vec::new();
         }
 
-        if FunctionalContext::new(context.clone())
-            .parent_stack()
-            .any(Some(|it| ["password_auth", "execute_as_clause"].iter().any(|ty| it.is_type(ty))))
-        {
+        if FunctionalContext::new(context.clone()).parent_stack().any(Some(|it| {
+            [SyntaxKind::PasswordAuth, SyntaxKind::ExecuteAsClause]
+                .into_iter()
+                .any(|ty| it.is_type(ty))
+        })) {
             return Vec::new();
         }
 
@@ -139,8 +141,11 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 .sets("unreserved_keywords")
                 .contains(identifier_contents.to_uppercase().as_str());
 
-        let context_policy =
-            if self.prefer_quoted_identifiers { "naked_identifier" } else { "quoted_identifier" };
+        let context_policy = if self.prefer_quoted_identifiers {
+            SyntaxKind::NakedIdentifier
+        } else {
+            SyntaxKind::QuotedIdentifier
+        };
 
         if self.ignore_words.contains(&identifier_contents.to_lowercase()) {
             return Vec::new();
@@ -199,7 +204,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                         &identifier_contents,
                         None,
                         CodeSegmentNewArgs {
-                            code_type: "naked_identifier",
+                            code_type: SyntaxKind::NakedIdentifier,
                             instance_types: vec![],
                             trim_start: None,
                             trim_chars: None,
@@ -222,7 +227,10 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(["quoted_identifier", "naked_identifier"].into()).into()
+        SegmentSeekerCrawler::new(
+            [SyntaxKind::QuotedIdentifier, SyntaxKind::NakedIdentifier].into(),
+        )
+        .into()
     }
 }
 

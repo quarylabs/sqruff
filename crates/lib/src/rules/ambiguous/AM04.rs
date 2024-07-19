@@ -6,12 +6,14 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::SyntaxKind;
 use crate::utils::analysis::query::{Query, Selectable, Source};
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleAM04;
 
-const START_TYPES: [&str; 3] = ["select_statement", "set_expression", "with_compound_statement"];
+const START_TYPES: [SyntaxKind; 3] =
+    [SyntaxKind::SelectStatement, SyntaxKind::SetExpression, SyntaxKind::WithCompoundStatement];
 
 impl Rule for RuleAM04 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {

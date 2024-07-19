@@ -144,7 +144,7 @@ impl ReflowConfig {
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
         let configured_types =
-            self.config_types.iter().filter(|typ| block_class_types.contains(typ.as_str()));
+            block_class_types.iter().filter(|&&typ| self.config_types.contains(typ));
 
         let mut block_config = BlockConfig::new();
 
@@ -224,8 +224,8 @@ impl ReflowConfig {
             }
         }
 
-        for seg_type in configured_types {
-            block_config.incorporate(None, None, None, None, self.configs.get(seg_type.as_str()));
+        for &seg_type in configured_types {
+            block_config.incorporate(None, None, None, None, self.configs.get(seg_type));
         }
 
         block_config

@@ -143,9 +143,8 @@ impl ReflowConfig {
         block_class_types: &AHashSet<&str>,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
-        let block_class_types: AHashSet<String> =
-            block_class_types.iter().map(|s| s.to_string()).collect();
-        let configured_types = self.config_types.intersection(&block_class_types);
+        let configured_types =
+            self.config_types.iter().filter(|typ| block_class_types.contains(typ.as_str()));
 
         let mut block_config = BlockConfig::new();
 

@@ -178,7 +178,7 @@ pub fn snowflake_dialect() -> Dialect {
                         slice,
                         marker.into(),
                         CodeSegmentNewArgs {
-                            code_type: SyntaxKind::WalrusOperator,
+                            code_type: SyntaxKind::UnquotedFilePath,
                             ..Default::default()
                         },
                     )

@@ -1,31 +1,43 @@
 file:
-- unparsable:
-  - word: get
-  - stage_path: '@%mytable'
-  - walrus_operator: file://C:\temp\load
-  - semicolon: ;
-  - word: get
-  - stage_path: '@~/myfiles'
-  - walrus_operator: file:///tmp/data/
-  - semicolon: ;
-  - word: get
-  - stage_path: '@~/myfiles'
-  - walrus_operator: file:///tmp/data/
-  - word: PATTERN
-  - raw_comparison_operator: =
-  - single_quote: '''.*foo.*'''
-  - semicolon: ;
-  - word: get
-  - stage_path: '@~/myfiles'
-  - walrus_operator: file:///tmp/data/
-  - word: PATTERN
-  - raw_comparison_operator: =
-  - dollar_literal: $foo
-  - semicolon: ;
-  - word: get
-  - stage_path: '@~/myfiles'
-  - walrus_operator: file:///tmp/data/
-  - word: PARALLEL
-  - raw_comparison_operator: =
-  - numeric_literal: '1'
-  - semicolon: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@%mytable'
+    - unquoted_file_path: file://C:\temp\load
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''.*foo.*'''
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+    - keyword: PATTERN
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: $foo
+- statement_terminator: ;
+- statement:
+  - get_statement:
+    - keyword: get
+    - stage_path: '@~/myfiles'
+    - unquoted_file_path: file:///tmp/data/
+    - keyword: PARALLEL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - integer_literal: '1'
+- statement_terminator: ;

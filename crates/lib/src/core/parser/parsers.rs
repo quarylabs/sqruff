@@ -7,12 +7,12 @@ use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use super::segments::base::{ErasedSegment, Segment};
 use crate::core::errors::SQLParseError;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
     template: SyntaxKind,
-    target_types: AHashSet<SyntaxKind>,
+    target_types: SyntaxSet,
     instance_types: Vec<String>,
     optional: bool,
     trim_chars: Option<Vec<char>>,
@@ -29,7 +29,7 @@ impl TypedParser {
         trim_chars: Option<Vec<char>>,
     ) -> TypedParser {
         let mut instance_types = Vec::new();
-        let target_types = [template].into();
+        let target_types = SyntaxSet::new(&[template]);
 
         if let Some(t) = type_.clone() {
             instance_types.push(t);
@@ -47,7 +47,7 @@ impl TypedParser {
     }
 
     pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
-        self.target_types.iter().any(|&typ| segment.is_type(typ))
+        self.target_types.contains(segment.get_type())
     }
 }
 
@@ -62,9 +62,9 @@ impl Matchable for TypedParser {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
         let _ = (parse_context, crumbs);
-        (AHashSet::new(), self.target_types.clone()).into()
+        (AHashSet::new(), self.target_types).into()
     }
 
     fn match_segments(
@@ -140,8 +140,8 @@ impl Matchable for StringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
-        (self.simple.clone().into_iter().collect(), <_>::default()).into()
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+        (self.simple.clone().into_iter().collect(), SyntaxSet::EMPTY).into()
     }
 
     fn match_segments(
@@ -222,7 +222,7 @@ impl Matchable for RegexParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
         None
@@ -303,8 +303,8 @@ impl Matchable for MultiStringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
-        (self.simple.clone(), <_>::default()).into()
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+        (self.simple.clone(), SyntaxSet::EMPTY).into()
     }
 
     fn match_segments(

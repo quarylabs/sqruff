@@ -3,13 +3,12 @@ use std::cell::OnceCell;
 use std::fmt::Debug;
 use std::sync::Arc;
 
-use ahash::AHashSet;
 use itertools::{enumerate, Itertools};
 use smol_str::{SmolStr, ToSmolStr};
 use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
-use super::SyntaxKind;
+use super::{SyntaxKind, SyntaxSet};
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::dialects::init::DialectKind;
@@ -67,7 +66,7 @@ pub struct Node {
     position_marker: Option<PositionMarker>,
     raw: OnceCell<String>,
     source_fixes: Vec<SourceFix>,
-    descendant_type_set: OnceCell<AHashSet<SyntaxKind>>,
+    descendant_type_set: OnceCell<SyntaxSet>,
 }
 
 impl Node {
@@ -120,12 +119,12 @@ impl Segment for Node {
         false
     }
 
-    fn descendant_type_set(&self) -> &AHashSet<SyntaxKind> {
+    fn descendant_type_set(&self) -> &SyntaxSet {
         self.descendant_type_set.get_or_init(|| {
-            let mut result_set = AHashSet::new();
+            let mut result_set = SyntaxSet::EMPTY;
 
             for seg in self.segments() {
-                result_set.extend(seg.descendant_type_set().union(&seg.class_types()));
+                result_set = result_set.union(&seg.descendant_type_set().union(&seg.class_types()));
             }
 
             result_set
@@ -173,14 +172,18 @@ impl Segment for Node {
         self.uuid
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
+    fn class_types(&self) -> SyntaxSet {
         match self.kind {
-            SyntaxKind::ColumnReference => [SyntaxKind::ObjectReference, self.get_type()].into(),
-            SyntaxKind::WildcardIdentifier => {
-                [SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference].into()
+            SyntaxKind::ColumnReference => {
+                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
             }
-            SyntaxKind::TableReference => [SyntaxKind::ObjectReference, self.get_type()].into(),
-            _ => [self.get_type()].into(),
+            SyntaxKind::WildcardIdentifier => {
+                SyntaxSet::new(&[SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference])
+            }
+            SyntaxKind::TableReference => {
+                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
+            }
+            _ => SyntaxSet::single(self.get_type()),
         }
     }
 }
@@ -5962,10 +5965,16 @@ impl FromClauseSegment {
         let mut direct_table_children = Vec::new();
         let mut join_clauses = Vec::new();
 
-        for from_expression in self.0.children(&[SyntaxKind::FromExpression]) {
-            direct_table_children
-                .extend(from_expression.children(&[SyntaxKind::FromExpressionElement]));
-            join_clauses.extend(from_expression.children(&[SyntaxKind::JoinClause]));
+        for from_expression in
+            self.0.children(const { SyntaxSet::new(&[SyntaxKind::FromExpression]) })
+        {
+            direct_table_children.extend(
+                from_expression
+                    .children(const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }),
+            );
+            join_clauses.extend(
+                from_expression.children(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }),
+            );
         }
 
         for clause in &direct_table_children {
@@ -5976,7 +5985,9 @@ impl FromClauseSegment {
             let table_expr = if direct_table_children.contains(clause) {
                 clause
             } else {
-                tmp = clause.child(&[SyntaxKind::FromExpressionElement]).unwrap();
+                tmp = clause
+                    .child(const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
+                    .unwrap();
                 &tmp
             };
 
@@ -6002,7 +6013,12 @@ impl SelectClauseElementSegment {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
         let alias_expression_segment = self
             .0
-            .recursive_crawl(&[SyntaxKind::AliasExpression], true, None, true)
+            .recursive_crawl(
+                const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) },
+                true,
+                None,
+                true,
+            )
             .first()?
             .clone();
 
@@ -6022,7 +6038,7 @@ impl SelectClauseElementSegment {
             column_reference_segments.push(aliased_segment.clone());
         } else {
             column_reference_segments.extend(aliased_segment.recursive_crawl(
-                &[SyntaxKind::ColumnReference],
+                const { SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
                 true,
                 None,
                 true,
@@ -6039,33 +6055,38 @@ impl SelectClauseElementSegment {
 
 impl FromExpressionElementSegment {
     pub fn eventual_alias(&self) -> AliasInfo {
-        let mut tbl_expression = self.0.child(&[SyntaxKind::TableExpression]).or_else(|| {
-            self.0
-                .child(&[SyntaxKind::Bracketed])
-                .and_then(|bracketed| bracketed.child(&[SyntaxKind::TableExpression]))
-        });
+        let mut tbl_expression =
+            self.0.child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) }).or_else(|| {
+                self.0.child(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) }).and_then(
+                    |bracketed| {
+                        bracketed.child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) })
+                    },
+                )
+            });
 
         if let Some(tbl_expression_inner) = &tbl_expression
             && tbl_expression_inner
-                .child(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference])
+                .child(const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
                 .is_none()
         {
-            let bracketed = tbl_expression_inner.child(&[SyntaxKind::Bracketed]);
+            let bracketed = tbl_expression_inner.child(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) });
             if let Some(bracketed) = bracketed {
-                tbl_expression = bracketed.child(&[SyntaxKind::TableExpression]);
+                tbl_expression = bracketed.child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) });
             }
         }
 
         let reference = tbl_expression.and_then(|tbl_expression| {
-            tbl_expression.child(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference])
+            tbl_expression.child(const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
         });
 
         let reference = reference.as_ref().map(|reference| reference.reference());
 
-        let alias_expression = self.0.child(&[SyntaxKind::AliasExpression]);
+        let alias_expression =
+            self.0.child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
         if let Some(alias_expression) = alias_expression {
-            let segment =
-                alias_expression.child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]);
+            let segment = alias_expression.child(
+                const { SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
+            );
             if let Some(segment) = segment {
                 return AliasInfo {
                     ref_str: segment.raw().into(),
@@ -6212,14 +6233,16 @@ impl ObjectReferenceSegment {
                     };
 
                 for elem in self.0.recursive_crawl(
-                    &[
-                        SyntaxKind::Identifier,
-                        SyntaxKind::NakedIdentifier,
-                        SyntaxKind::Literal,
-                        SyntaxKind::Dash,
-                        SyntaxKind::Dot,
-                        SyntaxKind::Star,
-                    ],
+                    const {
+                        SyntaxSet::new(&[
+                            SyntaxKind::Identifier,
+                            SyntaxKind::NakedIdentifier,
+                            SyntaxKind::Literal,
+                            SyntaxKind::Dash,
+                            SyntaxKind::Dot,
+                            SyntaxKind::Star,
+                        ])
+                    },
                     true,
                     None,
                     true,
@@ -6259,11 +6282,13 @@ impl ObjectReferenceSegment {
                 let mut acc = Vec::new();
 
                 for elem in self.0.recursive_crawl(
-                    &[
-                        SyntaxKind::Identifier,
-                        SyntaxKind::NakedIdentifier,
-                        SyntaxKind::QuotedIdentifier,
-                    ],
+                    const {
+                        SyntaxSet::new(&[
+                            SyntaxKind::Identifier,
+                            SyntaxKind::NakedIdentifier,
+                            SyntaxKind::QuotedIdentifier,
+                        ])
+                    },
                     true,
                     None,
                     true,
@@ -6277,12 +6302,14 @@ impl ObjectReferenceSegment {
                 let mut acc = Vec::new();
 
                 for elem in self.0.recursive_crawl(
-                    &[
-                        SyntaxKind::Identifier,
-                        SyntaxKind::Star,
-                        SyntaxKind::NakedIdentifier,
-                        SyntaxKind::QuotedIdentifier,
-                    ],
+                    const {
+                        SyntaxSet::new(&[
+                            SyntaxKind::Identifier,
+                            SyntaxKind::Star,
+                            SyntaxKind::NakedIdentifier,
+                            SyntaxKind::QuotedIdentifier,
+                        ])
+                    },
                     true,
                     None,
                     true,
@@ -6315,13 +6342,14 @@ impl JoinClauseSegment {
     pub fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
         let mut buff = Vec::new();
 
-        let from_expression = self.0.child(&[SyntaxKind::FromExpressionElement]).unwrap();
+        let from_expression =
+            self.0.child(const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }).unwrap();
         let alias = FromExpressionElementSegment(from_expression.clone()).eventual_alias();
 
         buff.push((from_expression.clone(), alias));
 
         for join_clause in self.0.recursive_crawl(
-            &[SyntaxKind::JoinClause],
+            const { SyntaxSet::new(&[SyntaxKind::JoinClause]) },
             true,
             SyntaxKind::SelectStatement.into(),
             true,

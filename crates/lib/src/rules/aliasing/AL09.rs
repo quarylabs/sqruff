@@ -5,7 +5,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Default, Clone, Debug)]
@@ -65,36 +65,59 @@ FROM table;
         ) {
             let clause_element_raw_segment = clause_element.get_raw_segments();
 
-            let column = clause_element.child(&[SyntaxKind::ColumnReference]);
-            let alias_expression = clause_element.child(&[SyntaxKind::AliasExpression]);
+            let column =
+                clause_element.child(const { SyntaxSet::new(&[SyntaxKind::ColumnReference]) });
+            let alias_expression =
+                clause_element.child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
 
             if let Some(column) = column {
                 if let Some(alias_expression) = alias_expression {
                     if column
-                        .child(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
+                        .child(
+                            const {
+                                SyntaxSet::new(&[
+                                    SyntaxKind::Identifier,
+                                    SyntaxKind::NakedIdentifier,
+                                ])
+                            },
+                        )
                         .is_some()
-                        || column.child(&[SyntaxKind::QuotedIdentifier]).is_some()
+                        || column
+                            .child(const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
+                            .is_some()
                     {
-                        let Some(whitespace) = clause_element.child(&[SyntaxKind::Whitespace])
+                        let Some(whitespace) = clause_element
+                            .child(const { SyntaxSet::new(&[SyntaxKind::Whitespace]) })
                         else {
                             return Vec::new();
                         };
 
                         let column_identifier = if let Some(quoted_identifier) =
-                            column.child(&[SyntaxKind::QuotedIdentifier])
+                            column.child(const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
                         {
                             quoted_identifier.clone()
                         } else {
                             column
-                                .children(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier])
+                                .children(
+                                    const {
+                                        SyntaxSet::new(&[
+                                            SyntaxKind::Identifier,
+                                            SyntaxKind::NakedIdentifier,
+                                        ])
+                                    },
+                                )
                                 .last()
                                 .expect("No naked_identifier found")
                                 .clone()
                         };
 
                         let alias_identifier = alias_expression
-                            .child(&[SyntaxKind::NakedIdentifier])
-                            .or_else(|| alias_expression.child(&[SyntaxKind::QuotedIdentifier]))
+                            .child(const { SyntaxSet::new(&[SyntaxKind::NakedIdentifier]) })
+                            .or_else(|| {
+                                alias_expression.child(
+                                    const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) },
+                                )
+                            })
                             .expect("identifier is none");
 
                         if column_identifier.get_raw_upper() == alias_identifier.get_raw_upper() {
@@ -120,7 +143,7 @@ FROM table;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).into()
     }
 }
 

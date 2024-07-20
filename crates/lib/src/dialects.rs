@@ -579,3 +579,178 @@ impl SyntaxKind {
         self.into()
     }
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct SyntaxSet([u64; 9]);
+
+impl SyntaxSet {
+    pub const EMPTY: SyntaxSet = Self([0; 9]);
+    const SLICE_BITS: u16 = u64::BITS as u16;
+
+    pub const fn new(kinds: &[SyntaxKind]) -> Self {
+        let mut set = SyntaxSet::EMPTY;
+
+        let mut index = 0;
+        while index < kinds.len() {
+            set = set.union(&Self::single(kinds[index]));
+            index += 1;
+        }
+
+        set
+    }
+
+    pub const fn single(kind: SyntaxKind) -> Self {
+        let kind = kind as u16;
+
+        let index = (kind / Self::SLICE_BITS) as usize;
+
+        debug_assert!(
+            index < Self::EMPTY.0.len(),
+            "Index out of bounds. Increase the size of the bitset array."
+        );
+
+        let shift = kind % Self::SLICE_BITS;
+        let mask = 1 << shift;
+
+        let mut bits = Self::EMPTY.0;
+        bits[index] = mask;
+
+        Self(bits)
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self == &SyntaxSet::EMPTY
+    }
+
+    pub fn insert(&mut self, value: SyntaxKind) {
+        let set = std::mem::take(self);
+        *self = set.union(&SyntaxSet::single(value));
+    }
+
+    pub const fn intersection(mut self, other: &Self) -> Self {
+        let mut index = 0;
+
+        while index < self.0.len() {
+            self.0[index] &= other.0[index];
+            index += 1;
+        }
+
+        self
+    }
+
+    pub const fn union(mut self, other: &Self) -> Self {
+        let mut i = 0;
+
+        while i < self.0.len() {
+            self.0[i] |= other.0[i];
+            i += 1;
+        }
+
+        self
+    }
+
+    pub const fn intersects(&self, other: &Self) -> bool {
+        let mut i = 0;
+
+        while i < self.0.len() {
+            if self.0[i] & other.0[i] != 0 {
+                return true;
+            }
+            i += 1;
+        }
+
+        false
+    }
+
+    pub const fn contains(&self, kind: SyntaxKind) -> bool {
+        let kind = kind as u16;
+        let index = kind as usize / Self::SLICE_BITS as usize;
+        let shift = kind % Self::SLICE_BITS;
+        let mask = 1 << shift;
+
+        self.0[index] & mask != 0
+    }
+
+    pub const fn len(&self) -> usize {
+        let mut len: u32 = 0;
+
+        let mut index = 0;
+        while index < self.0.len() {
+            len += self.0[index].count_ones();
+            index += 1;
+        }
+
+        len as usize
+    }
+
+    pub fn iter(&self) -> SyntaxSetIter {
+        SyntaxSetIter { set: *self, index: 0 }
+    }
+}
+
+impl Extend<SyntaxKind> for SyntaxSet {
+    fn extend<T: IntoIterator<Item = SyntaxKind>>(&mut self, iter: T) {
+        let set = std::mem::take(self);
+        *self = set.union(&SyntaxSet::from_iter(iter));
+    }
+}
+
+impl IntoIterator for SyntaxSet {
+    type Item = SyntaxKind;
+    type IntoIter = SyntaxSetIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl IntoIterator for &SyntaxSet {
+    type Item = SyntaxKind;
+    type IntoIter = SyntaxSetIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl FromIterator<SyntaxKind> for SyntaxSet {
+    fn from_iter<T: IntoIterator<Item = SyntaxKind>>(iter: T) -> Self {
+        let mut set = SyntaxSet::EMPTY;
+
+        for kind in iter {
+            set.insert(kind);
+        }
+
+        set
+    }
+}
+
+pub struct SyntaxSetIter {
+    set: SyntaxSet,
+    index: u16,
+}
+
+impl Iterator for SyntaxSetIter {
+    type Item = SyntaxKind;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            let slice = self.set.0.get_mut(self.index as usize)?;
+            let bit = slice.trailing_zeros() as u16;
+
+            if bit < SyntaxSet::SLICE_BITS {
+                *slice ^= 1 << bit;
+                let value = self.index * SyntaxSet::SLICE_BITS + bit;
+                return Some(unsafe { std::mem::transmute::<u16, SyntaxKind>(value) });
+            }
+
+            self.index += 1;
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.set.len();
+
+        (len, Some(len))
+    }
+}

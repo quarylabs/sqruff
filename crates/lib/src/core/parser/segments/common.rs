@@ -1,13 +1,12 @@
 use std::borrow::Cow;
 
-use ahash::AHashSet;
 use smol_str::SmolStr;
 use uuid::Uuid;
 
 use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, PartialEq)]
@@ -83,8 +82,8 @@ impl Segment for LiteralSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [SyntaxKind::NumericLiteral].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::new(&[SyntaxKind::NumericLiteral])
     }
 }
 
@@ -152,7 +151,7 @@ impl Segment for ComparisonOperatorSegment {
         Vec::new()
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [SyntaxKind::NumericLiteral].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::new(&[SyntaxKind::NumericLiteral])
     }
 }

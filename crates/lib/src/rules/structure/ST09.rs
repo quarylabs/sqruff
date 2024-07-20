@@ -8,7 +8,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, Ru
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::{FromExpressionElementSegment, JoinClauseSegment};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -82,16 +82,22 @@ left join bar
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut table_aliases = Vec::new();
         let children = FunctionalContext::new(context.clone()).segment().children(None);
-        let join_clauses = children.recursive_crawl(&[SyntaxKind::JoinClause], true);
-        let join_on_conditions =
-            join_clauses.children(None).recursive_crawl(&[SyntaxKind::JoinOnCondition], true);
+        let join_clauses =
+            children.recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }, true);
+        let join_on_conditions = join_clauses
+            .children(None)
+            .recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::JoinOnCondition]) }, true);
 
         if join_on_conditions.is_empty() {
             return Vec::new();
         }
 
         let from_expression_alias = FromExpressionElementSegment(
-            children.recursive_crawl(&[SyntaxKind::FromExpressionElement], true)[0].clone(),
+            children.recursive_crawl(
+                const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
+                true,
+            )[0]
+            .clone(),
         )
         .eventual_alias()
         .ref_str
@@ -111,8 +117,9 @@ left join bar
         let table_aliases = table_aliases.iter().map(|it| it.to_uppercase_smolstr()).collect_vec();
         let mut conditions = Vec::new();
 
-        let join_on_condition_expressions =
-            join_on_conditions.children(None).recursive_crawl(&[SyntaxKind::Expression], true);
+        let join_on_condition_expressions = join_on_conditions
+            .children(None)
+            .recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::Expression]) }, true);
 
         for expression in join_on_condition_expressions {
             let mut expression_group = Vec::new();
@@ -145,13 +152,21 @@ left join bar
             let comparison_operator = subcondition[1].clone();
             let first_column_reference = subcondition[0].clone();
             let second_column_reference = subcondition[2].clone();
-            let raw_comparison_operators =
-                comparison_operator.children(&[SyntaxKind::RawComparisonOperator]);
+            let raw_comparison_operators = comparison_operator
+                .children(const { SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) });
             let first_table_seg = first_column_reference
-                .child(&[SyntaxKind::NakedIdentifier, SyntaxKind::QuotedIdentifier])
+                .child(
+                    const {
+                        SyntaxSet::new(&[SyntaxKind::NakedIdentifier, SyntaxKind::QuotedIdentifier])
+                    },
+                )
                 .unwrap();
             let second_table_seg = second_column_reference
-                .child(&[SyntaxKind::NakedIdentifier, SyntaxKind::QuotedIdentifier])
+                .child(
+                    const {
+                        SyntaxSet::new(&[SyntaxKind::NakedIdentifier, SyntaxKind::QuotedIdentifier])
+                    },
+                )
                 .unwrap();
 
             let first_table = first_table_seg.get_raw_upper().unwrap().to_smolstr();
@@ -221,7 +236,7 @@ left join bar
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::FromExpression].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::FromExpression]) }).into()
     }
 }
 
@@ -257,10 +272,10 @@ fn is_qualified_column_operator_qualified_column_sequence(segment_list: &[Erased
     }
 
     if segment_list[0].get_type() == SyntaxKind::ColumnReference
-        && segment_list[0].direct_descendant_type_set().contains(&SyntaxKind::Dot)
+        && segment_list[0].direct_descendant_type_set().contains(SyntaxKind::Dot)
         && segment_list[1].get_type() == SyntaxKind::ComparisonOperator
         && segment_list[2].get_type() == SyntaxKind::ColumnReference
-        && segment_list[2].direct_descendant_type_set().contains(&SyntaxKind::Dot)
+        && segment_list[2].direct_descendant_type_set().contains(SyntaxKind::Dot)
     {
         return true;
     }

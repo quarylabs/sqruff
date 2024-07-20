@@ -6,7 +6,7 @@ use crate::core::dialects::init::DialectKind;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::identifers::identifiers_policy_applicable;
 
 #[derive(Clone, Debug)]
@@ -115,7 +115,12 @@ from foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            [SyntaxKind::NakedIdentifier, SyntaxKind::PropertiesNakedIdentifier].into(),
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::NakedIdentifier,
+                    SyntaxKind::PropertiesNakedIdentifier,
+                ])
+            },
         )
         .into()
     }

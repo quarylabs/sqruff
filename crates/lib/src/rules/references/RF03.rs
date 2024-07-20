@@ -14,7 +14,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, Ru
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceSegment;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
 
@@ -342,12 +342,13 @@ FROM foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            [
-                SyntaxKind::SelectStatement,
-                SyntaxKind::SetExpression,
-                SyntaxKind::WithCompoundStatement,
-            ]
-            .into(),
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::SelectStatement,
+                    SyntaxKind::SetExpression,
+                    SyntaxKind::WithCompoundStatement,
+                ])
+            },
         )
         .disallow_recurse()
         .into()

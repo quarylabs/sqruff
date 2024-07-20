@@ -7,7 +7,7 @@ use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default, Clone)]
@@ -70,7 +70,9 @@ from table_a
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let Some(function_name) = context.segment.child(&[SyntaxKind::FunctionName]) else {
+        let Some(function_name) =
+            context.segment.child(const { SyntaxSet::new(&[SyntaxKind::FunctionName]) })
+        else {
             return Vec::new();
         };
 
@@ -157,7 +159,7 @@ from table_a
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::Function].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::Function]) }).into()
     }
 }
 

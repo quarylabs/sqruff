@@ -5,7 +5,7 @@ use nohash_hasher::{IntMap, IntSet};
 use uuid::Uuid;
 
 use crate::core::parser::segments::base::{ErasedSegment, PathStep};
-use crate::dialects::SyntaxKind;
+use crate::dialects::SyntaxSet;
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -101,7 +101,7 @@ pub struct DepthInfo {
     pub stack_hashes: Vec<u64>,
     /// This is a convenience cache to speed up operations.
     pub stack_hash_set: IntSet<u64>,
-    pub stack_class_types: Vec<AHashSet<SyntaxKind>>,
+    pub stack_class_types: Vec<SyntaxSet>,
     pub stack_positions: IntMap<u64, StackPosition>,
 }
 
@@ -111,8 +111,7 @@ impl DepthInfo {
         let stack_hashes: Vec<u64> = stack.iter().map(|ps| ps.segment.hash_value()).collect();
         let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
 
-        let stack_class_types: Vec<AHashSet<_>> =
-            stack.iter().map(|ps| ps.segment.class_types()).collect();
+        let stack_class_types = stack.iter().map(|ps| ps.segment.class_types()).collect();
 
         let stack_positions: IntMap<u64, StackPosition> = zip(stack_hashes.iter(), stack.iter())
             .map(|(&hash, path)| (hash, StackPosition::from_path_step(path)))

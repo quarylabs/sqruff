@@ -11,7 +11,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -144,7 +144,9 @@ FROM foo;
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
-            let Some(function_name) = context.segment.child(&[SyntaxKind::FunctionName]) else {
+            let Some(function_name) =
+                context.segment.child(const { SyntaxSet::new(&[SyntaxKind::FunctionName]) })
+            else {
                 return Vec::new();
             };
             if function_name.raw().eq_ignore_ascii_case("CAST") {
@@ -412,7 +414,10 @@ FROM foo;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::Function, SyntaxKind::CastExpression].into()).into()
+        SegmentSeekerCrawler::new(
+            const { SyntaxSet::new(&[SyntaxKind::Function, SyntaxKind::CastExpression]) },
+        )
+        .into()
     }
 }
 

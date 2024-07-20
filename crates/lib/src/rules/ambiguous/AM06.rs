@@ -4,7 +4,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
 struct PriorGroupByOrderByConvention(GroupByAndOrderByConvention);
@@ -142,12 +142,13 @@ ORDER BY a ASC, b DESC
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            [
-                SyntaxKind::GroupbyClause,
-                SyntaxKind::OrderbyClause,
-                SyntaxKind::GroupingExpressionList,
-            ]
-            .into(),
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::GroupbyClause,
+                    SyntaxKind::OrderbyClause,
+                    SyntaxKind::GroupingExpressionList,
+                ])
+            },
         )
         .into()
     }

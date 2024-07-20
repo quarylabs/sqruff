@@ -244,7 +244,7 @@ impl ReflowSequence {
                 point.respace_point(pre, post, lint_results.clone(), strip_newlines);
 
             let ignore = if new_point.segments.iter().any(|seg| seg.is_type(SyntaxKind::Newline))
-                || post.as_ref().map_or(false, |p| p.class_types().contains(&SyntaxKind::EndOfFile))
+                || post.as_ref().map_or(false, |p| p.class_types().contains(SyntaxKind::EndOfFile))
             {
                 filter == Filter::Inline
             } else {

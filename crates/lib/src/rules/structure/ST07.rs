@@ -13,7 +13,7 @@ use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule,
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::Node;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::context::FunctionalContext;
@@ -150,7 +150,7 @@ INNER JOIN table_b
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::JoinClause].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }).into()
     }
 }
 

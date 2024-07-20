@@ -9,7 +9,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups}
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceSegment;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::IndexSet;
 use crate::utils::analysis::select::get_select_statement_info;
 
@@ -116,7 +116,7 @@ FROM
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::SelectStatement].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
     }
 }
 

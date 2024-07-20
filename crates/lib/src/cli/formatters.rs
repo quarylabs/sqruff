@@ -370,10 +370,6 @@ mod tests {
                 unimplemented!()
             }
 
-            fn groups(&self) -> &'static [RuleGroups] {
-                todo!()
-            }
-
             fn name(&self) -> &'static str {
                 "some-name"
             }
@@ -384,6 +380,10 @@ mod tests {
 
             fn long_description(&self) -> &'static str {
                 "Ghost rule for testing purposes"
+            }
+
+            fn groups(&self) -> &'static [RuleGroups] {
+                todo!()
             }
 
             fn code(&self) -> &'static str {

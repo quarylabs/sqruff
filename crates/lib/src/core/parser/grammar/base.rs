@@ -179,10 +179,6 @@ impl Anything {
 impl Segment for Anything {}
 
 impl Matchable for Anything {
-    fn cache_key(&self) -> MatchableCacheKey {
-        self.cache_key
-    }
-
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
@@ -197,6 +193,10 @@ impl Matchable for Anything {
         terminators.extend_from_slice(&parse_context.terminators);
 
         greedy_match(segments, idx, parse_context, &terminators, false, true)
+    }
+
+    fn cache_key(&self) -> MatchableCacheKey {
+        self.cache_key
     }
 }
 

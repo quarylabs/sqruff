@@ -1438,12 +1438,12 @@ impl Segment for SymbolSegment {
         SymbolSegment::create(&raw.unwrap(), self.position_maker.clone(), <_>::default())
     }
 
-    fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::new(&[self.get_type()])
-    }
-
     fn instance_types(&self) -> SyntaxSet {
         SyntaxSet::single(self.type_)
+    }
+
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::new(&[self.get_type()])
     }
 }
 

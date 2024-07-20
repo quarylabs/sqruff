@@ -150,7 +150,7 @@ pub fn test_segments() -> Vec<ErasedSegment> {
         "{# comment #}",
         "comment",
     );
-    main_list.push(ts.to_erased_segment() as ErasedSegment);
+    main_list.push(ts.to_erased_segment());
     main_list
 }
 
@@ -169,7 +169,7 @@ pub fn make_result_tuple(
                 let raw = elem.raw();
                 if matcher_keywords.contains(&&*raw) {
                     KeywordSegment::new(raw.into(), elem.get_position_marker().unwrap().into())
-                        .to_erased_segment() as ErasedSegment
+                        .to_erased_segment()
                 } else {
                     elem.clone()
                 }

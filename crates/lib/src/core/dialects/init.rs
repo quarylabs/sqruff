@@ -1,8 +1,22 @@
 use std::str::FromStr;
 
+use strum_macros::AsRefStr;
+
 use super::base::Dialect;
 
-#[derive(strum_macros::EnumString, Debug, Clone, Copy, Default, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(
+    strum_macros::EnumString,
+    AsRefStr,
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    Ord,
+    PartialOrd,
+    Eq,
+    PartialEq,
+    Hash
+)]
 #[strum(serialize_all = "snake_case")]
 pub enum DialectKind {
     #[default]

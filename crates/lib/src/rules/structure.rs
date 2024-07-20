@@ -7,7 +7,7 @@ pub mod ST04;
 pub mod ST06;
 pub mod ST07;
 pub mod ST08;
-mod ST09;
+pub mod ST09;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;

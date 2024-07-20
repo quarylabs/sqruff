@@ -13,6 +13,7 @@ use super::context::RuleContext;
 use super::crawlers::{BaseCrawler, Crawler};
 use crate::core::config::{FluffConfig, Value};
 use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::DialectKind;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::helpers::{Config, IndexMap};
@@ -282,6 +283,12 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
     /// element.
     fn groups(&self) -> &'static [RuleGroups];
 
+    /// Returns the set of dialects for which a particular rule should be
+    /// skipped.
+    fn dialect_skip(&self) -> &'static [DialectKind] {
+        &[]
+    }
+
     fn code(&self) -> &'static str {
         let name = std::any::type_name::<Self>();
         name.split("::").last().unwrap().strip_prefix("Rule").unwrap_or(name)
@@ -318,31 +325,34 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         let mut fixes = Vec::new();
 
         for context in self.crawl_behaviour().crawl(root_context) {
-            let resp =
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
+            // TODO Will to return a note that rules were skipped
+            if !self.dialect_skip().contains(&dialect.name) {
+                let resp =
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| self.eval(context)));
 
-            let resp = match resp {
-                Ok(t) => t,
-                Err(_) => {
-                    vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone()));
-                    return (vs, fixes);
+                let resp = match resp {
+                    Ok(t) => t,
+                    Err(_) => {
+                        vs.push(SQLLintError::new("Unexpected exception. Could you open an issue at https://github.com/quarylabs/sqruff", tree.clone()));
+                        return (vs, fixes);
+                    }
+                };
+
+                let mut new_lerrs = Vec::new();
+                let mut new_fixes = Vec::new();
+
+                if resp.is_empty() {
+                    // Assume this means no problems (also means no memory)
+                } else {
+                    for elem in resp {
+                        self.process_lint_result(elem, &mut new_lerrs, &mut new_fixes);
+                    }
                 }
-            };
 
-            let mut new_lerrs = Vec::new();
-            let mut new_fixes = Vec::new();
-
-            if resp.is_empty() {
-                // Assume this means no problems (also means no memory)
-            } else {
-                for elem in resp {
-                    self.process_lint_result(elem, &mut new_lerrs, &mut new_fixes);
-                }
+                // Consume the new results
+                vs.extend(new_lerrs);
+                fixes.extend(new_fixes);
             }
-
-            // Consume the new results
-            vs.extend(new_lerrs);
-            fixes.extend(new_fixes);
         }
 
         (vs, fixes)

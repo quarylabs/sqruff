@@ -404,7 +404,7 @@ impl RuleCV06 {
                     None,
                     None,
                 ))
-            }
+            };
         }
         None
     }

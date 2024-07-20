@@ -205,12 +205,13 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::References]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        // ["bigquery", "databricks", "hive", "redshift", "soql", "sparksql"]
-        if matches!(&context.dialect.name, DialectKind::Bigquery | DialectKind::Sparksql) {
-            return Vec::new();
-        }
+    fn dialect_skip(&self) -> &'static [DialectKind] {
+        // TODO Add others when finished, whole list["bigquery", "databricks", "hive",
+        // "redshift", "soql", "sparksql"]
+        &[DialectKind::Bigquery, DialectKind::Sparksql]
+    }
 
+    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let query = Query::from_segment(&context.segment, context.dialect, None);
         let mut violations = Vec::new();
         let tmp;

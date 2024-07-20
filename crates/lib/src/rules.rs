@@ -76,4 +76,24 @@ mod tests {
             }
         })
     }
+
+    #[test]
+    fn rule_skip_dialect_should_have_no_duplicates() {
+        rules().iter().for_each(|rule| {
+            let skips = rule.dialect_skip();
+            assert_eq!(skips.len(), skips.iter().unique().count());
+        })
+    }
+
+    #[test]
+    fn rule_skip_dialect_should_be_alphabetical() {
+        rules().iter().for_each(|rule| {
+            let skips = rule.dialect_skip();
+            for i in 1..skips.len() {
+                if skips[i].as_ref() < skips[i].as_ref() {
+                    panic!("not in alphabetical order in rule {}", rule.code())
+                }
+            }
+        })
+    }
 }

@@ -20,4 +20,5 @@ The following rules are available in this create. This list is generated from th
 
 **Fixable:** {% if rule.fixable %}Yes{% else %}No{% endif %}
 {{ rule.long_description }}
-{% endfor %}
+{% if rule.has_dialects %}**Dialects where this rule is skipped:** {% for dialect in rule.dialects %}`{{ dialect }}`{% if not loop.last %}, {%endif %}{% endfor %}
+{% endif %}{% endfor %}

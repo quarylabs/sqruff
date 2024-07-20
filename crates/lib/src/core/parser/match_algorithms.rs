@@ -211,6 +211,7 @@ fn next_match(
         let (raws, types) = matcher.simple(parse_context, None).unwrap();
 
         raw_simple_map.reserve(raws.len());
+        type_simple_map.reserve(types.len());
 
         for raw in raws {
             raw_simple_map.entry(raw).or_default().push(idx);

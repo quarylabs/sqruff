@@ -141,7 +141,7 @@ impl Matchable for StringParser {
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
-        (self.simple.clone().into_iter().collect(), SyntaxSet::EMPTY).into()
+        (self.simple.clone(), SyntaxSet::EMPTY).into()
     }
 
     fn match_segments(

@@ -13,7 +13,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
 use crate::dialects::ansi::{ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::analysis::query::{Query, Selectable};
 
 #[derive(Debug, Default, Clone)]
@@ -216,8 +216,12 @@ FROM foo
         let tmp;
 
         let dml_target_table = if !context.segment.is_type(SyntaxKind::SelectStatement) {
-            let refs =
-                context.segment.recursive_crawl(&[SyntaxKind::TableReference], true, None, true);
+            let refs = context.segment.recursive_crawl(
+                const { SyntaxSet::new(&[SyntaxKind::TableReference]) },
+                true,
+                None,
+                true,
+            );
             if let Some(reference) = refs.first() {
                 let reference = reference.reference();
 
@@ -241,13 +245,14 @@ FROM foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            [
-                SyntaxKind::DeleteStatement,
-                SyntaxKind::MergeStatement,
-                SyntaxKind::SelectStatement,
-                SyntaxKind::UpdateStatement,
-            ]
-            .into(),
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::DeleteStatement,
+                    SyntaxKind::MergeStatement,
+                    SyntaxKind::SelectStatement,
+                    SyntaxKind::UpdateStatement,
+                ])
+            },
         )
         .disallow_recurse()
         .into()

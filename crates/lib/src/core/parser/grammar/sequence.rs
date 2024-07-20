@@ -16,7 +16,7 @@ use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, Matcha
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
 use crate::core::parser::segments::meta::{Indent, IndentChange, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 fn flush_metas(
     tpre_nc_idx: u32,
@@ -93,9 +93,9 @@ impl Matchable for Sequence {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
         let mut simple_raws = AHashSet::new();
-        let mut simple_types = AHashSet::new();
+        let mut simple_types = SyntaxSet::EMPTY;
 
         for opt in &self.elements {
             let (raws, types) = opt.simple(parse_context, crumbs.clone())?;
@@ -104,7 +104,7 @@ impl Matchable for Sequence {
             simple_types.extend(types);
 
             if !opt.is_optional() {
-                return (simple_raws, simple_types).into();
+                return Some((simple_raws, simple_types));
             }
         }
 
@@ -375,7 +375,7 @@ impl Matchable for Bracketed {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
         let (start_bracket, _, _) = self.get_bracket_from_dialect(parse_context).unwrap();
         start_bracket.simple(parse_context, crumbs)
     }

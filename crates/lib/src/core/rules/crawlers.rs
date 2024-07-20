@@ -1,9 +1,8 @@
-use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
 
 use crate::core::parser::segments::base::Segment;
 use crate::core::rules::context::RuleContext;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 #[enum_dispatch]
 pub trait BaseCrawler {
@@ -39,13 +38,13 @@ impl BaseCrawler for RootOnlyCrawler {
 }
 
 pub struct SegmentSeekerCrawler {
-    types: AHashSet<SyntaxKind>,
+    types: SyntaxSet,
     provide_raw_stack: bool,
     allow_recurse: bool,
 }
 
 impl SegmentSeekerCrawler {
-    pub fn new(types: AHashSet<SyntaxKind>) -> Self {
+    pub fn new(types: SyntaxSet) -> Self {
         Self { types, provide_raw_stack: false, allow_recurse: true }
     }
 
@@ -60,7 +59,7 @@ impl SegmentSeekerCrawler {
     }
 
     fn is_self_match(&self, segment: &dyn Segment) -> bool {
-        self.types.contains(&segment.get_type())
+        self.types.contains(segment.get_type())
     }
 }
 
@@ -78,7 +77,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
             return acc;
         }
 
-        if self.types.intersection(context.segment.descendant_type_set()).next().is_none() {
+        if !self.types.intersects(context.segment.descendant_type_set()) {
             if self.provide_raw_stack {
                 context.raw_stack.append(&mut context.segment.get_raw_segments());
             }

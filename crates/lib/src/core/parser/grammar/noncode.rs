@@ -5,7 +5,7 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_result::{MatchResult, Span};
 use crate::core::parser::matchable::{Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::{ErasedSegment, Segment};
-use crate::dialects::SyntaxKind;
+use crate::dialects::SyntaxSet;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonCodeMatcher;
@@ -22,7 +22,7 @@ impl Matchable for NonCodeMatcher {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
         None
     }
 

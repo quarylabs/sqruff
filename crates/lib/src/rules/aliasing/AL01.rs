@@ -5,7 +5,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 use crate::utils::reflow::sequence::{Filter, ReflowInsertPosition, ReflowSequence, TargetSide};
 
@@ -18,7 +18,7 @@ pub enum Aliasing {
 #[derive(Debug, Clone)]
 pub struct RuleAL01 {
     aliasing: Aliasing,
-    target_parent_types: &'static [SyntaxKind],
+    target_parent_types: SyntaxSet,
 }
 
 impl RuleAL01 {
@@ -27,7 +27,7 @@ impl RuleAL01 {
         self
     }
 
-    pub fn target_parent_types(mut self, target_parent_types: &'static [SyntaxKind]) -> Self {
+    pub fn target_parent_types(mut self, target_parent_types: SyntaxSet) -> Self {
         self.target_parent_types = target_parent_types;
         self
     }
@@ -37,7 +37,9 @@ impl Default for RuleAL01 {
     fn default() -> Self {
         Self {
             aliasing: Aliasing::Explicit,
-            target_parent_types: &[SyntaxKind::FromExpressionElement, SyntaxKind::MergeStatement],
+            target_parent_types: const {
+                SyntaxSet::new(&[SyntaxKind::FromExpressionElement, SyntaxKind::MergeStatement])
+            },
         }
     }
 }
@@ -52,7 +54,9 @@ impl Rule for RuleAL01 {
 
         Ok(RuleAL01 {
             aliasing,
-            target_parent_types: &[SyntaxKind::FromExpressionElement, SyntaxKind::MergeStatement],
+            target_parent_types: const {
+                SyntaxSet::new(&[SyntaxKind::FromExpressionElement, SyntaxKind::MergeStatement])
+            },
         }
         .erased())
     }
@@ -97,7 +101,7 @@ FROM foo AS voo
         let last_seg = rule_cx.parent_stack.last().unwrap();
         let last_seg_ty = last_seg.get_type();
 
-        if self.target_parent_types.iter().any(|&it| last_seg_ty == it) {
+        if self.target_parent_types.contains(last_seg_ty) {
             let as_keyword = rule_cx
                 .segment
                 .segments()
@@ -160,7 +164,7 @@ FROM foo AS voo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::AliasExpression].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) }).into()
     }
 }
 

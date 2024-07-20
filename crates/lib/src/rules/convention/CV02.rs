@@ -5,7 +5,7 @@ use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 /// Prefer using `COALESCE` over `IFNULL` or `NVL`.
 ///
@@ -115,7 +115,8 @@ FROM baz;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::FunctionNameIdentifier].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::FunctionNameIdentifier]) })
+            .into()
     }
 }
 

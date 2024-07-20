@@ -6,7 +6,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::IndexMap;
 use crate::utils::analysis::query::Query;
 
@@ -77,7 +77,7 @@ FROM cte1
             .collect();
 
         for reference in context.segment.recursive_crawl(
-            &[SyntaxKind::TableReference],
+            const { SyntaxSet::new(&[SyntaxKind::TableReference]) },
             true,
             Some(SyntaxKind::WithCompoundStatement),
             true,
@@ -104,7 +104,8 @@ FROM cte1
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::WithCompoundStatement].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) })
+            .into()
     }
 }
 

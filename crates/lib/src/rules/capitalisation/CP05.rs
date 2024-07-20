@@ -5,7 +5,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleCP05 {
@@ -96,13 +96,14 @@ CREATE TABLE t (
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            [
-                SyntaxKind::DataTypeIdentifier,
-                SyntaxKind::PrimitiveType,
-                SyntaxKind::DatetimeTypeIdentifier,
-                SyntaxKind::DataType,
-            ]
-            .into(),
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::DataTypeIdentifier,
+                    SyntaxKind::PrimitiveType,
+                    SyntaxKind::DatetimeTypeIdentifier,
+                    SyntaxKind::DataType,
+                ])
+            },
         )
         .into()
     }

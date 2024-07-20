@@ -11,7 +11,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, Ru
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceLevel;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::analysis::query::Query;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
@@ -108,7 +108,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::SelectStatement].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
     }
 }
 
@@ -147,21 +147,32 @@ impl RuleAL05 {
     }
 
     fn is_alias_required(from_expression_element: &ErasedSegment) -> bool {
-        for segment in from_expression_element.iter_segments(Some(&[SyntaxKind::Bracketed]), false)
+        for segment in from_expression_element
+            .iter_segments(Some(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) }), false)
         {
             if segment.is_type(SyntaxKind::TableExpression) {
-                return if segment.child(&[SyntaxKind::ValuesClause]).is_some() {
+                return if segment
+                    .child(const { SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
+                    .is_some()
+                {
                     false
                 } else {
-                    segment.iter_segments(Some(&[SyntaxKind::Bracketed]), false).iter().any(|seg| {
-                        [
-                            SyntaxKind::SelectStatement,
-                            SyntaxKind::SetExpression,
-                            SyntaxKind::WithCompoundStatement,
-                        ]
+                    segment
+                        .iter_segments(
+                            Some(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) }),
+                            false,
+                        )
                         .iter()
-                        .any(|&it| seg.is_type(it))
-                    })
+                        .any(|seg| {
+                            const {
+                                SyntaxSet::new(&[
+                                    SyntaxKind::SelectStatement,
+                                    SyntaxKind::SetExpression,
+                                    SyntaxKind::WithCompoundStatement,
+                                ])
+                            }
+                            .contains(seg.get_type())
+                        })
                 };
             }
         }

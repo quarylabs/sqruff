@@ -8,7 +8,7 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 #[derive(Clone, Debug)]
 pub struct RuleST06;
@@ -61,11 +61,13 @@ from x
         let mut violation_exists = false;
 
         static SELECT_ELEMENT_ORDER_PREFERENCE: &[&[Validate]] = &[
-            &[Validate::Types(&[SyntaxKind::WildcardExpression])],
+            &[Validate::Types(const { SyntaxSet::new(&[SyntaxKind::WildcardExpression]) })],
             &[
-                Validate::Types(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]),
-                Validate::Types(&[SyntaxKind::Literal]),
-                Validate::Types(&[SyntaxKind::CastExpression]),
+                Validate::Types(
+                    const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+                ),
+                Validate::Types(const { SyntaxSet::new(&[SyntaxKind::Literal]) }),
+                Validate::Types(const { SyntaxSet::new(&[SyntaxKind::CastExpression]) }),
                 Validate::Function { name: "cast" },
                 Validate::Expression { child_typ: SyntaxKind::CastExpression },
             ],
@@ -112,8 +114,8 @@ from x
         }
 
         let select_clause_segment = context.segment.clone();
-        let select_target_elements =
-            select_clause_segment.children(&[SyntaxKind::SelectClauseElement]);
+        let select_target_elements = select_clause_segment
+            .children(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
 
         if select_target_elements.is_empty() {
             return Vec::new();
@@ -130,7 +132,7 @@ from x
                 for e in *band {
                     match e {
                         Validate::Types(types) => {
-                            if segment.child(types).is_some() {
+                            if segment.child(*types).is_some() {
                                 validate(
                                     i,
                                     segment.clone(),
@@ -142,8 +144,10 @@ from x
                         }
                         Validate::Function { name } => {
                             (|| {
-                                let function = segment.child(&[SyntaxKind::Function])?;
-                                let function_name = function.child(&[SyntaxKind::FunctionName])?;
+                                let function = segment
+                                    .child(const { SyntaxSet::new(&[SyntaxKind::Function]) })?;
+                                let function_name = function
+                                    .child(const { SyntaxSet::new(&[SyntaxKind::FunctionName]) })?;
                                 if function_name.raw() == *name {
                                     validate(
                                         i,
@@ -159,8 +163,9 @@ from x
                         }
                         Validate::Expression { child_typ } => {
                             (|| {
-                                let expression = segment.child(&[SyntaxKind::Expression])?;
-                                if expression.child(&[*child_typ]).is_some()
+                                let expression = segment
+                                    .child(const { SyntaxSet::new(&[SyntaxKind::Expression]) })?;
+                                if expression.child(SyntaxSet::new(&[*child_typ])).is_some()
                                     && matches!(
                                         expression.segments()[0].get_type(),
                                         SyntaxKind::ColumnReference
@@ -229,12 +234,12 @@ from x
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).into()
     }
 }
 
 enum Validate {
-    Types(&'static [SyntaxKind]),
+    Types(SyntaxSet),
     Function { name: &'static str },
     Expression { child_typ: SyntaxKind },
 }

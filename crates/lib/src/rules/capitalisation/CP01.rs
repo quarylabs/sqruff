@@ -8,7 +8,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::capitalize;
 
 fn is_capitalizable(character: char) -> bool {
@@ -125,7 +125,13 @@ from foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            [SyntaxKind::Keyword, SyntaxKind::BinaryOperator, SyntaxKind::DatePart].into(),
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::Keyword,
+                    SyntaxKind::BinaryOperator,
+                    SyntaxKind::DatePart,
+                ])
+            },
         )
         .into()
     }

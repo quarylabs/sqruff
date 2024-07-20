@@ -14,7 +14,7 @@ use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 
 pub type Indent = MetaSegment<IndentChange>;
@@ -115,7 +115,7 @@ impl<M: MetaSegmentKind + Send + Sync> Matchable for MetaSegment<M> {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
         None
     }
 
@@ -230,8 +230,8 @@ impl Segment for EndOfFile {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [SyntaxKind::EndOfFile].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::new(&[SyntaxKind::EndOfFile])
     }
 }
 

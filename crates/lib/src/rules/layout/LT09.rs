@@ -10,7 +10,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -122,7 +122,7 @@ FROM test_table;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::SelectClause].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).into()
     }
 }
 
@@ -239,7 +239,8 @@ impl RuleLT09 {
                 && a.working_line_no == b.working_line_no
             {
                 let mut start_seg = select_targets_info.select_idx.unwrap();
-                let modifier = segment.child(&[SyntaxKind::SelectClauseModifier]);
+                let modifier =
+                    segment.child(const { SyntaxSet::new(&[SyntaxKind::SelectClauseModifier]) });
 
                 if let Some(modifier) = modifier {
                     start_seg = segment.segments().iter().position(|it| it == &modifier).unwrap();
@@ -316,7 +317,7 @@ impl RuleLT09 {
 
         if select_children[select_targets_info.first_select_target_idx.unwrap()]
             .descendant_type_set()
-            .contains(&SyntaxKind::Newline)
+            .contains(SyntaxKind::Newline)
         {
             return Vec::new();
         }

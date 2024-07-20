@@ -1,14 +1,14 @@
 use std::str::FromStr;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashMap;
 
 use crate::core::config::{FluffConfig, Value};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
 type ConfigElementType = AHashMap<String, String>;
-type ConfigDictType = AHashMap<String, ConfigElementType>;
+type ConfigDictType = AHashMap<SyntaxKind, ConfigElementType>;
 
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -126,7 +126,7 @@ impl BlockConfig {
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
-    config_types: AHashSet<SyntaxKind>,
+    config_types: SyntaxSet,
     /// In production, these values are almost _always_ set because we
     /// use `.from_fluff_config`, but the defaults are here to aid in
     /// testing.
@@ -140,7 +140,7 @@ pub struct ReflowConfig {
 impl ReflowConfig {
     pub fn get_block_config(
         &self,
-        block_class_types: &AHashSet<SyntaxKind>,
+        block_class_types: &SyntaxSet,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
         let configured_types = block_class_types.intersection(&self.config_types);
@@ -177,10 +177,10 @@ impl ReflowConfig {
                 let configured_parent_types = self.config_types.intersection(parent_classes);
 
                 if parent_start {
-                    for &seg_type in configured_parent_types.clone() {
+                    for seg_type in configured_parent_types {
                         let before = self
                             .configs
-                            .get(seg_type.as_str())
+                            .get(&seg_type)
                             .and_then(|conf| conf.get("spacing_before"))
                             .map(|it| it.as_str());
                         let before = match before {
@@ -201,7 +201,7 @@ impl ReflowConfig {
                     for seg_type in configured_parent_types {
                         let after = self
                             .configs
-                            .get(seg_type.as_str())
+                            .get(&seg_type)
                             .and_then(|conf| conf.get("spacing_after"))
                             .map(|it| it.as_str());
                         let after = match after {
@@ -220,8 +220,8 @@ impl ReflowConfig {
             }
         }
 
-        for &seg_type in configured_types {
-            block_config.incorporate(None, None, None, None, self.configs.get(seg_type.as_str()));
+        for seg_type in configured_types {
+            block_config.incorporate(None, None, None, None, self.configs.get(&seg_type));
         }
 
         block_config
@@ -232,7 +232,7 @@ impl ReflowConfig {
         let config_types = configs
             .keys()
             .map(|x| x.parse().unwrap_or_else(|_| unimplemented!("{x}")))
-            .collect::<AHashSet<_>>();
+            .collect::<SyntaxSet>();
 
         let trailing_comments = config.raw["indentation"]["trailing_comments"].as_string().unwrap();
         let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
@@ -273,7 +273,8 @@ fn convert_to_config_dict(input: AHashMap<String, Value>) -> ConfigDictType {
                         }
                     })
                     .collect::<ConfigElementType>();
-                config_dict.insert(key, element);
+                config_dict
+                    .insert(key.parse().unwrap_or_else(|_| unimplemented!("{key}")), element);
             }
             _ => panic!("Expected a Value::Map, found another variant."),
         }

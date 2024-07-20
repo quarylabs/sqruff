@@ -1,13 +1,12 @@
 use std::borrow::Cow;
 
-use ahash::AHashSet;
 use smol_str::SmolStr;
 use uuid::Uuid;
 
 use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
 use crate::core::parser::markers::PositionMarker;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 
 #[derive(Hash, Debug, Clone, Default, PartialEq)]
@@ -72,7 +71,7 @@ impl Segment for KeywordSegment {
         Self::new(raw.unwrap().into(), self.get_position_marker()).to_erased_segment()
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [SyntaxKind::Keyword, SyntaxKind::Word].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::new(&[SyntaxKind::Keyword, SyntaxKind::Word])
     }
 }

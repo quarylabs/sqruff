@@ -10,7 +10,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::segments::Segments;
 
 #[derive(Default, Clone, Debug)]
@@ -111,7 +111,13 @@ impl RuleCV06 {
         // segment.
         for comment_segment in parent_segment
             .recursive_crawl(
-                &[SyntaxKind::Comment, SyntaxKind::InlineComment, SyntaxKind::BlockComment],
+                const {
+                    SyntaxSet::new(&[
+                        SyntaxKind::Comment,
+                        SyntaxKind::InlineComment,
+                        SyntaxKind::BlockComment,
+                    ])
+                },
                 true,
                 None,
                 false,
@@ -141,7 +147,7 @@ impl RuleCV06 {
         match statement_segment {
             None => false,
             Some(statement_segment) => statement_segment
-                .recursive_crawl(&[SyntaxKind::Newline], true, None, true)
+                .recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::Newline]) }, true, None, true)
                 .is_empty(),
         }
     }

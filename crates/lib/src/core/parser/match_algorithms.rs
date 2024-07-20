@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashMap;
 use itertools::{enumerate, multiunzip, Itertools as _};
 use smol_str::ToSmolStr;
 
@@ -10,7 +10,7 @@ use super::matchable::Matchable;
 use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::segments::meta::IndentChange;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 pub fn skip_start_index_forward_to_code(
     segments: &[ErasedSegment],
@@ -54,7 +54,7 @@ pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
 pub fn first_non_whitespace(
     segments: &[ErasedSegment],
     start_idx: u32,
-) -> Option<(String, AHashSet<SyntaxKind>)> {
+) -> Option<(String, SyntaxSet)> {
     for segment in segments.iter().skip(start_idx as usize) {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
@@ -101,7 +101,7 @@ pub fn prune_options(
             matched = true;
         }
 
-        if !matched && first_types.intersection(&simple_types).next().is_some() {
+        if !matched && first_types.intersects(&simple_types) {
             available_options.push(opt.clone());
         }
     }
@@ -211,7 +211,6 @@ fn next_match(
         let (raws, types) = matcher.simple(parse_context, None).unwrap();
 
         raw_simple_map.reserve(raws.len());
-        type_simple_map.reserve(types.len());
 
         for raw in raws {
             raw_simple_map.entry(raw).or_default().push(idx);
@@ -232,7 +231,7 @@ fn next_match(
         let type_overlap = class_types.intersection(&keys);
 
         for typ in type_overlap {
-            matcher_idxs.extend(type_simple_map[typ].clone());
+            matcher_idxs.extend(type_simple_map[&typ].clone());
         }
 
         if matcher_idxs.is_empty() {

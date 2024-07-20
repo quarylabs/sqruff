@@ -12,7 +12,7 @@ use super::grammar::base::Ref;
 use super::match_result::MatchResult;
 use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 pub trait AsAnyMut {
     fn as_any_mut(&mut self) -> &mut dyn Any;
@@ -61,7 +61,7 @@ pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, AHashSet<SyntaxKind>)> {
+    ) -> Option<(AHashSet<String>, SyntaxSet)> {
         let match_grammar = self.match_grammar()?;
 
         match_grammar.simple(parse_context, crumbs)

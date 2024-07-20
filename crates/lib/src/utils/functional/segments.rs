@@ -2,7 +2,7 @@ use std::ops::Range;
 
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::SyntaxKind;
+use crate::dialects::SyntaxSet;
 
 type PredicateType = Option<fn(&ErasedSegment) -> bool>;
 
@@ -17,11 +17,11 @@ impl Segments {
         self.base.iter()
     }
 
-    pub fn recursive_crawl(&self, seg_type: &[SyntaxKind], recurse_into: bool) -> Segments {
+    pub fn recursive_crawl(&self, types: SyntaxSet, recurse_into: bool) -> Segments {
         let mut segments = Vec::new();
 
         for s in &self.base {
-            segments.extend(s.recursive_crawl(seg_type, recurse_into, None, true));
+            segments.extend(s.recursive_crawl(types, recurse_into, None, true));
         }
 
         Segments::from_vec(segments, self.templated_file.clone())

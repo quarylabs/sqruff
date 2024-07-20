@@ -5,7 +5,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone)]
@@ -15,7 +15,10 @@ pub struct RuleAL02 {
 
 impl Default for RuleAL02 {
     fn default() -> Self {
-        Self { base: RuleAL01::default().target_parent_types(&[SyntaxKind::SelectClauseElement]) }
+        Self {
+            base: RuleAL01::default()
+                .target_parent_types(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) }),
+        }
     }
 }
 
@@ -78,7 +81,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::AliasExpression].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) }).into()
     }
 }
 

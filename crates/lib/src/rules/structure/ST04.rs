@@ -11,7 +11,7 @@ use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 use crate::utils::reflow::reindent::{construct_single_indent, IndentUnit};
@@ -205,7 +205,7 @@ FROM mytable
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::CaseExpression].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::CaseExpression]) }).into()
     }
 }
 

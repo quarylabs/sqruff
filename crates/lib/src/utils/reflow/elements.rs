@@ -1,6 +1,5 @@
 use std::iter::zip;
 
-use ahash::AHashSet;
 use itertools::{chain, Itertools};
 use nohash_hasher::IntMap;
 
@@ -12,7 +11,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
@@ -48,7 +47,7 @@ impl ReflowPoint {
         self.segments.iter().map(|it| it.raw()).join("")
     }
 
-    pub fn class_types(&self) -> AHashSet<SyntaxKind> {
+    pub fn class_types(&self) -> SyntaxSet {
         ReflowElement::class_types(&self.segments)
     }
 
@@ -99,8 +98,7 @@ impl ReflowPoint {
         self.segments
             .iter()
             .map(|seg| {
-                let newline_in_class =
-                    seg.class_types().into_iter().any(|ct| ct == SyntaxKind::Newline) as usize;
+                let newline_in_class = seg.class_types().contains(SyntaxKind::Newline) as usize;
 
                 let consumed_whitespace = get_consumed_whitespace(seg.into()).unwrap_or_default();
                 newline_in_class + consumed_whitespace.matches('\n').count()
@@ -315,7 +313,7 @@ impl ReflowPoint {
             process_spacing(self.segments.clone(), strip_newlines);
 
         if let Some((next_block, whitespace)) = next_block.zip(last_whitespace.clone())
-            && next_block.class_types().contains(&SyntaxKind::EndOfFile)
+            && next_block.class_types().contains(SyntaxKind::EndOfFile)
         {
             new_results.push(LintResult::new(
                 None,
@@ -333,7 +331,7 @@ impl ReflowPoint {
 
         if segment_buffer.iter().any(|seg| seg.is_type(SyntaxKind::Newline)) && !strip_newlines
             || (next_block.is_some()
-                && next_block.unwrap().class_types().contains(&SyntaxKind::EndOfFile))
+                && next_block.unwrap().class_types().contains(SyntaxKind::EndOfFile))
         {
             if let Some(last_whitespace) = last_whitespace {
                 let ws_idx = self.segments.iter().position(|it| it == &last_whitespace).unwrap();
@@ -469,7 +467,7 @@ pub struct ReflowBlock {
 }
 
 impl ReflowBlock {
-    pub fn class_types(&self) -> AHashSet<SyntaxKind> {
+    pub fn class_types(&self) -> SyntaxSet {
         ReflowElement::class_types(&self.segments)
     }
 }
@@ -544,7 +542,7 @@ impl ReflowElement {
         }
     }
 
-    pub fn class_types1(&self) -> AHashSet<SyntaxKind> {
+    pub fn class_types1(&self) -> SyntaxSet {
         Self::class_types(self.segments())
     }
 
@@ -552,8 +550,7 @@ impl ReflowElement {
         self.segments()
             .iter()
             .map(|seg| {
-                let newline_in_class =
-                    seg.class_types().into_iter().any(|ct| ct == SyntaxKind::Newline) as usize;
+                let newline_in_class = seg.class_types().contains(SyntaxKind::Newline) as usize;
 
                 let consumed_whitespace = get_consumed_whitespace(seg.into()).unwrap_or_default();
                 newline_in_class + consumed_whitespace.matches('\n').count()
@@ -571,8 +568,8 @@ impl ReflowElement {
 }
 
 impl ReflowElement {
-    pub fn class_types(segments: &[ErasedSegment]) -> AHashSet<SyntaxKind> {
-        segments.iter().flat_map(|seg| seg.combined_types()).collect()
+    pub fn class_types(segments: &[ErasedSegment]) -> SyntaxSet {
+        segments.iter().fold(SyntaxSet::EMPTY, |set, seg| set.union(&seg.combined_types()))
     }
 }
 

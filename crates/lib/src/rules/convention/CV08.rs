@@ -4,7 +4,7 @@ use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV08;
@@ -84,7 +84,7 @@ LEFT JOIN foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new([SyntaxKind::JoinClause].into()).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }).into()
     }
 }
 

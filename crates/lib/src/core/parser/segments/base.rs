@@ -5,9 +5,8 @@ use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::OnceLock;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashMap;
 use dyn_clone::DynClone;
 use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
@@ -22,7 +21,7 @@ use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 
 #[derive(Debug, Clone)]
@@ -87,8 +86,8 @@ pub struct ErasedSegment {
 }
 
 impl ErasedSegment {
-    pub fn direct_descendant_type_set(&self) -> AHashSet<SyntaxKind> {
-        self.segments().iter().flat_map(|it| it.class_types()).collect()
+    pub fn direct_descendant_type_set(&self) -> SyntaxSet {
+        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(&it.class_types()))
     }
 }
 
@@ -162,20 +161,19 @@ impl ErasedSegment {
 
     pub fn recursive_crawl(
         &self,
-        seg_types: &[SyntaxKind],
+        types: SyntaxSet,
         recurse_into: bool,
         no_recursive_seg_type: Option<SyntaxKind>,
         allow_self: bool,
     ) -> Vec<ErasedSegment> {
         let mut acc = Vec::new();
-        let seg_types_set: AHashSet<_> = AHashSet::from_iter(seg_types.iter().copied());
 
-        let matches = allow_self && self.class_types().iter().any(|it| seg_types_set.contains(it));
+        let matches = allow_self && self.class_types().intersects(&types);
         if matches {
             acc.push(self.clone());
         }
 
-        if !self.descendant_type_set().iter().any(|ty| seg_types_set.contains(ty)) {
+        if !self.descendant_type_set().intersects(&types) {
             return acc;
         }
 
@@ -183,7 +181,7 @@ impl ErasedSegment {
             for seg in self.segments() {
                 if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
                     let segments =
-                        seg.recursive_crawl(seg_types, recurse_into, no_recursive_seg_type, true);
+                        seg.recursive_crawl(types, recurse_into, no_recursive_seg_type, true);
                     acc.extend(segments);
                 }
             }
@@ -488,13 +486,13 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
 
     fn iter_segments(
         &self,
-        expanding: Option<&[SyntaxKind]>,
+        expanding: Option<SyntaxSet>,
         pass_through: bool,
     ) -> Vec<ErasedSegment> {
         let mut result = Vec::new();
         for s in self.gather_segments() {
             if let Some(expanding) = expanding {
-                if expanding.iter().any(|&ty| s.is_type(ty)) {
+                if expanding.contains(s.get_type()) {
                     result.extend(
                         s.iter_segments(if pass_through { Some(expanding) } else { None }, false),
                     );
@@ -521,14 +519,14 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         None
     }
 
-    fn child(&self, seg_types: &[SyntaxKind]) -> Option<ErasedSegment> {
-        self.gather_segments().into_iter().find(|seg| seg_types.iter().any(|&ty| seg.is_type(ty)))
+    fn child(&self, seg_types: SyntaxSet) -> Option<ErasedSegment> {
+        self.gather_segments().into_iter().find(|seg| seg_types.contains(seg.get_type()))
     }
 
-    fn children(&self, seg_types: &[SyntaxKind]) -> Vec<ErasedSegment> {
+    fn children(&self, seg_types: SyntaxSet) -> Vec<ErasedSegment> {
         let mut buff = Vec::new();
         for seg in self.gather_segments() {
-            if seg_types.iter().any(|&ty| seg.is_type(ty)) {
+            if seg_types.contains(seg.get_type()) {
                 buff.push(seg);
             }
         }
@@ -560,10 +558,8 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         acc
     }
 
-    fn descendant_type_set(&self) -> &AHashSet<SyntaxKind> {
-        // FIXME: const { &AHashSet::new() }
-        static EMPTY: OnceLock<AHashSet<SyntaxKind>> = OnceLock::new();
-        EMPTY.get_or_init(AHashSet::new)
+    fn descendant_type_set(&self) -> &SyntaxSet {
+        const { &SyntaxSet::EMPTY }
     }
 
     fn raw(&self) -> Cow<str> {
@@ -711,18 +707,16 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         anchor_info
     }
 
-    fn instance_types(&self) -> AHashSet<SyntaxKind> {
-        AHashSet::new()
+    fn instance_types(&self) -> SyntaxSet {
+        SyntaxSet::EMPTY
     }
 
-    fn combined_types(&self) -> AHashSet<SyntaxKind> {
-        let mut combined = self.instance_types();
-        combined.extend(self.class_types());
-        combined
+    fn combined_types(&self) -> SyntaxSet {
+        self.instance_types().union(&self.class_types())
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        AHashSet::new()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::EMPTY
     }
 }
 
@@ -967,8 +961,8 @@ impl Segment for CodeSegment {
         )
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [self.get_type()].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::single(self.get_type())
     }
 }
 
@@ -1056,8 +1050,8 @@ impl Segment for IdentifierSegment {
         )
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [self.get_type()].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::single(self.get_type())
     }
 }
 
@@ -1141,8 +1135,8 @@ impl Segment for CommentSegment {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [SyntaxKind::Comment].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::single(SyntaxKind::Comment)
     }
 }
 
@@ -1225,8 +1219,8 @@ impl Segment for NewlineSegment {
         todo!()
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [SyntaxKind::Newline].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::new(&[SyntaxKind::Newline])
     }
 }
 
@@ -1444,12 +1438,12 @@ impl Segment for SymbolSegment {
         SymbolSegment::create(&raw.unwrap(), self.position_maker.clone(), <_>::default())
     }
 
-    fn class_types(&self) -> AHashSet<SyntaxKind> {
-        [self.get_type()].into()
+    fn class_types(&self) -> SyntaxSet {
+        SyntaxSet::new(&[self.get_type()])
     }
 
-    fn instance_types(&self) -> AHashSet<SyntaxKind> {
-        [self.type_].into()
+    fn instance_types(&self) -> SyntaxSet {
+        SyntaxSet::single(self.type_)
     }
 }
 

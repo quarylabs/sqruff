@@ -60,10 +60,6 @@ impl Rule for RuleCV10 {
         .erased())
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn name(&self) -> &'static str {
         "convention.quoted_literals"
     }
@@ -159,6 +155,10 @@ from foo
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

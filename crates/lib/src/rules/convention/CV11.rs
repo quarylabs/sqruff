@@ -138,10 +138,6 @@ FROM foo;
         &[RuleGroups::All, RuleGroups::Convention]
     }
 
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
             let Some(function_name) =
@@ -411,6 +407,10 @@ FROM foo;
         }
 
         Vec::new()
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

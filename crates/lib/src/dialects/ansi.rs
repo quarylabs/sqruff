@@ -115,10 +115,6 @@ impl Segment for Node {
         self.dialect
     }
 
-    fn is_comment(&self) -> bool {
-        false
-    }
-
     fn descendant_type_set(&self) -> &SyntaxSet {
         self.descendant_type_set.get_or_init(|| {
             let mut result_set = SyntaxSet::EMPTY;
@@ -131,25 +127,16 @@ impl Segment for Node {
         })
     }
 
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        let mut cloned = self.clone();
-        if let Some((a, b)) = cloned.raw.get_mut().zip(raw) {
-            *a = b;
-        };
-        cloned.source_fixes = source_fixes.unwrap_or_default();
-        cloned.to_erased_segment()
-    }
-
-    fn get_source_fixes(&self) -> Vec<SourceFix> {
-        self.source_fixes.clone()
-    }
-
     fn raw(&self) -> Cow<str> {
         self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
     }
 
     fn get_type(&self) -> SyntaxKind {
         self.kind
+    }
+
+    fn is_comment(&self) -> bool {
+        false
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -170,6 +157,19 @@ impl Segment for Node {
 
     fn get_uuid(&self) -> Uuid {
         self.uuid
+    }
+
+    fn get_source_fixes(&self) -> Vec<SourceFix> {
+        self.source_fixes.clone()
+    }
+
+    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        let mut cloned = self.clone();
+        if let Some((a, b)) = cloned.raw.get_mut().zip(raw) {
+            *a = b;
+        };
+        cloned.source_fixes = source_fixes.unwrap_or_default();
+        cloned.to_erased_segment()
     }
 
     fn class_types(&self) -> SyntaxSet {
@@ -211,6 +211,10 @@ impl Matchable for NodeMatcher {
         self.node_kind
     }
 
+    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+        self.match_grammar.clone().into()
+    }
+
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
@@ -230,10 +234,6 @@ impl Matchable for NodeMatcher {
             .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
 
         Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
-    }
-
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        self.match_grammar.clone().into()
     }
 }
 

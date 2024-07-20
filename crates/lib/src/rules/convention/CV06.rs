@@ -359,7 +359,7 @@ impl RuleCV06 {
             // Create the final semi-colon if it does not yet exist.
 
             // Semi-colon on same line.
-            if !semicolon_newline {
+            return if !semicolon_newline {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.unwrap().clone(),
                     vec![SymbolSegment::create(
@@ -369,13 +369,13 @@ impl RuleCV06 {
                     )],
                     None,
                 )];
-                return Some(LintResult::new(
+                Some(LintResult::new(
                     Some(trigger_segment.unwrap().clone()),
                     fixes,
                     None,
                     None,
                     None,
-                ));
+                ))
             } else {
                 // Semi-colon on new line.
                 // Adjust before_segment and anchor_segment for inline
@@ -397,13 +397,13 @@ impl RuleCV06 {
                     None,
                 )];
 
-                return Some(LintResult::new(
+                Some(LintResult::new(
                     Some(trigger_segment.unwrap().clone()),
                     fixes,
                     None,
                     None,
                     None,
-                ));
+                ))
             }
         }
         None

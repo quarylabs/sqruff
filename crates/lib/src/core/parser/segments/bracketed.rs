@@ -65,6 +65,18 @@ impl Segment for BracketedSegment {
         this.to_erased_segment()
     }
 
+    fn descendant_type_set(&self) -> &SyntaxSet {
+        self.descendant_type_set.get_or_init(|| {
+            let mut result_set = SyntaxSet::EMPTY;
+
+            for seg in self.segments() {
+                result_set = result_set.union(&seg.descendant_type_set().union(&seg.class_types()));
+            }
+
+            result_set
+        })
+    }
+
     fn raw(&self) -> Cow<str> {
         self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
     }
@@ -77,6 +89,10 @@ impl Segment for BracketedSegment {
         self.pos_marker.clone()
     }
 
+    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.pos_marker = position_marker;
+    }
+
     fn segments(&self) -> &[ErasedSegment] {
         &self.segments
     }
@@ -85,28 +101,12 @@ impl Segment for BracketedSegment {
         self.segments = segments;
     }
 
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.pos_marker = position_marker;
-    }
-
     fn get_uuid(&self) -> Uuid {
         self.uuid
     }
 
     fn class_types(&self) -> SyntaxSet {
         SyntaxSet::single(SyntaxKind::Bracketed)
-    }
-
-    fn descendant_type_set(&self) -> &SyntaxSet {
-        self.descendant_type_set.get_or_init(|| {
-            let mut result_set = SyntaxSet::EMPTY;
-
-            for seg in self.segments() {
-                result_set = result_set.union(&seg.descendant_type_set().union(&seg.class_types()));
-            }
-
-            result_set
-        })
     }
 }
 

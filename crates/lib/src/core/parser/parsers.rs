@@ -54,10 +54,6 @@ impl TypedParser {
 impl Segment for TypedParser {}
 
 impl Matchable for TypedParser {
-    fn cache_key(&self) -> MatchableCacheKey {
-        self.cache_key
-    }
-
     fn simple(
         &self,
         parse_context: &ParseContext,
@@ -84,6 +80,10 @@ impl Matchable for TypedParser {
         }
 
         Ok(MatchResult::empty_at(idx))
+    }
+
+    fn cache_key(&self) -> MatchableCacheKey {
+        self.cache_key
     }
 }
 

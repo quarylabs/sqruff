@@ -222,6 +222,10 @@ impl Matchable for AnyNumberOf {
         }
     }
 
+    fn cache_key(&self) -> MatchableCacheKey {
+        self.cache_key
+    }
+
     #[track_caller]
     fn copy(
         &self,
@@ -262,10 +266,6 @@ impl Matchable for AnyNumberOf {
         };
 
         Arc::new(new_grammar)
-    }
-
-    fn cache_key(&self) -> MatchableCacheKey {
-        self.cache_key
     }
 }
 

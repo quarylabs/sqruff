@@ -29,15 +29,6 @@ impl Segment for LiteralSegment {
             .to_erased_segment()
     }
 
-    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        Self {
-            raw: raw.map(Into::into).unwrap_or_else(|| self.raw.clone()),
-            position_maker: self.position_maker.clone(),
-            uuid: self.uuid,
-        }
-        .to_erased_segment()
-    }
-
     fn raw(&self) -> Cow<str> {
         self.raw.as_str().into()
     }
@@ -80,6 +71,15 @@ impl Segment for LiteralSegment {
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
         Vec::new()
+    }
+
+    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+        Self {
+            raw: raw.map(Into::into).unwrap_or_else(|| self.raw.clone()),
+            position_maker: self.position_maker.clone(),
+            uuid: self.uuid,
+        }
+        .to_erased_segment()
     }
 
     fn class_types(&self) -> SyntaxSet {

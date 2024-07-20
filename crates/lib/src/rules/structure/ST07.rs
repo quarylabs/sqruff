@@ -67,11 +67,11 @@ INNER JOIN table_b
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if context.dialect.name == DialectKind::Clickhouse {
-            return Vec::new();
-        }
+    fn dialect_skip(&self) -> &'static [DialectKind] {
+        &[DialectKind::Clickhouse]
+    }
 
+    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let functional_context = FunctionalContext::new(context.clone());
         let segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();

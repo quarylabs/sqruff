@@ -54,12 +54,21 @@ SELECT a, b FROM table_2
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Ambiguous]
     }
-    fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
-        // TODO: add ansi, hive, mysql, redshift
-        if !matches!(rule_cx.dialect.name, DialectKind::Ansi) {
-            return Vec::new();
-        }
 
+    fn dialect_skip(&self) -> &'static [DialectKind] {
+        // TODO: add ansi, hive, mysql, redshift
+        // TODO This feels wrong and should bneed fixing
+        &[
+            DialectKind::Bigquery,
+            DialectKind::Postgres,
+            DialectKind::Snowflake,
+            DialectKind::Clickhouse,
+            DialectKind::Sparksql,
+            DialectKind::Duckdb,
+        ]
+    }
+
+    fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult> {
         let raw = rule_cx.segment.raw();
         let raw_upper = raw.to_uppercase();
 

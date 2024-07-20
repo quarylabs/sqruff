@@ -1789,6 +1789,7 @@ SELECT
 FROM foo
 ```
 
+**Dialects where this rule is skipped:** `bigquery`, `sparksql`
 
 ### references.qualification
 
@@ -1860,6 +1861,7 @@ SELECT
 FROM foo
 ```
 
+**Dialects where this rule is skipped:** `bigquery`
 
 ### references.keywords
 
@@ -2227,6 +2229,7 @@ FROM
 INNER JOIN table_b
     ON table_a.id = table_b.id
 ```
+**Dialects where this rule is skipped:** `snowflake`
 
 ### structure.distinct
 

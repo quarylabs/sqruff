@@ -324,12 +324,12 @@ FROM foo
         &[RuleGroups::All, RuleGroups::References]
     }
 
-    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+    fn dialect_skip(&self) -> &'static [DialectKind] {
         // TODO: add hive, redshift"
-        if context.dialect.name == DialectKind::Bigquery {
-            return Vec::new();
-        }
+        &[DialectKind::Bigquery]
+    }
 
+    fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let query: Query<()> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
 

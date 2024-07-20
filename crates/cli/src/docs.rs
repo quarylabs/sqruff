@@ -41,6 +41,8 @@ struct Rule {
     pub fixable: bool,
     pub long_description: &'static str,
     pub groups: Vec<&'static str>,
+    pub has_dialects: bool,
+    pub dialects: Vec<&'static str>,
 }
 
 impl From<ErasedRule> for Rule {
@@ -53,6 +55,8 @@ impl From<ErasedRule> for Rule {
             description: value.description(),
             long_description: value.long_description(),
             groups: value.groups().iter().map(|g| g.as_ref()).collect(),
+            has_dialects: value.dialect_skip().len() > 0,
+            dialects: value.dialect_skip().into_iter().map(|dialect| dialect.as_ref()).collect(),
         }
     }
 }

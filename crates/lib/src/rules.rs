@@ -44,7 +44,7 @@ pub fn get_ruleset() -> RuleSet {
         );
     }
 
-    RuleSet { _name: "standard".into(), _config_info: <_>::default(), register }
+    RuleSet { register }
 }
 
 #[cfg(test)]

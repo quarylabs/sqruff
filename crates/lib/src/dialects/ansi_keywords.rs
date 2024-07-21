@@ -1,4 +1,4 @@
-//! A list of all SQL key words.
+//! A list of all SQL keywords.
 
 pub const ANSI_RESERVED_KEYWORDS: &str = "SELECT
 JOIN

@@ -423,8 +423,6 @@ impl RulePack {
 }
 
 pub struct RuleSet {
-    pub(crate) _name: String,
-    pub(crate) _config_info: AHashMap<String, String>,
     pub(crate) register: IndexMap<&'static str, RuleManifest>,
 }
 

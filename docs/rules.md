@@ -479,6 +479,7 @@ UNION DISTINCT
 SELECT a, b FROM table_2
 ```
 
+**Dialects where this rule is skipped:** `bigquery`, `postgres`, `snowflake`, `clickhouse`, `sparksql`, `duckdb`
 
 ### ambiguous.order_by
 
@@ -2229,7 +2230,7 @@ FROM
 INNER JOIN table_b
     ON table_a.id = table_b.id
 ```
-**Dialects where this rule is skipped:** `snowflake`
+**Dialects where this rule is skipped:** `clickhouse`
 
 ### structure.distinct
 

@@ -11,7 +11,7 @@ file:
       - column_definition:
         - naked_identifier: bar
         - data_type:
-          - data_type_identifier_segment: INTEGER
+          - data_type_identifier: INTEGER
       - end_bracket: )
     - comment_equals_clause:
       - keyword: COMMENT

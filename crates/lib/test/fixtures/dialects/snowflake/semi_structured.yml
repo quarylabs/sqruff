@@ -28,7 +28,7 @@ file:
               - semi_structured_element: id
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: bigint
+              - data_type_identifier: bigint
         - alias_expression:
           - keyword: AS
           - naked_identifier: field_id
@@ -43,7 +43,7 @@ file:
               - semi_structured_element: value
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: STRING
+              - data_type_identifier: STRING
         - alias_expression:
           - keyword: AS
           - naked_identifier: field_val
@@ -89,7 +89,7 @@ file:
               - semi_structured_element: foo
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: bigint
+              - data_type_identifier: bigint
         - alias_expression:
           - keyword: AS
           - naked_identifier: another_val
@@ -151,7 +151,7 @@ file:
               - semi_structured_element: latitude
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: NUMBER
+              - data_type_identifier: NUMBER
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -177,7 +177,7 @@ file:
               - semi_structured_element: longitude
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: NUMBER
+              - data_type_identifier: NUMBER
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (

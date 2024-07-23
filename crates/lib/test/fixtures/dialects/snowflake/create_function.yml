@@ -11,7 +11,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: FLOAT
+      - data_type_identifier: FLOAT
     - keyword: AS
     - udf_body: '''3.141592654::FLOAT'''
 - statement_terminator: ;
@@ -32,12 +32,12 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - data_type_identifier_segment: INTEGER
+          - data_type_identifier: INTEGER
       - comma: ','
       - column_definition:
         - naked_identifier: y
         - data_type:
-          - data_type_identifier_segment: INTEGER
+          - data_type_identifier: INTEGER
       - end_bracket: )
     - keyword: AS
     - udf_body: |-
@@ -60,7 +60,7 @@ file:
         - start_bracket: (
         - '': id
         - data_type:
-          - data_type_identifier_segment: number
+          - data_type_identifier: number
         - end_bracket: )
     - keyword: RETURNS
     - keyword: TABLE
@@ -69,12 +69,12 @@ file:
       - column_definition:
         - naked_identifier: country_code
         - data_type:
-          - data_type_identifier_segment: char
+          - data_type_identifier: char
       - comma: ','
       - column_definition:
         - naked_identifier: country_name
         - data_type:
-          - data_type_identifier_segment: varchar
+          - data_type_identifier: varchar
       - end_bracket: )
     - keyword: RETURNS
     - keyword: 'NULL'
@@ -100,11 +100,11 @@ file:
         - start_bracket: (
         - '': d
         - data_type:
-          - data_type_identifier_segment: double
+          - data_type_identifier: double
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: double
+      - data_type_identifier: double
     - keyword: IMMUTABLE
     - keyword: LANGUAGE
     - keyword: JAVASCRIPT
@@ -143,12 +143,12 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - data_type_identifier_segment: INTEGER
+          - data_type_identifier: INTEGER
       - comma: ','
       - column_definition:
         - naked_identifier: y
         - data_type:
-          - data_type_identifier_segment: INTEGER
+          - data_type_identifier: INTEGER
       - end_bracket: )
     - keyword: LANGUAGE
     - keyword: SQL
@@ -171,7 +171,7 @@ file:
         - start_bracket: (
         - '': i
         - data_type:
-          - data_type_identifier_segment: numeric
+          - data_type_identifier: numeric
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -182,7 +182,7 @@ file:
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - data_type_identifier_segment: numeric
+      - data_type_identifier: numeric
     - keyword: language
     - keyword: java
     - keyword: imports
@@ -210,11 +210,11 @@ file:
         - start_bracket: (
         - '': x
         - data_type:
-          - data_type_identifier_segment: varchar
+          - data_type_identifier: varchar
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - data_type_identifier_segment: varchar
+      - data_type_identifier: varchar
     - keyword: language
     - keyword: java
     - keyword: called
@@ -251,7 +251,7 @@ file:
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - data_type_identifier_segment: variant
+      - data_type_identifier: variant
     - keyword: language
     - keyword: python
     - keyword: runtime_version
@@ -296,11 +296,11 @@ file:
         - start_bracket: (
         - '': i
         - data_type:
-          - data_type_identifier_segment: int
+          - data_type_identifier: int
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - data_type_identifier_segment: variant
+      - data_type_identifier: variant
     - keyword: language
     - keyword: python
     - keyword: runtime_version
@@ -332,11 +332,11 @@ file:
         - start_bracket: (
         - '': i
         - data_type:
-          - data_type_identifier_segment: int
+          - data_type_identifier: int
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - data_type_identifier_segment: int
+      - data_type_identifier: int
     - keyword: language
     - keyword: python
     - keyword: runtime_version
@@ -367,11 +367,11 @@ file:
         - start_bracket: (
         - '': x
         - data_type:
-          - data_type_identifier_segment: VARCHAR
+          - data_type_identifier: VARCHAR
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: VARCHAR
+      - data_type_identifier: VARCHAR
     - keyword: LANGUAGE
     - keyword: SCALA
     - keyword: RUNTIME_VERSION

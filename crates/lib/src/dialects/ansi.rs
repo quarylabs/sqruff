@@ -914,7 +914,7 @@ pub fn raw_dialect() -> Dialect {
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 CodeSegmentNewArgs {
-                                    code_type: SyntaxKind::DataTypeIdentifierSegment,
+                                    code_type: SyntaxKind::DataTypeIdentifier,
                                     ..<_>::default()
                                 },
                             )

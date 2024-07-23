@@ -9,10 +9,10 @@ file:
             - quoted_literal: '''1'''
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: int
+              - data_type_identifier: int
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: boolean
+              - data_type_identifier: boolean
         - alias_expression:
           - keyword: as
           - naked_identifier: bool
@@ -35,7 +35,7 @@ file:
             - bare_function: CURRENT_TIMESTAMP
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: TIMESTAMP_TZ
+              - data_type_identifier: TIMESTAMP_TZ
       - comma: ','
       - set_clause:
         - column_reference:
@@ -47,8 +47,8 @@ file:
             - quoted_literal: '''1'''
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: int
+              - data_type_identifier: int
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: boolean
+              - data_type_identifier: boolean
 - statement_terminator: ;

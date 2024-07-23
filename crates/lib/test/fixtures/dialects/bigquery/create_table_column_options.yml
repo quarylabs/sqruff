@@ -10,7 +10,7 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - data_type_identifier_segment: INT64
+          - data_type_identifier: INT64
         - options_segment:
           - keyword: OPTIONS
           - bracketed:
@@ -33,7 +33,7 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - data_type_identifier_segment: INT64
+          - data_type_identifier: INT64
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -65,7 +65,7 @@ file:
               - start_angle_bracket: <
               - parameter: col1
               - data_type:
-                - data_type_identifier_segment: INT64
+                - data_type_identifier: INT64
               - options_segment:
                 - keyword: OPTIONS
                 - bracketed:
@@ -90,7 +90,7 @@ file:
                   - start_angle_bracket: <
                   - parameter: col1
                   - data_type:
-                    - data_type_identifier_segment: INT64
+                    - data_type_identifier: INT64
                   - options_segment:
                     - keyword: OPTIONS
                     - bracketed:

@@ -117,10 +117,10 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - comma: ','
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -137,10 +137,10 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - comma: ','
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -246,7 +246,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: VARCHAR
+          - data_type_identifier: VARCHAR
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -263,7 +263,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: VARCHAR
+          - data_type_identifier: VARCHAR
         - end_bracket: )
 - statement_terminator: ;
 - statement:

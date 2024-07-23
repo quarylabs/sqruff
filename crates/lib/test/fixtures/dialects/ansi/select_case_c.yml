@@ -29,7 +29,7 @@ file:
               - keyword: end
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: text
+              - data_type_identifier: text
         - alias_expression:
           - keyword: as
           - naked_identifier: mycol
@@ -72,10 +72,10 @@ file:
               - keyword: end
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: int
+              - data_type_identifier: int
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: float
+              - data_type_identifier: float
         - alias_expression:
           - keyword: as
           - naked_identifier: mycol
@@ -122,7 +122,7 @@ file:
                 - keyword: end
             - keyword: as
             - data_type:
-              - data_type_identifier_segment: text
+              - data_type_identifier: text
             - end_bracket: )
         - alias_expression:
           - keyword: as

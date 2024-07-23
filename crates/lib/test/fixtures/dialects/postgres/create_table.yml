@@ -13,7 +13,7 @@ file:
       - data_type:
         - naked_identifier: public
         - dot: .
-        - data_type_identifier_segment: MY_TYPE
+        - data_type_identifier: MY_TYPE
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1454,7 +1454,7 @@ file:
                 - quoted_literal: '''orders_id_seq'''
                 - casting_operator: '::'
                 - data_type:
-                  - data_type_identifier_segment: regclass
+                  - data_type_identifier: regclass
             - end_bracket: )
       - comma: ','
       - column_reference:
@@ -1980,7 +1980,7 @@ file:
       - column_reference:
         - naked_identifier: col_name
       - data_type:
-        - data_type_identifier_segment: name
+        - data_type_identifier: name
       - end_bracket: )
 - statement_terminator: ;
 - statement:

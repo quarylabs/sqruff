@@ -10,7 +10,7 @@ file:
       - column_definition:
         - naked_identifier: col1
         - data_type:
-          - data_type_identifier_segment: STRING
+          - data_type_identifier: STRING
       - comma: ','
       - end_bracket: )
 - statement_terminator: ;
@@ -25,12 +25,12 @@ file:
       - column_definition:
         - naked_identifier: col1
         - data_type:
-          - data_type_identifier_segment: STRING
+          - data_type_identifier: STRING
       - comma: ','
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - data_type_identifier_segment: INT64
+          - data_type_identifier: INT64
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'

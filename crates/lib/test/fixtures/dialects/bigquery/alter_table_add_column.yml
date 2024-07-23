@@ -12,7 +12,7 @@ file:
     - column_definition:
       - naked_identifier: A
       - data_type:
-        - data_type_identifier_segment: STRING
+        - data_type_identifier: STRING
     - comma: ','
     - keyword: ADD
     - keyword: COLUMN
@@ -22,7 +22,7 @@ file:
     - column_definition:
       - naked_identifier: B
       - data_type:
-        - data_type_identifier_segment: GEOGRAPHY
+        - data_type_identifier: GEOGRAPHY
     - comma: ','
     - keyword: ADD
     - keyword: COLUMN
@@ -33,7 +33,7 @@ file:
           - keyword: ARRAY
           - start_angle_bracket: <
           - data_type:
-            - data_type_identifier_segment: NUMERIC
+            - data_type_identifier: NUMERIC
           - end_angle_bracket: '>'
     - comma: ','
     - keyword: ADD
@@ -41,7 +41,7 @@ file:
     - column_definition:
       - naked_identifier: D
       - data_type:
-        - data_type_identifier_segment: DATE
+        - data_type_identifier: DATE
       - options_segment:
         - keyword: OPTIONS
         - bracketed:
@@ -71,7 +71,7 @@ file:
             - start_angle_bracket: <
             - parameter: B
             - data_type:
-              - data_type_identifier_segment: GEOGRAPHY
+              - data_type_identifier: GEOGRAPHY
             - comma: ','
             - parameter: C
             - data_type:
@@ -79,19 +79,19 @@ file:
                 - keyword: ARRAY
                 - start_angle_bracket: <
                 - data_type:
-                  - data_type_identifier_segment: INT64
+                  - data_type_identifier: INT64
                 - end_angle_bracket: '>'
             - comma: ','
             - parameter: D
             - data_type:
-              - data_type_identifier_segment: INT64
+              - data_type_identifier: INT64
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
             - comma: ','
             - parameter: E
             - data_type:
-              - data_type_identifier_segment: TIMESTAMP
+              - data_type_identifier: TIMESTAMP
             - options_segment:
               - keyword: OPTIONS
               - bracketed:

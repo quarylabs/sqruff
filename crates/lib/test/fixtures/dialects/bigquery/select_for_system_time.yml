@@ -30,7 +30,7 @@ file:
                   - quoted_literal: '''2019-12-02T20:52:34+00:00'''
                 - keyword: AS
                 - data_type:
-                  - data_type_identifier_segment: TIMESTAMP
+                  - data_type_identifier: TIMESTAMP
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -61,7 +61,7 @@ file:
                   - quoted_literal: '''2020-05-11T14:02:52+00:00'''
                 - keyword: AS
                 - data_type:
-                  - data_type_identifier_segment: TIMESTAMP
+                  - data_type_identifier: TIMESTAMP
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -93,5 +93,5 @@ file:
                   - quoted_literal: '''2020-05-11T14:02:52+00:00'''
                 - keyword: AS
                 - data_type:
-                  - data_type_identifier_segment: TIMESTAMP
+                  - data_type_identifier: TIMESTAMP
                 - end_bracket: )

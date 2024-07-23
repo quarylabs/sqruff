@@ -10,12 +10,12 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - data_type_identifier_segment: INT64
+          - data_type_identifier: INT64
       - comma: ','
       - column_definition:
         - naked_identifier: y
         - data_type:
-          - data_type_identifier_segment: INT64
+          - data_type_identifier: INT64
       - end_bracket: )
     - partition_by_segment:
       - keyword: PARTITION

@@ -11,12 +11,12 @@ file:
       - column_definition:
         - naked_identifier: username
         - data_type:
-          - data_type_identifier_segment: TEXT
+          - data_type_identifier: TEXT
       - comma: ','
       - column_definition:
         - naked_identifier: age
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
         - column_constraint_segment:
           - keyword: CHECK
           - bracketed:
@@ -42,12 +42,12 @@ file:
       - column_definition:
         - naked_identifier: username
         - data_type:
-          - data_type_identifier_segment: TEXT
+          - data_type_identifier: TEXT
       - comma: ','
       - column_definition:
         - naked_identifier: age
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
         - column_constraint_segment:
           - keyword: CHECK
           - bracketed:
@@ -73,7 +73,7 @@ file:
       - column_definition:
         - naked_identifier: ID
         - data_type:
-          - data_type_identifier_segment: int
+          - data_type_identifier: int
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -81,7 +81,7 @@ file:
       - column_definition:
         - naked_identifier: LastName
         - data_type:
-          - data_type_identifier_segment: varchar
+          - data_type_identifier: varchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -94,7 +94,7 @@ file:
       - column_definition:
         - naked_identifier: FirstName
         - data_type:
-          - data_type_identifier_segment: varchar
+          - data_type_identifier: varchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -104,12 +104,12 @@ file:
       - column_definition:
         - naked_identifier: Age
         - data_type:
-          - data_type_identifier_segment: int
+          - data_type_identifier: int
       - comma: ','
       - column_definition:
         - naked_identifier: City
         - data_type:
-          - data_type_identifier_segment: varchar
+          - data_type_identifier: varchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -119,7 +119,7 @@ file:
       - column_definition:
         - naked_identifier: CONSTRAINT
         - data_type:
-          - data_type_identifier_segment: CHK_Person
+          - data_type_identifier: CHK_Person
         - column_constraint_segment:
           - keyword: CHECK
           - bracketed:

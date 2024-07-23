@@ -43,7 +43,7 @@ file:
                                   - naked_identifier: num
                               - keyword: AS
                               - data_type:
-                                - data_type_identifier_segment: INT64
+                                - data_type_identifier: INT64
                               - end_bracket: )
                       - from_clause:
                         - keyword: FROM

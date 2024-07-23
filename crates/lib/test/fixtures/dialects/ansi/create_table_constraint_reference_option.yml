@@ -11,7 +11,7 @@ file:
       - column_definition:
         - naked_identifier: b
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -19,7 +19,7 @@ file:
       - column_definition:
         - naked_identifier: c
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -27,7 +27,7 @@ file:
       - column_definition:
         - naked_identifier: d
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'

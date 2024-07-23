@@ -9,7 +9,7 @@ file:
             - '': '''1'''
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: INT
+              - data_type_identifier: INT
         - alias_expression:
           - keyword: as
           - naked_identifier: id1
@@ -20,7 +20,7 @@ file:
             - '': '''2'''
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: int
+              - data_type_identifier: int
         - alias_expression:
           - keyword: as
           - naked_identifier: id2

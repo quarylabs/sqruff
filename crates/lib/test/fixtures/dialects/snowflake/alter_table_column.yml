@@ -12,7 +12,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -27,7 +27,7 @@ file:
       - column_definition:
         - naked_identifier: my_column
         - data_type:
-          - data_type_identifier_segment: VARCHAR
+          - data_type_identifier: VARCHAR
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -50,12 +50,12 @@ file:
       - column_reference:
         - naked_identifier: column_1
       - data_type:
-        - data_type_identifier_segment: varchar
+        - data_type_identifier: varchar
       - comma: ','
       - column_reference:
         - naked_identifier: column_2
       - data_type:
-        - data_type_identifier_segment: integer
+        - data_type_identifier: integer
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -70,7 +70,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: DEFAULT
       - expression:
         - numeric_literal: '1'
@@ -88,7 +88,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: AUTOINCREMENT
 - statement_terminator: ;
 - statement:
@@ -104,7 +104,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: IDENTITY
 - statement_terminator: ;
 - statement:
@@ -120,7 +120,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: AUTOINCREMENT
       - bracketed:
         - start_bracket: (
@@ -142,7 +142,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: IDENTITY
       - keyword: START
       - numeric_literal: '10000'
@@ -162,7 +162,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: MASKING
       - keyword: POLICY
       - function_name:
@@ -181,7 +181,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: WITH
       - keyword: MASKING
       - keyword: POLICY
@@ -201,7 +201,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: WITH
       - keyword: MASKING
       - keyword: POLICY
@@ -225,7 +225,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - keyword: WITH
       - keyword: MASKING
       - keyword: POLICY
@@ -258,7 +258,7 @@ file:
       - column_reference:
         - naked_identifier: reporting_group
       - data_type:
-        - data_type_identifier_segment: VARCHAR
+        - data_type_identifier: VARCHAR
       - comment_clause:
         - keyword: COMMENT
         - quoted_literal: '''internal reporting group defined by DE team'''
@@ -275,7 +275,7 @@ file:
       - column_reference:
         - naked_identifier: encounter_count
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
       - comment_clause:
         - keyword: COMMENT
         - quoted_literal: '''count of encounters past year'''
@@ -364,7 +364,7 @@ file:
       - keyword: data
       - keyword: type
       - data_type:
-        - data_type_identifier_segment: varchar
+        - data_type_identifier: varchar
         - bracketed_arguments:
           - bracketed:
             - start_bracket: (
@@ -635,7 +635,7 @@ file:
       - column_reference:
         - naked_identifier: my_column
       - data_type:
-        - data_type_identifier_segment: INTEGER
+        - data_type_identifier: INTEGER
 - statement_terminator: ;
 - statement:
   - alter_table_statement:

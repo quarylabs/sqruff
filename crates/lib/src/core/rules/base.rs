@@ -5,7 +5,6 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
-use anymap::AnyMap;
 use itertools::chain;
 use strum_macros::AsRefStr;
 
@@ -318,7 +317,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
             path: <_>::default(),
             parent_stack: <_>::default(),
             raw_stack: <_>::default(),
-            memory: Rc::new(RefCell::new(AnyMap::new())),
+            memory: Rc::new(RefCell::new(AHashMap::new())),
             segment_idx: 0,
         };
         let mut vs = Vec::new();

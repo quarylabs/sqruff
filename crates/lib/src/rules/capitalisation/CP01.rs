@@ -154,8 +154,7 @@ pub fn handle_segment(
         return LintResult::new(None, Vec::new(), None, None, None);
     }
 
-    let mut refuted_cases =
-        context.memory.borrow().get::<RefutedCases>().cloned().unwrap_or_default().0;
+    let mut refuted_cases = context.try_get::<RefutedCases>().unwrap_or_default().0;
 
     let mut first_letter_is_lowercase = false;
     for ch in seg.raw().chars() {
@@ -189,7 +188,7 @@ pub fn handle_segment(
         }
     }
 
-    context.memory.borrow_mut().insert(RefutedCases(refuted_cases.clone()));
+    context.set(RefutedCases(refuted_cases.clone()));
 
     let concrete_policy = if extended_capitalisation_policy == "consistent" {
         let cap_policy_opts = match cap_policy_name {
@@ -204,14 +203,11 @@ pub fn handle_segment(
             cap_policy_opts.iter().filter(|&it| !refuted_cases.contains(it)).collect_vec();
 
         if !possible_cases.is_empty() {
-            context.memory.borrow_mut().insert(LatestPossibleCase(possible_cases[0].to_string()));
+            context.set(LatestPossibleCase(possible_cases[0].to_string()));
             return LintResult::new(None, Vec::new(), None, None, None);
         } else {
             context
-                .memory
-                .borrow()
-                .get::<LatestPossibleCase>()
-                .cloned()
+                .try_get::<LatestPossibleCase>()
                 .unwrap_or_else(|| LatestPossibleCase("upper".into()))
                 .0
         }

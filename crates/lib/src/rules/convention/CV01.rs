@@ -83,16 +83,15 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
         // If style is consistent, add the style of the first occurrence to memory
         let preferred_style =
             if self.preferred_not_equal_style == PreferredNotEqualStyle::Consistent {
-                let mut memory = context.memory.borrow_mut();
-                if let Some(preferred_style) = memory.get::<PreferredNotEqualStyle>() {
-                    *preferred_style
+                if let Some(preferred_style) = context.try_get::<PreferredNotEqualStyle>() {
+                    preferred_style
                 } else {
                     let style = if raw_operator_list == ["<", ">"] {
                         PreferredNotEqualStyle::Ansi
                     } else {
                         PreferredNotEqualStyle::CStyle
                     };
-                    memory.insert(style);
+                    context.set(style);
                     style
                 }
             } else {

@@ -7,6 +7,7 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
+#[derive(Clone, Copy)]
 struct PriorGroupByOrderByConvention(GroupByAndOrderByConvention);
 
 #[derive(Debug, Clone)]
@@ -20,7 +21,7 @@ impl Default for RuleAM06 {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum GroupByAndOrderByConvention {
     Consistent,
     Explicit,
@@ -110,10 +111,10 @@ ORDER BY a ASC, b DESC
                 return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
             } else {
                 let current_group_by_order_by_convention =
-                    column_reference_category_set.pop().unwrap();
+                    column_reference_category_set.pop().copied().unwrap();
 
                 if let Some(PriorGroupByOrderByConvention(prior_group_by_order_by_convention)) =
-                    context.memory.borrow().get::<PriorGroupByOrderByConvention>()
+                    context.try_get::<PriorGroupByOrderByConvention>()
                 {
                     if prior_group_by_order_by_convention != current_group_by_order_by_convention {
                         return vec![LintResult::new(
@@ -126,9 +127,7 @@ ORDER BY a ASC, b DESC
                     }
                 }
 
-                context.memory.borrow_mut().insert(PriorGroupByOrderByConvention(
-                    current_group_by_order_by_convention.clone(),
-                ));
+                context.set(PriorGroupByOrderByConvention(current_group_by_order_by_convention));
             }
         } else if column_reference_category_set
             .into_iter()

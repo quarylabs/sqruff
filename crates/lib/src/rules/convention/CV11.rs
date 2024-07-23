@@ -161,14 +161,11 @@ FROM foo;
         let functional_context = FunctionalContext::new(context.clone());
         match self.preferred_type_casting_style {
             TypeCastingStyle::Consistent => {
-                let Some(prior_type_casting_style) =
-                    context.memory.borrow_mut().get::<TypeCastingStyle>().copied()
-                else {
-                    context.memory.borrow_mut().insert(current_type_casting_style);
+                let Some(prior_type_casting_style) = context.try_get::<TypeCastingStyle>() else {
+                    context.set(current_type_casting_style);
                     return Vec::new();
                 };
-                let previous_skipped =
-                    context.memory.borrow_mut().get::<PreviousSkipped>().copied();
+                let previous_skipped = context.try_get::<PreviousSkipped>();
 
                 let mut fixes = Vec::new();
                 match prior_type_casting_style {
@@ -180,7 +177,7 @@ FROM foo;
                                 )));
                             if convert_content.len() > 2 {
                                 if previous_skipped.is_none() {
-                                    context.memory.borrow_mut().insert(PreviousSkipped);
+                                    context.set(PreviousSkipped);
                                 }
                                 return Vec::new();
                             }

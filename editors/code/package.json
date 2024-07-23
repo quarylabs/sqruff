@@ -18,7 +18,7 @@
   "activationEvents": [
     "onLanguage:sql"
   ],
-  "main": "./dist/native.js",
+  "main": "./dist/native.cjs",
   "browser": "./dist/browser.js",
   "scripts": {
     "vscode:prepublish": "npm run lint && npm run build:wasm_lsp-release && npm run check-types && node esbuild.js --production",

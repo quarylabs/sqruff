@@ -572,6 +572,7 @@ pub enum SyntaxKind {
     ColonDelimiter,
     SqlcmdOperator,
     Slice,
+    DataTypeIdentifierSegment,
 }
 
 impl SyntaxKind {

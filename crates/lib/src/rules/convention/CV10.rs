@@ -110,12 +110,8 @@ from foo
 
         let preferred_quoted_literal_style =
             if self.preferred_quoted_literal_style == PreferredQuotedLiteralStyle::Consistent {
-                let preferred_quoted_literal_style = context
-                    .memory
-                    .borrow_mut()
-                    .get::<PreferredQuotedLiteralStyle>()
-                    .copied()
-                    .unwrap_or_else(|| {
+                let preferred_quoted_literal_style =
+                    context.try_get::<PreferredQuotedLiteralStyle>().unwrap_or_else(|| {
                         if context.segment.raw().ends_with('"') {
                             PreferredQuotedLiteralStyle::DoubleQuotes
                         } else {
@@ -123,7 +119,7 @@ from foo
                         }
                     });
 
-                context.memory.borrow_mut().insert(preferred_quoted_literal_style);
+                context.set(preferred_quoted_literal_style);
                 preferred_quoted_literal_style
             } else {
                 self.preferred_quoted_literal_style

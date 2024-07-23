@@ -50,7 +50,6 @@ pretty_assertions = "1.4.0"
 slyce = "0.3.1"
 ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
 lazy-regex = "3.1.0"
-anymap = { package = "anymap3", version = "1.0" }
 rayon = "1.10.0"
 smol_str = "0.2.2"
 serde_yaml = "0.9.34"

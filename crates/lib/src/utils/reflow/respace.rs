@@ -7,6 +7,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::rules::base::{EditType, LintFix, LintResult};
 use crate::dialects::SyntaxKind;
+use crate::utils::reflow::helpers::pretty_segment_name;
 
 fn unpack_constraint(constraint: &str, mut strip_newlines: bool) -> (String, bool) {
     let (constraint, modifier) = if constraint.starts_with("align") {
@@ -210,7 +211,10 @@ pub fn handle_respace_inline_with_space(
         segment_buffer.remove(ws_idx);
 
         let description = if let Some(next_block) = next_block {
-            format!("Unexpected whitespace before {:?}.", next_block.segments[0].raw())
+            format!(
+                "Unexpected whitespace before {}.",
+                pretty_segment_name(&next_block.segments[0])
+            )
         } else {
             "Unexpected whitespace".to_string()
         };

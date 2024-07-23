@@ -11,6 +11,16 @@ pub fn fixes_from_results(
     results.flat_map(|result| result.fixes)
 }
 
+pub fn pretty_segment_name(segment: &ErasedSegment) -> String {
+    if segment.is_type(SyntaxKind::Symbol) {
+        format!("{} {:?}", segment.get_type().as_str().replace('_', " "), segment.raw())
+    } else if segment.is_type(SyntaxKind::Keyword) {
+        format!("{:?} keyword", segment.raw())
+    } else {
+        segment.get_type().as_str().replace('_', " ")
+    }
+}
+
 /// Given a raw segment, deduce the indent of its line.
 pub fn deduce_line_indent(raw_segment: &ErasedSegment, root_segment: &ErasedSegment) -> SmolStr {
     let seg_idx = root_segment.get_raw_segments().iter().position(|seg| seg == raw_segment);

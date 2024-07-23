@@ -1136,7 +1136,7 @@ impl Segment for CommentSegment {
     }
 
     fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::single(SyntaxKind::Comment)
+        SyntaxSet::single(self.r#type)
     }
 }
 

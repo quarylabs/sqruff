@@ -13,7 +13,7 @@ file:
               - numeric_literal: '25.65'
             - keyword: AS
             - data_type:
-              - data_type_identifier_segment: int
+              - data_type_identifier: int
             - end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -26,7 +26,7 @@ file:
               - null_literal: 'NULL'
             - keyword: AS
             - data_type:
-              - data_type_identifier_segment: STRING
+              - data_type_identifier: STRING
             - end_bracket: )
         - alias_expression:
           - keyword: AS

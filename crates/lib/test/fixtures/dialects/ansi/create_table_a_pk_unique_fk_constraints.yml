@@ -11,17 +11,17 @@ file:
       - column_definition:
         - naked_identifier: c1
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
       - comma: ','
       - column_definition:
         - naked_identifier: c2
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
       - comma: ','
       - column_definition:
         - naked_identifier: c3
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
       - comma: ','
       - table_constraint:
         - keyword: PRIMARY

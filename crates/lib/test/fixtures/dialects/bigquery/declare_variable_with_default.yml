@@ -4,7 +4,7 @@ file:
     - keyword: declare
     - naked_identifier: var5
     - data_type:
-      - data_type_identifier_segment: date
+      - data_type_identifier: date
     - keyword: default
     - function:
       - function_name:
@@ -18,7 +18,7 @@ file:
     - keyword: declare
     - naked_identifier: var4
     - data_type:
-      - data_type_identifier_segment: int64
+      - data_type_identifier: int64
     - keyword: default
     - numeric_literal: '1'
 - statement_terminator: ;
@@ -27,7 +27,7 @@ file:
     - keyword: declare
     - naked_identifier: var3
     - data_type:
-      - data_type_identifier_segment: string
+      - data_type_identifier: string
     - keyword: default
     - bracketed:
       - start_bracket: (

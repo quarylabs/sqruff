@@ -20,7 +20,7 @@ file:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
-              - data_type_identifier_segment: BOOLEAN
+              - data_type_identifier: BOOLEAN
             - end_angle_bracket: '>'
           - array_literal:
             - start_square_bracket: '['
@@ -42,7 +42,7 @@ file:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
-              - data_type_identifier_segment: string
+              - data_type_identifier: string
             - end_angle_bracket: '>'
           - array_literal:
             - start_square_bracket: '['
@@ -67,7 +67,7 @@ file:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
-              - data_type_identifier_segment: NUMERIC
+              - data_type_identifier: NUMERIC
             - end_angle_bracket: '>'
           - array_literal:
             - start_square_bracket: '['

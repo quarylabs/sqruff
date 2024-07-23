@@ -38,7 +38,7 @@ file:
                   - end_bracket: )
                 - casting_operator: '::'
                 - data_type:
-                  - data_type_identifier_segment: my_type
+                  - data_type_identifier: my_type
             - end_bracket: )
           - semi_structured_expression:
             - dot: .

@@ -21,7 +21,7 @@ file:
                       - numeric_literal: '1'
                     - keyword: AS
                     - data_type:
-                      - data_type_identifier_segment: BOOLEAN
+                      - data_type_identifier: BOOLEAN
                     - end_bracket: )
                 - alias_expression:
                   - keyword: AS

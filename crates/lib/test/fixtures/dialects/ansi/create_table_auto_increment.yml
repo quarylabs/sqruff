@@ -11,7 +11,7 @@ file:
       - column_definition:
         - naked_identifier: id
         - data_type:
-          - data_type_identifier_segment: INT
+          - data_type_identifier: INT
         - column_constraint_segment:
           - keyword: AUTO_INCREMENT
       - end_bracket: )

@@ -6,10 +6,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
@@ -23,10 +23,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
@@ -42,10 +42,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
@@ -63,10 +63,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
@@ -76,7 +76,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: bool
+          - data_type_identifier: bool
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -86,10 +86,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
@@ -101,10 +101,10 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: int
+          - data_type_identifier: int
         - comma: ','
         - data_type:
-          - data_type_identifier_segment: bool
+          - data_type_identifier: bool
         - end_bracket: )
     - keyword: AS
     - keyword: ASSIGNMENT
@@ -116,10 +116,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: udt_1
+        - data_type_identifier: udt_1
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: udt_2
+        - data_type_identifier: udt_2
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
@@ -129,10 +129,10 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: udt_1
+          - data_type_identifier: udt_1
         - comma: ','
         - data_type:
-          - data_type_identifier_segment: udt_2
+          - data_type_identifier: udt_2
         - end_bracket: )
     - keyword: FOR
     - object_reference:
@@ -147,12 +147,12 @@ file:
       - data_type:
         - naked_identifier: sch
         - dot: .
-        - data_type_identifier_segment: udt_1
+        - data_type_identifier: udt_1
       - keyword: AS
       - data_type:
         - naked_identifier: sch
         - dot: .
-        - data_type_identifier_segment: udt_2
+        - data_type_identifier: udt_2
       - end_bracket: )
     - keyword: WITH
     - keyword: FUNCTION
@@ -166,12 +166,12 @@ file:
         - data_type:
           - naked_identifier: sch
           - dot: .
-          - data_type_identifier_segment: udt_1
+          - data_type_identifier: udt_1
         - comma: ','
         - data_type:
           - naked_identifier: sch
           - dot: .
-          - data_type_identifier_segment: udt_2
+          - data_type_identifier: udt_2
         - end_bracket: )
     - keyword: FOR
     - object_reference:
@@ -186,10 +186,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: ROUTINE
@@ -207,10 +207,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: PROCEDURE
@@ -228,10 +228,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: METHOD
@@ -249,10 +249,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: INSTANCE
@@ -271,10 +271,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: STATIC
@@ -293,10 +293,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - data_type_identifier_segment: int
+        - data_type_identifier: int
       - keyword: AS
       - data_type:
-        - data_type_identifier_segment: bool
+        - data_type_identifier: bool
       - end_bracket: )
     - keyword: WITH
     - keyword: CONSTRUCTOR

@@ -11,11 +11,11 @@ file:
         - start_bracket: (
         - parameter: url
         - data_type:
-          - data_type_identifier_segment: STRING
+          - data_type_identifier: STRING
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: STRING
+      - data_type_identifier: STRING
     - function_definition:
       - keyword: AS
       - bracketed:

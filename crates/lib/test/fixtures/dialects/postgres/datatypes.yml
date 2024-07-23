@@ -737,7 +737,7 @@ file:
       - column_reference:
         - naked_identifier: a
       - data_type:
-        - data_type_identifier_segment: bar
+        - data_type_identifier: bar
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -771,7 +771,7 @@ file:
       - data_type:
         - naked_identifier: public
         - dot: .
-        - data_type_identifier_segment: c
+        - data_type_identifier: c
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -792,7 +792,7 @@ file:
       - column_reference:
         - naked_identifier: c
       - data_type:
-        - data_type_identifier_segment: DATETIME
+        - data_type_identifier: DATETIME
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -806,7 +806,7 @@ file:
               - naked_identifier: b
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: DATETIME
+              - data_type_identifier: DATETIME
     - from_clause:
       - keyword: FROM
       - from_expression:

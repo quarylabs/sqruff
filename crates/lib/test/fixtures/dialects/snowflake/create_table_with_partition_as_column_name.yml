@@ -16,11 +16,11 @@ file:
       - column_definition:
         - naked_identifier: date_col
         - data_type:
-          - data_type_identifier_segment: DATE
+          - data_type_identifier: DATE
       - comma: ','
       - column_definition:
         - naked_identifier: partition
         - data_type:
-          - data_type_identifier_segment: INTEGER
+          - data_type_identifier: INTEGER
       - end_bracket: )
 - statement_terminator: ;

@@ -11,7 +11,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: RENAME
     - keyword: TO
@@ -28,7 +28,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: SECURE
@@ -43,7 +43,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: RENAME
     - keyword: TO
@@ -60,7 +60,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: API_INTEGRATION
@@ -78,7 +78,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: MAX_BATCH_ROWS
@@ -96,7 +96,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: COMPRESSION
@@ -114,7 +114,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: REQUEST_TRANSLATOR
@@ -133,7 +133,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: RESPONSE_TRANSLATOR
@@ -152,7 +152,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: HEADERS
@@ -176,7 +176,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - keyword: CONTEXT_HEADERS
@@ -199,7 +199,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier_segment: NUMBER
+          - data_type_identifier: NUMBER
         - end_bracket: )
     - keyword: SET
     - comment_equals_clause:

@@ -13,11 +13,11 @@ file:
         - start_bracket: (
         - '': STRING_COL
         - data_type:
-          - data_type_identifier_segment: VARCHAR
+          - data_type_identifier: VARCHAR
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: VARIANT
+      - data_type_identifier: VARIANT
     - keyword: API_INTEGRATION
     - comparison_operator:
       - raw_comparison_operator: =
@@ -41,11 +41,11 @@ file:
         - start_bracket: (
         - '': STRING_COL
         - data_type:
-          - data_type_identifier_segment: VARCHAR
+          - data_type_identifier: VARCHAR
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: VARIANT
+      - data_type_identifier: VARIANT
     - keyword: NOT
     - keyword: 'NULL'
     - keyword: STRICT
@@ -117,11 +117,11 @@ file:
         - start_bracket: (
         - '': STRING_COL
         - data_type:
-          - data_type_identifier_segment: VARCHAR
+          - data_type_identifier: VARCHAR
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: VARIANT
+      - data_type_identifier: VARIANT
     - keyword: NOT
     - keyword: 'NULL'
     - keyword: RETURNS
@@ -197,11 +197,11 @@ file:
         - start_bracket: (
         - '': OBJ
         - data_type:
-          - data_type_identifier_segment: OBJECT
+          - data_type_identifier: OBJECT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: VARCHAR
+      - data_type_identifier: VARCHAR
     - keyword: 'NULL'
     - keyword: CALLED
     - keyword: ON

@@ -10,7 +10,7 @@ file:
               - naked_identifier: bar
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: array
+              - data_type_identifier: array
             - array_accessor:
               - start_square_bracket: '['
               - numeric_literal: '0'
@@ -29,7 +29,7 @@ file:
               - semi_structured_element: bar
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: array
+              - data_type_identifier: array
             - array_accessor:
               - start_square_bracket: '['
               - numeric_literal: '2'
@@ -45,7 +45,7 @@ file:
               - naked_identifier: bar
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: array
+              - data_type_identifier: array
             - array_accessor:
               - start_square_bracket: '['
               - numeric_literal: '0'
@@ -68,14 +68,14 @@ file:
               - semi_structured_element: foo
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: array
+              - data_type_identifier: array
             - array_accessor:
               - start_square_bracket: '['
               - numeric_literal: '0'
               - end_square_bracket: ']'
             - casting_operator: '::'
             - data_type:
-              - data_type_identifier_segment: string
+              - data_type_identifier: string
         - alias_expression:
           - keyword: AS
           - naked_identifier: channel4

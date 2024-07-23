@@ -13,7 +13,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: integer
+      - data_type_identifier: integer
     - function_definition:
       - keyword: AS
       - '': |-
@@ -35,7 +35,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - data_type_identifier_segment: integer
+      - data_type_identifier: integer
     - function_definition:
       - keyword: AS
       - '': |-

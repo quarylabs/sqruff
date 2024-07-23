@@ -11,7 +11,7 @@ file:
       - column_definition:
         - naked_identifier: pk
         - data_type:
-          - data_type_identifier_segment: int
+          - data_type_identifier: int
         - column_constraint_segment:
           - keyword: PRIMARY
           - keyword: KEY
@@ -26,14 +26,14 @@ file:
         - data_type:
           - naked_identifier: sch
           - dot: .
-          - data_type_identifier_segment: qualified
+          - data_type_identifier: qualified
       - comma: ','
       - column_definition:
         - naked_identifier: quoted_qualified
         - data_type:
           - quoted_identifier: '"my schema"'
           - dot: .
-          - data_type_identifier_segment: qualified
+          - data_type_identifier: qualified
       - comma: ','
       - column_definition:
         - naked_identifier: more_quoted

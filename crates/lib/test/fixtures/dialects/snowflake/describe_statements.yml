@@ -634,10 +634,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': NUMBER
+        - data_type_identifier_segment: NUMBER
       - comma: ','
       - data_type:
-        - '': NUMBER
+        - data_type_identifier_segment: NUMBER
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -649,10 +649,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': NUMBER
+        - data_type_identifier_segment: NUMBER
       - comma: ','
       - data_type:
-        - '': NUMBER
+        - data_type_identifier_segment: NUMBER
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -684,7 +684,7 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': FLOAT
+        - data_type_identifier_segment: FLOAT
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -696,6 +696,6 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': FLOAT
+        - data_type_identifier_segment: FLOAT
       - end_bracket: )
 - statement_terminator: ;

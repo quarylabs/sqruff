@@ -11,10 +11,10 @@ file:
       - column_definition:
         - naked_identifier: c1
         - data_type:
-          - '': SMALLINT
+          - data_type_identifier_segment: SMALLINT
       - comma: ','
       - column_definition:
         - naked_identifier: c2
         - data_type:
-          - '': DATE
+          - data_type_identifier_segment: DATE
       - end_bracket: )

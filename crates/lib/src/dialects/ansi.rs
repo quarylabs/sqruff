@@ -913,7 +913,10 @@ pub fn raw_dialect() -> Dialect {
                             CodeSegment::create(
                                 &segment.raw(),
                                 segment.get_position_marker(),
-                                CodeSegmentNewArgs::default(),
+                                CodeSegmentNewArgs {
+                                    code_type: SyntaxKind::DataTypeIdentifierSegment,
+                                    ..<_>::default()
+                                },
                             )
                         },
                         None,

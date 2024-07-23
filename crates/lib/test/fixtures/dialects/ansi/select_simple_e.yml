@@ -10,7 +10,7 @@ file:
               - naked_identifier: my_var
             - casting_operator: '::'
             - data_type:
-              - '': date
+              - data_type_identifier_segment: date
         - alias_expression:
           - keyword: as
           - naked_identifier: casted_variable
@@ -21,7 +21,7 @@ file:
             - numeric_literal: '123'
             - casting_operator: '::'
             - data_type:
-              - '': bigint
+              - data_type_identifier_segment: bigint
         - alias_expression:
           - keyword: as
           - naked_identifier: another_casted_number

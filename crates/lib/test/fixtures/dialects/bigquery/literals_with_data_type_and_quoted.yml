@@ -6,7 +6,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': NUMERIC
+            - data_type_identifier_segment: NUMERIC
           - quoted_literal: '''0'''
 - statement_terminator: ;
 - statement:
@@ -16,62 +16,12 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': NUMERIC
-          - quoted_literal: '''0'''
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - data_type:
-            - '': NUMERIC
-          - quoted_literal: '''0'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': NUMERIC
-          - quoted_literal: '"0"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': NUMERIC
-          - quoted_literal: '"0"'
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - data_type:
-            - '': NUMERIC
-          - quoted_literal: '"0"'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': BIGNUMERIC
-          - quoted_literal: '''0'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - expression:
-          - data_type:
-            - '': BIGNUMERIC
+            - data_type_identifier_segment: NUMERIC
           - quoted_literal: '''0'''
           - comparison_operator:
             - raw_comparison_operator: =
           - data_type:
-            - '': BIGNUMERIC
+            - data_type_identifier_segment: NUMERIC
           - quoted_literal: '''0'''
 - statement_terminator: ;
 - statement:
@@ -81,7 +31,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': BIGNUMERIC
+            - data_type_identifier_segment: NUMERIC
           - quoted_literal: '"0"'
 - statement_terminator: ;
 - statement:
@@ -91,12 +41,62 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': BIGNUMERIC
+            - data_type_identifier_segment: NUMERIC
           - quoted_literal: '"0"'
           - comparison_operator:
             - raw_comparison_operator: =
           - data_type:
-            - '': BIGNUMERIC
+            - data_type_identifier_segment: NUMERIC
+          - quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - data_type_identifier_segment: BIGNUMERIC
+          - quoted_literal: '''0'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - data_type_identifier_segment: BIGNUMERIC
+          - quoted_literal: '''0'''
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - data_type:
+            - data_type_identifier_segment: BIGNUMERIC
+          - quoted_literal: '''0'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - data_type_identifier_segment: BIGNUMERIC
+          - quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - data_type:
+            - data_type_identifier_segment: BIGNUMERIC
+          - quoted_literal: '"0"'
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - data_type:
+            - data_type_identifier_segment: BIGNUMERIC
           - quoted_literal: '"0"'
 - statement_terminator: ;
 - statement:
@@ -127,7 +127,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': DATE
+            - data_type_identifier_segment: DATE
           - quoted_literal: '"2014-09-27"'
 - statement_terminator: ;
 - statement:
@@ -137,12 +137,12 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': DATE
+            - data_type_identifier_segment: DATE
           - quoted_literal: '"2014-09-27"'
           - comparison_operator:
             - raw_comparison_operator: =
           - data_type:
-            - '': DATE
+            - data_type_identifier_segment: DATE
           - quoted_literal: '"2014-09-27"'
 - statement_terminator: ;
 - statement:
@@ -173,7 +173,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': TIME
+            - data_type_identifier_segment: TIME
           - quoted_literal: '"12:30:00.45"'
 - statement_terminator: ;
 - statement:
@@ -183,12 +183,12 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': TIME
+            - data_type_identifier_segment: TIME
           - quoted_literal: '"12:30:00.45"'
           - comparison_operator:
             - raw_comparison_operator: =
           - data_type:
-            - '': TIME
+            - data_type_identifier_segment: TIME
           - quoted_literal: '"12:30:00.45"'
 - statement_terminator: ;
 - statement:
@@ -219,7 +219,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': DATETIME
+            - data_type_identifier_segment: DATETIME
           - quoted_literal: '"2014-09-27 12:30:00.45"'
 - statement_terminator: ;
 - statement:
@@ -229,12 +229,12 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': DATETIME
+            - data_type_identifier_segment: DATETIME
           - quoted_literal: '"2014-09-27 12:30:00.45"'
           - comparison_operator:
             - raw_comparison_operator: =
           - data_type:
-            - '': DATETIME
+            - data_type_identifier_segment: DATETIME
           - quoted_literal: '"2014-09-27 12:30:00.45"'
 - statement_terminator: ;
 - statement:
@@ -265,7 +265,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': TIMESTAMP
+            - data_type_identifier_segment: TIMESTAMP
           - quoted_literal: '"2014-09-27 12:30:00.45-08"'
 - statement_terminator: ;
 - statement:
@@ -275,12 +275,12 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': TIMESTAMP
+            - data_type_identifier_segment: TIMESTAMP
           - quoted_literal: '"2014-09-27 12:30:00.45-08"'
           - comparison_operator:
             - raw_comparison_operator: =
           - data_type:
-            - '': TIMESTAMP
+            - data_type_identifier_segment: TIMESTAMP
           - quoted_literal: '"2014-09-27 12:30:00.45-08"'
 - statement_terminator: ;
 - statement:
@@ -362,7 +362,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': JSON
+            - data_type_identifier_segment: JSON
           - quoted_literal: '''{}'''
 - statement_terminator: ;
 - statement:
@@ -372,7 +372,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': JSON
+            - data_type_identifier_segment: JSON
           - quoted_literal: '''{}'''
           - keyword: IS
           - keyword: NOT
@@ -385,7 +385,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': JSON
+            - data_type_identifier_segment: JSON
           - quoted_literal: '"{}"'
 - statement_terminator: ;
 - statement:
@@ -395,7 +395,7 @@ file:
       - select_clause_element:
         - expression:
           - data_type:
-            - '': JSON
+            - data_type_identifier_segment: JSON
           - quoted_literal: '"{}"'
           - keyword: IS
           - keyword: NOT

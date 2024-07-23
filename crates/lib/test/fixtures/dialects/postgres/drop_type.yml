@@ -4,7 +4,7 @@ file:
     - keyword: DROP
     - keyword: TYPE
     - data_type:
-      - '': foo
+      - data_type_identifier_segment: foo
 - statement_terminator: ;
 - statement:
   - drop_type_statement:
@@ -13,24 +13,24 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - data_type:
-      - '': foo
+      - data_type_identifier_segment: foo
 - statement_terminator: ;
 - statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE
     - data_type:
-      - '': foo
+      - data_type_identifier_segment: foo
     - comma: ','
     - data_type:
-      - '': bar
+      - data_type_identifier_segment: bar
 - statement_terminator: ;
 - statement:
   - drop_type_statement:
     - keyword: DROP
     - keyword: TYPE
     - data_type:
-      - '': foo
+      - data_type_identifier_segment: foo
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -38,6 +38,6 @@ file:
     - keyword: DROP
     - keyword: TYPE
     - data_type:
-      - '': foo
+      - data_type_identifier_segment: foo
     - keyword: RESTRICT
 - statement_terminator: ;

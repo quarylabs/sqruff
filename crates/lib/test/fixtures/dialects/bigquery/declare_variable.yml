@@ -4,7 +4,7 @@ file:
     - keyword: declare
     - naked_identifier: var1
     - data_type:
-      - '': int64
+      - data_type_identifier_segment: int64
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -13,7 +13,7 @@ file:
     - comma: ','
     - naked_identifier: var3
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -27,7 +27,7 @@ file:
     - keyword: declare
     - naked_identifier: var5
     - data_type:
-      - '': int64
+      - data_type_identifier_segment: int64
     - keyword: default
     - expression:
       - numeric_literal: '1'
@@ -39,7 +39,7 @@ file:
     - keyword: declare
     - naked_identifier: var6
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -51,7 +51,7 @@ file:
     - keyword: declare
     - naked_identifier: var7
     - data_type:
-      - '': numeric
+      - data_type_identifier_segment: numeric
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -69,7 +69,7 @@ file:
         - keyword: array
         - start_angle_bracket: <
         - data_type:
-          - '': string
+          - data_type_identifier_segment: string
         - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
@@ -102,7 +102,7 @@ file:
         - keyword: array
         - start_angle_bracket: <
         - data_type:
-          - '': string
+          - data_type_identifier_segment: string
         - end_angle_bracket: '>'
     - keyword: default
     - array_literal:
@@ -121,7 +121,7 @@ file:
         - keyword: array
         - start_angle_bracket: <
         - data_type:
-          - '': string
+          - data_type_identifier_segment: string
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -140,11 +140,11 @@ file:
           - start_angle_bracket: <
           - parameter: f1
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
           - comma: ','
           - parameter: f2
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
           - end_angle_bracket: '>'
 - statement_terminator: ;
 - statement:
@@ -158,11 +158,11 @@ file:
           - start_angle_bracket: <
           - parameter: f1
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
           - comma: ','
           - parameter: f2
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
           - end_angle_bracket: '>'
     - keyword: default
     - expression:
@@ -205,11 +205,11 @@ file:
           - start_angle_bracket: <
           - parameter: f1
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
           - comma: ','
           - parameter: f2
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
           - end_angle_bracket: '>'
     - keyword: default
     - tuple:
@@ -231,7 +231,7 @@ file:
           - start_angle_bracket: <
           - parameter: f1
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -240,7 +240,7 @@ file:
           - comma: ','
           - parameter: f2
           - data_type:
-            - '': string
+            - data_type_identifier_segment: string
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -253,14 +253,14 @@ file:
     - keyword: declare
     - quoted_identifier: '`var1`'
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
 - statement_terminator: ;
 - statement:
   - declare_segment:
     - keyword: declare
     - quoted_identifier: '`var1`'
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - keyword: default
     - quoted_literal: '''value'''
 - statement_terminator: ;
@@ -271,7 +271,7 @@ file:
     - comma: ','
     - quoted_identifier: '`var1`'
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -280,7 +280,7 @@ file:
     - comma: ','
     - quoted_identifier: '`var2`'
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
 - statement_terminator: ;
 - statement:
   - declare_segment:
@@ -289,7 +289,7 @@ file:
     - comma: ','
     - quoted_identifier: '`var2`'
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - keyword: default
     - quoted_literal: '''value'''
 - statement_terminator: ;

@@ -4,7 +4,7 @@ file:
     - keyword: DECLARE
     - naked_identifier: x
     - data_type:
-      - '': INT64
+      - data_type_identifier_segment: INT64
     - keyword: DEFAULT
     - numeric_literal: '0'
 - statement_terminator: ;
@@ -223,14 +223,14 @@ file:
     - keyword: DECLARE
     - naked_identifier: heads
     - data_type:
-      - '': BOOL
+      - data_type_identifier_segment: BOOL
 - statement_terminator: ;
 - statement:
   - declare_segment:
     - keyword: DECLARE
     - naked_identifier: heads_count
     - data_type:
-      - '': INT64
+      - data_type_identifier_segment: INT64
     - keyword: DEFAULT
     - numeric_literal: '0'
 - statement_terminator: ;
@@ -324,7 +324,7 @@ file:
                       - naked_identifier: heads_count
                   - keyword: AS
                   - data_type:
-                    - '': STRING
+                    - data_type_identifier_segment: STRING
                   - end_bracket: )
             - comma: ','
             - expression:

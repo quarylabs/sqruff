@@ -10,7 +10,7 @@ file:
               - naked_identifier: amount_of_honey
             - casting_operator: '::'
             - data_type:
-              - '': FLOAT
+              - data_type_identifier_segment: FLOAT
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -31,7 +31,7 @@ file:
               - naked_identifier: amount_of_honey
             - casting_operator: '::'
             - data_type:
-              - '': FLOAT
+              - data_type_identifier_segment: FLOAT
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -52,7 +52,7 @@ file:
               - naked_identifier: amount_of_honey
             - casting_operator: '::'
             - data_type:
-              - '': FLOAT
+              - data_type_identifier_segment: FLOAT
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -73,7 +73,7 @@ file:
               - naked_identifier: amount_of_honey
             - casting_operator: '::'
             - data_type:
-              - '': FLOAT
+              - data_type_identifier_segment: FLOAT
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -115,7 +115,7 @@ file:
               - naked_identifier: amount_of_honey
             - casting_operator: '::'
             - data_type:
-              - '': text
+              - data_type_identifier_segment: text
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -136,7 +136,7 @@ file:
               - naked_identifier: amount_of_honey
             - casting_operator: '::'
             - data_type:
-              - '': VARCHAR
+              - data_type_identifier_segment: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -162,7 +162,7 @@ file:
               - naked_identifier: amount_of_honey
             - casting_operator: '::'
             - data_type:
-              - '': TIMESTAMPTZ
+              - data_type_identifier_segment: TIMESTAMPTZ
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -235,7 +235,7 @@ file:
                   - naked_identifier: bear_id
                 - casting_operator: '::'
                 - data_type:
-                  - '': VARCHAR
+                  - data_type_identifier_segment: VARCHAR
                   - bracketed_arguments:
                     - bracketed:
                       - start_bracket: (
@@ -250,7 +250,7 @@ file:
                   - naked_identifier: bear_id
                 - casting_operator: '::'
                 - data_type:
-                  - '': VARCHAR
+                  - data_type_identifier_segment: VARCHAR
                   - bracketed_arguments:
                     - bracketed:
                       - start_bracket: (

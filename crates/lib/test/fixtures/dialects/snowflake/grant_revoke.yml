@@ -410,7 +410,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
         - end_bracket: )
     - keyword: from
     - keyword: role
@@ -554,7 +554,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
         - end_bracket: )
     - keyword: to
     - keyword: role
@@ -578,7 +578,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - '': string
+          - data_type_identifier_segment: string
         - end_bracket: )
     - keyword: to
     - keyword: role
@@ -601,7 +601,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
         - end_bracket: )
     - keyword: to
     - keyword: role
@@ -851,7 +851,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - '': string
+          - data_type_identifier_segment: string
         - end_bracket: )
     - keyword: from
     - keyword: role
@@ -871,7 +871,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - '': string
+          - data_type_identifier_segment: string
         - end_bracket: )
     - keyword: from
     - keyword: role

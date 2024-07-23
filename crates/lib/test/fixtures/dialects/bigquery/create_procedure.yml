@@ -12,7 +12,7 @@ file:
         - start_bracket: (
         - parameter: incremental
         - data_type:
-          - '': INT64
+          - data_type_identifier_segment: INT64
         - end_bracket: )
     - keyword: BEGIN
     - procedure_statements:
@@ -80,11 +80,11 @@ file:
         - keyword: INOUT
         - parameter: x
         - data_type:
-          - '': INT64
+          - data_type_identifier_segment: INT64
         - comma: ','
         - parameter: delta
         - data_type:
-          - '': INT64
+          - data_type_identifier_segment: INT64
         - end_bracket: )
     - keyword: BEGIN
     - procedure_statements:
@@ -116,12 +116,12 @@ file:
         - start_bracket: (
         - parameter: target_date
         - data_type:
-          - '': DATE
+          - data_type_identifier_segment: DATE
         - comma: ','
         - keyword: OUT
         - parameter: rows_added
         - data_type:
-          - '': INT64
+          - data_type_identifier_segment: INT64
         - end_bracket: )
     - keyword: BEGIN
     - procedure_statements:
@@ -295,7 +295,7 @@ file:
           - keyword: DECLARE
           - naked_identifier: id
           - data_type:
-            - '': STRING
+            - data_type_identifier_segment: STRING
       - statement_terminator: ;
       - statement:
         - set_segment:
@@ -367,7 +367,7 @@ file:
         - start_bracket: (
         - parameter: name
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
         - end_bracket: )
     - keyword: BEGIN
     - procedure_statements:
@@ -376,7 +376,7 @@ file:
           - keyword: DECLARE
           - naked_identifier: id
           - data_type:
-            - '': STRING
+            - data_type_identifier_segment: STRING
       - statement_terminator: ;
       - statement:
         - set_segment:
@@ -459,12 +459,12 @@ file:
         - start_bracket: (
         - parameter: name
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
         - comma: ','
         - keyword: OUT
         - parameter: id
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
         - end_bracket: )
     - keyword: BEGIN
     - procedure_statements:
@@ -549,7 +549,7 @@ file:
         - start_bracket: (
         - parameter: error_message
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
         - end_bracket: )
     - keyword: BEGIN
     - procedure_statements:

@@ -49,7 +49,7 @@ file:
     - keyword: DATA
     - keyword: TYPE
     - data_type:
-      - '': FLOAT64
+      - data_type_identifier_segment: FLOAT64
     - comma: ','
     - keyword: ALTER
     - keyword: COLUMN

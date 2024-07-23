@@ -23,7 +23,7 @@ file:
                 - semi_structured_element: id
               - casting_operator: '::'
               - data_type:
-                - '': TEXT
+                - data_type_identifier_segment: TEXT
           - alias_expression:
             - naked_identifier: id
       - from_clause:
@@ -50,7 +50,7 @@ file:
       - column_definition:
         - naked_identifier: col1
         - data_type:
-          - '': VARCHAR
+          - data_type_identifier_segment: VARCHAR
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -65,7 +65,7 @@ file:
       - column_definition:
         - naked_identifier: amount
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -80,7 +80,7 @@ file:
       - column_definition:
         - naked_identifier: amount
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - end_bracket: )
     - keyword: CLUSTER
     - keyword: BY
@@ -103,7 +103,7 @@ file:
       - column_definition:
         - naked_identifier: amount
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - end_bracket: )
     - keyword: CLUSTER
     - keyword: BY
@@ -137,7 +137,7 @@ file:
       - column_definition:
         - naked_identifier: amount
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -163,7 +163,7 @@ file:
       - column_definition:
         - naked_identifier: amount
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -220,7 +220,7 @@ file:
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -236,7 +236,7 @@ file:
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -253,7 +253,7 @@ file:
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -270,7 +270,7 @@ file:
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -287,7 +287,7 @@ file:
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -304,7 +304,7 @@ file:
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -320,7 +320,7 @@ file:
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -335,7 +335,7 @@ file:
       - column_definition:
         - naked_identifier: col1
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - comment_clause:
         - keyword: comment
         - quoted_literal: '''a column comment'''
@@ -395,7 +395,7 @@ file:
       - column_definition:
         - naked_identifier: barry
         - data_type:
-          - '': char
+          - data_type_identifier_segment: char
       - end_bracket: )
     - keyword: as
     - select_statement:
@@ -466,7 +466,7 @@ file:
       - column_definition:
         - naked_identifier: custkey
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
         - column_constraint_segment:
           - keyword: default
           - null_literal: 'null'
@@ -474,7 +474,7 @@ file:
       - column_definition:
         - naked_identifier: orderdate
         - data_type:
-          - '': date
+          - data_type_identifier_segment: date
         - column_constraint_segment:
           - keyword: default
           - null_literal: 'null'
@@ -482,7 +482,7 @@ file:
       - column_definition:
         - naked_identifier: orderstatus
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -495,7 +495,7 @@ file:
       - column_definition:
         - naked_identifier: price
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -516,7 +516,7 @@ file:
                 - semi_structured_element: o_custkey
               - casting_operator: '::'
               - data_type:
-                - '': number
+                - data_type_identifier_segment: number
         - comma: ','
         - select_clause_element:
           - expression:
@@ -528,7 +528,7 @@ file:
                 - semi_structured_element: o_orderdate
               - casting_operator: '::'
               - data_type:
-                - '': date
+                - data_type_identifier_segment: date
         - comma: ','
         - select_clause_element:
           - expression:
@@ -540,7 +540,7 @@ file:
                 - semi_structured_element: o_orderstatus
               - casting_operator: '::'
               - data_type:
-                - '': text
+                - data_type_identifier_segment: text
         - comma: ','
         - select_clause_element:
           - expression:
@@ -552,7 +552,7 @@ file:
                 - semi_structured_element: o_totalprice
               - casting_operator: '::'
               - data_type:
-                - '': text
+                - data_type_identifier_segment: text
       - from_clause:
         - keyword: from
         - from_expression:
@@ -574,12 +574,12 @@ file:
       - column_definition:
         - naked_identifier: uncollated_phrase
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
       - comma: ','
       - column_definition:
         - naked_identifier: utf8_phrase
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
         - column_constraint_segment:
           - keyword: collate
           - collation_reference:
@@ -588,7 +588,7 @@ file:
       - column_definition:
         - naked_identifier: english_phrase
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
         - column_constraint_segment:
           - keyword: collate
           - collation_reference:
@@ -597,7 +597,7 @@ file:
       - column_definition:
         - naked_identifier: spanish_phrase
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
         - column_constraint_segment:
           - keyword: collate
           - collation_reference:
@@ -674,7 +674,7 @@ file:
       - column_definition:
         - naked_identifier: foo$bar
         - data_type:
-          - '': boolean
+          - data_type_identifier_segment: boolean
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -691,7 +691,7 @@ file:
       - column_definition:
         - naked_identifier: foo$bar
         - data_type:
-          - '': boolean
+          - data_type_identifier_segment: boolean
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -706,7 +706,7 @@ file:
       - column_definition:
         - naked_identifier: timestamp_col1
         - data_type:
-          - '': TIMESTAMP_TZ
+          - data_type_identifier_segment: TIMESTAMP_TZ
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -716,7 +716,7 @@ file:
       - column_definition:
         - naked_identifier: timestamp_col2
         - data_type:
-          - '': TIMESTAMP_TZ
+          - data_type_identifier_segment: TIMESTAMP_TZ
         - column_constraint_segment:
           - keyword: DEFAULT
           - keyword: CURRENT_TIMESTAMP
@@ -727,7 +727,7 @@ file:
       - column_definition:
         - naked_identifier: timestamp_col3
         - data_type:
-          - '': TIMESTAMP_TZ
+          - data_type_identifier_segment: TIMESTAMP_TZ
         - column_constraint_segment:
           - keyword: DEFAULT
           - keyword: CURRENT_TIMESTAMP
@@ -739,7 +739,7 @@ file:
       - column_definition:
         - naked_identifier: sysdate_col4
         - data_type:
-          - '': TIMESTAMP_TZ
+          - data_type_identifier_segment: TIMESTAMP_TZ
         - column_constraint_segment:
           - keyword: DEFAULT
           - keyword: SYSDATE
@@ -760,7 +760,7 @@ file:
       - column_definition:
         - naked_identifier: test_column
         - data_type:
-          - '': NUMBER
+          - data_type_identifier_segment: NUMBER
         - column_constraint_segment:
           - keyword: autoincrement
           - bracketed:
@@ -785,7 +785,7 @@ file:
       - column_definition:
         - naked_identifier: test_column
         - data_type:
-          - '': NUMBER
+          - data_type_identifier_segment: NUMBER
         - column_constraint_segment:
           - keyword: autoincrement
           - bracketed:
@@ -812,7 +812,7 @@ file:
       - column_definition:
         - naked_identifier: test_column
         - data_type:
-          - '': NUMBER
+          - data_type_identifier_segment: NUMBER
         - column_constraint_segment:
           - keyword: autoincrement
           - bracketed:
@@ -837,7 +837,7 @@ file:
       - column_definition:
         - naked_identifier: test_column
         - data_type:
-          - '': INTEGER
+          - data_type_identifier_segment: INTEGER
         - column_constraint_segment:
           - keyword: AUTOINCREMENT
       - end_bracket: )
@@ -854,7 +854,7 @@ file:
       - column_definition:
         - naked_identifier: test_column
         - data_type:
-          - '': NUMBER
+          - data_type_identifier_segment: NUMBER
         - column_constraint_segment:
           - keyword: WITH
           - keyword: MASKING
@@ -892,7 +892,7 @@ file:
       - column_definition:
         - quoted_identifier: '"COL1"'
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -905,7 +905,7 @@ file:
       - column_definition:
         - quoted_identifier: '"COL2"'
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (

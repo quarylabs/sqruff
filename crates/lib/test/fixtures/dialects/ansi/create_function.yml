@@ -9,14 +9,14 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
         - comma: ','
         - data_type:
-          - '': integer
+          - data_type_identifier_segment: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': integer
+      - data_type_identifier_segment: integer
     - function_definition:
       - keyword: AS
       - '': '''select $1 + $2;'''

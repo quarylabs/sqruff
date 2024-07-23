@@ -44,12 +44,12 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - '': INT64
+          - data_type_identifier_segment: INT64
       - comma: ','
       - column_definition:
         - naked_identifier: y
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
       - end_bracket: )
     - options_segment:
       - keyword: OPTIONS
@@ -132,12 +132,12 @@ file:
       - column_definition:
         - naked_identifier: field_1
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
       - comma: ','
       - column_definition:
         - naked_identifier: field_2
         - data_type:
-          - '': INT64
+          - data_type_identifier_segment: INT64
       - end_bracket: )
     - options_segment:
       - keyword: OPTIONS
@@ -203,11 +203,11 @@ file:
       - column_definition:
         - naked_identifier: field_1
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
       - comma: ','
       - column_definition:
         - naked_identifier: field_2
         - data_type:
-          - '': INT64
+          - data_type_identifier_segment: INT64
       - end_bracket: )
 - statement_terminator: ;

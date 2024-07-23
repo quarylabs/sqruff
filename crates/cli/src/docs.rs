@@ -55,8 +55,8 @@ impl From<ErasedRule> for Rule {
             description: value.description(),
             long_description: value.long_description(),
             groups: value.groups().iter().map(|g| g.as_ref()).collect(),
-            has_dialects: value.dialect_skip().len() > 0,
-            dialects: value.dialect_skip().into_iter().map(|dialect| dialect.as_ref()).collect(),
+            has_dialects: !value.dialect_skip().is_empty(),
+            dialects: value.dialect_skip().iter().map(|dialect| dialect.as_ref()).collect(),
         }
     }
 }

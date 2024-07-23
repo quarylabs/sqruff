@@ -359,7 +359,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': dup_result
+      - data_type_identifier_segment: dup_result
     - function_definition:
       - keyword: AS
       - quoted_literal: $$ SELECT $1, CAST($1 AS text) || ' is text' $$

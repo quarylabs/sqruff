@@ -15,7 +15,7 @@ file:
     - keyword: let
     - variable: somevariable
     - data_type:
-      - '': number
+      - data_type_identifier_segment: number
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -32,7 +32,7 @@ file:
     - keyword: let
     - variable: somevariable
     - data_type:
-      - '': number
+      - data_type_identifier_segment: number
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -97,7 +97,7 @@ file:
     - keyword: let
     - variable: someresult
     - data_type:
-      - '': resultset
+      - data_type_identifier_segment: resultset
     - assignment_operator: :=
     - expression:
       - bracketed:

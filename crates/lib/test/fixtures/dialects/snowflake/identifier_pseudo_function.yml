@@ -68,7 +68,7 @@ file:
       - column_definition:
         - naked_identifier: c1
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -89,7 +89,7 @@ file:
       - column_definition:
         - naked_identifier: c1
         - data_type:
-          - '': number
+          - data_type_identifier_segment: number
       - end_bracket: )
 - statement_terminator: ;
 - statement:

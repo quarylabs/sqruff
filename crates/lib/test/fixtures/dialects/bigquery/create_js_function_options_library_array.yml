@@ -11,7 +11,7 @@ file:
         - start_bracket: (
         - parameter: arr_str
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
@@ -25,11 +25,11 @@ file:
               - start_angle_bracket: <
               - parameter: product_id
               - data_type:
-                - '': INT64
+                - data_type_identifier_segment: INT64
               - comma: ','
               - parameter: rating
               - data_type:
-                - '': FLOAT64
+                - data_type_identifier_segment: FLOAT64
               - end_angle_bracket: '>'
         - end_angle_bracket: '>'
     - function_definition:

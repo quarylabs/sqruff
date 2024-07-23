@@ -84,7 +84,7 @@ file:
               - semi_structured_element: id
             - casting_operator: '::'
             - data_type:
-              - '': number
+              - data_type_identifier_segment: number
         - end_bracket: )
 - statement_terminator: ;
 - statement:

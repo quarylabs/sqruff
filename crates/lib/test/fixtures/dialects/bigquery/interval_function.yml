@@ -54,7 +54,7 @@ file:
                               - numeric_literal: '2'
                             - keyword: AS
                             - data_type:
-                              - '': int64
+                              - data_type_identifier_segment: int64
                             - end_bracket: )
                       - date_part: second
                   - end_bracket: )

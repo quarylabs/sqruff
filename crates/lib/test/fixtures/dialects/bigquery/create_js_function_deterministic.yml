@@ -10,7 +10,7 @@ file:
         - start_bracket: (
         - parameter: y
         - data_type:
-          - '': STRING
+          - data_type_identifier_segment: STRING
         - end_bracket: )
     - function_definition:
       - keyword: DETERMINISTIC

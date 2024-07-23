@@ -15,7 +15,7 @@ file:
               - semi_structured_element: _z
             - casting_operator: '::'
             - data_type:
-              - '': string
+              - data_type_identifier_segment: string
     - from_clause:
       - keyword: from
       - from_expression:

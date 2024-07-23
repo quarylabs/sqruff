@@ -11,12 +11,12 @@ file:
       - column_definition:
         - naked_identifier: a
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - comma: ','
       - column_definition:
         - naked_identifier: b
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - end_bracket: )
     - engine:
       - keyword: engine
@@ -51,17 +51,17 @@ file:
       - column_definition:
         - naked_identifier: u64
         - data_type:
-          - '': UInt64
+          - data_type_identifier_segment: UInt64
       - comma: ','
       - column_definition:
         - naked_identifier: i32
         - data_type:
-          - '': Int32
+          - data_type_identifier_segment: Int32
       - comma: ','
       - column_definition:
         - naked_identifier: s
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -113,22 +113,22 @@ file:
       - column_definition:
         - naked_identifier: date
         - data_type:
-          - '': Date
+          - data_type_identifier_segment: Date
       - comma: ','
       - column_definition:
         - naked_identifier: UserId
         - data_type:
-          - '': Int64
+          - data_type_identifier_segment: Int64
       - comma: ','
       - column_definition:
         - naked_identifier: EventType
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - comma: ','
       - column_definition:
         - naked_identifier: Cnt
         - data_type:
-          - '': UInt64
+          - data_type_identifier_segment: UInt64
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -169,22 +169,22 @@ file:
       - column_definition:
         - naked_identifier: date
         - data_type:
-          - '': Date
+          - data_type_identifier_segment: Date
       - comma: ','
       - column_definition:
         - naked_identifier: UserId
         - data_type:
-          - '': Int64
+          - data_type_identifier_segment: Int64
       - comma: ','
       - column_definition:
         - naked_identifier: EventType
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - comma: ','
       - column_definition:
         - naked_identifier: Cnt
         - data_type:
-          - '': UInt64
+          - data_type_identifier_segment: UInt64
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -321,7 +321,7 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -349,7 +349,7 @@ file:
       - column_definition:
         - naked_identifier: timestamp
         - data_type:
-          - '': DateTime
+          - data_type_identifier_segment: DateTime
         - column_constraint_segment:
           - keyword: CODEC
           - expression:
@@ -363,7 +363,7 @@ file:
       - column_definition:
         - naked_identifier: slow_values
         - data_type:
-          - '': Float32
+          - data_type_identifier_segment: Float32
         - column_constraint_segment:
           - keyword: CODEC
           - expression:
@@ -397,7 +397,7 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
         - column_constraint_segment:
           - keyword: Codec
           - expression:
@@ -441,12 +441,12 @@ file:
       - column_definition:
         - naked_identifier: n
         - data_type:
-          - '': UInt64
+          - data_type_identifier_segment: UInt64
       - comma: ','
       - column_definition:
         - naked_identifier: s
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -476,16 +476,16 @@ file:
       - column_definition:
         - naked_identifier: n
         - data_type:
-          - '': UInt64
+          - data_type_identifier_segment: UInt64
       - comma: ','
       - column_definition:
         - naked_identifier: s
         - data_type:
-          - '': Nullable
+          - data_type_identifier_segment: Nullable
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
-              - '': String
+              - data_type_identifier_segment: String
               - end_bracket: )
       - end_bracket: )
     - engine:
@@ -512,7 +512,7 @@ file:
       - column_definition:
         - naked_identifier: x
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -543,12 +543,12 @@ file:
       - column_definition:
         - naked_identifier: p
         - data_type:
-          - '': Date
+          - data_type_identifier_segment: Date
       - comma: ','
       - column_definition:
         - naked_identifier: i
         - data_type:
-          - '': Int32
+          - data_type_identifier_segment: Int32
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -584,12 +584,12 @@ file:
       - column_definition:
         - naked_identifier: name1
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - comma: ','
       - column_definition:
         - naked_identifier: CONSTRAINT
         - data_type:
-          - '': constraint_name_1
+          - data_type_identifier_segment: constraint_name_1
         - column_constraint_segment:
           - keyword: CHECK
           - bracketed:
@@ -622,12 +622,12 @@ file:
       - column_definition:
         - naked_identifier: d
         - data_type:
-          - '': DateTime
+          - data_type_identifier_segment: DateTime
       - comma: ','
       - column_definition:
         - naked_identifier: a
         - data_type:
-          - '': Int
+          - data_type_identifier_segment: Int
         - column_constraint_segment:
           - column_ttl_segment:
             - keyword: TTL
@@ -643,7 +643,7 @@ file:
       - column_definition:
         - naked_identifier: b
         - data_type:
-          - '': Int
+          - data_type_identifier_segment: Int
         - column_constraint_segment:
           - column_ttl_segment:
             - keyword: TTL
@@ -659,7 +659,7 @@ file:
       - column_definition:
         - naked_identifier: c
         - data_type:
-          - '': String
+          - data_type_identifier_segment: String
       - end_bracket: )
     - engine:
       - keyword: ENGINE
@@ -697,12 +697,12 @@ file:
       - column_definition:
         - naked_identifier: d
         - data_type:
-          - '': DateTime
+          - data_type_identifier_segment: DateTime
       - comma: ','
       - column_definition:
         - naked_identifier: a
         - data_type:
-          - '': Int
+          - data_type_identifier_segment: Int
       - end_bracket: )
     - engine:
       - keyword: ENGINE

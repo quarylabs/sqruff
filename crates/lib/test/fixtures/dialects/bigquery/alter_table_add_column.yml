@@ -12,7 +12,7 @@ file:
     - column_definition:
       - naked_identifier: A
       - data_type:
-        - '': STRING
+        - data_type_identifier_segment: STRING
     - comma: ','
     - keyword: ADD
     - keyword: COLUMN
@@ -22,7 +22,7 @@ file:
     - column_definition:
       - naked_identifier: B
       - data_type:
-        - '': GEOGRAPHY
+        - data_type_identifier_segment: GEOGRAPHY
     - comma: ','
     - keyword: ADD
     - keyword: COLUMN
@@ -33,7 +33,7 @@ file:
           - keyword: ARRAY
           - start_angle_bracket: <
           - data_type:
-            - '': NUMERIC
+            - data_type_identifier_segment: NUMERIC
           - end_angle_bracket: '>'
     - comma: ','
     - keyword: ADD
@@ -41,7 +41,7 @@ file:
     - column_definition:
       - naked_identifier: D
       - data_type:
-        - '': DATE
+        - data_type_identifier_segment: DATE
       - options_segment:
         - keyword: OPTIONS
         - bracketed:
@@ -71,7 +71,7 @@ file:
             - start_angle_bracket: <
             - parameter: B
             - data_type:
-              - '': GEOGRAPHY
+              - data_type_identifier_segment: GEOGRAPHY
             - comma: ','
             - parameter: C
             - data_type:
@@ -79,19 +79,19 @@ file:
                 - keyword: ARRAY
                 - start_angle_bracket: <
                 - data_type:
-                  - '': INT64
+                  - data_type_identifier_segment: INT64
                 - end_angle_bracket: '>'
             - comma: ','
             - parameter: D
             - data_type:
-              - '': INT64
+              - data_type_identifier_segment: INT64
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
             - comma: ','
             - parameter: E
             - data_type:
-              - '': TIMESTAMP
+              - data_type_identifier_segment: TIMESTAMP
             - options_segment:
               - keyword: OPTIONS
               - bracketed:

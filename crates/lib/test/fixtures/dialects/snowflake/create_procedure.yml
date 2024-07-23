@@ -13,7 +13,7 @@ file:
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': float
+      - data_type_identifier_segment: float
     - keyword: not
     - keyword: 'null'
     - keyword: language
@@ -37,11 +37,11 @@ file:
         - start_bracket: (
         - '': FLOAT_PARAM1
         - data_type:
-          - '': FLOAT
+          - data_type_identifier_segment: FLOAT
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - keyword: language
     - keyword: javascript
     - keyword: strict
@@ -79,7 +79,7 @@ file:
         - start_bracket: (
         - '': test_table
         - data_type:
-          - '': VARCHAR
+          - data_type_identifier_segment: VARCHAR
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -87,7 +87,7 @@ file:
         - comma: ','
         - '': test_col
         - data_type:
-          - '': VARCHAR
+          - data_type_identifier_segment: VARCHAR
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -95,7 +95,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': VARCHAR
+      - data_type_identifier_segment: VARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -133,7 +133,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': INT
+      - data_type_identifier_segment: INT
     - keyword: AS
     - udf_body: |-
         $$
@@ -160,7 +160,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': INT
+      - data_type_identifier_segment: INT
     - keyword: LANGUAGE
     - keyword: SQL
     - keyword: AS
@@ -189,7 +189,7 @@ file:
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': variant
+      - data_type_identifier_segment: variant
     - keyword: language
     - keyword: python
     - keyword: runtime_version
@@ -243,11 +243,11 @@ file:
         - start_bracket: (
         - '': x
         - data_type:
-          - '': varchar
+          - data_type_identifier_segment: varchar
         - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': varchar
+      - data_type_identifier_segment: varchar
     - keyword: language
     - keyword: java
     - keyword: called
@@ -283,15 +283,15 @@ file:
         - start_bracket: (
         - '': table_name
         - data_type:
-          - '': VARCHAR
+          - data_type_identifier_segment: VARCHAR
         - comma: ','
         - '': role
         - data_type:
-          - '': VARCHAR
+          - data_type_identifier_segment: VARCHAR
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': INT
+      - data_type_identifier_segment: INT
     - keyword: LANGUAGE
     - keyword: SCALA
     - keyword: RUNTIME_VERSION
@@ -337,7 +337,7 @@ file:
         - start_bracket: (
         - '': '"Id"'
         - data_type:
-          - '': NUMBER
+          - data_type_identifier_segment: NUMBER
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -348,7 +348,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': VARCHAR
+      - data_type_identifier_segment: VARCHAR
     - keyword: LANGUAGE
     - keyword: SQL
     - keyword: AS
@@ -378,7 +378,7 @@ file:
         - start_bracket: (
         - '': '"Id"'
         - data_type:
-          - '': NUMBER
+          - data_type_identifier_segment: NUMBER
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -389,7 +389,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': VARCHAR
+      - data_type_identifier_segment: VARCHAR
     - keyword: LANGUAGE
     - keyword: SQL
     - keyword: AS

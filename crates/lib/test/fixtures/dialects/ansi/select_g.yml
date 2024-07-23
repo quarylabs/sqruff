@@ -9,7 +9,7 @@ file:
             - null_literal: 'NULL'
             - casting_operator: '::'
             - data_type:
-              - '': INT
+              - data_type_identifier_segment: INT
         - alias_expression:
           - keyword: AS
           - naked_identifier: user_id
@@ -20,7 +20,7 @@ file:
             - null_literal: 'NULL'
             - casting_operator: '::'
             - data_type:
-              - '': INT
+              - data_type_identifier_segment: INT
         - alias_expression:
           - keyword: AS
           - naked_identifier: is_paid

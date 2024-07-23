@@ -15,7 +15,7 @@ file:
               - semi_structured_element: to
             - casting_operator: '::'
             - data_type:
-              - '': string
+              - data_type_identifier_segment: string
         - alias_expression:
           - keyword: AS
           - naked_identifier: TO_PHONE_NUMBER
@@ -32,7 +32,7 @@ file:
               - semi_structured_element: from
             - casting_operator: '::'
             - data_type:
-              - '': string
+              - data_type_identifier_segment: string
         - alias_expression:
           - keyword: AS
           - naked_identifier: FROM_PHONE_NUMBER

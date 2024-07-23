@@ -15,7 +15,7 @@ file:
     - keyword: DECLARE
     - naked_identifier: retCode
     - data_type:
-      - '': INT64
+      - data_type_identifier_segment: INT64
 - statement_terminator: ;
 - statement:
   - call_statement:

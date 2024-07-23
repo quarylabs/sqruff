@@ -24,7 +24,7 @@ file:
       - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - '': VARCHAR
+      - data_type_identifier_segment: VARCHAR
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -75,7 +75,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -125,7 +125,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -175,7 +175,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -225,7 +225,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -275,7 +275,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -333,7 +333,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -414,7 +414,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -457,7 +457,7 @@ file:
                   - end_bracket: )
               - casting_operator: '::'
               - data_type:
-                - '': timestamp_ntz
+                - data_type_identifier_segment: timestamp_ntz
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -481,7 +481,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:
@@ -539,7 +539,7 @@ file:
       - end_bracket: )
     - keyword: returns
     - data_type:
-      - '': string
+      - data_type_identifier_segment: string
     - function_assigner: ->
     - expression:
       - case_expression:

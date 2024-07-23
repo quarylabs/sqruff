@@ -30,7 +30,7 @@ file:
       - column_definition:
         - naked_identifier: organization
         - data_type:
-          - '': VARCHAR
+          - data_type_identifier_segment: VARCHAR
       - end_bracket: )
 - statement_terminator: ;
 - statement:

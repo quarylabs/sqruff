@@ -6,10 +6,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': int
+        - data_type_identifier_segment: int
       - keyword: AS
       - data_type:
-        - '': bool
+        - data_type_identifier_segment: bool
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -19,10 +19,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': int
+        - data_type_identifier_segment: int
       - keyword: AS
       - data_type:
-        - '': bool
+        - data_type_identifier_segment: bool
       - end_bracket: )
     - keyword: RESTRICT
 - statement_terminator: ;
@@ -33,10 +33,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': int
+        - data_type_identifier_segment: int
       - keyword: AS
       - data_type:
-        - '': bool
+        - data_type_identifier_segment: bool
       - end_bracket: )
     - keyword: CASCADE
 - statement_terminator: ;
@@ -47,10 +47,10 @@ file:
     - bracketed:
       - start_bracket: (
       - data_type:
-        - '': udt_1
+        - data_type_identifier_segment: udt_1
       - keyword: AS
       - data_type:
-        - '': udt_2
+        - data_type_identifier_segment: udt_2
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -62,11 +62,11 @@ file:
       - data_type:
         - naked_identifier: sch
         - dot: .
-        - '': udt_1
+        - data_type_identifier_segment: udt_1
       - keyword: AS
       - data_type:
         - naked_identifier: sch
         - dot: .
-        - '': udt_2
+        - data_type_identifier_segment: udt_2
       - end_bracket: )
 - statement_terminator: ;

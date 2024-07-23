@@ -64,7 +64,7 @@ esbuild
 			"path",
 			"fs",
 		],
-		outfile: "dist/native.js",
+		outfile: "dist/native.cjs",
 		platform: "node",
 		format: "cjs",
 		minify: production,

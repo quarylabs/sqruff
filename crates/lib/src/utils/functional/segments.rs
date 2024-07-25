@@ -13,6 +13,10 @@ pub struct Segments {
 }
 
 impl Segments {
+    pub fn into_vec(self) -> Vec<ErasedSegment> {
+        self.base
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = &ErasedSegment> {
         self.base.iter()
     }

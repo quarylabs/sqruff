@@ -412,7 +412,7 @@ impl Linter {
         f_name: Option<String>,
         parse_statistics: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
-        let mut parser = Parser::new(config, None);
+        let parser = Parser::new(config, None);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
         let parsed = match parser.parse(tokens, f_name, parse_statistics) {
@@ -430,7 +430,7 @@ impl Linter {
     ///
     /// NOTE: This potentially mutates the config, so make sure to
     /// use the returned one.
-    fn lex_templated_file(
+    pub fn lex_templated_file(
         templated_file: TemplatedFile,
         config: &FluffConfig,
     ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {

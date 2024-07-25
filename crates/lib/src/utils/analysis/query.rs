@@ -1,7 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use ahash::AHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 
 use super::select::SelectStatementColumnsAndTables;
@@ -9,6 +8,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::{SyntaxKind, SyntaxSet};
+use crate::helpers::IndexMap;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 
@@ -134,7 +134,7 @@ impl<'me> Selectable<'me> {
 
 #[derive(Debug, Clone)]
 pub struct Query<'me, T> {
-    pub(crate) inner: Rc<RefCell<QueryInner<'me, T>>>,
+    pub inner: Rc<RefCell<QueryInner<'me, T>>>,
 }
 
 #[derive(Debug, Clone)]
@@ -142,7 +142,7 @@ pub struct QueryInner<'me, T> {
     pub query_type: QueryType,
     pub dialect: &'me Dialect,
     pub selectables: Vec<Selectable<'me>>,
-    pub ctes: AHashMap<String, Query<'me, T>>,
+    pub ctes: IndexMap<String, Query<'me, T>>,
     pub parent: Option<Query<'me, T>>,
     pub subqueries: Vec<Query<'me, T>>,
     pub cte_definition_segment: Option<ErasedSegment>,
@@ -204,7 +204,7 @@ impl<'me, T: Clone + Default> Query<'me, T> {
     #[track_caller]
     pub(crate) fn lookup_cte(&self, name: &str, pop: bool) -> Option<Query<'me, T>> {
         let cte = if pop {
-            self.inner.borrow_mut().ctes.remove(&name.to_uppercase())
+            self.inner.borrow_mut().ctes.shift_remove(&name.to_uppercase())
         } else {
             self.inner.borrow().ctes.get(&name.to_uppercase()).cloned()
         };
@@ -328,7 +328,7 @@ impl<T: Default + Clone> Query<'_, T> {
             return outer_query;
         }
 
-        let mut ctes = AHashMap::new();
+        let mut ctes = IndexMap::default();
         for cte in cte_defs {
             let name_seg = cte.segments()[0].clone();
             let name = name_seg.get_raw_upper().unwrap();

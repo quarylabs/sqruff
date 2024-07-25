@@ -36,6 +36,10 @@ impl Dialect {
         Dialect { name: DialectKind::Ansi, root_segment_name, ..Default::default() }
     }
 
+    pub fn name(&self) -> DialectKind {
+        self.name
+    }
+
     pub fn add(
         &mut self,
         iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)> + Clone,

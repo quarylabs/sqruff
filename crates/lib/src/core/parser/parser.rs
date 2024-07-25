@@ -16,8 +16,12 @@ impl<'a> Parser<'a> {
         Self { config, root_segment: FileSegment }
     }
 
+    pub fn config(&self) -> &FluffConfig {
+        self.config
+    }
+
     pub fn parse(
-        &mut self,
+        &self,
         segments: &[ErasedSegment],
         f_name: Option<String>,
         parse_statistics: bool,

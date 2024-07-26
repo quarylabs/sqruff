@@ -1,0 +1,10 @@
+file:
+- statement:
+  - drop_trigger_statement:
+    - keyword: DROP
+    - keyword: TRIGGER
+    - keyword: IF
+    - keyword: EXISTS
+    - trigger_reference:
+      - naked_identifier: MyTestTrigger
+- statement_terminator: ;

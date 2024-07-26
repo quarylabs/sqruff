@@ -1,0 +1,31 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: num
+        - data_type:
+          - data_type_identifier: NUMBER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+        - keyword: CHECK
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: num
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '0'
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

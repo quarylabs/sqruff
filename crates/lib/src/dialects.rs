@@ -12,6 +12,8 @@ pub mod snowflake;
 pub mod snowflake_keywords;
 pub mod sparksql;
 pub mod sparksql_keywords;
+pub mod sqlite;
+mod sqlite_keywords;
 
 #[derive(
     Debug,
@@ -572,6 +574,9 @@ pub enum SyntaxKind {
     ColonDelimiter,
     SqlcmdOperator,
     Slice,
+    TableEndClauseSegment,
+    PragmaStatement,
+    PragmaReference,
 }
 
 impl SyntaxKind {

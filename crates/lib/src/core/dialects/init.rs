@@ -27,6 +27,7 @@ pub enum DialectKind {
     Clickhouse,
     Sparksql,
     Duckdb,
+    Sqlite,
 }
 
 pub fn dialect_selector(s: &str) -> Option<Dialect> {
@@ -38,6 +39,7 @@ pub fn dialect_selector(s: &str) -> Option<Dialect> {
         DialectKind::Clickhouse => Some(crate::dialects::clickhouse::clickhouse_dialect()),
         DialectKind::Sparksql => Some(crate::dialects::sparksql::sparksql_dialect()),
         DialectKind::Duckdb => Some(crate::dialects::duckdb::dialect()),
+        DialectKind::Sqlite => Some(crate::dialects::sqlite::dialect()),
     }
 }
 

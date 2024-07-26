@@ -1,0 +1,31 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: colors
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: css_name
+        - data_type:
+          - data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: rgb
+        - data_type:
+          - data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: rgb
+              - keyword: REGEXP
+              - '': '''^#[0-9A-F]{6}$'''
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

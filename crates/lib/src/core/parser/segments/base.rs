@@ -218,17 +218,14 @@ impl ErasedSegment {
             if seg.segments().is_empty() {
                 buffer.push((seg.clone(), new_step));
             } else {
-                let mut extended = seg
-                    .raw_segments_with_ancestors()
-                    .into_iter()
-                    .map(|(raw_seg, stack)| {
+                let extended =
+                    seg.raw_segments_with_ancestors().into_iter().map(|(raw_seg, stack)| {
                         let mut new_step = new_step.clone();
                         new_step.extend(stack);
                         (raw_seg, new_step)
-                    })
-                    .collect::<Vec<_>>();
+                    });
 
-                buffer.append(&mut extended);
+                buffer.extend(extended);
             }
         }
 

@@ -392,6 +392,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
+    fn copy(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
+        todo!("{}", std::any::type_name::<Self>())
+    }
+
     fn can_start_end_non_code(&self) -> bool {
         false
     }
@@ -822,10 +826,8 @@ pub fn position_segments(
 
         let mut new_seg =
             if !segment.segments().is_empty() && old_position.as_ref() != Some(&new_position) {
-                let mut new_seg = segment.deep_clone();
                 let child_segments = position_segments(segment.segments(), &new_position);
-                new_seg.get_mut().set_segments(child_segments);
-                new_seg
+                segment.copy(child_segments)
             } else {
                 segment.deep_clone()
             };

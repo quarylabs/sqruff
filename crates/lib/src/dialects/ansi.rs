@@ -26,7 +26,7 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     pos_marker, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-    ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, Segment,
+    ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, PathStep, Segment,
     SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
@@ -57,7 +57,7 @@ impl<T> BoxedE for T {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Node {
     kind: SyntaxKind,
     dialect: DialectKind,
@@ -67,6 +67,7 @@ pub struct Node {
     raw: OnceCell<String>,
     source_fixes: Vec<SourceFix>,
     descendant_type_set: OnceCell<SyntaxSet>,
+    raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
 }
 
 impl Node {
@@ -88,6 +89,7 @@ impl Node {
             raw: OnceCell::new(),
             source_fixes: Vec::new(),
             descendant_type_set: OnceCell::new(),
+            raw_segments_with_ancestors: OnceCell::new(),
         }
     }
 }
@@ -103,8 +105,13 @@ impl Segment for Node {
             raw: OnceCell::new(),
             source_fixes: Vec::new(),
             descendant_type_set: OnceCell::new(),
+            raw_segments_with_ancestors: OnceCell::new(),
         }
         .to_erased_segment()
+    }
+
+    fn raw_segments_with_ancestors(&self) -> &OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>> {
+        &self.raw_segments_with_ancestors
     }
 
     fn copy(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
@@ -117,6 +124,7 @@ impl Segment for Node {
             raw: self.raw.clone(),
             source_fixes: self.source_fixes.clone(),
             descendant_type_set: self.descendant_type_set.clone(),
+            raw_segments_with_ancestors: self.raw_segments_with_ancestors.clone(),
         }
         .to_erased_segment()
     }

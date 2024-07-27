@@ -54,10 +54,10 @@ pub struct DepthMap {
 }
 
 impl DepthMap {
-    fn new(raws_with_stack: impl Iterator<Item = (ErasedSegment, Vec<PathStep>)>) -> Self {
+    fn new<'a>(raws_with_stack: impl Iterator<Item = &'a (ErasedSegment, Vec<PathStep>)>) -> Self {
         let depth_info = raws_with_stack
             .into_iter()
-            .map(|(raw, stack)| (raw.get_uuid(), DepthInfo::from_raw_and_stack(&raw, stack)))
+            .map(|(raw, stack)| (raw.get_uuid(), DepthInfo::from_raw_and_stack(raw, stack)))
             .collect();
         Self { depth_info }
     }
@@ -79,18 +79,22 @@ impl DepthMap {
     }
 
     pub fn from_parent(parent: &ErasedSegment) -> Self {
-        Self::new(parent.raw_segments_with_ancestors().into_iter())
+        Self::new(parent.raw_segments_with_ancestors().iter())
     }
 
     pub fn from_raws_and_root(
         raw_segments: impl Iterator<Item = ErasedSegment>,
         root_segment: &ErasedSegment,
     ) -> DepthMap {
-        let buff = raw_segments.into_iter().map(|raw| {
-            let stack = root_segment.path_to(&raw);
-            (raw, stack)
-        });
-        DepthMap::new(buff)
+        let depth_info = raw_segments
+            .into_iter()
+            .map(|raw| {
+                let stack = root_segment.path_to(&raw);
+                (raw.get_uuid(), DepthInfo::from_raw_and_stack(&raw, &stack))
+            })
+            .collect();
+
+        DepthMap { depth_info }
     }
 }
 
@@ -107,7 +111,7 @@ pub struct DepthInfo {
 
 impl DepthInfo {
     #[allow(unused_variables)]
-    fn from_raw_and_stack(raw: &ErasedSegment, stack: Vec<PathStep>) -> DepthInfo {
+    fn from_raw_and_stack(raw: &ErasedSegment, stack: &[PathStep]) -> DepthInfo {
         let stack_hashes: Vec<u64> = stack.iter().map(|ps| ps.segment.hash_value()).collect();
         let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
 

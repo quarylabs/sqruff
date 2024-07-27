@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::borrow::Cow;
+use std::cell::OnceCell;
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
@@ -197,39 +198,41 @@ impl ErasedSegment {
         acc
     }
 
-    pub fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)> {
-        let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
-            Vec::with_capacity(self.segments().len());
-        let code_idxs: Rc<[usize]> = self.code_indices().into();
+    pub fn raw_segments_with_ancestors(&self) -> &[(ErasedSegment, Vec<PathStep>)] {
+        self.value.raw_segments_with_ancestors().get_or_init(|| {
+            let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
+                Vec::with_capacity(self.segments().len());
+            let code_idxs: Rc<[usize]> = self.code_indices().into();
 
-        for (idx, seg) in self.segments().iter().enumerate() {
-            let new_step = vec![PathStep {
-                segment: self.clone(),
-                idx,
-                len: self.segments().len(),
-                code_idxs: code_idxs.clone(),
-            }];
+            for (idx, seg) in self.segments().iter().enumerate() {
+                let new_step = vec![PathStep {
+                    segment: self.clone(),
+                    idx,
+                    len: self.segments().len(),
+                    code_idxs: code_idxs.clone(),
+                }];
 
-            // Use seg.get_segments().is_empty() as a workaround to check if the segment is
-            // a SyntaxKind::Raw type. In the original Python code, this was achieved
-            // using seg.is_type(SyntaxKind::Raw). Here, we assume that a SyntaxKind::Raw
-            // segment is characterized by having no sub-segments.
+                // Use seg.get_segments().is_empty() as a workaround to check if the segment is
+                // a SyntaxKind::Raw type. In the original Python code, this was achieved
+                // using seg.is_type(SyntaxKind::Raw). Here, we assume that a SyntaxKind::Raw
+                // segment is characterized by having no sub-segments.
 
-            if seg.segments().is_empty() {
-                buffer.push((seg.clone(), new_step));
-            } else {
-                let extended =
-                    seg.raw_segments_with_ancestors().into_iter().map(|(raw_seg, stack)| {
-                        let mut new_step = new_step.clone();
-                        new_step.extend(stack);
-                        (raw_seg, new_step)
-                    });
+                if seg.segments().is_empty() {
+                    buffer.push((seg.clone(), new_step));
+                } else {
+                    let extended =
+                        seg.raw_segments_with_ancestors().iter().map(|(raw_seg, stack)| {
+                            let mut new_step = new_step.clone();
+                            new_step.extend_from_slice(stack);
+                            (raw_seg.clone(), new_step)
+                        });
 
-                buffer.extend(extended);
+                    buffer.extend(extended);
+                }
             }
-        }
 
-        buffer
+            buffer
+        })
     }
 
     pub fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep> {
@@ -382,7 +385,22 @@ impl ErasedSegment {
     }
 }
 
-pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
+pub trait AsAny {
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+}
+
+impl<T: Any> AsAny for T {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
+pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
     #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     #[track_caller]
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
@@ -451,6 +469,10 @@ pub trait Segment: Any + DynEq + DynClone + Debug + CloneSegment {
 
             TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
         }
+    }
+
+    fn raw_segments_with_ancestors(&self) -> &OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>> {
+        todo!("{}", std::any::type_name::<Self>())
     }
 
     fn select_children(

@@ -65,6 +65,19 @@ impl Segment for BracketedSegment {
         this.to_erased_segment()
     }
 
+    fn copy(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+        Self {
+            raw: self.raw.clone(),
+            segments,
+            start_bracket: self.start_bracket.clone(),
+            end_bracket: self.end_bracket.clone(),
+            pos_marker: self.pos_marker.clone(),
+            uuid: self.uuid,
+            descendant_type_set: self.descendant_type_set.clone(),
+        }
+        .to_erased_segment()
+    }
+
     fn descendant_type_set(&self) -> &SyntaxSet {
         self.descendant_type_set.get_or_init(|| {
             let mut result_set = SyntaxSet::EMPTY;

@@ -107,6 +107,20 @@ impl Segment for Node {
         .to_erased_segment()
     }
 
+    fn copy(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+        Self {
+            kind: self.kind,
+            dialect: self.dialect,
+            segments,
+            uuid: self.uuid,
+            position_marker: self.position_marker.clone(),
+            raw: self.raw.clone(),
+            source_fixes: self.source_fixes.clone(),
+            descendant_type_set: self.descendant_type_set.clone(),
+        }
+        .to_erased_segment()
+    }
+
     fn can_start_end_non_code(&self) -> bool {
         matches!(self.kind, SyntaxKind::File | SyntaxKind::Unparsable)
     }

@@ -1222,7 +1222,7 @@ Inappropriate Spacing.
 
 **Groups:** `all`, `core`, `layout`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 

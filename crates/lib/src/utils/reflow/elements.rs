@@ -3,7 +3,7 @@ use std::iter::zip;
 use itertools::{chain, Itertools};
 use nohash_hasher::IntMap;
 
-use super::config::ReflowConfig;
+use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
 use crate::core::parser::segments::base::{
@@ -301,6 +301,7 @@ impl ReflowPoint {
         &self,
         prev_block: Option<&ReflowBlock>,
         next_block: Option<&ReflowBlock>,
+        root_segment: &ErasedSegment,
         lint_results: Vec<LintResult>,
         strip_newlines: bool,
     ) -> (Vec<LintResult>, ReflowPoint) {
@@ -385,6 +386,7 @@ impl ReflowPoint {
                 post_constraint,
                 prev_block,
                 next_block,
+                root_segment,
                 segment_buffer,
                 last_whitespace,
             );
@@ -458,11 +460,11 @@ impl IndentStats {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ReflowBlock {
     pub segments: Vec<ErasedSegment>,
-    pub spacing_before: &'static str,
-    pub spacing_after: &'static str,
+    pub spacing_before: Spacing,
+    pub spacing_after: Spacing,
     pub line_position: Option<Vec<LinePosition>>,
     pub depth_info: DepthInfo,
-    pub stack_spacing_configs: IntMap<u64, &'static str>,
+    pub stack_spacing_configs: IntMap<u64, Spacing>,
     pub line_position_configs: IntMap<u64, &'static str>,
 }
 

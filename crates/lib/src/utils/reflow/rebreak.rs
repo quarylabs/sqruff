@@ -270,6 +270,7 @@ pub fn rebreak_sequence(
                 let (new_results, next_point) = next_point.respace_point(
                     elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
                     elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
+                    &root_segment,
                     new_results,
                     true,
                 );
@@ -289,6 +290,7 @@ pub fn rebreak_sequence(
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
                     elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
                     elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    &root_segment,
                     Vec::new(),
                     false,
                 );
@@ -337,6 +339,7 @@ pub fn rebreak_sequence(
                 let (new_results, prev_point) = prev_point.respace_point(
                     elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
                     elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
+                    &root_segment,
                     new_results,
                     true,
                 );
@@ -356,6 +359,7 @@ pub fn rebreak_sequence(
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
                     elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
                     elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    &root_segment,
                     Vec::new(),
                     false,
                 );

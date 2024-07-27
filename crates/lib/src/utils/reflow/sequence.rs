@@ -240,8 +240,13 @@ impl ReflowSequence {
         let mut new_elements = Vec::new();
 
         for (point, pre, post) in self.iter_points_with_constraints() {
-            let (new_lint_results, mut new_point) =
-                point.respace_point(pre, post, lint_results.clone(), strip_newlines);
+            let (new_lint_results, mut new_point) = point.respace_point(
+                pre,
+                post,
+                &self.root_segment,
+                lint_results.clone(),
+                strip_newlines,
+            );
 
             let ignore = if new_point.segments.iter().any(|seg| seg.is_type(SyntaxKind::Newline))
                 || post.as_ref().map_or(false, |p| p.class_types().contains(SyntaxKind::EndOfFile))

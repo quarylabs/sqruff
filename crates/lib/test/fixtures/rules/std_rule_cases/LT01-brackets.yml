@@ -1,0 +1,30 @@
+rule: LT01
+
+test_pass_parenthesis_block_isolated:
+  pass_str: |
+    SELECT * FROM (SELECT 1 AS C1) AS T1;
+
+test_pass_parenthesis_block_isolated_template:
+  ignored: "jinja is not supported"
+  pass_str: |
+    {{ 'SELECT * FROM (SELECT 1 AS C1) AS T1;' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_fail_parenthesis_block_not_isolated:
+  fail_str: |
+    SELECT * FROM(SELECT 1 AS C1)AS T1;
+  fix_str: |
+    SELECT * FROM (SELECT 1 AS C1) AS T1;
+
+test_fail_parenthesis_block_not_isolated_templated:
+  fail_str: |
+    {{ 'SELECT * FROM(SELECT 1 AS C1)AS T1;' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_pass_parenthesis_function:
+  pass_str: |
+    SELECT foo(5) FROM T1;

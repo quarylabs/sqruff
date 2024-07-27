@@ -1030,7 +1030,7 @@ pub fn raw_dialect() -> Dialect {
                 |seg| {
                     LiteralSegment {
                         raw: seg.raw().into(),
-                        position_maker: seg.get_position_marker().unwrap(),
+                        position_maker: seg.get_position_marker(),
                         uuid: seg.get_uuid(),
                     }
                     .to_erased_segment()

@@ -5,7 +5,7 @@ use ahash::AHashSet;
 use itertools::Itertools;
 use uuid::Uuid;
 
-use super::base::{pos_marker, ErasedSegment, Segment};
+use super::base::{pos_marker, ErasedSegment, PathStep, Segment};
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
@@ -23,11 +23,12 @@ pub struct BracketedSegment {
     pub pos_marker: Option<PositionMarker>,
     pub uuid: Uuid,
     descendant_type_set: OnceCell<SyntaxSet>,
+    raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
 }
 
 impl PartialEq for BracketedSegment {
     fn eq(&self, other: &Self) -> bool {
-        self.segments.iter().zip(&other.segments).all(|(lhs, rhs)| lhs.dyn_eq(rhs))
+        self.segments.iter().zip(&other.segments).all(|(lhs, rhs)| lhs == rhs)
             && self.start_bracket == other.start_bracket
             && self.end_bracket == other.end_bracket
     }
@@ -48,6 +49,7 @@ impl BracketedSegment {
             uuid: Uuid::new_v4(),
             raw: OnceCell::new(),
             descendant_type_set: OnceCell::new(),
+            raw_segments_with_ancestors: OnceCell::new(),
         };
         if !hack {
             this.pos_marker = pos_marker(&this.segments).into();
@@ -62,7 +64,12 @@ impl Segment for BracketedSegment {
         this.segments = segments;
         this.raw = OnceCell::new();
         this.pos_marker = pos_marker(&this.segments).into();
+        this.raw_segments_with_ancestors = OnceCell::new();
         this.to_erased_segment()
+    }
+
+    fn raw_segments_with_ancestors(&self) -> &OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>> {
+        &self.raw_segments_with_ancestors
     }
 
     fn copy(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
@@ -74,6 +81,7 @@ impl Segment for BracketedSegment {
             pos_marker: self.pos_marker.clone(),
             uuid: self.uuid,
             descendant_type_set: self.descendant_type_set.clone(),
+            raw_segments_with_ancestors: self.raw_segments_with_ancestors.clone(),
         }
         .to_erased_segment()
     }

@@ -12,14 +12,18 @@ use crate::helpers::ToErasedSegment;
 #[derive(Hash, Debug, Clone, PartialEq)]
 pub struct LiteralSegment {
     pub raw: SmolStr,
-    pub position_maker: PositionMarker,
+    pub position_maker: Option<PositionMarker>,
     pub uuid: Uuid,
 }
 
 impl LiteralSegment {
     pub fn create(raw: &str, position_maker: &PositionMarker) -> ErasedSegment {
-        Self { raw: raw.into(), position_maker: position_maker.clone(), uuid: Uuid::new_v4() }
-            .to_erased_segment()
+        Self {
+            raw: raw.into(),
+            position_maker: position_maker.clone().into(),
+            uuid: Uuid::new_v4(),
+        }
+        .to_erased_segment()
     }
 }
 
@@ -50,11 +54,11 @@ impl Segment for LiteralSegment {
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone().into()
+        self.position_maker.clone()
     }
 
     fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_maker = position_marker.unwrap();
+        self.position_maker = position_marker;
     }
 
     fn segments(&self) -> &[ErasedSegment] {

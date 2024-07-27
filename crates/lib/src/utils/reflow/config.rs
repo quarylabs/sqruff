@@ -13,9 +13,9 @@ type ConfigDictType = AHashMap<SyntaxKind, ConfigElementType>;
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct BlockConfig {
-    pub spacing_before: &'static str,
-    pub spacing_after: &'static str,
-    pub spacing_within: Option<&'static str>,
+    pub spacing_before: Spacing,
+    pub spacing_after: Spacing,
+    pub spacing_within: Option<Spacing>,
     pub line_position: Option<&'static str>,
 }
 
@@ -28,23 +28,10 @@ impl Default for BlockConfig {
 impl BlockConfig {
     pub fn new() -> Self {
         BlockConfig {
-            spacing_before: "single",
-            spacing_after: "single",
+            spacing_before: Spacing::Single,
+            spacing_after: Spacing::Single,
             spacing_within: None,
             line_position: None,
-        }
-    }
-
-    fn convert_spacing(spacing: &str) -> &'static str {
-        match spacing {
-            "single" => "single",
-            "touch" => "touch",
-            "touch:inline" => "touch:inline",
-            "any" => "any",
-            _ => unreachable!(
-                "Expected 'single', 'touch', 'touch:inline', 'any', found '{}'",
-                spacing
-            ),
         }
     }
 
@@ -58,22 +45,12 @@ impl BlockConfig {
         }
     }
 
-    fn convert_space_within(space_within: &str) -> &'static str {
-        match space_within {
-            "alone" => "alone",
-            "touch:inline" => "touch:inline",
-            "touch" => "touch",
-            "single:inline" => "single:inline",
-            _ => unreachable!("Expected 'alone', 'touch:inline', 'touch' found '{}'", space_within),
-        }
-    }
-
     /// Mutate the config based on additional information
     pub fn incorporate(
         &mut self,
-        before: Option<&'static str>,
-        after: Option<&'static str>,
-        within: Option<&'static str>,
+        before: Option<Spacing>,
+        after: Option<Spacing>,
+        within: Option<Spacing>,
         line_position: Option<&'static str>,
         config: Option<&ConfigElementType>,
     ) {
@@ -81,32 +58,15 @@ impl BlockConfig {
         let config = config.unwrap_or(&empty);
 
         self.spacing_before = before
-            .or_else(|| {
-                let before = config.get("spacing_before");
-                match before {
-                    Some(value) => Some(Self::convert_spacing(value)),
-                    None => None,
-                }
-            })
+            .or_else(|| config.get("spacing_before").map(|it| it.parse().unwrap()))
             .unwrap_or(self.spacing_before);
 
         self.spacing_after = after
-            .or_else(|| {
-                let after = config.get("spacing_after");
-                match after {
-                    Some(value) => Some(Self::convert_spacing(value)),
-                    None => None,
-                }
-            })
+            .or_else(|| config.get("spacing_after").map(|it| it.parse().unwrap()))
             .unwrap_or(self.spacing_after);
 
-        self.spacing_within = within.or_else(|| {
-            let space_within = config.get("spacing_within");
-            match space_within {
-                Some(value) => Some(Self::convert_space_within(value)),
-                None => None,
-            }
-        });
+        self.spacing_within =
+            within.or_else(|| config.get("spacing_within").map(|it| it.parse().unwrap()));
 
         self.line_position = line_position.or_else(|| {
             let line_position = config.get("line_position");
@@ -135,6 +95,44 @@ pub struct ReflowConfig {
     pub(crate) hanging_indents: bool,
     pub(crate) allow_implicit_indents: bool,
     pub(crate) trailing_comments: TrailingComments,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum Spacing {
+    Single,
+    Touch,
+    TouchInline,
+    SingleInline,
+    Any,
+    Align { seg_type: SyntaxKind, within: Option<SyntaxKind>, scope: Option<SyntaxKind> },
+}
+
+impl FromStr for Spacing {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "single" => Self::Single,
+            "touch" => Self::Touch,
+            "touch:inline" => Self::TouchInline,
+            "single:inline" => Self::SingleInline,
+            "any" => Self::Any,
+            s => {
+                if let Some(rest) = s.strip_prefix("align") {
+                    let mut args = rest.split(':');
+                    args.next();
+
+                    let seg_type = args.next().map(|it| it.parse().unwrap()).unwrap();
+                    let within = args.next().map(|it| it.parse().unwrap());
+                    let scope = args.next().map(|it| it.parse().unwrap());
+
+                    Spacing::Align { seg_type, within, scope }
+                } else {
+                    unimplemented!("{s}")
+                }
+            }
+        })
+    }
 }
 
 impl ReflowConfig {
@@ -183,15 +181,7 @@ impl ReflowConfig {
                             .get(&seg_type)
                             .and_then(|conf| conf.get("spacing_before"))
                             .map(|it| it.as_str());
-                        let before = match before {
-                            Some("single") => Some("single"),
-                            Some("touch") => Some("touch"),
-                            Some("touch:inline") => Some("touch:inline"),
-                            None => None,
-                            Some(value) => {
-                                unreachable!("Expected 'single' or 'touch', found '{}'", value)
-                            }
-                        };
+                        let before = before.map(|it| it.parse().unwrap());
 
                         block_config.incorporate(before, None, None, None, None);
                     }
@@ -204,16 +194,8 @@ impl ReflowConfig {
                             .get(&seg_type)
                             .and_then(|conf| conf.get("spacing_after"))
                             .map(|it| it.as_str());
-                        let after = match after {
-                            Some("single") => Some("single"),
-                            Some("touch") => Some("touch"),
-                            Some("touch:inline") => Some("touch:inline"),
-                            None => None,
-                            Some(value) => {
-                                unreachable!("Expected 'single' or 'touch', found '{}'", value)
-                            }
-                        };
 
+                        let after = after.map(|it| it.parse().unwrap());
                         block_config.incorporate(None, after, None, None, None);
                     }
                 }
@@ -241,8 +223,28 @@ impl ReflowConfig {
         let indent_unit = config.raw["indentation"]["indent_unit"].as_string().unwrap();
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
+        let mut configs = convert_to_config_dict(configs);
+        let keys: Vec<_> = configs.keys().copied().collect();
+
+        for seg_type in keys {
+            for key in ["spacing_before", "spacing_after"] {
+                if configs[&seg_type].get(key).map(String::as_str) == Some("align") {
+                    let mut new_key = format!("align:{}", seg_type.as_str());
+                    if let Some(align_within) = configs[&seg_type].get("align_within") {
+                        new_key.push_str(&format!(":{align_within}"));
+
+                        if let Some(align_scope) = configs[&seg_type].get("align_scope") {
+                            new_key.push_str(&format!(":{align_scope}"));
+                        }
+                    }
+
+                    *configs.get_mut(&seg_type).unwrap().get_mut(key).unwrap() = new_key;
+                }
+            }
+        }
+
         ReflowConfig {
-            configs: convert_to_config_dict(configs),
+            configs,
             config_types,
             indent_unit,
             max_line_length: config.raw["core"]["max_line_length"].as_int().unwrap() as usize,

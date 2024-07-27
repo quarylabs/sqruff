@@ -121,12 +121,19 @@ impl ErasedSegment {
         hash
     }
 
-    fn deep_clone(&self) -> Self {
+    pub fn deep_clone(&self) -> Self {
         self.clone_box()
     }
 
     #[track_caller]
     pub fn get_mut(&mut self) -> &mut dyn Segment {
+        Rc::get_mut(&mut self.value).unwrap()
+    }
+
+    #[track_caller]
+    pub fn make_mut(&mut self) -> &mut dyn Segment {
+        let mut this = self.deep_clone();
+        std::mem::swap(self, &mut this);
         Rc::get_mut(&mut self.value).unwrap()
     }
 
@@ -333,7 +340,8 @@ impl ErasedSegment {
         }
 
         if !fixes_applied.is_empty() {
-            seg_buffer = position_segments(&seg_buffer, self.get_position_marker().as_ref(), false);
+            seg_buffer =
+                position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
         }
 
         let seg_queue = seg_buffer;
@@ -351,6 +359,8 @@ impl ErasedSegment {
             }
         }
 
+        let seg_buffer =
+            position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
         (self.new(seg_buffer), Vec::new(), Vec::new(), false)
     }
 }
@@ -757,44 +767,26 @@ impl Hash for dyn Segment {
 
 pub fn position_segments(
     segments: &[ErasedSegment],
-    parent_pos: Option<&PositionMarker>,
-    metas_only: bool,
+    parent_pos: &PositionMarker,
 ) -> Vec<ErasedSegment> {
     if segments.is_empty() {
         return Vec::new();
     }
 
-    let (mut line_no, mut line_pos) = if let Some(parent_pos) = parent_pos {
-        (parent_pos.working_line_no, parent_pos.working_line_pos)
-    } else {
-        segments
-            .iter()
-            .filter_map(|fwd_seg| fwd_seg.get_position_marker())
-            .map(|pos_marker| (pos_marker.working_line_no, pos_marker.working_line_pos))
-            .next()
-            .unwrap()
-    };
+    let (mut line_no, mut line_pos) = { (parent_pos.working_line_no, parent_pos.working_line_pos) };
 
-    let mut segment_buffer = Vec::new();
+    let mut segment_buffer: Vec<ErasedSegment> = Vec::new();
     for (idx, segment) in enumerate(segments) {
-        if metas_only && !segment.is_meta() {
-            segment_buffer.push(segment.clone());
-            (line_no, line_pos) =
-                PositionMarker::infer_next_position(&segment.raw(), line_no, line_pos);
-            continue;
-        }
-
         let old_position = segment.get_position_marker();
+
         let mut new_position = match old_position.clone() {
             Some(pos_marker) => pos_marker.clone(),
             None => {
                 let start_point = if idx > 0 {
                     let prev_seg = segment_buffer[idx - 1].clone();
-                    prev_seg.get_position_marker().unwrap().end_point_marker().into()
-                } else if let Some(parent_pos) = parent_pos {
-                    parent_pos.start_point_marker().into()
+                    Some(prev_seg.get_position_marker().unwrap().end_point_marker())
                 } else {
-                    None
+                    Some(parent_pos.start_point_marker())
                 };
 
                 let mut end_point = None;
@@ -828,19 +820,15 @@ pub fn position_segments(
         (line_no, line_pos) =
             PositionMarker::infer_next_position(&segment.raw(), line_no, line_pos);
 
-        let mut new_seg = if let Some(old_position) = old_position
-            && old_position != new_position
-            && !segment.segments().is_empty()
-        {
-            let mut new_seg = segment.deep_clone();
-            let child_segments =
-                position_segments(segment.segments(), (&new_position).into(), false);
-
-            new_seg.get_mut().set_segments(child_segments);
-            new_seg
-        } else {
-            segment.deep_clone()
-        };
+        let mut new_seg =
+            if !segment.segments().is_empty() && old_position.as_ref() != Some(&new_position) {
+                let mut new_seg = segment.deep_clone();
+                let child_segments = position_segments(segment.segments(), &new_position);
+                new_seg.get_mut().set_segments(child_segments);
+                new_seg
+            } else {
+                segment.deep_clone()
+            };
 
         new_seg.get_mut().set_position_marker(new_position.into());
         segment_buffer.push(new_seg);

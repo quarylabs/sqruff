@@ -147,11 +147,7 @@ impl LintFix {
             // We rely on realignment to make position markers later in the process.
             for seg in &mut edit {
                 if seg.get_position_marker().is_some() {
-                    tracing::debug!(
-                        "Developer Note: Edit segment found with preset position marker. These \
-                         should be unset and calculated later."
-                    );
-                    // seg.get_mut().set_position_marker(None);
+                    seg.make_mut().set_position_marker(None);
                 };
             }
             clean_edit = Some(edit);

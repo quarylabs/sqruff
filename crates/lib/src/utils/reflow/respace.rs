@@ -1,52 +1,41 @@
 use itertools::{enumerate, Itertools};
+use rustc_hash::FxHashMap;
 
 use super::elements::ReflowBlock;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::{
-    ErasedSegment, Segment, WhitespaceSegment, WhitespaceSegmentNewArgs,
+    ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::rules::base::{EditType, LintFix, LintResult};
-use crate::dialects::SyntaxKind;
+use crate::dialects::{SyntaxKind, SyntaxSet};
+use crate::utils::reflow::config::Spacing;
 use crate::utils::reflow::helpers::pretty_segment_name;
 
-fn unpack_constraint(constraint: &str, mut strip_newlines: bool) -> (String, bool) {
-    let (constraint, modifier) = if constraint.starts_with("align") {
-        (constraint, "".into())
-    } else {
-        constraint
-            .split_once(':')
-            .map(|(left, right)| (left, Some(right)))
-            .unwrap_or((constraint, None))
-    };
-
-    match modifier {
-        Some("inline") => {
-            strip_newlines = true;
-        }
-        Some(modifier) => panic!("Unexpected constraint modifier: {modifier:?}"),
-        None => {}
+fn unpack_constraint(constraint: Spacing, strip_newlines: bool) -> (Spacing, bool) {
+    match constraint {
+        Spacing::TouchInline => (Spacing::Touch, true),
+        Spacing::SingleInline => (Spacing::Single, true),
+        _ => (constraint, strip_newlines),
     }
-
-    (constraint.into(), strip_newlines)
 }
 
 pub fn determine_constraints(
     prev_block: Option<&ReflowBlock>,
     next_block: Option<&ReflowBlock>,
     strip_newlines: bool,
-) -> (String, String, bool) {
+) -> (Spacing, Spacing, bool) {
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block { prev_block.spacing_after } else { "single" },
+        if let Some(prev_block) = prev_block { prev_block.spacing_after } else { Spacing::Single },
         strip_newlines,
     );
 
     let (mut post_constraint, mut strip_newlines) = unpack_constraint(
-        if let Some(next_block) = next_block { next_block.spacing_before } else { "single" },
+        if let Some(next_block) = next_block { next_block.spacing_before } else { Spacing::Single },
         strip_newlines,
     );
 
-    let mut within_spacing = String::new();
+    let mut within_spacing = None;
     let mut idx = None;
 
     if let Some((prev_block, next_block)) = prev_block.zip(next_block) {
@@ -62,28 +51,32 @@ pub fn determine_constraints(
 
         let within_constraint = prev_block.stack_spacing_configs.get(last_common);
         if let Some(within_constraint) = within_constraint {
-            (within_spacing, strip_newlines) = unpack_constraint(within_constraint, strip_newlines);
+            let (within_spacing_inner, strip_newlines_inner) =
+                unpack_constraint(*within_constraint, strip_newlines);
+
+            within_spacing = Some(within_spacing_inner);
+            strip_newlines = strip_newlines_inner;
         }
     }
 
-    match within_spacing.as_str() {
-        "touch" => {
-            if pre_constraint != "any" {
-                pre_constraint = "touch".to_string();
+    match within_spacing {
+        Some(Spacing::Touch) => {
+            if pre_constraint != Spacing::Any {
+                pre_constraint = Spacing::Touch;
             }
-            if post_constraint != "any" {
-                post_constraint = "touch".to_string();
+            if post_constraint != Spacing::Any {
+                post_constraint = Spacing::Touch;
             }
         }
-        "any" => {
-            pre_constraint = "any".to_string();
-            post_constraint = "any".to_string();
+        Some(Spacing::Any) => {
+            pre_constraint = Spacing::Any;
+            post_constraint = Spacing::Any;
         }
-        "single" => {}
-        _ if !within_spacing.is_empty() => {
+        Some(Spacing::Single) => {}
+        Some(spacing) => {
             panic!(
-                "Unexpected within constraint: '{}' for {:?}",
-                within_spacing,
+                "Unexpected within constraint: {:?} for {:?}",
+                spacing,
                 prev_block.unwrap().depth_info.stack_class_types[idx.unwrap()]
             );
         }
@@ -173,41 +166,147 @@ pub fn process_spacing(
     (filtered_segment_buffer, last_whitespace_option, result_buffer)
 }
 
-#[allow(unused_variables, dead_code)]
 fn determine_aligned_inline_spacing(
-    root_segment: &dyn Segment,
-    whitespace_seg: &dyn Segment,
-    next_seg: &dyn Segment,
-    next_pos: &PositionMarker,
-    segment_type: &str,
-    align_within: Option<&str>,
-    align_scope: Option<&str>,
+    root_segment: &ErasedSegment,
+    whitespace_seg: &ErasedSegment,
+    next_seg: &ErasedSegment,
+    mut next_pos: PositionMarker,
+    segment_type: SyntaxKind,
+    align_within: Option<SyntaxKind>,
+    align_scope: Option<SyntaxKind>,
 ) -> String {
-    unimplemented!()
+    // Find the level of segment that we're aligning.
+    let mut parent_segment = None;
+
+    // Edge case: if next_seg has no position, we should use the position
+    // of the whitespace for searching.
+    if let Some(align_within) = align_within {
+        for ps in root_segment
+            .path_to(if next_seg.get_position_marker().is_some() {
+                next_seg
+            } else {
+                whitespace_seg
+            })
+            .iter()
+            .rev()
+        {
+            if ps.segment.is_type(align_within) {
+                parent_segment = Some(ps.segment.clone());
+            }
+            if let Some(align_scope) = align_scope {
+                if ps.segment.is_type(align_scope) {
+                    break;
+                }
+            }
+        }
+    }
+
+    if parent_segment.is_none() {
+        return " ".to_string();
+    }
+
+    let parent_segment = parent_segment.unwrap();
+
+    // We've got a parent. Find some siblings.
+    let mut siblings = Vec::new();
+    for sibling in parent_segment.recursive_crawl(SyntaxSet::single(segment_type), true, None, true)
+    {
+        // Purge any siblings with a boundary between them
+        if align_scope.is_none()
+            || !parent_segment
+                .path_to(&sibling)
+                .iter()
+                .any(|ps| ps.segment.is_type(align_scope.unwrap()))
+        {
+            siblings.push(sibling);
+        }
+    }
+
+    // If the segment we're aligning, has position. Use that position.
+    // If it doesn't, then use the provided one. We can't do sibling analysis
+    // without it.
+    if let Some(pos_marker) = &next_seg.get_position_marker() {
+        next_pos = pos_marker.clone();
+    }
+
+    // Purge any siblings which are either self, or on the same line but after it.
+    let mut earliest_siblings: FxHashMap<usize, usize> = FxHashMap::default();
+    siblings.retain(|sibling| {
+        let pos_marker = sibling.get_position_marker().unwrap();
+        let best_seen = earliest_siblings.get(&pos_marker.working_line_no).cloned();
+        if let Some(best_seen) = best_seen {
+            if pos_marker.working_line_pos > best_seen {
+                return false;
+            }
+        }
+        earliest_siblings.insert(pos_marker.working_line_no, pos_marker.working_line_pos);
+
+        if pos_marker.working_line_no == next_pos.working_line_no
+            && pos_marker.working_line_pos != next_pos.working_line_pos
+        {
+            return false;
+        }
+        true
+    });
+
+    // If there's only one sibling, we have nothing to compare to. Default to a
+    // single space.
+    if siblings.len() <= 1 {
+        return " ".to_string();
+    }
+
+    let mut last_code: Option<ErasedSegment> = None;
+    let mut max_desired_line_pos = 0;
+
+    for seg in parent_segment.get_raw_segments() {
+        for sibling in &siblings {
+            if let (Some(seg_pos), Some(sibling_pos)) =
+                (&seg.get_position_marker(), &sibling.get_position_marker())
+            {
+                if seg_pos.working_loc() == sibling_pos.working_loc() {
+                    if let Some(last_code) = &last_code {
+                        let loc = last_code
+                            .get_position_marker()
+                            .unwrap()
+                            .working_loc_after(&last_code.raw());
+
+                        if loc.1 > max_desired_line_pos {
+                            max_desired_line_pos = loc.1;
+                        }
+                    }
+                }
+            }
+        }
+
+        if seg.is_code() {
+            last_code = Some(seg.clone());
+        }
+    }
+
+    " ".repeat(
+        1 + max_desired_line_pos
+            - whitespace_seg.get_position_marker().as_ref().unwrap().working_line_pos,
+    )
 }
 
-#[allow(unused_variables, dead_code)]
-fn extract_alignment_config(constraint: &str) -> (String, Option<String>, Option<String>) {
-    unimplemented!()
-}
 #[allow(unused_variables)]
 pub fn handle_respace_inline_with_space(
-    pre_constraint: String,
-    post_constraint: String,
+    pre_constraint: Spacing,
+    post_constraint: Spacing,
     prev_block: Option<&ReflowBlock>,
     next_block: Option<&ReflowBlock>,
-    /* root_segment: &dyn Segment, */
+    root_segment: &ErasedSegment,
     mut segment_buffer: Vec<ErasedSegment>,
     last_whitespace: ErasedSegment,
 ) -> (Vec<ErasedSegment>, Vec<LintResult>) {
     // Get some indices so that we can reference around them
     let ws_idx = segment_buffer.iter().position(|it| it == &last_whitespace).unwrap();
 
-    if ["any"].contains(&pre_constraint.as_str()) || ["any"].contains(&post_constraint.as_str()) {
+    if pre_constraint == Spacing::Any || post_constraint == Spacing::Any {
         return (segment_buffer, vec![]);
     }
 
-    if [pre_constraint.as_str(), post_constraint.as_str()].contains(&"touch") {
+    if [pre_constraint, post_constraint].contains(&Spacing::Touch) {
         segment_buffer.remove(ws_idx);
 
         let description = if let Some(next_block) = next_block {
@@ -232,59 +331,89 @@ pub fn handle_respace_inline_with_space(
     }
 
     // Handle left alignment & singles
-    if pre_constraint == "single" && post_constraint == "single" {
-        let desc = if let Some(next_block) = next_block {
-            format!(
-                "Expected only single space before {:?}. Found {:?}.",
-                &next_block.segments[0].raw(),
-                last_whitespace.raw()
-            )
+    if (matches!(post_constraint, Spacing::Align { .. }) && next_block.is_some())
+        || pre_constraint == Spacing::Single && post_constraint == Spacing::Single
+    {
+        let mut desired_space;
+        let mut desc;
+
+        if let Spacing::Align { seg_type, within, scope } = post_constraint
+            && let Some(next_block) = next_block
+        {
+            let next_pos = if let Some(pos_marker) = next_block.segments[0].get_position_marker() {
+                Some(pos_marker)
+            } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
+                Some(pos_marker.end_point_marker())
+            } else if let Some(prev_block) = prev_block
+                && let Some(pos_marker) = prev_block.segments.last().unwrap().get_position_marker()
+            {
+                Some(pos_marker.end_point_marker())
+            } else {
+                None
+            };
+
+            desired_space = " ".to_string();
+            desc = "TODO".to_string();
+
+            if let Some(next_pos) = next_pos {
+                desired_space = determine_aligned_inline_spacing(
+                    root_segment,
+                    &last_whitespace,
+                    next_block.segments.first().unwrap(),
+                    next_pos,
+                    seg_type,
+                    within,
+                    scope,
+                );
+
+                desc = "TODO".to_string();
+            }
         } else {
-            format!("Expected only single space. Found {:?}.", last_whitespace.raw())
-        };
+            desc = if let Some(next_block) = next_block {
+                format!(
+                    "Expected only single space before {:?}. Found {:?}.",
+                    &next_block.segments[0].raw(),
+                    last_whitespace.raw()
+                )
+            } else {
+                format!("Expected only single space. Found {:?}.", last_whitespace.raw())
+            };
+            desired_space = " ".to_string();
+        }
 
-        let desired_space = " ";
         let mut new_results = Vec::new();
-
         if last_whitespace.raw() != desired_space {
-            let new_seg = last_whitespace.edit(desired_space.to_owned().into(), None);
+            let new_seg = last_whitespace.edit(desired_space.into(), None);
+
             new_results.push(LintResult::new(
                 last_whitespace.clone().into(),
-                vec![LintFix {
-                    edit_type: EditType::Replace,
-                    anchor: last_whitespace,
-                    edit: vec![new_seg.clone()].into(),
-                    source: vec![],
-                }],
+                vec![LintFix::replace(last_whitespace, vec![new_seg.clone()], None)],
                 None,
                 Some(desc),
                 None,
             ));
-
             segment_buffer[ws_idx] = new_seg;
         }
 
         return (segment_buffer, new_results);
     }
 
-    unimplemented!("Unexpected Constraints: {pre_constraint}, {post_constraint}");
+    unimplemented!("Unexpected Constraints: {pre_constraint:?}, {post_constraint:?}");
 }
 
 #[allow(unused_variables)]
 pub fn handle_respace_inline_without_space(
-    pre_constraint: String,
-    post_constraint: String,
+    pre_constraint: Spacing,
+    post_constraint: Spacing,
     prev_block: Option<&ReflowBlock>,
     next_block: Option<&ReflowBlock>,
     mut segment_buffer: Vec<ErasedSegment>,
     mut existing_results: Vec<LintResult>,
     anchor_on: &str,
 ) -> (Vec<ErasedSegment>, Vec<LintResult>, bool) {
-    let constraints = ["touch", "any"];
+    let constraints = [Spacing::Touch, Spacing::Any];
 
-    if constraints.contains(&pre_constraint.as_str())
-        || constraints.contains(&post_constraint.as_str())
-    {
+    if constraints.contains(&pre_constraint) || constraints.contains(&post_constraint) {
         return (segment_buffer, existing_results, false);
     }
 
@@ -463,12 +592,13 @@ mod tests {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, &<_>::default());
+            let seq = ReflowSequence::from_root(root.clone(), &<_>::default());
             let pnt = seq.elements()[point_idx].as_point().unwrap();
 
             let (results, new_pnt) = pnt.respace_point(
                 seq.elements()[point_idx - 1].as_block(),
                 seq.elements()[point_idx + 1].as_block(),
+                &root,
                 Vec::new(),
                 strip_newlines,
             );

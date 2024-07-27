@@ -220,6 +220,8 @@ mod tests {
                 .insert("trailing_comments".into(), Value::String(trailing_comments.into()));
         }
 
+        cfg.reload_reflow();
+
         let mut linter = Linter::new(cfg, None, None);
         linter.lint_string_wrapped(
             sql,

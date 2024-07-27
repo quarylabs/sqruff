@@ -13,11 +13,11 @@ use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::dialects::SyntaxKind;
 
-pub struct ReflowSequence {
+pub struct ReflowSequence<'a> {
     root_segment: ErasedSegment,
     elements: ReflowSequenceType,
     lint_results: Vec<LintResult>,
-    reflow_config: ReflowConfig,
+    reflow_config: &'a ReflowConfig,
     depth_map: DepthMap,
 }
 
@@ -33,7 +33,7 @@ pub enum ReflowInsertPosition {
     Before,
 }
 
-impl ReflowSequence {
+impl<'a> ReflowSequence<'a> {
     pub fn raw(&self) -> String {
         self.elements.iter().map(|it| it.raw()).join("")
     }
@@ -46,7 +46,7 @@ impl ReflowSequence {
         self.results().into_iter().flat_map(|result| result.fixes).collect()
     }
 
-    pub fn from_root(root_segment: ErasedSegment, config: &FluffConfig) -> Self {
+    pub fn from_root(root_segment: ErasedSegment, config: &'a FluffConfig) -> Self {
         let depth_map = DepthMap::from_parent(&root_segment).into();
 
         Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, config, depth_map)
@@ -55,14 +55,14 @@ impl ReflowSequence {
     pub fn from_raw_segments(
         segments: Vec<ErasedSegment>,
         root_segment: ErasedSegment,
-        config: &FluffConfig,
+        config: &'a FluffConfig,
         depth_map: Option<DepthMap>,
-    ) -> Self {
-        let reflow_config = ReflowConfig::from_fluff_config(config);
+    ) -> ReflowSequence<'a> {
+        let reflow_config = config.reflow();
         let depth_map = depth_map.unwrap_or_else(|| {
             DepthMap::from_raws_and_root(segments.clone().into_iter(), &root_segment)
         });
-        let elements = Self::elements_from_raw_segments(segments, &depth_map, &reflow_config);
+        let elements = Self::elements_from_raw_segments(segments, &depth_map, reflow_config);
 
         Self { root_segment, elements, lint_results: Vec::new(), reflow_config, depth_map }
     }
@@ -119,8 +119,8 @@ impl ReflowSequence {
         target_segment: &ErasedSegment,
         root_segment: ErasedSegment,
         sides: TargetSide,
-        config: &FluffConfig,
-    ) -> ReflowSequence {
+        config: &'a FluffConfig,
+    ) -> ReflowSequence<'a> {
         let all_raws = root_segment.get_raw_segments();
         let target_raws = target_segment.get_raw_segments();
 
@@ -167,7 +167,7 @@ impl ReflowSequence {
 
         let new_block = ReflowBlock::from_config(
             vec![insertion.clone()],
-            &self.reflow_config,
+            self.reflow_config,
             self.depth_map.get_depth_info(&target),
         );
 
@@ -204,7 +204,7 @@ impl ReflowSequence {
             .unwrap_or_else(|| panic!("Target [{:?}] not found in ReflowSequence.", target))
     }
 
-    pub fn without(self, target: &ErasedSegment) -> ReflowSequence {
+    pub fn without(self, target: &ErasedSegment) -> ReflowSequence<'a> {
         let removal_idx = self.find_element_idx_with(target);
         if removal_idx == 0 || removal_idx == self.elements.len() - 1 {
             panic!("Unexpected removal at one end of a ReflowSequence.");
@@ -333,13 +333,13 @@ impl ReflowSequence {
                 .cloned()
                 .collect(),
             &self.depth_map,
-            &self.reflow_config,
+            self.reflow_config,
         );
 
         ReflowSequence {
             elements: new_elements,
             root_segment: self.root_segment.clone(),
-            reflow_config: self.reflow_config.clone(),
+            reflow_config: self.reflow_config,
             depth_map: self.depth_map.clone(),
             lint_results: vec![LintResult::new(
                 target.clone().into(),

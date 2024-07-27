@@ -87,7 +87,7 @@ pub fn determine_constraints(
 }
 
 pub fn process_spacing(
-    segment_buffer: Vec<ErasedSegment>,
+    segment_buffer: &[ErasedSegment],
     strip_newlines: bool,
 ) -> (Vec<ErasedSegment>, Option<ErasedSegment>, Vec<LintResult>) {
     let mut removal_buffer = Vec::new();
@@ -97,7 +97,7 @@ pub fn process_spacing(
     let mut last_iter_seg = None;
 
     // Loop through the existing segments looking for spacing.
-    for seg in &segment_buffer {
+    for seg in segment_buffer {
         // If it's whitespace, store it.
         if seg.is_type(SyntaxKind::Whitespace) {
             last_whitespace.push(seg.clone());
@@ -545,7 +545,8 @@ mod tests {
 
         for (raw_sql_in, (strip_newlines, filter), raw_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, &<_>::default());
+            let config = <_>::default();
+            let seq = ReflowSequence::from_root(root, &config);
 
             let new_seq = seq.respace(strip_newlines, filter);
             assert_eq!(new_seq.raw(), raw_sql_out);
@@ -592,7 +593,8 @@ mod tests {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root.clone(), &<_>::default());
+            let config = <_>::default();
+            let seq = ReflowSequence::from_root(root.clone(), &config);
             let pnt = seq.elements()[point_idx].as_point().unwrap();
 
             let (results, new_pnt) = pnt.respace_point(

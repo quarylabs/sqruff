@@ -16,11 +16,11 @@ use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
 pub struct RuleST08;
 
 impl RuleST08 {
-    pub fn remove_unneeded_brackets(
+    pub fn remove_unneeded_brackets<'a>(
         &self,
-        context: RuleContext,
+        context: RuleContext<'a>,
         bracketed: Segments,
-    ) -> (ErasedSegment, ReflowSequence) {
+    ) -> (ErasedSegment, ReflowSequence<'a>) {
         let anchor = &bracketed.get(0, None).unwrap();
         let seq = ReflowSequence::from_around_target(
             anchor,

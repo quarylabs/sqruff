@@ -1048,7 +1048,8 @@ mod tests {
 
         for (raw_sql_in, elem_idx, indent_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, &<_>::default());
+            let config = <_>::default();
+            let seq = ReflowSequence::from_root(root, &config);
             let elem = seq.elements()[elem_idx].as_point().unwrap();
 
             assert_eq!(indent_out, elem.get_indent().as_deref());

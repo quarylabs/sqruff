@@ -519,7 +519,8 @@ mod tests {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
             let root = parse_ansi_string(raw_sql_in);
-            let seq = ReflowSequence::from_root(root, &<_>::default());
+            let config = <_>::default();
+            let seq = ReflowSequence::from_root(root, &config);
             let new_seq = seq.rebreak();
 
             assert_eq!(new_seq.raw(), raw_sql_out);

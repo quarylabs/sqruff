@@ -10,6 +10,7 @@ use serde::Deserialize;
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
 use crate::core::errors::SQLFluffUserError;
+use crate::utils::reflow::config::ReflowConfig;
 
 /// split_comma_separated_string takes a string and splits it on commas and
 /// trims and filters out empty strings.
@@ -34,6 +35,7 @@ pub struct FluffConfig {
     _configs: AHashMap<String, AHashMap<String, String>>,
     pub(crate) dialect: Dialect,
     sql_file_exts: Vec<String>,
+    reflow: ReflowConfig,
 }
 
 impl Default for FluffConfig {
@@ -45,6 +47,14 @@ impl Default for FluffConfig {
 impl FluffConfig {
     pub fn get(&self, key: &str, section: &str) -> &Value {
         &self.raw[section][key]
+    }
+
+    pub fn reflow(&self) -> &ReflowConfig {
+        &self.reflow
+    }
+
+    pub fn reload_reflow(&mut self) {
+        self.reflow = ReflowConfig::from_fluff_config(self);
     }
 
     pub fn from_source(source: &str) -> FluffConfig {
@@ -122,14 +132,17 @@ impl FluffConfig {
             }
         }
 
-        Self {
+        let mut this = Self {
             raw: configs,
             dialect,
             extra_config_path,
             _configs: AHashMap::new(),
             indentation: indentation.unwrap_or_default(),
             sql_file_exts: vec![".sql".into()],
-        }
+            reflow: ReflowConfig::default(),
+        };
+        this.reflow = ReflowConfig::from_fluff_config(&this);
+        this
     }
 
     pub fn with_sql_file_exts(mut self, exts: Vec<String>) -> Self {

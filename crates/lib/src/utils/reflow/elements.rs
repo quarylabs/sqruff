@@ -311,7 +311,7 @@ impl ReflowPoint {
 
         // The buffer is used to create the new reflow point to return
         let (mut segment_buffer, mut last_whitespace, mut new_results) =
-            process_spacing(self.segments.clone(), strip_newlines);
+            process_spacing(&self.segments, strip_newlines);
 
         if let Some((next_block, whitespace)) = next_block.zip(last_whitespace.clone())
             && next_block.class_types().contains(SyntaxKind::EndOfFile)

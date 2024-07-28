@@ -30,6 +30,7 @@ Sqruff currently supports the following SQL dialects:
 - [**PostgreSQL**](https://www.postgresql.org/docs/current/sql.html)
 - [**Snowflake**](https://docs.snowflake.com/en/sql-reference.html)
 - [**SparkSql**](https://spark.apache.org/sql/)
+- [**SQLite**](https://www.sqlite.org/lang.html)
 
 While those above are the supported dialects, we are working on adding support for more dialects in the future.
 
@@ -79,7 +80,7 @@ sqruff lint <directory>
 
 #### Fixing
 
-To fix a single or or set of files, run the following command:
+To fix a single or set of files, run the following command:
 
 ```bash
 sqruff fix <file/paths/directory>

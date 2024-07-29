@@ -6193,6 +6193,7 @@ impl ObjectReferenceSegment {
         match dialect {
             DialectKind::Ansi
             | DialectKind::Postgres
+            | DialectKind::Sqlite
             | DialectKind::Clickhouse
             | DialectKind::Duckdb
             | DialectKind::Sparksql => {

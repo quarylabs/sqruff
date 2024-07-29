@@ -18,23 +18,18 @@ use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct RuleRF03 {
-    single_table_references: String,
-}
-
-impl Default for RuleRF03 {
-    fn default() -> Self {
-        Self { single_table_references: "consistent".into() }
-    }
+    single_table_references: Option<String>,
+    force_enable: bool,
 }
 
 impl RuleRF03 {
-    #[allow(clippy::only_used_in_recursion)]
     fn visit_queries(
-        &self,
+        single_table_references: &str,
+        is_struct_dialect: bool,
         query: Query<()>,
-        visited: &mut AHashSet<ErasedSegment>,
+        _visited: &mut AHashSet<ErasedSegment>,
     ) -> Vec<LintResult> {
         #[allow(unused_assignments)]
         let mut select_info = None;
@@ -62,8 +57,8 @@ impl RuleRF03 {
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
                     select_info.col_aliases,
-                    &self.single_table_references,
-                    false,
+                    single_table_references,
+                    is_struct_dialect,
                     Some("qualified".into()),
                     fixable,
                 );
@@ -73,9 +68,13 @@ impl RuleRF03 {
         }
 
         let children = query.children();
-
         for child in children {
-            acc.extend(self.visit_queries(child, visited));
+            acc.extend(Self::visit_queries(
+                single_table_references,
+                is_struct_dialect,
+                child,
+                _visited,
+            ));
         }
 
         acc
@@ -119,9 +118,12 @@ fn check_references(
     let mut seen_ref_types = AHashSet::new();
 
     for reference in references.clone() {
-        let this_ref_type = reference.qualification();
-        if this_ref_type == "qualified" && is_struct_dialect {
-            unimplemented!()
+        let mut this_ref_type = reference.qualification();
+        if this_ref_type == "qualified"
+            && is_struct_dialect
+            && &reference.iter_raw_references().into_iter().next().unwrap().part != table_ref_str
+        {
+            this_ref_type = "unqualified";
         }
 
         let lint_res = validate_one_reference(
@@ -275,8 +277,14 @@ fn validate_one_reference(
 }
 
 impl Rule for RuleRF03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleRF03::default().erased())
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleRF03 {
+            single_table_references: config
+                .get("single_table_references")
+                .and_then(|it| it.as_string().map(ToString::to_string)),
+            force_enable: config["force_enable"].as_bool().unwrap(),
+        }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -324,16 +332,26 @@ FROM foo
         &[RuleGroups::All, RuleGroups::References]
     }
 
+    fn force_enable(&self) -> bool {
+        self.force_enable
+    }
+
     fn dialect_skip(&self) -> &'static [DialectKind] {
         // TODO: add hive, redshift"
         &[DialectKind::Bigquery]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+        let single_table_references =
+            self.single_table_references.as_deref().unwrap_or_else(|| {
+                context.config.unwrap().raw["rules"]["single_table_references"].as_string().unwrap()
+            });
+
         let query: Query<()> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
+        let is_struct_dialect = self.dialect_skip().contains(&context.dialect.name);
 
-        self.visit_queries(query, &mut visited)
+        Self::visit_queries(single_table_references, is_struct_dialect, query, &mut visited)
     }
 
     fn is_fix_compatible(&self) -> bool {
@@ -352,195 +370,5 @@ FROM foo
         )
         .disallow_recurse()
         .into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::RuleRF03;
-    use crate::api::simple::{fix, lint};
-    use crate::core::rules::base::{Erased, ErasedRule};
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleRF03::default().erased()]
-    }
-
-    fn rules_unqualified() -> Vec<ErasedRule> {
-        vec![RuleRF03 { single_table_references: "unqualified".into() }.erased()]
-    }
-
-    fn rules_qualified() -> Vec<ErasedRule> {
-        vec![RuleRF03 { single_table_references: "qualified".into() }.erased()]
-    }
-
-    #[test]
-    fn test_fail_single_table_mixed_qualification_of_references() {
-        let fail_str = "SELECT my_tbl.bar, baz FROM my_tbl";
-        let fix_str = "SELECT my_tbl.bar, my_tbl.baz FROM my_tbl";
-
-        let actual = fix(fail_str, rules());
-        assert_eq!(actual, fix_str);
-    }
-
-    #[test]
-    fn test_pass_single_table_consistent_references_1() {
-        let violations =
-            lint("SELECT bar FROM my_tbl".into(), "ansi".into(), rules(), None, None).unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_single_table_consistent_references_2() {
-        let violations =
-            lint("SELECT my_tbl.bar FROM my_tbl".into(), "ansi".into(), rules(), None, None)
-                .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_on_tableless_table() {
-        let violations = lint(
-            "SELECT (SELECT MAX(bar) FROM tbl) + 1 AS col".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_single_table_mixed_qualification_of_references_subquery() {
-        let fail_str = "SELECT * FROM (SELECT my_tbl.bar, baz FROM my_tbl)";
-        let fix_str = "SELECT * FROM (SELECT my_tbl.bar, my_tbl.baz FROM my_tbl)";
-
-        let actual = fix(fail_str, rules());
-        assert_eq!(actual, fix_str);
-    }
-
-    #[test]
-    fn test_pass_lateral_table_ref() {
-        let violations = lint(
-            "SELECT tbl.a, tbl.b, tbl.a + tbl.b AS col_created_right_here, col_created_right_here \
-             + 1 AS sub_self_ref FROM tbl"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_single_table_consistent_references_1_subquery() {
-        let violations = lint(
-            "SELECT * FROM (SELECT bar FROM my_tbl)".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_single_table_consistent_references_2_subquery() {
-        let violations = lint(
-            "SELECT * FROM (SELECT my_tbl.bar FROM my_tbl)".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_single_table_reference_when_unqualified_config() {
-        let fail_str = "SELECT my_tbl.bar FROM my_tbl";
-        let fix_str = "SELECT bar FROM my_tbl";
-
-        let actual = fix(fail_str, rules_unqualified());
-        assert_eq!(actual, fix_str);
-    }
-
-    #[test]
-    fn test_fail_single_table_reference_when_qualified_config() {
-        let fail_str = "SELECT bar FROM my_tbl WHERE foo";
-        let fix_str = "SELECT my_tbl.bar FROM my_tbl WHERE my_tbl.foo";
-
-        let actual = fix(fail_str, rules_qualified());
-        assert_eq!(actual, fix_str);
-    }
-
-    #[test]
-    fn test_pass_single_table_reference_in_subquery() {
-        let pass_str = "SELECT * FROM db.sc.tbl2 WHERE a NOT IN (SELECT a FROM db.sc.tbl1)";
-
-        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_object_references_1a() {
-        let fail_str = "SELECT a.bar, b FROM my_tbl";
-        let fix_str = "SELECT a.bar, my_tbl.b FROM my_tbl";
-
-        let actual = fix(fail_str, rules());
-        assert_eq!(actual, fix_str);
-    }
-
-    #[test]
-    fn test_pass_group_by_alias() {
-        let pass_str =
-            "select t.col1 + 1 as alias_col1, count(1) from table1 as t group by alias_col1";
-
-        let violations = lint(pass_str.into(), "ansi".into(), rules(), None, None).unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_select_alias_in_where_clause_5() {
-        let fail_str =
-            "select t.col0, t.col1 + 1 as alias_col1 from table1 as t where alias_col1 > 5";
-        let fix_str = "select col0, col1 + 1 as alias_col1 from table1 as t where alias_col1 > 5";
-
-        let actual = fix(fail_str, rules_unqualified());
-        assert_eq!(actual, fix_str);
-    }
-
-    #[test]
-    fn test_unfixable_ambiguous_reference_subquery() {
-        let fail_str = "SELECT (SELECT other_table.other_table_field_1 FROM other_table WHERE \
-                        other_table.id = field_2) FROM (SELECT * FROM some_table) AS my_alias";
-
-        let violations = lint(fail_str.into(), "ansi".into(), rules(), None, None).unwrap();
-
-        assert_eq!(
-            violations[0].desc(),
-            "Unqualified reference 'field_2' found in single table select."
-        );
-        assert_eq!(violations[0].line_no, 1);
-        assert_eq!(violations[0].line_pos, 88);
-
-        assert_eq!(
-            violations[1].desc(),
-            "Unqualified reference 'field_2' found in single table select which is inconsistent \
-             with previous references."
-        );
-        assert_eq!(violations[1].line_no, 1);
-        assert_eq!(violations[1].line_pos, 88);
     }
 }

@@ -6227,23 +6227,47 @@ impl ObjectReferenceSegment {
         &self,
         levels: &[ObjectReferenceLevel],
     ) -> Vec<Vec<ObjectReferencePart>> {
-        let refs = self.iter_raw_references();
-        let mut sorted_levels = levels.to_vec();
-        sorted_levels.sort_unstable();
-
-        if let (Some(&min_level), Some(&max_level)) = (sorted_levels.first(), sorted_levels.last())
-        {
-            if refs.len() >= max_level as usize {
-                let start = refs.len() - max_level as usize;
-                let end = refs.len() - min_level as usize + 1;
-                if start < end {
-                    return vec![refs[start..end].to_vec()];
-                }
-            }
-        }
-        vec![]
+        self.extract_possible_multipart_references_inner(levels, self.0.dialect())
     }
 
+    pub fn extract_possible_multipart_references_inner(
+        &self,
+        levels: &[ObjectReferenceLevel],
+        dialect_kind: DialectKind,
+    ) -> Vec<Vec<ObjectReferencePart>> {
+        match dialect_kind {
+            DialectKind::Bigquery => {
+                let levels_tmp: Vec<_> = levels.iter().map(|level| *level as usize).collect();
+                let min_level: usize = *levels_tmp.iter().min().unwrap();
+                let max_level: usize = *levels_tmp.iter().max().unwrap();
+                let refs = self.iter_raw_references();
+
+                if max_level == ObjectReferenceLevel::Schema as usize && refs.len() >= 3 {
+                    return vec![(refs[0..=max_level - min_level].to_vec())];
+                }
+
+                self.extract_possible_multipart_references_inner(levels, DialectKind::Ansi)
+            }
+            _ => {
+                let refs = self.iter_raw_references();
+                let mut sorted_levels = levels.to_vec();
+                sorted_levels.sort_unstable();
+
+                if let (Some(&min_level), Some(&max_level)) =
+                    (sorted_levels.first(), sorted_levels.last())
+                {
+                    if refs.len() >= max_level as usize {
+                        let start = refs.len() - max_level as usize;
+                        let end = refs.len() - min_level as usize + 1;
+                        if start < end {
+                            return vec![refs[start..end].to_vec()];
+                        }
+                    }
+                }
+                vec![]
+            }
+        }
+    }
     pub fn iter_raw_references(&self) -> Vec<ObjectReferencePart> {
         match self.1 {
             ObjectReferenceKind::Table if self.0.dialect() == DialectKind::Bigquery => {
@@ -6264,6 +6288,7 @@ impl ObjectReferenceSegment {
                         SyntaxSet::new(&[
                             SyntaxKind::Identifier,
                             SyntaxKind::NakedIdentifier,
+                            SyntaxKind::QuotedIdentifier,
                             SyntaxKind::Literal,
                             SyntaxKind::Dash,
                             SyntaxKind::Dot,
@@ -6277,8 +6302,10 @@ impl ObjectReferenceSegment {
                     if !elem.is_type(SyntaxKind::Dot) {
                         if elem.is_type(SyntaxKind::Identifier)
                             || elem.is_type(SyntaxKind::NakedIdentifier)
+                            || elem.is_type(SyntaxKind::QuotedIdentifier)
                         {
-                            let elem_raw = elem.raw();
+                            let raw = elem.raw();
+                            let elem_raw = raw.trim_matches('`');
                             let elem_subparts = elem_raw.split(".").collect_vec();
                             let elem_subparts_count = elem_subparts.len();
 

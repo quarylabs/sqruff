@@ -1,8 +1,8 @@
 use smol_str::SmolStr;
 
 pub fn object_ref_matches_table(
-    possible_references: Vec<Vec<SmolStr>>,
-    targets: Vec<Vec<SmolStr>>,
+    possible_references: &[Vec<SmolStr>],
+    targets: &[Vec<SmolStr>],
 ) -> bool {
     // Simple case: If there are no references, assume okay.
     if possible_references.is_empty() {
@@ -10,17 +10,17 @@ pub fn object_ref_matches_table(
     }
 
     // Simple case: Reference exactly matches a target.
-    for pr in possible_references.clone() {
-        if targets.contains(&pr) {
+    for pr in possible_references {
+        if targets.contains(pr) {
             return true;
         }
     }
 
     // Tricky case: If one is shorter than the other, check for a suffix match.
     for pr in possible_references {
-        for t in targets.clone() {
-            if (pr.len() < t.len() && pr == t[t.len() - pr.len()..])
-                || (t.len() < pr.len() && t == pr[pr.len() - t.len()..])
+        for t in targets {
+            if (pr.len() < t.len() && pr == &t[t.len() - pr.len()..])
+                || (t.len() < pr.len() && t == &pr[pr.len() - t.len()..])
             {
                 return true;
             }
@@ -79,7 +79,7 @@ mod tests {
         ];
 
         for (possible_references, targets, expected) in test_cases {
-            assert_eq!(object_ref_matches_table(possible_references, targets), expected);
+            assert_eq!(object_ref_matches_table(&possible_references, &targets), expected);
         }
     }
 }

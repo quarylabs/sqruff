@@ -258,7 +258,7 @@ impl OutputStreamFormatter {
     }
 
     pub fn completion_message(&mut self) {
-        let message = if self.plain_output { "All Finished" } else { "All Finished 📜 🎉" };
+        let message = if self.plain_output { "All Finished\n" } else { "All Finished 📜 🎉\n" };
         self.dispatch(message);
     }
 }

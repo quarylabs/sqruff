@@ -6194,6 +6194,7 @@ impl ObjectReferenceSegment {
             DialectKind::Ansi
             | DialectKind::Postgres
             | DialectKind::Clickhouse
+            | DialectKind::Duckdb
             | DialectKind::Sparksql => {
                 let level = level as usize;
                 if refs.len() >= level && level > 0 {

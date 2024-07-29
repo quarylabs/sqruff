@@ -11,7 +11,7 @@ pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;
 
     vec![
-        RF01::RuleRF01.erased(),
+        RF01::RuleRF01::default().erased(),
         RF02::RuleRF02::default().erased(),
         RF03::RuleRF03::default().erased(),
         RF04::RuleRF04::default().erased(),

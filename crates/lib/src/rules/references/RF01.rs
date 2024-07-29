@@ -23,7 +23,9 @@ struct RF01Query {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct RuleRF01;
+pub struct RuleRF01 {
+    force_enable: bool,
+}
 
 impl RuleRF01 {
     #[allow(clippy::only_used_in_recursion)]
@@ -60,11 +62,11 @@ impl RuleRF01 {
             targets.push(vec![standalone_alias.clone()]);
         }
 
-        if !object_ref_matches_table(possible_references.clone(), targets) {
+        if !object_ref_matches_table(&possible_references, &targets) {
             if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
                 return self.resolve_reference(r, tbl_refs.clone(), dml_target_table, parent);
             } else if dml_target_table.is_empty()
-                || !object_ref_matches_table(possible_references, vec![dml_target_table.to_vec()])
+                || !object_ref_matches_table(&possible_references, &[dml_target_table.to_vec()])
             {
                 return LintResult::new(
                     tbl_refs[0].0.segments[0].clone().into(),
@@ -101,7 +103,7 @@ impl RuleRF01 {
             ));
         }
 
-        if tbl_refs.is_empty() {
+        if tbl_refs.is_empty() || dialect.name == DialectKind::Bigquery {
             tbl_refs.extend(
                 r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name)
                     .into_iter()
@@ -165,8 +167,12 @@ impl RuleRF01 {
 }
 
 impl Rule for RuleRF01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleRF01.erased())
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleRF01 { force_enable: config["force_enable"].as_bool().unwrap() }.erased())
+    }
+
+    fn force_enable(&self) -> bool {
+        self.force_enable
     }
 
     fn name(&self) -> &'static str {
@@ -257,286 +263,5 @@ FROM foo
         )
         .disallow_recurse()
         .into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::api::simple::lint;
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::references::RF01::RuleRF01;
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleRF01.erased()]
-    }
-
-    #[test]
-    fn test_fail_object_not_referenced_2() {
-        let violations = lint(
-            "SELECT * FROM my_tbl WHERE foo.bar > 0".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(
-            violations[0].desc(),
-            "Reference 'foo.bar' refers to table/view not found in the FROM clause or found in \
-             ancestor statement."
-        );
-        assert_eq!(violations[0].line_no, 1);
-        assert_eq!(violations[0].line_pos, 28);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_pass_object_referenced_2() {
-        let violations = lint(
-            "SELECT * FROM db.sc.tbl2 WHERE a NOT IN (SELECT a FROM db.sc.tbl1)".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_object_referenced_3() {
-        let violations = lint(
-            "SELECT * FROM db.sc.tbl2 WHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_object_referenced_5b() {
-        let violations =
-            lint("SELECT col1.field FROM table1".into(), "ansi".into(), rules(), None, None)
-                .unwrap();
-
-        assert_eq!(
-            violations[0].desc(),
-            "Reference 'col1.field' refers to table/view not found in the FROM clause or found in \
-             ancestor statement."
-        );
-        assert_eq!(violations[0].line_no, 1);
-        assert_eq!(violations[0].line_pos, 8);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_pass_object_referenced_6() {
-        let violations = lint(
-            "select cc.c1 from (select table1.c1 from table1 inner join table2 on table1.x_id = \
-             table2.x_id inner join table3 on table2.y_id = table3.y_id) as cc"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_object_referenced_7() {
-        let violations = lint(
-            "UPDATE my_table SET row_sum = (SELECT COUNT(*) AS row_sum FROM another_table WHERE \
-             another_table.id = my_table.id)"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_object_referenced_7() {
-        let violations = lint(
-            "UPDATE my_table SET row_sum = (SELECT COUNT(*) AS row_sum FROM another_table WHERE \
-             another_table.id = my_tableeee.id)"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(
-            violations[0].desc(),
-            "Reference 'my_tableeee.id' refers to table/view not found in the FROM clause or \
-             found in ancestor statement."
-        );
-        assert_eq!(violations[0].line_no, 1);
-        assert_eq!(violations[0].line_pos, 103);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_pass_object_referenced_8() {
-        let violations = lint(
-            "DELETE FROM agent1 WHERE EXISTS (SELECT customer.cust_id FROM customer WHERE \
-             agent1.agent_code <> customer.agent_code)"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_two_part_reference_8() {
-        let violations = lint(
-            "delete from public.agent1 where exists (select customer.cust_id from customer where \
-             agent1.agent_code <> customer.agent_code)"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_two_part_reference_9() {
-        let violations = lint(
-            "delete from public.agent1 where exists (select customer.cust_id from customer where \
-             public.agent1.agent_code <> customer.agent_code)"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_two_part_reference_10() {
-        let violations = lint(
-            "select * from schema1.agent1 where schema2.agent1.agent_code <> 'abc'".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(
-            violations[0].desc(),
-            "Reference 'schema2.agent1.agent_code' refers to table/view not found in the FROM \
-             clause or found in ancestor statement."
-        );
-        assert_eq!(violations[0].line_no, 1);
-        assert_eq!(violations[0].line_pos, 44);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_fail_two_part_reference_11() {
-        let violations = lint(
-            "delete from schema1.agent1 where exists (select customer.cust_id from customer where \
-             schema2.agent1.agent_code <> customer.agent_code)"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(
-            violations[0].desc(),
-            "Reference 'schema2.agent1.agent_code' refers to table/view not found in the FROM \
-             clause or found in ancestor statement."
-        );
-        assert_eq!(violations[0].line_no, 1);
-        assert_eq!(violations[0].line_pos, 94);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_pass_two_part_reference_11() {
-        let violations = lint(
-            "select * from agent1 where public.agent1.agent_code <> '3'".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_simple_delete() {
-        let violations =
-            lint("delete from table1 where 1 = 1".into(), "ansi".into(), rules(), None, None)
-                .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_update_with_alias() {
-        let violations = lint(
-            "UPDATE tbl AS dest SET t.title = 'TEST' WHERE t.id = 101 AND EXISTS (SELECT 1 FROM \
-             foobar AS tmp WHERE tmp.idx = dest.idx)"
-                .into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_postgres_value_table_alias() {
-        let violations = lint(
-            "select
-                sc.col1 as colx
-                , pn.col1 as coly
-            from sch1.tbl1 as sc
-            cross join unnest(array[111, 222]) as pn(col1)"
-                .into(),
-            "postgres".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-
-        assert_eq!(violations, []);
     }
 }

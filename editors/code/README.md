@@ -31,6 +31,7 @@ Sqruff currently supports the following SQL dialects:
 - [**Snowflake**](https://docs.snowflake.com/en/sql-reference.html)
 - [**SparkSql**](https://spark.apache.org/sql/)
 - [**SQLite**](https://www.sqlite.org/lang.html)
+- [**DuckDB**](https://duckdb.org/docs/sql/introduction)
 
 While those above are the supported dialects, we are working on adding support for more dialects in the future.
 

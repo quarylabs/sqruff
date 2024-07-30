@@ -2531,6 +2531,28 @@ LEFT JOIN q.shift_last sl
                 vec![],
                 vec![],
             ),
+            ("WITH
+base AS (
+    SELECT *
+    FROM root_table
+),
+final AS (
+    SELECT column_a
+    FROM base
+)
+SELECT * FROM final", vec![("column_a", ("root_table", "column_a"))], vec![], vec![]),
+            (
+                "With
+base as (
+    select *
+    from root_table
+),
+final as (
+    select column_a AS column_b
+    from base
+)
+select *
+from final", vec![("column_b", ("root_table", "column_a"))], vec![], vec![]),
             // TODO Be smarter about type casting
             ("SELECT date::date as cost_date FROM q.table_a", vec![], vec!["cost_date"], vec![]),
             // TODO Be smarter about casting, here could do one of

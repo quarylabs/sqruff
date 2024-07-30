@@ -17,8 +17,8 @@ pub fn aggregate_function_behaviour(
     dialect: DialectKind,
 ) -> HashMap<Operation, TreatmentOfNullExpressionsInAggregates> {
     match dialect {
-        // Dialect::SQLite
-        DialectKind::Ansi
+        DialectKind::Sqlite
+        | DialectKind::Ansi
         | DialectKind::Bigquery
         | DialectKind::Snowflake
         | DialectKind::Duckdb

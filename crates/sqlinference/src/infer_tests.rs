@@ -511,7 +511,10 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                             continue;
                         }
 
-                        unreachable!("{}", expr.raw())
+                        return Err(format!(
+                            "Expected Identifier/CompoundIdentifier or Function, not {:?}",
+                            expr.raw()
+                        ));
                     }
 
                     if let Some(function) = select_clause_element

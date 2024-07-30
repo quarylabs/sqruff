@@ -37,7 +37,9 @@ While those above are the supported dialects, we are working on adding support f
 
 ## Getting Started
 
-In addition to the CLI installation mechanism listed below, sqruff is also released as a [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff).
+### Try it out in your browser
+
+Open our Quary template [template](https://github.dev/quarylabs/template/blob/main/models/shifts_summary.sql), install the [recommended sqruff extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff), change the file and see the fixes on save.
 
 ### Installation
 
@@ -66,6 +68,10 @@ rustup toolchain install nightly
 cargo +nightly install sqruff
 sqruff --help
 ```
+
+#### Visual Studio Code Extension
+
+In addition to the CLI installation mechanism listed above, sqruff is also released as a [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff).
 
 ### Usage
 
@@ -112,4 +118,3 @@ Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelin
 ## Credits
 
 The sqruff project wouldn't be possible without "heavy inspiration" from [Sqlfluff](https://sqlfluff.com/)! We're very grateful to their awesome work!
-

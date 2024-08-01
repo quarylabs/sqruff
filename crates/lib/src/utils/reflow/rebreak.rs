@@ -10,7 +10,7 @@ use crate::dialects::SyntaxKind;
 use crate::helpers::capitalize;
 use crate::utils::reflow::depth_map::StackPositionType;
 use crate::utils::reflow::elements::ReflowPoint;
-use crate::utils::reflow::helpers::deduce_line_indent;
+use crate::utils::reflow::helpers::{deduce_line_indent, fixes_from_results};
 
 #[derive(Debug)]
 pub struct RebreakSpan {
@@ -268,11 +268,12 @@ pub fn rebreak_sequence(
                 );
 
                 let (new_results, next_point) = next_point.respace_point(
-                    elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
-                    elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
+                    elem_buff[loc.next.adj_pt_idx as usize - 1].as_block(),
+                    elem_buff[loc.next.adj_pt_idx as usize + 1].as_block(),
                     &root_segment,
                     new_results,
                     true,
+                    "before",
                 );
 
                 // Update the points in the buffer
@@ -282,21 +283,21 @@ pub fn rebreak_sequence(
                 new_results
             } else {
                 fixes.push(LintFix::delete(loc.target.clone()));
-
                 for seg in elem_buff[loc.prev.adj_pt_idx as usize].segments() {
                     fixes.push(LintFix::delete(seg.clone()));
                 }
 
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
                     elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
-                    elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    elem_buff[(loc.next.pre_code_pt_idx + 1) as usize].as_block(),
                     &root_segment,
                     Vec::new(),
                     false,
+                    "after",
                 );
 
                 let mut create_anchor = None;
-                for i in 1..=loc.next.pre_code_pt_idx {
+                for i in 0..loc.next.pre_code_pt_idx {
                     let idx = loc.next.pre_code_pt_idx - i;
                     if let Some(elem) = elem_buff.get(idx as usize) {
                         if let Some(segments) = elem.segments().last() {
@@ -305,9 +306,16 @@ pub fn rebreak_sequence(
                         }
                     }
                 }
+
                 if create_anchor.is_none() {
                     panic!("Could not find anchor for creation.");
                 }
+
+                fixes.push(LintFix::create_after(
+                    create_anchor.unwrap(),
+                    vec![loc.target.clone()],
+                    None,
+                ));
 
                 rearrange_and_insert(&mut elem_buff, &loc, new_point);
 
@@ -330,7 +338,7 @@ pub fn rebreak_sequence(
             {
                 let (new_results, next_point) = next_point.indent_to(
                     prev_point.get_indent().as_deref().unwrap_or_default(),
-                    Some(loc.target),
+                    Some(loc.target.clone()),
                     None,
                     None,
                     None,
@@ -342,6 +350,7 @@ pub fn rebreak_sequence(
                     &root_segment,
                     new_results,
                     true,
+                    "before",
                 );
 
                 // Update the points in the buffer
@@ -351,17 +360,17 @@ pub fn rebreak_sequence(
                 new_results
             } else {
                 fixes.push(LintFix::delete(loc.target.clone()));
-
                 for seg in elem_buff[loc.next.adj_pt_idx as usize].segments() {
                     fixes.push(LintFix::delete(seg.clone()));
                 }
 
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
-                    elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
-                    elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
+                    elem_buff[(loc.prev.pre_code_pt_idx - 1) as usize].as_block(),
+                    elem_buff[(loc.prev.adj_pt_idx + 1) as usize].as_block(),
                     &root_segment,
                     Vec::new(),
                     false,
+                    "before",
                 );
 
                 fixes.push(LintFix::create_before(
@@ -399,7 +408,7 @@ pub fn rebreak_sequence(
                         &root_segment,
                     ),
                     None,
-                    loc.target.into(),
+                    loc.target.clone().into(),
                     None,
                     None,
                 );
@@ -413,7 +422,9 @@ pub fn rebreak_sequence(
             unimplemented!("Unexpected line_position config: {}", loc.line_position.as_ref())
         };
 
-        lint_results.extend(new_results);
+        let fixes =
+            fixes_from_results(new_results.into_iter()).chain(std::mem::take(&mut fixes)).collect();
+        lint_results.push(LintResult::new(loc.target.clone().into(), fixes, None, None, None));
     }
 
     (elem_buff, lint_results)

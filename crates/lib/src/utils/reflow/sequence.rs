@@ -7,7 +7,7 @@ use super::config::ReflowConfig;
 use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::rebreak::rebreak_sequence;
-use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length, IndentUnit};
+use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length};
 use crate::core::config::FluffConfig;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
@@ -246,6 +246,7 @@ impl<'a> ReflowSequence<'a> {
                 &self.root_segment,
                 lint_results.clone(),
                 strip_newlines,
+                "before",
             );
 
             let ignore = if new_point.segments.iter().any(|seg| seg.is_type(SyntaxKind::Newline))
@@ -356,10 +357,14 @@ impl<'a> ReflowSequence<'a> {
             panic!("reindent cannot currently handle pre-existing embodied fixes");
         }
 
-        let single_indent = construct_single_indent(IndentUnit::Space(4));
+        let single_indent = construct_single_indent(self.reflow_config.indent_unit);
 
-        let (elements, indent_results) =
-            lint_indent_points(self.elements, &single_indent, <_>::default(), <_>::default());
+        let (elements, indent_results) = lint_indent_points(
+            self.elements,
+            &single_indent,
+            <_>::default(),
+            self.reflow_config.allow_implicit_indents,
+        );
 
         Self {
             root_segment: self.root_segment,

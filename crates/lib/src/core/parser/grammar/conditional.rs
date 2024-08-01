@@ -14,6 +14,7 @@ pub struct Conditional {
     indented_then: bool,
     indented_then_contents: bool,
     indented_joins_on: bool,
+    indented_ctes: bool,
 }
 
 impl Conditional {
@@ -26,7 +27,13 @@ impl Conditional {
             indented_then: false,
             indented_then_contents: false,
             indented_joins_on: false,
+            indented_ctes: false,
         }
+    }
+
+    pub fn indented_ctes(mut self) -> Self {
+        self.indented_ctes = true;
+        self
     }
 
     pub fn indented_joins(mut self) -> Self {
@@ -80,6 +87,7 @@ impl Conditional {
         check_config_match!(self, parse_context, indented_then);
         check_config_match!(self, parse_context, indented_then_contents);
         check_config_match!(self, parse_context, indented_joins_on);
+        check_config_match!(self, parse_context, indented_ctes);
 
         true
     }

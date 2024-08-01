@@ -60,7 +60,10 @@ SELECT a FROM plop
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
-        let global_comma_style = "trailing";
+        let global_comma_style = context.config.unwrap().raw["layout"]["type"]["comma"]
+            ["line_position"]
+            .as_string()
+            .unwrap();
         let expanded_segments = context.segment.iter_segments(
             Some(const { SyntaxSet::new(&[SyntaxKind::CommonTableExpression]) }),
             false,
@@ -95,6 +98,7 @@ SELECT a FROM plop
                     line_starts.insert(line_idx, seg_idx + 1);
                 } else if forward_slice[seg_idx].is_type(SyntaxKind::Comment)
                     || forward_slice[seg_idx].is_type(SyntaxKind::InlineComment)
+                    || forward_slice[seg_idx].is_type(SyntaxKind::BlockComment)
                 {
                     // Lines with comments aren't blank
                     line_blank = false;
@@ -210,219 +214,5 @@ SELECT a FROM plop
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) })
             .into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use crate::api::simple::{fix, lint};
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::layout::LT08::RuleLT08;
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT08.erased()]
-    }
-
-    #[test]
-    fn test_pass_blank_line_after_cte_trailing_comma() {
-        let sql = "
-        with my_cte as (
-            select 1
-        ),
-
-        other_cte as (
-            select 1
-        )
-
-        select * from my_cte cross join other_cte
-    ";
-
-        let lints = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert_eq!(lints, []);
-    }
-
-    #[test]
-    fn test_pass_blank_line_after_cte_leading_comma() {
-        let sql = "
-        with my_cte as (
-            select 1
-        )
-
-        , other_cte as (
-            select 1
-        )
-
-        select * from my_cte cross join other_cte
-    ";
-
-        let lints = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert_eq!(lints, []);
-    }
-
-    #[test]
-    fn test_fail_no_blank_line_after_each_cte() {
-        let sql = "
-with my_cte as (
-    select 1
-),
-other_cte as (
-    select 1
-)
-
-select * from my_cte cross join other_cte";
-
-        let fixed = fix(sql, rules());
-        assert_eq!(
-            fixed,
-            "
-with my_cte as (
-    select 1
-),
-
-other_cte as (
-    select 1
-)
-
-select * from my_cte cross join other_cte"
-        );
-    }
-
-    #[test]
-    fn test_fail_no_blank_line_after_cte_before_comment() {
-        let sql = "
-with my_cte as (
-    select 1
-),
--- Comment
-other_cte as (
-    select 1
-)
-
-select * from my_cte cross join other_cte";
-
-        let fixed = fix(sql, rules());
-
-        assert_eq!(
-            fixed,
-            "
-with my_cte as (
-    select 1
-),
-
--- Comment
-other_cte as (
-    select 1
-)
-
-select * from my_cte cross join other_cte"
-        );
-    }
-
-    #[test]
-    fn test_fail_no_blank_line_after_cte_and_comment() {
-        let sql = "
-WITH mycte AS (
-  SELECT col
-  FROM
-    my_table
-)  /* cte comment */
-SELECT col
-FROM
-  mycte";
-        let fixed = fix(sql, rules());
-
-        assert_eq!(
-            fixed,
-            "
-WITH mycte AS (
-  SELECT col
-  FROM
-    my_table
-)  /* cte comment */
-
-SELECT col
-FROM
-  mycte"
-        );
-    }
-
-    #[test]
-    fn test_fail_no_blank_line_after_last_cte_trailing_comma() {
-        let sql = "
-with my_cte as (
-    select 1
-),
-
-other_cte as (
-    select 1
-)
-select * from my_cte cross join other_cte";
-        let fixed = fix(sql, rules());
-        assert_eq!(
-            fixed,
-            "
-with my_cte as (
-    select 1
-),
-
-other_cte as (
-    select 1
-)
-
-select * from my_cte cross join other_cte"
-        );
-    }
-
-    #[test]
-    fn test_fail_no_blank_line_after_last_cte_leading_comma() {
-        let fail_str = "
-with my_cte as (
-    select 1
-)
-
-, other_cte as (
-    select 1
-)
-select * from my_cte cross join other_cte";
-        let fixed = fix(fail_str, rules());
-
-        assert_eq!(
-            fixed,
-            "
-with my_cte as (
-    select 1
-)
-
-, other_cte as (
-    select 1
-)
-
-select * from my_cte cross join other_cte"
-        );
-    }
-
-    #[test]
-    fn test_fail_oneline_cte_leading_comma() {
-        let fail_str = "
-with my_cte as (select 1), other_cte as (select 1) select * from my_cte
-cross join other_cte";
-        let fixed = fix(fail_str, rules());
-
-        println!("{fixed}");
-    }
-
-    #[test]
-    fn test_pass_recursive_with_argument_list_postgres() {
-        let sql = "
-            WITH RECURSIVE my_cte (n) AS (
-                select 1
-            )
-
-            select * from my_cte
-        ";
-        let lints = lint(sql.into(), "postgres".into(), rules(), None, None).unwrap();
-        assert_eq!(lints, []);
     }
 }

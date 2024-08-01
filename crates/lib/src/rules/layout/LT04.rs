@@ -68,13 +68,22 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
+        let comma_positioning = context.config.unwrap().raw["layout"]["type"]["comma"]
+            ["line_position"]
+            .as_string()
+            .unwrap();
+
+        dbg!(&comma_positioning);
+
         if self.check_trail_lead_shortcut(
             &context.segment,
             context.parent_stack.last().unwrap(),
-            "trailing",
+            comma_positioning,
         ) {
-            return Vec::new();
+            return vec![LintResult::new(None, Vec::new(), None, None, None)];
         };
+
+        dbg!();
 
         ReflowSequence::from_around_target(
             &context.segment,
@@ -100,30 +109,5 @@ impl Deref for RuleLT04 {
 
     fn deref(&self) -> &Self::Target {
         &self.base
-    }
-}
-
-#[cfg(test)]
-mod tests {
-
-    use crate::api::simple::fix;
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::layout::LT04::RuleLT04;
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT04::default().erased()]
-    }
-
-    #[test]
-    fn leading_comma_violations() {
-        let fail_str = "
-SELECT
-  a
-  , b
-FROM c";
-
-        let fix_str = fix(fail_str, rules());
-
-        println!("{fix_str}");
     }
 }

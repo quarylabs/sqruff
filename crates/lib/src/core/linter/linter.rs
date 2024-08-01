@@ -289,6 +289,7 @@ impl Linter {
 
                         let mut anchor_info = compute_anchor_edit_info(fixes);
                         let (new_tree, _, _, valid) = tree.apply_fixes(&mut anchor_info);
+
                         if false {
                             println!(
                                 "Fixes for {rule:?} not applied, as it would result in an \

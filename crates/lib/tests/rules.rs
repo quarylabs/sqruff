@@ -32,6 +32,8 @@ impl Args {
     }
 }
 
+static INDENT_CONFIG: &[&str] = &["indent_unit", "tab_space_size"];
+
 #[serde_as]
 #[derive(Debug, Deserialize)]
 struct TestFile {
@@ -89,6 +91,7 @@ fn main() {
         );
 
         linter.config_mut().raw.extend(core.clone());
+        linter.config_mut().reload_reflow();
 
         for case in file.cases {
             let dialect_name = case
@@ -137,8 +140,42 @@ fn main() {
             let has_config = !case.configs.is_empty();
 
             if has_config {
-                *linter.config_mut() = FluffConfig::new(case.configs, None, None);
+                *linter.config_mut() = FluffConfig::new(case.configs.clone(), None, None);
                 linter.config_mut().raw.extend(core.clone());
+
+                if let Some(core) = case.configs.get("core").and_then(|it| it.as_map()) {
+                    linter
+                        .config_mut()
+                        .raw
+                        .get_mut("core")
+                        .unwrap()
+                        .as_map_mut()
+                        .unwrap()
+                        .extend(core.clone());
+                }
+
+                for (config, value) in &case
+                    .configs
+                    .get("rules")
+                    .cloned()
+                    .unwrap_or_default()
+                    .as_map()
+                    .cloned()
+                    .unwrap_or_default()
+                {
+                    if INDENT_CONFIG.contains(&config.as_str()) {
+                        linter
+                            .config_mut()
+                            .raw
+                            .get_mut("indentation")
+                            .unwrap()
+                            .as_map_mut()
+                            .unwrap()
+                            .insert(config.clone(), value.clone());
+                    }
+                }
+
+                linter.config_mut().reload_reflow();
             }
 
             let rule_pack = linter.get_rulepack().rules();
@@ -230,6 +267,7 @@ mod tests {{
             if has_config {
                 *linter.config_mut() = FluffConfig::default();
                 linter.config_mut().raw.extend(core.clone());
+                linter.config_mut().reload_reflow();
             }
         }
     }

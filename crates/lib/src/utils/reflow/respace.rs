@@ -508,6 +508,17 @@ pub fn handle_respace_inline_without_space(
             desc.into(),
             None,
         )
+    } else if let Some(next_block) = next_block {
+        LintResult::new(
+            next_block.segments[0].clone().into(),
+            vec![LintFix::create_before(
+                next_block.segments[0].clone(),
+                vec![WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs)],
+            )],
+            None,
+            Some(desc),
+            None,
+        )
     } else {
         unimplemented!("Not set up to handle a missing _after_ and _before_.")
     };
@@ -603,6 +614,7 @@ mod tests {
                 &root,
                 Vec::new(),
                 strip_newlines,
+                "before"
             );
 
             assert_eq!(new_pnt.raw(), raw_point_sql_out);

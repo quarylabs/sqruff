@@ -442,7 +442,7 @@ impl ConfigLoader {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Default)]
 #[serde(untagged)]
 pub enum Value {
     Int(i32),
@@ -451,6 +451,7 @@ pub enum Value {
     String(Box<str>),
     Map(AHashMap<String, Value>),
     Array(Vec<Value>),
+    #[default]
     None,
 }
 

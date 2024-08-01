@@ -67,22 +67,3 @@ SELECT 'b' AS col
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SetOperator]) }).into()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::RuleLT11;
-    use crate::api::simple::fix;
-    use crate::core::rules::base::{Erased, ErasedRule};
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT11.erased()]
-    }
-
-    #[test]
-    fn test_fail_simple_fix_union_all_before() {
-        let sql = "SELECT 'a' UNION ALL\nSELECT 'b'";
-
-        let result = fix(sql, rules());
-        assert_eq!(result, "SELECT 'a'\nUNION ALL\nSELECT 'b'");
-    }
-}

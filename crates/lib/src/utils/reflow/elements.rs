@@ -60,7 +60,6 @@ impl ReflowPoint {
             if let Some(indent) = seg.as_any().downcast_ref::<Indent>() {
                 running_sum += indent.indent_val() as isize;
 
-                // FIXME:
                 if indent.is_implicit() {
                     implicit_indents.push(running_sum);
                 }
@@ -77,24 +76,22 @@ impl ReflowPoint {
     pub fn get_indent_segment(&self) -> Option<ErasedSegment> {
         let mut indent = None;
         for seg in self.segments.iter().rev() {
-            match &seg.get_position_marker() {
-                Some(marker) if !marker.is_literal() => continue,
-                _ => (),
-            }
-            match seg.get_type() {
-                SyntaxKind::Newline => return indent,
-                SyntaxKind::Whitespace => indent = Some(seg.clone()),
-                _ => {
-                    if get_consumed_whitespace(Some(seg)).unwrap_or_default().contains('\n') {
-                        return Some(seg.clone());
-                    }
-                }
+            if let Some(pos_marker) = seg.get_position_marker()
+                && !pos_marker.is_literal()
+            {
+                continue;
+            } else if seg.is_type(SyntaxKind::Newline) {
+                return indent;
+            } else if seg.is_whitespace() {
+                indent = Some(seg.clone());
+            } else if get_consumed_whitespace(Some(seg)).unwrap_or_default().contains('\n') {
+                return Some(seg.clone());
             }
         }
-        None
+        indent
     }
 
-    fn num_newlines(&self) -> usize {
+    pub(crate) fn num_newlines(&self) -> usize {
         self.segments
             .iter()
             .map(|seg| {
@@ -126,7 +123,7 @@ impl ReflowPoint {
         desired_indent: &str,
         after: Option<ErasedSegment>,
         before: Option<ErasedSegment>,
-        _description: Option<&str>,
+        description: Option<&str>,
         source: Option<&str>,
     ) -> (Vec<LintResult>, ReflowPoint) {
         assert!(!desired_indent.contains('\n'), "Newline found in desired indent.");
@@ -142,13 +139,35 @@ impl ReflowPoint {
                 if indent_seg.raw() == desired_indent {
                     unimplemented!()
                 } else if desired_indent.is_empty() {
-                    // unimplemented!()
+                    let idx = self.segments.iter().position(|seg| seg == &indent_seg).unwrap();
+                    return (
+                        vec![LintResult::new(
+                            indent_seg.clone().into(),
+                            vec![LintFix::delete(indent_seg.clone())],
+                            None,
+                            Some(
+                                description
+                                    .map(ToOwned::to_owned)
+                                    .unwrap_or_else(|| "Line should not be indented.".to_owned())
+                                    .to_string(),
+                            ),
+                            source.map(|s| s.to_string()),
+                        )],
+                        ReflowPoint::new(
+                            self.segments[..idx]
+                                .iter()
+                                .chain(self.segments[idx + 1..].iter())
+                                .cloned()
+                                .collect(),
+                        ),
+                    );
                 };
 
                 let new_indent = indent_seg.edit(desired_indent.to_owned().into(), None);
                 let idx = self.segments.iter().position(|it| it == &indent_seg).unwrap();
 
                 let description = format!("Expected {}.", indent_description(desired_indent));
+
                 let lint_result = LintResult::new(
                     indent_seg.clone().into(),
                     vec![LintFix::replace(indent_seg, vec![new_indent.clone()], None)],
@@ -170,18 +189,37 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let _new_indent =
+                let new_indent =
                     WhitespaceSegment::create(desired_indent, None, WhitespaceSegmentNewArgs);
+
+                let (last_newline_idx, last_newline) = self
+                    .segments
+                    .iter()
+                    .enumerate()
+                    .rev()
+                    .find(|(_, it)| {
+                        it.is_type(SyntaxKind::Newline)
+                            && it.get_position_marker().unwrap().is_literal()
+                    })
+                    .unwrap();
+
+                let mut new_segments = self.segments[..=last_newline_idx].to_vec();
+                new_segments.push(new_indent.clone());
+                new_segments.extend_from_slice(&self.segments[last_newline_idx + 1..]);
 
                 return (
                     vec![LintResult::new(
                         if let Some(before) = before { before.into() } else { unimplemented!() },
-                        vec![],
+                        vec![LintFix::replace(
+                            last_newline.clone(),
+                            vec![last_newline.clone(), new_indent],
+                            None,
+                        )],
                         None,
                         format!("Expected {}", indent_description(desired_indent)).into(),
                         None,
                     )],
-                    ReflowPoint::new(vec![]),
+                    ReflowPoint::new(new_segments),
                 );
             }
         } else {
@@ -261,10 +299,14 @@ impl ReflowPoint {
 
                     return (
                         vec![LintResult::new(
-                            before.into(),
+                            before.clone().into(),
                             vec![fix],
                             None,
-                            None,
+                            Some(format!(
+                                "Expected line break and {} before {:?}",
+                                indent_description(desired_indent),
+                                before.raw()
+                            )),
                             source.map(ToOwned::to_owned),
                         )],
                         ReflowPoint::new(vec![new_newline, new_indent]),
@@ -284,7 +326,7 @@ impl ReflowPoint {
 
                     return (
                         vec![LintResult::new(
-                            before,
+                            Some(after),
                             vec![fix],
                             None,
                             Some(description),
@@ -304,6 +346,7 @@ impl ReflowPoint {
         root_segment: &ErasedSegment,
         lint_results: Vec<LintResult>,
         strip_newlines: bool,
+        anchor_on: &'static str,
     ) -> (Vec<LintResult>, ReflowPoint) {
         let mut existing_results = lint_results;
         let (pre_constraint, post_constraint, strip_newlines) =
@@ -403,7 +446,7 @@ impl ReflowPoint {
                 next_block,
                 segment_buffer,
                 chain(existing_results, new_results).collect_vec(),
-                "before",
+                anchor_on,
             );
 
             existing_results = Vec::new();

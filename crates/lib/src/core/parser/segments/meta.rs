@@ -161,6 +161,10 @@ impl MetaSegmentKind for IndentChange {
             IndentChange::Dedent => -1,
         }
     }
+
+    fn is_implicit(&self) -> bool {
+        matches!(self, IndentChange::Implicit)
+    }
 }
 
 pub struct IndentNewArgs {}

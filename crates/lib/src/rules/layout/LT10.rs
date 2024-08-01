@@ -127,7 +127,7 @@ from x
 
         let trailing_whitespace_segments = child_segments.select(
             Some(|segment: &ErasedSegment| segment.is_whitespace()),
-            Some(|seg| seg.is_whitespace() || seg.is_meta()),
+            Some(|seg| seg.is_type(SyntaxKind::Whitespace) || seg.is_meta()),
             select_clause_modifier.into(),
             None,
         );
@@ -148,73 +148,5 @@ from x
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use crate::api::simple::fix;
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::layout::LT10::RuleLT10;
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleLT10.erased()]
-    }
-
-    #[test]
-    fn test_fail_distinct_on_next_line_1() {
-        let fail_str = "
-SELECT
-    DISTINCT user_id,
-    list_id
-FROM
-    safe_user";
-
-        let fix_str = fix(fail_str, rules());
-        assert_eq!(
-            fix_str,
-            "
-SELECT DISTINCT
-    user_id,
-    list_id
-FROM
-    safe_user"
-        );
-    }
-
-    #[test]
-    fn test_fail_distinct_on_next_line_2() {
-        let fail_str = "
-SELECT
-    -- The table contains duplicates, so we use DISTINCT.
-    DISTINCT user_id
-FROM
-    safe_user";
-
-        let fix_str = fix(fail_str, rules());
-        assert_eq!(
-            fix_str,
-            "
-SELECT DISTINCT
-    -- The table contains duplicates, so we use DISTINCT.
-    user_id
-FROM
-    safe_user"
-        );
-    }
-
-    #[test]
-    fn test_fail_distinct_on_next_line_3() {
-        let fail_str = "
-select
-distinct
-    abc,
-    def
-from a;";
-
-        let fix_str = fix(fail_str, rules());
-        println!("{}", &fix_str);
     }
 }

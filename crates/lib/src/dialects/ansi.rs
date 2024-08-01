@@ -2583,12 +2583,14 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH"),
                     Ref::keyword("RECURSIVE").optional(),
+                    Conditional::new(MetaSegment::indent()).indented_ctes(),
                     Delimited::new(vec_of_erased![Ref::new("CTEDefinitionSegment")]).config(
                         |this| {
                             this.terminators = vec_of_erased![Ref::keyword("SELECT")];
                             this.allow_trailing();
                         }
                     ),
+                    Conditional::new(MetaSegment::dedent()).indented_ctes(),
                     one_of(vec_of_erased![
                         Ref::new("NonWithSelectableGrammar"),
                         Ref::new("NonWithNonSelectableGrammar")
@@ -4365,7 +4367,9 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::ElseClause,
                 Sequence::new(vec![
                     Ref::keyword("ELSE").boxed(),
+                    MetaSegment::implicit_indent().boxed(),
                     Ref::new("ExpressionSegment").boxed(),
+                    MetaSegment::dedent().boxed(),
                 ])
                 .to_matchable(),
             )

@@ -3,12 +3,11 @@ import csv
 from datetime import datetime
 import argparse
 import re
-import sys
 
 def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, error = process.communicate()
-    return output, error
+    return output.decode('utf-8'), error.decode('utf-8')
 
 def get_commits(start_date=None, end_date=None):
     command = 'git log --format="%H|%ct|%s"'
@@ -16,33 +15,19 @@ def get_commits(start_date=None, end_date=None):
         command += f' --since="{start_date}"'
     if end_date:
         command += f' --until="{end_date}"'
-    output, error = run_command(command)
-
-    if error:
-        print(f"Error running git log: {error}")
-        sys.exit(1)
-
-    if not output.strip():
-        print(f"No commits found in the specified date range.")
-        sys.exit(1)
-
+    output, _ = run_command(command)
     commits = []
     for line in output.strip().split('\n'):
-        parts = line.split('|')
-        if len(parts) != 3:
-            print(f"Unexpected git log output format: {line}")
-            continue
-        hash, timestamp, message = parts
+        hash, timestamp, message = line.split('|', 2)
         commits.append((hash, int(timestamp), message))
-
-    if not commits:
-        print(f"No valid commits found in the specified date range.")
-        sys.exit(1)
-
     return commits
 
-def parse_benchmark_output(output):
-    time_match = re.search(r"time:\s+\[(\d+(?:\.\d+)?)\s+(\w+)\s+(\d+(?:\.\d+)?)\s+(\w+)\s+(\d+(?:\.\d+)?)\s+(\w+)\]", output)
+def run_benchmark(commit_hash):
+    run_command(f"git checkout {commit_hash}")
+    output, _ = run_command("cargo bench --bench bench_name")  # Replace bench_name with your actual benchmark name
+
+    # Parse the benchmark output
+    time_match = re.search(r"time:\s+\[(\d+\.\d+)\s+(\w+)\s+(\d+\.\d+)\s+(\w+)\s+(\d+\.\d+)\s+(\w+)\]", output)
     if time_match:
         time = float(time_match.group(1))
         unit = time_match.group(2)
@@ -52,19 +37,6 @@ def parse_benchmark_output(output):
         return time, uncertainty, unit
     else:
         return None, None, None
-
-def run_benchmark(commit_hash):
-    checkout_output, checkout_error = run_command(f"git checkout {commit_hash}")
-    if checkout_error:
-        print(f"Error checking out commit {commit_hash}: {checkout_error}")
-        return None, None, None
-
-    bench_output, bench_error = run_command("cargo bench --bench fix")
-    if bench_error:
-        print(f"Error running benchmark for commit {commit_hash}: {bench_error}")
-        return None, None, None
-
-    return parse_benchmark_output(bench_output + bench_error)
 
 def main(start_date, end_date, output_file):
     commits = get_commits(start_date, end_date)
@@ -80,7 +52,7 @@ def main(start_date, end_date, output_file):
             if time is not None:
                 writer.writerow([commit_hash, commit_time, message, time, uncertainty, unit])
             else:
-                print(f"Skipping commit {commit_hash} due to benchmark failure")
+                print(f"Failed to get benchmark results for commit: {commit_hash}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run benchmarks on Git commits within an optional date range.')

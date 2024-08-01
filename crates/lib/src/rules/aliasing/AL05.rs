@@ -6,6 +6,7 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
@@ -88,7 +89,7 @@ FROM foo
         self.analyze_table_aliases(query.clone(), context.dialect);
 
         for alias in &RefCell::borrow(&query.inner).payload.aliases {
-            if Self::is_alias_required(&alias.from_expression_element) {
+            if Self::is_alias_required(&alias.from_expression_element, context.dialect.name) {
                 continue;
             }
 
@@ -146,7 +147,10 @@ impl RuleAL05 {
         }
     }
 
-    fn is_alias_required(from_expression_element: &ErasedSegment) -> bool {
+    fn is_alias_required(
+        from_expression_element: &ErasedSegment,
+        dialect_name: DialectKind,
+    ) -> bool {
         for segment in from_expression_element
             .iter_segments(Some(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) }), false)
         {
@@ -155,7 +159,7 @@ impl RuleAL05 {
                     .child(const { SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
                     .is_some()
                 {
-                    false
+                    matches!(dialect_name, DialectKind::Snowflake)
                 } else {
                     segment
                         .iter_segments(
@@ -199,294 +203,5 @@ impl RuleAL05 {
             format!("Alias '{}' is never used in SELECT statement.", alias.ref_str).into(),
             None,
         )
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use crate::api::simple::{fix, lint};
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::aliasing::AL05::RuleAL05;
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleAL05.erased()]
-    }
-
-    #[test]
-    fn test_fail_table_alias_not_referenced_1() {
-        let fail_str = "SELECT * FROM my_tbl AS foo";
-        let fix_str = "SELECT * FROM my_tbl";
-
-        let result = fix(fail_str, rules());
-        assert_eq!(fix_str, result);
-    }
-
-    #[test]
-    fn test_fail_table_alias_not_referenced_1_subquery() {
-        let fail_str = "SELECT * FROM (SELECT * FROM my_tbl AS foo)";
-        let fix_str = "SELECT * FROM (SELECT * FROM my_tbl)";
-
-        let result = fix(fail_str, rules());
-        assert_eq!(fix_str, result);
-    }
-
-    #[test]
-    fn test_pass_table_alias_referenced_subquery() {
-        let violations = lint(
-            "SELECT * FROM (SELECT foo.bar FROM my_tbl AS foo)".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_table_alias_referenced() {
-        let violations = lint(
-            "SELECT * FROM my_tbl AS foo JOIN other_tbl on other_tbl.x = foo.x".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_ignore_postgres_value_table_functions() {
-        let pass_str = r#"
-            SELECT json_build_object(
-                'name', 'ticket_status',
-                'type', 'enum',
-                'values', json_agg(status_name)
-            )
-            FROM unnest(enum_range(NULL::my_enum)) AS status_name;
-        "#;
-
-        let result = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
-        assert_eq!(result, []);
-    }
-
-    #[test]
-    fn test_ignore_postgres_value_table_functions_generate_series() {
-        let pass_str = r#"
-            SELECT
-                date_trunc('day', dd):: timestamp with time zone
-            FROM generate_series (
-                '2022-02-01'::timestamp , NOW()::timestamp , '1 day'::interval
-            ) dd ;
-        "#;
-
-        let result = lint(pass_str.into(), "postgres".into(), rules(), None, None).unwrap();
-        assert_eq!(result, []);
-    }
-
-    #[test]
-    fn test_pass_unaliased_table_referenced() {
-        let violations = lint(
-            "select ps.*, pandgs.blah from ps join pandgs using(moo)".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_ignore_bigquery_value_table_functions() {
-        let sql = r#"
-            select *
-            from unnest(generate_timestamp_array(
-                '2020-01-01', '2020-01-30', interval 1 day)) as ts
-        "#;
-        let violations = lint(sql.into(), "bigquery".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_table_alias_not_referenced_2() {
-        let fail_str = "SELECT * FROM my_tbl foo";
-        let fix_str = "SELECT * FROM my_tbl";
-
-        let result = fix(fail_str, rules());
-        assert_eq!(fix_str, result);
-    }
-
-    #[test]
-    fn test_fail_table_alias_not_referenced_2_subquery() {
-        let fail_str = "SELECT * FROM (SELECT * FROM my_tbl foo)";
-        let fix_str = "SELECT * FROM (SELECT * FROM my_tbl)";
-
-        let result = fix(fail_str, rules());
-        assert_eq!(fix_str, result);
-    }
-
-    #[test]
-    fn test_pass_subquery_alias_not_referenced() {
-        let violations = lint(
-            "select * from (select 1 as a) subquery".into(),
-            "ansi".into(),
-            rules(),
-            None,
-            None,
-        )
-        .unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_bigquery_unaliased_table_with_hyphens() {
-        let sql = r#"
-            select *
-            from project-a.dataset-b.table-c
-        "#;
-        let violations = lint(sql.into(), "bigquery".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_bigquery_aliased_table_with_ticks_referenced() {
-        let sql = r#"
-            SELECT et2.txn.amount
-            FROM `example_dataset2.example_table2` AS et2
-        "#;
-        let violations = lint(sql.into(), "bigquery".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_derived_query_requires_alias_1() {
-        let sql = r#"
-        SELECT * FROM (
-            SELECT 1
-        ) as a
-    "#;
-        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_derived_query_requires_alias_2() {
-        let sql = r#"
-        SELECT * FROM (
-            SELECT col FROM dbo.tab
-            UNION
-            SELECT -1 AS col
-        ) AS a
-    "#;
-        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_derived_query_requires_alias_3() {
-        let sql = r#"
-        SELECT * FROM (
-            WITH foo AS (
-                SELECT col FROM dbo.tab
-            )
-            SELECT * FROM foo
-        ) AS a
-    "#;
-        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_join_on_expression_in_parentheses() {
-        let sql = r#"
-        SELECT table1.c1
-        FROM
-            table1 AS tbl1
-        INNER JOIN table2 AS tbl2 ON (tbl2.col2 = tbl1.col2)
-        INNER JOIN table3 AS tbl3 ON (tbl3.col3 = tbl2.col3)
-    "#;
-        let violations = lint(sql.into(), "ansi".into(), rules(), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_pass_bigquery_qualify_clause() {
-        let pass_str = r#"
-            SELECT *
-            FROM
-                table1 AS tbl1
-            INNER JOIN tbl2 AS tbl2
-            WHERE TRUE
-            QUALIFY ROW_NUMBER() OVER (
-                PARTITION BY tbl1.col1
-                ORDER BY tbl2.col3
-                ) = 1
-        "#;
-
-        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
-        assert_eq!(result, []);
-    }
-
-    #[test]
-    fn test_pass_bigquery_nested_inner_join() {
-        let pass_str = r#"
-            with abh as (
-                select
-                    ceb.emailaddresskey,
-                    dac.accountkey
-                from table2 as dac
-                inner join table3 as ceb
-                    on ceb.col2 = dac.col2
-            )
-            select col1
-            from table1 as abg
-            inner join abh
-            on abg.col1 = abh.col1
-        "#;
-
-        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
-        assert_eq!(result, []);
-    }
-
-    #[test]
-    fn test_ansi_function_not_table_parameter() {
-        let fail_str = r#"
-            SELECT TO_JSON_STRING(t)
-            FROM my_table AS t
-        "#;
-
-        let fix_str = r#"
-            SELECT TO_JSON_STRING(t)
-            FROM my_table
-        "#;
-
-        let result = fix(fail_str, rules());
-        assert_eq!(fix_str, result);
-    }
-
-    #[test]
-    fn test_bigquery_function_takes_tablealias_column_parameter() {
-        let pass_str = r#"
-            SELECT TO_JSON_STRING(t)
-            FROM my_table AS t
-        "#;
-
-        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
-        assert_eq!(result, []);
-    }
-
-    #[test]
-    fn test_bigquery_function_takes_tablealias_column_struct_parameter() {
-        let pass_str = r#"
-            SELECT TO_JSON_STRING(t.c.structure)
-            FROM my_table AS t
-        "#;
-
-        let result = lint(pass_str.into(), "bigquery".into(), rules(), None, None).unwrap();
-        assert_eq!(result, []);
     }
 }

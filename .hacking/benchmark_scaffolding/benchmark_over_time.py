@@ -24,7 +24,8 @@ def get_commits(start_date=None, end_date=None):
 
 def run_benchmark(commit_hash):
     run_command(f"git checkout {commit_hash}")
-    output, _ = run_command("cargo bench --bench bench_name")  # Replace bench_name with your actual benchmark name
+    output, _ = run_command("cargo bench --bench fix")  # Replace bench_name with your actual benchmark name
+    print(output)
 
     # Parse the benchmark output
     time_match = re.search(r"time:\s+\[(\d+\.\d+)\s+(\w+)\s+(\d+\.\d+)\s+(\w+)\s+(\d+\.\d+)\s+(\w+)\]", output)
@@ -40,7 +41,7 @@ def run_benchmark(commit_hash):
 
 def main(start_date, end_date, output_file):
     commits = get_commits(start_date, end_date)
-
+    print(f"Looking at the all the commits: {commits}")
     with open(output_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['Commit Hash', 'Commit Time', 'Commit Message', 'Benchmark Time', 'Uncertainty', 'Unit'])

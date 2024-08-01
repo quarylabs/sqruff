@@ -48,6 +48,8 @@ def run_benchmark(commit_hash):
         return None, None, None
 
     bench_output, bench_error = run_command("cargo bench --bench fix")
+    print(bench_output)
+    print(bench_error)
     if bench_error:
         print(f"Error running benchmark for commit {commit_hash}: {bench_error}")
         return None, None, None

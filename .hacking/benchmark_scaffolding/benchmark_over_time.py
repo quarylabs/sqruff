@@ -41,21 +41,6 @@ def get_commits(start_date=None, end_date=None):
 
     return commits
 
-def run_benchmark(commit_hash):
-    checkout_output, checkout_error = run_command(f"git checkout {commit_hash}")
-    if checkout_error:
-        print(f"Error checking out commit {commit_hash}: {checkout_error}")
-        return None, None, None
-
-    bench_output, bench_error = run_command("cargo bench --bench fix")
-    print(bench_output)
-    print(bench_error)
-    if bench_error:
-        print(f"Error running benchmark for commit {commit_hash}: {bench_error}")
-        return None, None, None
-
-    return parse_benchmark_output(bench_output + bench_error)
-
 def parse_benchmark_output(output):
     time_match = re.search(r"time:\s+\[(\d+(?:\.\d+)?)\s+(\w+)\s+(\d+(?:\.\d+)?)\s+(\w+)\s+(\d+(?:\.\d+)?)\s+(\w+)\]", output)
     if time_match:
@@ -68,6 +53,18 @@ def parse_benchmark_output(output):
     else:
         return None, None, None
 
+def run_benchmark(commit_hash):
+    checkout_output, checkout_error = run_command(f"git checkout {commit_hash}")
+    if checkout_error:
+        print(f"Error checking out commit {commit_hash}: {checkout_error}")
+        return None, None, None
+
+    bench_output, bench_error = run_command("cargo bench --bench fix")
+    if bench_error:
+        print(f"Error running benchmark for commit {commit_hash}: {bench_error}")
+        return None, None, None
+
+    return parse_benchmark_output(bench_output + bench_error)
 
 def main(start_date, end_date, output_file):
     commits = get_commits(start_date, end_date)
@@ -93,4 +90,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args.start_date, args.end_date, args.output_file)
-

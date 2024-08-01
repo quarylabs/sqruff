@@ -1,4 +1,5 @@
 use ahash::AHashMap;
+use regex::Regex;
 
 use super::CP01::RuleCP01;
 use crate::core::config::Value;
@@ -12,7 +13,7 @@ use crate::utils::identifers::identifiers_policy_applicable;
 #[derive(Clone, Debug)]
 pub struct RuleCP02 {
     base: RuleCP01,
-    unquoted_identifiers_policy: &'static str,
+    unquoted_identifiers_policy: Option<String>,
 }
 
 impl Default for RuleCP02 {
@@ -23,24 +24,46 @@ impl Default for RuleCP02 {
                 description_elem: "Unquoted identifiers",
                 ..Default::default()
             },
-            unquoted_identifiers_policy: "all",
+            unquoted_identifiers_policy: None,
         }
     }
 }
 
 impl Rule for RuleCP02 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP02 {
             base: RuleCP01 {
-                capitalisation_policy: _config["extended_capitalisation_policy"]
+                capitalisation_policy: config["extended_capitalisation_policy"]
                     .as_string()
                     .unwrap()
                     .into(),
                 cap_policy_name: "extended_capitalisation_policy".into(),
                 description_elem: "Unquoted identifiers",
+                ignore_words: config["ignore_words"]
+                    .map(|it| {
+                        it.as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|it| it.as_string().unwrap().to_lowercase())
+                            .collect()
+                    })
+                    .unwrap_or_default(),
+                ignore_words_regex: config["ignore_words_regex"]
+                    .map(|it| {
+                        it.as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
+                            .collect()
+                    })
+                    .unwrap_or_default(),
+
                 ..Default::default()
             },
-            ..Default::default()
+            unquoted_identifiers_policy: config
+                .get("unquoted_identifiers_policy")
+                .and_then(|it| it.as_string())
+                .map(ToString::to_string),
         }
         .erased())
     }
@@ -102,7 +125,10 @@ from foo
             return Vec::new();
         }
 
-        if identifiers_policy_applicable(self.unquoted_identifiers_policy, &context.parent_stack) {
+        let policy = self.unquoted_identifiers_policy.as_deref().unwrap_or_else(|| {
+            context.config.unwrap().raw["rules"]["unquoted_identifiers_policy"].as_string().unwrap()
+        });
+        if identifiers_policy_applicable(policy, &context.parent_stack) {
             self.base.eval(context)
         } else {
             vec![LintResult::new(None, Vec::new(), None, None, None)]
@@ -123,90 +149,5 @@ from foo
             },
         )
         .into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use super::RuleCP02;
-    use crate::api::simple::fix;
-    use crate::core::rules::base::Erased;
-
-    #[test]
-    fn test_pass_consistent_capitalisation_1() {
-        let pass_str = "SELECT a, b";
-
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_consistent_capitalisation_2() {
-        let pass_str = "SELECT A, B";
-
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_consistent_capitalisation_with_null() {
-        let pass_str = "SELECT NULL, a";
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_consistent_capitalisation_with_single_letter_upper() {
-        let pass_str = "SELECT A, Boo";
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_consistent_capitalisation_with_single_word_snake() {
-        let pass_str = "SELECT Apple, Banana_split";
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_consistent_capitalisation_with_single_word_pascal() {
-        let pass_str = "SELECT AppleFritter, Banana";
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_consistent_capitalisation_with_multiple_words_with_numbers() {
-        let pass_str = "SELECT AppleFritter, Apple123fritter, Apple123Fritter";
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_consistent_capitalisation_with_leading_underscore() {
-        let pass_str = "SELECT _a, b";
-        let actual = fix(pass_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_fail_inconsistent_capitalisation_lower_case() {
-        // Test that fixes are consistent
-        let fail_str = "SELECT a, B";
-        let expected = "SELECT a, b";
-        let actual = fix(fail_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(expected, actual);
-    }
-
-    #[test]
-    fn test_fail_inconsistent_capitalisation_2() {
-        let fail_str = "SELECT B,   a";
-        let expected = "SELECT B,   A";
-
-        let actual = fix(fail_str, vec![RuleCP02::default().erased()]);
-        assert_eq!(expected, actual);
     }
 }

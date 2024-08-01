@@ -467,6 +467,7 @@ impl Value {
                 let xs = q.split(',').map(|it| Value::String(it.into())).collect_vec();
                 Some(xs)
             }
+            Self::Bool(b) => Some(vec![Value::String(b.to_string().into())]),
             _ => None,
         }
     }

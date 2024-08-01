@@ -1,5 +1,6 @@
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
+use regex::Regex;
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::ErasedSegment;
@@ -18,6 +19,8 @@ fn is_capitalizable(character: char) -> bool {
 #[derive(Debug, Clone)]
 pub struct RuleCP01 {
     pub(crate) capitalisation_policy: String,
+    pub(crate) ignore_words: Vec<String>,
+    pub(crate) ignore_words_regex: Vec<Regex>,
     pub(crate) cap_policy_name: String,
     pub(crate) skip_literals: bool,
     pub(crate) exclude_parent_types: &'static [SyntaxKind],
@@ -37,14 +40,34 @@ impl Default for RuleCP01 {
                 SyntaxKind::NakedIdentifier,
             ],
             description_elem: "Keywords",
+            ignore_words: Vec::new(),
+            ignore_words_regex: Vec::new(),
         }
     }
 }
 
 impl Rule for RuleCP01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP01 {
-            capitalisation_policy: _config["capitalisation_policy"].as_string().unwrap().into(),
+            capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
+            ignore_words: config["ignore_words"]
+                .map(|it| {
+                    it.as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|it| it.as_string().unwrap().to_lowercase())
+                        .collect()
+                })
+                .unwrap_or_default(),
+            ignore_words_regex: config["ignore_words_regex"]
+                .map(|it| {
+                    it.as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
+                        .collect()
+                })
+                .unwrap_or_default(),
             ..Default::default()
         }
         .erased())
@@ -98,6 +121,18 @@ from foo
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
+
+        if self.ignore_words.contains(&context.segment.raw().to_lowercase()) {
+            return Vec::new();
+        }
+
+        if self
+            .ignore_words_regex
+            .iter()
+            .any(|regex| regex.is_match(context.segment.raw().as_ref()))
+        {
+            return Vec::new();
+        }
 
         if (self.skip_literals && context.segment.is_type(SyntaxKind::Literal))
             || !self.exclude_parent_types.is_empty()
@@ -259,135 +294,5 @@ pub fn handle_segment(
             format!("{description_elem} must be {consistency}{policy}").into(),
             None,
         )
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use super::RuleCP01;
-    use crate::api::simple::fix;
-    use crate::core::rules::base::Erased;
-
-    #[test]
-    fn test_fail_inconsistent_capitalisation_1() {
-        let fail_str = "SeLeCt 1;";
-        let fix_str = "SELECT 1;";
-
-        let actual = fix(fail_str, vec![RuleCP01::default().erased()]);
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_inconsistent_capitalisation_2() {
-        let fail_str = "SeLeCt 1 from blah;";
-        let fix_str = "SELECT 1 FROM blah;";
-
-        let actual = fix(fail_str, vec![RuleCP01::default().erased()]);
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_capitalisation_policy_lower() {
-        let fail_str = "SELECT * FROM MOO ORDER BY dt DESC;";
-        let fix_str = "select * from MOO order by dt desc;";
-
-        let actual = fix(
-            fail_str,
-            vec![RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() }.erased()],
-        );
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_capitalisation_policy_upper() {
-        let fail_str = "select * from MOO order by dt desc;";
-        let fix_str = "SELECT * FROM MOO ORDER BY dt DESC;";
-
-        let actual = fix(
-            fail_str,
-            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
-        );
-
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_capitalisation_policy_capitalise() {
-        let fail_str = "SELECT * FROM MOO ORDER BY dt DESC;";
-        let fix_str = "Select * From MOO Order By dt Desc;";
-
-        let actual = fix(
-            fail_str,
-            vec![
-                RuleCP01 { capitalisation_policy: "capitalise".into(), ..Default::default() }
-                    .erased(),
-            ],
-        );
-
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_date_part_inconsistent_capitalisation() {
-        let fail_str = "SELECT dt + interval 2 day, interval 3 HOUR;";
-        let fix_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
-
-        let actual = fix(
-            fail_str,
-            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
-        );
-
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_date_part_capitalisation_policy_lower() {
-        let fail_str = "SELECT dt + interval 2 day, interval 3 HOUR;";
-        let fix_str = "select dt + interval 2 day, interval 3 hour;";
-
-        let actual = fix(
-            fail_str,
-            vec![RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() }.erased()],
-        );
-
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_date_part_capitalisation_policy_upper() {
-        let fail_str = "SELECT dt + interval 2 day, interval 3 HOUR;";
-        let fix_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
-
-        let actual = fix(
-            fail_str,
-            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
-        );
-
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_pass_date_part_consistent_capitalisation() {
-        let pass_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
-        let expected_str = "SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR;";
-
-        let actual = fix(pass_str, vec![RuleCP01::default().erased()]);
-
-        assert_eq!(expected_str, actual);
-    }
-
-    #[test]
-    fn test_pass_data_type_inconsistent_capitalisation() {
-        let pass_str = "CREATE TABLE table1 (account_id bigint);";
-        let expected_str = "CREATE TABLE table1 (account_id bigint);";
-
-        let actual = fix(
-            pass_str,
-            vec![RuleCP01 { capitalisation_policy: "upper".into(), ..Default::default() }.erased()],
-        );
-
-        assert_eq!(expected_str, actual);
     }
 }

@@ -15,6 +15,7 @@ pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment
                 .into_iter()
                 .any(|it| last.is_type(it))
             });
+
             match policy {
                 "aliases" if is_alias => true,
                 "column_aliases" if is_alias => {

@@ -6,9 +6,9 @@ import re
 import sys
 
 def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, text=True)
     output, error = process.communicate()
-    return output.decode('utf-8'), error.decode('utf-8')
+    return output, error
 
 def get_commits(start_date=None, end_date=None):
     command = 'git log --format="%H|%ct|%s"'
@@ -93,3 +93,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args.start_date, args.end_date, args.output_file)
+

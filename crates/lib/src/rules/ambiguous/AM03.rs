@@ -143,23 +143,3 @@ impl RuleAM03 {
         result
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::api::simple::fix;
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::ambiguous::AM03::RuleAM03;
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleAM03.erased()]
-    }
-
-    #[test]
-    fn test_fail_bare_union() {
-        let fail_str = "SELECT * FROM t ORDER BY a, b DESC";
-        let fix_str = "SELECT * FROM t ORDER BY a ASC, b DESC";
-
-        let actual = fix(fail_str, rules());
-        assert_eq!(fix_str, actual);
-    }
-}

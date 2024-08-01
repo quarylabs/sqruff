@@ -452,7 +452,6 @@ pub enum SyntaxKind {
     Identifier,
     Raw,
     QuotedIdentifier,
-    AggregateOrderBy,
     Star,
     Dot,
     Comma,

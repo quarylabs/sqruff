@@ -614,7 +614,7 @@ mod tests {
                 &root,
                 Vec::new(),
                 strip_newlines,
-                "before"
+                "before",
             );
 
             assert_eq!(new_pnt.raw(), raw_point_sql_out);

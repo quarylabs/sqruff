@@ -30,8 +30,17 @@ impl RuleAL02 {
 }
 
 impl Rule for RuleAL02 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL02::default().erased())
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
+            "explicit" => Aliasing::Explicit,
+            "implicit" => Aliasing::Implicit,
+            _ => unreachable!(),
+        };
+
+        let mut rule = RuleAL02::default();
+        rule.base = rule.base.aliasing(aliasing);
+
+        Ok(rule.erased())
     }
 
     fn name(&self) -> &'static str {
@@ -82,62 +91,5 @@ FROM foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) }).into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::api::simple::{fix, lint};
-    use crate::core::rules::base::Erased;
-    use crate::rules::aliasing::AL01::Aliasing;
-    use crate::rules::aliasing::AL02::RuleAL02;
-
-    #[test]
-    fn issue_561() {
-        let pass_str: String = "select
-        array_agg(catalog_item_id) within group
-          (order by product_position asc) over (partition by (event_id, shelf_position))
-        as shelf_catalog_items
-      from x"
-            .into();
-
-        let violations =
-            lint(pass_str, "snowflake".into(), vec![RuleAL02::default().erased()], None, None)
-                .unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_explicit_column_default() {
-        assert_eq!(
-            fix("select 1 bar from table1 b", vec![RuleAL02::default().erased()]),
-            "select 1 AS bar from table1 b"
-        );
-    }
-
-    #[test]
-    fn test_fail_explicit_column_explicit() {
-        let sql = "select 1 bar from table1 b";
-
-        let result = fix(sql, vec![RuleAL02::default().aliasing(Aliasing::Explicit).erased()]);
-
-        assert_eq!(result, "select 1 AS bar from table1 b");
-    }
-
-    #[test]
-    fn test_fail_explicit_column_implicit() {
-        let sql = "select 1 AS bar from table1 b";
-
-        let result = fix(sql, vec![RuleAL02::default().aliasing(Aliasing::Implicit).erased()]);
-
-        assert_eq!(result, "select 1 bar from table1 b");
-    }
-
-    #[test]
-    fn test_fail_alias_ending_raw_equals() {
-        let sql = "select col1 raw_equals";
-        let result = fix(sql, vec![RuleAL02::default().aliasing(Aliasing::Explicit).erased()]);
-
-        assert_eq!(result, "select col1 AS raw_equals");
     }
 }

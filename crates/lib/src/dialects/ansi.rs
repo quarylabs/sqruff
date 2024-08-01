@@ -6195,19 +6195,6 @@ impl ObjectReferenceSegment {
         let refs = self.iter_raw_references();
 
         match dialect {
-            DialectKind::Ansi
-            | DialectKind::Postgres
-            | DialectKind::Sqlite
-            | DialectKind::Clickhouse
-            | DialectKind::Duckdb
-            | DialectKind::Sparksql => {
-                let level = level as usize;
-                if refs.len() >= level && level > 0 {
-                    refs.get(refs.len() - level).cloned().into_iter().collect()
-                } else {
-                    vec![]
-                }
-            }
             DialectKind::Bigquery => {
                 if level == ObjectReferenceLevel::Schema && refs.len() >= 3 {
                     return vec![refs[0].clone()];
@@ -6223,7 +6210,14 @@ impl ObjectReferenceSegment {
 
                 self.extract_possible_references(level, DialectKind::Ansi)
             }
-            _ => unimplemented!(),
+            _ => {
+                let level = level as usize;
+                if refs.len() >= level && level > 0 {
+                    refs.get(refs.len() - level).cloned().into_iter().collect()
+                } else {
+                    vec![]
+                }
+            }
         }
     }
 

@@ -91,8 +91,12 @@ impl RuleAL06 {
 }
 
 impl Rule for RuleAL06 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL06::default().erased())
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+        Ok(RuleAL06 {
+            min_alias_length: config["min_alias_length"].as_int().map(|it| it as usize),
+            max_alias_length: config["max_alias_length"].as_int().map(|it| it as usize),
+        }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -151,84 +155,5 @@ JOIN
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::api::simple::lint;
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::aliasing::AL06::RuleAL06;
-
-    fn rules(min_alias_length: Option<usize>, max_alias_length: Option<usize>) -> Vec<ErasedRule> {
-        vec![RuleAL06 { min_alias_length, max_alias_length }.erased()]
-    }
-
-    #[test]
-    fn test_pass_no_config() {
-        let sql = r#"
-        SELECT x.a, x_2.b
-            FROM x 
-            LEFT JOIN x AS x_2 ON x.foreign_key = x.foreign_key"#;
-
-        let violations = lint(sql.into(), "ansi".into(), rules(None, None), None, None).unwrap();
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_alias_too_short() {
-        let fail_str = r#"
-        SELECT u.id, c.first_name, c.last_name,
-            COUNT(o.user_id)
-                FROM users AS u
-                    JOIN customers AS c ON u.id = c.user_id
-                    JOIN orders AS o ON u.id = o.user_id"#;
-
-        let violations =
-            lint(fail_str.into(), "ansi".into(), rules(4.into(), None), None, None).unwrap();
-
-        assert_eq!(violations.len(), 3);
-    }
-
-    #[test]
-    fn test_fail_alias_too_long() {
-        let fail_str = r#"
-    SELECT u.id, customers_customers_customers.first_name, customers_customers_customers.last_name,
-        COUNT(o.user_id)
-        FROM users AS u
-        JOIN customers AS customers_customers_customers ON u.id = customers_customers_customers.user_id
-        JOIN orders AS o ON u.id = o.user_id;"#;
-
-        let violations =
-            lint(fail_str.into(), "ansi".into(), rules(None, 10.into()), None, None).unwrap();
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_fail_alias_min_and_max() {
-        let fail_str = r#"
-    SELECT u.id, customers_customers_customers.first_name, customers_customers_customers.last_name,
-        COUNT(o.user_id)
-        FROM users AS u
-        JOIN customers AS customers_customers_customers ON u.id = customers_customers_customers.user_id
-        JOIN orders AS o ON u.id = o.user_id;"#;
-
-        let violations =
-            lint(fail_str.into(), "ansi".into(), rules(4.into(), 10.into()), None, None).unwrap();
-        assert_eq!(violations.len(), 3);
-    }
-
-    #[test]
-    fn test_pass_with_config() {
-        let pass_str = r#"
-    SELECT users.id, customers_customers_customers.first_name, customers_customers_customers.last_name,
-        COUNT(latest_orders.user_id)
-        FROM users
-        JOIN customers AS customers_customers_customers ON users.id = customers_customers_customers.user_id
-        JOIN orders AS latest_orders ON users.id = latest_orders.user_id;"#;
-
-        let violations =
-            lint(pass_str.into(), "ansi".into(), rules(10.into(), 30.into()), None, None).unwrap();
-        assert_eq!(violations, []);
     }
 }

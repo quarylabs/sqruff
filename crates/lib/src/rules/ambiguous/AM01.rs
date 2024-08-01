@@ -89,37 +89,3 @@ FROM foo
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use crate::api::simple::lint;
-    use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::ambiguous::AM01::RuleAM01;
-
-    fn rules() -> Vec<ErasedRule> {
-        vec![RuleAM01.erased()]
-    }
-
-    #[test]
-    fn test_pass_only_group_by() {
-        let violations =
-            lint("select a from b group by a".into(), "ansi".into(), rules(), None, None).unwrap();
-
-        assert_eq!(violations, []);
-    }
-
-    #[test]
-    fn test_fail_distinct_and_group_by() {
-        let violations =
-            lint("select distinct a from b group by a".into(), "ansi".into(), rules(), None, None)
-                .unwrap();
-
-        assert_eq!(
-            violations[0].desc(),
-            "Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'."
-        );
-        assert_eq!(violations.len(), 1);
-    }
-}

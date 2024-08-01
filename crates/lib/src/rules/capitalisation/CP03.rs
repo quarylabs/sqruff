@@ -1,4 +1,5 @@
 use ahash::AHashMap;
+use regex::Regex;
 
 use super::CP01::RuleCP01;
 use crate::core::config::Value;
@@ -25,14 +26,33 @@ impl Default for RuleCP03 {
 }
 
 impl Rule for RuleCP03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP03 {
             base: RuleCP01 {
-                capitalisation_policy: _config["extended_capitalisation_policy"]
+                capitalisation_policy: config["extended_capitalisation_policy"]
                     .as_string()
                     .unwrap()
                     .into(),
                 description_elem: "Function names",
+                ignore_words: config["ignore_words"]
+                    .map(|it| {
+                        it.as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|it| it.as_string().unwrap().to_lowercase())
+                            .collect()
+                    })
+                    .unwrap_or_default(),
+                ignore_words_regex: config["ignore_words_regex"]
+                    .map(|it| {
+                        it.as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
+                            .collect()
+                    })
+                    .unwrap_or_default(),
+
                 ..Default::default()
             },
         }
@@ -92,85 +112,5 @@ FROM foo
             SyntaxKind::BareFunction,
         ]) })
         .into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use super::RuleCP03;
-    use crate::api::simple::fix;
-    use crate::core::rules::base::Erased;
-    use crate::rules::capitalisation::CP01::RuleCP01;
-
-    #[test]
-    fn test_fail_inconsistent_function_capitalisation_1() {
-        let fail_str = "SELECT MAX(id), min(id) from table;";
-        let fix_str = "SELECT MAX(id), MIN(id) from table;";
-
-        let actual = fix(fail_str, vec![RuleCP03::default().erased()]);
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_inconsistent_function_capitalisation_2() {
-        let fail_str = "SELECT MAX(id), min(id) from table;";
-        let fix_str = "SELECT max(id), min(id) from table;";
-
-        let actual = fix(
-            fail_str,
-            vec![
-                RuleCP03 {
-                    base: RuleCP01 { capitalisation_policy: "lower".into(), ..Default::default() },
-                }
-                .erased(),
-            ],
-        );
-
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_bare_functions_3() {
-        let fail_str = "SELECT current_timestamp, min(a) from table;";
-        let fix_str = "SELECT Current_Timestamp, Min(a) from table;";
-
-        let actual = fix(
-            fail_str,
-            vec![
-                RuleCP03 {
-                    base: RuleCP01 { capitalisation_policy: "pascal".into(), ..Default::default() },
-                }
-                .erased(),
-            ],
-        );
-
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_fail_capitalization_after_comma() {
-        let fail_str = "SELECT FLOOR(dt) ,count(*) FROM test;";
-        let fix_str = "SELECT FLOOR(dt) ,COUNT(*) FROM test;";
-
-        let actual = fix(fail_str, vec![RuleCP03::default().erased()]);
-        assert_eq!(fix_str, actual);
-    }
-
-    #[test]
-    fn test_pass_fully_qualified_function_mixed_functions() {
-        let pass_str = "SELECT COUNT(*), project1.foo(value1) AS value2;";
-
-        let actual = fix(pass_str, vec![RuleCP03::default().erased()]);
-        assert_eq!(pass_str, actual);
-    }
-
-    #[test]
-    fn test_pass_fully_qualified_function_pascal_case() {
-        let pass_str = "SELECT project1.FoO(value1) AS value2";
-
-        let actual = fix(pass_str, vec![RuleCP03::default().erased()]);
-        assert_eq!(pass_str, actual);
     }
 }

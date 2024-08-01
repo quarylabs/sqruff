@@ -1,4 +1,5 @@
 use ahash::AHashMap;
+use regex::Regex;
 
 use super::CP01::RuleCP01;
 use crate::core::config::Value;
@@ -26,10 +27,28 @@ impl Default for RuleCP04 {
 }
 
 impl Rule for RuleCP04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP04 {
             base: RuleCP01 {
-                capitalisation_policy: _config["capitalisation_policy"].as_string().unwrap().into(),
+                capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
+                ignore_words: config["ignore_words"]
+                    .map(|it| {
+                        it.as_array()
+                            .unwrap_or_default()
+                            .iter()
+                            .map(|it| it.as_string().unwrap().to_lowercase())
+                            .collect()
+                    })
+                    .unwrap_or_default(),
+                ignore_words_regex: config["ignore_words_regex"]
+                    .map(|it| {
+                        it.as_array()
+                            .unwrap_or_default()
+                            .iter()
+                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
+                            .collect()
+                    })
+                    .unwrap_or_default(),
                 ..Default::default()
             },
         }
@@ -99,23 +118,5 @@ from foo
             const { SyntaxSet::new(&[SyntaxKind::NullLiteral, SyntaxKind::BooleanLiteral]) },
         )
         .into()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
-    use super::RuleCP04;
-    use crate::api::simple::fix;
-    use crate::core::rules::base::Erased;
-
-    #[test]
-    fn test_fail_inconsistent_boolean_capitalisation() {
-        let fail_str = "SeLeCt true, FALSE, NULL";
-        let fix_str = "SeLeCt true, false, null";
-
-        let actual = fix(fail_str, vec![RuleCP04::default().erased()]);
-        assert_eq!(fix_str, actual);
     }
 }

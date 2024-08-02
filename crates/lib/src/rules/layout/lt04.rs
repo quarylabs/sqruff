@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use ahash::AHashMap;
 
-use super::LT03::RuleLT03;
+use super::lt03::RuleLT03;
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
@@ -73,8 +73,6 @@ FROM foo
             .as_string()
             .unwrap();
 
-        dbg!(&comma_positioning);
-
         if self.check_trail_lead_shortcut(
             &context.segment,
             context.parent_stack.last().unwrap(),
@@ -82,8 +80,6 @@ FROM foo
         ) {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         };
-
-        dbg!();
 
         ReflowSequence::from_around_target(
             &context.segment,

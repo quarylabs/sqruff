@@ -143,7 +143,7 @@ mod tests {
 
     use crate::api::simple::{fix, lint};
     use crate::core::rules::base::{Erased, ErasedRule};
-    use crate::rules::convention::CV03::RuleCV03;
+    use crate::rules::convention::cv03::RuleCV03;
 
     fn rules() -> Vec<ErasedRule> {
         rules_with_config("require".to_owned())

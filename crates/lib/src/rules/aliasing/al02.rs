@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 
-use super::AL01::{Aliasing, RuleAL01};
+use super::al01::{Aliasing, RuleAL01};
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;

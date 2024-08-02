@@ -6578,7 +6578,7 @@ mod tests {
     }
 
     #[test]
-    fn test__dialect__ansi_specific_segment_not_parse() {
+    fn test_dialect_ansi_specific_segment_not_parse() {
         let tests = vec![
             ("SELECT 1 + (2 ", vec![(1, 12)]),
             // ("SELECT * FROM a ORDER BY 1 UNION SELECT * FROM b", vec![(1, 28)]),
@@ -6604,7 +6604,7 @@ mod tests {
     }
 
     #[test]
-    fn test__dialect__ansi_is_whitespace() {
+    fn test_dialect_ansi_is_whitespace() {
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let file_content =
             std::fs::read_to_string("test/fixtures/dialects/ansi/select_in_multiline_comment.sql")
@@ -6620,7 +6620,7 @@ mod tests {
     }
 
     #[test]
-    fn test__dialect__ansi_parse_indented_joins() {
+    fn test_dialect_ansi_parse_indented_joins() {
         let cases = [
             // ("select field_1 from my_table as alias_1", [1, 5, 8, 11, 15, 16, 17].as_slice()),
             (

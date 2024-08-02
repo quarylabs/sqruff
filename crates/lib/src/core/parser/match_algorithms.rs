@@ -335,13 +335,16 @@ pub fn resolve_bracket(
     }
 }
 
+type BracketMatch =
+    Result<(MatchResult, Option<Arc<dyn Matchable>>, Vec<MatchResult>), SQLParseError>;
+
 fn next_ex_bracket_match(
     segments: &[ErasedSegment],
     idx: u32,
     matchers: &[Arc<dyn Matchable>],
     parse_context: &mut ParseContext,
     bracket_pairs_set: &'static str,
-) -> Result<(MatchResult, Option<Arc<dyn Matchable>>, Vec<MatchResult>), SQLParseError> {
+) -> BracketMatch {
     let max_idx = segments.len() as u32;
 
     if idx >= max_idx {

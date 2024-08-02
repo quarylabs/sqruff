@@ -1385,7 +1385,7 @@ mod tests {
     use crate::utils::reflow::sequence::ReflowSequence;
 
     #[test]
-    fn test_reflow__point_get_indent() {
+    fn test_reflow_point_get_indent() {
         let cases = [
             ("select 1", 1, None),
             ("select\n  1", 1, "  ".into()),
@@ -1403,7 +1403,7 @@ mod tests {
     }
 
     #[test]
-    fn test_reflow__desired_indent_units() {
+    fn test_reflow_desired_indent_units() {
         let cases: [(IndentLine, &[usize], isize); 7] = [
             // Trivial case of a first line.
             (

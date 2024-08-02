@@ -1,40 +1,43 @@
 use ahash::AHashMap;
 use regex::Regex;
 
-use super::CP01::RuleCP01;
+use super::cp01::RuleCP01;
 use crate::core::config::Value;
-use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
-#[derive(Clone, Debug)]
-pub struct RuleCP04 {
+#[derive(Debug, Clone)]
+pub struct RuleCP03 {
     base: RuleCP01,
 }
 
-impl Default for RuleCP04 {
+impl Default for RuleCP03 {
     fn default() -> Self {
         Self {
             base: RuleCP01 {
                 skip_literals: false,
                 exclude_parent_types: &[],
-                description_elem: "Boolean/null literals",
                 ..Default::default()
             },
         }
     }
 }
 
-impl Rule for RuleCP04 {
+impl Rule for RuleCP03 {
     fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCP04 {
+        Ok(RuleCP03 {
             base: RuleCP01 {
-                capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
+                capitalisation_policy: config["extended_capitalisation_policy"]
+                    .as_string()
+                    .unwrap()
+                    .into(),
+                description_elem: "Function names",
                 ignore_words: config["ignore_words"]
                     .map(|it| {
                         it.as_array()
-                            .unwrap_or_default()
+                            .unwrap()
                             .iter()
                             .map(|it| it.as_string().unwrap().to_lowercase())
                             .collect()
@@ -43,12 +46,13 @@ impl Rule for RuleCP04 {
                 ignore_words_regex: config["ignore_words_regex"]
                     .map(|it| {
                         it.as_array()
-                            .unwrap_or_default()
+                            .unwrap()
                             .iter()
                             .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
                             .collect()
                     })
                     .unwrap_or_default(),
+
                 ..Default::default()
             },
         }
@@ -56,48 +60,36 @@ impl Rule for RuleCP04 {
     }
 
     fn name(&self) -> &'static str {
-        "capitalisation.literals"
+        "capitalisation.functions"
     }
 
     fn description(&self) -> &'static str {
-        "Inconsistent capitalisation of boolean/null literal."
+        "Inconsistent capitalisation of function names."
     }
 
     fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
-In this example, `null` and `false` are in lower-case whereas `TRUE` is in upper-case.
+In this example, the two `SUM` functions don’t have the same capitalisation.
 
 ```sql
-select
-    a,
-    null,
-    TRUE,
-    false
-from foo
+SELECT
+    sum(a) AS aa,
+    SUM(b) AS bb
+FROM foo
 ```
 
 **Best practice**
 
-Ensure all literal `null`/`true`/`false` literals are consistently upper or lower case
+Make the case consistent.
+
 
 ```sql
-select
-    a,
-    NULL,
-    TRUE,
-    FALSE
-from foo
-
--- Also good
-
-select
-    a,
-    null,
-    true,
-    false
-from foo
+SELECT
+    sum(a) AS aa,
+    sum(b) AS bb
+FROM foo
 ```
 "#
     }
@@ -105,6 +97,7 @@ from foo
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Capitalisation]
     }
+
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         self.base.eval(context)
     }
@@ -114,9 +107,10 @@ from foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
-            const { SyntaxSet::new(&[SyntaxKind::NullLiteral, SyntaxKind::BooleanLiteral]) },
-        )
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[
+            SyntaxKind::FunctionNameIdentifier,
+            SyntaxKind::BareFunction,
+        ]) })
         .into()
     }
 }

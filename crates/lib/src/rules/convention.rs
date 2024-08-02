@@ -1,30 +1,30 @@
 use crate::core::rules::base::ErasedRule;
 
-pub mod CV01;
-pub mod CV02;
-pub mod CV03;
-pub mod CV04;
-pub mod CV05;
-pub mod CV06;
-pub mod CV07;
-pub mod CV08;
-pub mod CV09;
-mod CV10;
-mod CV11;
+pub mod cv01;
+pub mod cv02;
+pub mod cv03;
+pub mod cv04;
+pub mod cv05;
+pub mod cv06;
+pub mod cv07;
+pub mod cv08;
+pub mod cv09;
+pub mod cv10;
+pub mod cv11;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;
 
     vec![
-        CV01::RuleCV01::default().erased(),
-        CV02::RuleCV02.erased(),
-        CV03::RuleCV03::default().erased(),
-        CV04::RuleCV04::default().erased(),
-        CV06::RuleCV06::default().erased(),
-        CV07::RuleCV07.erased(),
-        CV08::RuleCV08.erased(),
-        CV09::RuleCV09::default().erased(),
-        CV10::RuleCV10::default().erased(),
-        CV11::RuleCV11::default().erased(),
+        cv01::RuleCV01::default().erased(),
+        cv02::RuleCV02.erased(),
+        cv03::RuleCV03::default().erased(),
+        cv04::RuleCV04::default().erased(),
+        cv06::RuleCV06::default().erased(),
+        cv07::RuleCV07.erased(),
+        cv08::RuleCV08.erased(),
+        cv09::RuleCV09::default().erased(),
+        cv10::RuleCV10::default().erased(),
+        cv11::RuleCV11::default().erased(),
     ]
 }

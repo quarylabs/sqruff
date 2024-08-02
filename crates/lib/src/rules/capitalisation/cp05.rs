@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 
-use super::CP01::handle_segment;
+use super::cp01::handle_segment;
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;

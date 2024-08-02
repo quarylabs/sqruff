@@ -348,7 +348,7 @@ mod tests {
     }
 
     #[test]
-    fn test__cli__formatters__filename_nocol() {
+    fn test__cli_formatters_filename_nocol() {
         let (_temp, formatter) = mk_formatter();
         let actual = formatter.format_filename("blahblah", true);
 
@@ -356,7 +356,7 @@ mod tests {
     }
 
     #[test]
-    fn test__cli__formatters__violation() {
+    fn test_cli_formatters_violation() {
         let (_temp, formatter) = mk_formatter();
 
         #[derive(Debug, Clone)]
@@ -399,7 +399,7 @@ mod tests {
             }
         }
 
-        let tempRawSegmentArgs = RawSegmentArgs {
+        let temp_raw_segment_args = RawSegmentArgs {
             _type: None,
             _instance_types: None,
             _source_fixes: None,
@@ -418,7 +418,7 @@ mod tests {
                 None,
             )
             .into(),
-            tempRawSegmentArgs,
+            temp_raw_segment_args,
         )
         .to_erased_segment();
 
@@ -432,7 +432,7 @@ mod tests {
     }
 
     #[test]
-    fn test__cli__helpers__colorize() {
+    fn test_cli_helpers_colorize() {
         let (_temp, mut formatter) = mk_formatter();
         // Force color output for this test.
         formatter.plain_output = false;
@@ -440,10 +440,4 @@ mod tests {
         let actual = formatter.colorize("foo", AnsiColor::Red.on_default());
         assert_eq!(actual, "\u{1b}[31mfoo\u{1b}[0m");
     }
-
-    #[test]
-    fn test__cli__helpers__cli_table() {}
-
-    #[test]
-    fn test__cli__fix_no_corrupt_file_contents() {}
 }

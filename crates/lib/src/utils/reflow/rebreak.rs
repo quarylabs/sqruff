@@ -508,7 +508,7 @@ mod tests {
     use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
     #[test]
-    fn test_reflow__sequence_rebreak_root() {
+    fn test_reflow_sequence_rebreak_root() {
         let cases = [
             // Trivial Case
             ("select 1", "select 1"),
@@ -539,7 +539,7 @@ mod tests {
     }
 
     #[test]
-    fn test_reflow__sequence_rebreak_target() {
+    fn test_reflow_sequence_rebreak_target() {
         let cases = [
             ("select 1+\n(2+3)", 4, "1+\n(", "1\n+ ("),
             ("select a,\n(b+c)", 4, "a,\n(", "a,\n("),

@@ -13,16 +13,18 @@ use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::IndexSet;
 use crate::utils::analysis::select::get_select_statement_info;
 
+type Handle<T> = fn(
+    Vec<AliasInfo>,
+    Vec<SmolStr>,
+    Vec<ObjectReferenceSegment>,
+    Vec<ColumnAliasInfo>,
+    Vec<SmolStr>,
+    &T,
+) -> Vec<LintResult>;
+
 #[derive(Debug, Clone)]
 pub struct RuleAL04<T = ()> {
-    pub(crate) lint_references_and_aliases: fn(
-        Vec<AliasInfo>,
-        Vec<SmolStr>,
-        Vec<ObjectReferenceSegment>,
-        Vec<ColumnAliasInfo>,
-        Vec<SmolStr>,
-        &T,
-    ) -> Vec<LintResult>,
+    pub(crate) lint_references_and_aliases: Handle<T>,
     pub(crate) context: T,
 }
 

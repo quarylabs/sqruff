@@ -640,9 +640,12 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
                     for (name, extracted) in &withs {
                         match extracted {
-                            ExtractedSelect::Star(_) => {
-                                // TODO Figure this out
-                                return Err("Not yet implemented".to_string());
+                            ExtractedSelect::Star(star) => {
+                                for (_, x) in &mut columns_map {
+                                    if x.0 == *with_alias {
+                                        x.0 = star.clone();
+                                    }
+                                }
                             }
                             ExtractedSelect::Extracted { mapped, count_stars, .. } => {
                                 let sub_columns = mapped.clone();
@@ -2569,7 +2572,6 @@ from final", vec![("column_b", ("root_table", "column_a"))], vec![], vec![]),
         let parser = Parser::new(&config, None);
 
         for (sql, expected_map_entries, expected_not_parseable, expected_count) in tests {
-            dbg!(sql);
             let selected = get_column_with_source(&parser, sql).unwrap();
 
             let mut expected_map: HashMap<String, (String, String)> = HashMap::new();

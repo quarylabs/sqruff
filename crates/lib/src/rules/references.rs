@@ -1,21 +1,21 @@
 use crate::core::rules::base::ErasedRule;
 
-pub mod RF01;
-pub mod RF02;
-pub mod RF03;
-pub mod RF04;
-pub mod RF05;
-pub mod RF06;
+pub mod rf01;
+pub mod rf02;
+pub mod rf03;
+pub mod rf04;
+pub mod rf05;
+pub mod rf06;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;
 
     vec![
-        RF01::RuleRF01::default().erased(),
-        RF02::RuleRF02::default().erased(),
-        RF03::RuleRF03::default().erased(),
-        RF04::RuleRF04::default().erased(),
-        RF05::RuleRF05::default().erased(),
-        RF06::RuleRF06::default().erased(),
+        rf01::RuleRF01::default().erased(),
+        rf02::RuleRF02::default().erased(),
+        rf03::RuleRF03::default().erased(),
+        rf04::RuleRF04::default().erased(),
+        rf05::RuleRF05::default().erased(),
+        rf06::RuleRF06::default().erased(),
     ]
 }

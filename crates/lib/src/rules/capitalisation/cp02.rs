@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 use regex::Regex;
 
-use super::CP01::RuleCP01;
+use super::cp01::RuleCP01;
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};

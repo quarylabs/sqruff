@@ -174,7 +174,7 @@ mod test {
 
     use crate::api::simple::{fix, lint};
     use crate::core::rules::base::Erased;
-    use crate::rules::convention::CV05::RuleCV05;
+    use crate::rules::convention::cv05::RuleCV05;
 
     #[test]
     fn test_is_null() {

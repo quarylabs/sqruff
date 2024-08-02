@@ -323,15 +323,14 @@ impl Bracketed {
     }
 }
 
+type BracketInfo = Result<(Arc<dyn Matchable>, Arc<dyn Matchable>, bool), String>;
+
 impl Bracketed {
     pub fn bracket_type(&mut self, bracket_type: &'static str) {
         self.bracket_type = bracket_type;
     }
 
-    fn get_bracket_from_dialect(
-        &self,
-        parse_context: &ParseContext,
-    ) -> Result<(Arc<dyn Matchable>, Arc<dyn Matchable>, bool), String> {
+    fn get_bracket_from_dialect(&self, parse_context: &ParseContext) -> BracketInfo {
         let bracket_pairs = parse_context.dialect().bracket_sets(self.bracket_pairs_set);
         for (bracket_type, start_ref, end_ref, persists) in bracket_pairs {
             if bracket_type == self.bracket_type {

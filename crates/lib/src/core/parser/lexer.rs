@@ -609,7 +609,7 @@ mod tests {
     }
 
     #[test]
-    fn test__parser__lexer_trim_post_subdivide() {
+    fn test_parser_lexer_trim_post_subdivide() {
         let matcher: Vec<Matcher> = vec![
             Matcher::regex(
                 "function_script_terminator",
@@ -633,7 +633,7 @@ mod tests {
 
     /// Test the RegexLexer.
     #[test]
-    fn test__parser__lexer_regex() {
+    fn test_parser_lexer_regex() {
         let tests = &[
             ("fsaljk", "f", "f"),
             ("fsaljk", r"f", "f"),
@@ -660,7 +660,7 @@ mod tests {
 
     /// Test the lexer string
     #[test]
-    fn test__parser__lexer_string() {
+    fn test_parser_lexer_string() {
         let matcher = Matcher::string("dot", ".", |_, _| unimplemented!());
 
         assert_matches(".fsaljk", &matcher, Some("."));
@@ -669,7 +669,7 @@ mod tests {
 
     /// Test the RepeatedMultiMatcher
     #[test]
-    fn test__parser__lexer_lex_match() {
+    fn test_parser_lexer_lex_match() {
         let matchers: Vec<Matcher> = vec![
             Matcher::string("dot", ".", |_, _| unimplemented!()),
             Matcher::regex("test", "#[^#]*#", |_, _| unimplemented!()),

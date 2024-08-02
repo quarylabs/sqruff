@@ -125,10 +125,10 @@ mod tests {
     use crate::api::simple::{fix, lint};
     use crate::core::dialects::init::get_default_dialect;
     use crate::core::rules::base::Erased;
-    use crate::rules::convention::CV02::RuleCV02;
+    use crate::rules::convention::cv02::RuleCV02;
 
     #[test]
-    fn test__rules__std_CV02_raised() {
+    fn test_rules_std_CV02_raised() {
         // CV02 is raised for use of "IFNULL" or "NVL".
         let sql = "SELECT\n\tIFNULL(NULL, 100),\n\tNVL(NULL, 100);";
         let result = lint(

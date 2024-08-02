@@ -1,27 +1,27 @@
 use crate::core::rules::base::ErasedRule;
 
-pub mod AL01;
-pub mod AL02;
-pub mod AL03;
-pub mod AL04;
-pub mod AL05;
-pub mod AL06;
-pub mod AL07;
-pub mod AL08;
-pub mod AL09;
+pub mod al01;
+pub mod al02;
+pub mod al03;
+pub mod al04;
+pub mod al05;
+pub mod al06;
+pub mod al07;
+pub mod al08;
+pub mod al09;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::base::Erased as _;
 
     vec![
-        AL01::RuleAL01::default().erased(),
-        AL02::RuleAL02::default().erased(),
-        AL03::RuleAL03.erased(),
-        AL04::RuleAL04::default().erased(),
-        AL05::RuleAL05.erased(),
-        AL06::RuleAL06::default().erased(),
-        AL07::RuleAL07::default().erased(),
-        AL08::RuleAL08.erased(),
-        AL09::RuleAL09.erased(),
+        al01::RuleAL01::default().erased(),
+        al02::RuleAL02::default().erased(),
+        al03::RuleAL03.erased(),
+        al04::RuleAL04::default().erased(),
+        al05::RuleAL05.erased(),
+        al06::RuleAL06::default().erased(),
+        al07::RuleAL07::default().erased(),
+        al08::RuleAL08.erased(),
+        al09::RuleAL09.erased(),
     ]
 }

@@ -123,8 +123,6 @@ ORDER BY a ASC, b DESC
                 if let Some(PriorGroupByOrderByConvention(prior_group_by_order_by_convention)) =
                     context.try_get::<PriorGroupByOrderByConvention>()
                 {
-                    dbg!(prior_group_by_order_by_convention);
-                    dbg!(current_group_by_order_by_convention);
                     if prior_group_by_order_by_convention != current_group_by_order_by_convention {
                         return vec![LintResult::new(
                             context.segment.into(),

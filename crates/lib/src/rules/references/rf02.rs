@@ -10,7 +10,7 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::rules::aliasing::AL04::RuleAL04;
+use crate::rules::aliasing::al04::RuleAL04;
 
 #[derive(Clone, Debug)]
 pub struct RuleRF02 {

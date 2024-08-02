@@ -540,7 +540,7 @@ mod tests {
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
     #[test]
-    fn test_reflow__sequence_respace() {
+    fn test_reflow_sequence_respace() {
         let cases = [
             // Basic cases
             ("select 1+2", (false, Filter::All), "select 1 + 2"),
@@ -565,7 +565,7 @@ mod tests {
     }
 
     #[test]
-    fn test_reflow__point_respace_point() {
+    fn test_reflow_point_respace_point() {
         let cases = [
             // Basic cases
             ("select    1", 1, false, " ", vec![(EditType::Replace, "    ".into())]),

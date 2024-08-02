@@ -641,9 +641,9 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                     for (name, extracted) in &withs {
                         match extracted {
                             ExtractedSelect::Star(star) => {
-                                for (_, x) in &mut columns_map {
-                                    if x.0 == *with_alias {
-                                        x.0 = star.clone();
+                                for (x, _) in columns_map.values_mut() {
+                                    if x == with_alias {
+                                        *x = star.clone();
                                     }
                                 }
                             }
@@ -2534,7 +2534,8 @@ LEFT JOIN q.shift_last sl
                 vec![],
                 vec![],
             ),
-            ("WITH
+            (
+                "WITH
 base AS (
     SELECT *
     FROM root_table
@@ -2543,7 +2544,11 @@ final AS (
     SELECT column_a
     FROM base
 )
-SELECT * FROM final", vec![("column_a", ("root_table", "column_a"))], vec![], vec![]),
+SELECT * FROM final",
+                vec![("column_a", ("root_table", "column_a"))],
+                vec![],
+                vec![],
+            ),
             (
                 "With
 base as (
@@ -2555,7 +2560,11 @@ final as (
     from base
 )
 select *
-from final", vec![("column_b", ("root_table", "column_a"))], vec![], vec![]),
+from final",
+                vec![("column_b", ("root_table", "column_a"))],
+                vec![],
+                vec![],
+            ),
             // TODO Be smarter about type casting
             ("SELECT date::date as cost_date FROM q.table_a", vec![], vec!["cost_date"], vec![]),
             // TODO Be smarter about casting, here could do one of

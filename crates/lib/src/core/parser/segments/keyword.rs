@@ -9,7 +9,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 
-#[derive(Hash, Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct KeywordSegment {
     raw: SmolStr,
     uuid: Uuid,

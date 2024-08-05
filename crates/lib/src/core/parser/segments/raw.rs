@@ -7,7 +7,7 @@ use crate::core::parser::segments::base::{CloneSegment, Segment};
 use crate::core::parser::segments::fix::SourceFix;
 use crate::dialects::SyntaxKind;
 
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct RawSegment {
     raw: Option<SmolStr>,
     position_marker: Option<PositionMarker>,

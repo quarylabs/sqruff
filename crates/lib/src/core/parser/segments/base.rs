@@ -858,7 +858,7 @@ pub fn position_segments(
     segment_buffer
 }
 
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CodeSegment {
     raw: SmolStr,
     position_marker: Option<PositionMarker>,
@@ -975,7 +975,7 @@ impl Segment for CodeSegment {
     }
 }
 
-#[derive(Debug, Hash, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct IdentifierSegment {
     base: CodeSegment,
 }
@@ -1150,7 +1150,7 @@ impl Segment for CommentSegment {
 }
 
 // Segment containing a newline.
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NewlineSegment {
     raw: SmolStr,
     position_maker: Option<PositionMarker>,
@@ -1234,7 +1234,7 @@ impl Segment for NewlineSegment {
 }
 
 /// Segment containing whitespace.
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct WhitespaceSegment {
     raw: SmolStr,
     position_marker: Option<PositionMarker>,

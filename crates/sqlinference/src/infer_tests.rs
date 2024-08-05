@@ -640,9 +640,12 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
                     for (name, extracted) in &withs {
                         match extracted {
-                            ExtractedSelect::Star(_) => {
-                                // TODO Figure this out
-                                return Err("Not yet implemented".to_string());
+                            ExtractedSelect::Star(star) => {
+                                for (x, _) in columns_map.values_mut() {
+                                    if x == with_alias {
+                                        *x = star.clone();
+                                    }
+                                }
                             }
                             ExtractedSelect::Extracted { mapped, count_stars, .. } => {
                                 let sub_columns = mapped.clone();
@@ -2531,6 +2534,37 @@ LEFT JOIN q.shift_last sl
                 vec![],
                 vec![],
             ),
+            (
+                "WITH
+base AS (
+    SELECT *
+    FROM root_table
+),
+final AS (
+    SELECT column_a
+    FROM base
+)
+SELECT * FROM final",
+                vec![("column_a", ("root_table", "column_a"))],
+                vec![],
+                vec![],
+            ),
+            (
+                "With
+base as (
+    select *
+    from root_table
+),
+final as (
+    select column_a AS column_b
+    from base
+)
+select *
+from final",
+                vec![("column_b", ("root_table", "column_a"))],
+                vec![],
+                vec![],
+            ),
             // TODO Be smarter about type casting
             ("SELECT date::date as cost_date FROM q.table_a", vec![], vec!["cost_date"], vec![]),
             // TODO Be smarter about casting, here could do one of
@@ -2547,7 +2581,6 @@ LEFT JOIN q.shift_last sl
         let parser = Parser::new(&config, None);
 
         for (sql, expected_map_entries, expected_not_parseable, expected_count) in tests {
-            dbg!(sql);
             let selected = get_column_with_source(&parser, sql).unwrap();
 
             let mut expected_map: HashMap<String, (String, String)> = HashMap::new();

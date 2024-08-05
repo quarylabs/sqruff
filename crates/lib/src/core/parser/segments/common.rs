@@ -9,7 +9,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LiteralSegment {
     pub raw: SmolStr,
     pub position_maker: Option<PositionMarker>,
@@ -91,7 +91,7 @@ impl Segment for LiteralSegment {
     }
 }
 
-#[derive(Hash, Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ComparisonOperatorSegment {
     pub raw: SmolStr,
     pub position_maker: PositionMarker,

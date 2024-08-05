@@ -19,7 +19,7 @@ use crate::helpers::ToErasedSegment;
 
 pub type Indent = MetaSegment<IndentChange>;
 
-pub trait MetaSegmentKind: Debug + Hash + Clone + PartialEq + 'static {
+pub trait MetaSegmentKind: Debug + Clone + PartialEq + 'static {
     fn kind(&self) -> SyntaxKind {
         SyntaxKind::Meta
     }
@@ -33,7 +33,7 @@ pub trait MetaSegmentKind: Debug + Hash + Clone + PartialEq + 'static {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct MetaSegment<M> {
     uuid: Uuid,
     position_marker: Option<PositionMarker>,
@@ -169,7 +169,7 @@ impl MetaSegmentKind for IndentChange {
 
 pub struct IndentNewArgs {}
 
-#[derive(Hash, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct EndOfFile {
     uuid: Uuid,
     position_maker: PositionMarker,

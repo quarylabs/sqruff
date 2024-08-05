@@ -1501,7 +1501,7 @@ mod tests {
 
     #[test]
     /// Test comparison of raw segments.
-    fn test__parser__base_segments_raw_compare() {
+    fn test_parser_base_segments_raw_compare() {
         let template = TemplatedFile::from_string("foobar".to_string());
         let rs1 = Box::new(RawSegment::create(
             Some("foobar".to_string()),
@@ -1523,7 +1523,7 @@ mod tests {
     #[test]
     // TODO Implement
     /// Test raw segments behave as expected.
-    fn test__parser__base_segments_raw() {
+    fn test_parser_base_segments_raw() {
         let raw_seg = raw_seg();
 
         assert_eq!(raw_seg.raw(), "foobar");
@@ -1531,7 +1531,7 @@ mod tests {
 
     #[test]
     /// Test BaseSegment.compute_anchor_edit_info().
-    fn test__parser_base_segments_compute_anchor_edit_info() {
+    fn test_parser_base_segments_compute_anchor_edit_info() {
         let raw_segs = raw_segments();
 
         // Construct a fix buffer, intentionally with:
@@ -1597,7 +1597,7 @@ mod tests {
 
     /// Test the .is_type() method.
     #[test]
-    fn test__parser__base_segments_type() {
+    fn test_parser_base_segments_type() {
         let args = UnlexableSegmentNewArgs { expected: None };
         let segment = UnlexableSegment::create("", PositionMarker::default().into(), args);
 

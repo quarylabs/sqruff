@@ -661,7 +661,7 @@ mod tests {
     }
 
     #[test]
-    fn test__linter__path_from_paths__file() {
+    fn test_linter_path_from_paths_file() {
         let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None); // Assuming Linter has a new() method for initialization
         let paths = lntr.paths_from_path(
             "test/fixtures/linter/indentation_errors.sql".into(),
@@ -692,7 +692,7 @@ mod tests {
     // test__linter__get_runner_processes
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
-    fn test__linter__empty_file() {
+    fn test_linter_empty_file() {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let parsed = linter.parse_string("", None, None, None).unwrap();
 

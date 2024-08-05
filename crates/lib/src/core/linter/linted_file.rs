@@ -182,7 +182,7 @@ mod test {
 
     /// Test _build_up_fixed_source_string. This is part of fix_string().
     #[test]
-    fn test__linted_file__build_up_fixed_source_string() {
+    fn test_linted_file_build_up_fixed_source_string() {
         let tests = [
             // Trivial example
             (vec![0..1], vec![], "a", "a"),

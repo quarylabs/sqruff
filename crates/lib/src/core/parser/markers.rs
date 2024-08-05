@@ -250,7 +250,7 @@ mod tests {
 
     /// Test that we can correctly infer positions from strings.
     #[test]
-    fn test_markers__infer_next_position() {
+    fn test_markers_infer_next_position() {
         struct Test {
             raw: String,
             start: Range<usize>,
@@ -276,7 +276,7 @@ mod tests {
 
     /// Test that we can correctly infer positions from strings & locations.
     #[test]
-    fn test_markers__setting_position_raw() {
+    fn test_markers_setting_position_raw() {
         let template = TemplatedFile::from_string("foobar".to_string());
         // Check inference in the template
         assert_eq!(template.get_line_pos_of_char_pos(2, true), (1, 3));
@@ -289,7 +289,7 @@ mod tests {
 
     /// Test that we can correctly set positions manually.
     #[test]
-    fn test_markers__setting_position_working() {
+    fn test_markers_setting_position_working() {
         let templ = TemplatedFile::from_string("foobar".to_string());
         let pos = PositionMarker::new(2..5, 2..5, templ, Some(4), Some(4));
         // Can we NOT infer when we're told.
@@ -298,7 +298,7 @@ mod tests {
 
     /// Test that we can correctly compare markers.
     #[test]
-    fn test_markers__comparison() {
+    fn test_markers_comparison() {
         let templ = TemplatedFile::from_string("abc".to_string());
 
         // Assuming start and end are usize, based on typical Rust slicing/indexing.

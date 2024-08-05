@@ -6438,7 +6438,7 @@ mod tests {
     use crate::helpers;
 
     #[test]
-    fn test__dialect__ansi__file_lex() {
+    fn test_dialect_ansi_file_lex() {
         // Define the test cases
         let test_cases = vec![
             ("a b", vec!["a", " ", "b", ""]),
@@ -6473,7 +6473,7 @@ mod tests {
     }
 
     #[test]
-    fn test__dialect__ansi_specific_segment_parses() {
+    fn test_dialect_ansi_specific_segment_parses() {
         let cases = [
             ("SelectKeywordSegment", "select"),
             ("NakedIdentifierSegment", "online_sales"),

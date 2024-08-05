@@ -646,7 +646,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test__indices_of_newlines() {
+    fn test_indices_of_newlines() {
         vec![
             ("", vec![]),
             ("foo", vec![]),
@@ -661,7 +661,7 @@ mod tests {
 
     #[test]
     /// Test the raw templater
-    fn test__templater_raw() {
+    fn test_templater_raw() {
         let templater = RawTemplater::default();
         let in_str = "SELECT * FROM {{blah}}";
 
@@ -789,7 +789,7 @@ mod tests {
 
     #[test]
     /// Test TemplatedFile.get_line_pos_of_char_pos.
-    fn test__templated_file_get_line_pos_of_char_pos() {
+    fn test_templated_file_get_line_pos_of_char_pos() {
         let tests = [
             (simple_file_kwargs(), 0, 1, 1),
             (simple_file_kwargs(), 20, 3, 1),
@@ -816,7 +816,7 @@ mod tests {
     }
 
     #[test]
-    fn test__templated_file_find_slice_indices_of_templated_pos() {
+    fn test_templated_file_find_slice_indices_of_templated_pos() {
         let tests = vec![
             // "templated_position,inclusive,file_slices,sliced_idx_start,sliced_idx_stop",
             // TODO Fix these
@@ -989,7 +989,7 @@ mod tests {
 
     #[test]
     /// Test TemplatedFile.source_only_slices
-    fn test__templated_file_source_only_slices() {
+    fn test_templated_file_source_only_slices() {
         let test_cases = vec![
             // Comment example
             (

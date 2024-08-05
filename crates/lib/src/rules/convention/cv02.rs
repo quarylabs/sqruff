@@ -128,7 +128,7 @@ mod tests {
     use crate::rules::convention::cv02::RuleCV02;
 
     #[test]
-    fn test_rules_std_CV02_raised() {
+    fn test_rules_std_cv02_raised() {
         // CV02 is raised for use of "IFNULL" or "NVL".
         let sql = "SELECT\n\tIFNULL(NULL, 100),\n\tNVL(NULL, 100);";
         let result = lint(

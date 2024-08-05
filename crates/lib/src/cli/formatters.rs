@@ -348,7 +348,7 @@ mod tests {
     }
 
     #[test]
-    fn test__cli_formatters_filename_nocol() {
+    fn test_cli_formatters_filename_nocol() {
         let (_temp, formatter) = mk_formatter();
         let actual = formatter.format_filename("blahblah", true);
 

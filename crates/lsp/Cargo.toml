@@ -2,6 +2,7 @@
 name = "sqruff-lsp"
 description = "sqruff LSP server."
 version.workspace = true
+repository.workspace = true
 edition.workspace = true
 license.workspace = true
 

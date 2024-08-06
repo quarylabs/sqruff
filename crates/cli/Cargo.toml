@@ -2,6 +2,7 @@
 name = "sqruff"
 description = "A high-speed SQL linter."
 version.workspace = true
+repository.workspace = true
 edition.workspace = true
 license.workspace = true
 default-run = "sqruff"

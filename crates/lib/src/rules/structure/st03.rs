@@ -68,7 +68,7 @@ FROM cte1
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut result = Vec::new();
-        let query: Query<'_, ()> = Query::from_root(context.segment.clone(), context.dialect);
+        let query: Query<'_, ()> = Query::from_root(&context.segment, context.dialect).unwrap();
 
         let mut remaining_ctes: IndexMap<_, _> = RefCell::borrow(&query.inner)
             .ctes
@@ -79,7 +79,7 @@ FROM cte1
         for reference in context.segment.recursive_crawl(
             const { SyntaxSet::new(&[SyntaxKind::TableReference]) },
             true,
-            Some(SyntaxKind::WithCompoundStatement),
+            Some(const { SyntaxSet::single(SyntaxKind::WithCompoundStatement) }),
             true,
         ) {
             remaining_ctes.shift_remove(&reference.get_raw_upper().unwrap());

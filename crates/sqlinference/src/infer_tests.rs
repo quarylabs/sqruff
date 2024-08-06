@@ -378,7 +378,7 @@ pub fn get_column_with_source(
     select_statement: &str,
 ) -> Result<ExtractedSelect, String> {
     let ast = parse_sql(parser, select_statement);
-    let query: Query<()> = Query::from_root(ast, parser.config().get_dialect());
+    let query: Query<()> = Query::from_root(&ast, parser.config().get_dialect()).unwrap();
     extract_select(&query)
 }
 

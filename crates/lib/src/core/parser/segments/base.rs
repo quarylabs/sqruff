@@ -86,18 +86,6 @@ pub struct ErasedSegment {
     hash: Rc<AtomicU64>,
 }
 
-impl ErasedSegment {
-    pub fn direct_descendant_type_set(&self) -> SyntaxSet {
-        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(&it.class_types()))
-    }
-}
-
-impl ErasedSegment {
-    pub(crate) fn is_keyword(&self, p0: &str) -> bool {
-        self.is_type(SyntaxKind::Keyword) && self.raw().eq_ignore_ascii_case(p0)
-    }
-}
-
 impl Hash for ErasedSegment {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.hash_value().hash(state);
@@ -105,6 +93,27 @@ impl Hash for ErasedSegment {
 }
 
 impl ErasedSegment {
+    pub fn is(&self, other: &ErasedSegment) -> bool {
+        Rc::ptr_eq(&self.value, &other.value)
+    }
+
+    pub fn addr(&self) -> usize {
+        fn addr<T: ?Sized>(t: *const T) -> usize {
+            let c: *const () = t.cast();
+            sptr::Strict::addr(c)
+        }
+
+        addr(Rc::as_ptr(&self.value))
+    }
+
+    pub fn direct_descendant_type_set(&self) -> SyntaxSet {
+        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(&it.class_types()))
+    }
+
+    pub(crate) fn is_keyword(&self, p0: &str) -> bool {
+        self.is_type(SyntaxKind::Keyword) && self.raw().eq_ignore_ascii_case(p0)
+    }
+
     pub fn hash_value(&self) -> u64 {
         let mut hash = self.hash.load(Ordering::Acquire);
 
@@ -171,7 +180,7 @@ impl ErasedSegment {
         &self,
         types: SyntaxSet,
         recurse_into: bool,
-        no_recursive_seg_type: Option<SyntaxKind>,
+        no_recursive_types: Option<SyntaxSet>,
         allow_self: bool,
     ) -> Vec<ErasedSegment> {
         let mut acc = Vec::new();
@@ -187,9 +196,11 @@ impl ErasedSegment {
 
         if recurse_into || !matches {
             for seg in self.segments() {
-                if no_recursive_seg_type.map_or(true, |type_str| !seg.is_type(type_str)) {
+                if no_recursive_types
+                    .map_or(true, |no_recursive_types| !no_recursive_types.contains(seg.get_type()))
+                {
                     let segments =
-                        seg.recursive_crawl(types, recurse_into, no_recursive_seg_type, true);
+                        seg.recursive_crawl(types, recurse_into, no_recursive_types, true);
                     acc.extend(segments);
                 }
             }

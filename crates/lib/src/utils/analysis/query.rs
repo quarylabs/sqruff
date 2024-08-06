@@ -249,16 +249,19 @@ impl<T: Default + Clone> Query<'_, T> {
         acc
     }
 
-    pub fn from_root(root_segment: ErasedSegment, dialect: &Dialect) -> Query<'_, T> {
-        let selectable_segment = root_segment.recursive_crawl(
+    pub fn from_root<'a>(
+        root_segment: &ErasedSegment,
+        dialect: &'a Dialect,
+    ) -> Option<Query<'a, T>> {
+        let stmts = root_segment.recursive_crawl(
             SELECTABLE_TYPES,
             true,
-            SyntaxKind::MergeStatement.into(),
+            Some(SyntaxSet::single(SyntaxKind::MergeStatement)),
             true,
-        )[0]
-        .clone();
+        );
+        let selectable_segment = stmts.first()?;
 
-        Query::from_segment(&selectable_segment, dialect, None)
+        Some(Query::from_segment(selectable_segment, dialect, None))
     }
 
     pub fn from_segment<'a>(
@@ -288,7 +291,7 @@ impl<T: Default + Clone> Query<'_, T> {
             for seg in segment.recursive_crawl(
                 const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) },
                 false,
-                SyntaxKind::CommonTableExpression.into(),
+                Some(const { SyntaxSet::single(SyntaxKind::CommonTableExpression) }),
                 true,
             ) {
                 selectables.push(Selectable { selectable: seg, dialect });
@@ -297,7 +300,7 @@ impl<T: Default + Clone> Query<'_, T> {
             for seg in segment.recursive_crawl(
                 const { SyntaxSet::new(&[SyntaxKind::CommonTableExpression]) },
                 false,
-                SyntaxKind::WithCompoundStatement.into(),
+                Some(const { SyntaxSet::single(SyntaxKind::WithCompoundStatement) }),
                 true,
             ) {
                 cte_defs.push(seg);
@@ -334,11 +337,7 @@ impl<T: Default + Clone> Query<'_, T> {
             let name = name_seg.get_raw_upper().unwrap();
 
             let queries = cte.recursive_crawl(
-                const {
-                    SELECTABLE_TYPES
-                        .union(&SyntaxSet::single(SyntaxKind::ValuesClause))
-                        .union(&SUBSELECT_TYPES)
-                },
+                const { SELECTABLE_TYPES.union(&SUBSELECT_TYPES) },
                 true,
                 None,
                 true,

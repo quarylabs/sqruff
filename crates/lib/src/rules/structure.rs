@@ -4,6 +4,7 @@ pub mod st01;
 pub mod st02;
 pub mod st03;
 pub mod st04;
+mod st05;
 pub mod st06;
 pub mod st07;
 pub mod st08;
@@ -17,6 +18,7 @@ pub fn rules() -> Vec<ErasedRule> {
         st02::RuleST02.erased(),
         st03::RuleST03.erased(),
         st04::RuleST04.erased(),
+        st05::RuleST05::default().erased(),
         st06::RuleST06.erased(),
         st07::RuleST07.erased(),
         st08::RuleST08.erased(),

@@ -5,7 +5,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::ansi::{
-    FromClauseSegment, ObjectReferenceSegment, SelectClauseElementSegment,
+    FromClauseSegment, JoinClauseSegment, ObjectReferenceSegment, SelectClauseElementSegment,
 };
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
@@ -25,7 +25,7 @@ pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegm
         .recursive_crawl(
             const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
             true,
-            SyntaxKind::SelectStatement.into(),
+            Some(const { SyntaxSet::single(SyntaxKind::SelectStatement) }),
             true,
         )
         .into_iter()
@@ -75,7 +75,7 @@ pub fn get_select_statement_info(
         for join_clause in fc.recursive_crawl(
             const { SyntaxSet::new(&[SyntaxKind::JoinClause]) },
             true,
-            SyntaxKind::SelectStatement.into(),
+            Some(const { SyntaxSet::single(SyntaxKind::SelectStatement) }),
             true,
         ) {
             let mut seen_using = false;
@@ -127,8 +127,13 @@ pub fn get_aliases_from_select(
         return (Vec::new(), Vec::new());
     };
 
-    let fc = FromClauseSegment(fc);
-    let aliases = fc.eventual_aliases();
+    let aliases = if fc.is_type(SyntaxKind::FromClause) {
+        FromClauseSegment(fc).eventual_aliases()
+    } else if fc.is_type(SyntaxKind::JoinClause) {
+        JoinClauseSegment(fc).eventual_aliases()
+    } else {
+        unimplemented!()
+    };
 
     let mut standalone_aliases = Vec::new();
     standalone_aliases.extend(get_pivot_table_columns(segment, dialect));

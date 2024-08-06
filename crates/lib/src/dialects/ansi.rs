@@ -6403,7 +6403,7 @@ impl JoinClauseSegment {
         for join_clause in self.0.recursive_crawl(
             const { SyntaxSet::new(&[SyntaxKind::JoinClause]) },
             true,
-            SyntaxKind::SelectStatement.into(),
+            Some(const { SyntaxSet::single(SyntaxKind::SelectStatement) }),
             true,
         ) {
             if join_clause.get_uuid() == join_clause.get_uuid() {

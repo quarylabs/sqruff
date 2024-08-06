@@ -590,7 +590,7 @@ impl Linter {
     }
 }
 
-fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
+pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
     let mut anchor_info = AHashMap::new();
 
     for fix in fixes {

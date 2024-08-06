@@ -72,7 +72,34 @@ impl Rule for RuleST05 {
     }
 
     fn long_description(&self) -> &'static str {
-        ""
+        r"
+## Anti-pattern
+
+Join is a sub query in a `FROM` clause. This can make the query harder to read and maintain.
+
+```sql
+select
+    a.x, a.y, b.z
+from a
+join (
+    select x, z from b
+) using(x)
+```
+
+## Best practice
+
+Use a Common Table Expression (CTE) to define the subquery and then join it to the main query.
+
+```sql
+with c as (
+    select x, z from b
+)
+select
+    a.x, a.y, c.z
+from a
+join c using(x)
+```
+"
     }
 
     fn groups(&self) -> &'static [RuleGroups] {

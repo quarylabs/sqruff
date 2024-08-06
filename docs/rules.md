@@ -60,6 +60,7 @@ The following rules are available in this create. This list is generated from th
 | ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
 | ST04 | [structure.nested_case](#structurenested_case) | Nested ``CASE`` statement in ``ELSE`` clause could be flattened. | 
+| ST05 | [structure.subquery](#structuresubquery) | Join/From clauses should not contain subqueries. Use CTEs instead. | 
 | ST06 | [structure.column_order](#structurecolumn_order) | Select wildcards then simple targets before calculations and aggregates. | 
 | ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
@@ -2160,6 +2161,17 @@ SELECT
   END AS sound
 FROM mytable
 ```
+
+
+### structure.subquery
+
+Join/From clauses should not contain subqueries. Use CTEs instead.
+
+**Code:** ST05
+
+**Groups:** `all`, `structure`
+
+**Fixable:** Yes
 
 
 ### structure.column_order

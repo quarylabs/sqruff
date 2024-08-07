@@ -61,7 +61,7 @@ curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | 
 
 #### For other platforms
 
-Either download the binary from the [releases page](https://github.com/quarylabs.sqruff/releases) or compile it yourself and with cargo with the following commands.
+Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) or compile it yourself and with cargo with the following commands.
 
 ```bash
 rustup toolchain install nightly

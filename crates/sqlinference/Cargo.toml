@@ -6,4 +6,4 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-sqruff-lib = { version = "0.11.0", path = "../lib" }
+sqruff-lib = { version = "0.11.1", path = "../lib" }

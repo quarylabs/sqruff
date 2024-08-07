@@ -21,7 +21,11 @@ fn main() -> Result<()> {
 
     run_tests_generic(
         vec![config],
-        |path, _args| path.extension().is_some_and(|extension| extension == "sql").into(),
+        |path, _args| {
+            path.extension()
+                .is_some_and(|extension| extension == "sql" || extension == "hql")
+                .into()
+        },
         |_, _, _| {},
         (Text::verbose(), status_emitter::Gha::<true> { name: "sqruff".into() }),
     )

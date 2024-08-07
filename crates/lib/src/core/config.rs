@@ -132,13 +132,20 @@ impl FluffConfig {
             }
         }
 
+        let sql_file_exts = configs["core"]["sql_file_exts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|it| it.as_string().unwrap().to_owned())
+            .collect();
+
         let mut this = Self {
             raw: configs,
             dialect,
             extra_config_path,
             _configs: AHashMap::new(),
             indentation: indentation.unwrap_or_default(),
-            sql_file_exts: vec![".sql".into()],
+            sql_file_exts,
             reflow: ReflowConfig::default(),
         };
         this.reflow = ReflowConfig::from_fluff_config(&this);

@@ -13,35 +13,20 @@ use crate::dialects::{SyntaxKind, SyntaxSet};
 pub struct TypedParser {
     template: SyntaxKind,
     target_types: SyntaxSet,
-    instance_types: Vec<String>,
+    kind: SyntaxKind,
     optional: bool,
-    trim_chars: Option<Vec<char>>,
     cache_key: MatchableCacheKey,
-    factory: fn(&dyn Segment) -> ErasedSegment,
 }
 
 impl TypedParser {
-    pub fn new(
-        template: SyntaxKind,
-        factory: fn(&dyn Segment) -> ErasedSegment,
-        type_: Option<String>,
-        optional: bool,
-        trim_chars: Option<Vec<char>>,
-    ) -> TypedParser {
-        let mut instance_types = Vec::new();
+    pub fn new(template: SyntaxKind, kind: SyntaxKind) -> Self {
         let target_types = SyntaxSet::new(&[template]);
 
-        if let Some(t) = type_.clone() {
-            instance_types.push(t);
-        }
-
-        TypedParser {
+        Self {
             template,
-            factory,
+            kind,
             target_types,
-            instance_types,
-            optional,
-            trim_chars,
+            optional: false,
             cache_key: next_matchable_cache_key(),
         }
     }
@@ -73,7 +58,7 @@ impl Matchable for TypedParser {
         if segment.is_type(self.template) {
             return Ok(MatchResult {
                 span: Span { start: idx, end: idx + 1 },
-                matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                matched: Matched::Newtype(self.kind).into(),
                 insert_segments: Vec::new(),
                 child_matches: Vec::new(),
             });

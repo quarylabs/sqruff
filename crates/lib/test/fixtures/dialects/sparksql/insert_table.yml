@@ -312,7 +312,7 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - keyword: DATE
-      - numeric_literal: '''2019-01-02'''
+      - date_constructor_literal: '''2019-01-02'''
       - end_bracket: )
     - values_clause:
       - keyword: VALUES
@@ -340,7 +340,7 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - keyword: DATE
-      - numeric_literal: '''2019-01-02'''
+      - date_constructor_literal: '''2019-01-02'''
       - end_bracket: )
     - values_clause:
       - keyword: VALUES

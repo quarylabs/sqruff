@@ -13,10 +13,10 @@ file:
                 - column_reference:
                   - quoted_identifier: '"Spec\"s 23"'
                 - keyword: like
-                - '': '''Spec\''s%'''
+                - quoted_literal: '''Spec\''s%'''
               - keyword: then
               - expression:
-                - '': '''boop'''
+                - quoted_literal: '''boop'''
             - keyword: end
         - alias_expression:
           - keyword: as
@@ -27,7 +27,7 @@ file:
     - select_clause:
       - keyword: select
       - select_clause_element:
-        - '': '''This shouldn''''t fail'''
+        - quoted_literal: '''This shouldn''''t fail'''
         - alias_expression:
           - keyword: as
           - naked_identifier: success

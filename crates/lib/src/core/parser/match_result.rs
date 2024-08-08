@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use ahash::HashMapExt;
 use nohash_hasher::IntMap;
 
-use super::segments::base::{ErasedSegment, Segment};
+use super::segments::base::{ErasedSegment, Segment, SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::bracketed::BracketedSegment;
@@ -25,6 +25,7 @@ fn get_point_pos_at_idx(segments: &[ErasedSegment], idx: u32) -> PositionMarker 
 #[derive(Debug, Clone)]
 pub enum Matched {
     SyntaxKind(SyntaxKind),
+    Newtype(SyntaxKind),
     ErasedSegment(ErasedSegment),
     BracketedSegment { start_bracket: u32, end_bracket: u32 },
 }
@@ -158,6 +159,7 @@ impl MatchResult {
                         let mut meta = Indent::from_kind(meta);
                         let pos = get_point_pos_at_idx(segments, idx);
                         meta.set_position_marker(pos.into());
+                        meta.set_id(tables.next_id());
 
                         result_segments.push(meta.to_erased_segment());
                     }
@@ -179,6 +181,16 @@ impl MatchResult {
                     Node::new(tables.next_id(), dialect, kind, result_segments, true)
                         .to_erased_segment(),
                 ];
+            }
+            Matched::Newtype(kind) => {
+                let old = result_segments.pop().unwrap();
+
+                return vec![SymbolSegment::create(
+                    tables.next_id(),
+                    old.raw().as_ref(),
+                    old.get_position_marker(),
+                    SymbolSegmentNewArgs { r#type: kind },
+                )];
             }
             Matched::ErasedSegment(segment) => segment,
             Matched::BracketedSegment { start_bracket, end_bracket } => {

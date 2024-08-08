@@ -7,7 +7,6 @@ use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::parsers::TypedParser;
-use crate::core::parser::segments::base::{Segment, SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::dialects::ansi::NodeMatcher;
@@ -58,20 +57,7 @@ pub fn raw_dialect() -> Dialect {
             "DateTimeLiteralGrammar".into(),
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![Ref::keyword("DATE"), Ref::keyword("DATETIME")]),
-                TypedParser::new(
-                    SyntaxKind::SingleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::DateConstructorLiteral },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                )
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral)
             ])
             .to_matchable()
             .into(),

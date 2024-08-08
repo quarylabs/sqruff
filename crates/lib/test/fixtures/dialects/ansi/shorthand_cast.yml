@@ -6,7 +6,7 @@ file:
       - select_clause_element:
         - expression:
           - cast_expression:
-            - '': '''1'''
+            - quoted_literal: '''1'''
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: INT
@@ -17,7 +17,7 @@ file:
       - select_clause_element:
         - expression:
           - cast_expression:
-            - '': '''2'''
+            - quoted_literal: '''2'''
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: int

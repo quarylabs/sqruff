@@ -20,5 +20,5 @@ file:
         - column_constraint_segment:
           - comment_clause:
             - keyword: COMMENT
-            - '': '''Column comment'''
+            - quoted_literal: '''Column comment'''
       - end_bracket: )

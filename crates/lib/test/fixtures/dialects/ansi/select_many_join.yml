@@ -69,7 +69,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                    - '': '''blah'''
+                    - quoted_literal: '''blah'''
                   - end_bracket: )
             - alias_expression:
               - keyword: as

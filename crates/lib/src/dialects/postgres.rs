@@ -14,9 +14,8 @@ use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, IdentifierSegment,
-    NewlineSegment, NewlineSegmentNewArgs, Segment, SymbolSegment, SymbolSegmentNewArgs,
+    Segment, SymbolSegment, SymbolSegmentNewArgs,
 };
-use crate::core::parser::segments::common::LiteralSegment;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -250,22 +249,9 @@ pub fn raw_dialect() -> Dialect {
     postgres.add([
         (
             "JsonOperatorSegment".into(),
-            TypedParser::new(
-                SyntaxKind::JsonOperator,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::JsonOperator, SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
         ),
         (
             "SimpleGeometryGrammar".into(),
@@ -275,21 +261,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "MultilineConcatenateNewline".into(),
-            TypedParser::new(
-                SyntaxKind::Newline,
-                |segment: &dyn Segment| {
-                    NewlineSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        NewlineSegmentNewArgs {},
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::Newline, SyntaxKind::Newline).to_matchable().into(),
         ),
         (
             "MultilineConcatenateDelimiterGrammar".into(),
@@ -303,46 +275,13 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "NakedIdentifierFullSegment".into(),
-            TypedParser::new(
-                SyntaxKind::Word,
-                |segment: &dyn Segment| {
-                    IdentifierSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::NakedIdentifier,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier).to_matchable().into(),
         ),
         (
             "PropertiesNakedIdentifierSegment".into(),
-            TypedParser::new(
-                SyntaxKind::Word,
-                |segment: &dyn Segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::PropertiesNakedIdentifier,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::Word, SyntaxKind::PropertiesNakedIdentifier)
+                .to_matchable()
+                .into(),
         ),
         (
             "SingleIdentifierFullGrammar".into(),
@@ -428,17 +367,9 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "DollarNumericLiteralSegment".into(),
-            TypedParser::new(
-                SyntaxKind::DollarNumericLiteral,
-                |segment: &dyn Segment| {
-                    LiteralSegment::create(&segment.raw(), &segment.get_position_marker().unwrap())
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::DollarNumericLiteral, SyntaxKind::DollarNumericLiteral)
+                .to_matchable()
+                .into(),
         ),
         (
             "ForeignDataWrapperGrammar".into(),
@@ -503,511 +434,370 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    postgres.add([
-        (
-            "LikeGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("LIKE"),
-                Ref::keyword("ILIKE"),
-                Sequence::new(vec_of_erased![Ref::keyword("SIMILAR"), Ref::keyword("TO")])
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "StringBinaryOperatorGrammar".into(),
-            one_of(vec_of_erased![Ref::new("ConcatSegment"), Ref::keyword("COLLATE"),])
+    postgres.add(
+        [
+            (
+                "LikeGrammar".into(),
+                one_of(vec_of_erased![
+                    Ref::keyword("LIKE"),
+                    Ref::keyword("ILIKE"),
+                    Sequence::new(vec_of_erased![Ref::keyword("SIMILAR"), Ref::keyword("TO")])
+                ])
                 .to_matchable()
                 .into(),
-        ),
-        (
-            "ComparisonOperatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::new("EqualsSegment"),
-                Ref::new("GreaterThanSegment"),
-                Ref::new("LessThanSegment"),
-                Ref::new("GreaterThanOrEqualToSegment"),
-                Ref::new("LessThanOrEqualToSegment"),
-                Ref::new("NotEqualToSegment"),
-                Ref::new("LikeOperatorSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("IS"),
-                    Ref::keyword("DISTINCT"),
-                    Ref::keyword("FROM"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("IS"),
-                    Ref::keyword("NOT"),
-                    Ref::keyword("DISTINCT"),
-                    Ref::keyword("FROM"),
-                ]),
-                Ref::new("OverlapSegment"),
-                Ref::new("NotExtendRightSegment"),
-                Ref::new("NotExtendLeftSegment"),
-                Ref::new("AdjacentSegment"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "NakedIdentifierSegment".into(),
-            SegmentGenerator::new(|dialect| {
-                // Generate the anti-template from the set of reserved keywords
-                let reserved_keywords = dialect.sets("reserved_keywords");
-                let pattern = reserved_keywords.iter().join("|");
-                let anti_template = format!("^({})$", pattern);
+            ),
+            (
+                "StringBinaryOperatorGrammar".into(),
+                one_of(vec_of_erased![Ref::new("ConcatSegment"), Ref::keyword("COLLATE"),])
+                    .to_matchable()
+                    .into(),
+            ),
+            (
+                "ComparisonOperatorGrammar".into(),
+                one_of(vec_of_erased![
+                    Ref::new("EqualsSegment"),
+                    Ref::new("GreaterThanSegment"),
+                    Ref::new("LessThanSegment"),
+                    Ref::new("GreaterThanOrEqualToSegment"),
+                    Ref::new("LessThanOrEqualToSegment"),
+                    Ref::new("NotEqualToSegment"),
+                    Ref::new("LikeOperatorSegment"),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IS"),
+                        Ref::keyword("DISTINCT"),
+                        Ref::keyword("FROM"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IS"),
+                        Ref::keyword("NOT"),
+                        Ref::keyword("DISTINCT"),
+                        Ref::keyword("FROM"),
+                    ]),
+                    Ref::new("OverlapSegment"),
+                    Ref::new("NotExtendRightSegment"),
+                    Ref::new("NotExtendLeftSegment"),
+                    Ref::new("AdjacentSegment"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "NakedIdentifierSegment".into(),
+                SegmentGenerator::new(|dialect| {
+                    // Generate the anti-template from the set of reserved keywords
+                    let reserved_keywords = dialect.sets("reserved_keywords");
+                    let pattern = reserved_keywords.iter().join("|");
+                    let anti_template = format!("^({})$", pattern);
 
+                    RegexParser::new(
+                        r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+                        |segment| {
+                            IdentifierSegment::create(
+                                segment.id(),
+                                &segment.raw(),
+                                segment.get_position_marker(),
+                                CodeSegmentNewArgs {
+                                    code_type: SyntaxKind::NakedIdentifier,
+                                    ..Default::default()
+                                },
+                            )
+                        },
+                        None,
+                        false,
+                        anti_template.into(),
+                        None,
+                    )
+                    .boxed()
+                })
+                .into(),
+            ),
+            (
+                "ParameterNameSegment".into(),
                 RegexParser::new(
-                    r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+                    r#"[A-Z_][A-Z0-9_$]*|\"[^\"]*\""#,
                     |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
+                        CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
-                                code_type: SyntaxKind::NakedIdentifier,
+                                code_type: SyntaxKind::Parameter,
                                 ..Default::default()
                             },
                         )
                     },
                     None,
                     false,
-                    anti_template.into(),
+                    None,
                     None,
                 )
-                .boxed()
-            })
-            .into(),
-        ),
-        (
-            "ParameterNameSegment".into(),
-            RegexParser::new(
-                r#"[A-Z_][A-Z0-9_$]*|\"[^\"]*\""#,
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::Parameter,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "FunctionNameIdentifierSegment".into(),
-            RegexParser::new(
-                r"[A-Z_][A-Z0-9_$]*",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::FunctionNameIdentifier,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "FunctionContentsExpressionGrammar".into(),
-            one_of(vec_of_erased![Ref::new("ExpressionSegment"), Ref::new("NamedArgumentSegment")])
                 .to_matchable()
                 .into(),
-        ),
-        (
-            "QuotedLiteralSegment".into(),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    TypedParser::new(
-                        SyntaxKind::SingleQuote,
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                            )
-                        },
-                        None,
-                        false,
-                        None
-                    ),
-                    AnyNumberOf::new(vec_of_erased![
-                        Ref::new("MultilineConcatenateDelimiterGrammar"),
-                        TypedParser::new(
-                            SyntaxKind::SingleQuote,
-                            |segment: &dyn Segment| {
-                                SymbolSegment::create(
-                                    segment.id(),
-                                    &segment.raw(),
-                                    segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                                )
-                            },
-                            None,
-                            false,
-                            None
-                        ),
-                    ])
-                ]),
-                Sequence::new(vec_of_erased![
-                    TypedParser::new(
-                        SyntaxKind::BitStringLiteral,
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                            )
-                        },
-                        None,
-                        false,
-                        None
-                    ),
-                    AnyNumberOf::new(vec_of_erased![
-                        Ref::new("MultilineConcatenateDelimiterGrammar"),
-                        TypedParser::new(
-                            SyntaxKind::BitStringLiteral,
-                            |segment: &dyn Segment| {
-                                SymbolSegment::create(
-                                    segment.id(),
-                                    &segment.raw(),
-                                    segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                                )
-                            },
-                            None,
-                            false,
-                            None
-                        ),
-                    ])
-                ]),
-                Delimited::new(vec_of_erased![
-                    TypedParser::new(
-                        SyntaxKind::UnicodeSingleQuote,
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                            )
-                        },
-                        None,
-                        false,
-                        None
-                    ),
-                    AnyNumberOf::new(vec_of_erased![
-                        Ref::new("MultilineConcatenateDelimiterGrammar"),
-                        TypedParser::new(
-                            SyntaxKind::UnicodeSingleQuote,
-                            |segment: &dyn Segment| {
-                                SymbolSegment::create(
-                                    segment.id(),
-                                    &segment.raw(),
-                                    segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                                )
-                            },
-                            None,
-                            false,
-                            None
-                        ),
-                    ])
-                ]),
-                Delimited::new(vec_of_erased![
-                    TypedParser::new(
-                        SyntaxKind::EscapedSingleQuote,
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                            )
-                        },
-                        None,
-                        false,
-                        None
-                    ),
-                    AnyNumberOf::new(vec_of_erased![
-                        Ref::new("MultilineConcatenateDelimiterGrammar"),
-                        TypedParser::new(
-                            SyntaxKind::EscapedSingleQuote,
-                            |segment: &dyn Segment| {
-                                SymbolSegment::create(
-                                    segment.id(),
-                                    &segment.raw(),
-                                    segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                                )
-                            },
-                            None,
-                            false,
-                            None
-                        ),
-                    ])
-                ]),
-                Delimited::new(vec_of_erased![
-                    TypedParser::new(
-                        SyntaxKind::DollarQuote,
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                            )
-                        },
-                        None,
-                        false,
-                        None
-                    ),
-                    AnyNumberOf::new(vec_of_erased![
-                        Ref::new("MultilineConcatenateDelimiterGrammar"),
-                        TypedParser::new(
-                            SyntaxKind::DollarQuote,
-                            |segment: &dyn Segment| {
-                                SymbolSegment::create(
-                                    segment.id(),
-                                    &segment.raw(),
-                                    segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                                )
-                            },
-                            None,
-                            false,
-                            None
-                        ),
-                    ])
-                ]),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "QuotedIdentifierSegment".into(),
-            one_of(vec_of_erased![
-                TypedParser::new(
-                    SyntaxKind::DoubleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
+            ),
+            (
+                "FunctionNameIdentifierSegment".into(),
+                RegexParser::new(
+                    r"[A-Z_][A-Z0-9_$]*",
+                    |segment| {
+                        CodeSegment::create(
                             &segment.raw(),
                             segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
+                            CodeSegmentNewArgs {
+                                code_type: SyntaxKind::FunctionNameIdentifier,
+                                ..Default::default()
+                            },
                         )
                     },
                     None,
                     false,
-                    None
-                ),
-                TypedParser::new(
-                    SyntaxKind::UnicodeDoubleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                        )
-                    },
                     None,
-                    false,
-                    None
-                ),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "PostFunctionGrammar".into(),
-            AnyNumberOf::new(vec_of_erased![
-                Ref::new("WithinGroupClauseSegment"),
-                Ref::new("OverClauseSegment"),
-                Ref::new("FilterClauseGrammar"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "BinaryOperatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::new("ArithmeticBinaryOperatorGrammar"),
-                Ref::new("StringBinaryOperatorGrammar"),
-                Ref::new("BooleanBinaryOperatorGrammar"),
-                Ref::new("ComparisonOperatorGrammar"),
-                Ref::new("JsonOperatorSegment"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "FunctionParameterGrammar".into(),
-            Sequence::new(vec_of_erased![
+                    None,
+                )
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "FunctionContentsExpressionGrammar".into(),
                 one_of(vec_of_erased![
-                    Ref::keyword("IN"),
-                    Ref::keyword("OUT"),
-                    Ref::keyword("INOUT"),
-                    Ref::keyword("VARIADIC"),
-                ])
-                .config(|this| this.optional()),
-                one_of(vec_of_erased![
-                    Ref::new("DatatypeSegment"),
-                    Sequence::new(vec_of_erased![
-                        Ref::new("ParameterNameSegment"),
-                        Ref::new("DatatypeSegment"),
-                    ])
-                ]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("DEFAULT"), Ref::new("EqualsSegment"),]),
                     Ref::new("ExpressionSegment"),
+                    Ref::new("NamedArgumentSegment")
                 ])
-                .config(|this| this.optional()),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "FrameClauseUnitGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("RANGE"),
-                Ref::keyword("ROWS"),
-                Ref::keyword("GROUPS"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        ("IsNullGrammar".into(), Ref::keyword("ISNULL").to_matchable().into()),
-        ("NotNullGrammar".into(), Ref::keyword("NOTNULL").to_matchable().into()),
-        (
-            "JoinKeywordsGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("JOIN"),
-                Sequence::new(vec_of_erased![Ref::keyword("LATERAL")])
-                    .config(|this| this.optional()),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "SelectClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("INTO"),
-                Ref::keyword("FROM"),
-                Ref::keyword("WHERE"),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY"),]),
-                Ref::keyword("LIMIT"),
-                Ref::new("CommaSegment"),
-                Ref::new("SetOperatorSegment"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        // Assuming the existence of `ansi_dialect` in Rust and a way to manipulate its grammar:
-        (
-            "LiteralGrammar".into(),
-            postgres
-                .grammar("LiteralGrammar")
-                .copy(
-                    Some(vec_of_erased![
-                        Ref::new("DollarNumericLiteralSegment"),
-                        Ref::new("PsqlVariableGrammar")
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "QuotedLiteralSegment".into(),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("MultilineConcatenateDelimiterGrammar"),
+                            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                        ])
                     ]),
-                    None,
-                    Some(Ref::new("ArrayLiteralSegment").to_matchable()),
-                    None,
-                    Vec::new(),
-                    false,
-                )
+                    Sequence::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::BitStringLiteral, SyntaxKind::QuotedLiteral),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("MultilineConcatenateDelimiterGrammar"),
+                            TypedParser::new(
+                                SyntaxKind::BitStringLiteral,
+                                SyntaxKind::QuotedLiteral
+                            ),
+                        ])
+                    ]),
+                    Delimited::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("MultilineConcatenateDelimiterGrammar"),
+                            TypedParser::new(
+                                SyntaxKind::UnicodeSingleQuote,
+                                SyntaxKind::QuotedLiteral
+                            ),
+                        ])
+                    ]),
+                    Delimited::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::EscapedSingleQuote, SyntaxKind::QuotedLiteral),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("MultilineConcatenateDelimiterGrammar"),
+                            TypedParser::new(
+                                SyntaxKind::EscapedSingleQuote,
+                                SyntaxKind::QuotedLiteral,
+                            ),
+                        ])
+                    ]),
+                    Delimited::new(vec_of_erased![
+                        TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::QuotedLiteral,),
+                        AnyNumberOf::new(vec_of_erased![
+                            Ref::new("MultilineConcatenateDelimiterGrammar"),
+                            TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::QuotedLiteral),
+                        ])
+                    ]),
+                ])
+                .to_matchable()
                 .into(),
-        ),
-        (
-            "FromClauseTerminatorGrammar".into(),
-            postgres
-                .grammar("FromClauseTerminatorGrammar")
-                .copy(
-                    Some(vec_of_erased![Ref::new("ForClauseSegment")]),
-                    None,
-                    None,
-                    None,
-                    Vec::new(),
-                    false,
-                )
+            ),
+            (
+                "QuotedIdentifierSegment".into(),
+                one_of(vec_of_erased![
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier),
+                    TypedParser::new(SyntaxKind::UnicodeDoubleQuote, SyntaxKind::QuotedLiteral),
+                ])
+                .to_matchable()
                 .into(),
-        ),
-        (
-            "WhereClauseTerminatorGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("LIMIT"),
-                Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY"),]),
-                Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY"),]),
-                Ref::keyword("HAVING"),
-                Ref::keyword("QUALIFY"),
-                Ref::keyword("WINDOW"),
-                Ref::keyword("OVERLAPS"),
-                Ref::keyword("RETURNING"),
-                Sequence::new(vec_of_erased![Ref::keyword("ON"), Ref::keyword("CONFLICT"),]),
-                Ref::new("ForClauseSegment"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "OrderByClauseTerminators".into(),
-            one_of(vec_of_erased![
-                Ref::keyword("LIMIT"),
-                Ref::keyword("HAVING"),
-                Ref::keyword("QUALIFY"),
-                Ref::keyword("WINDOW"),
-                Ref::new("FrameClauseUnitGrammar"),
-                Ref::keyword("SEPARATOR"),
-                Sequence::new(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("DATA"),]),
-                Ref::new("ForClauseSegment"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "AccessorGrammar".into(),
-            AnyNumberOf::new(vec_of_erased![
-                Ref::new("ArrayAccessorSegment"),
-                Ref::new("SemiStructuredAccessorSegment"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "NonWithSelectableGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::new("SetExpressionSegment"),
-                optionally_bracketed(vec_of_erased![Ref::new("SelectStatementSegment")]),
-                Ref::new("NonSetSelectableGrammar"),
-                Ref::new("UpdateStatementSegment"),
-                Ref::new("InsertStatementSegment"),
-                Ref::new("DeleteStatementSegment"),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        ("NonWithNonSelectableGrammar".into(), one_of(vec_of_erased![]).to_matchable().into()),
-    ]);
+            ),
+            (
+                "PostFunctionGrammar".into(),
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("WithinGroupClauseSegment"),
+                    Ref::new("OverClauseSegment"),
+                    Ref::new("FilterClauseGrammar"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "BinaryOperatorGrammar".into(),
+                one_of(vec_of_erased![
+                    Ref::new("ArithmeticBinaryOperatorGrammar"),
+                    Ref::new("StringBinaryOperatorGrammar"),
+                    Ref::new("BooleanBinaryOperatorGrammar"),
+                    Ref::new("ComparisonOperatorGrammar"),
+                    Ref::new("JsonOperatorSegment"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "FunctionParameterGrammar".into(),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![
+                        Ref::keyword("IN"),
+                        Ref::keyword("OUT"),
+                        Ref::keyword("INOUT"),
+                        Ref::keyword("VARIADIC"),
+                    ])
+                    .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        Ref::new("DatatypeSegment"),
+                        Sequence::new(vec_of_erased![
+                            Ref::new("ParameterNameSegment"),
+                            Ref::new("DatatypeSegment"),
+                        ])
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("DEFAULT"), Ref::new("EqualsSegment"),]),
+                        Ref::new("ExpressionSegment"),
+                    ])
+                    .config(|this| this.optional()),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "FrameClauseUnitGrammar".into(),
+                one_of(vec_of_erased![
+                    Ref::keyword("RANGE"),
+                    Ref::keyword("ROWS"),
+                    Ref::keyword("GROUPS"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            ("IsNullGrammar".into(), Ref::keyword("ISNULL").to_matchable().into()),
+            ("NotNullGrammar".into(), Ref::keyword("NOTNULL").to_matchable().into()),
+            (
+                "JoinKeywordsGrammar".into(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("JOIN"),
+                    Sequence::new(vec_of_erased![Ref::keyword("LATERAL")])
+                        .config(|this| this.optional()),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "SelectClauseTerminatorGrammar".into(),
+                one_of(vec_of_erased![
+                    Ref::keyword("INTO"),
+                    Ref::keyword("FROM"),
+                    Ref::keyword("WHERE"),
+                    Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY"),]),
+                    Ref::keyword("LIMIT"),
+                    Ref::new("CommaSegment"),
+                    Ref::new("SetOperatorSegment"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            // Assuming the existence of `ansi_dialect` in Rust and a way to manipulate its
+            // grammar:
+            (
+                "LiteralGrammar".into(),
+                postgres
+                    .grammar("LiteralGrammar")
+                    .copy(
+                        Some(vec_of_erased![
+                            Ref::new("DollarNumericLiteralSegment"),
+                            Ref::new("PsqlVariableGrammar")
+                        ]),
+                        None,
+                        Some(Ref::new("ArrayLiteralSegment").to_matchable()),
+                        None,
+                        Vec::new(),
+                        false,
+                    )
+                    .into(),
+            ),
+            (
+                "FromClauseTerminatorGrammar".into(),
+                postgres
+                    .grammar("FromClauseTerminatorGrammar")
+                    .copy(
+                        Some(vec_of_erased![Ref::new("ForClauseSegment")]),
+                        None,
+                        None,
+                        None,
+                        Vec::new(),
+                        false,
+                    )
+                    .into(),
+            ),
+            (
+                "WhereClauseTerminatorGrammar".into(),
+                one_of(vec_of_erased![
+                    Ref::keyword("LIMIT"),
+                    Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY"),]),
+                    Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY"),]),
+                    Ref::keyword("HAVING"),
+                    Ref::keyword("QUALIFY"),
+                    Ref::keyword("WINDOW"),
+                    Ref::keyword("OVERLAPS"),
+                    Ref::keyword("RETURNING"),
+                    Sequence::new(vec_of_erased![Ref::keyword("ON"), Ref::keyword("CONFLICT"),]),
+                    Ref::new("ForClauseSegment"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "OrderByClauseTerminators".into(),
+                one_of(vec_of_erased![
+                    Ref::keyword("LIMIT"),
+                    Ref::keyword("HAVING"),
+                    Ref::keyword("QUALIFY"),
+                    Ref::keyword("WINDOW"),
+                    Ref::new("FrameClauseUnitGrammar"),
+                    Ref::keyword("SEPARATOR"),
+                    Sequence::new(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("DATA"),]),
+                    Ref::new("ForClauseSegment"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "AccessorGrammar".into(),
+                AnyNumberOf::new(vec_of_erased![
+                    Ref::new("ArrayAccessorSegment"),
+                    Ref::new("SemiStructuredAccessorSegment"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "NonWithSelectableGrammar".into(),
+                one_of(vec_of_erased![
+                    Ref::new("SetExpressionSegment"),
+                    optionally_bracketed(vec_of_erased![Ref::new("SelectStatementSegment")]),
+                    Ref::new("NonSetSelectableGrammar"),
+                    Ref::new("UpdateStatementSegment"),
+                    Ref::new("InsertStatementSegment"),
+                    Ref::new("DeleteStatementSegment"),
+                ])
+                .to_matchable()
+                .into(),
+            ),
+            ("NonWithNonSelectableGrammar".into(), one_of(vec_of_erased![]).to_matchable().into()),
+        ],
+    );
 
     postgres.add([
         (

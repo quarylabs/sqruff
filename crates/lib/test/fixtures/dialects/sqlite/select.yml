@@ -151,10 +151,10 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                    - '': '''now'''
+                    - quoted_literal: '''now'''
                   - comma: ','
                   - expression:
-                    - '': '''start of day'''
+                    - quoted_literal: '''start of day'''
                   - end_bracket: )
           - orderby_clause:
             - keyword: ORDER

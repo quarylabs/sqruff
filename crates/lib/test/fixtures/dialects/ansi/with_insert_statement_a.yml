@@ -51,11 +51,11 @@ file:
         - keyword: VALUES
         - bracketed:
           - start_bracket: (
-          - '': '''value1'''
+          - quoted_literal: '''value1'''
           - comma: ','
-          - '': '''value2'''
+          - quoted_literal: '''value2'''
           - comma: ','
-          - '': '''value3'''
+          - quoted_literal: '''value3'''
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -109,10 +109,10 @@ file:
         - keyword: VALUES
         - bracketed:
           - start_bracket: (
-          - '': '''value1'''
+          - quoted_literal: '''value1'''
           - comma: ','
-          - '': '''value2'''
+          - quoted_literal: '''value2'''
           - comma: ','
-          - '': '''value3'''
+          - quoted_literal: '''value3'''
           - end_bracket: )
 - statement_terminator: ;

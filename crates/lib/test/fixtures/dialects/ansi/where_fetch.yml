@@ -22,7 +22,7 @@ file:
           - naked_identifier: Country
         - comparison_operator:
           - raw_comparison_operator: =
-        - '': '''France'''
+        - quoted_literal: '''France'''
     - fetch_clause:
       - keyword: FETCH
       - keyword: FIRST

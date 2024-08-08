@@ -691,7 +691,7 @@ file:
       - keyword: BY
       - cube_rollup_clause:
         - function_name:
-          - '': cube
+          - function_name_identifier: cube
         - bracketed:
           - start_bracket: (
           - grouping_expression_list:
@@ -738,7 +738,7 @@ file:
       - keyword: BY
       - cube_rollup_clause:
         - function_name:
-          - '': rollup
+          - function_name_identifier: rollup
         - bracketed:
           - start_bracket: (
           - grouping_expression_list:

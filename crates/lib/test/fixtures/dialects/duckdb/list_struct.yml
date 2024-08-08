@@ -46,7 +46,7 @@ file:
           - array_accessor:
             - start_square_bracket: '['
             - numeric_literal: '2'
-            - '': ':'
+            - slice: ':'
             - numeric_literal: '2'
             - end_square_bracket: ']'
         - alias_expression:
@@ -87,7 +87,7 @@ file:
           - quoted_literal: '''I love you! I know'''
           - array_accessor:
             - start_square_bracket: '['
-            - '': ':'
+            - slice: ':'
             - numeric_literal:
               - sign_indicator: '-'
               - numeric_literal: '3'

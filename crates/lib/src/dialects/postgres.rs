@@ -14,7 +14,6 @@ use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, IdentifierSegment,
-    Segment, SymbolSegment, SymbolSegmentNewArgs,
 };
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -326,44 +325,11 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "RightArrowSegment".into(),
-            StringParser::new(
-                "=>",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::RightArrow },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("=>", SyntaxKind::RightArrow).to_matchable().into(),
         ),
         (
             "OnKeywordAsIdentifierSegment".into(),
-            StringParser::new(
-                "ON",
-                |segment: &dyn Segment| {
-                    IdentifierSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::NakedIdentifier,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("ON", SyntaxKind::NakedIdentifier).to_matchable().into(),
         ),
         (
             "DollarNumericLiteralSegment".into(),

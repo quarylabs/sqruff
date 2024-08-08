@@ -576,6 +576,7 @@ pub enum SyntaxKind {
     TableEndClauseSegment,
     PragmaStatement,
     PragmaReference,
+    Slash,
 }
 
 impl SyntaxKind {

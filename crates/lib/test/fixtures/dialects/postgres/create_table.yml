@@ -897,7 +897,7 @@ file:
             - column_reference:
               - naked_identifier: city_id
             - comparison_operator:
-              - '': '!'
+              - raw_comparison_operator: '!'
               - raw_comparison_operator: =
             - numeric_literal: '0'
           - end_bracket: )
@@ -940,7 +940,7 @@ file:
             - column_reference:
               - naked_identifier: city_id
             - comparison_operator:
-              - '': '!'
+              - raw_comparison_operator: '!'
               - raw_comparison_operator: =
             - numeric_literal: '0'
           - end_bracket: )
@@ -2010,8 +2010,8 @@ file:
                 - naked_identifier: during
             - keyword: WITH
             - comparison_operator:
-              - '': '&'
-              - '': '&'
+              - ampersand: '&'
+              - ampersand: '&'
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -2055,8 +2055,8 @@ file:
                 - naked_identifier: during
             - keyword: WITH
             - comparison_operator:
-              - '': '&'
-              - '': '&'
+              - ampersand: '&'
+              - ampersand: '&'
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -2342,7 +2342,7 @@ file:
             - column_reference:
               - naked_identifier: field
             - comparison_operator:
-              - '': '!'
+              - raw_comparison_operator: '!'
               - raw_comparison_operator: =
             - quoted_literal: '''def'''
           - end_bracket: )

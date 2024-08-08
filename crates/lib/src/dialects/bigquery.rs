@@ -12,10 +12,7 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, IdentifierSegment, Segment, SymbolSegment,
-    SymbolSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, IdentifierSegment};
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -109,80 +106,17 @@ pub fn bigquery_dialect() -> Dialect {
         ),
         (
             "StartAngleBracketSegment".into(),
-            StringParser::new(
-                "<",
-                |segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartAngleBracket },
-                    )
-                },
-                "start_angle_bracket".to_owned().into(),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("<", SyntaxKind::StartAngleBracket).to_matchable().into(),
         ),
         (
             "EndAngleBracketSegment".into(),
-            StringParser::new(
-                ">",
-                |segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndAngleBracket },
-                    )
-                },
-                "end_angle_bracket".to_owned().into(),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new(">", SyntaxKind::EndAngleBracket).to_matchable().into(),
         ),
         (
             "RightArrowSegment".into(),
-            StringParser::new(
-                "=>",
-                |segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
-                    )
-                },
-                "right_arrow".to_owned().into(),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("=>", SyntaxKind::RemoveMe).to_matchable().into(),
         ),
-        (
-            "DashSegment".into(),
-            StringParser::new(
-                "-",
-                |segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Dash },
-                    )
-                },
-                "dash".to_owned().into(),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
+        ("DashSegment".into(), StringParser::new("-", SyntaxKind::Dash).to_matchable().into()),
         (
             "SingleIdentifierFullGrammar".into(),
             one_of(vec_of_erased![
@@ -195,22 +129,7 @@ pub fn bigquery_dialect() -> Dialect {
         ),
         (
             "QuestionMarkSegment".into(),
-            StringParser::new(
-                "?",
-                |segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuestionMark },
-                    )
-                },
-                "dash".to_owned().into(),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("?", SyntaxKind::QuestionMark).to_matchable().into(),
         ),
         (
             "AtSignLiteralSegment".into(),
@@ -608,20 +527,7 @@ pub fn bigquery_dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("OPTIONS"),
                         Ref::keyword("strict_mode"),
-                        StringParser::new(
-                            "strict_mode",
-                            |segment| {
-                                SymbolSegment::create(
-                                    segment.id(),
-                                    &segment.raw(),
-                                    segment.get_position_marker(),
-                                    SymbolSegmentNewArgs { r#type: SyntaxKind::ProcedureOption },
-                                )
-                            },
-                            "procedure_option".to_owned().into(),
-                            false,
-                            None,
-                        ),
+                        StringParser::new("strict_mode", SyntaxKind::ProcedureOption),
                         Ref::new("EqualsSegment"),
                         Ref::new("BooleanLiteralGrammar").optional(),
                     ])
@@ -1149,21 +1055,7 @@ pub fn bigquery_dialect() -> Dialect {
             "ExtractFunctionNameSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::FunctionName,
-                StringParser::new(
-                    "EXTRACT",
-                    |segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
-                        )
-                    },
-                    "function_name_identifier".to_owned().into(),
-                    false,
-                    None,
-                )
-                .to_matchable(),
+                StringParser::new("EXTRACT", SyntaxKind::FunctionNameIdentifier).to_matchable(),
             )
             .to_matchable()
             .into(),
@@ -1172,21 +1064,7 @@ pub fn bigquery_dialect() -> Dialect {
             "ArrayFunctionNameSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::FunctionName,
-                StringParser::new(
-                    "ARRAY",
-                    |segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
-                        )
-                    },
-                    "function_name_identifier".to_owned().into(),
-                    false,
-                    None,
-                )
-                .to_matchable(),
+                StringParser::new("ARRAY", SyntaxKind::FunctionNameIdentifier).to_matchable(),
             )
             .to_matchable()
             .into(),
@@ -1217,34 +1095,8 @@ pub fn bigquery_dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::FunctionName,
                 one_of(vec_of_erased![
-                    StringParser::new(
-                        "NORMALIZE",
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
-                            )
-                        },
-                        None,
-                        false,
-                        None,
-                    ),
-                    StringParser::new(
-                        "NORMALIZE_AND_CASEFOLD",
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
-                            )
-                        },
-                        None,
-                        false,
-                        None,
-                    ),
+                    StringParser::new("NORMALIZE", SyntaxKind::FunctionNameIdentifier),
+                    StringParser::new("NORMALIZE_AND_CASEFOLD", SyntaxKind::FunctionNameIdentifier),
                 ])
                 .to_matchable(),
             )
@@ -2322,123 +2174,21 @@ pub fn bigquery_dialect() -> Dialect {
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
                         Sequence::new(vec_of_erased![
                             one_of(vec_of_erased![
-                                StringParser::new(
-                                    "compression",
-                                    |segment: &dyn Segment| {
-                                        SymbolSegment::create(
-                                            segment.id(),
-                                            &segment.raw(),
-                                            segment.get_position_marker(),
-                                            SymbolSegmentNewArgs {
-                                                r#type: SyntaxKind::ExportOption,
-                                            },
-                                        )
-                                    },
-                                    None,
-                                    false,
-                                    None,
-                                ),
-                                StringParser::new(
-                                    "field_delimiter",
-                                    |segment: &dyn Segment| {
-                                        SymbolSegment::create(
-                                            segment.id(),
-                                            &segment.raw(),
-                                            segment.get_position_marker(),
-                                            SymbolSegmentNewArgs {
-                                                r#type: SyntaxKind::ExportOption,
-                                            },
-                                        )
-                                    },
-                                    None,
-                                    false,
-                                    None,
-                                ),
-                                StringParser::new(
-                                    "format",
-                                    |segment: &dyn Segment| {
-                                        SymbolSegment::create(
-                                            segment.id(),
-                                            &segment.raw(),
-                                            segment.get_position_marker(),
-                                            SymbolSegmentNewArgs {
-                                                r#type: SyntaxKind::ExportOption,
-                                            },
-                                        )
-                                    },
-                                    None,
-                                    false,
-                                    None,
-                                ),
-                                StringParser::new(
-                                    "uri",
-                                    |segment: &dyn Segment| {
-                                        SymbolSegment::create(
-                                            segment.id(),
-                                            &segment.raw(),
-                                            segment.get_position_marker(),
-                                            SymbolSegmentNewArgs {
-                                                r#type: SyntaxKind::ExportOption,
-                                            },
-                                        )
-                                    },
-                                    None,
-                                    false,
-                                    None,
-                                ),
+                                StringParser::new("compression", SyntaxKind::ExportOption),
+                                StringParser::new("field_delimiter", SyntaxKind::ExportOption),
+                                StringParser::new("format", SyntaxKind::ExportOption),
+                                StringParser::new("uri", SyntaxKind::ExportOption),
                             ]),
                             Ref::new("EqualsSegment"),
                             Ref::new("QuotedLiteralSegment"),
                         ]),
                         Sequence::new(vec_of_erased![
                             one_of(vec_of_erased![
-                                StringParser::new(
-                                    "header",
-                                    |segment: &dyn Segment| {
-                                        SymbolSegment::create(
-                                            segment.id(),
-                                            &segment.raw(),
-                                            segment.get_position_marker(),
-                                            SymbolSegmentNewArgs {
-                                                r#type: SyntaxKind::ExportOption,
-                                            },
-                                        )
-                                    },
-                                    None,
-                                    false,
-                                    None,
-                                ),
-                                StringParser::new(
-                                    "overwrite",
-                                    |segment: &dyn Segment| {
-                                        SymbolSegment::create(
-                                            segment.id(),
-                                            &segment.raw(),
-                                            segment.get_position_marker(),
-                                            SymbolSegmentNewArgs {
-                                                r#type: SyntaxKind::ExportOption,
-                                            },
-                                        )
-                                    },
-                                    None,
-                                    false,
-                                    None,
-                                ),
+                                StringParser::new("header", SyntaxKind::ExportOption),
+                                StringParser::new("overwrite", SyntaxKind::ExportOption),
                                 StringParser::new(
                                     "use_avro_logical_types",
-                                    |segment: &dyn Segment| {
-                                        SymbolSegment::create(
-                                            segment.id(),
-                                            &segment.raw(),
-                                            segment.get_position_marker(),
-                                            SymbolSegmentNewArgs {
-                                                r#type: SyntaxKind::ExportOption,
-                                            },
-                                        )
-                                    },
-                                    None,
-                                    false,
-                                    None,
+                                    SyntaxKind::ExportOption
                                 ),
                             ]),
                             Ref::new("EqualsSegment"),

@@ -46,9 +46,9 @@ file:
       - keyword: RELOAD
       - keyword: MODEL
       - path_segment:
-        - '': /
+        - slash: /
         - path_segment: model
-        - '': /
+        - slash: /
         - path_segment: path
 - statement_terminator: ;
 - statement:
@@ -62,9 +62,9 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
       - path_segment:
-        - '': /
+        - slash: /
         - path_segment: model
-        - '': /
+        - slash: /
         - path_segment: path
 - statement_terminator: ;
 - statement:

@@ -26,7 +26,7 @@ use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser,
 use crate::core::parser::segments::base::{
     pos_marker, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
     ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, PathStep, Segment,
-    SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
+    WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::fix::SourceFix;
@@ -335,461 +335,94 @@ pub fn raw_dialect() -> Dialect {
     //   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
     ansi_dialect.sets_mut("value_table_functions");
 
-    let symbol_factory = |segment: &dyn Segment| {
-        SymbolSegment::create(
-            segment.id(),
-            &segment.raw(),
-            segment.get_position_marker(),
-            SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
-        )
-    };
-
     ansi_dialect.add([
         // Real segments
         ("DelimiterGrammar".into(), Ref::new("SemicolonSegment").to_matchable().into()),
         (
             "SemicolonSegment".into(),
-            StringParser::new(
-                ";",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
-                    )
-                },
-                Some("statement_terminator".into()),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new(";", SyntaxKind::StatementTerminator).to_matchable().into(),
         ),
-        (
-            "ColonSegment".into(),
-            StringParser::new(
-                ":",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Colon },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "SliceSegment".into(),
-            StringParser::new(":", symbol_factory, "slice".to_owned().into(), false, None)
-                .to_matchable()
-                .into(),
-        ),
+        ("ColonSegment".into(), StringParser::new(":", SyntaxKind::Colon).to_matchable().into()),
+        ("SliceSegment".into(), StringParser::new(":", SyntaxKind::Slice).to_matchable().into()),
         // NOTE: The purpose of the colon_delimiter is that it has different layout rules.
         // It assumes no whitespace on either side.
         (
             "ColonDelimiterSegment".into(),
-            StringParser::new(":", symbol_factory, "slice".to_owned().into(), false, None)
-                .to_matchable()
-                .into(),
+            StringParser::new(":", SyntaxKind::ColonDelimiter).to_matchable().into(),
         ),
         (
             "StartBracketSegment".into(),
-            StringParser::new(
-                "(",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker().unwrap().into(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("(", SyntaxKind::StartBracket).to_matchable().into(),
         ),
         (
             "EndBracketSegment".into(),
-            StringParser::new(
-                ")",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker().unwrap().into(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new(")", SyntaxKind::EndBracket).to_matchable().into(),
         ),
         (
             "StartSquareBracketSegment".into(),
-            StringParser::new(
-                "[",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker().unwrap().into(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartSquareBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("[", SyntaxKind::StartSquareBracket).to_matchable().into(),
         ),
         (
             "EndSquareBracketSegment".into(),
-            StringParser::new(
-                "]",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndSquareBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("]", SyntaxKind::EndSquareBracket).to_matchable().into(),
         ),
         (
             "StartCurlyBracketSegment".into(),
-            StringParser::new(
-                "{",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartCurlyBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("{", SyntaxKind::StartCurlyBracket).to_matchable().into(),
         ),
         (
             "EndCurlyBracketSegment".into(),
-            StringParser::new(
-                "}",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndCurlyBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("}", SyntaxKind::EndCurlyBracket).to_matchable().into(),
         ),
-        (
-            "CommaSegment".into(),
-            StringParser::new(
-                ",",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Comma },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "DotSegment".into(),
-            StringParser::new(
-                ".",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Dot },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "StarSegment".into(),
-            StringParser::new(
-                "*",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Star },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "TildeSegment".into(),
-            StringParser::new(
-                "~",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Tilde },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
+        ("CommaSegment".into(), StringParser::new(",", SyntaxKind::Comma).to_matchable().into()),
+        ("DotSegment".into(), StringParser::new(".", SyntaxKind::Dot).to_matchable().into()),
+        ("StarSegment".into(), StringParser::new("*", SyntaxKind::Star).to_matchable().into()),
+        ("TildeSegment".into(), StringParser::new("~", SyntaxKind::Tilde).to_matchable().into()),
         (
             "ParameterSegment".into(),
-            StringParser::new("?", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new("?", SyntaxKind::Parameter).to_matchable().into(),
         ),
         (
             "CastOperatorSegment".into(),
-            StringParser::new(
-                "::",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::CastingOperator },
-                    )
-                },
-                Some("casting_operator".into()),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("::", SyntaxKind::CastingOperator).to_matchable().into(),
         ),
         (
             "PlusSegment".into(),
-            StringParser::new(
-                "+",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("+", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "MinusSegment".into(),
-            StringParser::new(
-                "-",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("-", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "PositiveSegment".into(),
-            StringParser::new(
-                "+",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::SignIndicator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("+", SyntaxKind::SignIndicator).to_matchable().into(),
         ),
         (
             "NegativeSegment".into(),
-            StringParser::new(
-                "-",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::SignIndicator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("-", SyntaxKind::SignIndicator).to_matchable().into(),
         ),
         (
             "DivideSegment".into(),
-            StringParser::new(
-                "/",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("/", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "MultiplySegment".into(),
-            StringParser::new(
-                "*",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("*", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "ModuloSegment".into(),
-            StringParser::new(
-                "%",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("%", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
-        (
-            "SlashSegment".into(),
-            StringParser::new("/", symbol_factory, None, false, None).to_matchable().into(),
-        ),
+        ("SlashSegment".into(), StringParser::new("/", SyntaxKind::Slash).to_matchable().into()),
         (
             "AmpersandSegment".into(),
-            StringParser::new("&", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new("&", SyntaxKind::Ampersand).to_matchable().into(),
         ),
-        (
-            "PipeSegment".into(),
-            StringParser::new(
-                "|",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Pipe },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
-        ),
+        ("PipeSegment".into(), StringParser::new("|", SyntaxKind::Pipe).to_matchable().into()),
         (
             "BitwiseXorSegment".into(),
-            StringParser::new(
-                "^",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("^", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "LikeOperatorSegment".into(),
@@ -799,64 +432,19 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "RawNotSegment".into(),
-            StringParser::new("!", symbol_factory, None, false, None).to_matchable().into(),
+            StringParser::new("!", SyntaxKind::RawComparisonOperator).to_matchable().into(),
         ),
         (
             "RawEqualsSegment".into(),
-            StringParser::new(
-                "=",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("=", SyntaxKind::RawComparisonOperator).to_matchable().into(),
         ),
         (
             "RawGreaterThanSegment".into(),
-            StringParser::new(
-                ">",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new(">", SyntaxKind::RawComparisonOperator).to_matchable().into(),
         ),
         (
             "RawLessThanSegment".into(),
-            StringParser::new(
-                "<",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("<", SyntaxKind::RawComparisonOperator).to_matchable().into(),
         ),
         (
             // The following functions can be called without parentheses per ANSI specification
@@ -1017,79 +605,19 @@ pub fn raw_dialect() -> Dialect {
         // type
         (
             "NullLiteralSegment".into(),
-            StringParser::new(
-                "null",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::NullLiteral },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("null", SyntaxKind::NullLiteral).to_matchable().into(),
         ),
         (
             "NanLiteralSegment".into(),
-            StringParser::new(
-                "nan",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::NullLiteral },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("nan", SyntaxKind::NullLiteral).to_matchable().into(),
         ),
         (
             "TrueSegment".into(),
-            StringParser::new(
-                "true",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BooleanLiteral },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("true", SyntaxKind::BooleanLiteral).to_matchable().into(),
         ),
         (
             "FalseSegment".into(),
-            StringParser::new(
-                "false",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BooleanLiteral },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("false", SyntaxKind::BooleanLiteral).to_matchable().into(),
         ),
         // We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
         (
@@ -1217,60 +745,15 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "AndOperatorGrammar".into(),
-            StringParser::new(
-                "AND",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("AND", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "OrOperatorGrammar".into(),
-            StringParser::new(
-                "OR",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("OR", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "NotOperatorGrammar".into(),
-            StringParser::new(
-                "NOT",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Keyword },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("NOT", SyntaxKind::Keyword).to_matchable().into(),
         ),
         (
             // This is a placeholder for other dialects.
@@ -2011,20 +1494,7 @@ pub fn raw_dialect() -> Dialect {
             "RollupFunctionNameSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::FunctionName,
-                StringParser::new(
-                    "ROLLUP",
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs::default(),
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                )
-                .boxed(),
+                StringParser::new("ROLLUP", SyntaxKind::FunctionNameIdentifier).boxed(),
             )
             .to_matchable()
             .into(),
@@ -2033,20 +1503,7 @@ pub fn raw_dialect() -> Dialect {
             "CubeFunctionNameSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::FunctionName,
-                StringParser::new(
-                    "CUBE",
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs::default(),
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                )
-                .boxed(),
+                StringParser::new("CUBE", SyntaxKind::FunctionNameIdentifier).boxed(),
             )
             .to_matchable()
             .into(),

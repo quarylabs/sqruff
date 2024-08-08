@@ -153,7 +153,12 @@ Add trailing newline to the end. The $ character represents end of file.
                 segment.first().unwrap().clone().into(),
                 vec![LintFix::create_after(
                     fix_anchor_segment,
-                    vec![NewlineSegment::create("\n", None, <_>::default())],
+                    vec![NewlineSegment::create(
+                        context.tables.next_id(),
+                        "\n",
+                        None,
+                        <_>::default(),
+                    )],
                     None,
                 )],
                 None,

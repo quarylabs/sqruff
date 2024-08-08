@@ -290,8 +290,9 @@ fn determine_aligned_inline_spacing(
     )
 }
 
-#[allow(unused_variables)]
+#[allow(clippy::too_many_arguments)]
 pub fn handle_respace_inline_with_space(
+    tables: &Tables,
     pre_constraint: Spacing,
     post_constraint: Spacing,
     prev_block: Option<&ReflowBlock>,
@@ -384,7 +385,7 @@ pub fn handle_respace_inline_with_space(
 
         let mut new_results = Vec::new();
         if last_whitespace.raw() != desired_space {
-            let new_seg = last_whitespace.edit(desired_space.into(), None);
+            let new_seg = last_whitespace.edit(tables.next_id(), desired_space.into(), None);
 
             new_results.push(LintResult::new(
                 last_whitespace.clone().into(),

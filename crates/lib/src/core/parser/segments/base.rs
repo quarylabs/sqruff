@@ -22,7 +22,7 @@ use crate::core::rules::base::{EditType, LintFix};
 use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
+use crate::helpers::{Config, ToErasedSegment};
 
 #[derive(Debug, Clone)]
 pub struct PathStep {
@@ -739,7 +739,12 @@ pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
 
     /// Stub.
     #[allow(unused_variables)]
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
@@ -975,7 +980,12 @@ impl Segment for CodeSegment {
     /// segment.
     ///
     /// From RawSegment implementation
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         CodeSegment::create(
             raw.unwrap_or(self.raw.to_string()).as_str(),
             self.position_marker.clone(),
@@ -987,6 +997,7 @@ impl Segment for CodeSegment {
                 trim_chars: None,
             },
         )
+        .config(|this| this.get_mut().set_id(id))
     }
 
     fn class_types(&self) -> SyntaxSet {
@@ -1069,9 +1080,14 @@ impl Segment for IdentifierSegment {
         self.base.id = id;
     }
 
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         IdentifierSegment::create(
-            self.id(),
+            id,
             raw.unwrap_or(self.base.raw.to_string()).as_str(),
             self.base.position_marker.clone(),
             CodeSegmentNewArgs {
@@ -1169,7 +1185,12 @@ impl Segment for CommentSegment {
         self.id = id;
     }
 
-    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        _id: u32,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         todo!()
     }
 
@@ -1191,11 +1212,12 @@ pub struct NewlineSegmentNewArgs {}
 
 impl NewlineSegment {
     pub fn create(
+        id: u32,
         raw: &str,
         position_maker: Option<PositionMarker>,
         _args: NewlineSegmentNewArgs,
     ) -> ErasedSegment {
-        NewlineSegment { raw: raw.into(), position_maker: position_maker.clone(), id: 0 }
+        NewlineSegment { raw: raw.into(), position_maker: position_maker.clone(), id }
             .to_erased_segment()
     }
 }
@@ -1253,7 +1275,12 @@ impl Segment for NewlineSegment {
         self.id = id;
     }
 
-    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        _id: u32,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         todo!()
     }
 
@@ -1339,9 +1366,14 @@ impl Segment for WhitespaceSegment {
         Vec::new()
     }
 
-    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         Self::create(
-            self.id(),
+            id,
             &raw.unwrap_or_default(),
             self.position_marker.clone(),
             WhitespaceSegmentNewArgs {},
@@ -1401,7 +1433,12 @@ impl Segment for UnlexableSegment {
         todo!()
     }
 
-    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        _id: u32,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         todo!()
     }
 }
@@ -1478,8 +1515,13 @@ impl Segment for SymbolSegment {
         Vec::new()
     }
 
-    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        SymbolSegment::create(self.id, &raw.unwrap(), self.position_maker.clone(), <_>::default())
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
+        SymbolSegment::create(id, &raw.unwrap(), self.position_maker.clone(), <_>::default())
     }
 
     fn instance_types(&self) -> SyntaxSet {
@@ -1525,6 +1567,7 @@ mod tests {
     use super::*;
     use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
     use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
+    use crate::dialects::ansi::Tables;
 
     const TEMP_SEGMENTS_ARGS: RawSegmentArgs = RawSegmentArgs {
         _type: None,
@@ -1569,6 +1612,7 @@ mod tests {
     /// Test BaseSegment.compute_anchor_edit_info().
     fn test_parser_base_segments_compute_anchor_edit_info() {
         let raw_segs = raw_segments();
+        let tables = Tables::default();
 
         // Construct a fix buffer, intentionally with:
         // - one duplicate.
@@ -1576,17 +1620,17 @@ mod tests {
         let fixes = vec![
             LintFix::replace(
                 raw_segs[0].clone(),
-                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                vec![raw_segs[0].edit(tables.next_id(), Some("a".to_string()), None)],
                 None,
             ),
             LintFix::replace(
                 raw_segs[0].clone(),
-                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                vec![raw_segs[0].edit(tables.next_id(), Some("a".to_string()), None)],
                 None,
             ),
             LintFix::replace(
                 raw_segs[0].clone(),
-                vec![raw_segs[0].edit(Some("b".to_string()), None)],
+                vec![raw_segs[0].edit(tables.next_id(), Some("b".to_string()), None)],
                 None,
             ),
         ];
@@ -1607,7 +1651,7 @@ mod tests {
             anchor_info.fixes[0],
             LintFix::replace(
                 raw_segs[0].clone(),
-                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                vec![raw_segs[0].edit(tables.next_id(), Some("a".to_string()), None)],
                 None,
             )
         );
@@ -1615,7 +1659,7 @@ mod tests {
             anchor_info.fixes[1],
             LintFix::replace(
                 raw_segs[0].clone(),
-                vec![raw_segs[0].edit(Some("b".to_string()), None)],
+                vec![raw_segs[0].edit(tables.next_id(), Some("b".to_string()), None)],
                 None,
             )
         );
@@ -1625,7 +1669,7 @@ mod tests {
             anchor_info.first_replace,
             Some(LintFix::replace(
                 raw_segs[0].clone(),
-                vec![raw_segs[0].edit(Some("a".to_string()), None)],
+                vec![raw_segs[0].edit(tables.next_id(), Some("a".to_string()), None)],
                 None,
             ))
         );

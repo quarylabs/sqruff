@@ -258,7 +258,12 @@ fn rebuild_spacing(
         if matches!(seg.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
             || (prior_newline && seg.is_comment())
         {
-            buff.push(NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}));
+            buff.push(NewlineSegment::create(
+                tables.next_id(),
+                "\n",
+                None,
+                NewlineSegmentNewArgs {},
+            ));
             buff.push(WhitespaceSegment::create(
                 tables.next_id(),
                 indent_str,
@@ -318,7 +323,7 @@ fn nested_end_trailing_comment(
         trailing_end.find_first(Some(|seg: &ErasedSegment| seg.is_comment())).first()
     {
         let segments = vec![
-            NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
+            NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
             WhitespaceSegment::create(
                 tables.next_id(),
                 end_indent_str,

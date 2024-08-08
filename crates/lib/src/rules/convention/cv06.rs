@@ -270,7 +270,7 @@ impl RuleCV06 {
             vec![LintFix::replace(
                 anchor_segment.clone(),
                 vec![
-                    NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
+                    NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
                     SymbolSegment::create(
                         tables.next_id(),
                         ";",
@@ -287,7 +287,7 @@ impl RuleCV06 {
                 anchor_segment.clone(),
                 info.whitespace_deletions.clone(),
                 vec![
-                    NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
+                    NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
                     SymbolSegment::create(
                         tables.next_id(),
                         ";",
@@ -400,7 +400,12 @@ impl RuleCV06 {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.clone(),
                     vec![
-                        NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
+                        NewlineSegment::create(
+                            tables.next_id(),
+                            "\n",
+                            None,
+                            NewlineSegmentNewArgs {},
+                        ),
                         SymbolSegment::create(
                             tables.next_id(),
                             ";",

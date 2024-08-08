@@ -10,6 +10,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -111,7 +112,11 @@ FROM test_table;
         {
             return self.eval_single_select_target_element(select_targets_info, context);
         } else if !select_targets_info.select_targets.is_empty() {
-            return self.eval_multiple_select_target_elements(select_targets_info, context.segment);
+            return self.eval_multiple_select_target_elements(
+                context.tables,
+                select_targets_info,
+                context.segment,
+            );
         }
 
         Vec::new()
@@ -222,6 +227,7 @@ impl RuleLT09 {
 
     fn eval_multiple_select_target_elements(
         &self,
+        tables: &Tables,
         select_targets_info: SelectTargetsInfo,
         segment: ErasedSegment,
     ) -> Vec<LintResult> {
@@ -265,7 +271,7 @@ impl RuleLT09 {
                 fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone(),
-                    vec![NewlineSegment::create("\n", None, <_>::default())],
+                    vec![NewlineSegment::create(tables.next_id(), "\n", None, <_>::default())],
                 ));
             }
 
@@ -284,7 +290,7 @@ impl RuleLT09 {
 
                     fixes.push(LintFix::create_before(
                         from_segment.clone(),
-                        vec![NewlineSegment::create("\n", None, <_>::default())],
+                        vec![NewlineSegment::create(tables.next_id(), "\n", None, <_>::default())],
                     ));
                 }
             }
@@ -424,7 +430,12 @@ impl RuleLT09 {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone(),
                             if add_newline {
-                                vec![NewlineSegment::create("\n", None, <_>::default())]
+                                vec![NewlineSegment::create(
+                                    context.tables.next_id(),
+                                    "\n",
+                                    None,
+                                    <_>::default(),
+                                )]
                             } else {
                                 vec![]
                             }

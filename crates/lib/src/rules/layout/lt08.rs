@@ -188,10 +188,15 @@ SELECT a FROM plop
             let fixes = vec![LintFix {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
-                edit: repeat(NewlineSegment::create("\n", None, <_>::default()))
-                    .take(num_newlines)
-                    .collect_vec()
-                    .into(),
+                edit: repeat(NewlineSegment::create(
+                    context.tables.next_id(),
+                    "\n",
+                    None,
+                    <_>::default(),
+                ))
+                .take(num_newlines)
+                .collect_vec()
+                .into(),
                 source: Vec::new(),
             }];
 

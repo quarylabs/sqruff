@@ -1,11 +1,10 @@
 use std::borrow::Cow;
-use std::cell::OnceCell;
+use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
 use std::sync::Arc;
 
 use itertools::{enumerate, Itertools};
 use smol_str::{SmolStr, ToSmolStr};
-use uuid::Uuid;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
 use super::{SyntaxKind, SyntaxSet};
@@ -57,12 +56,25 @@ impl<T> BoxedE for T {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct Tables {
+    counter: Cell<u32>,
+}
+
+impl Tables {
+    pub(crate) fn next_id(&self) -> u32 {
+        let id = self.counter.get();
+        self.counter.set(id + 1);
+        id
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Node {
     kind: SyntaxKind,
     dialect: DialectKind,
     segments: Vec<ErasedSegment>,
-    uuid: Uuid,
+    id: u32,
     position_marker: Option<PositionMarker>,
     raw: OnceCell<String>,
     source_fixes: Vec<SourceFix>,
@@ -73,6 +85,7 @@ pub struct Node {
 impl Node {
     #[track_caller]
     pub fn new(
+        id: u32,
         dialect: DialectKind,
         kind: SyntaxKind,
         segments: Vec<ErasedSegment>,
@@ -84,7 +97,7 @@ impl Node {
             kind,
             dialect,
             segments,
-            uuid: Uuid::new_v4(),
+            id,
             position_marker,
             raw: OnceCell::new(),
             source_fixes: Vec::new(),
@@ -98,7 +111,7 @@ impl Segment for Node {
     fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         Self {
             kind: self.kind,
-            uuid: self.uuid,
+            id: self.id,
             dialect: self.dialect,
             segments,
             position_marker: self.position_marker.clone(),
@@ -119,7 +132,7 @@ impl Segment for Node {
             kind: self.kind,
             dialect: self.dialect,
             segments,
-            uuid: self.uuid,
+            id: self.id,
             position_marker: self.position_marker.clone(),
             raw: self.raw.clone(),
             source_fixes: self.source_fixes.clone(),
@@ -177,8 +190,8 @@ impl Segment for Node {
         self.segments = segments;
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -325,6 +338,7 @@ pub fn raw_dialect() -> Dialect {
 
     let symbol_factory = |segment: &dyn Segment| {
         SymbolSegment::create(
+            segment.id(),
             &segment.raw(),
             segment.get_position_marker(),
             SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
@@ -340,6 +354,7 @@ pub fn raw_dialect() -> Dialect {
                 ";",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
@@ -358,6 +373,7 @@ pub fn raw_dialect() -> Dialect {
                 ":",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Colon },
@@ -390,6 +406,7 @@ pub fn raw_dialect() -> Dialect {
                 "(",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker().unwrap().into(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
@@ -408,6 +425,7 @@ pub fn raw_dialect() -> Dialect {
                 ")",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker().unwrap().into(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
@@ -426,6 +444,7 @@ pub fn raw_dialect() -> Dialect {
                 "[",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker().unwrap().into(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StartSquareBracket },
@@ -444,6 +463,7 @@ pub fn raw_dialect() -> Dialect {
                 "]",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::EndSquareBracket },
@@ -462,6 +482,7 @@ pub fn raw_dialect() -> Dialect {
                 "{",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StartCurlyBracket },
@@ -480,6 +501,7 @@ pub fn raw_dialect() -> Dialect {
                 "}",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::EndCurlyBracket },
@@ -498,6 +520,7 @@ pub fn raw_dialect() -> Dialect {
                 ",",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Comma },
@@ -516,6 +539,7 @@ pub fn raw_dialect() -> Dialect {
                 ".",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Dot },
@@ -534,6 +558,7 @@ pub fn raw_dialect() -> Dialect {
                 "*",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Star },
@@ -552,6 +577,7 @@ pub fn raw_dialect() -> Dialect {
                 "~",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Tilde },
@@ -574,6 +600,7 @@ pub fn raw_dialect() -> Dialect {
                 "::",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::CastingOperator },
@@ -592,6 +619,7 @@ pub fn raw_dialect() -> Dialect {
                 "+",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -610,6 +638,7 @@ pub fn raw_dialect() -> Dialect {
                 "-",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -628,6 +657,7 @@ pub fn raw_dialect() -> Dialect {
                 "+",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::SignIndicator },
@@ -646,6 +676,7 @@ pub fn raw_dialect() -> Dialect {
                 "-",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::SignIndicator },
@@ -664,6 +695,7 @@ pub fn raw_dialect() -> Dialect {
                 "/",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -682,6 +714,7 @@ pub fn raw_dialect() -> Dialect {
                 "*",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -700,6 +733,7 @@ pub fn raw_dialect() -> Dialect {
                 "%",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -726,6 +760,7 @@ pub fn raw_dialect() -> Dialect {
                 "|",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Pipe },
@@ -744,6 +779,7 @@ pub fn raw_dialect() -> Dialect {
                 "^",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -780,6 +816,7 @@ pub fn raw_dialect() -> Dialect {
                 "=",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
@@ -798,6 +835,7 @@ pub fn raw_dialect() -> Dialect {
                 ">",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
@@ -816,6 +854,7 @@ pub fn raw_dialect() -> Dialect {
                 "<",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
@@ -866,6 +905,7 @@ pub fn raw_dialect() -> Dialect {
                     "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -908,6 +948,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::Word,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
@@ -1009,6 +1050,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
@@ -1033,6 +1075,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::SingleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
@@ -1053,7 +1096,7 @@ pub fn raw_dialect() -> Dialect {
                     LiteralSegment {
                         raw: seg.raw().into(),
                         position_maker: seg.get_position_marker(),
-                        uuid: seg.get_uuid(),
+                        id: seg.id(),
                     }
                     .to_erased_segment()
                 },
@@ -1072,6 +1115,7 @@ pub fn raw_dialect() -> Dialect {
                 "null",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::NullLiteral },
@@ -1090,6 +1134,7 @@ pub fn raw_dialect() -> Dialect {
                 "nan",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::NullLiteral },
@@ -1108,6 +1153,7 @@ pub fn raw_dialect() -> Dialect {
                 "true",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BooleanLiteral },
@@ -1126,6 +1172,7 @@ pub fn raw_dialect() -> Dialect {
                 "false",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BooleanLiteral },
@@ -1274,6 +1321,7 @@ pub fn raw_dialect() -> Dialect {
                 "AND",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -1292,6 +1340,7 @@ pub fn raw_dialect() -> Dialect {
                 "OR",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -1310,6 +1359,7 @@ pub fn raw_dialect() -> Dialect {
                 "NOT",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Keyword },
@@ -5504,7 +5554,7 @@ pub fn select_clause_element() -> Arc<dyn Matchable> {
 fn lexer_matchers() -> Vec<Matcher> {
     vec![
         Matcher::regex("whitespace", r"[^\S\r\n]+", |slice, marker| {
-            WhitespaceSegment::create(slice, marker.into(), WhitespaceSegmentNewArgs {})
+            WhitespaceSegment::create(0, slice, marker.into(), WhitespaceSegmentNewArgs {})
         }),
         Matcher::regex("inline_comment", r"(--|#)[^\n]*", |slice, marker| {
             CommentSegment::create(
@@ -5527,7 +5577,7 @@ fn lexer_matchers() -> Vec<Matcher> {
             NewlineSegment::create(slice, marker.into(), NewlineSegmentNewArgs {})
         }))
         .post_subdivide(Pattern::regex("whitespace", r"[^\S\r\n]+", |slice, marker| {
-            WhitespaceSegment::create(slice, marker.into(), WhitespaceSegmentNewArgs {})
+            WhitespaceSegment::create(0, slice, marker.into(), WhitespaceSegmentNewArgs {})
         })),
         Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", |slice, marker| {
             CodeSegment::create(
@@ -5918,12 +5968,17 @@ pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileSegment;
 impl FileSegment {
-    pub fn of(dialect: DialectKind, segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Node::new(dialect, SyntaxKind::File, segments, true).to_erased_segment()
+    pub fn of(
+        tables: &Tables,
+        dialect: DialectKind,
+        segments: Vec<ErasedSegment>,
+    ) -> ErasedSegment {
+        Node::new(tables.next_id(), dialect, SyntaxKind::File, segments, true).to_erased_segment()
     }
 
     pub fn root_parse(
         &self,
+        tables: &Tables,
         dialect: DialectKind,
         segments: &[ErasedSegment],
         parse_context: &mut ParseContext,
@@ -5937,7 +5992,7 @@ impl FileSegment {
             .map_or(start_idx, |idx| idx as u32 + 1);
 
         if start_idx == end_idx {
-            return Ok(FileSegment::of(dialect, segments.to_vec()));
+            return Ok(FileSegment::of(tables, dialect, segments.to_vec()));
         }
 
         let final_seg = segments.last().unwrap();
@@ -5953,11 +6008,12 @@ impl FileSegment {
 
         let match_span = match_result.span;
         let has_match = match_result.has_match();
-        let mut matched = match_result.apply(dialect, segments);
+        let mut matched = match_result.apply(tables, dialect, segments);
         let unmatched = &segments[match_span.end as usize..end_idx as usize];
 
         let content: &[ErasedSegment] = if !has_match {
             &[Node::new(
+                tables.next_id(),
                 dialect,
                 SyntaxKind::Unparsable,
                 segments[start_idx as usize..end_idx as usize].to_vec(),
@@ -5970,7 +6026,8 @@ impl FileSegment {
 
             matched.extend_from_slice(head);
             matched.push(
-                Node::new(dialect, SyntaxKind::Unparsable, tail.to_vec(), true).to_erased_segment(),
+                Node::new(tables.next_id(), dialect, SyntaxKind::Unparsable, tail.to_vec(), true)
+                    .to_erased_segment(),
             );
             &matched
         } else {
@@ -5979,6 +6036,7 @@ impl FileSegment {
         };
 
         Ok(Self::of(
+            tables,
             dialect,
             [&segments[..start_idx as usize], content, &segments[end_idx as usize..]].concat(),
         ))
@@ -6406,7 +6464,7 @@ impl JoinClauseSegment {
             Some(const { SyntaxSet::single(SyntaxKind::SelectStatement) }),
             true,
         ) {
-            if join_clause.get_uuid() == join_clause.get_uuid() {
+            if join_clause.id() == join_clause.id() {
                 continue;
             }
 
@@ -6434,6 +6492,7 @@ mod tests {
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
     use crate::core::parser::segments::base::ErasedSegment;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
+    use crate::dialects::ansi::Tables;
     use crate::dialects::SyntaxKind;
     use crate::helpers;
 
@@ -6452,8 +6511,9 @@ mod tests {
 
             let lexer = Lexer::new(&config, None);
 
+            let tables = Tables::default();
             // Assume that the lex function returns a Result with tokens
-            let tokens_result = lexer.lex(StringOrTemplate::String(raw));
+            let tokens_result = lexer.lex(&tables, StringOrTemplate::String(raw));
 
             // Check if lexing was successful, and if not, fail the test
             assert!(tokens_result.is_ok(), "Lexing failed for input: {}", raw);
@@ -6567,8 +6627,9 @@ mod tests {
                 segments.pop();
             }
 
+            let tables = Tables::default();
             let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
-            let mut parsed = match_result.apply(DialectKind::Ansi, &segments);
+            let mut parsed = match_result.apply(&tables, DialectKind::Ansi, &segments);
 
             assert_eq!(parsed.len(), 1, "failed {segment_ref}, {sql_string}");
 
@@ -6594,7 +6655,8 @@ mod tests {
 
         for (raw, err_locations) in tests {
             let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-            let parsed = lnt.parse_string(raw, None, None, None).unwrap();
+            let tables = Tables::default();
+            let parsed = lnt.parse_string(&tables, raw, None, None, None).unwrap();
             assert!(!parsed.violations.is_empty());
 
             let locs: Vec<(usize, usize)> =
@@ -6610,7 +6672,8 @@ mod tests {
             std::fs::read_to_string("test/fixtures/dialects/ansi/select_in_multiline_comment.sql")
                 .expect("Unable to read file");
 
-        let parsed = lnt.parse_string(&file_content, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = lnt.parse_string(&tables, &file_content, None, None, None).unwrap();
 
         for raw_seg in parsed.tree.unwrap().get_raw_segments() {
             if raw_seg.is_type(SyntaxKind::Whitespace) || raw_seg.is_type(SyntaxKind::Newline) {
@@ -6631,7 +6694,8 @@ mod tests {
         let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
 
         for (sql_string, meta_loc) in cases {
-            let parsed = lnt.parse_string(sql_string, None, None, None).unwrap();
+            let tables = Tables::default();
+            let parsed = lnt.parse_string(&tables, sql_string, None, None, None).unwrap();
             let tree = parsed.tree.unwrap();
 
             let res_meta_locs = tree
@@ -6646,7 +6710,8 @@ mod tests {
     }
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

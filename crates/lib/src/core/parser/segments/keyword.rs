@@ -1,7 +1,6 @@
 use std::borrow::Cow;
 
 use smol_str::SmolStr;
-use uuid::Uuid;
 
 use super::base::{ErasedSegment, Segment};
 use super::fix::SourceFix;
@@ -12,19 +11,20 @@ use crate::helpers::ToErasedSegment;
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct KeywordSegment {
     raw: SmolStr,
-    uuid: Uuid,
+    id: u32,
     position_marker: Option<PositionMarker>,
 }
 
 impl KeywordSegment {
-    pub fn new(raw: SmolStr, position_marker: Option<PositionMarker>) -> Self {
-        Self { raw, uuid: Uuid::new_v4(), position_marker }
+    pub fn new(id: u32, raw: SmolStr, position_marker: Option<PositionMarker>) -> Self {
+        Self { raw, id, position_marker }
     }
 }
 
 impl Segment for KeywordSegment {
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        KeywordSegment::new(self.raw.clone(), self.position_marker.clone()).to_erased_segment()
+        KeywordSegment::new(self.id(), self.raw.clone(), self.position_marker.clone())
+            .to_erased_segment()
     }
 
     fn raw(&self) -> Cow<str> {
@@ -59,8 +59,12 @@ impl Segment for KeywordSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -68,7 +72,7 @@ impl Segment for KeywordSegment {
     }
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        Self::new(raw.unwrap().into(), self.get_position_marker()).to_erased_segment()
+        Self::new(self.id, raw.unwrap().into(), self.get_position_marker()).to_erased_segment()
     }
 
     fn class_types(&self) -> SyntaxSet {

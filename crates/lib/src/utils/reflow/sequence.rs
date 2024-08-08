@@ -11,6 +11,7 @@ use super::reindent::{construct_single_indent, lint_indent_points, lint_line_len
 use crate::core::config::FluffConfig;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
 
 pub struct ReflowSequence<'a> {
@@ -235,12 +236,13 @@ impl<'a> ReflowSequence<'a> {
         }
     }
 
-    pub fn respace(mut self, strip_newlines: bool, filter: Filter) -> Self {
+    pub fn respace(mut self, tables: &Tables, strip_newlines: bool, filter: Filter) -> Self {
         let mut lint_results = take(&mut self.lint_results);
         let mut new_elements = Vec::new();
 
         for (point, pre, post) in self.iter_points_with_constraints() {
             let (new_lint_results, mut new_point) = point.respace_point(
+                tables,
                 pre,
                 post,
                 &self.root_segment,
@@ -282,13 +284,14 @@ impl<'a> ReflowSequence<'a> {
         self
     }
 
-    pub fn rebreak(self) -> Self {
+    pub fn rebreak(self, tables: &Tables) -> Self {
         if !self.lint_results.is_empty() {
             panic!("rebreak cannot currently handle pre-existing embodied fixes");
         }
 
         // Delegate to the rebreak algorithm
-        let (elem_buff, lint_results) = rebreak_sequence(self.elements, self.root_segment.clone());
+        let (elem_buff, lint_results) =
+            rebreak_sequence(tables, self.elements, self.root_segment.clone());
 
         ReflowSequence {
             root_segment: self.root_segment,
@@ -352,7 +355,7 @@ impl<'a> ReflowSequence<'a> {
         }
     }
 
-    pub fn reindent(self) -> Self {
+    pub fn reindent(self, tables: &Tables) -> Self {
         if !self.lint_results.is_empty() {
             panic!("reindent cannot currently handle pre-existing embodied fixes");
         }
@@ -360,6 +363,7 @@ impl<'a> ReflowSequence<'a> {
         let single_indent = construct_single_indent(self.reflow_config.indent_unit);
 
         let (elements, indent_results) = lint_indent_points(
+            tables,
             self.elements,
             &single_indent,
             <_>::default(),
@@ -375,7 +379,7 @@ impl<'a> ReflowSequence<'a> {
         }
     }
 
-    pub fn break_long_lines(self) -> Self {
+    pub fn break_long_lines(self, tables: &Tables) -> Self {
         if !self.lint_results.is_empty() {
             panic!("break_long_lines cannot currently handle pre-existing embodied fixes");
         }
@@ -383,6 +387,7 @@ impl<'a> ReflowSequence<'a> {
         let single_indent = construct_single_indent(self.reflow_config.indent_unit);
 
         let (elements, length_results) = lint_line_length(
+            tables,
             &self.elements,
             &self.root_segment,
             &single_indent,

@@ -15,6 +15,7 @@ use crate::core::parser::segments::base::{
     WhitespaceSegmentNewArgs,
 };
 use crate::core::templaters::base::TemplatedFile;
+use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 
@@ -27,13 +28,15 @@ pub fn bracket_segments() -> Vec<ErasedSegment> {
 }
 
 pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
+    let tables = Tables::default();
     let linter = Linter::new(<_>::default(), None, None);
-    linter.parse_string(sql, None, None, None).unwrap().tree.unwrap()
+    linter.parse_string(&tables, sql, None, None, None).unwrap().tree.unwrap()
 }
 
 pub fn lex(config: &FluffConfig, string: &str) -> Vec<ErasedSegment> {
     let lexer = Lexer::new(config, None);
-    let (segments, errors) = lexer.lex(StringOrTemplate::String(string)).unwrap();
+    let tables = Tables::default();
+    let (segments, errors) = lexer.lex(&tables, StringOrTemplate::String(string)).unwrap();
     assert_eq!(errors, &[]);
     segments
 }
@@ -69,8 +72,11 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
             None,
         );
 
+        let tables = Tables::default();
+
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
             WhitespaceSegment::create(
+                tables.next_id(),
                 elem,
                 position_marker.clone().into(),
                 WhitespaceSegmentNewArgs,
@@ -79,6 +85,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
             NewlineSegment::create(elem, position_marker.clone().into(), NewlineSegmentNewArgs {})
         } else if elem == "(" || elem == ")" {
             SymbolSegment::create(
+                tables.next_id(),
                 elem,
                 position_marker.clone().into(),
                 SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
@@ -168,7 +175,7 @@ pub fn make_result_tuple(
             .map(|elem| {
                 let raw = elem.raw();
                 if matcher_keywords.contains(&&*raw) {
-                    KeywordSegment::new(raw.into(), elem.get_position_marker().unwrap().into())
+                    KeywordSegment::new(0, raw.into(), elem.get_position_marker().unwrap().into())
                         .to_erased_segment()
                 } else {
                     elem.clone()

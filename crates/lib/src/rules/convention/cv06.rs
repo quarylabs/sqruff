@@ -10,6 +10,7 @@ use crate::core::rules::base::{
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::segments::Segments;
 
@@ -77,10 +78,11 @@ FROM foo;
                 // First we can simply handle the case of existing semi-colon alignment.
                 // If it's a terminator then we know it's raw.
 
-                res = self.handle_semicolon(segment.clone(), context.segment.clone());
+                res =
+                    self.handle_semicolon(context.tables, segment.clone(), context.segment.clone());
             } else if self.require_final_semicolon && idx == context.segment.segments().len() - 1 {
                 // Otherwise, handle the end of the file separately.
-                res = self.ensure_final_semicolon(context.segment.clone());
+                res = self.ensure_final_semicolon(context.tables, context.segment.clone());
             }
             if let Some(res) = res {
                 results.push(res);
@@ -154,6 +156,7 @@ impl RuleCV06 {
 
     fn handle_semicolon(
         &self,
+        tables: &Tables,
         target_segment: ErasedSegment,
         parent_segment: ErasedSegment,
     ) -> Option<LintResult> {
@@ -161,14 +164,15 @@ impl RuleCV06 {
         let semicolon_newline = if !info.is_one_line { self.multiline_newline } else { false };
 
         if !semicolon_newline {
-            self.handle_semicolon_same_line(target_segment, parent_segment, info)
+            self.handle_semicolon_same_line(tables, target_segment, parent_segment, info)
         } else {
-            self.handle_semicolon_newline(target_segment, parent_segment, info)
+            self.handle_semicolon_newline(tables, target_segment, parent_segment, info)
         }
     }
 
     fn handle_semicolon_same_line(
         &self,
+        tables: &Tables,
         target_segment: ErasedSegment,
         parent_segment: ErasedSegment,
         info: SegmentMoveContext,
@@ -186,6 +190,7 @@ impl RuleCV06 {
             info.anchor_segment.clone(),
             info.whitespace_deletions,
             vec![SymbolSegment::create(
+                tables.next_id(),
                 ";",
                 None,
                 SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
@@ -236,6 +241,7 @@ impl RuleCV06 {
 
     fn handle_semicolon_newline(
         &self,
+        tables: &Tables,
         target_segment: ErasedSegment,
         parent_segment: ErasedSegment,
         info: SegmentMoveContext,
@@ -266,6 +272,7 @@ impl RuleCV06 {
                 vec![
                     NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
                     SymbolSegment::create(
+                        tables.next_id(),
                         ";",
                         None,
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
@@ -282,6 +289,7 @@ impl RuleCV06 {
                 vec![
                     NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
                     SymbolSegment::create(
+                        tables.next_id(),
                         ";",
                         None,
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
@@ -312,7 +320,7 @@ impl RuleCV06 {
         if AHashSet::from_iter(whitespace_deletions.base.clone()).contains(&anchor_segment) {
             lintfix_fn = LintFix::replace;
             whitespace_deletions = whitespace_deletions.select(
-                Some(|it: &ErasedSegment| it.get_uuid() != anchor_segment.get_uuid()),
+                Some(|it: &ErasedSegment| it.id() != anchor_segment.id()),
                 None,
                 None,
                 None,
@@ -327,7 +335,11 @@ impl RuleCV06 {
         fixes
     }
 
-    fn ensure_final_semicolon(&self, parent_segment: ErasedSegment) -> Option<LintResult> {
+    fn ensure_final_semicolon(
+        &self,
+        tables: &Tables,
+        parent_segment: ErasedSegment,
+    ) -> Option<LintResult> {
         // Iterate backwards over complete stack to find
         // if the final semi-colon is already present.
         let mut anchor_segment = parent_segment.segments().last().cloned();
@@ -363,6 +375,7 @@ impl RuleCV06 {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.unwrap().clone(),
                     vec![SymbolSegment::create(
+                        tables.next_id(),
                         ";",
                         None,
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
@@ -389,6 +402,7 @@ impl RuleCV06 {
                     vec![
                         NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
                         SymbolSegment::create(
+                            tables.next_id(),
                             ";",
                             None,
                             SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
@@ -497,12 +511,10 @@ pub fn choose_anchor_segment(
         children_lists.push(seg.segments().to_vec());
         for children in children_lists {
             match edit_type {
-                EditType::CreateBefore if children[0].get_uuid() == child.get_uuid() => {
+                EditType::CreateBefore if children[0].id() == child.id() => {
                     unreachable!()
                 }
-                EditType::CreateAfter
-                    if children.last().unwrap().get_uuid() == child.get_uuid() =>
-                {
+                EditType::CreateAfter if children.last().unwrap().id() == child.id() => {
                     anchor = seg.clone();
                     child = seg;
                     break;

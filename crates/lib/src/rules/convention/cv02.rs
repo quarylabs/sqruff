@@ -6,6 +6,7 @@ use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, Ru
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
+use crate::helpers::Config;
 
 /// Prefer using `COALESCE` over `IFNULL` or `NVL`.
 ///
@@ -94,11 +95,15 @@ FROM baz;
         // Create fix to replace "IFNULL" or "NVL" with "COALESCE".
         let fix = LintFix::replace(
             context.segment.clone(),
-            vec![SymbolSegment::create(
-                "COALESCE",
-                None,
-                SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
-            )],
+            vec![
+                SymbolSegment::create(
+                    context.tables.next_id(),
+                    "COALESCE",
+                    None,
+                    SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
+                )
+                .config(|this| this.get_mut().set_id(context.tables.next_id())),
+            ],
             None,
         );
 

@@ -138,6 +138,7 @@ from foo
                 vec![LintFix::replace(
                     context.segment,
                     vec![SymbolSegment::create(
+                        context.tables.next_id(),
                         &fixed_string,
                         None,
                         SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },

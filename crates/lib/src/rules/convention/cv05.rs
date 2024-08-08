@@ -141,10 +141,18 @@ WHERE a IS NULL
         for item in edit {
             match item {
                 CorrectionListItem::KeywordSegment(keyword) => {
-                    seg.push(KeywordSegment::new(keyword.into(), None).to_erased_segment());
+                    seg.push(
+                        KeywordSegment::new(context.tables.next_id(), keyword.into(), None)
+                            .to_erased_segment(),
+                    );
                 }
                 CorrectionListItem::WhitespaceSegment => {
-                    seg.push(WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs));
+                    seg.push(WhitespaceSegment::create(
+                        context.tables.next_id(),
+                        " ",
+                        None,
+                        WhitespaceSegmentNewArgs,
+                    ));
                 }
             };
         }
@@ -156,7 +164,7 @@ WHERE a IS NULL
             context.config.unwrap(),
         )
         .replace(context.segment.clone(), &seg)
-        .respace(false, Filter::All)
+        .respace(context.tables, false, Filter::All)
         .fixes();
 
         vec![LintResult::new(Some(context.segment.clone()), fixes, None, None, None)]

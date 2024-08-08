@@ -111,8 +111,14 @@ SELECT a, b FROM table_2
                 vec![LintFix::create_after(
                     context.segment.segments()[0].clone(),
                     vec![
-                        WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-                        KeywordSegment::new(outer_keyword.into(), None).to_erased_segment(),
+                        WhitespaceSegment::create(
+                            context.tables.next_id(),
+                            " ",
+                            None,
+                            WhitespaceSegmentNewArgs,
+                        ),
+                        KeywordSegment::new(context.tables.next_id(), outer_keyword.into(), None)
+                            .to_erased_segment(),
                     ],
                     None,
                 )],
@@ -134,8 +140,14 @@ SELECT a, b FROM table_2
                 vec![LintFix::create_before(
                     context.segment.segments()[0].clone(),
                     vec![
-                        KeywordSegment::new(inner_keyword.into(), None).to_erased_segment(),
-                        WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+                        KeywordSegment::new(context.tables.next_id(), inner_keyword.into(), None)
+                            .to_erased_segment(),
+                        WhitespaceSegment::create(
+                            context.tables.next_id(),
+                            " ",
+                            None,
+                            WhitespaceSegmentNewArgs,
+                        ),
                     ],
                 )],
                 None,

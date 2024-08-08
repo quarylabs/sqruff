@@ -286,6 +286,7 @@ pub fn snowflake_dialect() -> Dialect {
                 "=>",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::ParameterAssigner },
@@ -304,6 +305,7 @@ pub fn snowflake_dialect() -> Dialect {
                 "->",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionAssigner },
@@ -322,6 +324,7 @@ pub fn snowflake_dialect() -> Dialect {
                 ":=",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::AssignmentOperator },
@@ -380,6 +383,7 @@ pub fn snowflake_dialect() -> Dialect {
                 SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::SemiStructuredElement },
@@ -693,6 +697,7 @@ pub fn snowflake_dialect() -> Dialect {
                 SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
@@ -711,6 +716,7 @@ pub fn snowflake_dialect() -> Dialect {
                 SyntaxKind::SingleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
@@ -729,6 +735,7 @@ pub fn snowflake_dialect() -> Dialect {
                 SyntaxKind::DollarQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
@@ -823,6 +830,7 @@ pub fn snowflake_dialect() -> Dialect {
                 SyntaxKind::UnquotedFilePath,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::UnquotedFilePath },
@@ -1037,6 +1045,7 @@ pub fn snowflake_dialect() -> Dialect {
                 "{-",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
@@ -1057,6 +1066,7 @@ pub fn snowflake_dialect() -> Dialect {
                 "-}",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
@@ -1077,6 +1087,7 @@ pub fn snowflake_dialect() -> Dialect {
                 "?",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
@@ -1097,6 +1108,7 @@ pub fn snowflake_dialect() -> Dialect {
                 "^",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
@@ -1117,6 +1129,7 @@ pub fn snowflake_dialect() -> Dialect {
                 "$",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs {
@@ -1261,6 +1274,7 @@ pub fn snowflake_dialect() -> Dialect {
                     "[a-zA-Z_][a-zA-Z0-9_$]*",
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -4951,6 +4965,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "'bucket-owner-full-control'",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::Literal },
@@ -5481,6 +5496,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "'CSV'",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5494,6 +5510,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "CSV",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5607,6 +5624,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "'JSON'",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5620,6 +5638,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "JSON",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5707,6 +5726,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "'AVRO'",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5720,6 +5740,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "AVRO",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5772,6 +5793,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "'ORC'",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5785,6 +5807,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "ORC",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5832,6 +5855,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "'PARQUET'",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5845,6 +5869,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "PARQUET",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5901,6 +5926,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "'XML'",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -5914,6 +5940,7 @@ pub fn snowflake_dialect() -> Dialect {
                                 "XML",
                                 |segment: &dyn Segment| {
                                     SymbolSegment::create(
+                                        segment.id(),
                                         &segment.raw(),
                                         segment.get_position_marker().unwrap().into(),
                                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
@@ -8281,10 +8308,12 @@ mod tests {
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::linter::Linter;
     use crate::core::parser::segments::base::ErasedSegment;
+    use crate::dialects::ansi::Tables;
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

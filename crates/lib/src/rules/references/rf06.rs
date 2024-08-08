@@ -201,6 +201,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 vec![LintFix::replace(
                     context.segment.clone(),
                     vec![IdentifierSegment::create(
+                        context.tables.next_id(),
                         &identifier_contents,
                         None,
                         CodeSegmentNewArgs {

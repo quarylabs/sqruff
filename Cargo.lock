@@ -748,10 +748,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4567c8db10ae91089c99af84c68c38da3ec2f087c3f82960bcdbf3656b6f4d7"
 dependencies = [
  "cfg-if",
- "js-sys",
  "libc",
  "wasi",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -1752,7 +1750,6 @@ dependencies = [
  "tikv-jemallocator",
  "tracing",
  "unicase",
- "uuid",
  "walkdir",
 ]
 
@@ -2091,10 +2088,6 @@ name = "uuid"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81dfa00651efa65069b0b6b651f4aaa31ba9e3c3ce0137aaad053604ee7e0314"
-dependencies = [
- "getrandom",
- "wasm-bindgen",
-]
 
 [[package]]
 name = "valuable"

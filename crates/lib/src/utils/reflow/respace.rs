@@ -7,6 +7,7 @@ use crate::core::parser::segments::base::{
     ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::rules::base::{EditType, LintFix, LintResult};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::reflow::config::Spacing;
 use crate::utils::reflow::helpers::pretty_segment_name;
@@ -401,8 +402,9 @@ pub fn handle_respace_inline_with_space(
     unimplemented!("Unexpected Constraints: {pre_constraint:?}, {post_constraint:?}");
 }
 
-#[allow(unused_variables)]
+#[allow(clippy::too_many_arguments)]
 pub fn handle_respace_inline_without_space(
+    tables: &Tables,
     pre_constraint: Spacing,
     post_constraint: Spacing,
     prev_block: Option<&ReflowBlock>,
@@ -417,7 +419,8 @@ pub fn handle_respace_inline_without_space(
         return (segment_buffer, existing_results, false);
     }
 
-    let added_whitespace = WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {});
+    let added_whitespace =
+        WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {});
 
     // Add it to the buffer first (the easy bit). The hard bit is to then determine
     // how to generate the appropriate LintFix objects.
@@ -452,7 +455,7 @@ pub fn handle_respace_inline_without_space(
         'outer: for (result_idx, res) in enumerate(&existing_results) {
             for (fix_idx, fix) in enumerate(&res.fixes) {
                 if let Some(edits) = &fix.edit {
-                    if edits.iter().any(|e| e.get_uuid() == insertion.unwrap().get_uuid()) {
+                    if edits.iter().any(|e| e.id() == insertion.unwrap().id()) {
                         res_found = Some(result_idx);
                         fix_found = Some(fix_idx);
                         break 'outer;
@@ -513,7 +516,12 @@ pub fn handle_respace_inline_without_space(
             next_block.segments[0].clone().into(),
             vec![LintFix::create_before(
                 next_block.segments[0].clone(),
-                vec![WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs)],
+                vec![WhitespaceSegment::create(
+                    tables.next_id(),
+                    " ",
+                    None,
+                    WhitespaceSegmentNewArgs,
+                )],
             )],
             None,
             Some(desc),
@@ -535,6 +543,7 @@ mod tests {
 
     use crate::core::parser::segments::test_functions::parse_ansi_string;
     use crate::core::rules::base::EditType;
+    use crate::dialects::ansi::Tables;
     use crate::helpers::enter_panic;
     use crate::utils::reflow::helpers::fixes_from_results;
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};
@@ -554,12 +563,13 @@ mod tests {
             ("select  \n  1   +   2 \n ", (false, Filter::Newline), "select\n  1   +   2\n"),
         ];
 
+        let tables = Tables::default();
         for (raw_sql_in, (strip_newlines, filter), raw_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
             let config = <_>::default();
             let seq = ReflowSequence::from_root(root, &config);
 
-            let new_seq = seq.respace(strip_newlines, filter);
+            let new_seq = seq.respace(&tables, strip_newlines, filter);
             assert_eq!(new_seq.raw(), raw_sql_out);
         }
     }
@@ -600,6 +610,7 @@ mod tests {
             ),
         ];
 
+        let tables = Tables::default();
         for (raw_sql_in, point_idx, strip_newlines, raw_point_sql_out, fixes_out) in cases {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
@@ -609,6 +620,7 @@ mod tests {
             let pnt = seq.elements()[point_idx].as_point().unwrap();
 
             let (results, new_pnt) = pnt.respace_point(
+                &tables,
                 seq.elements()[point_idx - 1].as_block(),
                 seq.elements()[point_idx + 1].as_block(),
                 &root,

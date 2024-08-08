@@ -1,5 +1,4 @@
 use smol_str::SmolStr;
-use uuid::Uuid;
 
 use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
@@ -13,7 +12,7 @@ pub struct RawSegment {
     position_marker: Option<PositionMarker>,
 
     // From BaseSegment
-    uuid: Uuid,
+    id: u32,
 }
 
 pub struct RawSegmentArgs {
@@ -22,7 +21,7 @@ pub struct RawSegmentArgs {
     pub _trim_start: Option<Vec<String>>,
     pub _trim_cars: Option<Vec<String>>,
     pub _source_fixes: Option<Vec<SourceFix>>,
-    pub _uuid: Option<Uuid>,
+    pub _uuid: Option<u32>,
 }
 
 impl RawSegment {
@@ -34,7 +33,7 @@ impl RawSegment {
         // we suggest using the `instance_types` option.
         _args: RawSegmentArgs,
     ) -> Self {
-        Self { position_marker, raw: raw.map(Into::into), uuid: Uuid::new_v4() }
+        Self { position_marker, raw: raw.map(Into::into), id: 0 }
     }
 }
 
@@ -71,8 +70,12 @@ impl Segment for RawSegment {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {

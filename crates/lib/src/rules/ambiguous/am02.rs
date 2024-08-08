@@ -76,9 +76,16 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                KeywordSegment::new("union".into(), None).to_erased_segment(),
-                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-                KeywordSegment::new("distinct".into(), None).to_erased_segment(),
+                KeywordSegment::new(rule_cx.tables.next_id(), "union".into(), None)
+                    .to_erased_segment(),
+                WhitespaceSegment::create(
+                    rule_cx.tables.next_id(),
+                    " ",
+                    None,
+                    WhitespaceSegmentNewArgs,
+                ),
+                KeywordSegment::new(rule_cx.tables.next_id(), "distinct".into(), None)
+                    .to_erased_segment(),
             ];
 
             let segments = rule_cx.segment.clone();
@@ -89,9 +96,16 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                KeywordSegment::new("UNION".into(), None).to_erased_segment(),
-                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-                KeywordSegment::new("DISTINCT".into(), None).to_erased_segment(),
+                KeywordSegment::new(rule_cx.tables.next_id(), "UNION".into(), None)
+                    .to_erased_segment(),
+                WhitespaceSegment::create(
+                    rule_cx.tables.next_id(),
+                    " ",
+                    None,
+                    WhitespaceSegmentNewArgs,
+                ),
+                KeywordSegment::new(rule_cx.tables.next_id(), "DISTINCT".into(), None)
+                    .to_erased_segment(),
             ];
 
             let segments = rule_cx.segment.clone();

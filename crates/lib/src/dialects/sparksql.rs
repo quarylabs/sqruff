@@ -245,6 +245,7 @@ pub fn sparksql_dialect() -> Dialect {
                     SyntaxKind::SingleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -258,6 +259,7 @@ pub fn sparksql_dialect() -> Dialect {
                     SyntaxKind::DoubleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -459,6 +461,7 @@ pub fn sparksql_dialect() -> Dialect {
                 SyntaxKind::FileLiteral,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileLiteral },
@@ -477,6 +480,7 @@ pub fn sparksql_dialect() -> Dialect {
                 SyntaxKind::BackQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
@@ -517,6 +521,7 @@ pub fn sparksql_dialect() -> Dialect {
                 SyntaxKind::SingleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::SemiStructuredElement },
@@ -535,6 +540,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "->",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -553,6 +559,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "BINARYFILE",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
@@ -571,6 +578,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "JSONFILE",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
@@ -589,6 +597,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "RCFILE",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
@@ -607,6 +616,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "SEQUENCEFILE",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
@@ -625,6 +635,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "TEXTFILE",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
@@ -643,6 +654,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "<",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StartAngleBracket },
@@ -661,6 +673,7 @@ pub fn sparksql_dialect() -> Dialect {
                 ">",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::EndAngleBracket },
@@ -679,6 +692,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "==",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::ComparisonOperator },
@@ -697,6 +711,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "<=>",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::ComparisonOperator },
@@ -757,6 +772,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "NOSCAN",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Keyword },
@@ -775,6 +791,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "WHL",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::FileKeyword },
@@ -932,6 +949,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "/*+",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StartHint },
@@ -950,6 +968,7 @@ pub fn sparksql_dialect() -> Dialect {
                 "*/",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::EndHint },
@@ -1118,6 +1137,7 @@ pub fn sparksql_dialect() -> Dialect {
                     SyntaxKind::BytesSingleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::BytesQuotedLiteral },
@@ -1131,6 +1151,7 @@ pub fn sparksql_dialect() -> Dialect {
                     SyntaxKind::BytesDoubleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::BytesQuotedLiteral },
@@ -1175,6 +1196,7 @@ pub fn sparksql_dialect() -> Dialect {
                 SyntaxKind::AtSignLiteral,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::AtSignLiteral },
@@ -1194,6 +1216,7 @@ pub fn sparksql_dialect() -> Dialect {
                     SyntaxKind::SingleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::SignedQuotedLiteral },
@@ -1207,6 +1230,7 @@ pub fn sparksql_dialect() -> Dialect {
                     SyntaxKind::DoubleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::SignedQuotedLiteral },
@@ -1370,6 +1394,7 @@ pub fn sparksql_dialect() -> Dialect {
                         "-",
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::Dash },
@@ -1383,6 +1408,7 @@ pub fn sparksql_dialect() -> Dialect {
                         "v",
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::SqlConfOption },
@@ -3519,6 +3545,7 @@ pub fn sparksql_dialect() -> Dialect {
                         "symlink_format_manifest",
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::SymlinkFormatManifest },
@@ -3850,10 +3877,12 @@ mod tests {
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::linter::Linter;
     use crate::core::parser::segments::base::ErasedSegment;
+    use crate::dialects::ansi::Tables;
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

@@ -119,7 +119,7 @@ FROM foo AS voo
                             rule_cx.config.unwrap(),
                         )
                         .without(as_keyword)
-                        .respace(false, Filter::All)
+                        .respace(rule_cx.tables, false, Filter::All)
                         .fixes(),
                         None,
                         None,
@@ -143,11 +143,12 @@ FROM foo AS voo
                         rule_cx.config.unwrap(),
                     )
                     .insert(
-                        KeywordSegment::new("AS".into(), None).to_erased_segment(),
+                        KeywordSegment::new(rule_cx.tables.next_id(), "AS".into(), None)
+                            .to_erased_segment(),
                         identifier,
                         ReflowInsertPosition::Before,
                     )
-                    .respace(false, Filter::All)
+                    .respace(rule_cx.tables, false, Filter::All)
                     .fixes(),
                     None,
                     None,

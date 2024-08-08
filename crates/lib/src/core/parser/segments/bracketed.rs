@@ -3,7 +3,6 @@ use std::cell::OnceCell;
 
 use ahash::AHashSet;
 use itertools::Itertools;
-use uuid::Uuid;
 
 use super::base::{pos_marker, ErasedSegment, PathStep, Segment};
 use crate::core::errors::SQLParseError;
@@ -21,7 +20,7 @@ pub struct BracketedSegment {
     pub start_bracket: Vec<ErasedSegment>,
     pub end_bracket: Vec<ErasedSegment>,
     pub pos_marker: Option<PositionMarker>,
-    pub uuid: Uuid,
+    pub id: u32,
     descendant_type_set: OnceCell<SyntaxSet>,
     raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
 }
@@ -46,7 +45,7 @@ impl BracketedSegment {
             start_bracket,
             end_bracket,
             pos_marker: None,
-            uuid: Uuid::new_v4(),
+            id: 0,
             raw: OnceCell::new(),
             descendant_type_set: OnceCell::new(),
             raw_segments_with_ancestors: OnceCell::new(),
@@ -79,7 +78,7 @@ impl Segment for BracketedSegment {
             start_bracket: self.start_bracket.clone(),
             end_bracket: self.end_bracket.clone(),
             pos_marker: self.pos_marker.clone(),
-            uuid: self.uuid,
+            id: self.id,
             descendant_type_set: self.descendant_type_set.clone(),
             raw_segments_with_ancestors: self.raw_segments_with_ancestors.clone(),
         }
@@ -122,8 +121,12 @@ impl Segment for BracketedSegment {
         self.segments = segments;
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn class_types(&self) -> SyntaxSet {

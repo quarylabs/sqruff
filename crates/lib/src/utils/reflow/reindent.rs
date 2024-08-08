@@ -13,6 +13,7 @@ use crate::core::parser::segments::base::{
     ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::skip_last;
 use crate::utils::reflow::elements::IndentStats;
@@ -526,6 +527,7 @@ fn deduce_line_current_indent(
 }
 
 fn lint_line_starting_indent(
+    tables: &Tables,
     elements: &mut ReflowSequenceType,
     indent_line: &IndentLine,
     single_indent: &str,
@@ -593,7 +595,7 @@ fn lint_line_starting_indent(
             ReflowPoint::new(Vec::new()),
         )
     } else {
-        initial_point.indent_to(&desired_starting_indent, None, before.into(), None, None)
+        initial_point.indent_to(tables, &desired_starting_indent, None, before.into(), None, None)
     };
 
     elements[initial_point_idx] = new_point.into();
@@ -602,6 +604,7 @@ fn lint_line_starting_indent(
 }
 
 fn lint_line_untaken_positive_indents(
+    tables: &Tables,
     elements: &mut [ReflowElement],
     indent_line: &IndentLine,
     single_indent: &str,
@@ -616,6 +619,7 @@ fn lint_line_untaken_positive_indents(
             let target_point = elements[ip.idx].as_point().unwrap();
 
             let (results, new_point) = target_point.indent_to(
+                tables,
                 &desired_indent,
                 None,
                 Some(elements[ip.idx + 1].segments()[0].clone()),
@@ -691,6 +695,7 @@ fn lint_line_untaken_positive_indents(
     let target_point = elements[target_point_idx].as_point().unwrap();
 
     let (results, new_point) = target_point.indent_to(
+        tables,
         &desired_indent,
         None,
         Some(elements[target_point_idx + 1].segments()[0].clone()),
@@ -704,6 +709,7 @@ fn lint_line_untaken_positive_indents(
 }
 
 fn lint_line_untaken_negative_indents(
+    tables: &Tables,
     elements: &mut ReflowSequenceType,
     indent_line: &IndentLine,
     single_indent: &str,
@@ -757,6 +763,7 @@ fn lint_line_untaken_negative_indents(
 
         let target_point = elements[ip.idx].as_point().unwrap();
         let (mut new_results, new_point) = target_point.indent_to(
+            tables,
             &desired_indent,
             None,
             elements[ip.idx + 1].segments()[0].clone().into(),
@@ -771,6 +778,7 @@ fn lint_line_untaken_negative_indents(
 }
 
 fn lint_line_buffer_indents(
+    tables: &Tables,
     elements: &mut ReflowSequenceType,
     indent_line: IndentLine,
     single_indent: &str,
@@ -780,10 +788,11 @@ fn lint_line_buffer_indents(
     let mut results = Vec::new();
 
     let mut new_results =
-        lint_line_starting_indent(elements, &indent_line, single_indent, forced_indents);
+        lint_line_starting_indent(tables, elements, &indent_line, single_indent, forced_indents);
     results.append(&mut new_results);
 
     let (mut new_results, mut new_indents) = lint_line_untaken_positive_indents(
+        tables,
         elements,
         &indent_line,
         single_indent,
@@ -797,6 +806,7 @@ fn lint_line_buffer_indents(
     }
 
     results.extend(lint_line_untaken_negative_indents(
+        tables,
         elements,
         &indent_line,
         single_indent,
@@ -809,6 +819,7 @@ fn lint_line_buffer_indents(
 }
 
 pub fn lint_indent_points(
+    tables: &Tables,
     elements: ReflowSequenceType,
     single_indent: &str,
     _skip_indentation_in: AHashSet<String>,
@@ -824,6 +835,7 @@ pub fn lint_indent_points(
 
     for line in lines {
         let line_results = lint_line_buffer_indents(
+            tables,
             &mut elem_buffer,
             line,
             single_indent,
@@ -1015,6 +1027,7 @@ pub enum TrailingComments {
 }
 
 fn fix_long_line_with_comment(
+    tables: &Tables,
     line_buffer: &ReflowSequenceType,
     elements: &ReflowSequenceType,
     current_indent: &str,
@@ -1040,8 +1053,14 @@ fn fix_long_line_with_comment(
     if trailing_comments == TrailingComments::After {
         let mut elements = elements.clone();
         let anchor_point = line_buffer[line_buffer.len() - 2].as_point().unwrap();
-        let (results, new_point) =
-            anchor_point.indent_to(current_indent, None, comment_seg.clone().into(), None, None);
+        let (results, new_point) = anchor_point.indent_to(
+            tables,
+            current_indent,
+            None,
+            comment_seg.clone().into(),
+            None,
+            None,
+        );
         elements.splice(last_elem_idx - 1..last_elem_idx, [new_point.into()].iter().cloned());
         return (elements, fixes_from_results(results.into_iter()).collect());
     }
@@ -1063,7 +1082,12 @@ fn fix_long_line_with_comment(
     if let Some(idx) = last_indent_idx {
         new_point = ReflowPoint::new(vec![
             NewlineSegment::create("\n", None, <_>::default()),
-            WhitespaceSegment::create(current_indent, None, WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(
+                tables.next_id(),
+                current_indent,
+                None,
+                WhitespaceSegmentNewArgs,
+            ),
         ]);
         prev_elems = elements[..=idx].to_vec();
         anchor = elements[idx + 1].segments()[0].clone();
@@ -1090,6 +1114,7 @@ fn fix_long_line_with_comment(
 }
 
 fn fix_long_line_with_fractional_targets(
+    tables: &Tables,
     elements: &mut [ReflowElement],
     target_breaks: Vec<usize>,
     desired_indent: &str,
@@ -1099,6 +1124,7 @@ fn fix_long_line_with_fractional_targets(
     for e_idx in target_breaks {
         let e = elements[e_idx].as_point().unwrap();
         let (new_results, new_point) = e.indent_to(
+            tables,
             desired_indent,
             elements[e_idx - 1].segments().last().cloned(),
             elements[e_idx + 1].segments()[0].clone().into(),
@@ -1114,6 +1140,7 @@ fn fix_long_line_with_fractional_targets(
 }
 
 fn fix_long_line_with_integer_targets(
+    tables: &Tables,
     elements: &mut [ReflowElement],
     mut target_breaks: Vec<usize>,
     line_length_limit: usize,
@@ -1159,6 +1186,7 @@ fn fix_long_line_with_integer_targets(
         };
 
         let (new_results, new_point) = e.indent_to(
+            tables,
             new_indent,
             elements[e_idx - 1].segments().last().cloned(),
             elements[e_idx + 1].segments().first().cloned(),
@@ -1178,6 +1206,7 @@ fn fix_long_line_with_integer_targets(
 }
 
 pub fn lint_line_length(
+    tables: &Tables,
     elements: &ReflowSequenceType,
     root_segment: &ErasedSegment,
     single_indent: &str,
@@ -1248,6 +1277,7 @@ pub fn lint_line_length(
                     .is_type(SyntaxKind::InlineComment)
             {
                 (elem_buffer, fixes) = fix_long_line_with_comment(
+                    tables,
                     &line_buffer,
                     elements,
                     &current_indent,
@@ -1276,6 +1306,7 @@ pub fn lint_line_length(
 
                 let line_results = if target_balance % 1.0 == 0.0 {
                     fix_long_line_with_integer_targets(
+                        tables,
                         &mut elem_buffer,
                         target_breaks,
                         line_length_limit,
@@ -1284,6 +1315,7 @@ pub fn lint_line_length(
                     )
                 } else {
                     fix_long_line_with_fractional_targets(
+                        tables,
                         &mut elem_buffer,
                         target_breaks,
                         &desired_indent,

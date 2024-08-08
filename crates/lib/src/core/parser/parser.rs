@@ -3,7 +3,7 @@ use super::helpers::check_still_complete;
 use super::segments::base::{pos_marker, ErasedSegment};
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLParseError;
-use crate::dialects::ansi::FileSegment;
+use crate::dialects::ansi::{FileSegment, Tables};
 
 /// Instantiates parsed queries from a sequence of lexed raw segments.
 pub struct Parser<'a> {
@@ -22,6 +22,7 @@ impl<'a> Parser<'a> {
 
     pub fn parse(
         &self,
+        tables: &Tables,
         segments: &[ErasedSegment],
         f_name: Option<String>,
         parse_statistics: bool,
@@ -41,6 +42,7 @@ impl<'a> Parser<'a> {
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
         let mut root = self.root_segment.root_parse(
+            tables,
             parse_cx.dialect().name,
             segments,
             &mut parse_cx,
@@ -66,6 +68,7 @@ impl<'a> Parser<'a> {
 mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
+    use crate::dialects::ansi::Tables;
 
     #[test]
     #[ignore]
@@ -73,7 +76,7 @@ mod tests {
         let in_str = "SELECT ;".to_string();
         let config = FluffConfig::new(<_>::default(), None, None);
         let linter = Linter::new(config, None, None);
-
-        let _ = linter.parse_string(&in_str, None, None, None);
+        let tables = Tables::default();
+        let _ = linter.parse_string(&tables, &in_str, None, None, None);
     }
 }

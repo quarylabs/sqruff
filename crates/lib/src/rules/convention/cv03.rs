@@ -113,7 +113,8 @@ FROM foo
         } else if self.select_clause_trailing_comma == "require"
             && !last_content.is_type(SyntaxKind::Comma)
         {
-            let new_comma = SymbolSegment::create(",", None, <_>::default());
+            let new_comma =
+                SymbolSegment::create(rule_cx.tables.next_id(), ",", None, <_>::default());
 
             let fix: Vec<LintFix> = vec![LintFix::replace(
                 last_content.clone(),

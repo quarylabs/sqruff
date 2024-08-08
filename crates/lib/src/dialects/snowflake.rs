@@ -456,19 +456,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map(Into::into)
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::WarehouseSize,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                    SyntaxKind::WarehouseSize
                 ),
                 MultiStringParser::new(
                     snowflake_dialect
@@ -476,19 +464,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::WarehouseSize,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                    SyntaxKind::WarehouseSize
                 )
             ])
             .to_matchable()
@@ -504,19 +480,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map(Into::into)
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::WarehouseSize,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                   SyntaxKind::WarehouseSize
                 ),
                 MultiStringParser::new(
                     snowflake_dialect
@@ -524,19 +488,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::WarehouseSize,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                    SyntaxKind::WarehouseSize
                 )
             ])
             .to_matchable()
@@ -551,19 +503,8 @@ pub fn snowflake_dialect() -> Dialect {
                         .into_iter()
                         .map(Into::into)
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::CompressionType,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                   SyntaxKind::CompressionType
+
                 ),
                 MultiStringParser::new(
                     snowflake_dialect
@@ -571,19 +512,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::CompressionType,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                   SyntaxKind::CompressionType
                 )
             ])
             .to_matchable()
@@ -599,19 +528,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map(Into::into)
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::ScalingPolicy,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                   SyntaxKind::ScalingPolicy
                 ),
                 MultiStringParser::new(
                     snowflake_dialect
@@ -619,19 +536,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::ScalingPolicy,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                   SyntaxKind::ScalingPolicy
                 )
             ])
             .to_matchable()
@@ -797,76 +702,28 @@ pub fn snowflake_dialect() -> Dialect {
             "SnowflakeEncryptionOption".into(),
             MultiStringParser::new(
                 vec!["'SNOWFLAKE_FULL'".into(), "'SNOWFLAKE_SSE'".into()],
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::StageEncryptionOption,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::StageEncryptionOption
             ).to_matchable().into(),
         ),
         (
             "S3EncryptionOption".into(),
             MultiStringParser::new(
                 vec!["'AWS_CSE'".into(), "'AWS_SSE_S3'".into(), "'AWS_SSE_KMS'".into()],
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::StageEncryptionOption,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::StageEncryptionOption
             ).to_matchable().into(),
         ),
         (
             "GCSEncryptionOption".into(),
             MultiStringParser::new(
                 vec!["'GCS_SSE_KMS'".into()],
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::StageEncryptionOption,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::StageEncryptionOption
             ).to_matchable().into(),
         ),
         (
             "AzureBlobStorageEncryptionOption".into(),
             MultiStringParser::new(
                 vec!["'AZURE_CSE'".into()],
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::StageEncryptionOption,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::StageEncryptionOption
             ).to_matchable().into(),
         ),
         (
@@ -879,19 +736,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map(Into::into)
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::FileType,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                   SyntaxKind::FileType
                 ),
                 MultiStringParser::new(
                     snowflake_dialect
@@ -899,19 +744,7 @@ pub fn snowflake_dialect() -> Dialect {
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::FileType,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                  SyntaxKind::FileType
                 )
             ])
             .to_matchable()

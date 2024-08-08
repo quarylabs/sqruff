@@ -864,19 +864,7 @@ pub fn raw_dialect() -> Dialect {
             SegmentGenerator::new(|dialect| {
                 MultiStringParser::new(
                     dialect.sets("bare_functions").into_iter().map(Into::into).collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::BareFunction,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                    SyntaxKind::BareFunction,
                 )
                 .boxed()
             })
@@ -980,19 +968,7 @@ pub fn raw_dialect() -> Dialect {
             SegmentGenerator::new(|dialect| {
                 MultiStringParser::new(
                     dialect.sets("datetime_units").into_iter().map(Into::into).collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::DatePart,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                    SyntaxKind::DatePart,
                 )
                 .boxed()
             })
@@ -1007,16 +983,7 @@ pub fn raw_dialect() -> Dialect {
                         .into_iter()
                         .map(Into::into)
                         .collect::<Vec<_>>(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs::default(),
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                    SyntaxKind::FunctionNameIdentifier,
                 )
                 .boxed()
             })

@@ -247,19 +247,7 @@ pub fn bigquery_dialect() -> Dialect {
                         .into_iter()
                         .map(Into::into)
                         .collect_vec(),
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::DatePart,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
+                    SyntaxKind::WarehouseSize,
                 ))
             })
             .into(),

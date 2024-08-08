@@ -249,18 +249,12 @@ impl Matchable for RegexParser {
 pub struct MultiStringParser {
     templates: AHashSet<String>,
     simple: AHashSet<String>,
-    factory: fn(&dyn Segment) -> ErasedSegment,
+    kind: SyntaxKind,
     cache: MatchableCacheKey,
 }
 
 impl MultiStringParser {
-    pub fn new(
-        templates: Vec<String>,
-        factory: fn(&dyn Segment) -> ErasedSegment,
-        _type_: Option<String>,
-        _optional: bool,
-        _trim_chars: Option<Vec<String>>,
-    ) -> Self {
+    pub fn new(templates: Vec<String>, kind: SyntaxKind) -> Self {
         let templates = templates
             .iter()
             .map(|template| template.to_ascii_uppercase())
@@ -271,7 +265,7 @@ impl MultiStringParser {
         Self {
             templates: templates.into_iter().collect(),
             simple: _simple.into_iter().collect(),
-            factory,
+            kind,
             cache: next_matchable_cache_key(),
         }
     }
@@ -303,7 +297,7 @@ impl Matchable for MultiStringParser {
         if segment.is_code() && self.templates.contains(&segment.raw().to_ascii_uppercase()) {
             return Ok(MatchResult {
                 span: Span { start: idx, end: idx + 1 },
-                matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                matched: Matched::Newtype(self.kind).into(),
                 ..<_>::default()
             });
         }

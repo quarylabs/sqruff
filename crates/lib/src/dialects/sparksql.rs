@@ -661,45 +661,15 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "FileKeywordSegment".into(),
-            MultiStringParser::new(
-                vec!["FILE".into(), "FILES".into()],
-                |segment: &dyn Segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::FileKeyword,
-                            ..CodeSegmentNewArgs::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            MultiStringParser::new(vec!["FILE".into(), "FILES".into()], SyntaxKind::FileKeyword)
+                .to_matchable()
+                .into(),
         ),
         (
             "JarKeywordSegment".into(),
-            MultiStringParser::new(
-                vec!["JAR".into(), "JARS".into()],
-                |segment: &dyn Segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::FileKeyword,
-                            ..CodeSegmentNewArgs::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            MultiStringParser::new(vec!["JAR".into(), "JARS".into()], SyntaxKind::FileKeyword)
+                .to_matchable()
+                .into(),
         ),
         (
             "NoscanKeywordSegment".into(),

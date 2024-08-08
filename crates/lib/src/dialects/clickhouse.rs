@@ -10,9 +10,7 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::TypedParser;
-use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, Segment, SymbolSegment, SymbolSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::dialects::ansi::NodeMatcher;
@@ -97,38 +95,8 @@ pub fn clickhouse_dialect() -> Dialect {
         (
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
-                TypedParser::new(
-                    SyntaxKind::SingleQuote,
-                    |segment: &dyn Segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::QuotedLiteral,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                ),
-                TypedParser::new(
-                    SyntaxKind::DollarQuote,
-                    |segment: &dyn Segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::QuotedLiteral,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                ),
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::QuotedLiteral),
             ])
             .to_matchable()
             .into(),
@@ -234,22 +202,7 @@ pub fn clickhouse_dialect() -> Dialect {
         ),
         (
             "LambdaFunctionSegment".into(),
-            TypedParser::new(
-                SyntaxKind::Lambda,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Lambda },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::Lambda, SyntaxKind::Lambda).to_matchable().into(),
         ),
     ]);
 

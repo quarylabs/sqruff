@@ -554,7 +554,7 @@ file:
           - naked_identifier: uuid
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: $1
+        - dollar_numeric_literal: $1
     - keyword: RETURNING
     - expression:
       - column_reference:

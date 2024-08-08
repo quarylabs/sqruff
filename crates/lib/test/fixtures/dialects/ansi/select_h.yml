@@ -16,7 +16,7 @@ file:
                 - naked_identifier: created_at
             - comma: ','
             - expression:
-              - '': '''America/New_York'''
+              - quoted_literal: '''America/New_York'''
             - end_bracket: )
         - alias_expression:
           - keyword: AS
@@ -41,11 +41,11 @@ file:
                     - keyword: IN
                     - bracketed:
                       - start_bracket: (
-                      - '': '''tech support'''
+                      - quoted_literal: '''tech support'''
                       - comma: ','
-                      - '': '''taskus'''
+                      - quoted_literal: '''taskus'''
                       - comma: ','
-                      - '': '''onc'''
+                      - quoted_literal: '''onc'''
                       - end_bracket: )
                   - keyword: THEN
                   - expression:

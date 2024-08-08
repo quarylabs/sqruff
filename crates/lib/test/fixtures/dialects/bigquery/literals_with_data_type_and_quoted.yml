@@ -105,7 +105,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - keyword: DATE
-        - naked_identifier: '''2014-09-27'''
+        - date_constructor_literal: '''2014-09-27'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -114,11 +114,11 @@ file:
       - select_clause_element:
         - expression:
           - keyword: DATE
-          - naked_identifier: '''2014-09-27'''
+          - date_constructor_literal: '''2014-09-27'''
           - comparison_operator:
             - raw_comparison_operator: =
           - keyword: DATE
-          - naked_identifier: '''2014-09-27'''
+          - date_constructor_literal: '''2014-09-27'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -151,7 +151,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - keyword: TIME
-        - naked_identifier: '''12:30:00.45'''
+        - date_constructor_literal: '''12:30:00.45'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -160,11 +160,11 @@ file:
       - select_clause_element:
         - expression:
           - keyword: TIME
-          - naked_identifier: '''12:30:00.45'''
+          - date_constructor_literal: '''12:30:00.45'''
           - comparison_operator:
             - raw_comparison_operator: =
           - keyword: TIME
-          - naked_identifier: '''12:30:00.45'''
+          - date_constructor_literal: '''12:30:00.45'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -197,7 +197,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - keyword: DATETIME
-        - naked_identifier: '''2014-09-27 12:30:00.45'''
+        - date_constructor_literal: '''2014-09-27 12:30:00.45'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -206,11 +206,11 @@ file:
       - select_clause_element:
         - expression:
           - keyword: DATETIME
-          - naked_identifier: '''2014-09-27 12:30:00.45'''
+          - date_constructor_literal: '''2014-09-27 12:30:00.45'''
           - comparison_operator:
             - raw_comparison_operator: =
           - keyword: DATETIME
-          - naked_identifier: '''2014-09-27 12:30:00.45'''
+          - date_constructor_literal: '''2014-09-27 12:30:00.45'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -243,7 +243,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - keyword: TIMESTAMP
-        - naked_identifier: '''2014-09-27 12:30:00.45-08'''
+        - date_constructor_literal: '''2014-09-27 12:30:00.45-08'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -252,11 +252,11 @@ file:
       - select_clause_element:
         - expression:
           - keyword: TIMESTAMP
-          - naked_identifier: '''2014-09-27 12:30:00.45-08'''
+          - date_constructor_literal: '''2014-09-27 12:30:00.45-08'''
           - comparison_operator:
             - raw_comparison_operator: =
           - keyword: TIMESTAMP
-          - naked_identifier: '''2014-09-27 12:30:00.45-08'''
+          - date_constructor_literal: '''2014-09-27 12:30:00.45-08'''
 - statement_terminator: ;
 - statement:
   - select_statement:

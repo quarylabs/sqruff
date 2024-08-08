@@ -10,7 +10,7 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - '': '''    SparkSQL   '''
+              - quoted_literal: '''    SparkSQL   '''
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -26,7 +26,7 @@ file:
             - keyword: BOTH
             - keyword: FROM
             - expression:
-              - '': '''    SparkSQL   '''
+              - quoted_literal: '''    SparkSQL   '''
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -42,7 +42,7 @@ file:
             - keyword: LEADING
             - keyword: FROM
             - expression:
-              - '': '''    SparkSQL   '''
+              - quoted_literal: '''    SparkSQL   '''
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -58,7 +58,7 @@ file:
             - keyword: TRAILING
             - keyword: FROM
             - expression:
-              - '': '''    SparkSQL   '''
+              - quoted_literal: '''    SparkSQL   '''
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -72,10 +72,10 @@ file:
           - bracketed:
             - start_bracket: (
             - expression:
-              - '': '''SL'''
+              - quoted_literal: '''SL'''
             - keyword: FROM
             - expression:
-              - '': '''SSparkSQLS'''
+              - quoted_literal: '''SSparkSQLS'''
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -90,10 +90,10 @@ file:
             - start_bracket: (
             - keyword: BOTH
             - expression:
-              - '': '''SL'''
+              - quoted_literal: '''SL'''
             - keyword: FROM
             - expression:
-              - '': '''SSparkSQLS'''
+              - quoted_literal: '''SSparkSQLS'''
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -108,10 +108,10 @@ file:
             - start_bracket: (
             - keyword: LEADING
             - expression:
-              - '': '''SL'''
+              - quoted_literal: '''SL'''
             - keyword: FROM
             - expression:
-              - '': '''SSparkSQLS'''
+              - quoted_literal: '''SSparkSQLS'''
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -126,9 +126,9 @@ file:
             - start_bracket: (
             - keyword: TRAILING
             - expression:
-              - '': '''SL'''
+              - quoted_literal: '''SL'''
             - keyword: FROM
             - expression:
-              - '': '''SSparkSQLS'''
+              - quoted_literal: '''SSparkSQLS'''
             - end_bracket: )
 - statement_terminator: ;

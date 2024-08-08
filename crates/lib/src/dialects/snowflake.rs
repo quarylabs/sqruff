@@ -381,17 +381,7 @@ pub fn snowflake_dialect() -> Dialect {
             "QuotedSemiStructuredElementSegment".into(),
             TypedParser::new(
                 SyntaxKind::DoubleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::SemiStructuredElement },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::SemiStructuredElement,
             )
             .to_matchable()
             .into(),
@@ -695,17 +685,7 @@ pub fn snowflake_dialect() -> Dialect {
             "DoubleQuotedUDFBody".into(),
             TypedParser::new(
                 SyntaxKind::DoubleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::UdfBody,
             )
             .to_matchable()
             .into(),
@@ -714,17 +694,7 @@ pub fn snowflake_dialect() -> Dialect {
             "SingleQuotedUDFBody".into(),
             TypedParser::new(
                 SyntaxKind::SingleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::UdfBody,
             )
             .to_matchable()
             .into(),
@@ -733,17 +703,7 @@ pub fn snowflake_dialect() -> Dialect {
             "DollarQuotedUDFBody".into(),
             TypedParser::new(
                 SyntaxKind::DollarQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::UdfBody,
             )
             .to_matchable()
             .into(),
@@ -828,17 +788,7 @@ pub fn snowflake_dialect() -> Dialect {
             "UnquotedFilePath".into(),
             TypedParser::new(
                 SyntaxKind::UnquotedFilePath,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::UnquotedFilePath },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::UnquotedFilePath,
             )
             .to_matchable()
             .into(),
@@ -1428,38 +1378,8 @@ pub fn snowflake_dialect() -> Dialect {
         (
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
-                TypedParser::new(
-                    SyntaxKind::SingleQuote,
-                    |segment: &dyn Segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::QuotedLiteral,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None
-                ),
-                TypedParser::new(
-                    SyntaxKind::DollarQuote,
-                    |segment: &dyn Segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::QuotedLiteral,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None
-                )
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::QuotedLiteral)
             ])
             .to_matchable()
             .into(),

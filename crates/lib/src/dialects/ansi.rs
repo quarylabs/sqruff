@@ -29,7 +29,6 @@ use crate::core::parser::segments::base::{
     SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
-use crate::core::parser::segments::common::{ComparisonOperatorSegment, LiteralSegment};
 use crate::core::parser::segments::fix::SourceFix;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -794,17 +793,9 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "LikeOperatorSegment".into(),
-            TypedParser::new(
-                SyntaxKind::LikeOperator,
-                |it| {
-                    ComparisonOperatorSegment::create(&it.raw(), &it.get_position_marker().unwrap())
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::LikeOperator, SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
         ),
         (
             "RawNotSegment".into(),
@@ -944,22 +935,9 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "FunctionNameIdentifierSegment".into(),
-            TypedParser::new(
-                SyntaxKind::Word,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::Word, SyntaxKind::FunctionNameIdentifier)
+                .to_matchable()
+                .into(),
         ),
         // Maybe data types should be more restrictive?
         (
@@ -1046,66 +1024,27 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "QuotedIdentifierSegment".into(),
-            TypedParser::new(
-                SyntaxKind::DoubleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
         ),
         (
             "QuotedLiteralSegment".into(),
-            TypedParser::new(SyntaxKind::SingleQuote, symbol_factory, None, false, None)
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
                 .to_matchable()
                 .into(),
         ),
         (
             "SingleQuotedIdentifierSegment".into(),
-            TypedParser::new(
-                SyntaxKind::SingleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
         ),
         (
             "NumericLiteralSegment".into(),
-            TypedParser::new(
-                SyntaxKind::NumericLiteral,
-                |seg| {
-                    LiteralSegment {
-                        raw: seg.raw().into(),
-                        position_maker: seg.get_position_marker(),
-                        id: seg.id(),
-                    }
-                    .to_erased_segment()
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral)
+                .to_matchable()
+                .into(),
         ),
         // NullSegment is defined separately to the keyword, so we can give it a different
         // type
@@ -1278,13 +1217,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TIMESTAMP"),
                     Ref::keyword("INTERVAL")
                 ]),
-                TypedParser::new(
-                    SyntaxKind::SingleQuote,
-                    |seg| LiteralSegment::create(&seg.raw(), &seg.get_position_marker().unwrap()),
-                    None,
-                    false,
-                    None
-                )
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral,)
             ])
             .to_matchable()
             .into(),
@@ -2044,19 +1977,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("SlashSegment"),
                         Delimited::new(vec_of_erased![TypedParser::new(
                             SyntaxKind::Word,
-                            |segment: &dyn Segment| {
-                                CodeSegment::create(
-                                    &segment.raw(),
-                                    segment.get_position_marker(),
-                                    CodeSegmentNewArgs {
-                                        code_type: SyntaxKind::PathSegment,
-                                        ..Default::default()
-                                    },
-                                )
-                            },
-                            None,
-                            false,
-                            None,
+                            SyntaxKind::PathSegment,
                         )])
                         .config(|this| {
                             this.allow_gaps = false;

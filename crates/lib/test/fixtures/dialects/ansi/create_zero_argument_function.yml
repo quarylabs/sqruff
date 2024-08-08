@@ -16,7 +16,7 @@ file:
       - data_type_identifier: integer
     - function_definition:
       - keyword: AS
-      - '': |-
+      - quoted_literal: |-
           '
               SELECT 1;
           '
@@ -38,7 +38,7 @@ file:
       - data_type_identifier: integer
     - function_definition:
       - keyword: AS
-      - '': |-
+      - quoted_literal: |-
           '
               SELECT 1;
           '

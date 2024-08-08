@@ -62,7 +62,7 @@ file:
       - naked_identifier: data_store_directory
     - comparison_operator:
       - raw_comparison_operator: =
-    - '': '''directory-name'''
+    - quoted_literal: '''directory-name'''
 - statement_terminator: ;
 - statement:
   - pragma_statement:
@@ -71,7 +71,7 @@ file:
       - naked_identifier: encoding
     - comparison_operator:
       - raw_comparison_operator: =
-    - '': '''UTF-16be'''
+    - quoted_literal: '''UTF-16be'''
 - statement_terminator: ;
 - statement:
   - pragma_statement:
@@ -82,7 +82,7 @@ file:
       - naked_identifier: foreign_key_check
     - bracketed:
       - start_bracket: (
-      - '': '''table-name'''
+      - quoted_literal: '''table-name'''
       - end_bracket: )
 - statement_terminator: ;
 - statement:

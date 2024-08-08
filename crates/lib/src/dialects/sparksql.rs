@@ -241,34 +241,8 @@ pub fn sparksql_dialect() -> Dialect {
         (
             "QuotedLiteralSegment".into(),
             one_of(vec_of_erased![
-                TypedParser::new(
-                    SyntaxKind::SingleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                ),
-                TypedParser::new(
-                    SyntaxKind::DoubleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                )
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral),
+                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedLiteral)
             ])
             .to_matchable()
             .into(),
@@ -457,41 +431,15 @@ pub fn sparksql_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "FileLiteralSegment".into(),
-            TypedParser::new(
-                SyntaxKind::FileLiteral,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileLiteral },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::FileLiteral, SyntaxKind::FileLiteral)
+                .to_matchable()
+                .into(),
         ),
         (
             "BackQuotedIdentifierSegment".into(),
-            TypedParser::new(
-                SyntaxKind::BackQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
         ),
         (
             "NakedSemiStructuredElementSegment".into(),
@@ -517,22 +465,9 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "QuotedSemiStructuredElementSegment".into(),
-            TypedParser::new(
-                SyntaxKind::SingleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::SemiStructuredElement },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SemiStructuredElement)
+                .to_matchable()
+                .into(),
         ),
         (
             "RightArrowOperator".into(),
@@ -1133,34 +1068,8 @@ pub fn sparksql_dialect() -> Dialect {
         (
             "BytesQuotedLiteralSegment".into(),
             one_of(vec_of_erased![
-                TypedParser::new(
-                    SyntaxKind::BytesSingleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::BytesQuotedLiteral },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                ),
-                TypedParser::new(
-                    SyntaxKind::BytesDoubleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::BytesQuotedLiteral },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                )
+                TypedParser::new(SyntaxKind::BytesSingleQuote, SyntaxKind::BytesQuotedLiteral,),
+                TypedParser::new(SyntaxKind::BytesDoubleQuote, SyntaxKind::BytesQuotedLiteral,)
             ])
             .to_matchable()
             .into(),
@@ -1192,54 +1101,15 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "AtSignLiteralSegment".into(),
-            TypedParser::new(
-                SyntaxKind::AtSignLiteral,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::AtSignLiteral },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::AtSignLiteral, SyntaxKind::AtSignLiteral)
+                .to_matchable()
+                .into(),
         ),
         (
             "SignedQuotedLiteralSegment".into(),
             one_of(vec_of_erased![
-                TypedParser::new(
-                    SyntaxKind::SingleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::SignedQuotedLiteral },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                ),
-                TypedParser::new(
-                    SyntaxKind::DoubleQuote,
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::SignedQuotedLiteral },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                )
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SignedQuotedLiteral),
+                TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::SignedQuotedLiteral)
             ])
             .to_matchable()
             .into(),

@@ -20,4 +20,4 @@ file:
       - end_bracket: )
     - comment_clause:
       - keyword: COMMENT
-      - '': '''Table comment'''
+      - quoted_literal: '''Table comment'''

@@ -89,81 +89,23 @@ pub fn bigquery_dialect() -> Dialect {
     dialect.add([
         (
             "DoubleQuotedLiteralSegment".into(),
-            TypedParser::new(
-                SyntaxKind::DoubleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedLiteral)
+                .to_matchable()
+                .into(),
         ),
         (
             "SingleQuotedLiteralSegment".into(),
-            TypedParser::new(
-                SyntaxKind::SingleQuote,
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::QuotedLiteral,
-                            ..Default::default()
-                        },
-                    )
-                },
-                "quoted_literal".to_owned().into(),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                .to_matchable()
+                .into(),
         ),
         (
             "DoubleQuotedUDFBody".into(),
-            TypedParser::new(
-                SyntaxKind::DoubleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::UdfBody).to_matchable().into(),
         ),
         (
             "SingleQuotedUDFBody".into(),
-            TypedParser::new(
-                SyntaxKind::SingleQuote,
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::UdfBody).to_matchable().into(),
         ),
         (
             "StartAngleBracketSegment".into(),
@@ -272,22 +214,9 @@ pub fn bigquery_dialect() -> Dialect {
         ),
         (
             "AtSignLiteralSegment".into(),
-            TypedParser::new(
-                SyntaxKind::AtSignLiteral,
-                |segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::AtSignLiteral },
-                    )
-                },
-                "quoted_literal".to_owned().into(),
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::AtSignLiteral, SyntaxKind::AtSignLiteral)
+                .to_matchable()
+                .into(),
         ),
         (
             "DefaultDeclareOptionsGrammar".into(),
@@ -549,23 +478,7 @@ pub fn bigquery_dialect() -> Dialect {
                     Ref::keyword("TIME"),
                     Ref::keyword("TIMESTAMP")
                 ]),
-                TypedParser::new(
-                    SyntaxKind::SingleQuote,
-                    |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::DateConstructorLiteral,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    "quoted_identifier".to_owned().into(),
-                    false,
-                    vec!['`'].into(),
-                )
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral)
             ])
             .to_matchable()
             .into(),
@@ -2577,44 +2490,14 @@ pub fn bigquery_dialect() -> Dialect {
     dialect.add([
         (
             "QuotedIdentifierSegment".into(),
-            TypedParser::new(
-                SyntaxKind::BackQuote,
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::QuotedIdentifier,
-                            ..Default::default()
-                        },
-                    )
-                },
-                "quoted_identifier".to_owned().into(),
-                false,
-                vec!['`'].into(),
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier)
+                .to_matchable()
+                .into(),
         ),
         (
             "NumericLiteralSegment".into(),
             one_of(vec_of_erased![
-                TypedParser::new(
-                    SyntaxKind::NumericLiteral,
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::NumericLiteral,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    "numeric_literal".to_owned().into(),
-                    false,
-                    None,
-                ),
+                TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral),
                 Ref::new("ParameterizedSegment")
             ])
             .to_matchable()

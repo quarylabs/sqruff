@@ -897,7 +897,7 @@ file:
           - naked_identifier: col1
         - comparison_operator:
           - raw_comparison_operator: =
-        - numeric_literal: $1
+        - dollar_numeric_literal: $1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -908,7 +908,7 @@ file:
           - column_reference:
             - naked_identifier: i
           - binary_operator: +
-          - numeric_literal: $1
+          - dollar_numeric_literal: $1
     - into_clause:
       - keyword: INTO
       - table_reference:

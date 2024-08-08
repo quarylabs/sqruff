@@ -20,20 +20,20 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: a
-        - numeric_literal: '!~'
-        - '': '''[a-z]'''
+        - comparison_operator: '!~'
+        - quoted_literal: '''[a-z]'''
         - binary_operator: AND
         - column_reference:
           - naked_identifier: d
-        - numeric_literal: '!~~*'
-        - '': '''[a-z]'''
+        - comparison_operator: '!~~*'
+        - quoted_literal: '''[a-z]'''
         - binary_operator: AND
         - column_reference:
           - naked_identifier: b
         - keyword: LIKE
-        - '': '''Spec\''s%'''
+        - quoted_literal: '''Spec\''s%'''
         - binary_operator: AND
         - column_reference:
           - naked_identifier: c
-        - numeric_literal: '!~*'
-        - '': '''^([0-9]){1,}(\.)([0-9]{1,})$'''
+        - comparison_operator: '!~*'
+        - quoted_literal: '''^([0-9]){1,}(\.)([0-9]{1,})$'''

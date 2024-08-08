@@ -46,7 +46,7 @@ file:
           - naked_identifier: calculation
       - comma: ','
       - select_clause_element:
-        - '': '''an unalised string'''
+        - quoted_literal: '''an unalised string'''
       - comma: ','
       - select_clause_element:
         - numeric_literal: '123.6'

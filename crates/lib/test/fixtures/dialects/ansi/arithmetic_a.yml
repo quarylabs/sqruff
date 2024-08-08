@@ -368,7 +368,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - '': '''abc'''
+          - quoted_literal: '''abc'''
           - keyword: LIKE
           - sign_indicator: '-'
           - numeric_literal:
@@ -381,7 +381,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - '': '''abc'''
+          - quoted_literal: '''abc'''
           - keyword: LIKE
           - tilde: '~'
           - tilde: '~'

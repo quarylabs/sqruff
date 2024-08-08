@@ -14,7 +14,7 @@ file:
       - data_type_identifier: integer
     - function_definition:
       - keyword: AS
-      - '': '''select $1 + $2;'''
+      - quoted_literal: '''select $1 + $2;'''
       - keyword: LANGUAGE
       - naked_identifier: SQL
 - statement_terminator: ;

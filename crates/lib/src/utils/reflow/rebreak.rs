@@ -6,6 +6,7 @@ use strum_macros::{AsRefStr, EnumString};
 use super::elements::{ReflowElement, ReflowSequenceType};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
 use crate::helpers::capitalize;
 use crate::utils::reflow::depth_map::StackPositionType;
@@ -197,6 +198,7 @@ pub fn identify_rebreak_spans(
 }
 
 pub fn rebreak_sequence(
+    tables: &Tables,
     elements: ReflowSequenceType,
     root_segment: ErasedSegment,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
@@ -260,6 +262,7 @@ pub fn rebreak_sequence(
                 let desired_indent = next_point.get_indent().unwrap_or_default();
 
                 let (new_results, prev_point) = prev_point.indent_to(
+                    tables,
                     &desired_indent,
                     None,
                     loc.target.clone().into(),
@@ -268,6 +271,7 @@ pub fn rebreak_sequence(
                 );
 
                 let (new_results, next_point) = next_point.respace_point(
+                    tables,
                     elem_buff[loc.next.adj_pt_idx as usize - 1].as_block(),
                     elem_buff[loc.next.adj_pt_idx as usize + 1].as_block(),
                     &root_segment,
@@ -288,6 +292,7 @@ pub fn rebreak_sequence(
                 }
 
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
+                    tables,
                     elem_buff[(loc.next.adj_pt_idx - 1) as usize].as_block(),
                     elem_buff[(loc.next.pre_code_pt_idx + 1) as usize].as_block(),
                     &root_segment,
@@ -337,6 +342,7 @@ pub fn rebreak_sequence(
                 && elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() == 1
             {
                 let (new_results, next_point) = next_point.indent_to(
+                    tables,
                     prev_point.get_indent().as_deref().unwrap_or_default(),
                     Some(loc.target.clone()),
                     None,
@@ -345,6 +351,7 @@ pub fn rebreak_sequence(
                 );
 
                 let (new_results, prev_point) = prev_point.respace_point(
+                    tables,
                     elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
                     elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
                     &root_segment,
@@ -365,6 +372,7 @@ pub fn rebreak_sequence(
                 }
 
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
+                    tables,
                     elem_buff[(loc.prev.pre_code_pt_idx - 1) as usize].as_block(),
                     elem_buff[(loc.prev.adj_pt_idx + 1) as usize].as_block(),
                     &root_segment,
@@ -387,6 +395,7 @@ pub fn rebreak_sequence(
 
             if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 0 {
                 let (results, next_point) = next_point.indent_to(
+                    tables,
                     &deduce_line_indent(
                         loc.target.get_raw_segments().last().unwrap(),
                         &root_segment,
@@ -403,6 +412,7 @@ pub fn rebreak_sequence(
 
             if elem_buff[loc.prev.adj_pt_idx as usize].num_newlines() == 0 {
                 let (results, prev_point) = prev_point.indent_to(
+                    tables,
                     &deduce_line_indent(
                         loc.target.get_raw_segments().first().unwrap(),
                         &root_segment,
@@ -504,6 +514,7 @@ fn reorder_and_insert(
 #[cfg(test)]
 mod tests {
     use crate::core::parser::segments::test_functions::parse_ansi_string;
+    use crate::dialects::ansi::Tables;
     use crate::helpers::enter_panic;
     use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
@@ -526,13 +537,14 @@ mod tests {
             ("select\n  a\n  -- comment\n  , b", "select\n  a,\n  -- comment\n  b"),
         ];
 
+        let tables = Tables::default();
         for (raw_sql_in, raw_sql_out) in cases {
             let _panic = enter_panic(format!("{raw_sql_in:?}"));
 
             let root = parse_ansi_string(raw_sql_in);
             let config = <_>::default();
             let seq = ReflowSequence::from_root(root, &config);
-            let new_seq = seq.rebreak();
+            let new_seq = seq.rebreak(&tables);
 
             assert_eq!(new_seq.raw(), raw_sql_out);
         }
@@ -551,6 +563,7 @@ mod tests {
             ("select a<=b", 4, "a<=", "a<="),
         ];
 
+        let tables = Tables::default();
         for (raw_sql_in, target_idx, seq_sql_in, seq_sql_out) in cases {
             let root = parse_ansi_string(raw_sql_in);
             let target = &root.get_raw_segments()[target_idx];
@@ -559,7 +572,7 @@ mod tests {
 
             assert_eq!(seq.raw(), seq_sql_in);
 
-            let new_seq = seq.rebreak();
+            let new_seq = seq.rebreak(&tables);
             assert_eq!(new_seq.raw(), seq_sql_out);
         }
     }

@@ -13,7 +13,7 @@ use crate::core::parser::segments::base::{
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::ObjectReferenceSegment;
+use crate::dialects::ansi::{ObjectReferenceSegment, Tables};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
@@ -26,6 +26,7 @@ pub struct RuleRF03 {
 
 impl RuleRF03 {
     fn visit_queries(
+        tables: &Tables,
         single_table_references: &str,
         is_struct_dialect: bool,
         query: Query<()>,
@@ -53,6 +54,7 @@ impl RuleRF03 {
                 }
 
                 let results = check_references(
+                    tables,
                     select_info.table_aliases,
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
@@ -70,6 +72,7 @@ impl RuleRF03 {
         let children = query.children();
         for child in children {
             acc.extend(Self::visit_queries(
+                tables,
                 single_table_references,
                 is_struct_dialect,
                 child,
@@ -99,6 +102,7 @@ fn iter_available_targets(query: Query<()>) -> Vec<SmolStr> {
 
 #[allow(clippy::too_many_arguments)]
 fn check_references(
+    tables: &Tables,
     table_aliases: Vec<AliasInfo>,
     standalone_aliases: Vec<SmolStr>,
     references: Vec<ObjectReferenceSegment>,
@@ -127,6 +131,7 @@ fn check_references(
         }
 
         let lint_res = validate_one_reference(
+            tables,
             single_table_references,
             reference,
             this_ref_type,
@@ -147,6 +152,7 @@ fn check_references(
             && single_table_references == "consistent"
         {
             let results = check_references(
+                tables,
                 table_aliases.clone(),
                 standalone_aliases.clone(),
                 references.clone(),
@@ -168,6 +174,7 @@ fn check_references(
 
 #[allow(clippy::too_many_arguments)]
 fn validate_one_reference(
+    tables: &Tables,
     single_table_references: &str,
     ref_: ObjectReferenceSegment,
     this_ref_type: &str,
@@ -247,6 +254,7 @@ fn validate_one_reference(
             if !ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
             vec![
                 IdentifierSegment::create(
+                    tables.next_id(),
                     table_ref_str,
                     None,
                     CodeSegmentNewArgs {
@@ -254,7 +262,7 @@ fn validate_one_reference(
                         ..CodeSegmentNewArgs::default()
                     },
                 ),
-                SymbolSegment::create(".", None, <_>::default()),
+                SymbolSegment::create(tables.next_id(), ".", None, <_>::default()),
             ],
         )]
     } else {
@@ -351,7 +359,13 @@ FROM foo
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
         let is_struct_dialect = self.dialect_skip().contains(&context.dialect.name);
 
-        Self::visit_queries(single_table_references, is_struct_dialect, query, &mut visited)
+        Self::visit_queries(
+            context.tables,
+            single_table_references,
+            is_struct_dialect,
+            query,
+            &mut visited,
+        )
     }
 
     fn is_fix_compatible(&self) -> bool {

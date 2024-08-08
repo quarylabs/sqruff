@@ -133,7 +133,8 @@ from fancy_table
                     {
                         let coalesce_arg_1 = condition_expression.clone();
                         let coalesce_arg_2 =
-                            KeywordSegment::new("false".into(), None).to_erased_segment();
+                            KeywordSegment::new(context.tables.next_id(), "false".into(), None)
+                                .to_erased_segment();
                         let preceding_not = then_expression_upper == "FALSE";
 
                         let fixes = Self::coalesce_fix_list(
@@ -274,20 +275,31 @@ impl RuleST02 {
         preceding_not: bool,
     ) -> Vec<LintFix> {
         let mut edits = vec![
-            SymbolSegment::create("coalesce", None, <_>::default()),
-            SymbolSegment::create("(", None, <_>::default()),
+            SymbolSegment::create(context.tables.next_id(), "coalesce", None, <_>::default()),
+            SymbolSegment::create(context.tables.next_id(), "(", None, <_>::default()),
             coalesce_arg_1,
-            SymbolSegment::create(",", None, <_>::default()),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+            SymbolSegment::create(context.tables.next_id(), ",", None, <_>::default()),
+            WhitespaceSegment::create(
+                context.tables.next_id(),
+                " ",
+                None,
+                WhitespaceSegmentNewArgs,
+            ),
             coalesce_arg_2,
-            SymbolSegment::create(")", None, <_>::default()),
+            SymbolSegment::create(context.tables.next_id(), ")", None, <_>::default()),
         ];
 
         if preceding_not {
             edits = chain(
                 [
-                    KeywordSegment::new("not".into(), None).to_erased_segment(),
-                    WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+                    KeywordSegment::new(context.tables.next_id(), "not".into(), None)
+                        .to_erased_segment(),
+                    WhitespaceSegment::create(
+                        context.tables.next_id(),
+                        " ",
+                        None,
+                        WhitespaceSegmentNewArgs,
+                    ),
                 ],
                 edits,
             )

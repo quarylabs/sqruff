@@ -254,6 +254,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::JsonOperator,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -306,6 +307,7 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::Word,
                 |segment: &dyn Segment| {
                     IdentifierSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
@@ -389,6 +391,7 @@ pub fn raw_dialect() -> Dialect {
                 "=>",
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::RightArrow },
@@ -407,6 +410,7 @@ pub fn raw_dialect() -> Dialect {
                 "ON",
                 |segment: &dyn Segment| {
                     IdentifierSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
@@ -557,6 +561,7 @@ pub fn raw_dialect() -> Dialect {
                     r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -632,6 +637,7 @@ pub fn raw_dialect() -> Dialect {
                         SyntaxKind::SingleQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -647,6 +653,7 @@ pub fn raw_dialect() -> Dialect {
                             SyntaxKind::SingleQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
+                                    segment.id(),
                                     &segment.raw(),
                                     segment.get_position_marker(),
                                     SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -663,6 +670,7 @@ pub fn raw_dialect() -> Dialect {
                         SyntaxKind::BitStringLiteral,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -678,6 +686,7 @@ pub fn raw_dialect() -> Dialect {
                             SyntaxKind::BitStringLiteral,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
+                                    segment.id(),
                                     &segment.raw(),
                                     segment.get_position_marker(),
                                     SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -694,6 +703,7 @@ pub fn raw_dialect() -> Dialect {
                         SyntaxKind::UnicodeSingleQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -709,6 +719,7 @@ pub fn raw_dialect() -> Dialect {
                             SyntaxKind::UnicodeSingleQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
+                                    segment.id(),
                                     &segment.raw(),
                                     segment.get_position_marker(),
                                     SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -725,6 +736,7 @@ pub fn raw_dialect() -> Dialect {
                         SyntaxKind::EscapedSingleQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -740,6 +752,7 @@ pub fn raw_dialect() -> Dialect {
                             SyntaxKind::EscapedSingleQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
+                                    segment.id(),
                                     &segment.raw(),
                                     segment.get_position_marker(),
                                     SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -756,6 +769,7 @@ pub fn raw_dialect() -> Dialect {
                         SyntaxKind::DollarQuote,
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -771,6 +785,7 @@ pub fn raw_dialect() -> Dialect {
                             SyntaxKind::DollarQuote,
                             |segment: &dyn Segment| {
                                 SymbolSegment::create(
+                                    segment.id(),
                                     &segment.raw(),
                                     segment.get_position_marker(),
                                     SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -793,6 +808,7 @@ pub fn raw_dialect() -> Dialect {
                     SyntaxKind::DoubleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedIdentifier },
@@ -806,6 +822,7 @@ pub fn raw_dialect() -> Dialect {
                     SyntaxKind::UnicodeDoubleQuote,
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -6802,10 +6819,12 @@ mod tests {
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::linter::Linter;
     use crate::core::parser::segments::base::ErasedSegment;
+    use crate::dialects::ansi::Tables;
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

@@ -12,7 +12,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::Node;
+use crate::dialects::ansi::{Node, Tables};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;
@@ -126,11 +126,17 @@ INNER JOIN table_b
         let [table_a, table_b, ..] = &table_aliases[..] else { unreachable!() };
 
         let mut edit_segments = vec![
-            KeywordSegment::new("ON".into(), None).to_erased_segment(),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
+            KeywordSegment::new(context.tables.next_id(), "ON".into(), None).to_erased_segment(),
+            WhitespaceSegment::create(
+                context.tables.next_id(),
+                " ",
+                None,
+                WhitespaceSegmentNewArgs {},
+            ),
         ];
 
         edit_segments.append(&mut generate_join_conditions(
+            context.tables,
             context.dialect.name,
             &table_a.ref_str,
             &table_b.ref_str,
@@ -173,6 +179,7 @@ fn extract_cols_from_using(join_clause: Segments, using_segs: &ErasedSegment) ->
 }
 
 fn generate_join_conditions(
+    tables: &Tables,
     dialect: DialectKind,
     table_a_ref: &str,
     table_b_ref: &str,
@@ -182,14 +189,19 @@ fn generate_join_conditions(
 
     for col in columns {
         edit_segments.extend_from_slice(&[
-            create_col_reference(dialect, table_a_ref, &col),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
-            SymbolSegment::create("=", None, SymbolSegmentNewArgs { r#type: SyntaxKind::Symbol }),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
-            create_col_reference(dialect, table_b_ref, &col),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
-            KeywordSegment::new("AND".into(), None).to_erased_segment(),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
+            create_col_reference(tables, dialect, table_a_ref, &col),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {}),
+            SymbolSegment::create(
+                tables.next_id(),
+                "=",
+                None,
+                SymbolSegmentNewArgs { r#type: SyntaxKind::Symbol },
+            ),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {}),
+            create_col_reference(tables, dialect, table_b_ref, &col),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {}),
+            KeywordSegment::new(tables.next_id(), "AND".into(), None).to_erased_segment(),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {}),
         ]);
     }
 
@@ -226,12 +238,19 @@ fn extract_deletion_sequence_and_anchor(
     (to_delete, insert_anchor.unwrap())
 }
 
-fn create_col_reference(dialect: DialectKind, table_ref: &str, column_name: &str) -> ErasedSegment {
+fn create_col_reference(
+    tables: &Tables,
+    dialect: DialectKind,
+    table_ref: &str,
+    column_name: &str,
+) -> ErasedSegment {
     Node::new(
+        tables.next_id(),
         dialect,
         SyntaxKind::ColumnReference,
         vec![
             IdentifierSegment::create(
+                tables.next_id(),
                 table_ref,
                 None,
                 CodeSegmentNewArgs {
@@ -239,8 +258,14 @@ fn create_col_reference(dialect: DialectKind, table_ref: &str, column_name: &str
                     ..CodeSegmentNewArgs::default()
                 },
             ),
-            SymbolSegment::create(".", None, SymbolSegmentNewArgs { r#type: SyntaxKind::Symbol }),
+            SymbolSegment::create(
+                tables.next_id(),
+                ".",
+                None,
+                SymbolSegmentNewArgs { r#type: SyntaxKind::Symbol },
+            ),
             IdentifierSegment::create(
+                tables.next_id(),
                 column_name,
                 None,
                 CodeSegmentNewArgs {

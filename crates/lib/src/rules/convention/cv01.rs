@@ -125,6 +125,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
             LintFix::replace(
                 raw_comparison_operators[0].clone(),
                 vec![SymbolSegment::create(
+                    context.tables.next_id(),
                     replacement[0],
                     None,
                     SymbolSegmentNewArgs { r#type: SyntaxKind::ComparisonOperator },
@@ -134,6 +135,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
             LintFix::replace(
                 raw_comparison_operators[1].clone(),
                 vec![SymbolSegment::create(
+                    context.tables.next_id(),
                     replacement[1],
                     None,
                     SymbolSegmentNewArgs { r#type: SyntaxKind::ComparisonOperator },

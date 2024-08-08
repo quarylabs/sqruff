@@ -15,6 +15,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::DialectKind;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::ErasedSegment;
+use crate::dialects::ansi::Tables;
 use crate::helpers::{Config, IndexMap};
 
 #[derive(Clone)]
@@ -208,7 +209,7 @@ impl PartialEq for LintFix {
             return false;
         }
         // Check if anchor.uuids are equal
-        if self.anchor.get_uuid() != other.anchor.get_uuid() {
+        if self.anchor.id() != other.anchor.id() {
             return false;
         }
         // Compare edits if they exist
@@ -303,12 +304,14 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
 
     fn crawl(
         &self,
+        tables: &Tables,
         dialect: &Dialect,
         fix: bool,
         tree: ErasedSegment,
         config: &FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
         let root_context = RuleContext {
+            tables,
             dialect,
             fix,
             config: Some(config),

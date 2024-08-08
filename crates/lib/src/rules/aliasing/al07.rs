@@ -9,6 +9,7 @@ use crate::core::parser::segments::base::{ErasedSegment, IdentifierSegment, Symb
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -28,6 +29,7 @@ pub struct RuleAL07 {
 impl RuleAL07 {
     fn lint_aliases_in_join(
         &self,
+        tables: &Tables,
         base_table: Option<ErasedSegment>,
         from_expression_elements: Vec<ErasedSegment>,
         column_reference_segments: Vec<ErasedSegment>,
@@ -128,9 +130,19 @@ impl RuleAL07 {
                     let mut edits = Vec::new();
                     for (i, part) in identifier_parts.iter().enumerate() {
                         if i > 0 {
-                            edits.push(SymbolSegment::create(".", None, <_>::default()));
+                            edits.push(SymbolSegment::create(
+                                tables.next_id(),
+                                ".",
+                                None,
+                                <_>::default(),
+                            ));
                         }
-                        edits.push(IdentifierSegment::create(part, None, <_>::default()));
+                        edits.push(IdentifierSegment::create(
+                            tables.next_id(),
+                            part,
+                            None,
+                            <_>::default(),
+                        ));
                     }
                     fixes.push(LintFix::replace(
                         alias.clone(),
@@ -312,6 +324,7 @@ FROM
         }
 
         self.lint_aliases_in_join(
+            context.tables,
             base_table.first().cloned(),
             from_expression_elements,
             column_reference_segments,

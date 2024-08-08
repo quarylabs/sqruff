@@ -11,6 +11,7 @@ use crate::core::parser::segments::base::{
 };
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::respace::{
@@ -120,6 +121,7 @@ impl ReflowPoint {
 
     pub fn indent_to(
         &self,
+        tables: &Tables,
         desired_indent: &str,
         after: Option<ErasedSegment>,
         before: Option<ErasedSegment>,
@@ -189,8 +191,12 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent =
-                    WhitespaceSegment::create(desired_indent, None, WhitespaceSegmentNewArgs);
+                let new_indent = WhitespaceSegment::create(
+                    tables.next_id(),
+                    desired_indent,
+                    None,
+                    WhitespaceSegmentNewArgs,
+                );
 
                 let (last_newline_idx, last_newline) = self
                     .segments
@@ -282,8 +288,12 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                let new_indent =
-                    WhitespaceSegment::create(desired_indent, None, WhitespaceSegmentNewArgs);
+                let new_indent = WhitespaceSegment::create(
+                    tables.next_id(),
+                    desired_indent,
+                    None,
+                    WhitespaceSegmentNewArgs,
+                );
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(
@@ -339,8 +349,10 @@ impl ReflowPoint {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn respace_point(
         &self,
+        tables: &Tables,
         prev_block: Option<&ReflowBlock>,
         next_block: Option<&ReflowBlock>,
         root_segment: &ErasedSegment,
@@ -440,6 +452,7 @@ impl ReflowPoint {
             // No. Should we insert some?
             // NOTE: This method operates on the existing fix buffer.
             let (segment_buffer, results, _edited) = handle_respace_inline_without_space(
+                tables,
                 pre_constraint,
                 post_constraint,
                 prev_block,

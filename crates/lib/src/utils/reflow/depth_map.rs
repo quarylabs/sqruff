@@ -2,7 +2,6 @@ use std::iter::zip;
 
 use ahash::{AHashMap, AHashSet};
 use nohash_hasher::{IntMap, IntSet};
-use uuid::Uuid;
 
 use crate::core::parser::segments::base::{ErasedSegment, PathStep};
 use crate::dialects::SyntaxSet;
@@ -50,20 +49,20 @@ impl StackPosition {
 
 #[derive(Clone)]
 pub struct DepthMap {
-    depth_info: AHashMap<Uuid, DepthInfo>,
+    depth_info: AHashMap<u32, DepthInfo>,
 }
 
 impl DepthMap {
     fn new<'a>(raws_with_stack: impl Iterator<Item = &'a (ErasedSegment, Vec<PathStep>)>) -> Self {
         let depth_info = raws_with_stack
             .into_iter()
-            .map(|(raw, stack)| (raw.get_uuid(), DepthInfo::from_raw_and_stack(raw, stack)))
+            .map(|(raw, stack)| (raw.id(), DepthInfo::from_raw_and_stack(raw, stack)))
             .collect();
         Self { depth_info }
     }
 
     pub fn get_depth_info(&self, seg: &ErasedSegment) -> DepthInfo {
-        self.depth_info[&seg.get_uuid()].clone()
+        self.depth_info[&seg.id()].clone()
     }
 
     pub fn copy_depth_info(
@@ -72,10 +71,8 @@ impl DepthMap {
         new_segment: &ErasedSegment,
         trim: u32,
     ) {
-        self.depth_info.insert(
-            new_segment.get_uuid(),
-            self.get_depth_info(anchor).trim(trim.try_into().unwrap()),
-        );
+        self.depth_info
+            .insert(new_segment.id(), self.get_depth_info(anchor).trim(trim.try_into().unwrap()));
     }
 
     pub fn from_parent(parent: &ErasedSegment) -> Self {
@@ -90,7 +87,7 @@ impl DepthMap {
             .into_iter()
             .map(|raw| {
                 let stack = root_segment.path_to(&raw);
-                (raw.get_uuid(), DepthInfo::from_raw_and_stack(&raw, &stack))
+                (raw.id(), DepthInfo::from_raw_and_stack(&raw, &stack))
             })
             .collect();
 

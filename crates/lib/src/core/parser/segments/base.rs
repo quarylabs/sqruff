@@ -14,7 +14,6 @@ use itertools::{enumerate, Itertools};
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
 use smol_str::SmolStr;
-use uuid::Uuid;
 
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
@@ -274,7 +273,7 @@ impl ErasedSegment {
 
     pub fn apply_fixes(
         &self,
-        fixes: &mut AHashMap<Uuid, AnchorEditInfo>,
+        fixes: &mut AHashMap<u32, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone(), Vec::new(), Vec::new(), true);
@@ -288,7 +287,7 @@ impl ErasedSegment {
             // Look for uuid match.
             // This handles potential positioning ambiguity.
 
-            let Some(mut anchor_info) = fixes.remove(&seg.get_uuid()) else {
+            let Some(mut anchor_info) = fixes.remove(&seg.id()) else {
                 seg_buffer.push(seg.clone());
                 continue;
             };
@@ -724,8 +723,13 @@ pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
         patches
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn id(&self) -> u32 {
         unimplemented!("{}", std::any::type_name::<Self>())
+    }
+
+    fn set_id(&mut self, id: u32) {
+        _ = id;
+        todo!("{}", std::any::type_name::<Self>())
     }
 
     /// Return any source fixes as list.
@@ -740,12 +744,12 @@ pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
     }
 
     /// Group and count fixes by anchor, return dictionary.
-    fn compute_anchor_edit_info(&self, fixes: &Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
-        let mut anchor_info = AHashMap::<Uuid, AnchorEditInfo>::new();
+    fn compute_anchor_edit_info(&self, fixes: &Vec<LintFix>) -> AHashMap<u32, AnchorEditInfo> {
+        let mut anchor_info = AHashMap::<u32, AnchorEditInfo>::new();
         for fix in fixes {
             // :TRICKY: Use segment uuid as the dictionary key since
             // different segments may compare as equal.
-            let anchor_id = fix.anchor.get_uuid();
+            let anchor_id = fix.anchor.id();
             anchor_info.entry(anchor_id).or_default().add(fix.clone());
         }
         anchor_info
@@ -768,7 +772,7 @@ dyn_clone::clone_trait_object!(Segment);
 
 impl PartialEq for dyn Segment {
     fn eq(&self, other: &Self) -> bool {
-        if self.get_uuid() == other.get_uuid() {
+        if self.id() == other.id() {
             return true;
         }
 
@@ -876,7 +880,7 @@ pub struct CodeSegment {
     pub code_type: SyntaxKind,
 
     // From RawSegment
-    uuid: Uuid,
+    id: u32,
     instance_types: Vec<String>,
     trim_start: Option<Vec<String>>,
     trim_chars: Option<Vec<String>>,
@@ -907,7 +911,7 @@ impl CodeSegment {
             trim_start: None,
             trim_chars: None,
             source_fixes: None,
-            uuid: Uuid::new_v4(),
+            id: 0,
         }
         .to_erased_segment()
     }
@@ -951,8 +955,12 @@ impl Segment for CodeSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     /// Create a new segment, with exactly the same position but different
@@ -993,6 +1001,7 @@ pub struct IdentifierSegment {
 
 impl IdentifierSegment {
     pub fn create(
+        id: u32,
         raw: &str,
         position_maker: Option<PositionMarker>,
         args: CodeSegmentNewArgs,
@@ -1006,7 +1015,7 @@ impl IdentifierSegment {
                 trim_start: None,
                 trim_chars: None,
                 source_fixes: None,
-                uuid: Uuid::new_v4(),
+                id,
             },
         }
         .to_erased_segment()
@@ -1052,12 +1061,17 @@ impl Segment for IdentifierSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.base.uuid
+    fn id(&self) -> u32 {
+        self.base.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.base.id = id;
     }
 
     fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         IdentifierSegment::create(
+            self.id(),
             raw.unwrap_or(self.base.raw.to_string()).as_str(),
             self.base.position_marker.clone(),
             CodeSegmentNewArgs {
@@ -1082,7 +1096,7 @@ pub struct CommentSegment {
     position_maker: Option<PositionMarker>,
     r#type: SyntaxKind,
     trim_start: Vec<&'static str>,
-    uuid: Uuid,
+    id: u32,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -1102,7 +1116,7 @@ impl CommentSegment {
             position_maker,
             r#type: args.r#type,
             trim_start: args.trim_start.unwrap_or_default(),
-            uuid: Uuid::new_v4(),
+            id: 0,
         }
         .to_erased_segment()
     }
@@ -1147,8 +1161,12 @@ impl Segment for CommentSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -1165,7 +1183,7 @@ impl Segment for CommentSegment {
 pub struct NewlineSegment {
     raw: SmolStr,
     position_maker: Option<PositionMarker>,
-    uuid: Uuid,
+    id: u32,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -1177,12 +1195,8 @@ impl NewlineSegment {
         position_maker: Option<PositionMarker>,
         _args: NewlineSegmentNewArgs,
     ) -> ErasedSegment {
-        NewlineSegment {
-            raw: raw.into(),
-            position_maker: position_maker.clone(),
-            uuid: Uuid::new_v4(),
-        }
-        .to_erased_segment()
+        NewlineSegment { raw: raw.into(), position_maker: position_maker.clone(), id: 0 }
+            .to_erased_segment()
     }
 }
 
@@ -1231,8 +1245,12 @@ impl Segment for NewlineSegment {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -1249,7 +1267,7 @@ impl Segment for NewlineSegment {
 pub struct WhitespaceSegment {
     raw: SmolStr,
     position_marker: Option<PositionMarker>,
-    uuid: Uuid,
+    id: u32,
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -1257,23 +1275,20 @@ pub struct WhitespaceSegmentNewArgs;
 
 impl WhitespaceSegment {
     pub fn create(
+        id: u32,
         raw: &str,
         position_maker: Option<PositionMarker>,
         _args: WhitespaceSegmentNewArgs,
     ) -> ErasedSegment {
-        WhitespaceSegment { raw: raw.into(), position_marker: position_maker, uuid: Uuid::new_v4() }
+        WhitespaceSegment { raw: raw.into(), position_marker: position_maker, id }
             .to_erased_segment()
     }
 }
 
 impl Segment for WhitespaceSegment {
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Self {
-            raw: self.raw().into(),
-            position_marker: self.position_marker.clone(),
-            uuid: self.uuid,
-        }
-        .to_erased_segment()
+        Self { raw: self.raw().into(), position_marker: self.position_marker.clone(), id: self.id }
+            .to_erased_segment()
     }
 
     fn raw(&self) -> Cow<str> {
@@ -1312,8 +1327,12 @@ impl Segment for WhitespaceSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -1322,6 +1341,7 @@ impl Segment for WhitespaceSegment {
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
         Self::create(
+            self.id(),
             &raw.unwrap_or_default(),
             self.position_marker.clone(),
             WhitespaceSegmentNewArgs {},
@@ -1377,7 +1397,7 @@ impl Segment for UnlexableSegment {
         todo!()
     }
 
-    fn get_uuid(&self) -> Uuid {
+    fn id(&self) -> u32 {
         todo!()
     }
 
@@ -1395,7 +1415,7 @@ impl Segment for UnlexableSegment {
 pub struct SymbolSegment {
     raw: SmolStr,
     position_maker: Option<PositionMarker>,
-    uuid: Uuid,
+    id: u32,
     type_: SyntaxKind,
 }
 
@@ -1404,7 +1424,7 @@ impl Segment for SymbolSegment {
         Self {
             raw: self.raw.clone(),
             position_maker: self.position_maker.clone(),
-            uuid: self.uuid,
+            id: self.id,
             type_: self.type_,
         }
         .to_erased_segment()
@@ -1446,8 +1466,12 @@ impl Segment for SymbolSegment {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn get_source_fixes(&self) -> Vec<SourceFix> {
@@ -1455,7 +1479,7 @@ impl Segment for SymbolSegment {
     }
 
     fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        SymbolSegment::create(&raw.unwrap(), self.position_maker.clone(), <_>::default())
+        SymbolSegment::create(self.id, &raw.unwrap(), self.position_maker.clone(), <_>::default())
     }
 
     fn instance_types(&self) -> SyntaxSet {
@@ -1474,6 +1498,7 @@ pub struct SymbolSegmentNewArgs {
 
 impl SymbolSegment {
     pub fn create(
+        id: u32,
         raw: &str,
         position_maker: Option<PositionMarker>,
         args: SymbolSegmentNewArgs,
@@ -1481,7 +1506,7 @@ impl SymbolSegment {
         SymbolSegment {
             raw: raw.into(),
             position_maker: position_maker.clone(),
-            uuid: Uuid::new_v4(),
+            id,
             type_: args.r#type,
         }
         .to_erased_segment()
@@ -1569,9 +1594,9 @@ mod tests {
         let anchor_edit_info = raw_segs[0].compute_anchor_edit_info(&fixes);
 
         // Check the target segment is the only key we have.
-        assert_eq!(anchor_edit_info.keys().collect::<Vec<_>>(), vec![&raw_segs[0].get_uuid()]);
+        assert_eq!(anchor_edit_info.keys().collect::<Vec<_>>(), vec![&raw_segs[0].id()]);
 
-        let anchor_info = anchor_edit_info.get(&raw_segs[0].get_uuid()).unwrap();
+        let anchor_info = anchor_edit_info.get(&raw_segs[0].id()).unwrap();
 
         // Check that the duplicate as been deduplicated i.e. this isn't 3.
         assert_eq!(anchor_info.replace, 2);

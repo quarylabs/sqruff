@@ -7,7 +7,6 @@ use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use regex::Regex;
 use smol_str::{SmolStr, ToSmolStr};
-use uuid::Uuid;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
@@ -25,6 +24,7 @@ use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
+use crate::dialects::ansi::Tables;
 use crate::helpers::ToErasedSegment;
 use crate::rules::get_ruleset;
 
@@ -83,6 +83,7 @@ impl Linter {
     #[allow(unused_variables)]
     pub fn parse_string(
         &self,
+        tables: &Tables,
         in_str: &str,
         f_name: Option<String>,
         encoding: Option<String>,
@@ -107,7 +108,7 @@ impl Linter {
             formatter.dispatch_parse_header(/*f_name.clone()*/);
         }
 
-        Ok(Self::parse_rendered(rendered, parse_statistics))
+        Ok(Self::parse_rendered(tables, rendered, parse_statistics))
     }
 
     /// Lint a string.
@@ -124,10 +125,11 @@ impl Linter {
         // Sort out config, defaulting to the built in config if no override
         let _defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
-        let parsed = self.parse_string(in_str, f_name, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = self.parse_string(&tables, in_str, f_name, None, None).unwrap();
 
         // Lint the file and return the LintedFile
-        self.lint_parsed(parsed, rules, fix)
+        self.lint_parsed(&tables, parsed, rules, fix)
     }
 
     pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>, fix: bool) -> LintingResult {
@@ -180,12 +182,14 @@ impl Linter {
         rule_pack: &RulePack,
         fix: bool,
     ) -> LintedFile {
-        let parsed = Self::parse_rendered(rendered, false);
-        self.lint_parsed(parsed, rule_pack.rules.clone(), fix)
+        let tables = Tables::default();
+        let parsed = Self::parse_rendered(&tables, rendered, false);
+        self.lint_parsed(&tables, parsed, rule_pack.rules.clone(), fix)
     }
 
     pub fn lint_parsed(
         &self,
+        tables: &Tables,
         parsed_string: ParsedString,
         rules: Vec<ErasedRule>,
         fix: bool,
@@ -193,7 +197,7 @@ impl Linter {
         let mut violations = parsed_string.violations;
 
         let (tree, initial_linting_errors) = if let Some(tree) = parsed_string.tree {
-            self.lint_fix_parsed(tree, rules, fix)
+            self.lint_fix_parsed(tables, tree, rules, fix)
         } else {
             (
                 BracketedSegment::new(Vec::new(), Vec::new(), Vec::new(), true).to_erased_segment(),
@@ -220,6 +224,7 @@ impl Linter {
     #[allow(unused_variables)]
     pub fn lint_fix_parsed(
         &self,
+        tables: &Tables,
         mut tree: ErasedSegment,
         rules: Vec<ErasedRule>,
         fix: bool,
@@ -267,7 +272,7 @@ impl Linter {
                     }
 
                     let (linting_errors, fixes) =
-                        rule.crawl(&self.config.dialect, fix, tree.clone(), &self.config);
+                        rule.crawl(tables, &self.config.dialect, fix, tree.clone(), &self.config);
 
                     if is_first_linter_pass {
                         initial_linting_errors.extend(linting_errors);
@@ -363,7 +368,11 @@ impl Linter {
     }
 
     /// Parse a rendered file.
-    pub fn parse_rendered(rendered: RenderedFile, parse_statistics: bool) -> ParsedString {
+    pub fn parse_rendered(
+        tables: &Tables,
+        rendered: RenderedFile,
+        parse_statistics: bool,
+    ) -> ParsedString {
         let violations = rendered.templater_violations.clone();
         if !violations.is_empty() {
             unimplemented!()
@@ -375,7 +384,7 @@ impl Linter {
 
         if rendered.templated_file.is_templated() {
             let (t, lvs) =
-                Self::lex_templated_file(rendered.templated_file.clone(), &rendered.config);
+                Self::lex_templated_file(tables, rendered.templated_file.clone(), &rendered.config);
             tokens = t;
             if !lvs.is_empty() {
                 unimplemented!("violations.extend(lvs);")
@@ -387,6 +396,7 @@ impl Linter {
         let parsed: Option<ErasedSegment>;
         if let Some(token_list) = tokens {
             let (p, pvs) = Self::parse_tokens(
+                tables,
                 &token_list,
                 &rendered.config,
                 Some(rendered.f_name.to_string()),
@@ -408,6 +418,7 @@ impl Linter {
     }
 
     fn parse_tokens(
+        tables: &Tables,
         tokens: &[ErasedSegment],
         config: &FluffConfig,
         f_name: Option<String>,
@@ -416,7 +427,7 @@ impl Linter {
         let parser = Parser::new(config, None);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
-        let parsed = match parser.parse(tokens, f_name, parse_statistics) {
+        let parsed = match parser.parse(tables, tokens, f_name, parse_statistics) {
             Ok(parsed) => parsed,
             Err(error) => {
                 violations.push(error);
@@ -432,6 +443,7 @@ impl Linter {
     /// NOTE: This potentially mutates the config, so make sure to
     /// use the returned one.
     pub fn lex_templated_file(
+        tables: &Tables,
         templated_file: TemplatedFile,
         config: &FluffConfig,
     ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
@@ -440,7 +452,7 @@ impl Linter {
         // Get the lexer
         let lexer = Lexer::new(config, None);
         // Lex the file and log any problems
-        let result = lexer.lex(StringOrTemplate::Template(templated_file));
+        let result = lexer.lex(tables, StringOrTemplate::Template(templated_file));
         match result {
             Err(_err) => {
                 unimplemented!("violations.push(_err)");
@@ -590,11 +602,11 @@ impl Linter {
     }
 }
 
-pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, AnchorEditInfo> {
+pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<u32, AnchorEditInfo> {
     let mut anchor_info = AHashMap::new();
 
     for fix in fixes {
-        let anchor_id = fix.anchor.get_uuid();
+        let anchor_id = fix.anchor.id();
         anchor_info.entry(anchor_id).or_insert_with(AnchorEditInfo::default).add(fix);
     }
 
@@ -605,6 +617,7 @@ pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<Uuid, An
 mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
+    use crate::dialects::ansi::Tables;
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
         paths.into_iter().map(|path| path.replace(['/', '\\'], ".")).collect()
@@ -694,7 +707,8 @@ mod tests {
     #[test]
     fn test_linter_empty_file() {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let parsed = linter.parse_string("", None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, "", None, None, None).unwrap();
 
         assert!(parsed.violations.is_empty());
     }
@@ -720,7 +734,8 @@ mod tests {
         .to_string();
 
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-        let _parsed = linter.parse_string(&sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let _parsed = linter.parse_string(&tables, &sql, None, None, None).unwrap();
     }
 
     #[test]

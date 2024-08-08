@@ -106,7 +106,12 @@ from x
 
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(
+                context.tables.next_id(),
+                " ",
+                None,
+                WhitespaceSegmentNewArgs,
+            ),
             select_clause_modifier.clone(),
         ];
 

@@ -138,6 +138,7 @@ pub fn clickhouse_dialect() -> Dialect {
     clickhouse_dialect.insert_lexer_matchers(
         vec![Matcher::string("lambda", "->", |slice, m| {
             SymbolSegment::create(
+                0,
                 slice,
                 m.into(),
                 SymbolSegmentNewArgs { r#type: SyntaxKind::Lambda },
@@ -237,6 +238,7 @@ pub fn clickhouse_dialect() -> Dialect {
                 SyntaxKind::Lambda,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Lambda },
@@ -1184,10 +1186,12 @@ mod tests {
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::linter::Linter;
     use crate::core::parser::segments::base::ErasedSegment;
+    use crate::dialects::ansi::Tables;
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

@@ -93,6 +93,7 @@ pub fn bigquery_dialect() -> Dialect {
                 SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
@@ -132,6 +133,7 @@ pub fn bigquery_dialect() -> Dialect {
                 SyntaxKind::DoubleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
@@ -150,6 +152,7 @@ pub fn bigquery_dialect() -> Dialect {
                 SyntaxKind::SingleQuote,
                 |segment: &dyn Segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::UdfBody },
@@ -168,6 +171,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "<",
                 |segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::StartAngleBracket },
@@ -186,6 +190,7 @@ pub fn bigquery_dialect() -> Dialect {
                 ">",
                 |segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::EndAngleBracket },
@@ -204,6 +209,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "=>",
                 |segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
@@ -222,6 +228,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "-",
                 |segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Dash },
@@ -250,6 +257,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "?",
                 |segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::QuestionMark },
@@ -268,6 +276,7 @@ pub fn bigquery_dialect() -> Dialect {
                 SyntaxKind::AtSignLiteral,
                 |segment| {
                     SymbolSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         SymbolSegmentNewArgs { r#type: SyntaxKind::AtSignLiteral },
@@ -332,6 +341,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "[A-Z_][A-Z0-9_]*",
                 |segment| {
                     IdentifierSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
@@ -354,6 +364,7 @@ pub fn bigquery_dialect() -> Dialect {
                 "[A-Z0-9_]+",
                 |segment| {
                     IdentifierSegment::create(
+                        segment.id(),
                         &segment.raw(),
                         segment.get_position_marker(),
                         CodeSegmentNewArgs {
@@ -377,6 +388,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -394,6 +406,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "`[^`]*`",
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -450,6 +463,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "[A-Z_][A-Z0-9_]*",
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -539,6 +553,7 @@ pub fn bigquery_dialect() -> Dialect {
                     SyntaxKind::SingleQuote,
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -696,6 +711,7 @@ pub fn bigquery_dialect() -> Dialect {
                             "strict_mode",
                             |segment| {
                                 SymbolSegment::create(
+                                    segment.id(),
                                     &segment.raw(),
                                     segment.get_position_marker(),
                                     SymbolSegmentNewArgs { r#type: SyntaxKind::ProcedureOption },
@@ -1236,6 +1252,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "EXTRACT",
                     |segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
@@ -1258,6 +1275,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "ARRAY",
                     |segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
@@ -1302,6 +1320,7 @@ pub fn bigquery_dialect() -> Dialect {
                         "NORMALIZE",
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
@@ -1315,6 +1334,7 @@ pub fn bigquery_dialect() -> Dialect {
                         "NORMALIZE_AND_CASEFOLD",
                         |segment: &dyn Segment| {
                             SymbolSegment::create(
+                                segment.id(),
                                 &segment.raw(),
                                 segment.get_position_marker(),
                                 SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
@@ -2405,6 +2425,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     "compression",
                                     |segment: &dyn Segment| {
                                         SymbolSegment::create(
+                                            segment.id(),
                                             &segment.raw(),
                                             segment.get_position_marker(),
                                             SymbolSegmentNewArgs {
@@ -2420,6 +2441,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     "field_delimiter",
                                     |segment: &dyn Segment| {
                                         SymbolSegment::create(
+                                            segment.id(),
                                             &segment.raw(),
                                             segment.get_position_marker(),
                                             SymbolSegmentNewArgs {
@@ -2435,6 +2457,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     "format",
                                     |segment: &dyn Segment| {
                                         SymbolSegment::create(
+                                            segment.id(),
                                             &segment.raw(),
                                             segment.get_position_marker(),
                                             SymbolSegmentNewArgs {
@@ -2450,6 +2473,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     "uri",
                                     |segment: &dyn Segment| {
                                         SymbolSegment::create(
+                                            segment.id(),
                                             &segment.raw(),
                                             segment.get_position_marker(),
                                             SymbolSegmentNewArgs {
@@ -2471,6 +2495,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     "header",
                                     |segment: &dyn Segment| {
                                         SymbolSegment::create(
+                                            segment.id(),
                                             &segment.raw(),
                                             segment.get_position_marker(),
                                             SymbolSegmentNewArgs {
@@ -2486,6 +2511,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     "overwrite",
                                     |segment: &dyn Segment| {
                                         SymbolSegment::create(
+                                            segment.id(),
                                             &segment.raw(),
                                             segment.get_position_marker(),
                                             SymbolSegmentNewArgs {
@@ -2501,6 +2527,7 @@ pub fn bigquery_dialect() -> Dialect {
                                     "use_avro_logical_types",
                                     |segment: &dyn Segment| {
                                         SymbolSegment::create(
+                                            segment.id(),
                                             &segment.raw(),
                                             segment.get_position_marker(),
                                             SymbolSegmentNewArgs {
@@ -2668,6 +2695,7 @@ pub fn bigquery_dialect() -> Dialect {
                     "`[^`]*`",
                     |segment| {
                         IdentifierSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             CodeSegmentNewArgs {
@@ -2700,10 +2728,12 @@ mod tests {
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::linter::Linter;
     use crate::core::parser::segments::base::ErasedSegment;
+    use crate::dialects::ansi::Tables;
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

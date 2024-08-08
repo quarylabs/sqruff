@@ -9,9 +9,9 @@ use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::{Indent, IndentChange};
-use crate::dialects::ansi::Node;
+use crate::dialects::ansi::{Node, Tables};
 use crate::dialects::SyntaxKind;
-use crate::helpers::ToErasedSegment;
+use crate::helpers::{Config, ToErasedSegment};
 
 fn get_point_pos_at_idx(segments: &[ErasedSegment], idx: u32) -> PositionMarker {
     let idx = idx as usize;
@@ -106,7 +106,12 @@ impl MatchResult {
         Self { span, matched: Some(outer_matched), insert_segments, child_matches }
     }
 
-    pub fn apply(self, dialect: DialectKind, segments: &[ErasedSegment]) -> Vec<ErasedSegment> {
+    pub fn apply(
+        self,
+        tables: &Tables,
+        dialect: DialectKind,
+        segments: &[ErasedSegment],
+    ) -> Vec<ErasedSegment> {
         enum Trigger {
             MatchResult(MatchResult),
             Meta(IndentChange),
@@ -147,7 +152,7 @@ impl MatchResult {
                 match trigger {
                     Trigger::MatchResult(trigger) => {
                         max_idx = trigger.span.end;
-                        result_segments.append(&mut trigger.apply(dialect, segments));
+                        result_segments.append(&mut trigger.apply(tables, dialect, segments));
                     }
                     Trigger::Meta(meta) => {
                         let mut meta = Indent::from_kind(meta);
@@ -170,7 +175,10 @@ impl MatchResult {
 
         let segment = match matched {
             Matched::SyntaxKind(kind) => {
-                return vec![Node::new(dialect, kind, result_segments, true).to_erased_segment()];
+                return vec![
+                    Node::new(tables.next_id(), dialect, kind, result_segments, true)
+                        .to_erased_segment(),
+                ];
             }
             Matched::ErasedSegment(segment) => segment,
             Matched::BracketedSegment { start_bracket, end_bracket } => {
@@ -181,7 +189,8 @@ impl MatchResult {
                         vec![segments[end_bracket as usize].clone()],
                         false,
                     )
-                    .to_erased_segment(),
+                    .to_erased_segment()
+                    .config(|this| this.get_mut().set_id(tables.next_id())),
                 ];
             }
         };

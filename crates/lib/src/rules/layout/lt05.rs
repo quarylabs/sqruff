@@ -69,7 +69,7 @@ FROM my_table"#
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut results =
             ReflowSequence::from_root(context.segment.clone(), context.config.unwrap())
-                .break_long_lines()
+                .break_long_lines(context.tables)
                 .results();
 
         let mut to_remove = AHashSet::new();

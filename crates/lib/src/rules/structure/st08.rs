@@ -147,11 +147,17 @@ SELECT DISTINCT a, b FROM foo
             let bracketed = &bracketed[0];
             let mut edits = vec![
                 SymbolSegment::create(
+                    context.tables.next_id(),
                     "DISTINCT",
                     None,
                     SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
                 ),
-                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+                WhitespaceSegment::create(
+                    context.tables.next_id(),
+                    " ",
+                    None,
+                    WhitespaceSegmentNewArgs,
+                ),
             ];
             edits.extend(Self::filter_meta(
                 &bracketed.segments()[1..bracketed.segments().len() - 1],
@@ -169,7 +175,7 @@ SELECT DISTINCT a, b FROM foo
 
         if let Some(seq) = seq {
             if let Some(anchor) = anchor {
-                let fixes = seq.respace(false, Filter::All).fixes();
+                let fixes = seq.respace(context.tables, false, Filter::All).fixes();
 
                 if !fixes.is_empty() {
                     return vec![LintResult::new(Some(anchor), fixes, None, None, None)];

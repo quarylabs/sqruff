@@ -8,11 +8,13 @@ use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
+use crate::dialects::ansi::Tables;
 
 /// Struct for holding the context passed to rule eval function
 #[derive(Clone, Debug)]
 pub struct RuleContext<'a> {
     // These don't change within a file.
+    pub tables: &'a Tables,
     pub dialect: &'a Dialect,
     pub fix: bool,
     pub templated_file: Option<TemplatedFile>,

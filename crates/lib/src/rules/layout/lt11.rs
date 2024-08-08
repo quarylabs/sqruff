@@ -55,7 +55,7 @@ SELECT 'b' AS col
             TargetSide::Both,
             context.config.unwrap(),
         )
-        .rebreak()
+        .rebreak(context.tables)
         .results()
     }
 

@@ -18,7 +18,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::{Node, ObjectReferenceLevel};
+use crate::dialects::ansi::{Node, ObjectReferenceLevel, Tables};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 use crate::utils::analysis::query::{Query, Selectable};
@@ -139,8 +139,14 @@ join c using(x)
             segment.first().unwrap().deep_clone(),
         );
 
-        let results =
-            self.lint_query(context.dialect, query, &mut ctes, case_preference, &clone_map);
+        let results = self.lint_query(
+            context.tables,
+            context.dialect,
+            query,
+            &mut ctes,
+            case_preference,
+            &clone_map,
+        );
 
         let mut lint_results = Vec::with_capacity(results.len());
         let mut is_fixable = true;
@@ -154,12 +160,13 @@ join c using(x)
             let (lint_result, from_expression, alias_name, subquery_parent_slot) = result;
             subquery_parent = Some(subquery_parent_slot.clone());
             let this_seg_clone = clone_map[&from_expression].clone();
-            let new_table_ref = create_table_ref(&alias_name, context.dialect);
+            let new_table_ref = create_table_ref(context.tables, &alias_name, context.dialect);
 
             local_fixes.push(LintFix::replace(
                 this_seg_clone.clone(),
                 vec![
                     Node::new(
+                        context.tables.next_id(),
                         context.dialect.name,
                         this_seg_clone.get_type(),
                         vec![new_table_ref],
@@ -213,12 +220,14 @@ join c using(x)
             let output_select_clone = output_select[0].clone();
 
             let mut fixes = ctes.ensure_space_after_from(
+                context.tables,
                 output_select[0].clone(),
                 &output_select_clone,
                 subquery_parent,
             );
 
             let new_select = ctes.compose_select(
+                context.tables,
                 context.dialect.name,
                 output_select_clone.clone(),
                 case_preference,
@@ -241,6 +250,7 @@ join c using(x)
 impl RuleST05 {
     fn lint_query<'a>(
         &self,
+        tables: &Tables,
         dialect: &'a Dialect,
         query: Query<'a, ()>,
         ctes: &mut CTEBuilder,
@@ -255,6 +265,7 @@ impl RuleST05 {
                 nsq.table_alias.from_expression_element.segments().first().cloned().unwrap();
 
             let new_cte = create_cte_seg(
+                tables,
                 alias_name.clone(),
                 segment_clone_map[&anchor].clone(),
                 case_preference,
@@ -421,7 +432,7 @@ struct CTEBuilder {
 }
 
 impl CTEBuilder {
-    fn get_cte_segments(&self) -> Vec<ErasedSegment> {
+    fn get_cte_segments(&self, tables: &Tables) -> Vec<ErasedSegment> {
         let mut cte_segments = Vec::new();
         let mut ctes = self.ctes.iter().peekable();
 
@@ -431,6 +442,7 @@ impl CTEBuilder {
             if ctes.peek().is_some() {
                 cte_segments.extend([
                     SymbolSegment::create(
+                        tables.next_id(),
                         ",",
                         None,
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Comma },
@@ -445,25 +457,28 @@ impl CTEBuilder {
 
     fn compose_select(
         &self,
+        tables: &Tables,
         dialect: DialectKind,
         output_select_clone: ErasedSegment,
         case_preference: Case,
     ) -> ErasedSegment {
         let mut segments = vec![
-            segmentify("WITH", case_preference),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs {}),
+            segmentify(tables, "WITH", case_preference),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {}),
         ];
-        segments.extend(self.get_cte_segments());
+        segments.extend(self.get_cte_segments(tables));
         segments.push(NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}));
         segments.push(output_select_clone);
 
-        Node::new(dialect, SyntaxKind::WithCompoundStatement, segments, false).to_erased_segment()
+        Node::new(tables.next_id(), dialect, SyntaxKind::WithCompoundStatement, segments, false)
+            .to_erased_segment()
     }
 }
 
 impl CTEBuilder {
     fn ensure_space_after_from(
         &self,
+        tables: &Tables,
         output_select: ErasedSegment,
         output_select_clone: &ErasedSegment,
         subquery_parent: ErasedSegment,
@@ -484,7 +499,12 @@ impl CTEBuilder {
             if missing_space_after_from {
                 fixes.push(LintFix::create_after(
                     from_segment.unwrap().base[0].clone(),
-                    vec![WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs)],
+                    vec![WhitespaceSegment::create(
+                        tables.next_id(),
+                        " ",
+                        None,
+                        WhitespaceSegmentNewArgs,
+                    )],
                     None,
                 ))
             }
@@ -651,25 +671,28 @@ fn get_case_preference(root_select: &Segments) -> Case {
     if first_keyword.raw().chars().all(char::is_lowercase) { Case::Lower } else { Case::Upper }
 }
 
-fn segmentify(input_el: &str, casing: Case) -> ErasedSegment {
+fn segmentify(tables: &Tables, input_el: &str, casing: Case) -> ErasedSegment {
     let mut input_el = input_el.to_lowercase_smolstr();
     if casing == Case::Upper {
         input_el = input_el.to_uppercase_smolstr();
     }
-    KeywordSegment::new(input_el, None).to_erased_segment()
+    KeywordSegment::new(tables.next_id(), input_el, None).to_erased_segment()
 }
 
 fn create_cte_seg(
+    tables: &Tables,
     alias_name: SmolStr,
     subquery: ErasedSegment,
     case_preference: Case,
     dialect: &Dialect,
 ) -> ErasedSegment {
     Node::new(
+        tables.next_id(),
         dialect.name,
         SyntaxKind::CommonTableExpression,
         vec![
             IdentifierSegment::create(
+                tables.next_id(),
                 &alias_name,
                 None,
                 CodeSegmentNewArgs {
@@ -677,9 +700,9 @@ fn create_cte_seg(
                     ..CodeSegmentNewArgs::default()
                 },
             ),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-            segmentify("AS", case_preference),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+            segmentify(tables, "AS", case_preference),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
             subquery,
         ],
         false,
@@ -687,15 +710,18 @@ fn create_cte_seg(
     .to_erased_segment()
 }
 
-fn create_table_ref(table_name: &str, dialect: &Dialect) -> ErasedSegment {
+fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> ErasedSegment {
     Node::new(
+        tables.next_id(),
         dialect.name,
         SyntaxKind::TableExpression,
         vec![
             Node::new(
+                tables.next_id(),
                 dialect.name,
                 SyntaxKind::TableReference,
                 vec![IdentifierSegment::create(
+                    tables.next_id(),
                     table_name,
                     None,
                     CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier, ..<_>::default() },

@@ -78,8 +78,14 @@ ORDER BY a ASC, b DESC
                 LintFix::create_after(
                     spec.column_reference,
                     vec![
-                        WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-                        KeywordSegment::new("ASC".into(), None).to_erased_segment(),
+                        WhitespaceSegment::create(
+                            context.tables.next_id(),
+                            " ",
+                            None,
+                            WhitespaceSegmentNewArgs,
+                        ),
+                        KeywordSegment::new(context.tables.next_id(), "ASC".into(), None)
+                            .to_erased_segment(),
                     ],
                     None,
                 )

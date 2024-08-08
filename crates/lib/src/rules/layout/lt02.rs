@@ -54,7 +54,9 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        ReflowSequence::from_root(context.segment, context.config.unwrap()).reindent().results()
+        ReflowSequence::from_root(context.segment, context.config.unwrap())
+            .reindent(context.tables)
+            .results()
     }
 
     fn is_fix_compatible(&self) -> bool {

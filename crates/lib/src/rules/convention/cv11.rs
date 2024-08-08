@@ -11,6 +11,7 @@ use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToErasedSegment;
 use crate::utils::functional::context::FunctionalContext;
@@ -47,6 +48,7 @@ fn get_children(segments: Segments) -> Segments {
 }
 
 fn shorthand_fix_list(
+    tables: &Tables,
     root_segment: ErasedSegment,
     shorthand_arg_1: ErasedSegment,
     shorthand_arg_2: ErasedSegment,
@@ -54,12 +56,14 @@ fn shorthand_fix_list(
     let mut edits = if shorthand_arg_1.get_raw_segments().len() > 1 {
         vec![
             SymbolSegment::create(
+                tables.next_id(),
                 "(",
                 None,
                 SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
             ),
             shorthand_arg_1,
             SymbolSegment::create(
+                tables.next_id(),
                 ")",
                 None,
                 SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
@@ -71,6 +75,7 @@ fn shorthand_fix_list(
 
     edits.extend([
         SymbolSegment::create(
+            tables.next_id(),
             "::",
             None,
             SymbolSegmentNewArgs { r#type: SyntaxKind::CastingOperator },
@@ -183,6 +188,7 @@ FROM foo;
                             }
 
                             fixes = cast_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 &[convert_content[1].clone()],
                                 convert_content[0].clone(),
@@ -194,6 +200,7 @@ FROM foo;
                                 get_children(functional_context.segment());
 
                             fixes = cast_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 &[expression_datatype_segment[0].clone()],
                                 expression_datatype_segment[1].clone(),
@@ -216,6 +223,7 @@ FROM foo;
                             }
 
                             fixes = convert_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
                                 cast_content[0].clone(),
@@ -227,6 +235,7 @@ FROM foo;
                                 get_children(functional_context.segment());
 
                             fixes = convert_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 expression_datatype_segment[1].clone(),
                                 expression_datatype_segment[0].clone(),
@@ -249,6 +258,7 @@ FROM foo;
                             }
 
                             fixes = shorthand_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 cast_content[0].clone(),
                                 cast_content[1].clone(),
@@ -263,6 +273,7 @@ FROM foo;
                             }
 
                             fixes = shorthand_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 convert_content[1].clone(),
                                 convert_content[0].clone(),
@@ -294,6 +305,7 @@ FROM foo;
                                 Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)),
                             ));
                             fixes = cast_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 &[segments[1].clone()],
                                 segments[0].clone(),
@@ -310,6 +322,7 @@ FROM foo;
                                 .unwrap();
 
                             fixes = cast_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 &expression_datatype_segment[..data_type_idx],
                                 expression_datatype_segment[data_type_idx].clone(),
@@ -328,6 +341,7 @@ FROM foo;
                             ));
 
                             fixes = convert_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
                                 cast_content[0].clone(),
@@ -338,6 +352,7 @@ FROM foo;
                             let cast_content = get_children(functional_context.segment());
 
                             fixes = convert_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
                                 cast_content[0].clone(),
@@ -353,6 +368,7 @@ FROM foo;
                             ));
 
                             fixes = shorthand_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 segments[0].clone(),
                                 segments[1].clone(),
@@ -365,6 +381,7 @@ FROM foo;
                             ));
 
                             fixes = shorthand_fix_list(
+                                context.tables,
                                 context.segment.clone(),
                                 segments[1].clone(),
                                 segments[0].clone(),
@@ -419,6 +436,7 @@ FROM foo;
 }
 
 fn convert_fix_list(
+    tables: &Tables,
     root: ErasedSegment,
     convert_arg_1: ErasedSegment,
     convert_arg_2: ErasedSegment,
@@ -462,15 +480,16 @@ fn convert_fix_list(
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
             CodeSegment::create("convert", None, <_>::default()),
-            SymbolSegment::create("(", None, <_>::default()),
+            SymbolSegment::create(tables.next_id(), "(", None, <_>::default()),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            SymbolSegment::create(",", None, <_>::default()),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+            SymbolSegment::create(tables.next_id(), ",", None, <_>::default()),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
         ];
 
-        let post_edits: Vec<ErasedSegment> = vec![SymbolSegment::create(")", None, <_>::default())];
+        let post_edits: Vec<ErasedSegment> =
+            vec![SymbolSegment::create(tables.next_id(), ")", None, <_>::default())];
 
         for _type in later_types.base {
             edits = chain(
@@ -485,6 +504,7 @@ fn convert_fix_list(
 }
 
 fn cast_fix_list(
+    tables: &Tables,
     root: ErasedSegment,
     cast_arg_1: &[ErasedSegment],
     cast_arg_2: ErasedSegment,
@@ -492,34 +512,46 @@ fn cast_fix_list(
 ) -> Vec<LintFix> {
     let mut edits = vec![
         SymbolSegment::create(
+            tables.next_id(),
             "cast",
             None,
             SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
         ),
-        SymbolSegment::create("(", None, SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket }),
+        SymbolSegment::create(
+            tables.next_id(),
+            "(",
+            None,
+            SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
+        ),
     ];
     edits.extend_from_slice(cast_arg_1);
     edits.extend([
-        WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-        KeywordSegment::new("as".into(), None).to_erased_segment(),
-        WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+        WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+        KeywordSegment::new(tables.next_id(), "as".into(), None).to_erased_segment(),
+        WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
         cast_arg_2,
-        SymbolSegment::create(")", None, SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket }),
+        SymbolSegment::create(
+            tables.next_id(),
+            ")",
+            None,
+            SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
+        ),
     ]);
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
             CodeSegment::create("cast", None, <_>::default()),
-            SymbolSegment::create("(", None, <_>::default()),
+            SymbolSegment::create(tables.next_id(), "(", None, <_>::default()),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
-            KeywordSegment::new("as".into(), None).to_erased_segment(),
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+            KeywordSegment::new(tables.next_id(), "as".into(), None).to_erased_segment(),
+            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
         ];
 
-        let post_edits: Vec<ErasedSegment> = vec![SymbolSegment::create(")", None, <_>::default())];
+        let post_edits: Vec<ErasedSegment> =
+            vec![SymbolSegment::create(tables.next_id(), ")", None, <_>::default())];
 
         for _type in later_types.base {
             let mut xs = Vec::new();

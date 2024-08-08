@@ -11,6 +11,7 @@ use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -186,12 +187,13 @@ FROM mytable
         }));
 
         let mut segments = case1_comments_to_restore.base;
-        segments.append(&mut rebuild_spacing(&when_indent_str, after_else_comment));
-        segments.append(&mut rebuild_spacing(&when_indent_str, nested_clauses));
+        segments.append(&mut rebuild_spacing(context.tables, &when_indent_str, after_else_comment));
+        segments.append(&mut rebuild_spacing(context.tables, &when_indent_str, nested_clauses));
 
         fixes.push(LintFix::create_after(case1_last_when.clone(), segments, None));
         fixes.push(LintFix::delete(case1_else_clause_seg.clone()));
         fixes.append(&mut nested_end_trailing_comment(
+            context.tables,
             case1_children,
             case1_else_clause_seg,
             &end_indent_str,
@@ -240,7 +242,11 @@ fn indentation(
     indent_str
 }
 
-fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegment> {
+fn rebuild_spacing(
+    tables: &Tables,
+    indent_str: &str,
+    nested_clauses: Segments,
+) -> Vec<ErasedSegment> {
     let mut buff = Vec::new();
 
     let mut prior_newline = nested_clauses
@@ -253,7 +259,12 @@ fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegm
             || (prior_newline && seg.is_comment())
         {
             buff.push(NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}));
-            buff.push(WhitespaceSegment::create(indent_str, None, WhitespaceSegmentNewArgs {}));
+            buff.push(WhitespaceSegment::create(
+                tables.next_id(),
+                indent_str,
+                None,
+                WhitespaceSegmentNewArgs {},
+            ));
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();
@@ -262,6 +273,7 @@ fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegm
             prior_whitespace.clear();
         } else if !prior_newline && seg.is_comment() {
             buff.push(WhitespaceSegment::create(
+                tables.next_id(),
                 &prior_whitespace,
                 None,
                 WhitespaceSegmentNewArgs {},
@@ -278,6 +290,7 @@ fn rebuild_spacing(indent_str: &str, nested_clauses: Segments) -> Vec<ErasedSegm
 }
 
 fn nested_end_trailing_comment(
+    tables: &Tables,
     case1_children: Segments,
     case1_else_clause_seg: &ErasedSegment,
     end_indent_str: &str,
@@ -306,7 +319,12 @@ fn nested_end_trailing_comment(
     {
         let segments = vec![
             NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
-            WhitespaceSegment::create(end_indent_str, None, WhitespaceSegmentNewArgs {}),
+            WhitespaceSegment::create(
+                tables.next_id(),
+                end_indent_str,
+                None,
+                WhitespaceSegmentNewArgs {},
+            ),
         ];
         fixes.push(LintFix::create_before(first_comment.clone(), segments));
     }

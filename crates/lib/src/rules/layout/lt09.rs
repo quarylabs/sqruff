@@ -323,7 +323,12 @@ impl RuleLT09 {
         }
 
         let mut insert_buff = vec![
-            WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+            WhitespaceSegment::create(
+                context.tables.next_id(),
+                " ",
+                None,
+                WhitespaceSegmentNewArgs,
+            ),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
 
@@ -342,7 +347,12 @@ impl RuleLT09 {
             let buff = std::mem::take(&mut insert_buff);
 
             insert_buff = vec![
-                WhitespaceSegment::create(" ", None, WhitespaceSegmentNewArgs),
+                WhitespaceSegment::create(
+                    context.tables.next_id(),
+                    " ",
+                    None,
+                    WhitespaceSegmentNewArgs,
+                ),
                 modifier[0].clone(),
             ];
 

@@ -4,7 +4,6 @@ use std::hash::Hash;
 use std::ops::Deref;
 
 use ahash::AHashSet;
-use uuid::Uuid;
 
 use super::base::{CloneSegment, ErasedSegment};
 use crate::core::errors::SQLParseError;
@@ -35,7 +34,7 @@ pub trait MetaSegmentKind: Debug + Clone + PartialEq + 'static {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct MetaSegment<M> {
-    uuid: Uuid,
+    id: u32,
     position_marker: Option<PositionMarker>,
     pub(crate) kind: M,
 }
@@ -43,7 +42,7 @@ pub struct MetaSegment<M> {
 impl MetaSegment<TemplateSegment> {
     pub fn template(pos_marker: PositionMarker, source_str: &str, block_type: &str) -> Self {
         MetaSegment {
-            uuid: Uuid::new_v4(),
+            id: 0,
             position_marker: pos_marker.into(),
             kind: TemplateSegment::new(source_str.into(), block_type.into(), None, None),
         }
@@ -52,7 +51,7 @@ impl MetaSegment<TemplateSegment> {
 
 impl Indent {
     pub fn from_kind(kind: IndentChange) -> Self {
-        Self { kind, position_marker: None, uuid: Uuid::new_v4() }
+        Self { kind, position_marker: None, id: 0 }
     }
 
     pub fn indent() -> Self {
@@ -105,8 +104,12 @@ impl<M: MetaSegmentKind + Send + Sync> Segment for MetaSegment<M> {
         vec![self.clone().to_erased_segment()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 }
 
@@ -171,19 +174,19 @@ pub struct IndentNewArgs {}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct EndOfFile {
-    uuid: Uuid,
+    id: u32,
     position_maker: PositionMarker,
 }
 
 impl EndOfFile {
     pub fn create(position_maker: PositionMarker) -> ErasedSegment {
-        EndOfFile { position_maker, uuid: Uuid::new_v4() }.to_erased_segment()
+        EndOfFile { position_maker, id: 0 }.to_erased_segment()
     }
 }
 
 impl Segment for EndOfFile {
     fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Self { uuid: self.uuid, position_maker: self.position_maker.clone() }.to_erased_segment()
+        Self { id: self.id, position_maker: self.position_maker.clone() }.to_erased_segment()
     }
 
     fn raw(&self) -> Cow<str> {
@@ -226,8 +229,12 @@ impl Segment for EndOfFile {
         vec![self.clone_box()]
     }
 
-    fn get_uuid(&self) -> Uuid {
-        self.uuid
+    fn id(&self) -> u32 {
+        self.id
+    }
+
+    fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
 
     fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
@@ -244,7 +251,7 @@ pub struct TemplateSegment {
     source_str: String,
     block_type: String,
     source_fixes: Option<Vec<SourceFix>>,
-    block_uuid: Option<Uuid>,
+    block_uuid: Option<u32>,
 }
 
 impl TemplateSegment {
@@ -252,7 +259,7 @@ impl TemplateSegment {
         source_str: String,
         block_type: String,
         source_fixes: Option<Vec<SourceFix>>,
-        block_uuid: Option<Uuid>,
+        block_uuid: Option<u32>,
     ) -> Self {
         if source_str.is_empty() {
             panic!("Cannot instantiate TemplateSegment without a source_str.");

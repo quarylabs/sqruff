@@ -44,6 +44,7 @@ pub fn raw_dialect() -> Dialect {
                     "//",
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -57,6 +58,7 @@ pub fn raw_dialect() -> Dialect {
                     "/",
                     |segment: &dyn Segment| {
                         SymbolSegment::create(
+                            segment.id(),
                             &segment.raw(),
                             segment.get_position_marker(),
                             SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
@@ -221,10 +223,12 @@ mod tests {
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::linter::Linter;
     use crate::core::parser::segments::base::ErasedSegment;
+    use crate::dialects::ansi::Tables;
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let parsed = linter.parse_string(sql, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
         parsed.tree.unwrap()
     }
 

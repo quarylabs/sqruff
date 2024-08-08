@@ -13,6 +13,7 @@ use crate::core::errors::{SQLLexError, ValueError};
 use crate::core::parser::segments::base::Segment;
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
+use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
 
 /// An element matched during lexing.
@@ -313,6 +314,7 @@ impl<'a> Lexer<'a> {
 
     pub fn lex(
         &self,
+        tables: &Tables,
         raw: StringOrTemplate,
     ) -> Result<(Vec<ErasedSegment>, Vec<SQLLexError>), ValueError> {
         // Make sure we've got a string buffer and a template regardless of what was
@@ -356,8 +358,11 @@ impl<'a> Lexer<'a> {
         // This adds the template_slice to the object.
         let templated_buffer = Lexer::map_template_slices(element_buffer, &template);
         // Turn lexed elements into segments.
-        let segments = self.elements_to_segments(templated_buffer, &template);
+        let mut segments = self.elements_to_segments(templated_buffer, &template);
 
+        for seg in &mut segments {
+            seg.get_mut().set_id(tables.next_id())
+        }
         Ok((segments, Vec::new()))
     }
 

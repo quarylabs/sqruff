@@ -312,13 +312,13 @@ file:
           - array_accessor:
             - start_square_bracket: '['
             - numeric_literal: '1'
-            - '': ':'
+            - slice: ':'
             - numeric_literal: '2'
             - end_square_bracket: ']'
           - array_accessor:
             - start_square_bracket: '['
             - numeric_literal: '1'
-            - '': ':'
+            - slice: ':'
             - numeric_literal: '1'
             - end_square_bracket: ']'
     - from_clause:
@@ -379,7 +379,7 @@ file:
         - array_accessor:
           - start_square_bracket: '['
           - numeric_literal: '1'
-          - '': ':'
+          - slice: ':'
           - numeric_literal: '2'
           - end_square_bracket: ']'
         - comparison_operator:
@@ -718,7 +718,7 @@ file:
             - naked_identifier: a
           - array_accessor:
             - start_square_bracket: '['
-            - '': ':'
+            - slice: ':'
             - end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
@@ -727,7 +727,7 @@ file:
             - naked_identifier: b
           - array_accessor:
             - start_square_bracket: '['
-            - '': ':'
+            - slice: ':'
             - numeric_literal: '1'
             - end_square_bracket: ']'
       - comma: ','
@@ -738,7 +738,7 @@ file:
           - array_accessor:
             - start_square_bracket: '['
             - numeric_literal: '2'
-            - '': ':'
+            - slice: ':'
             - end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
@@ -748,7 +748,7 @@ file:
           - array_accessor:
             - start_square_bracket: '['
             - numeric_literal: '2'
-            - '': ':'
+            - slice: ':'
             - numeric_literal: '3'
             - end_square_bracket: ']'
 - statement_terminator: ;
@@ -766,7 +766,7 @@ file:
               - numeric_literal: '1'
               - binary_operator: +
               - numeric_literal: '2'
-            - '': ':'
+            - slice: ':'
             - expression:
               - numeric_literal: '3'
               - binary_operator: +

@@ -11,8 +11,7 @@ use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, Segment, SymbolSegment,
-    SymbolSegmentNewArgs,
+    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, Segment,
 };
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -471,193 +470,43 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "RightArrowOperator".into(),
-            StringParser::new(
-                "->",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("->", SyntaxKind::BinaryOperator).to_matchable().into(),
         ),
         (
             "BinaryfileKeywordSegment".into(),
-            StringParser::new(
-                "BINARYFILE",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("BINARYFILE", SyntaxKind::FileFormat).to_matchable().into(),
         ),
         (
             "JsonfileKeywordSegment".into(),
-            StringParser::new(
-                "JSONFILE",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("JSONFILE", SyntaxKind::FileFormat).to_matchable().into(),
         ),
         (
             "RcfileKeywordSegment".into(),
-            StringParser::new(
-                "RCFILE",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("RCFILE", SyntaxKind::FileFormat).to_matchable().into(),
         ),
         (
             "SequencefileKeywordSegment".into(),
-            StringParser::new(
-                "SEQUENCEFILE",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("SEQUENCEFILE", SyntaxKind::FileFormat).to_matchable().into(),
         ),
         (
             "TextfileKeywordSegment".into(),
-            StringParser::new(
-                "TEXTFILE",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileFormat },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("TEXTFILE", SyntaxKind::FileFormat).to_matchable().into(),
         ),
         (
             "StartAngleBracketSegment".into(),
-            StringParser::new(
-                "<",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartAngleBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("<", SyntaxKind::StartAngleBracket).to_matchable().into(),
         ),
         (
             "EndAngleBracketSegment".into(),
-            StringParser::new(
-                ">",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndAngleBracket },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new(">", SyntaxKind::EndAngleBracket).to_matchable().into(),
         ),
         (
             "EqualsSegment_a".into(),
-            StringParser::new(
-                "==",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::ComparisonOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("==", SyntaxKind::ComparisonOperator).to_matchable().into(),
         ),
         (
             "EqualsSegment_b".into(),
-            StringParser::new(
-                "<=>",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::ComparisonOperator },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("<=>", SyntaxKind::ComparisonOperator).to_matchable().into(),
         ),
         (
             "FileKeywordSegment".into(),
@@ -673,41 +522,11 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "NoscanKeywordSegment".into(),
-            StringParser::new(
-                "NOSCAN",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Keyword },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("NOSCAN", SyntaxKind::Keyword).to_matchable().into(),
         ),
         (
             "WhlKeywordSegment".into(),
-            StringParser::new(
-                "WHL",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileKeyword },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("WHL", SyntaxKind::FileKeyword).to_matchable().into(),
         ),
         ("CommentGrammar".into(), hive_dialect.grammar("CommentGrammar").into()),
         ("LocationGrammar".into(), hive_dialect.grammar("LocationGrammar").into()),
@@ -850,41 +669,11 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "StartHintSegment".into(),
-            StringParser::new(
-                "/*+",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StartHint },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("/*+", SyntaxKind::StartHint).to_matchable().into(),
         ),
         (
             "EndHintSegment".into(),
-            StringParser::new(
-                "*/",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::EndHint },
-                    )
-                },
-                None,
-                false,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("*/", SyntaxKind::EndHint).to_matchable().into(),
         ),
         (
             "PartitionSpecGrammar".into(),
@@ -1230,34 +1019,8 @@ pub fn sparksql_dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::SqlConfOption,
                 Sequence::new(vec_of_erased![
-                    StringParser::new(
-                        "-",
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::Dash },
-                            )
-                        },
-                        None,
-                        false,
-                        None,
-                    ),
-                    StringParser::new(
-                        "v",
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::SqlConfOption },
-                            )
-                        },
-                        None,
-                        false,
-                        None,
-                    )
+                    StringParser::new("-", SyntaxKind::Dash),
+                    StringParser::new("v", SyntaxKind::SqlConfOption)
                 ])
                 .config(|config| {
                     config.disallow_gaps();
@@ -3381,20 +3144,7 @@ pub fn sparksql_dialect() -> Dialect {
                 SyntaxKind::GenerateManifestFileStatement,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("GENERATE"),
-                    StringParser::new(
-                        "symlink_format_manifest",
-                        |segment: &dyn Segment| {
-                            SymbolSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                SymbolSegmentNewArgs { r#type: SyntaxKind::SymlinkFormatManifest },
-                            )
-                        },
-                        None,
-                        false,
-                        None,
-                    ),
+                    StringParser::new("symlink_format_manifest", SyntaxKind::SymlinkFormatManifest),
                     Ref::keyword("FOR"),
                     Ref::keyword("TABLE"),
                     one_of(vec_of_erased![

@@ -107,7 +107,7 @@ file:
         - expression:
           - numeric_literal: '4'
           - comparison_operator:
-            - '': '&'
+            - ampersand: '&'
           - tilde: '~'
           - numeric_literal: '8'
           - comparison_operator:

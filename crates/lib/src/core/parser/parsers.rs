@@ -76,31 +76,21 @@ impl Matchable for TypedParser {
 pub struct StringParser {
     template: String,
     simple: AHashSet<String>,
-    factory: fn(&dyn Segment) -> ErasedSegment,
-    type_: Option<String>,
+    kind: SyntaxKind,
     optional: bool,
-    trim_chars: Option<Vec<char>>,
     cache_key: MatchableCacheKey,
 }
 
 impl StringParser {
-    pub fn new(
-        template: &str,
-        factory: fn(&dyn Segment) -> ErasedSegment,
-        type_: Option<String>,
-        optional: bool,
-        trim_chars: Option<Vec<char>>,
-    ) -> StringParser {
+    pub fn new(template: &str, kind: SyntaxKind) -> StringParser {
         let template_upper = template.to_uppercase();
         let simple_set = [template_upper.clone()].into();
 
         StringParser {
             template: template_upper,
             simple: simple_set,
-            factory,
-            type_,
-            optional,
-            trim_chars,
+            kind,
+            optional: false,
             cache_key: next_matchable_cache_key(),
         }
     }
@@ -140,7 +130,7 @@ impl Matchable for StringParser {
         if segment.is_code() && self.template.eq_ignore_ascii_case(&segment.raw()) {
             return Ok(MatchResult {
                 span: Span { start: idx, end: idx + 1 },
-                matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                matched: Matched::Newtype(self.kind).into(),
                 insert_segments: Vec::new(),
                 child_matches: Vec::new(),
             });

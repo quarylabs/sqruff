@@ -325,7 +325,7 @@ file:
             - column_reference:
               - naked_identifier: warehouse
             - comparison_operator:
-              - '': '!'
+              - raw_comparison_operator: '!'
               - raw_comparison_operator: =
             - quoted_literal: '''warehouse #2'''
       - end_bracket: )

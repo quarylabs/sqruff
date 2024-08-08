@@ -284,6 +284,9 @@ impl ErasedSegment {
         let mut _requires_validate = false;
 
         for seg in self.gather_segments() {
+            if seg.id() == 0 {
+                dbg!(&seg);
+            }
             // Look for uuid match.
             // This handles potential positioning ambiguity.
 

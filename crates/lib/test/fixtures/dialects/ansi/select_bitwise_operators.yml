@@ -8,7 +8,7 @@ file:
           - column_reference:
             - naked_identifier: c1
           - comparison_operator:
-            - '': '&'
+            - ampersand: '&'
           - column_reference:
             - naked_identifier: c2
       - comma: ','

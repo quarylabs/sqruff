@@ -25,7 +25,7 @@ file:
               - column_reference:
                 - naked_identifier: _cdn_provider
               - comparison_operator:
-                - '': '!'
+                - raw_comparison_operator: '!'
                 - raw_comparison_operator: =
               - quoted_literal: ''''''
             - comma: ','
@@ -145,7 +145,7 @@ file:
         - column_reference:
           - naked_identifier: vary
         - comparison_operator:
-          - '': '!'
+          - raw_comparison_operator: '!'
           - raw_comparison_operator: =
         - quoted_literal: ''''''
         - binary_operator: AND

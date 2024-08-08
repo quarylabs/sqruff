@@ -15,7 +15,6 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, IdentifierSegment,
-    Segment, SymbolSegment, SymbolSegmentNewArgs,
 };
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -284,17 +283,7 @@ pub fn snowflake_dialect() -> Dialect {
             "ParameterAssignerSegment".into(),
             StringParser::new(
                 "=>",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::ParameterAssigner },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::ParameterAssigner
             )
             .to_matchable()
             .into(),
@@ -303,17 +292,7 @@ pub fn snowflake_dialect() -> Dialect {
             "FunctionAssignerSegment".into(),
             StringParser::new(
                 "->",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionAssigner },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::FunctionAssigner
             )
             .to_matchable()
             .into(),
@@ -322,17 +301,7 @@ pub fn snowflake_dialect() -> Dialect {
             "WalrusOperatorSegment".into(),
             StringParser::new(
                 ":=",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::AssignmentOperator },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::AssignmentOperator
             )
             .to_matchable()
             .into(),
@@ -341,16 +310,7 @@ pub fn snowflake_dialect() -> Dialect {
             "QuotedStarSegment".into(),
             StringParser::new(
                 "'*'",
-                |segment: &dyn Segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::QuotedStar, ..Default::default() },
-                    )
-                },
-                None,
-                false,
-                vec!['\''].into(),
+                SyntaxKind::QuotedStar
             )
             .to_matchable()
             .into(),
@@ -826,19 +786,7 @@ pub fn snowflake_dialect() -> Dialect {
             "StartExcludeBracketSegment".into(),
             StringParser::new(
                 "{-",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs {
-                            r#type: SyntaxKind::StartExcludeBracket,
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::StartExcludeBracket
             )
             .to_matchable()
             .into(),
@@ -847,19 +795,7 @@ pub fn snowflake_dialect() -> Dialect {
             "EndExcludeBracketSegment".into(),
             StringParser::new(
                 "-}",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs {
-                            r#type: SyntaxKind::EndExcludeBracket,
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::EndExcludeBracket
             )
             .to_matchable()
             .into(),
@@ -868,19 +804,7 @@ pub fn snowflake_dialect() -> Dialect {
             "QuestionMarkSegment".into(),
             StringParser::new(
                 "?",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs {
-                            r#type: SyntaxKind::QuestionMark,
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::QuestionMark
             )
             .to_matchable()
             .into(),
@@ -889,19 +813,7 @@ pub fn snowflake_dialect() -> Dialect {
             "CaretSegment".into(),
             StringParser::new(
                 "^",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs {
-                            r#type: SyntaxKind::Caret,
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::Caret
             )
             .to_matchable()
             .into(),
@@ -910,19 +822,7 @@ pub fn snowflake_dialect() -> Dialect {
             "DollarSegment".into(),
             StringParser::new(
                 "$",
-                |segment: &dyn Segment| {
-                    SymbolSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        SymbolSegmentNewArgs {
-                            r#type: SyntaxKind::Dollar,
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
+                SyntaxKind::Dollar
             )
             .to_matchable()
             .into(),
@@ -4714,20 +4614,7 @@ pub fn snowflake_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("STORAGE_AWS_OBJECT_ACL"),
                             Ref::new("EqualsSegment"),
-                            StringParser::new(
-                                "'bucket-owner-full-control'",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::Literal },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            )
+                            StringParser::new("'bucket-owner-full-control'", SyntaxKind::Literal)
                         ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("STORAGE_ALLOWED_LOCATIONS"),
@@ -5245,34 +5132,8 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::keyword("TYPE"),
                         Ref::new("EqualsSegment"),
                         one_of(vec_of_erased![
-                            StringParser::new(
-                                "'CSV'",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
-                            StringParser::new(
-                                "CSV",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
+                            StringParser::new("'CSV'", SyntaxKind::FileType),
+                            StringParser::new("CSV", SyntaxKind::FileType),
                         ]),
                     ]),
                     Sequence::new(vec_of_erased![
@@ -5373,34 +5234,8 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::keyword("TYPE"),
                         Ref::new("EqualsSegment"),
                         one_of(vec_of_erased![
-                            StringParser::new(
-                                "'JSON'",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
-                            StringParser::new(
-                                "JSON",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
+                            StringParser::new("'JSON'", SyntaxKind::FileType),
+                            StringParser::new("JSON", SyntaxKind::FileType),
                         ]),
                     ]),
                     Sequence::new(vec_of_erased![
@@ -5475,34 +5310,8 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::keyword("TYPE"),
                         Ref::new("EqualsSegment"),
                         one_of(vec_of_erased![
-                            StringParser::new(
-                                "'AVRO'",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
-                            StringParser::new(
-                                "AVRO",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
+                            StringParser::new("'AVRO'", SyntaxKind::FileType),
+                            StringParser::new("AVRO", SyntaxKind::FileType),
                         ]),
                     ]),
                     Sequence::new(vec_of_erased![
@@ -5542,34 +5351,8 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::keyword("TYPE"),
                         Ref::new("EqualsSegment"),
                         one_of(vec_of_erased![
-                            StringParser::new(
-                                "'ORC'",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
-                            StringParser::new(
-                                "ORC",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
+                            StringParser::new("'ORC'", SyntaxKind::FileType),
+                            StringParser::new("ORC", SyntaxKind::FileType),
                         ]),
                     ]),
                     Sequence::new(vec_of_erased![
@@ -5604,34 +5387,8 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::keyword("TYPE"),
                         Ref::new("EqualsSegment"),
                         one_of(vec_of_erased![
-                            StringParser::new(
-                                "'PARQUET'",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
-                            StringParser::new(
-                                "PARQUET",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
+                            StringParser::new("'PARQUET'", SyntaxKind::FileType),
+                            StringParser::new("PARQUET", SyntaxKind::FileType),
                         ]),
                     ]),
                     Sequence::new(vec_of_erased![
@@ -5675,34 +5432,8 @@ pub fn snowflake_dialect() -> Dialect {
                         Ref::keyword("TYPE"),
                         Ref::new("EqualsSegment"),
                         one_of(vec_of_erased![
-                            StringParser::new(
-                                "'XML'",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
-                            StringParser::new(
-                                "XML",
-                                |segment: &dyn Segment| {
-                                    SymbolSegment::create(
-                                        segment.id(),
-                                        &segment.raw(),
-                                        segment.get_position_marker().unwrap().into(),
-                                        SymbolSegmentNewArgs { r#type: SyntaxKind::FileType },
-                                    )
-                                },
-                                None,
-                                false,
-                                None,
-                            ),
+                            StringParser::new("'XML'", SyntaxKind::FileType),
+                            StringParser::new("XML", SyntaxKind::FileType),
                         ]),
                     ]),
                     Sequence::new(vec_of_erased![

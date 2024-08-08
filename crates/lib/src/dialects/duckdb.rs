@@ -8,9 +8,7 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::StringParser;
-use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, Segment, SymbolSegment, SymbolSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
@@ -40,34 +38,8 @@ pub fn raw_dialect() -> Dialect {
         (
             "DivideSegment".into(),
             one_of(vec_of_erased![
-                StringParser::new(
-                    "//",
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                ),
-                StringParser::new(
-                    "/",
-                    |segment: &dyn Segment| {
-                        SymbolSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::BinaryOperator },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                )
+                StringParser::new("//", SyntaxKind::BinaryOperator),
+                StringParser::new("/", SyntaxKind::BinaryOperator)
             ])
             .to_matchable()
             .into(),

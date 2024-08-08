@@ -237,7 +237,12 @@ impl Segment for EndOfFile {
         self.id = id;
     }
 
-    fn edit(&self, _raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        _id: u32,
+        _raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         todo!()
     }
 

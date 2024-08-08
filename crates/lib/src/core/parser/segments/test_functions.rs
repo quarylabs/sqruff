@@ -82,7 +82,12 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
                 WhitespaceSegmentNewArgs,
             )
         } else if elem.chars().all(|c| c == '\n') {
-            NewlineSegment::create(elem, position_marker.clone().into(), NewlineSegmentNewArgs {})
+            NewlineSegment::create(
+                tables.next_id(),
+                elem,
+                position_marker.clone().into(),
+                NewlineSegmentNewArgs {},
+            )
         } else if elem == "(" || elem == ")" {
             SymbolSegment::create(
                 tables.next_id(),

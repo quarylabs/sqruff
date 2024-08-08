@@ -197,8 +197,14 @@ impl Segment for Node {
         self.source_fixes.clone()
     }
 
-    fn edit(&self, raw: Option<String>, source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         let mut cloned = self.clone();
+        cloned.set_id(id);
         if let Some((a, b)) = cloned.raw.get_mut().zip(raw) {
             *a = b;
         };
@@ -4875,7 +4881,7 @@ fn lexer_matchers() -> Vec<Matcher> {
             )
         })
         .subdivider(Pattern::regex("newline", r"\r\n|\n", |slice, marker| {
-            NewlineSegment::create(slice, marker.into(), NewlineSegmentNewArgs {})
+            NewlineSegment::create(0, slice, marker.into(), NewlineSegmentNewArgs {})
         }))
         .post_subdivide(Pattern::regex("whitespace", r"[^\S\r\n]+", |slice, marker| {
             WhitespaceSegment::create(0, slice, marker.into(), WhitespaceSegmentNewArgs {})
@@ -4930,7 +4936,7 @@ fn lexer_matchers() -> Vec<Matcher> {
             )
         }),
         Matcher::regex("newline", r"\r\n|\n", |slice, marker| {
-            NewlineSegment::create(slice, marker.into(), NewlineSegmentNewArgs {})
+            NewlineSegment::create(0, slice, marker.into(), NewlineSegmentNewArgs {})
         }),
         Matcher::string("casting_operator", "::", |slice, marker| {
             CodeSegment::create(

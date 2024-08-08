@@ -104,7 +104,12 @@ SELECT * FROM zoo
                     seg.clone().into(),
                     vec![LintFix::create_before(
                         seg,
-                        vec![NewlineSegment::create("\n", None, <_>::default())],
+                        vec![NewlineSegment::create(
+                            context.tables.next_id(),
+                            "\n",
+                            None,
+                            <_>::default(),
+                        )],
                     )],
                     None,
                     None,

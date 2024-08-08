@@ -447,7 +447,7 @@ impl CTEBuilder {
                         None,
                         SymbolSegmentNewArgs { r#type: SyntaxKind::Comma },
                     ),
-                    NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}),
+                    NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
                 ]);
             }
         }
@@ -467,7 +467,12 @@ impl CTEBuilder {
             WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {}),
         ];
         segments.extend(self.get_cte_segments(tables));
-        segments.push(NewlineSegment::create("\n", None, NewlineSegmentNewArgs {}));
+        segments.push(NewlineSegment::create(
+            tables.next_id(),
+            "\n",
+            None,
+            NewlineSegmentNewArgs {},
+        ));
         segments.push(output_select_clone);
 
         Node::new(tables.next_id(), dialect, SyntaxKind::WithCompoundStatement, segments, false)

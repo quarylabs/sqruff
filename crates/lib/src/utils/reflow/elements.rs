@@ -165,7 +165,8 @@ impl ReflowPoint {
                     );
                 };
 
-                let new_indent = indent_seg.edit(desired_indent.to_owned().into(), None);
+                let new_indent =
+                    indent_seg.edit(tables.next_id(), desired_indent.to_owned().into(), None);
                 let idx = self.segments.iter().position(|it| it == &indent_seg).unwrap();
 
                 let description = format!("Expected {}.", indent_description(desired_indent));
@@ -230,7 +231,7 @@ impl ReflowPoint {
             }
         } else {
             // There isn't currently a newline.
-            let new_newline = NewlineSegment::create("\n", None, <_>::default());
+            let new_newline = NewlineSegment::create(tables.next_id(), "\n", None, <_>::default());
             // Check for whitespace
             let ws_seg = self.segments.iter().find(|seg| seg.is_type(SyntaxKind::Whitespace));
 
@@ -238,7 +239,10 @@ impl ReflowPoint {
                 let new_segs = if desired_indent.is_empty() {
                     vec![new_newline]
                 } else {
-                    vec![new_newline, ws_seg.edit(desired_indent.to_owned().into(), None)]
+                    vec![
+                        new_newline,
+                        ws_seg.edit(tables.next_id(), desired_indent.to_owned().into(), None),
+                    ]
                 };
                 let idx = self.segments.iter().position(|it| ws_seg == it).unwrap();
                 let description = if let Some(before_seg) = before {
@@ -437,6 +441,7 @@ impl ReflowPoint {
         let segment_buffer = if let Some(last_whitespace) = last_whitespace {
             // We do - is it the right size?
             let (segment_buffer, results) = handle_respace_inline_with_space(
+                tables,
                 pre_constraint,
                 post_constraint,
                 prev_block,

@@ -287,7 +287,7 @@ pub fn handle_segment(
             seg.clone().into(),
             vec![LintFix::replace(
                 seg.clone(),
-                vec![seg.edit(fixed_raw.to_string().into(), None)],
+                vec![seg.edit(context.tables.next_id(), fixed_raw.to_string().into(), None)],
                 None,
             )],
             None,

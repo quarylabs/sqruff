@@ -71,8 +71,13 @@ impl Segment for KeywordSegment {
         Vec::new()
     }
 
-    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
-        Self::new(self.id, raw.unwrap().into(), self.get_position_marker()).to_erased_segment()
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
+        Self::new(id, raw.unwrap().into(), self.get_position_marker()).to_erased_segment()
     }
 
     fn class_types(&self) -> SyntaxSet {

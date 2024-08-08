@@ -72,11 +72,16 @@ impl Segment for LiteralSegment {
         Vec::new()
     }
 
-    fn edit(&self, raw: Option<String>, _source_fixes: Option<Vec<SourceFix>>) -> ErasedSegment {
+    fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
         Self {
             raw: raw.map(Into::into).unwrap_or_else(|| self.raw.clone()),
             position_maker: self.position_maker.clone(),
-            id: self.id,
+            id,
         }
         .to_erased_segment()
     }

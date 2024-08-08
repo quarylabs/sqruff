@@ -116,7 +116,12 @@ from x
         ];
 
         if trailing_newline_segments.is_empty() {
-            edit_segments.push(NewlineSegment::create("\n", None, <_>::default()));
+            edit_segments.push(NewlineSegment::create(
+                context.tables.next_id(),
+                "\n",
+                None,
+                <_>::default(),
+            ));
         }
 
         let mut fixes = Vec::new();

@@ -88,7 +88,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
                 tables.next_id(),
                 elem,
                 position_marker.clone().into(),
-                SymbolSegmentNewArgs { r#type: SyntaxKind::RemoveMe },
+                SymbolSegmentNewArgs { r#type: SyntaxKind::RawComparisonOperator },
             )
         } else if elem.starts_with("--") {
             CommentSegment::create(
@@ -125,7 +125,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
                 elem,
                 position_marker.clone().into(),
                 CodeSegmentNewArgs {
-                    code_type: SyntaxKind::RemoveMe,
+                    code_type: SyntaxKind::RawComparisonOperator,
                     instance_types: vec![],
                     trim_start: None,
                     trim_chars: None,

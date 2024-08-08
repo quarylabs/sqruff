@@ -11,7 +11,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': STRING_COL
+        - parameter: STRING_COL
         - data_type:
           - data_type_identifier: VARCHAR
         - end_bracket: )
@@ -39,7 +39,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': STRING_COL
+        - parameter: STRING_COL
         - data_type:
           - data_type_identifier: VARCHAR
         - end_bracket: )
@@ -115,7 +115,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': STRING_COL
+        - parameter: STRING_COL
         - data_type:
           - data_type_identifier: VARCHAR
         - end_bracket: )
@@ -195,7 +195,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': OBJ
+        - parameter: OBJ
         - data_type:
           - data_type_identifier: OBJECT
         - end_bracket: )

@@ -101,7 +101,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - snowflake_keyword_expression:
-                  - '': input
+                  - parameter: input
                   - parameter_assigner: =>
                   - column_reference:
                     - naked_identifier: b

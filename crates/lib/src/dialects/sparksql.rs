@@ -11,7 +11,7 @@ use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, Segment,
+    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
 };
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -442,25 +442,7 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "NakedSemiStructuredElementSegment".into(),
-            RegexParser::new(
-                "[A-Z0-9_]*",
-                |segment: &dyn Segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::SemiStructuredElement,
-                            ..CodeSegmentNewArgs::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new("[A-Z0-9_]*", SyntaxKind::SemiStructuredElement).to_matchable().into(),
         ),
         (
             "QuotedSemiStructuredElementSegment".into(),
@@ -742,25 +724,9 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "PropertiesNakedIdentifierSegment".into(),
-            RegexParser::new(
-                "[A-Z0-9]*[A-Z][A-Z0-9]*",
-                |segment: &dyn Segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::PropertiesNakedIdentifier,
-                            ..CodeSegmentNewArgs::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new("[A-Z0-9]*[A-Z][A-Z0-9]*", SyntaxKind::PropertiesNakedIdentifier)
+                .to_matchable()
+                .into(),
         ),
         (
             "ResourceFileGrammar".into(),
@@ -881,25 +847,9 @@ pub fn sparksql_dialect() -> Dialect {
         ),
         (
             "WidgetNameIdentifierSegment".into(),
-            RegexParser::new(
-                "[A-Z][A-Z0-9_]*",
-                |segment: &dyn Segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::WidgetNameIdentifier,
-                            ..CodeSegmentNewArgs::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new("[A-Z][A-Z0-9_]*", SyntaxKind::WidgetNameIdentifier)
+                .to_matchable()
+                .into(),
         ),
         (
             "WidgetDefaultGrammar".into(),

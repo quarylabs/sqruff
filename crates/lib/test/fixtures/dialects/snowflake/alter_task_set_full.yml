@@ -7,17 +7,17 @@ file:
       - naked_identifier: my_task
     - alter_task_set_clause:
       - keyword: SET
-      - '': a
+      - parameter: a
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''b'''
       - comma: ','
-      - '': c
+      - parameter: c
       - comparison_operator:
         - raw_comparison_operator: =
       - numeric_literal: '1'
       - comma: ','
-      - '': d
+      - parameter: d
       - comparison_operator:
         - raw_comparison_operator: =
       - boolean_literal: 'TRUE'

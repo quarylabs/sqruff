@@ -12,7 +12,7 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, IdentifierSegment};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -114,7 +114,7 @@ pub fn bigquery_dialect() -> Dialect {
         ),
         (
             "RightArrowSegment".into(),
-            StringParser::new("=>", SyntaxKind::RemoveMe).to_matchable().into(),
+            StringParser::new("=>", SyntaxKind::RightArrow).to_matchable().into(),
         ),
         ("DashSegment".into(), StringParser::new("-", SyntaxKind::Dash).to_matchable().into()),
         (
@@ -173,89 +173,20 @@ pub fn bigquery_dialect() -> Dialect {
         ),
         (
             "NakedIdentifierFullSegment".into(),
-            RegexParser::new(
-                "[A-Z_][A-Z0-9_]*",
-                |segment| {
-                    IdentifierSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::NakedIdentifierAll,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::NakedIdentifierAll)
+                .to_matchable()
+                .into(),
         ),
         (
             "NakedIdentifierPart".into(),
-            RegexParser::new(
-                "[A-Z0-9_]+",
-                |segment| {
-                    IdentifierSegment::create(
-                        segment.id(),
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::NakedIdentifier,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new("[A-Z0-9_]+", SyntaxKind::NakedIdentifier).to_matchable().into(),
         ),
         (
             "ProcedureNameIdentifierSegment".into(),
             one_of(vec_of_erased![
-                RegexParser::new(
-                    "[A-Z_][A-Z0-9_]*",
-                    |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::ProcedureNameIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    "STRUCT".to_owned().into(),
-                    None,
-                ),
-                RegexParser::new(
-                    "`[^`]*`",
-                    |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::ProcedureNameIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                ),
+                RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::ProcedureNameIdentifier)
+                    .anti_template("STRUCT"),
+                RegexParser::new("`[^`]*`", SyntaxKind::ProcedureNameIdentifier),
             ])
             .to_matchable()
             .into(),
@@ -295,24 +226,10 @@ pub fn bigquery_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({})$", pattern);
 
-                Arc::new(RegexParser::new(
-                    "[A-Z_][A-Z0-9_]*",
-                    |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::NakedIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    anti_template.into(),
-                    None,
-                ))
+                Arc::new(
+                    RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
+                        .anti_template(&anti_template),
+                )
             })
             .into(),
         ),
@@ -338,40 +255,8 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "ParameterNameSegment".into(),
             one_of(vec_of_erased![
-                RegexParser::new(
-                    "[A-Z_][A-Z0-9_]*",
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::Parameter,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                ),
-                RegexParser::new(
-                    "`[^`]*`",
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::Parameter,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                )
+                RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::Parameter),
+                RegexParser::new("`[^`]*`", SyntaxKind::Parameter)
             ])
             .to_matchable()
             .into(),
@@ -2295,41 +2180,9 @@ pub fn bigquery_dialect() -> Dialect {
         (
             "FunctionNameIdentifierSegment".into(),
             one_of(vec_of_erased![
-                RegexParser::new(
-                    "[A-Z_][A-Z0-9_]*",
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::FunctionNameIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    "^(STRUCT|ARRAY)$".to_owned().into(),
-                    None,
-                ),
-                RegexParser::new(
-                    "`[^`]*`",
-                    |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::FunctionNameIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                ),
+                RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::FunctionNameIdentifier)
+                    .anti_template("^(STRUCT|ARRAY)$"),
+                RegexParser::new("`[^`]*`", SyntaxKind::FunctionNameIdentifier),
             ])
             .to_matchable()
             .into(),

@@ -7,7 +7,7 @@ file:
       - naked_identifier: my_task
     - alter_task_set_clause:
       - keyword: SET
-      - '': x
+      - parameter: x
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''y'''

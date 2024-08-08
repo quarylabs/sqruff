@@ -466,8 +466,6 @@ pub enum SyntaxKind {
     DoubleDivide,
     Meta,
     #[default]
-    #[strum(serialize = "")]
-    RemoveMe,
     Colon,
     StatementTerminator,
     StartSquareBracket,

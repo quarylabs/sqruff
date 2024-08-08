@@ -9,7 +9,7 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''USING CRON 0 9-17 * * SUN America/Los_Angeles'''
-    - '': TIMESTAMP_INPUT_FORMAT
+    - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''YYYY-MM-DD HH24'''
@@ -53,7 +53,7 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''USING CRON 0 9-17 * * SUN America/Los_Angeles'''
-    - '': TIMESTAMP_INPUT_FORMAT
+    - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''YYYY-MM-DD HH24'''
@@ -103,7 +103,7 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - boolean_literal: 'TRUE'
-    - '': TIMESTAMP_INPUT_FORMAT
+    - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''YYYY-MM-DD HH24'''
@@ -117,7 +117,7 @@ file:
     - warehouse_size: '''XSMALL'''
     - keyword: COPY
     - keyword: GRANTS
-    - '': COMMENT
+    - parameter: COMMENT
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''Hello world'''

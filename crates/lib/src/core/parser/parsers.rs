@@ -148,7 +148,7 @@ impl Matchable for StringParser {
 pub struct RegexParser {
     pub(crate) template: Regex,
     pub(crate) anti_template: Option<Regex>,
-    factory: fn(&dyn Segment) -> ErasedSegment,
+    kind: SyntaxKind,
     cache_key: MatchableCacheKey,
 }
 
@@ -160,29 +160,25 @@ impl PartialEq for RegexParser {
                 .as_ref()
                 .zip(other.anti_template.as_ref())
                 .map_or(false, |(lhs, rhs)| lhs.as_str() == rhs.as_str())
-            && self.factory == other.factory
+            && self.kind == other.kind
     }
 }
 
 impl RegexParser {
-    pub fn new(
-        template: &str,
-        factory: fn(&dyn Segment) -> ErasedSegment,
-        _type_: Option<String>,
-        _optional: bool,
-        anti_template: Option<String>,
-        _trim_chars: Option<Vec<String>>,
-    ) -> Self {
-        let anti_template_pattern =
-            anti_template.map(|anti_template| Regex::new(&format!("(?i){anti_template}")).unwrap());
+    pub fn new(template: &str, kind: SyntaxKind) -> Self {
         let template_pattern = Regex::new(&format!("(?i){}", template)).unwrap();
 
         Self {
             template: template_pattern,
-            anti_template: anti_template_pattern,
-            factory,
+            anti_template: None,
+            kind,
             cache_key: next_matchable_cache_key(),
         }
+    }
+
+    pub fn anti_template(mut self, anti_template: &str) -> Self {
+        self.anti_template = Regex::new(&format!("(?i){anti_template}")).unwrap().into();
+        self
     }
 }
 
@@ -220,7 +216,7 @@ impl Matchable for RegexParser {
             {
                 return Ok(MatchResult {
                     span: Span { start: idx, end: idx + 1 },
-                    matched: Matched::ErasedSegment((self.factory)(&**segment)).into(),
+                    matched: Matched::Newtype(self.kind).into(),
                     insert_segments: Vec::new(),
                     child_matches: Vec::new(),
                 });

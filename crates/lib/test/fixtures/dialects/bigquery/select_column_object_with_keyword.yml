@@ -7,7 +7,7 @@ file:
         - column_reference:
           - naked_identifier: table1
           - dot: .
-          - naked_identifier: current
+          - naked_identifier_all: current
           - dot: .
           - naked_identifier: column
       - comma: ','
@@ -17,7 +17,7 @@ file:
           - dot: .
           - naked_identifier: object
           - dot: .
-          - naked_identifier: current
+          - naked_identifier_all: current
           - dot: .
           - naked_identifier: column
       - comma: ','
@@ -29,7 +29,7 @@ file:
           - dot: .
           - naked_identifier: nested
           - dot: .
-          - naked_identifier: current
+          - naked_identifier_all: current
           - dot: .
           - naked_identifier: column
       - comma: ','

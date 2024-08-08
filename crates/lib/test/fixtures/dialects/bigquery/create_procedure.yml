@@ -6,7 +6,7 @@ file:
     - keyword: REPLACE
     - keyword: PROCEDURE
     - procedure_name:
-      - naked_identifier: '`mfrm_working_temp_dataset.temp`'
+      - procedure_name_identifier: '`mfrm_working_temp_dataset.temp`'
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -39,7 +39,7 @@ file:
       - dot: .
       - naked_identifier: myDataset
       - dot: .
-      - naked_identifier: QueryTable
+      - procedure_name_identifier: QueryTable
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -73,7 +73,7 @@ file:
     - procedure_name:
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: AddDelta
+      - procedure_name_identifier: AddDelta
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -110,7 +110,7 @@ file:
     - procedure_name:
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: SelectFromTablesAndAppend
+      - procedure_name_identifier: SelectFromTablesAndAppend
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -283,7 +283,7 @@ file:
     - procedure_name:
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: create_customer
+      - procedure_name_identifier: create_customer
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -361,7 +361,7 @@ file:
     - procedure_name:
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: create_customer
+      - procedure_name_identifier: create_customer
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -453,7 +453,7 @@ file:
     - procedure_name:
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: create_customer
+      - procedure_name_identifier: create_customer
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -543,7 +543,7 @@ file:
     - procedure_name:
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: test_raise_return
+      - procedure_name_identifier: test_raise_return
     - procedure_parameter_list:
       - bracketed:
         - start_bracket: (

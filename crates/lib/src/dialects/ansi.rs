@@ -25,8 +25,8 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
     pos_marker, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-    ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs, PathStep, Segment,
-    WhitespaceSegment, WhitespaceSegmentNewArgs,
+    ErasedSegment, NewlineSegment, NewlineSegmentNewArgs, PathStep, Segment, WhitespaceSegment,
+    WhitespaceSegmentNewArgs,
 };
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::fix::SourceFix;
@@ -468,46 +468,17 @@ pub fn raw_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({})$", pattern);
 
-                RegexParser::new(
-                    "[A-Z0-9_]*[A-Z][A-Z0-9_]*",
-                    |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::NakedIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    anti_template.into(),
-                    None,
-                )
-                .boxed()
+                RegexParser::new("[A-Z0-9_]*[A-Z][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
+                    .anti_template(&anti_template)
+                    .boxed()
             })
             .into(),
         ),
         (
             "ParameterNameSegment".into(),
-            RegexParser::new(
-                r#"\"?[A-Z][A-Z0-9_]*\"?"#,
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs::default(),
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#, SyntaxKind::Parameter)
+                .to_matchable()
+                .into(),
         ),
         (
             "FunctionNameIdentifierSegment".into(),
@@ -524,24 +495,9 @@ pub fn raw_dialect() -> Dialect {
                 let anti_template = format!("^({})$", "NOT");
 
                 one_of(vec![
-                    RegexParser::new(
-                        "[A-Z_][A-Z0-9_]*",
-                        |segment| {
-                            CodeSegment::create(
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                CodeSegmentNewArgs {
-                                    code_type: SyntaxKind::DataTypeIdentifier,
-                                    ..<_>::default()
-                                },
-                            )
-                        },
-                        None,
-                        false,
-                        anti_template.into(),
-                        None,
-                    )
-                    .boxed(),
+                    RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::DataTypeIdentifier)
+                        .anti_template(&anti_template)
+                        .boxed(),
                     Ref::new("SingleIdentifierGrammar")
                         .exclude(Ref::new("NakedIdentifierSegment"))
                         .boxed(),

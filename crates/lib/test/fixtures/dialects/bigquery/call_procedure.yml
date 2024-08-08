@@ -5,7 +5,7 @@ file:
     - procedure_name:
       - naked_identifier: mydataset
       - dot: .
-      - naked_identifier: create_customer
+      - procedure_name_identifier: create_customer
     - bracketed:
       - start_bracket: (
       - end_bracket: )
@@ -23,7 +23,7 @@ file:
     - procedure_name:
       - naked_identifier: mySchema
       - dot: .
-      - naked_identifier: UpdateSomeTables
+      - procedure_name_identifier: UpdateSomeTables
     - bracketed:
       - start_bracket: (
       - expression:

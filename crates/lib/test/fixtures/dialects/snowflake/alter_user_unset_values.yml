@@ -6,7 +6,7 @@ file:
     - role_reference:
       - naked_identifier: my_user
     - keyword: unset
-    - '': USE_CACHED_RESULT
+    - parameter: USE_CACHED_RESULT
     - comma: ','
-    - '': must_change_password
+    - parameter: must_change_password
 - statement_terminator: ;

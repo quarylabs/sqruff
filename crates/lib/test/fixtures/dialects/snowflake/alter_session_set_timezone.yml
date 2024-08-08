@@ -5,7 +5,7 @@ file:
     - keyword: SESSION
     - alter_session_set_statement:
       - keyword: SET
-      - '': TIMEZONE
+      - parameter: TIMEZONE
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''UTC'''

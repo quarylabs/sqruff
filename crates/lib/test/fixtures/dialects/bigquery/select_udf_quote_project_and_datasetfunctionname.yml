@@ -8,7 +8,7 @@ file:
           - function_name:
             - quoted_identifier: '`another-gcp-project`'
             - dot: .
-            - naked_identifier: '`functions.timestamp_parsing`'
+            - function_name_identifier: '`functions.timestamp_parsing`'
           - bracketed:
             - start_bracket: (
             - expression:

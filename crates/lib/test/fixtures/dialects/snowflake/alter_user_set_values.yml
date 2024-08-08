@@ -6,12 +6,12 @@ file:
     - role_reference:
       - naked_identifier: my_user
     - keyword: SET
-    - '': password
+    - parameter: password
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''abc123'''
     - comma: ','
-    - '': DEFAULT_ROLE
+    - parameter: DEFAULT_ROLE
     - comparison_operator:
       - raw_comparison_operator: =
     - object_reference:

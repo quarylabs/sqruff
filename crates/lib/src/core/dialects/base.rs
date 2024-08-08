@@ -9,10 +9,10 @@ use crate::core::dialects::init::DialectKind;
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::StringParser;
-use crate::core::parser::segments::keyword::KeywordSegment;
 use crate::core::parser::types::DialectElementType;
 use crate::dialects::ansi::NodeMatcher;
-use crate::helpers::{capitalize, ToErasedSegment};
+use crate::dialects::SyntaxKind;
+use crate::helpers::capitalize;
 
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
@@ -230,20 +230,7 @@ impl Dialect {
                 for kw in keywords {
                     let n = format!("{}KeywordSegment", capitalize(kw));
                     if !self.library.contains_key(n.as_str()) {
-                        let parser = StringParser::new(
-                            &kw.to_lowercase(),
-                            |segment| {
-                                KeywordSegment::new(
-                                    segment.id(),
-                                    segment.raw().into(),
-                                    segment.get_position_marker().unwrap().into(),
-                                )
-                                .to_erased_segment()
-                            },
-                            None,
-                            false,
-                            None,
-                        );
+                        let parser = StringParser::new(&kw.to_lowercase(), SyntaxKind::Keyword);
 
                         self.library
                             .insert(n.into(), DialectElementType::Matchable(Arc::new(parser)));

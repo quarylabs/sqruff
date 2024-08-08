@@ -14,7 +14,7 @@ use crate::core::parser::lexer::Matcher;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, IdentifierSegment,
+    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
 };
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -319,20 +319,7 @@ pub fn snowflake_dialect() -> Dialect {
             "NakedSemiStructuredElementSegment".into(),
             RegexParser::new(
                 "[A-Z0-9_]*",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::SemiStructuredElement,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::SemiStructuredElement
             )
             .to_matchable()
             .into(),
@@ -350,20 +337,7 @@ pub fn snowflake_dialect() -> Dialect {
             "ColumnIndexIdentifierSegment".into(),
             RegexParser::new(
                 r"\$[0-9]+",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::ColumnIndexIdentifierSegment,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::ColumnIndexIdentifierSegment
             )
             .to_matchable()
             .into(),
@@ -372,17 +346,7 @@ pub fn snowflake_dialect() -> Dialect {
             "LocalVariableNameSegment".into(),
             RegexParser::new(
                 r"[a-zA-Z0-9_]*",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::Variable, ..Default::default() },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::Variable
             )
             .to_matchable()
             .into(),
@@ -391,17 +355,7 @@ pub fn snowflake_dialect() -> Dialect {
             "ReferencedVariableNameSegment".into(),
             RegexParser::new(
                 r"\$[A-Z_][A-Z0-9_]*",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::Variable, ..Default::default() },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::Variable
             )
             .to_matchable()
             .into(),
@@ -506,20 +460,7 @@ pub fn snowflake_dialect() -> Dialect {
             "ValidationModeOptionSegment".into(),
             RegexParser::new(
                 r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::ValidationModeOption,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::ValidationModeOption
             )
             .to_matchable()
             .into(),
@@ -528,20 +469,7 @@ pub fn snowflake_dialect() -> Dialect {
             "CopyOptionOnErrorSegment".into(),
             RegexParser::new(
                 r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::CopyOnErrorOption,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::CopyOnErrorOption
             )
             .to_matchable()
             .into(),
@@ -577,17 +505,7 @@ pub fn snowflake_dialect() -> Dialect {
             "StagePath".into(),
             RegexParser::new(
                 r"(?:@[^\s;)]+|'@[^']+')",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::StagePath, ..Default::default() },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::StagePath
             )
             .to_matchable()
             .into(),
@@ -596,17 +514,7 @@ pub fn snowflake_dialect() -> Dialect {
             "S3Path".into(),
             RegexParser::new(
                 r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.*)?'",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::BucketPath, ..Default::default() },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::BucketPath
             )
             .to_matchable()
             .into(),
@@ -615,17 +523,7 @@ pub fn snowflake_dialect() -> Dialect {
             "GCSPath".into(),
             RegexParser::new(
                 r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::BucketPath, ..Default::default() },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::BucketPath
             )
             .to_matchable()
             .into(),
@@ -634,17 +532,7 @@ pub fn snowflake_dialect() -> Dialect {
             "AzureBlobStoragePath".into(),
             RegexParser::new(
                 r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::BucketPath, ..Default::default() },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::BucketPath
             )
             .to_matchable()
             .into(),
@@ -714,20 +602,7 @@ pub fn snowflake_dialect() -> Dialect {
             "IntegerSegment".into(),
             RegexParser::new(
                 r"[0-9]+",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::IntegerLiteral,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::IntegerLiteral
             )
             .to_matchable()
             .into(),
@@ -736,20 +611,7 @@ pub fn snowflake_dialect() -> Dialect {
             "SystemFunctionName".into(),
             RegexParser::new(
                 r"SYSTEM\$([A-Za-z0-9_]*)",
-                |segment| {
-                    CodeSegment::create(
-                        &segment.raw(),
-                        segment.get_position_marker(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::SystemFunctionName,
-                            ..Default::default()
-                        },
-                    )
-                },
-                None,
-                false,
-                None,
-                None,
+                SyntaxKind::SystemFunctionName
             )
             .to_matchable()
             .into(),
@@ -953,25 +815,9 @@ pub fn snowflake_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({})$", pattern);
 
-                RegexParser::new(
-                    "[a-zA-Z_][a-zA-Z0-9_$]*",
-                    |segment| {
-                        IdentifierSegment::create(
-                            segment.id(),
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::NakedIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    anti_template.into(),
-                    None,
-                )
-                .boxed()
+                RegexParser::new("[a-zA-Z_][a-zA-Z0-9_$]*", SyntaxKind::NakedIdentifier)
+                    .anti_template(&anti_template)
+                    .boxed()
             })
             .into(),
         ),

@@ -13,7 +13,7 @@ use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs, IdentifierSegment,
+    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
 };
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -457,69 +457,24 @@ pub fn raw_dialect() -> Dialect {
 
                     RegexParser::new(
                         r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-                        |segment| {
-                            IdentifierSegment::create(
-                                segment.id(),
-                                &segment.raw(),
-                                segment.get_position_marker(),
-                                CodeSegmentNewArgs {
-                                    code_type: SyntaxKind::NakedIdentifier,
-                                    ..Default::default()
-                                },
-                            )
-                        },
-                        None,
-                        false,
-                        anti_template.into(),
-                        None,
+                        SyntaxKind::NakedIdentifier,
                     )
+                    .anti_template(&anti_template)
                     .boxed()
                 })
                 .into(),
             ),
             (
                 "ParameterNameSegment".into(),
-                RegexParser::new(
-                    r#"[A-Z_][A-Z0-9_$]*|\"[^\"]*\""#,
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::Parameter,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                )
-                .to_matchable()
-                .into(),
+                RegexParser::new(r#"[A-Z_][A-Z0-9_$]*|\"[^\"]*\""#, SyntaxKind::Parameter)
+                    .to_matchable()
+                    .into(),
             ),
             (
                 "FunctionNameIdentifierSegment".into(),
-                RegexParser::new(
-                    r"[A-Z_][A-Z0-9_$]*",
-                    |segment| {
-                        CodeSegment::create(
-                            &segment.raw(),
-                            segment.get_position_marker(),
-                            CodeSegmentNewArgs {
-                                code_type: SyntaxKind::FunctionNameIdentifier,
-                                ..Default::default()
-                            },
-                        )
-                    },
-                    None,
-                    false,
-                    None,
-                    None,
-                )
-                .to_matchable()
-                .into(),
+                RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::FunctionNameIdentifier)
+                    .to_matchable()
+                    .into(),
             ),
             (
                 "FunctionContentsExpressionGrammar".into(),

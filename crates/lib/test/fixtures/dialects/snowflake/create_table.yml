@@ -650,12 +650,12 @@ file:
                         - bracketed:
                           - start_bracket: (
                           - snowflake_keyword_expression:
-                            - '': location
+                            - parameter: location
                             - parameter_assigner: =>
                             - quoted_literal: '''@mystage'''
                           - comma: ','
                           - snowflake_keyword_expression:
-                            - '': file_format
+                            - parameter: file_format
                             - parameter_assigner: =>
                             - quoted_literal: '''my_parquet_format'''
                           - end_bracket: )

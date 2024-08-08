@@ -69,7 +69,7 @@ file:
                           - bracketed:
                             - start_bracket: (
                             - snowflake_keyword_expression:
-                              - '': rowcount
+                              - parameter: rowcount
                               - parameter_assigner: =>
                               - numeric_literal: '1000'
                             - end_bracket: )

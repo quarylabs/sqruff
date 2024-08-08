@@ -58,7 +58,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': id
+        - parameter: id
         - data_type:
           - data_type_identifier: number
         - end_bracket: )
@@ -98,7 +98,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': d
+        - parameter: d
         - data_type:
           - data_type_identifier: double
         - end_bracket: )
@@ -169,7 +169,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': i
+        - parameter: i
         - data_type:
           - data_type_identifier: numeric
           - bracketed_arguments:
@@ -208,7 +208,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': x
+        - parameter: x
         - data_type:
           - data_type_identifier: varchar
         - end_bracket: )
@@ -294,7 +294,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': i
+        - parameter: i
         - data_type:
           - data_type_identifier: int
         - end_bracket: )
@@ -330,7 +330,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': i
+        - parameter: i
         - data_type:
           - data_type_identifier: int
         - end_bracket: )
@@ -365,7 +365,7 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - '': x
+        - parameter: x
         - data_type:
           - data_type_identifier: VARCHAR
         - end_bracket: )

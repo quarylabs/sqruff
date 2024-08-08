@@ -14,7 +14,7 @@ file:
             - comma: ','
             - named_argument:
               - naked_identifier: make_valid
-              - '': =>
+              - right_arrow: =>
               - expression:
                 - boolean_literal: 'true'
             - end_bracket: )

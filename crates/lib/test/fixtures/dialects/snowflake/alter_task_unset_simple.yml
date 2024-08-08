@@ -7,5 +7,5 @@ file:
       - naked_identifier: my_task
     - alter_task_unset_clause:
       - keyword: UNSET
-      - '': a
+      - parameter: a
 - statement_terminator: ;

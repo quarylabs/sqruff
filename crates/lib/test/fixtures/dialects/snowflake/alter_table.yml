@@ -55,7 +55,7 @@ file:
       - object_reference:
         - naked_identifier: my_table
     - keyword: SET
-    - '': DATA_RETENTION_TIME_IN_DAYS
+    - parameter: DATA_RETENTION_TIME_IN_DAYS
     - comparison_operator:
       - raw_comparison_operator: =
     - numeric_literal: '30'
@@ -68,7 +68,7 @@ file:
       - object_reference:
         - naked_identifier: my_table
     - keyword: SET
-    - '': DEFAULT_DDL_COLLATION
+    - parameter: DEFAULT_DDL_COLLATION
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''en-ci'''
@@ -81,7 +81,7 @@ file:
       - object_reference:
         - naked_identifier: my_table
     - keyword: SET
-    - '': COMMENT
+    - parameter: COMMENT
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''my table comment'''

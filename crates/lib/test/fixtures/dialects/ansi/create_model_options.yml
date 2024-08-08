@@ -10,17 +10,17 @@ file:
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
-      - '': MODEL_TYPE
+      - parameter: MODEL_TYPE
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''LOGISTIC_REG'''
       - comma: ','
-      - '': AUTO_CLASS_WEIGHTS
+      - parameter: AUTO_CLASS_WEIGHTS
       - comparison_operator:
         - raw_comparison_operator: =
       - boolean_literal: 'TRUE'
       - comma: ','
-      - '': INPUT_LABEL_COLS
+      - parameter: INPUT_LABEL_COLS
       - comparison_operator:
         - raw_comparison_operator: =
       - array_literal:

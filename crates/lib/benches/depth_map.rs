@@ -3,6 +3,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
+use sqruff_lib::dialects::ansi::Tables;
 use sqruff_lib::utils::reflow::depth_map::DepthMap;
 
 #[cfg(all(
@@ -78,7 +79,8 @@ SELECT construct_depth_info('uuid-3');"#;
 
 fn depth_map(c: &mut Criterion) {
     let linter = Linter::new(FluffConfig::default(), None, None);
-    let tree = linter.parse_string(COMPLEX_QUERY, None, None, None).unwrap().tree.unwrap();
+    let tables = Tables::default();
+    let tree = linter.parse_string(&tables, COMPLEX_QUERY, None, None, None).unwrap().tree.unwrap();
 
     c.bench_function("DepthMap::from_parent", |b| {
         b.iter(|| black_box(DepthMap::from_parent(&tree)));

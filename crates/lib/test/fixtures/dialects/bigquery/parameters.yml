@@ -29,7 +29,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - '': datetime_trunc
+            - function_name_identifier: datetime_trunc
           - bracketed:
             - start_bracket: (
             - expression:
@@ -46,7 +46,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - '': datetime_trunc
+            - function_name_identifier: datetime_trunc
           - bracketed:
             - start_bracket: (
             - expression:
@@ -63,7 +63,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - '': datetime_trunc
+            - function_name_identifier: datetime_trunc
           - bracketed:
             - start_bracket: (
             - expression:
@@ -141,7 +141,7 @@ file:
       - select_clause_element:
         - function:
           - function_name:
-            - '': datetime_trunc
+            - function_name_identifier: datetime_trunc
           - bracketed:
             - start_bracket: (
             - expression:

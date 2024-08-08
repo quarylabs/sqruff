@@ -3,6 +3,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
+use sqruff_lib::dialects::ansi::Tables;
 
 #[cfg(all(
     not(target_os = "windows"),
@@ -67,12 +68,14 @@ fn fix(c: &mut Criterion) {
     let passes = [("fix_complex_query", COMPLEX_QUERY)];
 
     let linter = Linter::new(FluffConfig::default(), None, None);
-
     for (name, source) in passes {
-        let parsed = linter.parse_string(source, None, None, None).unwrap();
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, source, None, None, None).unwrap();
 
         c.bench_function(name, |b| {
-            b.iter(|| black_box(linter.lint_parsed(parsed.clone(), linter._rules.clone(), true)));
+            b.iter(|| {
+                black_box(linter.lint_parsed(&tables, parsed.clone(), linter._rules.clone(), true))
+            });
         });
     }
 }

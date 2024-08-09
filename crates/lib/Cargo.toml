@@ -65,7 +65,7 @@ getrandom = { version = "0.2", features = ["js"] }
 [target.'cfg(all(not(target_os = "windows"), not(target_os = "openbsd"), any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")))'.dependencies]
 jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 
-[target.'cfg(unix)'.dependencies]
+[target.'cfg(unix)'.dev-dependencies]
 pprof = { version = "0.13", features = ["flamegraph", "criterion"] }
 
 [dev-dependencies]

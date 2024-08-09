@@ -988,38 +988,26 @@ pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
     use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
     use crate::dialects::ansi::Tables;
-
-    const TEMP_SEGMENTS_ARGS: RawSegmentArgs = RawSegmentArgs {
-        _type: None,
-        _instance_types: None,
-        _source_fixes: None,
-        _trim_cars: None,
-        _trim_start: None,
-        _uuid: None,
-    };
 
     #[test]
     /// Test comparison of raw segments.
     fn test_parser_base_segments_raw_compare() {
         let template = TemplatedFile::from_string("foobar".to_string());
-        let rs1 = Box::new(RawSegment::create(
+        let rs1 = Box::new(TokenData::create(
             0,
-            Some("foobar".to_string()),
+            "foobar",
             Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
-            TEMP_SEGMENTS_ARGS,
-        ))
-        .to_erased_segment();
+            TokenDataNewArgs { code_type: SyntaxKind::Word },
+        ));
 
-        let rs2 = Box::new(RawSegment::create(
+        let rs2 = Box::new(TokenData::create(
             0,
-            Some("foobar".to_string()),
+            "foobar",
             Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
-            TEMP_SEGMENTS_ARGS,
-        ))
-        .to_erased_segment();
+            TokenDataNewArgs { code_type: SyntaxKind::Word },
+        ));
 
         assert_eq!(rs1, rs2)
     }

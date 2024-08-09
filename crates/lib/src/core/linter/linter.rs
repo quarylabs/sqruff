@@ -3,8 +3,9 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::{AHashMap, AHashSet, HashMapExt};
 use itertools::Itertools;
+use nohash_hasher::IntMap;
 use regex::Regex;
 use smol_str::{SmolStr, ToSmolStr};
 use walkdir::WalkDir;
@@ -602,8 +603,8 @@ impl Linter {
     }
 }
 
-pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> AHashMap<u32, AnchorEditInfo> {
-    let mut anchor_info = AHashMap::new();
+pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> IntMap<u32, AnchorEditInfo> {
+    let mut anchor_info = IntMap::new();
 
     for fix in fixes {
         let anchor_id = fix.anchor.id();

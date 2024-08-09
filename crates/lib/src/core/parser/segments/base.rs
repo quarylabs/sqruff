@@ -93,6 +93,19 @@ impl Hash for ErasedSegment {
 }
 
 impl ErasedSegment {
+    pub fn get_raw_segments(&self) -> Vec<ErasedSegment> {
+        self.recursive_crawl_all(false).into_iter().filter(|it| it.segments().is_empty()).collect()
+    }
+
+    pub fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
+        for seg in self.get_raw_segments() {
+            if !seg.raw().is_empty() {
+                return Some(seg.get_raw_upper().unwrap());
+            }
+        }
+        None
+    }
+
     pub fn is(&self, other: &ErasedSegment) -> bool {
         Rc::ptr_eq(&self.value, &other.value)
     }
@@ -614,19 +627,6 @@ pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
         self.raw().to_uppercase().into()
     }
 
-    // Assuming `raw_segments` is a field that holds a collection of segments
-    fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
-        for seg in self.get_raw_segments() {
-            // Assuming `raw_upper` is a method or field that returns a String
-            if !seg.get_raw_upper().unwrap().trim().is_empty() {
-                // Return Some(String) if the condition is met
-                return Some(seg.get_raw_upper().unwrap());
-            }
-        }
-        // Return None if no non-whitespace segment is found
-        None
-    }
-
     fn get_type(&self) -> SyntaxKind {
         todo!()
     }
@@ -645,9 +645,6 @@ pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
     }
     fn is_meta(&self) -> bool {
         false
-    }
-    fn get_default_raw(&self) -> Option<&'static str> {
-        None
     }
 
     #[track_caller]
@@ -669,46 +666,10 @@ pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 
-    // get_segments is the way the segment returns its children 'self.segments' in
-    // Python.
     fn gather_segments(&self) -> Vec<ErasedSegment> {
         self.segments().to_vec()
     }
 
-    /// Return the length of the segment in characters.
-    fn get_matched_length(&self) -> usize {
-        self.raw().len()
-    }
-
-    /// Are we able to have non-code at the start or end?
-    fn get_can_start_end_non_code(&self) -> bool {
-        false
-    }
-
-    /// Can we allow it to be empty? Usually used in combination with the
-    /// can_start_end_non_code.
-    fn get_allow_empty(&self) -> bool {
-        false
-    }
-
-    /// get_file_path returns the file path of the segment if it is a file
-    /// segment.
-    fn get_file_path(&self) -> Option<String> {
-        None
-    }
-
-    /// Iterate raw segments, mostly for searching.
-    ///
-    /// In sqlfluff only implemented for RawSegments and up
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        self.segments().iter().flat_map(|item| item.get_raw_segments()).collect_vec()
-    }
-
-    /// Yield any source patches as fixes now.
-    ///
-    ///         NOTE: This yields source fixes for the segment and any of its
-    ///         children, so it's important to call it at the right point in
-    ///         the recursion to avoid yielding duplicates.
     fn iter_source_fix_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
         let mut patches = Vec::new();
         for source_fix in &self.get_source_fixes() {
@@ -975,10 +936,6 @@ impl Segment for TokenData {
 
     fn segments(&self) -> &[ErasedSegment] {
         &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
     }
 
     fn id(&self) -> u32 {

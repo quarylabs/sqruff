@@ -4,7 +4,6 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
 
 use ahash::AHashSet;
-use dyn_clone::DynClone;
 use dyn_ord::DynEq;
 
 use super::context::ParseContext;
@@ -24,7 +23,7 @@ impl<T: Any> AsAnyMut for T {
     }
 }
 
-pub trait Matchable: Any + DynClone + Debug + DynEq + AsAnyMut + Send + Sync {
+pub trait Matchable: Any + Debug + DynEq + AsAnyMut + Send + Sync {
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
@@ -109,5 +108,3 @@ pub fn next_matchable_cache_key() -> MatchableCacheKey {
 
     ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)).unwrap()
 }
-
-dyn_clone::clone_trait_object!(Matchable);

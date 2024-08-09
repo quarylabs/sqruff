@@ -129,7 +129,7 @@ pub fn bigquery_dialect() -> Dialect {
                         .into_iter()
                         .map(Into::into)
                         .collect_vec(),
-                    SyntaxKind::WarehouseSize,
+                    SyntaxKind::DatePart,
                 ))
             })
             .into(),

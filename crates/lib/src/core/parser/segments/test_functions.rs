@@ -97,12 +97,14 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
             )
         } else if elem.starts_with("--") {
             CommentSegment::create(
+                0,
                 elem,
                 position_marker.into(),
                 CommentSegmentNewArgs { r#type: SyntaxKind::InlineComment, trim_start: None },
             )
         } else if elem.starts_with('\"') {
             CodeSegment::create(
+                0,
                 elem,
                 position_marker.clone().into(),
                 CodeSegmentNewArgs {
@@ -115,6 +117,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
             )
         } else if elem.starts_with('\'') {
             CodeSegment::create(
+                0,
                 elem,
                 position_marker.clone().into(),
                 CodeSegmentNewArgs {
@@ -127,6 +130,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
             )
         } else {
             CodeSegment::create(
+                0,
                 elem,
                 position_marker.clone().into(),
                 CodeSegmentNewArgs {

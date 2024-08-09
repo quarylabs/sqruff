@@ -10,9 +10,6 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-};
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -28,108 +25,44 @@ pub fn sparksql_dialect() -> Dialect {
     sparksql_dialect.name = DialectKind::Sparksql;
 
     sparksql_dialect.patch_lexer_matchers(vec![
-        Matcher::regex("inline_comment", r"(--)[^\n]*", |slice, marker| {
-            CommentSegment::create(
-                slice,
-                marker.into(),
-                CommentSegmentNewArgs { r#type: SyntaxKind::InlineComment, trim_start: Some(vec!["--"]) },
-            )
-        }),
-        Matcher::regex("equals", r"==|<=>|=", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::RawComparisonOperator, ..<_>::default() },
-            )
-        }),
-        Matcher::regex("back_quote", r"`([^`]|``)*`", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::BackQuote, ..<_>::default() },
-            )
-        }),
-        Matcher::regex("numeric_literal", r#"(?>(?>\d+\.\d+|\d+\.|\.\d+)([eE][+-]?\d+)?([dDfF]|BD|bd)?|\d+[eE][+-]?\d+([dDfF]|BD|bd)?|\d+([dDfFlLsSyY]|BD|bd)?)((?<=\.)|(?=\b))"#, |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::NumericLiteral, ..<_>::default() },
-            )
-        }),
+        Matcher::regex("inline_comment", r"(--)[^\n]*", SyntaxKind::InlineComment),
+        Matcher::regex("equals", r"==|<=>|=", SyntaxKind::RawComparisonOperator),
+        Matcher::regex("back_quote", r"`([^`]|``)*`", SyntaxKind::BackQuote),
+        Matcher::regex("numeric_literal", r#"(?>(?>\d+\.\d+|\d+\.|\.\d+)([eE][+-]?\d+)?([dDfF]|BD|bd)?|\d+[eE][+-]?\d+([dDfF]|BD|bd)?|\d+([dDfFlLsSyY]|BD|bd)?)((?<=\.)|(?=\b))"#, SyntaxKind::NumericLiteral),
     ]);
 
     sparksql_dialect.insert_lexer_matchers(
         vec![
-            Matcher::regex("bytes_single_quote", r"X'([^'\\]|\\.)*'", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::BytesSingleQuote,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::regex("bytes_double_quote", r#"X"([^"\\]|\\.)*""#, |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::BytesDoubleQuote,
-                        ..Default::default()
-                    },
-                )
-            }),
+            Matcher::regex("bytes_single_quote", r"X'([^'\\]|\\.)*'", SyntaxKind::BytesSingleQuote),
+            Matcher::regex(
+                "bytes_double_quote",
+                r#"X"([^"\\]|\\.)*""#,
+                SyntaxKind::BytesDoubleQuote,
+            ),
         ],
         "single_quote",
     );
 
     sparksql_dialect.insert_lexer_matchers(
         vec![
-            Matcher::regex("bytes_single_quote", r"X'([^'\\]|\\.)*'", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::BytesSingleQuote,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::regex("bytes_double_quote", r#"X"([^"\\]|\\.)*""#, |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::BytesDoubleQuote,
-                        ..Default::default()
-                    },
-                )
-            }),
+            Matcher::regex("bytes_single_quote", r"X'([^'\\]|\\.)*'", SyntaxKind::BytesSingleQuote),
+            Matcher::regex(
+                "bytes_double_quote",
+                r#"X"([^"\\]|\\.)*""#,
+                SyntaxKind::BytesDoubleQuote,
+            ),
         ],
         "single_quote",
     );
 
     sparksql_dialect.insert_lexer_matchers(
-        vec![Matcher::regex("at_sign_literal", r"@\w*", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::AtSignLiteral, ..Default::default() },
-            )
-        })],
+        vec![Matcher::regex("at_sign_literal", r"@\w*", SyntaxKind::AtSignLiteral)],
         "word",
     );
 
     sparksql_dialect.insert_lexer_matchers(
         vec![
-            Matcher::regex("file_literal", r#"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::FileLiteral, ..Default::default() },
-                )
-            }),
+            Matcher::regex("file_literal", r#"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, SyntaxKind::FileLiteral),
         ],
         "newline",
     );
@@ -931,35 +864,17 @@ pub fn sparksql_dialect() -> Dialect {
     ]);
 
     sparksql_dialect.insert_lexer_matchers(
-        vec![Matcher::regex("start_hint", r"\/\*\+", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::BlockComment, ..Default::default() },
-            )
-        })],
+        vec![Matcher::regex("start_hint", r"\/\*\+", SyntaxKind::StartHint)],
         "block_comment",
     );
 
     sparksql_dialect.insert_lexer_matchers(
-        vec![Matcher::regex("end_hint", r"\*\/", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::EndHint, ..Default::default() },
-            )
-        })],
+        vec![Matcher::regex("end_hint", r"\*\/", SyntaxKind::EndHint)],
         "single_quote",
     );
 
     sparksql_dialect.insert_lexer_matchers(
-        vec![Matcher::string("end_hint", r"->", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::RightArrow, ..Default::default() },
-            )
-        })],
+        vec![Matcher::string("end_hint", r"->", SyntaxKind::RightArrow)],
         "like_operator",
     );
 

@@ -179,8 +179,8 @@ pub struct EndOfFile {
 }
 
 impl EndOfFile {
-    pub fn create(position_maker: PositionMarker) -> ErasedSegment {
-        EndOfFile { position_maker, id: 0 }.to_erased_segment()
+    pub fn create(id: u32, position_maker: PositionMarker) -> ErasedSegment {
+        EndOfFile { position_maker, id }.to_erased_segment()
     }
 }
 

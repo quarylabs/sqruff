@@ -8,7 +8,6 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::StringParser;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
@@ -64,16 +63,7 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     duckdb_dialect.insert_lexer_matchers(
-        vec![Matcher::string("double_divide", "//", |slice, pos| {
-            CodeSegment::create(
-                slice,
-                Some(pos),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::DoubleDivide,
-                    ..CodeSegmentNewArgs::default()
-                },
-            )
-        })],
+        vec![Matcher::string("double_divide", "//", SyntaxKind::DoubleDivide)],
         "divide",
     );
 

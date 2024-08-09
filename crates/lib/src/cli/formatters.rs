@@ -409,6 +409,7 @@ mod tests {
         };
 
         let s = RawSegment::create(
+            0,
             "foobarbar".to_owned().into(),
             PositionMarker::new(
                 10..19,

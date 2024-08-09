@@ -313,12 +313,12 @@ mod tests {
     use crate::core::config::Value;
     use crate::core::errors::SQLLintError;
     use crate::core::parser::markers::PositionMarker;
-    use crate::core::parser::segments::raw::{RawSegment, RawSegmentArgs};
+    use crate::core::parser::segments::base::{TokenData, TokenDataNewArgs};
     use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
     use crate::core::templaters::base::TemplatedFile;
-    use crate::helpers::ToErasedSegment;
+    use crate::dialects::SyntaxKind;
 
     #[test]
     fn test_short_string() {
@@ -399,18 +399,9 @@ mod tests {
             }
         }
 
-        let temp_raw_segment_args = RawSegmentArgs {
-            _type: None,
-            _instance_types: None,
-            _source_fixes: None,
-            _trim_cars: None,
-            _trim_start: None,
-            _uuid: None,
-        };
-
-        let s = RawSegment::create(
+        let s = TokenData::create(
             0,
-            "foobarbar".to_owned().into(),
+            "foobarbar",
             PositionMarker::new(
                 10..19,
                 10..19,
@@ -419,9 +410,8 @@ mod tests {
                 None,
             )
             .into(),
-            temp_raw_segment_args,
-        )
-        .to_erased_segment();
+            TokenDataNewArgs { code_type: SyntaxKind::Word },
+        );
 
         let mut v = SQLLintError::new("DESC", s);
 

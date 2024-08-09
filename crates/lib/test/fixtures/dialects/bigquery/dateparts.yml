@@ -229,7 +229,7 @@ file:
             - function_name_identifier: EXTRACT
           - bracketed:
             - start_bracket: (
-            - warehouse_size: DATE
+            - date_part: DATE
             - keyword: FROM
             - expression:
               - column_reference:
@@ -245,7 +245,7 @@ file:
             - function_name_identifier: EXTRACT
           - bracketed:
             - start_bracket: (
-            - warehouse_size: DATE
+            - date_part: DATE
             - keyword: FROM
             - expression:
               - function:

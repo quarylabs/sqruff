@@ -1,15 +1,11 @@
 use ahash::{AHashMap, AHashSet};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{
-    ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleAM03;
@@ -78,14 +74,8 @@ ORDER BY a ASC, b DESC
                 LintFix::create_after(
                     spec.column_reference,
                     vec![
-                        WhitespaceSegment::create(
-                            context.tables.next_id(),
-                            " ",
-                            None,
-                            WhitespaceSegmentNewArgs,
-                        ),
-                        KeywordSegment::new(context.tables.next_id(), "ASC".into(), None)
-                            .to_erased_segment(),
+                        CodeSegment::whitespace(context.tables.next_id(), " "),
+                        CodeSegment::keyword(context.tables.next_id(), "ASC"),
                     ],
                     None,
                 )

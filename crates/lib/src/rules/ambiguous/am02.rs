@@ -2,13 +2,11 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{WhitespaceSegment, WhitespaceSegmentNewArgs};
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleAM02;
@@ -76,16 +74,14 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                KeywordSegment::new(rule_cx.tables.next_id(), "union".into(), None)
-                    .to_erased_segment(),
-                WhitespaceSegment::create(
+                CodeSegment::keyword(rule_cx.tables.next_id(), "union"),
+                CodeSegment::create(
                     rule_cx.tables.next_id(),
                     " ",
                     None,
-                    WhitespaceSegmentNewArgs,
+                    CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
                 ),
-                KeywordSegment::new(rule_cx.tables.next_id(), "distinct".into(), None)
-                    .to_erased_segment(),
+                CodeSegment::keyword(rule_cx.tables.next_id(), "distinct"),
             ];
 
             let segments = rule_cx.segment.clone();
@@ -96,16 +92,14 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                KeywordSegment::new(rule_cx.tables.next_id(), "UNION".into(), None)
-                    .to_erased_segment(),
-                WhitespaceSegment::create(
+                CodeSegment::keyword(rule_cx.tables.next_id(), "UNION"),
+                CodeSegment::create(
                     rule_cx.tables.next_id(),
                     " ",
                     None,
-                    WhitespaceSegmentNewArgs,
+                    CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
                 ),
-                KeywordSegment::new(rule_cx.tables.next_id(), "DISTINCT".into(), None)
-                    .to_erased_segment(),
+                CodeSegment::keyword(rule_cx.tables.next_id(), "DISTINCT"),
             ];
 
             let segments = rule_cx.segment.clone();

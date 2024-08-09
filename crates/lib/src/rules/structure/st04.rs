@@ -3,10 +3,7 @@ use dyn_ord::DynEq;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{
-    ErasedSegment, NewlineSegment, NewlineSegmentNewArgs, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
@@ -258,17 +255,17 @@ fn rebuild_spacing(
         if matches!(seg.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
             || (prior_newline && seg.is_comment())
         {
-            buff.push(NewlineSegment::create(
+            buff.push(CodeSegment::create(
                 tables.next_id(),
                 "\n",
                 None,
-                NewlineSegmentNewArgs {},
+                CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
             ));
-            buff.push(WhitespaceSegment::create(
+            buff.push(CodeSegment::create(
                 tables.next_id(),
                 indent_str,
                 None,
-                WhitespaceSegmentNewArgs {},
+                CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
             ));
             buff.push(seg.clone());
             prior_newline = false;
@@ -277,12 +274,7 @@ fn rebuild_spacing(
             prior_newline = true;
             prior_whitespace.clear();
         } else if !prior_newline && seg.is_comment() {
-            buff.push(WhitespaceSegment::create(
-                tables.next_id(),
-                &prior_whitespace,
-                None,
-                WhitespaceSegmentNewArgs {},
-            ));
+            buff.push(CodeSegment::whitespace(tables.next_id(), &prior_whitespace));
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();
@@ -323,13 +315,13 @@ fn nested_end_trailing_comment(
         trailing_end.find_first(Some(|seg: &ErasedSegment| seg.is_comment())).first()
     {
         let segments = vec![
-            NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
-            WhitespaceSegment::create(
+            CodeSegment::create(
                 tables.next_id(),
-                end_indent_str,
+                "\n",
                 None,
-                WhitespaceSegmentNewArgs {},
+                CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
             ),
+            CodeSegment::whitespace(tables.next_id(), end_indent_str),
         ];
         fixes.push(LintFix::create_before(first_comment.clone(), segments));
     }

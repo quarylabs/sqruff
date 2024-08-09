@@ -1,9 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{
-    ErasedSegment, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -146,18 +144,12 @@ SELECT DISTINCT a, b FROM foo
 
             let bracketed = &bracketed[0];
             let mut edits = vec![
-                SymbolSegment::create(
+                CodeSegment::of(
                     context.tables.next_id(),
                     "DISTINCT",
-                    None,
-                    SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
+                    SyntaxKind::FunctionNameIdentifier,
                 ),
-                WhitespaceSegment::create(
-                    context.tables.next_id(),
-                    " ",
-                    None,
-                    WhitespaceSegmentNewArgs,
-                ),
+                CodeSegment::whitespace(context.tables.next_id(), " "),
             ];
             edits.extend(Self::filter_meta(
                 &bracketed.segments()[1..bracketed.segments().len() - 1],

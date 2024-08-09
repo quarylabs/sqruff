@@ -36,8 +36,6 @@ impl TypedParser {
     }
 }
 
-impl Segment for TypedParser {}
-
 impl Matchable for TypedParser {
     fn simple(
         &self,
@@ -103,8 +101,6 @@ impl StringParser {
         segment.is_code() && self.template.eq_ignore_ascii_case(&segment.raw())
     }
 }
-
-impl Segment for StringParser {}
 
 impl Matchable for StringParser {
     fn is_optional(&self) -> bool {
@@ -182,8 +178,6 @@ impl RegexParser {
     }
 }
 
-impl Segment for RegexParser {}
-
 impl Matchable for RegexParser {
     fn is_optional(&self) -> bool {
         unimplemented!()
@@ -256,8 +250,6 @@ impl MultiStringParser {
         }
     }
 }
-
-impl Segment for MultiStringParser {}
 
 impl Matchable for MultiStringParser {
     fn is_optional(&self) -> bool {

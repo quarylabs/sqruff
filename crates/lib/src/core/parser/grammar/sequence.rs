@@ -13,7 +13,7 @@ use crate::core::parser::match_algorithms::{
 };
 use crate::core::parser::match_result::{MatchResult, Matched, Span};
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::meta::{Indent, IndentChange, MetaSegmentKind};
 use crate::core::parser::types::ParseMode;
 use crate::dialects::{SyntaxKind, SyntaxSet};
@@ -81,8 +81,6 @@ impl PartialEq for Sequence {
         zip(&self.elements, &other.elements).all(|(a, b)| a.dyn_eq(&**b))
     }
 }
-
-impl Segment for Sequence {}
 
 impl Matchable for Sequence {
     fn is_optional(&self) -> bool {
@@ -362,8 +360,6 @@ impl DerefMut for Bracketed {
         &mut self.this
     }
 }
-
-impl Segment for Bracketed {}
 
 impl Matchable for Bracketed {
     fn is_optional(&self) -> bool {

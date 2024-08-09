@@ -2,7 +2,7 @@ use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_result::{MatchResult, Span};
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::meta::Indent;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -92,8 +92,6 @@ impl Conditional {
         true
     }
 }
-
-impl Segment for Conditional {}
 
 impl Matchable for Conditional {
     fn match_segments(

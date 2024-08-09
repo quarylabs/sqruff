@@ -1,11 +1,10 @@
-use std::borrow::Cow;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::ops::Deref;
 
 use ahash::AHashSet;
 
-use super::base::{CloneSegment, ErasedSegment};
+use super::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::markers::PositionMarker;
@@ -171,85 +170,6 @@ impl MetaSegmentKind for IndentChange {
 }
 
 pub struct IndentNewArgs {}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct EndOfFile {
-    id: u32,
-    position_maker: PositionMarker,
-}
-
-impl EndOfFile {
-    pub fn create(id: u32, position_maker: PositionMarker) -> ErasedSegment {
-        EndOfFile { position_maker, id }.to_erased_segment()
-    }
-}
-
-impl Segment for EndOfFile {
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Self { id: self.id, position_maker: self.position_maker.clone() }.to_erased_segment()
-    }
-
-    fn raw(&self) -> Cow<str> {
-        "".into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        SyntaxKind::EndOfFile
-    }
-
-    fn is_code(&self) -> bool {
-        false
-    }
-
-    fn is_comment(&self) -> bool {
-        todo!()
-    }
-
-    fn is_whitespace(&self) -> bool {
-        false
-    }
-
-    fn is_meta(&self) -> bool {
-        true
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone().into()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_maker = position_marker.unwrap();
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone_box()]
-    }
-
-    fn id(&self) -> u32 {
-        self.id
-    }
-
-    fn set_id(&mut self, id: u32) {
-        self.id = id;
-    }
-
-    fn edit(
-        &self,
-        _id: u32,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        todo!()
-    }
-
-    fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::new(&[SyntaxKind::EndOfFile])
-    }
-}
 
 #[derive(PartialEq, Clone, Hash, Debug)]
 pub struct TemplateSegment {

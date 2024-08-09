@@ -3,7 +3,7 @@ use regex::Regex;
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::parsers::RegexParser;
-use crate::core::parser::segments::base::{CodeSegmentNewArgs, IdentifierSegment};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -200,17 +200,11 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 context.segment.clone().into(),
                 vec![LintFix::replace(
                     context.segment.clone(),
-                    vec![IdentifierSegment::create(
+                    vec![CodeSegment::create(
                         context.tables.next_id(),
                         &identifier_contents,
                         None,
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::NakedIdentifier,
-                            instance_types: vec![],
-                            trim_start: None,
-                            trim_chars: None,
-                            source_fixes: None,
-                        },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
                     )],
                     None,
                 )],

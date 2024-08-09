@@ -4,13 +4,11 @@ use crate::core::errors::SQLParseError;
 use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_result::{MatchResult, Span};
 use crate::core::parser::matchable::{Matchable, MatchableCacheKey};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::SyntaxSet;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonCodeMatcher;
-
-impl Segment for NonCodeMatcher {}
 
 impl Matchable for NonCodeMatcher {
     fn is_optional(&self) -> bool {

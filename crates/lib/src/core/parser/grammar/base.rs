@@ -10,7 +10,7 @@ use crate::core::parser::context::ParseContext;
 use crate::core::parser::match_algorithms::greedy_match;
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::SyntaxSet;
 use crate::helpers::{capitalize, ToMatchable};
 
@@ -79,8 +79,6 @@ impl PartialEq for Ref {
 }
 
 impl Eq for Ref {}
-
-impl Segment for Ref {}
 
 impl Matchable for Ref {
     fn is_optional(&self) -> bool {
@@ -176,8 +174,6 @@ impl Anything {
     }
 }
 
-impl Segment for Anything {}
-
 impl Matchable for Anything {
     fn match_segments(
         &self,
@@ -214,8 +210,6 @@ impl Nothing {
         Self {}
     }
 }
-
-impl Segment for Nothing {}
 
 impl Matchable for Nothing {
     fn match_segments(

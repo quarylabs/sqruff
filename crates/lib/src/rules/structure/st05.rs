@@ -10,11 +10,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::dialects::init::DialectKind;
 use crate::core::linter::linter::compute_anchor_edit_info;
-use crate::core::parser::segments::base::{
-    CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, NewlineSegment, NewlineSegmentNewArgs,
-    SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -441,13 +437,13 @@ impl CTEBuilder {
 
             if ctes.peek().is_some() {
                 cte_segments.extend([
-                    SymbolSegment::create(
+                    CodeSegment::of(tables.next_id(), ",", SyntaxKind::Comma),
+                    CodeSegment::create(
                         tables.next_id(),
-                        ",",
+                        "\n",
                         None,
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::Comma },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
                     ),
-                    NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
                 ]);
             }
         }
@@ -464,14 +460,14 @@ impl CTEBuilder {
     ) -> ErasedSegment {
         let mut segments = vec![
             segmentify(tables, "WITH", case_preference),
-            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {}),
+            CodeSegment::whitespace(tables.next_id(), " "),
         ];
         segments.extend(self.get_cte_segments(tables));
-        segments.push(NewlineSegment::create(
+        segments.push(CodeSegment::create(
             tables.next_id(),
             "\n",
             None,
-            NewlineSegmentNewArgs {},
+            CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
         ));
         segments.push(output_select_clone);
 
@@ -504,12 +500,7 @@ impl CTEBuilder {
             if missing_space_after_from {
                 fixes.push(LintFix::create_after(
                     from_segment.unwrap().base[0].clone(),
-                    vec![WhitespaceSegment::create(
-                        tables.next_id(),
-                        " ",
-                        None,
-                        WhitespaceSegmentNewArgs,
-                    )],
+                    vec![CodeSegment::whitespace(tables.next_id(), " ")],
                     None,
                 ))
             }
@@ -681,7 +672,7 @@ fn segmentify(tables: &Tables, input_el: &str, casing: Case) -> ErasedSegment {
     if casing == Case::Upper {
         input_el = input_el.to_uppercase_smolstr();
     }
-    KeywordSegment::new(tables.next_id(), input_el, None).to_erased_segment()
+    CodeSegment::keyword(tables.next_id(), &input_el)
 }
 
 fn create_cte_seg(
@@ -696,18 +687,15 @@ fn create_cte_seg(
         dialect.name,
         SyntaxKind::CommonTableExpression,
         vec![
-            IdentifierSegment::create(
+            CodeSegment::create(
                 tables.next_id(),
                 &alias_name,
                 None,
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::NakedIdentifier,
-                    ..CodeSegmentNewArgs::default()
-                },
+                CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
             ),
-            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+            CodeSegment::whitespace(tables.next_id(), " "),
             segmentify(tables, "AS", case_preference),
-            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+            CodeSegment::whitespace(tables.next_id(), " "),
             subquery,
         ],
         false,
@@ -725,11 +713,11 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
                 tables.next_id(),
                 dialect.name,
                 SyntaxKind::TableReference,
-                vec![IdentifierSegment::create(
+                vec![CodeSegment::create(
                     tables.next_id(),
                     table_name,
                     None,
-                    CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier, ..<_>::default() },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
                 )],
                 false,
             )

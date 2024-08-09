@@ -4,13 +4,11 @@ use ahash::AHashMap;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{WhitespaceSegment, WhitespaceSegmentNewArgs};
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::CodeSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 
 #[derive(Clone, Debug)]
 pub struct RuleAM05 {
@@ -111,14 +109,8 @@ SELECT a, b FROM table_2
                 vec![LintFix::create_after(
                     context.segment.segments()[0].clone(),
                     vec![
-                        WhitespaceSegment::create(
-                            context.tables.next_id(),
-                            " ",
-                            None,
-                            WhitespaceSegmentNewArgs,
-                        ),
-                        KeywordSegment::new(context.tables.next_id(), outer_keyword.into(), None)
-                            .to_erased_segment(),
+                        CodeSegment::whitespace(context.tables.next_id(), " "),
+                        CodeSegment::keyword(context.tables.next_id(), outer_keyword),
                     ],
                     None,
                 )],
@@ -140,14 +132,8 @@ SELECT a, b FROM table_2
                 vec![LintFix::create_before(
                     context.segment.segments()[0].clone(),
                     vec![
-                        KeywordSegment::new(context.tables.next_id(), inner_keyword.into(), None)
-                            .to_erased_segment(),
-                        WhitespaceSegment::create(
-                            context.tables.next_id(),
-                            " ",
-                            None,
-                            WhitespaceSegmentNewArgs,
-                        ),
+                        CodeSegment::keyword(context.tables.next_id(), inner_keyword),
+                        CodeSegment::whitespace(context.tables.next_id(), " "),
                     ],
                 )],
                 None,

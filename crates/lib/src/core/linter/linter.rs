@@ -21,11 +21,11 @@ use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
-use crate::dialects::ansi::Tables;
+use crate::dialects::ansi::{Node, Tables};
+use crate::dialects::SyntaxKind;
 use crate::helpers::ToErasedSegment;
 use crate::rules::get_ruleset;
 
@@ -201,7 +201,14 @@ impl Linter {
             self.lint_fix_parsed(tables, tree, rules, fix)
         } else {
             (
-                BracketedSegment::new(Vec::new(), Vec::new(), Vec::new(), true).to_erased_segment(),
+                Node::new(
+                    tables.next_id(),
+                    self.config.dialect.name,
+                    SyntaxKind::EndOfFile,
+                    Vec::new(),
+                    false,
+                )
+                .to_erased_segment(),
                 Vec::new(),
             )
         };

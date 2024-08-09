@@ -11,7 +11,7 @@ use crate::core::parser::grammar::noncode::NonCodeMatcher;
 use crate::core::parser::match_algorithms::{longest_match, skip_start_index_forward_to_code};
 use crate::core::parser::match_result::MatchResult;
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::SyntaxSet;
 use crate::helpers::ToMatchable;
 
@@ -56,8 +56,6 @@ impl PartialEq for Delimited {
         // && self.delimiter == other.delimiter
     }
 }
-
-impl Segment for Delimited {}
 
 impl Matchable for Delimited {
     fn is_optional(&self) -> bool {

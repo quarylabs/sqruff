@@ -1,7 +1,7 @@
 use ahash::{AHashMap, AHashSet};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
+use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -104,11 +104,11 @@ SELECT * FROM zoo
                     seg.clone().into(),
                     vec![LintFix::create_before(
                         seg,
-                        vec![CodeSegment::create(
+                        vec![TokenData::create(
                             context.tables.next_id(),
                             "\n",
                             None,
-                            CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                            TokenDataNewArgs { code_type: SyntaxKind::Newline },
                         )],
                     )],
                     None,

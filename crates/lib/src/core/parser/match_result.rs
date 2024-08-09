@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use ahash::HashMapExt;
 use nohash_hasher::IntMap;
 
-use super::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment, Segment};
+use super::segments::base::{ErasedSegment, Segment, TokenData, TokenDataNewArgs};
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::meta::{Indent, IndentChange};
@@ -182,11 +182,11 @@ impl MatchResult {
             Matched::Newtype(kind) => {
                 let old = result_segments.pop().unwrap();
 
-                vec![CodeSegment::create(
+                vec![TokenData::create(
                     tables.next_id(),
                     old.raw().as_ref(),
                     old.get_position_marker(),
-                    CodeSegmentNewArgs { code_type: kind },
+                    TokenDataNewArgs { code_type: kind },
                 )]
             }
         }

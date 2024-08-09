@@ -3,7 +3,7 @@ use itertools::chain;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
+use crate::core::parser::segments::base::{ErasedSegment, TokenData};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -50,16 +50,16 @@ fn shorthand_fix_list(
 ) -> Vec<LintFix> {
     let mut edits = if shorthand_arg_1.get_raw_segments().len() > 1 {
         vec![
-            CodeSegment::of(tables.next_id(), "(", SyntaxKind::StartBracket),
+            TokenData::of(tables.next_id(), "(", SyntaxKind::StartBracket),
             shorthand_arg_1,
-            CodeSegment::of(tables.next_id(), ")", SyntaxKind::EndBracket),
+            TokenData::of(tables.next_id(), ")", SyntaxKind::EndBracket),
         ]
     } else {
         vec![shorthand_arg_1]
     };
 
     edits.extend([
-        CodeSegment::of(tables.next_id(), "::", SyntaxKind::CastingOperator),
+        TokenData::of(tables.next_id(), "::", SyntaxKind::CastingOperator),
         shorthand_arg_2,
     ]);
 
@@ -422,55 +422,55 @@ fn convert_fix_list(
     convert_arg_2: ErasedSegment,
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
-    use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
+    use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
 
     let mut edits: Vec<ErasedSegment> = vec![
-        CodeSegment::create(
+        TokenData::create(
             tables.next_id(),
             "convert",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::FunctionNameIdentifier },
+            TokenDataNewArgs { code_type: SyntaxKind::FunctionNameIdentifier },
         ),
-        CodeSegment::create(
+        TokenData::create(
             tables.next_id(),
             "(",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::StartBracket },
+            TokenDataNewArgs { code_type: SyntaxKind::StartBracket },
         ),
         convert_arg_1,
-        CodeSegment::create(
+        TokenData::create(
             tables.next_id(),
             ",",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::Comma },
+            TokenDataNewArgs { code_type: SyntaxKind::Comma },
         ),
-        CodeSegment::create(
+        TokenData::create(
             tables.next_id(),
             " ",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
+            TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
         ),
         convert_arg_2,
-        CodeSegment::create(
+        TokenData::create(
             tables.next_id(),
             ")",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::EndBracket },
+            TokenDataNewArgs { code_type: SyntaxKind::EndBracket },
         ),
     ];
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
-            CodeSegment::create(tables.next_id(), "convert", None, <_>::default()),
-            CodeSegment::symbol(tables.next_id(), "("),
+            TokenData::create(tables.next_id(), "convert", None, <_>::default()),
+            TokenData::symbol(tables.next_id(), "("),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            CodeSegment::symbol(tables.next_id(), ","),
-            CodeSegment::whitespace(tables.next_id(), " "),
+            TokenData::symbol(tables.next_id(), ","),
+            TokenData::whitespace(tables.next_id(), " "),
         ];
 
-        let post_edits: Vec<ErasedSegment> = vec![CodeSegment::symbol(tables.next_id(), ")")];
+        let post_edits: Vec<ErasedSegment> = vec![TokenData::symbol(tables.next_id(), ")")];
 
         for _type in later_types.base {
             edits = chain(
@@ -492,31 +492,31 @@ fn cast_fix_list(
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
     let mut edits = vec![
-        CodeSegment::of(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier),
-        CodeSegment::of(tables.next_id(), "(", SyntaxKind::StartBracket),
+        TokenData::of(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier),
+        TokenData::of(tables.next_id(), "(", SyntaxKind::StartBracket),
     ];
     edits.extend_from_slice(cast_arg_1);
     edits.extend([
-        CodeSegment::whitespace(tables.next_id(), " "),
-        CodeSegment::keyword(tables.next_id(), "as"),
-        CodeSegment::whitespace(tables.next_id(), " "),
+        TokenData::whitespace(tables.next_id(), " "),
+        TokenData::keyword(tables.next_id(), "as"),
+        TokenData::whitespace(tables.next_id(), " "),
         cast_arg_2,
-        CodeSegment::of(tables.next_id(), ")", SyntaxKind::EndBracket),
+        TokenData::of(tables.next_id(), ")", SyntaxKind::EndBracket),
     ]);
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
-            CodeSegment::create(tables.next_id(), "cast", None, <_>::default()),
-            CodeSegment::symbol(tables.next_id(), "("),
+            TokenData::create(tables.next_id(), "cast", None, <_>::default()),
+            TokenData::symbol(tables.next_id(), "("),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            CodeSegment::whitespace(tables.next_id(), " "),
-            CodeSegment::keyword(tables.next_id(), "as"),
-            CodeSegment::whitespace(tables.next_id(), " "),
+            TokenData::whitespace(tables.next_id(), " "),
+            TokenData::keyword(tables.next_id(), "as"),
+            TokenData::whitespace(tables.next_id(), " "),
         ];
 
-        let post_edits: Vec<ErasedSegment> = vec![CodeSegment::symbol(tables.next_id(), ")")];
+        let post_edits: Vec<ErasedSegment> = vec![TokenData::symbol(tables.next_id(), ")")];
 
         for _type in later_types.base {
             let mut xs = Vec::new();

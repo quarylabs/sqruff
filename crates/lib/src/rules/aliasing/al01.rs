@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::CodeSegment;
+use crate::core::parser::segments::base::TokenData;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -142,7 +142,7 @@ FROM foo AS voo
                         rule_cx.config.unwrap(),
                     )
                     .insert(
-                        CodeSegment::keyword(rule_cx.tables.next_id(), "AS"),
+                        TokenData::keyword(rule_cx.tables.next_id(), "AS"),
                         identifier,
                         ReflowInsertPosition::Before,
                     )

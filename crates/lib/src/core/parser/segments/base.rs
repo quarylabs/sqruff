@@ -172,17 +172,17 @@ impl ErasedSegment {
     }
 
     pub fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
-        let mut result = Vec::new();
+        let mut result = Vec::with_capacity(self.segments().len() + 1);
 
         if reverse {
             for seg in self.segments().iter().rev() {
-                result.extend(seg.recursive_crawl_all(reverse));
+                result.append(&mut seg.recursive_crawl_all(reverse));
             }
             result.push(self.clone());
         } else {
             result.push(self.clone());
             for seg in self.segments() {
-                result.extend(seg.recursive_crawl_all(reverse));
+                result.append(&mut seg.recursive_crawl_all(reverse));
             }
         }
 

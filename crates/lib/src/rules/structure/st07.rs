@@ -4,7 +4,7 @@ use smol_str::{SmolStr, ToSmolStr};
 
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
+use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -122,8 +122,8 @@ INNER JOIN table_b
         let [table_a, table_b, ..] = &table_aliases[..] else { unreachable!() };
 
         let mut edit_segments = vec![
-            CodeSegment::keyword(context.tables.next_id(), "ON"),
-            CodeSegment::whitespace(context.tables.next_id(), " "),
+            TokenData::keyword(context.tables.next_id(), "ON"),
+            TokenData::whitespace(context.tables.next_id(), " "),
         ];
 
         edit_segments.append(&mut generate_join_conditions(
@@ -181,32 +181,32 @@ fn generate_join_conditions(
     for col in columns {
         edit_segments.extend_from_slice(&[
             create_col_reference(tables, dialect, table_a_ref, &col),
-            CodeSegment::create(
+            TokenData::create(
                 tables.next_id(),
                 " ",
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
+                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
             ),
-            CodeSegment::of(tables.next_id(), "=", SyntaxKind::Symbol),
-            CodeSegment::create(
+            TokenData::of(tables.next_id(), "=", SyntaxKind::Symbol),
+            TokenData::create(
                 tables.next_id(),
                 " ",
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
+                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
             ),
             create_col_reference(tables, dialect, table_b_ref, &col),
-            CodeSegment::create(
+            TokenData::create(
                 tables.next_id(),
                 " ",
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
+                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
             ),
-            CodeSegment::keyword(tables.next_id(), "AND"),
-            CodeSegment::create(
+            TokenData::keyword(tables.next_id(), "AND"),
+            TokenData::create(
                 tables.next_id(),
                 " ",
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
+                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
             ),
         ]);
     }
@@ -255,18 +255,18 @@ fn create_col_reference(
         dialect,
         SyntaxKind::ColumnReference,
         vec![
-            CodeSegment::create(
+            TokenData::create(
                 tables.next_id(),
                 table_ref,
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
+                TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
             ),
-            CodeSegment::of(tables.next_id(), ".", SyntaxKind::Symbol),
-            CodeSegment::create(
+            TokenData::of(tables.next_id(), ".", SyntaxKind::Symbol),
+            TokenData::create(
                 tables.next_id(),
                 column_name,
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
+                TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
             ),
         ],
         false,

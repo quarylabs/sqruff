@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
+use crate::core::parser::segments::base::{TokenData, TokenDataNewArgs};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -74,14 +74,14 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                CodeSegment::keyword(rule_cx.tables.next_id(), "union"),
-                CodeSegment::create(
+                TokenData::keyword(rule_cx.tables.next_id(), "union"),
+                TokenData::create(
                     rule_cx.tables.next_id(),
                     " ",
                     None,
-                    CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
+                    TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
                 ),
-                CodeSegment::keyword(rule_cx.tables.next_id(), "distinct"),
+                TokenData::keyword(rule_cx.tables.next_id(), "distinct"),
             ];
 
             let segments = rule_cx.segment.clone();
@@ -92,14 +92,14 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                CodeSegment::keyword(rule_cx.tables.next_id(), "UNION"),
-                CodeSegment::create(
+                TokenData::keyword(rule_cx.tables.next_id(), "UNION"),
+                TokenData::create(
                     rule_cx.tables.next_id(),
                     " ",
                     None,
-                    CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                    TokenDataNewArgs { code_type: SyntaxKind::Newline },
                 ),
-                CodeSegment::keyword(rule_cx.tables.next_id(), "DISTINCT"),
+                TokenData::keyword(rule_cx.tables.next_id(), "DISTINCT"),
             ];
 
             let segments = rule_cx.segment.clone();

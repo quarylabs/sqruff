@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use itertools::{enumerate, Itertools};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
+use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
 use crate::core::rules::base::{
     EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
 };
@@ -269,11 +269,11 @@ impl RuleLT09 {
                 fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone(),
-                    vec![CodeSegment::create(
+                    vec![TokenData::create(
                         tables.next_id(),
                         "\n",
                         None,
-                        CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                        TokenDataNewArgs { code_type: SyntaxKind::Newline },
                     )],
                 ));
             }
@@ -293,11 +293,11 @@ impl RuleLT09 {
 
                     fixes.push(LintFix::create_before(
                         from_segment.clone(),
-                        vec![CodeSegment::create(
+                        vec![TokenData::create(
                             tables.next_id(),
                             "\n",
                             None,
-                            CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                            TokenDataNewArgs { code_type: SyntaxKind::Newline },
                         )],
                     ));
                 }
@@ -337,7 +337,7 @@ impl RuleLT09 {
         }
 
         let mut insert_buff = vec![
-            CodeSegment::whitespace(context.tables.next_id(), " "),
+            TokenData::whitespace(context.tables.next_id(), " "),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
 
@@ -356,7 +356,7 @@ impl RuleLT09 {
             let buff = std::mem::take(&mut insert_buff);
 
             insert_buff =
-                vec![CodeSegment::whitespace(context.tables.next_id(), " "), modifier[0].clone()];
+                vec![TokenData::whitespace(context.tables.next_id(), " "), modifier[0].clone()];
 
             insert_buff.extend(buff);
 
@@ -426,11 +426,11 @@ impl RuleLT09 {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone(),
                             if add_newline {
-                                vec![CodeSegment::create(
+                                vec![TokenData::create(
                                     context.tables.next_id(),
                                     "\n",
                                     None,
-                                    CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                                    TokenDataNewArgs { code_type: SyntaxKind::Newline },
                                 )]
                             } else {
                                 vec![]

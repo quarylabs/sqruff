@@ -8,7 +8,7 @@ use crate::core::dialects::init::dialect_selector;
 use crate::core::linter::linter::Linter;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
+use crate::core::parser::segments::base::{TokenData, TokenDataNewArgs};
 use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
@@ -70,49 +70,49 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         let tables = Tables::default();
 
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
-            CodeSegment::create(
+            TokenData::create(
                 tables.next_id(),
                 elem,
                 position_marker.clone().into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
+                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
             )
         } else if elem.chars().all(|c| c == '\n') {
-            CodeSegment::create(
+            TokenData::create(
                 tables.next_id(),
                 elem,
                 position_marker.clone().into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                TokenDataNewArgs { code_type: SyntaxKind::Newline },
             )
         } else if elem == "(" || elem == ")" {
-            CodeSegment::of(tables.next_id(), elem, SyntaxKind::RawComparisonOperator)
+            TokenData::of(tables.next_id(), elem, SyntaxKind::RawComparisonOperator)
                 .config(|this| this.get_mut().set_position_marker(position_marker.clone().into()))
         } else if elem.starts_with("--") {
-            CodeSegment::create(
+            TokenData::create(
                 0,
                 elem,
                 position_marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::InlineComment },
+                TokenDataNewArgs { code_type: SyntaxKind::InlineComment },
             )
         } else if elem.starts_with('\"') {
-            CodeSegment::create(
+            TokenData::create(
                 0,
                 elem,
                 position_marker.clone().into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::DoubleQuote },
+                TokenDataNewArgs { code_type: SyntaxKind::DoubleQuote },
             )
         } else if elem.starts_with('\'') {
-            CodeSegment::create(
+            TokenData::create(
                 0,
                 elem,
                 position_marker.clone().into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::SingleQuote },
+                TokenDataNewArgs { code_type: SyntaxKind::SingleQuote },
             )
         } else {
-            CodeSegment::create(
+            TokenData::create(
                 0,
                 elem,
                 position_marker.clone().into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::RawComparisonOperator },
+                TokenDataNewArgs { code_type: SyntaxKind::RawComparisonOperator },
             )
         };
 
@@ -157,7 +157,7 @@ pub fn make_result_tuple(
             .map(|elem| {
                 let raw = elem.raw();
                 if matcher_keywords.contains(&&*raw) {
-                    CodeSegment::keyword(0, &raw).config(|this| {
+                    TokenData::keyword(0, &raw).config(|this| {
                         this.get_mut()
                             .set_position_marker(Some(elem.get_position_marker().unwrap()))
                     })

@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use itertools::chain;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
+use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -104,16 +104,16 @@ from x
 
         // We will insert these segments directly after the select keyword.
         let mut edit_segments = vec![
-            CodeSegment::whitespace(context.tables.next_id(), " "),
+            TokenData::whitespace(context.tables.next_id(), " "),
             select_clause_modifier.clone(),
         ];
 
         if trailing_newline_segments.is_empty() {
-            edit_segments.push(CodeSegment::create(
+            edit_segments.push(TokenData::create(
                 context.tables.next_id(),
                 "\n",
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                TokenDataNewArgs { code_type: SyntaxKind::Newline },
             ));
         }
 

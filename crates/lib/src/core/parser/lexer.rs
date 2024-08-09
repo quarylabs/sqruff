@@ -5,7 +5,7 @@ use std::ops::Range;
 use fancy_regex::Regex;
 
 use super::markers::PositionMarker;
-use super::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
+use super::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
@@ -59,11 +59,11 @@ impl<'a> TemplateElement<'a> {
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
         let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
-        CodeSegment::create(
+        TokenData::create(
             0,
             slice,
             Some(pos_marker),
-            CodeSegmentNewArgs { code_type: self.matcher.syntax_kind },
+            TokenDataNewArgs { code_type: self.matcher.syntax_kind },
         )
     }
 }
@@ -442,11 +442,11 @@ impl<'a> Lexer<'a> {
             .unwrap_or_else(|| {
                 PositionMarker::from_point(0, 0, templated_file.clone(), None, None)
             });
-        segments.push(CodeSegment::create(
+        segments.push(TokenData::create(
             0,
             "",
             Some(position_maker),
-            CodeSegmentNewArgs { code_type: SyntaxKind::EndOfFile },
+            TokenDataNewArgs { code_type: SyntaxKind::EndOfFile },
         ));
 
         segments

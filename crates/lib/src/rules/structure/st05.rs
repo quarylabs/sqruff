@@ -10,7 +10,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::dialects::init::DialectKind;
 use crate::core::linter::linter::compute_anchor_edit_info;
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
+use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -437,12 +437,12 @@ impl CTEBuilder {
 
             if ctes.peek().is_some() {
                 cte_segments.extend([
-                    CodeSegment::of(tables.next_id(), ",", SyntaxKind::Comma),
-                    CodeSegment::create(
+                    TokenData::of(tables.next_id(), ",", SyntaxKind::Comma),
+                    TokenData::create(
                         tables.next_id(),
                         "\n",
                         None,
-                        CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+                        TokenDataNewArgs { code_type: SyntaxKind::Newline },
                     ),
                 ]);
             }
@@ -460,14 +460,14 @@ impl CTEBuilder {
     ) -> ErasedSegment {
         let mut segments = vec![
             segmentify(tables, "WITH", case_preference),
-            CodeSegment::whitespace(tables.next_id(), " "),
+            TokenData::whitespace(tables.next_id(), " "),
         ];
         segments.extend(self.get_cte_segments(tables));
-        segments.push(CodeSegment::create(
+        segments.push(TokenData::create(
             tables.next_id(),
             "\n",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+            TokenDataNewArgs { code_type: SyntaxKind::Newline },
         ));
         segments.push(output_select_clone);
 
@@ -500,7 +500,7 @@ impl CTEBuilder {
             if missing_space_after_from {
                 fixes.push(LintFix::create_after(
                     from_segment.unwrap().base[0].clone(),
-                    vec![CodeSegment::whitespace(tables.next_id(), " ")],
+                    vec![TokenData::whitespace(tables.next_id(), " ")],
                     None,
                 ))
             }
@@ -672,7 +672,7 @@ fn segmentify(tables: &Tables, input_el: &str, casing: Case) -> ErasedSegment {
     if casing == Case::Upper {
         input_el = input_el.to_uppercase_smolstr();
     }
-    CodeSegment::keyword(tables.next_id(), &input_el)
+    TokenData::keyword(tables.next_id(), &input_el)
 }
 
 fn create_cte_seg(
@@ -687,15 +687,15 @@ fn create_cte_seg(
         dialect.name,
         SyntaxKind::CommonTableExpression,
         vec![
-            CodeSegment::create(
+            TokenData::create(
                 tables.next_id(),
                 &alias_name,
                 None,
-                CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
+                TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
             ),
-            CodeSegment::whitespace(tables.next_id(), " "),
+            TokenData::whitespace(tables.next_id(), " "),
             segmentify(tables, "AS", case_preference),
-            CodeSegment::whitespace(tables.next_id(), " "),
+            TokenData::whitespace(tables.next_id(), " "),
             subquery,
         ],
         false,
@@ -713,11 +713,11 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
                 tables.next_id(),
                 dialect.name,
                 SyntaxKind::TableReference,
-                vec![CodeSegment::create(
+                vec![TokenData::create(
                     tables.next_id(),
                     table_name,
                     None,
-                    CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
+                    TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
                 )],
                 false,
             )

@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::CodeSegment;
+use crate::core::parser::segments::base::TokenData;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -124,7 +124,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
         let fixes = vec![
             LintFix::replace(
                 raw_comparison_operators[0].clone(),
-                vec![CodeSegment::of(
+                vec![TokenData::of(
                     context.tables.next_id(),
                     replacement[0],
                     SyntaxKind::ComparisonOperator,
@@ -133,7 +133,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
             ),
             LintFix::replace(
                 raw_comparison_operators[1].clone(),
-                vec![CodeSegment::of(
+                vec![TokenData::of(
                     context.tables.next_id(),
                     replacement[1],
                     SyntaxKind::ComparisonOperator,

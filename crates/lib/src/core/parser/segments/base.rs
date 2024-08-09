@@ -905,6 +905,7 @@ pub struct CodeSegmentNewArgs {
 
 impl CodeSegment {
     pub fn create(
+        id: u32,
         raw: &str,
         position_maker: Option<PositionMarker>,
         args: CodeSegmentNewArgs,
@@ -917,7 +918,7 @@ impl CodeSegment {
             trim_start: None,
             trim_chars: None,
             source_fixes: None,
-            id: 0,
+            id,
         }
         .to_erased_segment()
     }
@@ -935,14 +936,20 @@ impl Segment for CodeSegment {
     fn get_type(&self) -> SyntaxKind {
         self.code_type
     }
+
     fn is_code(&self) -> bool {
-        true
+        !self.is_comment() && !self.is_whitespace()
     }
+
     fn is_comment(&self) -> bool {
-        false
+        matches!(
+            self.code_type,
+            SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment
+        )
     }
+
     fn is_whitespace(&self) -> bool {
-        false
+        matches!(self.code_type, SyntaxKind::Whitespace | SyntaxKind::Newline)
     }
 
     fn get_position_marker(&self) -> Option<PositionMarker> {
@@ -988,6 +995,7 @@ impl Segment for CodeSegment {
         source_fixes: Option<Vec<SourceFix>>,
     ) -> ErasedSegment {
         CodeSegment::create(
+            id,
             raw.unwrap_or(self.raw.to_string()).as_str(),
             self.position_marker.clone(),
             CodeSegmentNewArgs {
@@ -1124,6 +1132,7 @@ pub struct CommentSegmentNewArgs {
 
 impl CommentSegment {
     pub fn create(
+        id: u32,
         raw: &str,
         position_maker: Option<PositionMarker>,
         args: CommentSegmentNewArgs,
@@ -1133,7 +1142,7 @@ impl CommentSegment {
             position_maker,
             r#type: args.r#type,
             trim_start: args.trim_start.unwrap_or_default(),
-            id: 0,
+            id,
         }
         .to_erased_segment()
     }
@@ -1584,6 +1593,7 @@ mod tests {
     fn test_parser_base_segments_raw_compare() {
         let template = TemplatedFile::from_string("foobar".to_string());
         let rs1 = Box::new(RawSegment::create(
+            0,
             Some("foobar".to_string()),
             Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
             TEMP_SEGMENTS_ARGS,
@@ -1591,6 +1601,7 @@ mod tests {
         .to_erased_segment();
 
         let rs2 = Box::new(RawSegment::create(
+            0,
             Some("foobar".to_string()),
             Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
             TEMP_SEGMENTS_ARGS,

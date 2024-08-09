@@ -10,7 +10,6 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::TypedParser;
-use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::dialects::ansi::NodeMatcher;
@@ -104,14 +103,7 @@ pub fn clickhouse_dialect() -> Dialect {
     ]);
 
     clickhouse_dialect.insert_lexer_matchers(
-        vec![Matcher::string("lambda", "->", |slice, m| {
-            SymbolSegment::create(
-                0,
-                slice,
-                m.into(),
-                SymbolSegmentNewArgs { r#type: SyntaxKind::Lambda },
-            )
-        })],
+        vec![Matcher::string("lambda", "->", SyntaxKind::Lambda)],
         "newline",
     );
 

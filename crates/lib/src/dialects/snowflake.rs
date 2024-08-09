@@ -13,9 +13,6 @@ use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-};
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -83,148 +80,37 @@ pub fn snowflake_dialect() -> Dialect {
     );
 
     snowflake_dialect.patch_lexer_matchers(vec![
-        Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::SingleQuote, ..Default::default() },
-            )
-        }),
-        Matcher::regex("inline_comment", r"(--|#|//)[^\n]*", |slice, marker| {
-            CommentSegment::create(
-                slice,
-                marker.into(),
-                CommentSegmentNewArgs {
-                    r#type: SyntaxKind::InlineComment,
-                    trim_start: Some(vec!["--", "#", "//"]),
-                },
-            )
-        }),
+        Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", SyntaxKind::SingleQuote),
+        Matcher::regex("inline_comment", r"(--|#|//)[^\n]*", SyntaxKind::InlineComment),
     ]);
 
     snowflake_dialect.insert_lexer_matchers(
         vec![
-            Matcher::string("parameter_assigner", "=>", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::ParameterAssigner,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::string("function_assigner", "->", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::FunctionAssigner,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::regex("stage_path", r"(?:@[^\s;)]+|'@[^']+')", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::StagePath, ..Default::default() },
-                )
-            }),
-            Matcher::regex("column_selector", r"\$[0-9]+", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::ColumnSelector,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::regex("dollar_quote", r"\$\$.*\$\$", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::DollarQuote, ..Default::default() },
-                )
-            }),
-            Matcher::regex("dollar_literal", r"[$][a-zA-Z0-9_.]*", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::DollarLiteral,
-                        ..Default::default()
-                    },
-                )
-            }),
+            Matcher::string("parameter_assigner", "=>", SyntaxKind::ParameterAssigner),
+            Matcher::string("function_assigner", "->", SyntaxKind::FunctionAssigner),
+            Matcher::regex("stage_path", r"(?:@[^\s;)]+|'@[^']+')", SyntaxKind::StagePath),
+            Matcher::regex("column_selector", r"\$[0-9]+", SyntaxKind::ColumnSelector),
+            Matcher::regex("dollar_quote", r"\$\$.*\$\$", SyntaxKind::DollarQuote),
+            Matcher::regex("dollar_literal", r"[$][a-zA-Z0-9_.]*", SyntaxKind::DollarLiteral),
             Matcher::regex(
                 "inline_dollar_sign",
                 r"[a-zA-Z_][a-zA-Z0-9_$]*\$[a-zA-Z0-9_$]*",
-                |slice, marker| {
-                    CodeSegment::create(
-                        slice,
-                        marker.into(),
-                        CodeSegmentNewArgs { code_type: SyntaxKind::Raw, ..Default::default() },
-                    )
-                },
+                SyntaxKind::Raw,
             ),
             Matcher::regex(
                 "unquoted_file_path",
                 r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?",
-                |slice, marker| {
-                    CodeSegment::create(
-                        slice,
-                        marker.into(),
-                        CodeSegmentNewArgs {
-                            code_type: SyntaxKind::UnquotedFilePath,
-                            ..Default::default()
-                        },
-                    )
-                },
+                SyntaxKind::UnquotedFilePath,
             ),
-            Matcher::string("question_mark", "?", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::QuestionMark,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::string("exclude_bracket_open", "{-", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::ExcludeBracketOpen,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::string("exclude_bracket_close", "-}", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::ExcludeBracketClose,
-                        ..Default::default()
-                    },
-                )
-            }),
+            Matcher::string("question_mark", "?", SyntaxKind::QuestionMark),
+            Matcher::string("exclude_bracket_open", "{-", SyntaxKind::ExcludeBracketOpen),
+            Matcher::string("exclude_bracket_close", "-}", SyntaxKind::ExcludeBracketClose),
         ],
         "like_operator",
     );
 
     snowflake_dialect.insert_lexer_matchers(
-        vec![Matcher::string("walrus_operator", ":=", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::WalrusOperator, ..Default::default() },
-            )
-        })],
+        vec![Matcher::string("walrus_operator", ":=", SyntaxKind::WalrusOperator)],
         "equals",
     );
 

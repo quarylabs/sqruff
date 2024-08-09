@@ -446,6 +446,7 @@ fn convert_fix_list(
 
     let mut edits: Vec<ErasedSegment> = vec![
         CodeSegment::create(
+            tables.next_id(),
             "convert",
             None,
             CodeSegmentNewArgs {
@@ -454,23 +455,27 @@ fn convert_fix_list(
             },
         ),
         CodeSegment::create(
+            tables.next_id(),
             "(",
             None,
             CodeSegmentNewArgs { code_type: SyntaxKind::StartBracket, ..Default::default() },
         ),
         convert_arg_1,
         CodeSegment::create(
+            tables.next_id(),
             ",",
             None,
             CodeSegmentNewArgs { code_type: SyntaxKind::Comma, ..Default::default() },
         ),
         CodeSegment::create(
+            tables.next_id(),
             " ",
             None,
             CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace, ..Default::default() },
         ),
         convert_arg_2,
         CodeSegment::create(
+            tables.next_id(),
             ")",
             None,
             CodeSegmentNewArgs { code_type: SyntaxKind::EndBracket, ..Default::default() },
@@ -479,7 +484,7 @@ fn convert_fix_list(
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
-            CodeSegment::create("convert", None, <_>::default()),
+            CodeSegment::create(tables.next_id(), "convert", None, <_>::default()),
             SymbolSegment::create(tables.next_id(), "(", None, <_>::default()),
         ];
 
@@ -540,7 +545,7 @@ fn cast_fix_list(
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
-            CodeSegment::create("cast", None, <_>::default()),
+            CodeSegment::create(tables.next_id(), "cast", None, <_>::default()),
             SymbolSegment::create(tables.next_id(), "(", None, <_>::default()),
         ];
 

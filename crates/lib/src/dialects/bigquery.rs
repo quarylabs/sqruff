@@ -12,7 +12,6 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs};
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -27,33 +26,9 @@ pub fn bigquery_dialect() -> Dialect {
 
     dialect.insert_lexer_matchers(
         vec![
-            Matcher::string("right_arrow", "=>", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::RightArrow, ..Default::default() },
-                )
-            }),
-            Matcher::string("question_mark", "?", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::QuestionMark,
-                        ..Default::default()
-                    },
-                )
-            }),
-            Matcher::regex("at_sign_literal", r"@[a-zA-Z_][\w]*", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::AtSignLiteral,
-                        ..Default::default()
-                    },
-                )
-            }),
+            Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow),
+            Matcher::string("question_mark", "?", SyntaxKind::QuestionMark),
+            Matcher::regex("at_sign_literal", r"@[a-zA-Z_][\w]*", SyntaxKind::AtSignLiteral),
         ],
         "equals",
     );
@@ -62,24 +37,12 @@ pub fn bigquery_dialect() -> Dialect {
         Matcher::regex(
             "single_quote",
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::SingleQuote, ..Default::default() },
-                )
-            }
+            SyntaxKind::SingleQuote
         ),
         Matcher::regex(
             "double_quote",
             r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::DoubleQuote, ..Default::default() },
-                )
-            }
+            SyntaxKind::DoubleQuote
         ),
     ]);
 

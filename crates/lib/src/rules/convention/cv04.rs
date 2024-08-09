@@ -106,7 +106,8 @@ from table_a
             if f_content[0].is_type(SyntaxKind::Star)
                 && (self.prefer_count_0 || self.prefer_count_1)
             {
-                let new_segment = LiteralSegment::create(preferred, &<_>::default());
+                let new_segment =
+                    LiteralSegment::create(context.tables.next_id(), preferred, &<_>::default());
                 return vec![LintResult::new(
                     context.segment.into(),
                     vec![LintFix::replace(f_content[0].clone(), vec![new_segment], None)],

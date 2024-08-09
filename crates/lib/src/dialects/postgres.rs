@@ -12,9 +12,6 @@ use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{
-    CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-};
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
@@ -46,13 +43,7 @@ pub fn raw_dialect() -> Dialect {
     postgres.name = DialectKind::Postgres;
 
     postgres.insert_lexer_matchers(
-        vec![Matcher::string("right_arrow", "=>", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::RightArrow, ..Default::default() },
-            )
-        })],
+        vec![Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow)],
         "equals",
     );
 
@@ -60,68 +51,32 @@ pub fn raw_dialect() -> Dialect {
         Matcher::regex(
             "unicode_single_quote",
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::UnicodeSingleQuote, ..Default::default() },
-                )
-            }
+            SyntaxKind::UnicodeSingleQuote
         ),
         Matcher::regex(
             "escaped_single_quote",
             r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\(?<!')(?:'')*')'(?!'))",
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::EscapedSingleQuote, ..Default::default() },
-                )
-            }
+            SyntaxKind::EscapedSingleQuote
         ),
         Matcher::regex(
             "unicode_double_quote",
             r#"(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?"#,
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::UnicodeDoubleQuote, ..Default::default() },
-                )
-            }
+            SyntaxKind::UnicodeDoubleQuote
         ),
         Matcher::regex(
             "json_operator",
             r#"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-"#,
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::JsonOperator, ..Default::default() },
-                )
-            }
+            SyntaxKind::JsonOperator
         ),
         Matcher::string(
             "at",
             "@",
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::At, ..Default::default() },
-                )
-            }
+            SyntaxKind::At
         ),
         Matcher::regex(
             "bit_string_literal",
             r#"[bBxX]'[0-9a-fA-F]*'"#,
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs { code_type: SyntaxKind::BitStringLiteral, ..Default::default() },
-                )
-            }
+            SyntaxKind::BitStringLiteral
         ),
     ], "like_operator");
 
@@ -130,76 +85,22 @@ pub fn raw_dialect() -> Dialect {
             Matcher::regex(
                 "meta_command",
                 r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
-                |slice, marker| {
-                    CommentSegment::create(
-                        slice,
-                        marker.into(),
-                        CommentSegmentNewArgs { r#type: SyntaxKind::Comment, trim_start: None },
-                    )
-                },
+                SyntaxKind::Comment,
             ),
-            Matcher::regex("dollar_numeric_literal", r"\$\d+", |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::DollarNumericLiteral,
-                        ..Default::default()
-                    },
-                )
-            }),
+            Matcher::regex("dollar_numeric_literal", r"\$\d+", SyntaxKind::DollarNumericLiteral),
         ],
         "word",
     );
 
     postgres.patch_lexer_matchers(vec![
-        Matcher::regex("inline_comment", r"(--)[^\n]*", |slice, marker| {
-            CommentSegment::create(
-                slice,
-                marker.into(),
-                CommentSegmentNewArgs {
-                    r#type: SyntaxKind::InlineComment,
-                    trim_start: Some(vec!["--"]),
-                },
-            )
-        }),
+        Matcher::regex("inline_comment", r"(--)[^\n]*", SyntaxKind::InlineComment),
         Matcher::regex(
             "single_quote",
             r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
-            |slice, marker| {
-                CodeSegment::create(
-                    slice,
-                    marker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::SingleQuote,
-                        instance_types: vec![],
-                        trim_start: None,
-                        trim_chars: None,
-                        source_fixes: None,
-                    },
-                )
-            },
+            SyntaxKind::SingleQuote,
         ),
-        Matcher::regex("double_quote", r#"(?s)".+?""#, |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::DoubleQuote,
-                    instance_types: vec![],
-                    trim_start: None,
-                    trim_chars: None,
-                    source_fixes: None,
-                },
-            )
-        }),
-        Matcher::regex("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Word, ..Default::default() },
-            )
-        }),
+        Matcher::regex("double_quote", r#"(?s)".+?""#, SyntaxKind::DoubleQuote),
+        Matcher::regex("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", SyntaxKind::Word),
     ]);
 
     let keywords = postgres_keywords();

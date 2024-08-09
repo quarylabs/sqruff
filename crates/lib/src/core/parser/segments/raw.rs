@@ -26,6 +26,7 @@ pub struct RawSegmentArgs {
 
 impl RawSegment {
     pub fn create(
+        id: u32,
         raw: Option<String>,
         position_marker: Option<PositionMarker>,
         // For legacy and syntactic sugar we allow the simple
@@ -33,7 +34,7 @@ impl RawSegment {
         // we suggest using the `instance_types` option.
         _args: RawSegmentArgs,
     ) -> Self {
-        Self { position_marker, raw: raw.map(Into::into), id: 0 }
+        Self { position_marker, raw: raw.map(Into::into), id }
     }
 }
 

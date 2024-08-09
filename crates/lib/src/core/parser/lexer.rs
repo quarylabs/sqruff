@@ -5,7 +5,7 @@ use std::ops::Range;
 use fancy_regex::Regex;
 
 use super::markers::PositionMarker;
-use super::segments::base::ErasedSegment;
+use super::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use super::segments::meta::EndOfFile;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
@@ -21,16 +21,12 @@ use crate::dialects::SyntaxKind;
 pub struct Element<'a> {
     name: &'static str,
     text: Cow<'a, str>,
-    value: fn(&str, PositionMarker) -> ErasedSegment,
+    syntax_kind: SyntaxKind,
 }
 
 impl<'a> Element<'a> {
-    fn new(
-        name: &'static str,
-        value: fn(&str, PositionMarker) -> ErasedSegment,
-        text: impl Into<Cow<'a, str>>,
-    ) -> Self {
-        Self { name, value, text: text.into() }
+    fn new(name: &'static str, syntax_kind: SyntaxKind, text: impl Into<Cow<'a, str>>) -> Self {
+        Self { name, syntax_kind, text: text.into() }
     }
 }
 
@@ -45,7 +41,7 @@ pub struct TemplateElement<'a> {
 #[derive(Debug)]
 struct Info {
     name: &'static str,
-    constructor: fn(&str, PositionMarker) -> ErasedSegment,
+    syntax_kind: SyntaxKind,
 }
 
 impl<'a> TemplateElement<'a> {
@@ -54,7 +50,7 @@ impl<'a> TemplateElement<'a> {
         TemplateElement {
             raw: element.text,
             template_slice,
-            matcher: Info { name: element.name, constructor: element.value },
+            matcher: Info { name: element.name, syntax_kind: element.syntax_kind },
         }
     }
 
@@ -64,7 +60,12 @@ impl<'a> TemplateElement<'a> {
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
         let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
-        (self.matcher.constructor)(slice, pos_marker)
+        CodeSegment::create(
+            0,
+            slice,
+            Some(pos_marker),
+            CodeSegmentNewArgs { code_type: self.matcher.syntax_kind, ..Default::default() },
+        )
     }
 }
 
@@ -98,17 +99,13 @@ impl Matcher {
     pub const fn string(
         name: &'static str,
         pattern: &'static str,
-        constructor: fn(&str, PositionMarker) -> ErasedSegment,
+        syntax_kind: SyntaxKind,
     ) -> Self {
-        Self::new(Pattern::string(name, pattern, constructor))
+        Self::new(Pattern::string(name, pattern, syntax_kind))
     }
 
-    pub fn regex(
-        name: &'static str,
-        pattern: &'static str,
-        constructor: fn(&str, PositionMarker) -> ErasedSegment,
-    ) -> Self {
-        Self::new(Pattern::regex(name, pattern, constructor))
+    pub fn regex(name: &'static str, pattern: &'static str, syntax_kind: SyntaxKind) -> Self {
+        Self::new(Pattern::regex(name, pattern, syntax_kind))
     }
 
     pub fn subdivider(mut self, subdivider: Pattern) -> Self {
@@ -128,7 +125,7 @@ impl Matcher {
     pub fn matches<'a>(&self, forward_string: &'a str) -> Match<'a> {
         match self.pattern.matches(forward_string) {
             Some(matched) => {
-                let new_elements = self.subdivide(matched, self.pattern.value);
+                let new_elements = self.subdivide(matched, self.pattern.syntax_kind);
 
                 Match { forward_string: &forward_string[matched.len()..], elements: new_elements }
             }
@@ -136,11 +133,7 @@ impl Matcher {
         }
     }
 
-    fn subdivide<'a>(
-        &self,
-        matched: &'a str,
-        matched_kind: fn(&str, PositionMarker) -> ErasedSegment,
-    ) -> Vec<Element<'a>> {
+    fn subdivide<'a>(&self, matched: &'a str, matched_kind: SyntaxKind) -> Vec<Element<'a>> {
         match &self.subdivider {
             Some(subdivider) => {
                 let mut elem_buff = Vec::new();
@@ -156,7 +149,7 @@ impl Matcher {
                     let mut trimmed_elems = self.trim_match(&str_buff[..div_pos.start]);
                     let div_elem = Element::new(
                         subdivider.name,
-                        subdivider.value,
+                        subdivider.syntax_kind,
                         &str_buff[div_pos.start..div_pos.end],
                     );
 
@@ -180,7 +173,7 @@ impl Matcher {
         };
 
         let mk_element =
-            |text| Element::new(trim_post_subdivide.name, trim_post_subdivide.value, text);
+            |text| Element::new(trim_post_subdivide.name, trim_post_subdivide.syntax_kind, text);
 
         let mut elem_buff = Vec::new();
         let mut content_buff = String::new();
@@ -202,7 +195,7 @@ impl Matcher {
 
                 elem_buff.push(Element::new(
                     trim_post_subdivide.name,
-                    trim_post_subdivide.value,
+                    trim_post_subdivide.syntax_kind,
                     raw,
                 ));
                 elem_buff.push(mk_element(&str_buff[start..end]));
@@ -217,7 +210,7 @@ impl Matcher {
 
         if !content_buff.is_empty() || !str_buff.is_empty() {
             let raw = format!("{}{}", content_buff, str_buff);
-            elem_buff.push(Element::new(self.pattern.name, self.pattern.value, raw));
+            elem_buff.push(Element::new(self.pattern.name, self.pattern.syntax_kind, raw));
         }
 
         elem_buff
@@ -227,7 +220,7 @@ impl Matcher {
 #[derive(Debug, Clone)]
 pub struct Pattern {
     name: &'static str,
-    value: fn(&str, PositionMarker) -> ErasedSegment,
+    syntax_kind: SyntaxKind,
     kind: SearchPatternKind,
 }
 
@@ -241,21 +234,13 @@ impl Pattern {
     pub const fn string(
         name: &'static str,
         template: &'static str,
-        constructor: fn(&str, PositionMarker) -> ErasedSegment,
+        syntax_kind: SyntaxKind,
     ) -> Self {
-        Self { name, value: constructor, kind: SearchPatternKind::String(template) }
+        Self { name, syntax_kind, kind: SearchPatternKind::String(template) }
     }
 
-    pub fn regex(
-        name: &'static str,
-        regex: &'static str,
-        constructor: fn(&str, PositionMarker) -> ErasedSegment,
-    ) -> Self {
-        Self {
-            name,
-            value: constructor,
-            kind: SearchPatternKind::Regex(Regex::new(regex).unwrap()),
-        }
+    pub fn regex(name: &'static str, regex: &'static str, syntax_kind: SyntaxKind) -> Self {
+        Self { name, syntax_kind, kind: SearchPatternKind::Regex(Regex::new(regex).unwrap()) }
     }
 
     fn matches<'a>(&self, forward_string: &'a str) -> Option<&'a str> {
@@ -308,7 +293,7 @@ impl<'a> Lexer<'a> {
     pub fn new(config: &'a FluffConfig, _dialect: Option<Dialect>) -> Self {
         Lexer {
             config,
-            last_resort_lexer: Matcher::regex("<unlexable>", r"[^\t\n.]*", |_, _| unimplemented!()),
+            last_resort_lexer: Matcher::regex("<unlexable>", r"[^\t\n.]*", SyntaxKind::Unlexable),
         }
     }
 
@@ -458,7 +443,7 @@ impl<'a> Lexer<'a> {
             .unwrap_or_else(|| {
                 PositionMarker::from_point(0, 0, templated_file.clone(), None, None)
             });
-        segments.push(EndOfFile::create(position_maker));
+        segments.push(EndOfFile::create(0, position_maker));
 
         segments
     }
@@ -619,13 +604,13 @@ mod tests {
             Matcher::regex(
                 "function_script_terminator",
                 r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
-                |_, _| unimplemented!(),
+                SyntaxKind::StatementTerminator,
             )
-            .subdivider(Pattern::string("semicolon", ";", |_, _| unimplemented!()))
+            .subdivider(Pattern::string("semicolon", ";", SyntaxKind::Semicolon))
             .post_subdivide(Pattern::regex(
                 "newline",
                 r"(\n|\r\n)+",
-                |_, _| unimplemented!(),
+                SyntaxKind::Newline,
             )),
         ];
 
@@ -657,7 +642,7 @@ mod tests {
         ];
 
         for (raw, reg, res) in tests {
-            let matcher = Matcher::regex("test", reg, |_, _| unimplemented!());
+            let matcher = Matcher::regex("test", reg, SyntaxKind::Word);
 
             assert_matches(raw, &matcher, Some(res));
         }
@@ -666,7 +651,7 @@ mod tests {
     /// Test the lexer string
     #[test]
     fn test_parser_lexer_string() {
-        let matcher = Matcher::string("dot", ".", |_, _| unimplemented!());
+        let matcher = Matcher::string("dot", ".", SyntaxKind::Dot);
 
         assert_matches(".fsaljk", &matcher, Some("."));
         assert_matches("fsaljk", &matcher, None);
@@ -676,8 +661,8 @@ mod tests {
     #[test]
     fn test_parser_lexer_lex_match() {
         let matchers: Vec<Matcher> = vec![
-            Matcher::string("dot", ".", |_, _| unimplemented!()),
-            Matcher::regex("test", "#[^#]*#", |_, _| unimplemented!()),
+            Matcher::string("dot", ".", SyntaxKind::Dot),
+            Matcher::regex("test", "#[^#]*#", SyntaxKind::Dash),
         ];
 
         let res = Lexer::lex_match("..#..#..#", &matchers);

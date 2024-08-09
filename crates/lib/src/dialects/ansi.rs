@@ -23,11 +23,7 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::{MatchResult, Matched};
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{
-    pos_marker, CodeSegment, CodeSegmentNewArgs, CommentSegment, CommentSegmentNewArgs,
-    ErasedSegment, NewlineSegment, NewlineSegmentNewArgs, PathStep, Segment, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{pos_marker, ErasedSegment, PathStep, Segment};
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::fix::SourceFix;
 use crate::core::parser::segments::generator::SegmentGenerator;
@@ -4860,280 +4856,47 @@ pub fn select_clause_element() -> Arc<dyn Matchable> {
 
 fn lexer_matchers() -> Vec<Matcher> {
     vec![
-        Matcher::regex("whitespace", r"[^\S\r\n]+", |slice, marker| {
-            WhitespaceSegment::create(0, slice, marker.into(), WhitespaceSegmentNewArgs {})
-        }),
-        Matcher::regex("inline_comment", r"(--|#)[^\n]*", |slice, marker| {
-            CommentSegment::create(
-                slice,
-                marker.into(),
-                CommentSegmentNewArgs {
-                    r#type: SyntaxKind::InlineComment,
-                    trim_start: Some(vec!["--", "#"]),
-                },
-            )
-        }),
-        Matcher::regex("block_comment", r"\/\*([^\*]|\*(?!\/))*\*\/", |slice, marker| {
-            CommentSegment::create(
-                slice,
-                marker.into(),
-                CommentSegmentNewArgs { r#type: SyntaxKind::BlockComment, trim_start: None },
-            )
-        })
-        .subdivider(Pattern::regex("newline", r"\r\n|\n", |slice, marker| {
-            NewlineSegment::create(0, slice, marker.into(), NewlineSegmentNewArgs {})
-        }))
-        .post_subdivide(Pattern::regex("whitespace", r"[^\S\r\n]+", |slice, marker| {
-            WhitespaceSegment::create(0, slice, marker.into(), WhitespaceSegmentNewArgs {})
-        })),
-        Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::SingleQuote, ..Default::default() },
-            )
-        }),
-        Matcher::regex("double_quote", r#""([^"\\]|\\.)*""#, |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::DoubleQuote, ..Default::default() },
-            )
-        }),
-        Matcher::regex("back_quote", r"`[^`]*`", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::BackQuote, ..Default::default() },
-            )
-        }),
-        Matcher::regex("dollar_quote", r"\$(\w*)\$[\s\S]*?\$\1\$", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::DollarQuote, ..Default::default() },
-            )
-        }),
+        Matcher::regex("whitespace", r"[^\S\r\n]+", SyntaxKind::Whitespace),
+        Matcher::regex("inline_comment", r"(--|#)[^\n]*", SyntaxKind::InlineComment),
+        Matcher::regex("block_comment", r"\/\*([^\*]|\*(?!\/))*\*\/", SyntaxKind::BlockComment)
+            .subdivider(Pattern::regex("newline", r"\r\n|\n", SyntaxKind::Newline))
+            .post_subdivide(Pattern::regex("whitespace", r"[^\S\r\n]+", SyntaxKind::Whitespace)),
+        Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", SyntaxKind::SingleQuote),
+        Matcher::regex("double_quote", r#""([^"\\]|\\.)*""#, SyntaxKind::DoubleQuote),
+        Matcher::regex("back_quote", r"`[^`]*`", SyntaxKind::BackQuote),
+        Matcher::regex("dollar_quote", r"\$(\w*)\$[\s\S]*?\$\1\$", SyntaxKind::DollarQuote),
         Matcher::regex(
             "numeric_literal",
             r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
-            |raw, position_maker| {
-                CodeSegment::create(
-                    raw,
-                    position_maker.into(),
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::NumericLiteral,
-                        ..Default::default()
-                    },
-                )
-            },
+            SyntaxKind::NumericLiteral,
         ),
-        Matcher::regex("like_operator", r"!?~~?\*?", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::LikeOperator, ..Default::default() },
-            )
-        }),
-        Matcher::regex("newline", r"\r\n|\n", |slice, marker| {
-            NewlineSegment::create(0, slice, marker.into(), NewlineSegmentNewArgs {})
-        }),
-        Matcher::string("casting_operator", "::", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::CastingOperator, ..Default::default() },
-            )
-        }),
-        Matcher::string("equals", "=", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::RawComparisonOperator,
-                    ..Default::default()
-                },
-            )
-        }),
-        Matcher::string("greater_than", ">", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::RawComparisonOperator,
-                    ..Default::default()
-                },
-            )
-        }),
-        Matcher::string("less_than", "<", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::RawComparisonOperator,
-                    ..Default::default()
-                },
-            )
-        }),
-        Matcher::string("not", "!", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::RawComparisonOperator,
-                    ..Default::default()
-                },
-            )
-        }),
-        Matcher::string("dot", ".", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Dot, ..Default::default() },
-            )
-        }),
-        Matcher::string("comma", ",", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Comma, ..Default::default() },
-            )
-        }),
-        Matcher::string("plus", "+", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Plus, ..Default::default() },
-            )
-        }),
-        Matcher::string("minus", "-", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Minus, ..Default::default() },
-            )
-        }),
-        Matcher::string("divide", "/", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Divide, ..Default::default() },
-            )
-        }),
-        Matcher::string("percent", "%", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Percent, ..Default::default() },
-            )
-        }),
-        Matcher::string("question", "?", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Question, ..Default::default() },
-            )
-        }),
-        Matcher::string("ampersand", "&", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Ampersand, ..Default::default() },
-            )
-        }),
-        Matcher::string("vertical_bar", "|", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::VerticalBar, ..Default::default() },
-            )
-        }),
-        Matcher::string("caret", "^", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Caret, ..Default::default() },
-            )
-        }),
-        Matcher::string("star", "*", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Star, ..Default::default() },
-            )
-        }),
-        Matcher::string("start_bracket", "(", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::StartBracket, ..Default::default() },
-            )
-        }),
-        Matcher::string("end_bracket", ")", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::EndBracket, ..Default::default() },
-            )
-        }),
-        Matcher::string("start_square_bracket", "[", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::StartSquareBracket,
-                    ..Default::default()
-                },
-            )
-        }),
-        Matcher::string("end_square_bracket", "]", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::EndSquareBracket,
-                    ..Default::default()
-                },
-            )
-        }),
-        Matcher::string("start_curly_bracket", "{", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs {
-                    code_type: SyntaxKind::StartCurlyBracket,
-                    ..Default::default()
-                },
-            )
-        }),
-        Matcher::string("end_curly_bracket", "}", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::EndCurlyBracket, ..Default::default() },
-            )
-        }),
-        Matcher::string("colon", ":", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Colon, ..Default::default() },
-            )
-        }),
-        Matcher::string("semicolon", ";", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Semicolon, ..Default::default() },
-            )
-        }),
-        Matcher::regex("word", "[0-9a-zA-Z_]+", |slice, marker| {
-            CodeSegment::create(
-                slice,
-                marker.into(),
-                CodeSegmentNewArgs { code_type: SyntaxKind::Word, ..Default::default() },
-            )
-        }),
+        Matcher::regex("like_operator", r"!?~~?\*?", SyntaxKind::LikeOperator),
+        Matcher::regex("newline", r"\r\n|\n", SyntaxKind::Newline),
+        Matcher::string("casting_operator", "::", SyntaxKind::CastingOperator),
+        Matcher::string("equals", "=", SyntaxKind::RawComparisonOperator),
+        Matcher::string("greater_than", ">", SyntaxKind::RawComparisonOperator),
+        Matcher::string("less_than", "<", SyntaxKind::RawComparisonOperator),
+        Matcher::string("not", "!", SyntaxKind::RawComparisonOperator),
+        Matcher::string("dot", ".", SyntaxKind::Dot),
+        Matcher::string("comma", ",", SyntaxKind::Comma),
+        Matcher::string("plus", "+", SyntaxKind::Plus),
+        Matcher::string("minus", "-", SyntaxKind::Minus),
+        Matcher::string("divide", "/", SyntaxKind::Divide),
+        Matcher::string("percent", "%", SyntaxKind::Percent),
+        Matcher::string("question", "?", SyntaxKind::Question),
+        Matcher::string("ampersand", "&", SyntaxKind::Ampersand),
+        Matcher::string("vertical_bar", "|", SyntaxKind::VerticalBar),
+        Matcher::string("caret", "^", SyntaxKind::Caret),
+        Matcher::string("star", "*", SyntaxKind::Star),
+        Matcher::string("start_bracket", "(", SyntaxKind::StartBracket),
+        Matcher::string("end_bracket", ")", SyntaxKind::EndBracket),
+        Matcher::string("start_square_bracket", "[", SyntaxKind::StartSquareBracket),
+        Matcher::string("end_square_bracket", "]", SyntaxKind::EndSquareBracket),
+        Matcher::string("start_curly_bracket", "{", SyntaxKind::StartCurlyBracket),
+        Matcher::string("end_curly_bracket", "}", SyntaxKind::EndCurlyBracket),
+        Matcher::string("colon", ":", SyntaxKind::Colon),
+        Matcher::string("semicolon", ";", SyntaxKind::Semicolon),
+        Matcher::regex("word", "[0-9a-zA-Z_]+", SyntaxKind::Word),
     ]
 }
 

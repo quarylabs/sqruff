@@ -11,7 +11,7 @@ use ahash::AHashMap;
 use dyn_clone::DynClone;
 use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
-use nohash_hasher::IntMap;
+use rustc_hash::FxHashMap;
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Serialize};
 use smol_str::SmolStr;
@@ -274,7 +274,7 @@ impl ErasedSegment {
 
     pub fn apply_fixes(
         &self,
-        fixes: &mut IntMap<u32, AnchorEditInfo>,
+        fixes: &mut FxHashMap<u32, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone(), Vec::new(), Vec::new(), true);

@@ -3,17 +3,12 @@ use itertools::chain;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{
-    CodeSegment, ErasedSegment, SymbolSegment, SymbolSegmentNewArgs, WhitespaceSegment,
-    WhitespaceSegmentNewArgs,
-};
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -55,31 +50,16 @@ fn shorthand_fix_list(
 ) -> Vec<LintFix> {
     let mut edits = if shorthand_arg_1.get_raw_segments().len() > 1 {
         vec![
-            SymbolSegment::create(
-                tables.next_id(),
-                "(",
-                None,
-                SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
-            ),
+            CodeSegment::of(tables.next_id(), "(", SyntaxKind::StartBracket),
             shorthand_arg_1,
-            SymbolSegment::create(
-                tables.next_id(),
-                ")",
-                None,
-                SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
-            ),
+            CodeSegment::of(tables.next_id(), ")", SyntaxKind::EndBracket),
         ]
     } else {
         vec![shorthand_arg_1]
     };
 
     edits.extend([
-        SymbolSegment::create(
-            tables.next_id(),
-            "::",
-            None,
-            SymbolSegmentNewArgs { r#type: SyntaxKind::CastingOperator },
-        ),
+        CodeSegment::of(tables.next_id(), "::", SyntaxKind::CastingOperator),
         shorthand_arg_2,
     ]);
 
@@ -449,52 +429,48 @@ fn convert_fix_list(
             tables.next_id(),
             "convert",
             None,
-            CodeSegmentNewArgs {
-                code_type: SyntaxKind::FunctionNameIdentifier,
-                ..Default::default()
-            },
+            CodeSegmentNewArgs { code_type: SyntaxKind::FunctionNameIdentifier },
         ),
         CodeSegment::create(
             tables.next_id(),
             "(",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::StartBracket, ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::StartBracket },
         ),
         convert_arg_1,
         CodeSegment::create(
             tables.next_id(),
             ",",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::Comma, ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::Comma },
         ),
         CodeSegment::create(
             tables.next_id(),
             " ",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace, ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace },
         ),
         convert_arg_2,
         CodeSegment::create(
             tables.next_id(),
             ")",
             None,
-            CodeSegmentNewArgs { code_type: SyntaxKind::EndBracket, ..Default::default() },
+            CodeSegmentNewArgs { code_type: SyntaxKind::EndBracket },
         ),
     ];
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
             CodeSegment::create(tables.next_id(), "convert", None, <_>::default()),
-            SymbolSegment::create(tables.next_id(), "(", None, <_>::default()),
+            CodeSegment::symbol(tables.next_id(), "("),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            SymbolSegment::create(tables.next_id(), ",", None, <_>::default()),
-            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+            CodeSegment::symbol(tables.next_id(), ","),
+            CodeSegment::whitespace(tables.next_id(), " "),
         ];
 
-        let post_edits: Vec<ErasedSegment> =
-            vec![SymbolSegment::create(tables.next_id(), ")", None, <_>::default())];
+        let post_edits: Vec<ErasedSegment> = vec![CodeSegment::symbol(tables.next_id(), ")")];
 
         for _type in later_types.base {
             edits = chain(
@@ -516,47 +492,31 @@ fn cast_fix_list(
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
     let mut edits = vec![
-        SymbolSegment::create(
-            tables.next_id(),
-            "cast",
-            None,
-            SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
-        ),
-        SymbolSegment::create(
-            tables.next_id(),
-            "(",
-            None,
-            SymbolSegmentNewArgs { r#type: SyntaxKind::StartBracket },
-        ),
+        CodeSegment::of(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier),
+        CodeSegment::of(tables.next_id(), "(", SyntaxKind::StartBracket),
     ];
     edits.extend_from_slice(cast_arg_1);
     edits.extend([
-        WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
-        KeywordSegment::new(tables.next_id(), "as".into(), None).to_erased_segment(),
-        WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+        CodeSegment::whitespace(tables.next_id(), " "),
+        CodeSegment::keyword(tables.next_id(), "as"),
+        CodeSegment::whitespace(tables.next_id(), " "),
         cast_arg_2,
-        SymbolSegment::create(
-            tables.next_id(),
-            ")",
-            None,
-            SymbolSegmentNewArgs { r#type: SyntaxKind::EndBracket },
-        ),
+        CodeSegment::of(tables.next_id(), ")", SyntaxKind::EndBracket),
     ]);
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
             CodeSegment::create(tables.next_id(), "cast", None, <_>::default()),
-            SymbolSegment::create(tables.next_id(), "(", None, <_>::default()),
+            CodeSegment::symbol(tables.next_id(), "("),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
-            KeywordSegment::new(tables.next_id(), "as".into(), None).to_erased_segment(),
-            WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs),
+            CodeSegment::whitespace(tables.next_id(), " "),
+            CodeSegment::keyword(tables.next_id(), "as"),
+            CodeSegment::whitespace(tables.next_id(), " "),
         ];
 
-        let post_edits: Vec<ErasedSegment> =
-            vec![SymbolSegment::create(tables.next_id(), ")", None, <_>::default())];
+        let post_edits: Vec<ErasedSegment> = vec![CodeSegment::symbol(tables.next_id(), ")")];
 
         for _type in later_types.base {
             let mut xs = Vec::new();

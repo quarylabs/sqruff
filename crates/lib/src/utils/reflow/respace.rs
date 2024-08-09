@@ -3,9 +3,7 @@ use rustc_hash::FxHashMap;
 
 use super::elements::ReflowBlock;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{
-    ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
 use crate::core::rules::base::{EditType, LintFix, LintResult};
 use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
@@ -420,8 +418,7 @@ pub fn handle_respace_inline_without_space(
         return (segment_buffer, existing_results, false);
     }
 
-    let added_whitespace =
-        WhitespaceSegment::create(tables.next_id(), " ", None, WhitespaceSegmentNewArgs {});
+    let added_whitespace = CodeSegment::whitespace(tables.next_id(), " ");
 
     // Add it to the buffer first (the easy bit). The hard bit is to then determine
     // how to generate the appropriate LintFix objects.
@@ -517,12 +514,7 @@ pub fn handle_respace_inline_without_space(
             next_block.segments[0].clone().into(),
             vec![LintFix::create_before(
                 next_block.segments[0].clone(),
-                vec![WhitespaceSegment::create(
-                    tables.next_id(),
-                    " ",
-                    None,
-                    WhitespaceSegmentNewArgs,
-                )],
+                vec![CodeSegment::whitespace(tables.next_id(), " ")],
             )],
             None,
             Some(desc),

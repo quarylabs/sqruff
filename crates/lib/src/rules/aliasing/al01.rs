@@ -1,12 +1,11 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::CodeSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 use crate::utils::reflow::sequence::{Filter, ReflowInsertPosition, ReflowSequence, TargetSide};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -143,8 +142,7 @@ FROM foo AS voo
                         rule_cx.config.unwrap(),
                     )
                     .insert(
-                        KeywordSegment::new(rule_cx.tables.next_id(), "AS".into(), None)
-                            .to_erased_segment(),
+                        CodeSegment::keyword(rule_cx.tables.next_id(), "AS"),
                         identifier,
                         ReflowInsertPosition::Before,
                     )

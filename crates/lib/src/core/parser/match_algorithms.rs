@@ -305,10 +305,7 @@ pub fn resolve_bracket(
                     return Ok(match_result);
                 }
 
-                return Ok(match_result.wrap(Matched::BracketedSegment {
-                    start_bracket: opening_match.span.start,
-                    end_bracket: match_span.start,
-                }));
+                return Ok(match_result.wrap(Matched::SyntaxKind(SyntaxKind::Bracketed)));
             }
 
             return Err(SQLParseError {

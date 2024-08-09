@@ -5,7 +5,7 @@ use itertools::chain;
 use smol_str::ToSmolStr;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, IdentifierSegment, SymbolSegment};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -130,18 +130,13 @@ impl RuleAL07 {
                     let mut edits = Vec::new();
                     for (i, part) in identifier_parts.iter().enumerate() {
                         if i > 0 {
-                            edits.push(SymbolSegment::create(
-                                tables.next_id(),
-                                ".",
-                                None,
-                                <_>::default(),
-                            ));
+                            edits.push(CodeSegment::symbol(tables.next_id(), "."));
                         }
-                        edits.push(IdentifierSegment::create(
+                        edits.push(CodeSegment::create(
                             tables.next_id(),
                             part,
                             None,
-                            <_>::default(),
+                            CodeSegmentNewArgs { code_type: SyntaxKind::Identifier },
                         ));
                     }
                     fixes.push(LintFix::replace(

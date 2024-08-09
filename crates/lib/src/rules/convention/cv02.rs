@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
+use crate::core::parser::segments::base::CodeSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -96,11 +96,10 @@ FROM baz;
         let fix = LintFix::replace(
             context.segment.clone(),
             vec![
-                SymbolSegment::create(
+                CodeSegment::of(
                     context.tables.next_id(),
                     "COALESCE",
-                    None,
-                    SymbolSegmentNewArgs { r#type: SyntaxKind::FunctionNameIdentifier },
+                    SyntaxKind::FunctionNameIdentifier,
                 )
                 .config(|this| this.get_mut().set_id(context.tables.next_id())),
             ],

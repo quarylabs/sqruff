@@ -6,7 +6,7 @@ use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{SymbolSegment, SymbolSegmentNewArgs};
+use crate::core::parser::segments::base::CodeSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -137,11 +137,10 @@ from foo
                 context.segment.clone().into(),
                 vec![LintFix::replace(
                     context.segment,
-                    vec![SymbolSegment::create(
+                    vec![CodeSegment::of(
                         context.tables.next_id(),
                         &fixed_string,
-                        None,
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::QuotedLiteral },
+                        SyntaxKind::QuotedLiteral,
                     )],
                     None,
                 )],

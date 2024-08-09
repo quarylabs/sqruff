@@ -6,7 +6,6 @@ use fancy_regex::Regex;
 
 use super::markers::PositionMarker;
 use super::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
-use super::segments::meta::EndOfFile;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
@@ -64,7 +63,7 @@ impl<'a> TemplateElement<'a> {
             0,
             slice,
             Some(pos_marker),
-            CodeSegmentNewArgs { code_type: self.matcher.syntax_kind, ..Default::default() },
+            CodeSegmentNewArgs { code_type: self.matcher.syntax_kind },
         )
     }
 }
@@ -443,7 +442,12 @@ impl<'a> Lexer<'a> {
             .unwrap_or_else(|| {
                 PositionMarker::from_point(0, 0, templated_file.clone(), None, None)
             });
-        segments.push(EndOfFile::create(0, position_maker));
+        segments.push(CodeSegment::create(
+            0,
+            "",
+            Some(position_maker),
+            CodeSegmentNewArgs { code_type: SyntaxKind::EndOfFile },
+        ));
 
         segments
     }

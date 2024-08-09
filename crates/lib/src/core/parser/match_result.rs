@@ -4,14 +4,13 @@ use std::cmp::Ordering;
 use ahash::HashMapExt;
 use nohash_hasher::IntMap;
 
-use super::segments::base::{ErasedSegment, Segment, SymbolSegment, SymbolSegmentNewArgs};
+use super::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment, Segment};
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::bracketed::BracketedSegment;
 use crate::core::parser::segments::meta::{Indent, IndentChange};
 use crate::dialects::ansi::{Node, Tables};
 use crate::dialects::SyntaxKind;
-use crate::helpers::{Config, ToErasedSegment};
+use crate::helpers::ToErasedSegment;
 
 fn get_point_pos_at_idx(segments: &[ErasedSegment], idx: u32) -> PositionMarker {
     let idx = idx as usize;
@@ -26,8 +25,6 @@ fn get_point_pos_at_idx(segments: &[ErasedSegment], idx: u32) -> PositionMarker 
 pub enum Matched {
     SyntaxKind(SyntaxKind),
     Newtype(SyntaxKind),
-    ErasedSegment(ErasedSegment),
-    BracketedSegment { start_bracket: u32, end_bracket: u32 },
 }
 
 #[derive(Default, Debug, Clone)]
@@ -175,39 +172,24 @@ impl MatchResult {
             return result_segments;
         };
 
-        let segment = match matched {
+        match matched {
             Matched::SyntaxKind(kind) => {
-                return vec![
+                vec![
                     Node::new(tables.next_id(), dialect, kind, result_segments, true)
                         .to_erased_segment(),
-                ];
+                ]
             }
             Matched::Newtype(kind) => {
                 let old = result_segments.pop().unwrap();
 
-                return vec![SymbolSegment::create(
+                vec![CodeSegment::create(
                     tables.next_id(),
                     old.raw().as_ref(),
                     old.get_position_marker(),
-                    SymbolSegmentNewArgs { r#type: kind },
-                )];
+                    CodeSegmentNewArgs { code_type: kind },
+                )]
             }
-            Matched::ErasedSegment(segment) => segment,
-            Matched::BracketedSegment { start_bracket, end_bracket } => {
-                return vec![
-                    BracketedSegment::new(
-                        result_segments,
-                        vec![segments[start_bracket as usize].clone()],
-                        vec![segments[end_bracket as usize].clone()],
-                        false,
-                    )
-                    .to_erased_segment()
-                    .config(|this| this.get_mut().set_id(tables.next_id())),
-                ];
-            }
-        };
-
-        vec![if result_segments.is_empty() { segment } else { segment.new(result_segments) }]
+        }
     }
 }
 

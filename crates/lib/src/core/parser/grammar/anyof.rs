@@ -12,7 +12,7 @@ use crate::core::parser::match_algorithms::{
 };
 use crate::core::parser::match_result::{MatchResult, Matched, Span};
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::types::ParseMode;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToMatchable;
@@ -121,8 +121,6 @@ impl AnyNumberOf {
         self.min_times = min_times;
     }
 }
-
-impl Segment for AnyNumberOf {}
 
 impl Matchable for AnyNumberOf {
     fn is_optional(&self) -> bool {

@@ -2,15 +2,11 @@ use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{
-    ErasedSegment, SymbolSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -133,8 +129,7 @@ from fancy_table
                     {
                         let coalesce_arg_1 = condition_expression.clone();
                         let coalesce_arg_2 =
-                            KeywordSegment::new(context.tables.next_id(), "false".into(), None)
-                                .to_erased_segment();
+                            CodeSegment::keyword(context.tables.next_id(), "false");
                         let preceding_not = then_expression_upper == "FALSE";
 
                         let fixes = Self::coalesce_fix_list(
@@ -275,31 +270,24 @@ impl RuleST02 {
         preceding_not: bool,
     ) -> Vec<LintFix> {
         let mut edits = vec![
-            SymbolSegment::create(context.tables.next_id(), "coalesce", None, <_>::default()),
-            SymbolSegment::create(context.tables.next_id(), "(", None, <_>::default()),
-            coalesce_arg_1,
-            SymbolSegment::create(context.tables.next_id(), ",", None, <_>::default()),
-            WhitespaceSegment::create(
+            CodeSegment::of(
                 context.tables.next_id(),
-                " ",
-                None,
-                WhitespaceSegmentNewArgs,
+                "coalesce",
+                SyntaxKind::FunctionNameIdentifier,
             ),
+            CodeSegment::symbol(context.tables.next_id(), "("),
+            coalesce_arg_1,
+            CodeSegment::symbol(context.tables.next_id(), ","),
+            CodeSegment::whitespace(context.tables.next_id(), " "),
             coalesce_arg_2,
-            SymbolSegment::create(context.tables.next_id(), ")", None, <_>::default()),
+            CodeSegment::symbol(context.tables.next_id(), ")"),
         ];
 
         if preceding_not {
             edits = chain(
                 [
-                    KeywordSegment::new(context.tables.next_id(), "not".into(), None)
-                        .to_erased_segment(),
-                    WhitespaceSegment::create(
-                        context.tables.next_id(),
-                        " ",
-                        None,
-                        WhitespaceSegmentNewArgs,
-                    ),
+                    CodeSegment::keyword(context.tables.next_id(), "not"),
+                    CodeSegment::whitespace(context.tables.next_id(), " "),
                 ],
                 edits,
             )

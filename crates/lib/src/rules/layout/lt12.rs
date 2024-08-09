@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, NewlineSegment};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use crate::core::rules::base::{
     Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups,
 };
@@ -153,11 +153,11 @@ Add trailing newline to the end. The $ character represents end of file.
                 segment.first().unwrap().clone().into(),
                 vec![LintFix::create_after(
                     fix_anchor_segment,
-                    vec![NewlineSegment::create(
+                    vec![CodeSegment::create(
                         context.tables.next_id(),
                         "\n",
                         None,
-                        <_>::default(),
+                        CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
                     )],
                     None,
                 )],

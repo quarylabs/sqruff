@@ -630,6 +630,7 @@ pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
     fn get_type(&self) -> SyntaxKind {
         todo!()
     }
+
     fn is_type(&self, type_: SyntaxKind) -> bool {
         self.get_type() == type_
     }
@@ -893,14 +894,31 @@ pub struct CodeSegment {
     source_fixes: Option<Vec<SourceFix>>,
 }
 
+impl CodeSegment {
+    pub fn of(id: u32, raw: &str, kind: SyntaxKind) -> ErasedSegment {
+        Self::create(id, raw, None, CodeSegmentNewArgs { code_type: kind })
+    }
+
+    pub fn whitespace(id: u32, raw: &str) -> ErasedSegment {
+        Self::create(id, raw, None, CodeSegmentNewArgs { code_type: SyntaxKind::Whitespace })
+    }
+
+    pub fn newline(id: u32, raw: &str) -> ErasedSegment {
+        Self::create(id, raw, None, CodeSegmentNewArgs { code_type: SyntaxKind::Newline })
+    }
+
+    pub fn keyword(id: u32, raw: &str) -> ErasedSegment {
+        Self::create(id, raw, None, CodeSegmentNewArgs { code_type: SyntaxKind::Keyword })
+    }
+
+    pub fn symbol(id: u32, raw: &str) -> ErasedSegment {
+        Self::create(id, raw, None, CodeSegmentNewArgs { code_type: SyntaxKind::Symbol })
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct CodeSegmentNewArgs {
     pub code_type: SyntaxKind,
-
-    pub instance_types: Vec<String>,
-    pub trim_start: Option<Vec<String>>,
-    pub trim_chars: Option<Vec<String>>,
-    pub source_fixes: Option<Vec<SourceFix>>,
 }
 
 impl CodeSegment {
@@ -937,8 +955,12 @@ impl Segment for CodeSegment {
         self.code_type
     }
 
+    fn is_meta(&self) -> bool {
+        matches!(self.code_type, SyntaxKind::EndOfFile)
+    }
+
     fn is_code(&self) -> bool {
-        !self.is_comment() && !self.is_whitespace()
+        !self.is_comment() && !self.is_whitespace() && !self.is_meta()
     }
 
     fn is_comment(&self) -> bool {
@@ -992,19 +1014,13 @@ impl Segment for CodeSegment {
         &self,
         id: u32,
         raw: Option<String>,
-        source_fixes: Option<Vec<SourceFix>>,
+        _source_fixes: Option<Vec<SourceFix>>,
     ) -> ErasedSegment {
         CodeSegment::create(
             id,
             raw.unwrap_or(self.raw.to_string()).as_str(),
             self.position_marker.clone(),
-            CodeSegmentNewArgs {
-                code_type: self.code_type,
-                instance_types: vec![],
-                trim_start: None,
-                source_fixes,
-                trim_chars: None,
-            },
+            CodeSegmentNewArgs { code_type: self.code_type },
         )
         .config(|this| this.get_mut().set_id(id))
     }
@@ -1014,450 +1030,6 @@ impl Segment for CodeSegment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct IdentifierSegment {
-    base: CodeSegment,
-}
-
-impl IdentifierSegment {
-    pub fn create(
-        id: u32,
-        raw: &str,
-        position_maker: Option<PositionMarker>,
-        args: CodeSegmentNewArgs,
-    ) -> ErasedSegment {
-        IdentifierSegment {
-            base: CodeSegment {
-                raw: raw.into(),
-                position_marker: position_maker.clone(),
-                code_type: args.code_type,
-                instance_types: vec![],
-                trim_start: None,
-                trim_chars: None,
-                source_fixes: None,
-                id,
-            },
-        }
-        .to_erased_segment()
-    }
-}
-
-impl Segment for IdentifierSegment {
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        self.clone().to_erased_segment()
-    }
-
-    fn raw(&self) -> Cow<str> {
-        self.base.raw.as_str().into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        SyntaxKind::NakedIdentifier
-    }
-
-    fn is_code(&self) -> bool {
-        true
-    }
-    fn is_comment(&self) -> bool {
-        false
-    }
-    fn is_whitespace(&self) -> bool {
-        false
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.base.position_marker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.base.position_marker = position_marker
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
-    fn id(&self) -> u32 {
-        self.base.id
-    }
-
-    fn set_id(&mut self, id: u32) {
-        self.base.id = id;
-    }
-
-    fn edit(
-        &self,
-        id: u32,
-        raw: Option<String>,
-        source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        IdentifierSegment::create(
-            id,
-            raw.unwrap_or(self.base.raw.to_string()).as_str(),
-            self.base.position_marker.clone(),
-            CodeSegmentNewArgs {
-                code_type: self.base.code_type,
-                instance_types: vec![],
-                trim_start: None,
-                source_fixes,
-                trim_chars: None,
-            },
-        )
-    }
-
-    fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::single(self.get_type())
-    }
-}
-
-/// Segment containing a comment.
-#[derive(Debug, Clone, PartialEq)]
-pub struct CommentSegment {
-    raw: SmolStr,
-    position_maker: Option<PositionMarker>,
-    r#type: SyntaxKind,
-    trim_start: Vec<&'static str>,
-    id: u32,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct CommentSegmentNewArgs {
-    pub r#type: SyntaxKind,
-    pub trim_start: Option<Vec<&'static str>>,
-}
-
-impl CommentSegment {
-    pub fn create(
-        id: u32,
-        raw: &str,
-        position_maker: Option<PositionMarker>,
-        args: CommentSegmentNewArgs,
-    ) -> ErasedSegment {
-        Self {
-            raw: raw.into(),
-            position_maker,
-            r#type: args.r#type,
-            trim_start: args.trim_start.unwrap_or_default(),
-            id,
-        }
-        .to_erased_segment()
-    }
-}
-
-impl Segment for CommentSegment {
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        self.clone_box()
-    }
-
-    fn raw(&self) -> Cow<str> {
-        self.raw.as_str().into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        self.r#type
-    }
-
-    fn is_code(&self) -> bool {
-        false
-    }
-    fn is_comment(&self) -> bool {
-        true
-    }
-    fn is_whitespace(&self) -> bool {
-        false
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_maker = position_marker;
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
-    fn id(&self) -> u32 {
-        self.id
-    }
-
-    fn set_id(&mut self, id: u32) {
-        self.id = id;
-    }
-
-    fn edit(
-        &self,
-        _id: u32,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        todo!()
-    }
-
-    fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::single(self.r#type)
-    }
-}
-
-// Segment containing a newline.
-#[derive(Debug, Clone, PartialEq)]
-pub struct NewlineSegment {
-    raw: SmolStr,
-    position_maker: Option<PositionMarker>,
-    id: u32,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct NewlineSegmentNewArgs {}
-
-impl NewlineSegment {
-    pub fn create(
-        id: u32,
-        raw: &str,
-        position_maker: Option<PositionMarker>,
-        _args: NewlineSegmentNewArgs,
-    ) -> ErasedSegment {
-        NewlineSegment { raw: raw.into(), position_maker: position_maker.clone(), id }
-            .to_erased_segment()
-    }
-}
-
-impl Segment for NewlineSegment {
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        self.clone().to_erased_segment()
-    }
-
-    fn raw(&self) -> Cow<str> {
-        self.raw.as_str().into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        SyntaxKind::Newline
-    }
-
-    fn is_code(&self) -> bool {
-        false
-    }
-
-    fn is_comment(&self) -> bool {
-        false
-    }
-    fn is_whitespace(&self) -> bool {
-        true
-    }
-    fn is_meta(&self) -> bool {
-        false
-    }
-    fn get_default_raw(&self) -> Option<&'static str> {
-        Some("\n")
-    }
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_maker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_maker = position_marker;
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone_box()]
-    }
-
-    fn id(&self) -> u32 {
-        self.id
-    }
-
-    fn set_id(&mut self, id: u32) {
-        self.id = id;
-    }
-
-    fn edit(
-        &self,
-        _id: u32,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        todo!()
-    }
-
-    fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::new(&[SyntaxKind::Newline])
-    }
-}
-
-/// Segment containing whitespace.
-#[derive(Debug, Clone, PartialEq)]
-pub struct WhitespaceSegment {
-    raw: SmolStr,
-    position_marker: Option<PositionMarker>,
-    id: u32,
-}
-
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct WhitespaceSegmentNewArgs;
-
-impl WhitespaceSegment {
-    pub fn create(
-        id: u32,
-        raw: &str,
-        position_maker: Option<PositionMarker>,
-        _args: WhitespaceSegmentNewArgs,
-    ) -> ErasedSegment {
-        WhitespaceSegment { raw: raw.into(), position_marker: position_maker, id }
-            .to_erased_segment()
-    }
-}
-
-impl Segment for WhitespaceSegment {
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Self { raw: self.raw().into(), position_marker: self.position_marker.clone(), id: self.id }
-            .to_erased_segment()
-    }
-
-    fn raw(&self) -> Cow<str> {
-        self.raw.as_str().into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        SyntaxKind::Whitespace
-    }
-
-    fn is_code(&self) -> bool {
-        false
-    }
-
-    fn is_comment(&self) -> bool {
-        false
-    }
-    fn is_whitespace(&self) -> bool {
-        true
-    }
-    fn get_default_raw(&self) -> Option<&'static str> {
-        Some(" ")
-    }
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone()
-    }
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_marker = position_marker;
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
-    }
-
-    fn id(&self) -> u32 {
-        self.id
-    }
-
-    fn set_id(&mut self, id: u32) {
-        self.id = id;
-    }
-
-    fn get_source_fixes(&self) -> Vec<SourceFix> {
-        Vec::new()
-    }
-
-    fn edit(
-        &self,
-        id: u32,
-        raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        Self::create(
-            id,
-            &raw.unwrap_or_default(),
-            self.position_marker.clone(),
-            WhitespaceSegmentNewArgs {},
-        )
-    }
-}
-
-#[derive(Hash, Debug, Clone, PartialEq)]
-pub struct UnlexableSegment {
-    expected: String,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct UnlexableSegmentNewArgs {
-    pub(crate) expected: Option<String>,
-}
-
-impl UnlexableSegment {
-    pub fn create(
-        _raw: &str,
-        _position_maker: Option<PositionMarker>,
-        args: UnlexableSegmentNewArgs,
-    ) -> ErasedSegment {
-        UnlexableSegment { expected: args.expected.unwrap_or("".to_string()) }.to_erased_segment()
-    }
-}
-
-impl Segment for UnlexableSegment {
-    fn raw(&self) -> Cow<str> {
-        todo!()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        SyntaxKind::Unlexable
-    }
-
-    fn is_code(&self) -> bool {
-        true
-    }
-    fn is_comment(&self) -> bool {
-        false
-    }
-
-    fn is_whitespace(&self) -> bool {
-        false
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        todo!()
-    }
-
-    fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
-        todo!()
-    }
-
-    fn id(&self) -> u32 {
-        todo!()
-    }
-
-    fn edit(
-        &self,
-        _id: u32,
-        _raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        todo!()
-    }
-}
-
-/// A segment used for matching single entities which aren't keywords.
-///
-///     We rename the segment class here so that descendants of
-///     _ProtoKeywordSegment can use the same functionality
-///     but don't end up being labelled as a `keyword` later.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SymbolSegment {
     raw: SmolStr,
@@ -1685,15 +1257,5 @@ mod tests {
                 None,
             ))
         );
-    }
-
-    /// Test the .is_type() method.
-    #[test]
-    fn test_parser_base_segments_type() {
-        let args = UnlexableSegmentNewArgs { expected: None };
-        let segment = UnlexableSegment::create("", PositionMarker::default().into(), args);
-
-        assert!(segment.is_type(SyntaxKind::Unlexable));
-        assert!(!segment.is_type(SyntaxKind::Whitespace));
     }
 }

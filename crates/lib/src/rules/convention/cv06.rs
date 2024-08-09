@@ -2,9 +2,7 @@ use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{
-    ErasedSegment, NewlineSegment, NewlineSegmentNewArgs, SymbolSegment, SymbolSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use crate::core::rules::base::{
     EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
 };
@@ -189,12 +187,7 @@ impl RuleCV06 {
             parent_segment,
             info.anchor_segment.clone(),
             info.whitespace_deletions,
-            vec![SymbolSegment::create(
-                tables.next_id(),
-                ";",
-                None,
-                SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
-            )],
+            vec![CodeSegment::of(tables.next_id(), ";", SyntaxKind::StatementTerminator)],
         );
 
         Some(LintResult::new(Some(info.anchor_segment), fixes, None, None, None))
@@ -270,13 +263,13 @@ impl RuleCV06 {
             vec![LintFix::replace(
                 anchor_segment.clone(),
                 vec![
-                    NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
-                    SymbolSegment::create(
+                    CodeSegment::create(
                         tables.next_id(),
-                        ";",
+                        "\n",
                         None,
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
                     ),
+                    CodeSegment::of(tables.next_id(), ";", SyntaxKind::StatementTerminator),
                 ],
                 None,
             )]
@@ -287,13 +280,13 @@ impl RuleCV06 {
                 anchor_segment.clone(),
                 info.whitespace_deletions.clone(),
                 vec![
-                    NewlineSegment::create(tables.next_id(), "\n", None, NewlineSegmentNewArgs {}),
-                    SymbolSegment::create(
+                    CodeSegment::create(
                         tables.next_id(),
-                        ";",
+                        "\n",
                         None,
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
+                        CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
                     ),
+                    CodeSegment::of(tables.next_id(), ";", SyntaxKind::StatementTerminator),
                 ],
             )
         };
@@ -374,12 +367,7 @@ impl RuleCV06 {
             return if !semicolon_newline {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.unwrap().clone(),
-                    vec![SymbolSegment::create(
-                        tables.next_id(),
-                        ";",
-                        None,
-                        SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
-                    )],
+                    vec![CodeSegment::of(tables.next_id(), ";", SyntaxKind::StatementTerminator)],
                     None,
                 )];
                 Some(LintResult::new(
@@ -400,18 +388,13 @@ impl RuleCV06 {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.clone(),
                     vec![
-                        NewlineSegment::create(
+                        CodeSegment::create(
                             tables.next_id(),
                             "\n",
                             None,
-                            NewlineSegmentNewArgs {},
+                            CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
                         ),
-                        SymbolSegment::create(
-                            tables.next_id(),
-                            ";",
-                            None,
-                            SymbolSegmentNewArgs { r#type: SyntaxKind::StatementTerminator },
-                        ),
+                        CodeSegment::of(tables.next_id(), ";", SyntaxKind::StatementTerminator),
                     ],
                     None,
                 )];

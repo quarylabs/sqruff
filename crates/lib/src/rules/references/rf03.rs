@@ -7,9 +7,7 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{
-    CodeSegmentNewArgs, ErasedSegment, IdentifierSegment, SymbolSegment,
-};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -253,16 +251,13 @@ fn validate_one_reference(
         vec![LintFix::create_before(
             if !ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
             vec![
-                IdentifierSegment::create(
+                CodeSegment::create(
                     tables.next_id(),
                     table_ref_str,
                     None,
-                    CodeSegmentNewArgs {
-                        code_type: SyntaxKind::NakedIdentifier,
-                        ..CodeSegmentNewArgs::default()
-                    },
+                    CodeSegmentNewArgs { code_type: SyntaxKind::NakedIdentifier },
                 ),
-                SymbolSegment::create(tables.next_id(), ".", None, <_>::default()),
+                CodeSegment::symbol(tables.next_id(), "."),
             ],
         )]
     } else {

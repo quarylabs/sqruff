@@ -3,15 +3,11 @@ use std::borrow::Cow;
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{
-    ErasedSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
-use crate::core::parser::segments::keyword::KeywordSegment;
+use crate::core::parser::segments::base::{CodeSegment, ErasedSegment};
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 use crate::utils::functional::segments::Segments;
 use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
 
@@ -141,18 +137,10 @@ WHERE a IS NULL
         for item in edit {
             match item {
                 CorrectionListItem::KeywordSegment(keyword) => {
-                    seg.push(
-                        KeywordSegment::new(context.tables.next_id(), keyword.into(), None)
-                            .to_erased_segment(),
-                    );
+                    seg.push(CodeSegment::keyword(context.tables.next_id(), &keyword));
                 }
                 CorrectionListItem::WhitespaceSegment => {
-                    seg.push(WhitespaceSegment::create(
-                        context.tables.next_id(),
-                        " ",
-                        None,
-                        WhitespaceSegmentNewArgs,
-                    ));
+                    seg.push(CodeSegment::whitespace(context.tables.next_id(), " "));
                 }
             };
         }

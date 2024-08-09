@@ -6,9 +6,7 @@ use nohash_hasher::IntMap;
 use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{
-    ErasedSegment, NewlineSegment, WhitespaceSegment, WhitespaceSegmentNewArgs,
-};
+use crate::core::parser::segments::base::{CodeSegment, CodeSegmentNewArgs, ErasedSegment};
 use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
 use crate::core::rules::base::{LintFix, LintResult};
 use crate::dialects::ansi::Tables;
@@ -192,12 +190,7 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent = WhitespaceSegment::create(
-                    tables.next_id(),
-                    desired_indent,
-                    None,
-                    WhitespaceSegmentNewArgs,
-                );
+                let new_indent = CodeSegment::whitespace(tables.next_id(), desired_indent);
 
                 let (last_newline_idx, last_newline) = self
                     .segments
@@ -231,7 +224,12 @@ impl ReflowPoint {
             }
         } else {
             // There isn't currently a newline.
-            let new_newline = NewlineSegment::create(tables.next_id(), "\n", None, <_>::default());
+            let new_newline = CodeSegment::create(
+                tables.next_id(),
+                "\n",
+                None,
+                CodeSegmentNewArgs { code_type: SyntaxKind::Newline },
+            );
             // Check for whitespace
             let ws_seg = self.segments.iter().find(|seg| seg.is_type(SyntaxKind::Whitespace));
 
@@ -292,12 +290,7 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                let new_indent = WhitespaceSegment::create(
-                    tables.next_id(),
-                    desired_indent,
-                    None,
-                    WhitespaceSegmentNewArgs,
-                );
+                let new_indent = CodeSegment::whitespace(tables.next_id(), desired_indent);
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(

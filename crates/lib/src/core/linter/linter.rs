@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet, HashMapExt};
 use itertools::Itertools;
-use nohash_hasher::IntMap;
 use regex::Regex;
+use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 use walkdir::WalkDir;
 
@@ -603,8 +603,8 @@ impl Linter {
     }
 }
 
-pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> IntMap<u32, AnchorEditInfo> {
-    let mut anchor_info = IntMap::new();
+pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> FxHashMap<u32, AnchorEditInfo> {
+    let mut anchor_info = FxHashMap::new();
 
     for fix in fixes {
         let anchor_id = fix.anchor.id();

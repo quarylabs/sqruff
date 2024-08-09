@@ -5,7 +5,7 @@ use smol_str::SmolStr;
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
-use super::segments::base::{ErasedSegment, Segment};
+use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
@@ -31,7 +31,7 @@ impl TypedParser {
         }
     }
 
-    pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
+    pub fn is_first_match(&self, segment: &ErasedSegment) -> bool {
         self.target_types.contains(segment.get_type())
     }
 }
@@ -97,7 +97,7 @@ impl StringParser {
         (self.simple.clone(), AHashSet::new())
     }
 
-    pub fn is_first_match(&self, segment: &dyn Segment) -> bool {
+    pub fn is_first_match(&self, segment: &ErasedSegment) -> bool {
         segment.is_code() && self.template.eq_ignore_ascii_case(&segment.raw())
     }
 }

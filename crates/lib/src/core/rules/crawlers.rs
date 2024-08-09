@@ -1,6 +1,6 @@
 use enum_dispatch::enum_dispatch;
 
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::rules::context::RuleContext;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
@@ -10,7 +10,7 @@ pub trait BaseCrawler {
         false
     }
 
-    fn passes_filter(&self, segment: &dyn Segment) -> bool {
+    fn passes_filter(&self, segment: &ErasedSegment) -> bool {
         self.works_on_unparsable() || !segment.is_type(SyntaxKind::Unparsable)
     }
 
@@ -33,7 +33,7 @@ pub struct RootOnlyCrawler;
 
 impl BaseCrawler for RootOnlyCrawler {
     fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
-        if self.passes_filter(&*context.segment) { vec![context.clone()] } else { Vec::new() }
+        if self.passes_filter(&context.segment) { vec![context.clone()] } else { Vec::new() }
     }
 }
 
@@ -58,7 +58,7 @@ impl SegmentSeekerCrawler {
         self
     }
 
-    fn is_self_match(&self, segment: &dyn Segment) -> bool {
+    fn is_self_match(&self, segment: &ErasedSegment) -> bool {
         self.types.contains(segment.get_type())
     }
 }
@@ -68,7 +68,7 @@ impl BaseCrawler for SegmentSeekerCrawler {
         let mut acc = Vec::new();
         let mut self_match = false;
 
-        if self.is_self_match(&*context.segment) {
+        if self.is_self_match(&context.segment) {
             self_match = true;
             acc.push(context.clone());
         }

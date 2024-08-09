@@ -13,7 +13,6 @@ use crate::core::parser::matchable::Matchable;
 use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 
 pub type Indent = MetaSegment<IndentChange>;
 
@@ -97,10 +96,6 @@ impl<M: MetaSegmentKind + Send + Sync> Segment for MetaSegment<M> {
 
     fn segments(&self) -> &[ErasedSegment] {
         &[]
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone().to_erased_segment()]
     }
 
     fn id(&self) -> u32 {

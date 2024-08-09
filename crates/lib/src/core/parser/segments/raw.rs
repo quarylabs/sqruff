@@ -2,7 +2,7 @@ use smol_str::SmolStr;
 
 use super::base::ErasedSegment;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{CloneSegment, Segment};
+use crate::core::parser::segments::base::Segment;
 use crate::core::parser::segments::fix::SourceFix;
 use crate::dialects::SyntaxKind;
 
@@ -65,10 +65,6 @@ impl Segment for RawSegment {
 
     fn set_position_marker(&mut self, _position_marker: Option<PositionMarker>) {
         todo!()
-    }
-
-    fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        vec![self.clone_box()]
     }
 
     fn id(&self) -> u32 {

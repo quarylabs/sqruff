@@ -4,13 +4,11 @@ use smol_str::{SmolStr, ToSmolStr};
 
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::{Node, Tables};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -122,8 +120,8 @@ INNER JOIN table_b
         let [table_a, table_b, ..] = &table_aliases[..] else { unreachable!() };
 
         let mut edit_segments = vec![
-            TokenData::keyword(context.tables.next_id(), "ON"),
-            TokenData::whitespace(context.tables.next_id(), " "),
+            SegmentBuilder::keyword(context.tables.next_id(), "ON"),
+            SegmentBuilder::whitespace(context.tables.next_id(), " "),
         ];
 
         edit_segments.append(&mut generate_join_conditions(
@@ -181,33 +179,13 @@ fn generate_join_conditions(
     for col in columns {
         edit_segments.extend_from_slice(&[
             create_col_reference(tables, dialect, table_a_ref, &col),
-            TokenData::create(
-                tables.next_id(),
-                " ",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-            ),
-            TokenData::of(tables.next_id(), "=", SyntaxKind::Symbol),
-            TokenData::create(
-                tables.next_id(),
-                " ",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-            ),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
+            SegmentBuilder::token(tables.next_id(), "=", SyntaxKind::Symbol).finish(),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
             create_col_reference(tables, dialect, table_b_ref, &col),
-            TokenData::create(
-                tables.next_id(),
-                " ",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-            ),
-            TokenData::keyword(tables.next_id(), "AND"),
-            TokenData::create(
-                tables.next_id(),
-                " ",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-            ),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
+            SegmentBuilder::keyword(tables.next_id(), "AND"),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
         ]);
     }
 
@@ -250,26 +228,17 @@ fn create_col_reference(
     table_ref: &str,
     column_name: &str,
 ) -> ErasedSegment {
-    Node::new(
+    SegmentBuilder::node(
         tables.next_id(),
-        dialect,
         SyntaxKind::ColumnReference,
+        dialect,
         vec![
-            TokenData::create(
-                tables.next_id(),
-                table_ref,
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
-            ),
-            TokenData::of(tables.next_id(), ".", SyntaxKind::Symbol),
-            TokenData::create(
-                tables.next_id(),
-                column_name,
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
-            ),
+            SegmentBuilder::token(tables.next_id(), table_ref, SyntaxKind::NakedIdentifier)
+                .finish(),
+            SegmentBuilder::symbol(tables.next_id(), "."),
+            SegmentBuilder::token(tables.next_id(), column_name, SyntaxKind::NakedIdentifier)
+                .finish(),
         ],
-        false,
     )
-    .to_erased_segment()
+    .finish()
 }

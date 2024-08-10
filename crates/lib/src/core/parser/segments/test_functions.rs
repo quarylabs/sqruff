@@ -1,18 +1,16 @@
 use std::ops::Range;
 
-use super::base::ErasedSegment;
-use super::meta::{Indent, MetaSegment};
+use super::base::{ErasedSegment, SegmentBuilder};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::dialect_selector;
 use crate::core::linter::linter::Linter;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::Tables;
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
-use crate::helpers::{Config, ToErasedSegment};
+use crate::helpers::Config;
 
 pub fn fresh_ansi_dialect() -> Dialect {
     dialect_selector("ansi").unwrap()
@@ -52,10 +50,10 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
 
     for elem in elems {
         if elem == "<indent>" {
-            buff.push(Indent::indent().to_erased_segment());
+            buff.push(SegmentBuilder::token(0, "", SyntaxKind::Indent).finish());
             continue;
         } else if elem == "<dedent>" {
-            buff.push(Indent::dedent().to_erased_segment());
+            buff.push(SegmentBuilder::token(0, "", SyntaxKind::Dedent).finish());
             continue;
         }
 
@@ -70,50 +68,30 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         let tables = Tables::default();
 
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
-            TokenData::create(
-                tables.next_id(),
-                elem,
-                position_marker.clone().into(),
-                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-            )
-        } else if elem.chars().all(|c| c == '\n') {
-            TokenData::create(
-                tables.next_id(),
-                elem,
-                position_marker.clone().into(),
-                TokenDataNewArgs { code_type: SyntaxKind::Newline },
-            )
-        } else if elem == "(" || elem == ")" {
-            TokenData::of(tables.next_id(), elem, SyntaxKind::RawComparisonOperator)
+            SegmentBuilder::whitespace(tables.next_id(), elem)
                 .config(|this| this.get_mut().set_position_marker(position_marker.clone().into()))
+        } else if elem.chars().all(|c| c == '\n') {
+            SegmentBuilder::newline(tables.next_id(), elem)
+        } else if elem == "(" || elem == ")" {
+            SegmentBuilder::token(tables.next_id(), elem, SyntaxKind::RawComparisonOperator)
+                .with_position(position_marker)
+                .finish()
         } else if elem.starts_with("--") {
-            TokenData::create(
-                0,
-                elem,
-                position_marker.into(),
-                TokenDataNewArgs { code_type: SyntaxKind::InlineComment },
-            )
+            SegmentBuilder::token(0, elem, SyntaxKind::InlineComment)
+                .with_position(position_marker)
+                .finish()
         } else if elem.starts_with('\"') {
-            TokenData::create(
-                0,
-                elem,
-                position_marker.clone().into(),
-                TokenDataNewArgs { code_type: SyntaxKind::DoubleQuote },
-            )
+            SegmentBuilder::token(0, elem, SyntaxKind::DoubleQuote)
+                .with_position(position_marker)
+                .finish()
         } else if elem.starts_with('\'') {
-            TokenData::create(
-                0,
-                elem,
-                position_marker.clone().into(),
-                TokenDataNewArgs { code_type: SyntaxKind::SingleQuote },
-            )
+            SegmentBuilder::token(0, elem, SyntaxKind::SingleQuote)
+                .with_position(position_marker)
+                .finish()
         } else {
-            TokenData::create(
-                0,
-                elem,
-                position_marker.clone().into(),
-                TokenDataNewArgs { code_type: SyntaxKind::RawComparisonOperator },
-            )
+            SegmentBuilder::token(0, elem, SyntaxKind::RawComparisonOperator)
+                .with_position(position_marker)
+                .finish()
         };
 
         buff.push(seg);
@@ -133,14 +111,7 @@ pub fn raw_seg() -> ErasedSegment {
 }
 
 pub fn test_segments() -> Vec<ErasedSegment> {
-    let mut main_list = generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "]);
-    let ts = MetaSegment::template(
-        main_list.last().unwrap().get_position_marker().unwrap(),
-        "{# comment #}",
-        "comment",
-    );
-    main_list.push(ts.to_erased_segment());
-    main_list
+    generate_test_segments_func(vec!["bar", " \t ", "foo", "baar", " \t "])
 }
 
 pub fn make_result_tuple(
@@ -157,7 +128,7 @@ pub fn make_result_tuple(
             .map(|elem| {
                 let raw = elem.raw();
                 if matcher_keywords.contains(&&*raw) {
-                    TokenData::keyword(0, &raw).config(|this| {
+                    SegmentBuilder::keyword(0, &raw).config(|this| {
                         this.get_mut()
                             .set_position_marker(Some(elem.get_position_marker().unwrap()))
                     })

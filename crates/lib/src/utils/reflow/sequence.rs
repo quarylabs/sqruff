@@ -9,9 +9,8 @@ use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceTyp
 use super::rebreak::rebreak_sequence;
 use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length};
 use crate::core::config::FluffConfig;
-use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::parser::segments::base::{ErasedSegment, Tables};
 use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
 
 pub struct ReflowSequence<'a> {
@@ -86,6 +85,7 @@ impl<'a> ReflowSequence<'a> {
                 SyntaxKind::Whitespace
                     | SyntaxKind::Newline
                     | SyntaxKind::Indent
+                    | SyntaxKind::Implicit
                     | SyntaxKind::Dedent
             ) {
                 // Add to the buffer and move on.

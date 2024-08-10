@@ -14,8 +14,7 @@ use crate::core::config::{FluffConfig, Value};
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::DialectKind;
 use crate::core::errors::SQLLintError;
-use crate::core::parser::segments::base::ErasedSegment;
-use crate::dialects::ansi::Tables;
+use crate::core::parser::segments::base::{ErasedSegment, Tables};
 use crate::helpers::{Config, IndexMap};
 
 #[derive(Clone)]

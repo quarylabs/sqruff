@@ -30,6 +30,9 @@ harness = false
 name = "depth_map"
 harness = false
 
+[features]
+serde = ["dep:serde"]
+
 [dependencies]
 dyn-clone = "1"
 dyn_ord = "0.2.1"
@@ -43,7 +46,6 @@ common-path = "1.0.0"
 configparser = "3.1.0"
 phf = { version = "0.11.2", features = ["macros", "unicase"] }
 unicase = "2.7.0"
-serde = { version = "1.0", features = ["derive"] }
 anstyle = "1.0"
 tracing = "0.1.40"
 pretty_assertions = "1.4.0"
@@ -52,12 +54,12 @@ ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
 lazy-regex = "3.2.0"
 rayon = "1.10.0"
 smol_str = "0.2.2"
-serde_yaml = "0.9.34"
 nohash-hasher = "0.2.0"
 rustc-hash = "2.0.0"
 strum_macros = "0.26.4"
 strum = "0.26.3"
 sptr = "0.3.2"
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }
@@ -69,6 +71,8 @@ jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 pprof = { version = "0.13", features = ["flamegraph", "criterion"] }
 
 [dev-dependencies]
+sqruff-lib = { path = ".", features = ["serde"] }
+serde_yaml = "0.9.34"
 criterion = "0.5"
 expect-test = "1.5"
 glob = "0.3"

@@ -20,13 +20,11 @@ use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
 use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
-use crate::dialects::ansi::{Node, Tables};
 use crate::dialects::SyntaxKind;
-use crate::helpers::ToErasedSegment;
 use crate::rules::get_ruleset;
 
 pub struct Linter {
@@ -201,14 +199,13 @@ impl Linter {
             self.lint_fix_parsed(tables, tree, rules, fix)
         } else {
             (
-                Node::new(
+                SegmentBuilder::node(
                     tables.next_id(),
-                    self.config.dialect.name,
                     SyntaxKind::EndOfFile,
+                    self.config.dialect.name,
                     Vec::new(),
-                    false,
                 )
-                .to_erased_segment(),
+                .finish(),
                 Vec::new(),
             )
         };
@@ -625,7 +622,7 @@ pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> FxHashMap<u32, An
 mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
-    use crate::dialects::ansi::Tables;
+    use crate::core::parser::segments::base::Tables;
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
         paths.into_iter().map(|path| path.replace(['/', '\\'], ".")).collect()

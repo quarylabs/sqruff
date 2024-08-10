@@ -5,11 +5,10 @@ use itertools::chain;
 use smol_str::ToSmolStr;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -130,14 +129,12 @@ impl RuleAL07 {
                     let mut edits = Vec::new();
                     for (i, part) in identifier_parts.iter().enumerate() {
                         if i > 0 {
-                            edits.push(TokenData::symbol(tables.next_id(), "."));
+                            edits.push(SegmentBuilder::symbol(tables.next_id(), "."));
                         }
-                        edits.push(TokenData::create(
-                            tables.next_id(),
-                            part,
-                            None,
-                            TokenDataNewArgs { code_type: SyntaxKind::Identifier },
-                        ));
+                        edits.push(
+                            SegmentBuilder::token(tables.next_id(), part, SyntaxKind::Identifier)
+                                .finish(),
+                        );
                     }
                     fixes.push(LintFix::replace(
                         alias.clone(),

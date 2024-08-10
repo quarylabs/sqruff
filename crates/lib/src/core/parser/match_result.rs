@@ -4,13 +4,10 @@ use std::cmp::Ordering;
 use ahash::HashMapExt;
 use nohash_hasher::IntMap;
 
-use super::segments::base::{ErasedSegment, Segment, TokenData, TokenDataNewArgs};
+use super::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::meta::{Indent, IndentChange};
-use crate::dialects::ansi::{Node, Tables};
 use crate::dialects::SyntaxKind;
-use crate::helpers::ToErasedSegment;
 
 fn get_point_pos_at_idx(segments: &[ErasedSegment], idx: u32) -> PositionMarker {
     let idx = idx as usize;
@@ -31,7 +28,7 @@ pub enum Matched {
 pub struct MatchResult {
     pub span: Span,
     pub matched: Option<Matched>,
-    pub insert_segments: Vec<(u32, IndentChange)>,
+    pub insert_segments: Vec<(u32, SyntaxKind)>,
     pub child_matches: Vec<MatchResult>,
 }
 
@@ -112,7 +109,7 @@ impl MatchResult {
     ) -> Vec<ErasedSegment> {
         enum Trigger {
             MatchResult(MatchResult),
-            Meta(IndentChange),
+            Meta(SyntaxKind),
         }
 
         let mut result_segments = Vec::new();
@@ -153,12 +150,11 @@ impl MatchResult {
                         result_segments.append(&mut trigger.apply(tables, dialect, segments));
                     }
                     Trigger::Meta(meta) => {
-                        let mut meta = Indent::from_kind(meta);
                         let pos = get_point_pos_at_idx(segments, idx);
-                        meta.set_position_marker(pos.into());
-                        meta.set_id(tables.next_id());
-
-                        result_segments.push(meta.to_erased_segment());
+                        let meta = SegmentBuilder::token(tables.next_id(), "", meta)
+                            .with_position(pos)
+                            .finish();
+                        result_segments.push(meta);
                     }
                 }
             }
@@ -175,19 +171,19 @@ impl MatchResult {
         match matched {
             Matched::SyntaxKind(kind) => {
                 vec![
-                    Node::new(tables.next_id(), dialect, kind, result_segments, true)
-                        .to_erased_segment(),
+                    SegmentBuilder::node(tables.next_id(), kind, dialect, result_segments)
+                        .position_from_segments()
+                        .finish(),
                 ]
             }
             Matched::Newtype(kind) => {
                 let old = result_segments.pop().unwrap();
 
-                vec![TokenData::create(
-                    tables.next_id(),
-                    old.raw().as_ref(),
-                    old.get_position_marker(),
-                    TokenDataNewArgs { code_type: kind },
-                )]
+                vec![
+                    SegmentBuilder::token(old.id(), old.raw().as_ref(), kind)
+                        .with_position(old.get_position_marker().unwrap())
+                        .finish(),
+                ]
             }
         }
     }

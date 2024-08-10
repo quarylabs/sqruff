@@ -2,13 +2,12 @@ use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{
     EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::segments::Segments;
 
@@ -187,7 +186,10 @@ impl RuleCV06 {
             parent_segment,
             info.anchor_segment.clone(),
             info.whitespace_deletions,
-            vec![TokenData::of(tables.next_id(), ";", SyntaxKind::StatementTerminator)],
+            vec![
+                SegmentBuilder::token(tables.next_id(), ";", SyntaxKind::StatementTerminator)
+                    .finish(),
+            ],
         );
 
         Some(LintResult::new(Some(info.anchor_segment), fixes, None, None, None))
@@ -263,13 +265,9 @@ impl RuleCV06 {
             vec![LintFix::replace(
                 anchor_segment.clone(),
                 vec![
-                    TokenData::create(
-                        tables.next_id(),
-                        "\n",
-                        None,
-                        TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                    ),
-                    TokenData::of(tables.next_id(), ";", SyntaxKind::StatementTerminator),
+                    SegmentBuilder::whitespace(tables.next_id(), "\n"),
+                    SegmentBuilder::token(tables.next_id(), ";", SyntaxKind::StatementTerminator)
+                        .finish(),
                 ],
                 None,
             )]
@@ -280,13 +278,9 @@ impl RuleCV06 {
                 anchor_segment.clone(),
                 info.whitespace_deletions.clone(),
                 vec![
-                    TokenData::create(
-                        tables.next_id(),
-                        "\n",
-                        None,
-                        TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                    ),
-                    TokenData::of(tables.next_id(), ";", SyntaxKind::StatementTerminator),
+                    SegmentBuilder::newline(tables.next_id(), "\n"),
+                    SegmentBuilder::token(tables.next_id(), ";", SyntaxKind::StatementTerminator)
+                        .finish(),
                 ],
             )
         };
@@ -367,7 +361,14 @@ impl RuleCV06 {
             return if !semicolon_newline {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.unwrap().clone(),
-                    vec![TokenData::of(tables.next_id(), ";", SyntaxKind::StatementTerminator)],
+                    vec![
+                        SegmentBuilder::token(
+                            tables.next_id(),
+                            ";",
+                            SyntaxKind::StatementTerminator,
+                        )
+                        .finish(),
+                    ],
                     None,
                 )];
                 Some(LintResult::new(
@@ -388,13 +389,13 @@ impl RuleCV06 {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.clone(),
                     vec![
-                        TokenData::create(
+                        SegmentBuilder::newline(tables.next_id(), "\n"),
+                        SegmentBuilder::token(
                             tables.next_id(),
-                            "\n",
-                            None,
-                            TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                        ),
-                        TokenData::of(tables.next_id(), ";", SyntaxKind::StatementTerminator),
+                            ";",
+                            SyntaxKind::StatementTerminator,
+                        )
+                        .finish(),
                     ],
                     None,
                 )];

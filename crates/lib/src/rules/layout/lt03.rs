@@ -158,6 +158,7 @@ impl RuleLT03 {
                 return true;
             } else if !segment.is_type(SyntaxKind::Whitespace)
                 && !segment.is_type(SyntaxKind::Indent)
+                && !segment.is_type(SyntaxKind::Implicit)
                 && !segment.is_type(SyntaxKind::Comment)
                 && !segment.is_type(SyntaxKind::InlineComment)
                 && !segment.is_type(SyntaxKind::BlockComment)

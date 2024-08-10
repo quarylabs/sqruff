@@ -3,7 +3,7 @@ use itertools::Itertools;
 use smol_str::{SmolStr, StrExt, ToSmolStr};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -205,13 +205,16 @@ left join bar
                 {
                     fixes.push(LintFix::replace(
                         raw_comparison_operators[0].clone(),
-                        vec![TokenData::of(
-                            context.tables.next_id(),
-                            raw_comparison_operator_opposites(
-                                raw_comparison_operators[0].raw().as_ref(),
-                            ),
-                            SyntaxKind::RawComparisonOperator,
-                        )],
+                        vec![
+                            SegmentBuilder::token(
+                                context.tables.next_id(),
+                                raw_comparison_operator_opposites(
+                                    raw_comparison_operators[0].raw().as_ref(),
+                                ),
+                                SyntaxKind::RawComparisonOperator,
+                            )
+                            .finish(),
+                        ],
                         None,
                     ));
                 }

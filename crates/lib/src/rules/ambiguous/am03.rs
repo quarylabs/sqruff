@@ -1,7 +1,7 @@
 use ahash::{AHashMap, AHashSet};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -74,8 +74,8 @@ ORDER BY a ASC, b DESC
                 LintFix::create_after(
                     spec.column_reference,
                     vec![
-                        TokenData::whitespace(context.tables.next_id(), " "),
-                        TokenData::keyword(context.tables.next_id(), "ASC"),
+                        SegmentBuilder::whitespace(context.tables.next_id(), " "),
+                        SegmentBuilder::keyword(context.tables.next_id(), "ASC"),
                     ],
                     None,
                 )

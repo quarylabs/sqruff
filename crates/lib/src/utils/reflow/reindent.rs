@@ -9,9 +9,8 @@ use strum_macros::EnumString;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::helpers::fixes_from_results;
 use super::rebreak::{identify_rebreak_spans, LinePosition, RebreakSpan};
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::skip_last;
 use crate::utils::reflow::elements::IndentStats;
@@ -1079,28 +1078,13 @@ fn fix_long_line_with_comment(
 
     if let Some(idx) = last_indent_idx {
         new_point = ReflowPoint::new(vec![
-            TokenData::create(
-                tables.next_id(),
-                "\n",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Newline },
-            ),
-            TokenData::create(
-                tables.next_id(),
-                current_indent,
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-            ),
+            SegmentBuilder::newline(tables.next_id(), "\n"),
+            SegmentBuilder::whitespace(tables.next_id(), current_indent),
         ]);
         prev_elems = elements[..=idx].to_vec();
         anchor = elements[idx + 1].segments()[0].clone();
     } else {
-        new_point = ReflowPoint::new(vec![TokenData::create(
-            tables.next_id(),
-            "\n",
-            None,
-            TokenDataNewArgs { code_type: SyntaxKind::Newline },
-        )]);
+        new_point = ReflowPoint::new(vec![SegmentBuilder::newline(tables.next_id(), "\n")]);
         prev_elems = Vec::new();
         anchor = first_seg.clone();
     }

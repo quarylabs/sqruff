@@ -5,7 +5,6 @@ use std::str::FromStr;
 use ahash::AHashMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
-use serde::Deserialize;
 
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
@@ -449,8 +448,9 @@ impl ConfigLoader {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize, Default)]
-#[serde(untagged)]
+#[derive(Debug, Clone, PartialEq, Default)]
+#[cfg_attr(any(test, feature = "serde"), derive(serde::Deserialize))]
+#[cfg_attr(any(test, feature = "serde"), serde(untagged))]
 pub enum Value {
     Int(i32),
     Bool(bool),

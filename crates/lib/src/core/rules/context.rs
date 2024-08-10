@@ -6,9 +6,8 @@ use ahash::AHashMap;
 
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
-use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::parser::segments::base::{ErasedSegment, Tables};
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::Tables;
 
 /// Struct for holding the context passed to rule eval function
 #[derive(Clone, Debug)]

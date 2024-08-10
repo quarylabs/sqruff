@@ -184,8 +184,7 @@ mod tests {
 
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::linter::Linter;
-    use crate::core::parser::segments::base::ErasedSegment;
-    use crate::dialects::ansi::Tables;
+    use crate::core::parser::segments::base::{ErasedSegment, Tables};
     use crate::helpers;
 
     fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
@@ -222,7 +221,7 @@ mod tests {
             let actual = {
                 let sql = std::fs::read_to_string(file).unwrap();
                 let tree = parse_sql(&linter, &sql);
-                let tree = tree.to_serialised(true, true, false);
+                let tree = tree.to_serialised(true, true);
 
                 serde_yaml::to_string(&tree).unwrap()
             };

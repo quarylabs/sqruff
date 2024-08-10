@@ -4,7 +4,7 @@ use ahash::AHashMap;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::TokenData;
+use crate::core::parser::segments::base::SegmentBuilder;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -109,8 +109,8 @@ SELECT a, b FROM table_2
                 vec![LintFix::create_after(
                     context.segment.segments()[0].clone(),
                     vec![
-                        TokenData::whitespace(context.tables.next_id(), " "),
-                        TokenData::keyword(context.tables.next_id(), outer_keyword),
+                        SegmentBuilder::whitespace(context.tables.next_id(), " "),
+                        SegmentBuilder::keyword(context.tables.next_id(), outer_keyword),
                     ],
                     None,
                 )],
@@ -132,8 +132,8 @@ SELECT a, b FROM table_2
                 vec![LintFix::create_before(
                     context.segment.segments()[0].clone(),
                     vec![
-                        TokenData::keyword(context.tables.next_id(), inner_keyword),
-                        TokenData::whitespace(context.tables.next_id(), " "),
+                        SegmentBuilder::keyword(context.tables.next_id(), inner_keyword),
+                        SegmentBuilder::whitespace(context.tables.next_id(), " "),
                     ],
                 )],
                 None,

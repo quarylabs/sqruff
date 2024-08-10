@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
 use std::sync::Arc;
 
@@ -19,17 +17,15 @@ use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, Pattern};
-use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::match_result::{MatchResult, Matched};
 use crate::core::parser::matchable::Matchable;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{pos_marker, ErasedSegment, PathStep, Segment};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
-use crate::core::parser::segments::fix::SourceFix;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
-use crate::helpers::{Config, ToErasedSegment, ToMatchable};
+use crate::helpers::{Config, ToMatchable};
 
 #[macro_export]
 macro_rules! vec_of_erased {
@@ -48,179 +44,6 @@ impl<T> BoxedE for T {
         Self: Sized,
     {
         Arc::new(self)
-    }
-}
-
-#[derive(Debug, Default)]
-pub struct Tables {
-    counter: Cell<u32>,
-}
-
-impl Tables {
-    pub(crate) fn next_id(&self) -> u32 {
-        let id = self.counter.get();
-        self.counter.set(id + 1);
-        id
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Node {
-    kind: SyntaxKind,
-    dialect: DialectKind,
-    segments: Vec<ErasedSegment>,
-    id: u32,
-    position_marker: Option<PositionMarker>,
-    raw: OnceCell<String>,
-    source_fixes: Vec<SourceFix>,
-    descendant_type_set: OnceCell<SyntaxSet>,
-    raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
-}
-
-impl Node {
-    #[track_caller]
-    pub fn new(
-        id: u32,
-        dialect: DialectKind,
-        kind: SyntaxKind,
-        segments: Vec<ErasedSegment>,
-        calc_position_marker: bool,
-    ) -> Self {
-        let position_marker =
-            if calc_position_marker { pos_marker(&segments).into() } else { None };
-        Self {
-            kind,
-            dialect,
-            segments,
-            id,
-            position_marker,
-            raw: OnceCell::new(),
-            source_fixes: Vec::new(),
-            descendant_type_set: OnceCell::new(),
-            raw_segments_with_ancestors: OnceCell::new(),
-        }
-    }
-}
-
-impl Segment for Node {
-    fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Self {
-            kind: self.kind,
-            id: self.id,
-            dialect: self.dialect,
-            segments,
-            position_marker: self.position_marker.clone(),
-            raw: OnceCell::new(),
-            source_fixes: Vec::new(),
-            descendant_type_set: OnceCell::new(),
-            raw_segments_with_ancestors: OnceCell::new(),
-        }
-        .to_erased_segment()
-    }
-
-    fn raw_segments_with_ancestors(&self) -> &OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>> {
-        &self.raw_segments_with_ancestors
-    }
-
-    fn copy(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
-        Self {
-            kind: self.kind,
-            dialect: self.dialect,
-            segments,
-            id: self.id,
-            position_marker: self.position_marker.clone(),
-            raw: self.raw.clone(),
-            source_fixes: self.source_fixes.clone(),
-            descendant_type_set: self.descendant_type_set.clone(),
-            raw_segments_with_ancestors: self.raw_segments_with_ancestors.clone(),
-        }
-        .to_erased_segment()
-    }
-
-    fn can_start_end_non_code(&self) -> bool {
-        matches!(self.kind, SyntaxKind::File | SyntaxKind::Unparsable)
-    }
-
-    fn dialect(&self) -> DialectKind {
-        self.dialect
-    }
-
-    fn descendant_type_set(&self) -> &SyntaxSet {
-        self.descendant_type_set.get_or_init(|| {
-            let mut result_set = SyntaxSet::EMPTY;
-
-            for seg in self.segments() {
-                result_set = result_set.union(&seg.descendant_type_set().union(&seg.class_types()));
-            }
-
-            result_set
-        })
-    }
-
-    fn raw(&self) -> Cow<str> {
-        self.raw.get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join("")).into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        self.kind
-    }
-
-    fn is_comment(&self) -> bool {
-        false
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_marker = position_marker;
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &self.segments
-    }
-
-    fn set_segments(&mut self, segments: Vec<ErasedSegment>) {
-        self.segments = segments;
-    }
-
-    fn id(&self) -> u32 {
-        self.id
-    }
-
-    fn get_source_fixes(&self) -> Vec<SourceFix> {
-        self.source_fixes.clone()
-    }
-
-    fn edit(
-        &self,
-        id: u32,
-        raw: Option<String>,
-        source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        let mut cloned = self.clone();
-        cloned.set_id(id);
-        if let Some((a, b)) = cloned.raw.get_mut().zip(raw) {
-            *a = b;
-        };
-        cloned.source_fixes = source_fixes.unwrap_or_default();
-        cloned.to_erased_segment()
-    }
-
-    fn class_types(&self) -> SyntaxSet {
-        match self.kind {
-            SyntaxKind::ColumnReference => {
-                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
-            }
-            SyntaxKind::WildcardIdentifier => {
-                SyntaxSet::new(&[SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference])
-            }
-            SyntaxKind::TableReference => {
-                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
-            }
-            _ => SyntaxSet::single(self.get_type()),
-        }
     }
 }
 
@@ -5043,7 +4866,9 @@ impl FileSegment {
         dialect: DialectKind,
         segments: Vec<ErasedSegment>,
     ) -> ErasedSegment {
-        Node::new(tables.next_id(), dialect, SyntaxKind::File, segments, true).to_erased_segment()
+        SegmentBuilder::node(tables.next_id(), SyntaxKind::File, dialect, segments)
+            .position_from_segments()
+            .finish()
     }
 
     pub fn root_parse(
@@ -5082,22 +4907,23 @@ impl FileSegment {
         let unmatched = &segments[match_span.end as usize..end_idx as usize];
 
         let content: &[ErasedSegment] = if !has_match {
-            &[Node::new(
+            &[SegmentBuilder::node(
                 tables.next_id(),
-                dialect,
                 SyntaxKind::Unparsable,
+                dialect,
                 segments[start_idx as usize..end_idx as usize].to_vec(),
-                true,
             )
-            .to_erased_segment()]
+            .position_from_segments()
+            .finish()]
         } else if !unmatched.is_empty() {
             let idx = unmatched.iter().position(|it| it.is_code()).unwrap_or(unmatched.len());
             let (head, tail) = unmatched.split_at(idx);
 
             matched.extend_from_slice(head);
             matched.push(
-                Node::new(tables.next_id(), dialect, SyntaxKind::Unparsable, tail.to_vec(), true)
-                    .to_erased_segment(),
+                SegmentBuilder::node(tables.next_id(), SyntaxKind::File, dialect, tail.to_vec())
+                    .position_from_segments()
+                    .finish(),
             );
             &matched
         } else {
@@ -5560,9 +5386,8 @@ mod tests {
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
-    use crate::core::parser::segments::base::ErasedSegment;
+    use crate::core::parser::segments::base::{ErasedSegment, Tables};
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
-    use crate::dialects::ansi::Tables;
     use crate::dialects::SyntaxKind;
     use crate::helpers;
 
@@ -5801,7 +5626,7 @@ mod tests {
             let actual = {
                 let sql = std::fs::read_to_string(file).unwrap();
                 let tree = parse_sql(&linter, &sql);
-                let tree = tree.to_serialised(true, true, false);
+                let tree = tree.to_serialised(true, true);
 
                 serde_yaml::to_string(&tree).unwrap()
             };

@@ -4,9 +4,8 @@ use std::str::FromStr;
 use strum_macros::{AsRefStr, EnumString};
 
 use super::elements::{ReflowElement, ReflowSequenceType};
-use crate::core::parser::segments::base::ErasedSegment;
+use crate::core::parser::segments::base::{ErasedSegment, Tables};
 use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
 use crate::helpers::capitalize;
 use crate::utils::reflow::depth_map::StackPositionType;
@@ -513,8 +512,8 @@ fn reorder_and_insert(
 
 #[cfg(test)]
 mod tests {
+    use crate::core::parser::segments::base::Tables;
     use crate::core::parser::segments::test_functions::parse_ansi_string;
-    use crate::dialects::ansi::Tables;
     use crate::helpers::enter_panic;
     use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 

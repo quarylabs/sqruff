@@ -1,14 +1,11 @@
 use ahash::AHashMap;
-use dyn_ord::DynEq;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
-use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -222,7 +219,7 @@ fn indentation(
         .find_last(Some(|it| it.is_type(SyntaxKind::Indent)));
     let mut indent_level = 1;
     if let Some(segment_indent) = seg_indent.last()
-        && let Some(segment_indent) = segment_indent.as_any().downcast_ref::<Indent>()
+        && segment_indent.is_indent()
     {
         indent_level = segment_indent.indent_val() as usize + 1;
     }
@@ -255,18 +252,8 @@ fn rebuild_spacing(
         if matches!(seg.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
             || (prior_newline && seg.is_comment())
         {
-            buff.push(TokenData::create(
-                tables.next_id(),
-                "\n",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Newline },
-            ));
-            buff.push(TokenData::create(
-                tables.next_id(),
-                indent_str,
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-            ));
+            buff.push(SegmentBuilder::newline(tables.next_id(), "\n"));
+            buff.push(SegmentBuilder::whitespace(tables.next_id(), indent_str));
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();
@@ -274,7 +261,7 @@ fn rebuild_spacing(
             prior_newline = true;
             prior_whitespace.clear();
         } else if !prior_newline && seg.is_comment() {
-            buff.push(TokenData::whitespace(tables.next_id(), &prior_whitespace));
+            buff.push(SegmentBuilder::whitespace(tables.next_id(), &prior_whitespace));
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();
@@ -315,13 +302,8 @@ fn nested_end_trailing_comment(
         trailing_end.find_first(Some(|seg: &ErasedSegment| seg.is_comment())).first()
     {
         let segments = vec![
-            TokenData::create(
-                tables.next_id(),
-                "\n",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Newline },
-            ),
-            TokenData::whitespace(tables.next_id(), end_indent_str),
+            SegmentBuilder::newline(tables.next_id(), "\n"),
+            SegmentBuilder::whitespace(tables.next_id(), end_indent_str),
         ];
         fixes.push(LintFix::create_before(first_comment.clone(), segments));
     }

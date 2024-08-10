@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -105,12 +105,9 @@ from table_a
             if f_content[0].is_type(SyntaxKind::Star)
                 && (self.prefer_count_0 || self.prefer_count_1)
             {
-                let new_segment = TokenData::create(
-                    context.tables.next_id(),
-                    preferred,
-                    None,
-                    TokenDataNewArgs { code_type: SyntaxKind::Literal },
-                );
+                let new_segment =
+                    SegmentBuilder::token(context.tables.next_id(), preferred, SyntaxKind::Literal)
+                        .finish();
                 return vec![LintResult::new(
                     context.segment.into(),
                     vec![LintFix::replace(f_content[0].clone(), vec![new_segment], None)],

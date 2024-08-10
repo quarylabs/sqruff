@@ -1,89 +1,116 @@
 use std::any::Any;
 use std::borrow::Cow;
-use std::cell::OnceCell;
+use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
-use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use ahash::AHashMap;
-use dyn_clone::DynClone;
 use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
 use rustc_hash::FxHashMap;
-use serde::ser::SerializeMap;
-use serde::{Deserialize, Serialize};
 use smol_str::SmolStr;
 
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
-use crate::core::rules::base::{EditType, LintFix};
+use crate::core::rules::base::EditType;
 use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::{Config, ToErasedSegment};
 
-#[derive(Debug, Clone)]
-pub struct PathStep {
-    pub segment: ErasedSegment,
-    pub idx: usize,
-    pub len: usize,
-    pub code_idxs: Rc<[usize]>,
+pub struct SegmentBuilder {
+    node_or_token: NodeOrToken,
 }
 
-pub type SegmentConstructorFn<SegmentArgs> =
-    &'static (dyn Fn(&str, Option<PositionMarker>, SegmentArgs) -> ErasedSegment + Sync + Send);
+impl SegmentBuilder {
+    pub fn whitespace(id: u32, raw: &str) -> ErasedSegment {
+        SegmentBuilder::token(id, raw, SyntaxKind::Whitespace).finish()
+    }
 
-pub trait CloneSegment {
-    #[track_caller]
-    fn clone_box(&self) -> ErasedSegment;
-}
+    pub fn newline(id: u32, raw: &str) -> ErasedSegment {
+        SegmentBuilder::token(id, raw, SyntaxKind::Newline).finish()
+    }
 
-impl<T: Segment> CloneSegment for T {
-    #[track_caller]
-    fn clone_box(&self) -> ErasedSegment {
-        dyn_clone::clone(self).to_erased_segment()
+    pub fn keyword(id: u32, raw: &str) -> ErasedSegment {
+        SegmentBuilder::token(id, raw, SyntaxKind::Keyword).finish()
+    }
+
+    pub fn symbol(id: u32, raw: &str) -> ErasedSegment {
+        SegmentBuilder::token(id, raw, SyntaxKind::Symbol).finish()
+    }
+
+    pub fn node(
+        id: u32,
+        syntax_kind: SyntaxKind,
+        dialect: DialectKind,
+        segments: Vec<ErasedSegment>,
+    ) -> Self {
+        SegmentBuilder {
+            node_or_token: NodeOrToken {
+                id,
+                syntax_kind,
+                position_marker: None,
+                kind: NodeOrTokenKind::Node(NodeData {
+                    dialect,
+                    segments,
+                    raw: Default::default(),
+                    source_fixes: vec![],
+                    descendant_type_set: Default::default(),
+                    raw_segments_with_ancestors: Default::default(),
+                }),
+            },
+        }
+    }
+
+    pub fn token(id: u32, raw: &str, syntax_kind: SyntaxKind) -> Self {
+        SegmentBuilder {
+            node_or_token: NodeOrToken {
+                id,
+                syntax_kind,
+                position_marker: None,
+                kind: NodeOrTokenKind::Token(TokenData { raw: raw.into() }),
+            },
+        }
+    }
+
+    pub fn position_from_segments(mut self) -> Self {
+        let segments = match &self.node_or_token.kind {
+            NodeOrTokenKind::Node(node) => &node.segments[..],
+            NodeOrTokenKind::Token(_) => &[],
+        };
+
+        self.node_or_token.position_marker = pos_marker(segments).into();
+        self
+    }
+
+    pub fn with_position(mut self, position: PositionMarker) -> Self {
+        self.node_or_token.position_marker = Some(position);
+        self
+    }
+
+    pub fn finish(self) -> ErasedSegment {
+        ErasedSegment { value: Rc::new(self.node_or_token), hash: Rc::new(AtomicU64::new(0)) }
     }
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum SerialisedSegmentValue {
-    Single(String),
-    Nested(Vec<TupleSerialisedSegment>),
+#[derive(Debug, Default)]
+pub struct Tables {
+    counter: Cell<u32>,
 }
 
-#[derive(Deserialize)]
-pub struct TupleSerialisedSegment(String, SerialisedSegmentValue);
-
-impl Serialize for TupleSerialisedSegment {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let mut map = serializer.serialize_map(None)?;
-        map.serialize_key(&self.0)?;
-        map.serialize_value(&self.1)?;
-        map.end()
-    }
-}
-
-impl TupleSerialisedSegment {
-    fn sinlge(key: String, value: String) -> Self {
-        Self(key, SerialisedSegmentValue::Single(value))
-    }
-
-    fn nested(key: String, segments: Vec<TupleSerialisedSegment>) -> Self {
-        Self(key, SerialisedSegmentValue::Nested(segments))
+impl Tables {
+    pub(crate) fn next_id(&self) -> u32 {
+        let id = self.counter.get();
+        self.counter.set(id + 1);
+        id
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct ErasedSegment {
-    value: Rc<dyn Segment>,
-    hash: Rc<AtomicU64>,
+    pub(crate) value: Rc<NodeOrToken>,
+    pub(crate) hash: Rc<AtomicU64>,
 }
 
 impl Hash for ErasedSegment {
@@ -92,101 +119,56 @@ impl Hash for ErasedSegment {
     }
 }
 
+impl Eq for ErasedSegment {}
+
 impl ErasedSegment {
+    pub fn raw(&self) -> Cow<str> {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => node
+                .raw
+                .get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join(""))
+                .into(),
+            NodeOrTokenKind::Token(token) => token.raw.as_str().into(),
+        }
+    }
+
+    pub fn segments(&self) -> &[ErasedSegment] {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => &node.segments,
+            NodeOrTokenKind::Token(_) => &[],
+        }
+    }
+
+    pub fn get_type(&self) -> SyntaxKind {
+        self.value.syntax_kind
+    }
+
+    pub fn is_type(&self, kind: SyntaxKind) -> bool {
+        self.get_type() == kind
+    }
+
+    pub fn is_meta(&self) -> bool {
+        matches!(
+            self.value.syntax_kind,
+            SyntaxKind::Indent | SyntaxKind::Implicit | SyntaxKind::Dedent | SyntaxKind::EndOfFile
+        )
+    }
+
+    pub fn is_code(&self) -> bool {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => node.segments.iter().any(|s| s.is_code()),
+            NodeOrTokenKind::Token(_) => {
+                !self.is_comment() && !self.is_whitespace() && !self.is_meta()
+            }
+        }
+    }
+
     pub fn get_raw_segments(&self) -> Vec<ErasedSegment> {
         self.recursive_crawl_all(false).into_iter().filter(|it| it.segments().is_empty()).collect()
     }
 
-    pub fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
-        for seg in self.get_raw_segments() {
-            if !seg.raw().is_empty() {
-                return Some(seg.get_raw_upper().unwrap());
-            }
-        }
-        None
-    }
-
-    pub fn is(&self, other: &ErasedSegment) -> bool {
-        Rc::ptr_eq(&self.value, &other.value)
-    }
-
-    pub fn addr(&self) -> usize {
-        fn addr<T: ?Sized>(t: *const T) -> usize {
-            let c: *const () = t.cast();
-            sptr::Strict::addr(c)
-        }
-
-        addr(Rc::as_ptr(&self.value))
-    }
-
-    pub fn direct_descendant_type_set(&self) -> SyntaxSet {
-        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(&it.class_types()))
-    }
-
-    pub(crate) fn is_keyword(&self, p0: &str) -> bool {
-        self.is_type(SyntaxKind::Keyword) && self.raw().eq_ignore_ascii_case(p0)
-    }
-
-    pub fn hash_value(&self) -> u64 {
-        let mut hash = self.hash.load(Ordering::Acquire);
-
-        if hash == 0 {
-            let mut hasher = ahash::AHasher::default();
-            self.value.hash(&mut hasher);
-            hash = hasher.finish();
-
-            let exchange = self.hash.compare_exchange(0, hash, Ordering::AcqRel, Ordering::Acquire);
-            if let Err(old) = exchange {
-                hash = old
-            }
-        }
-
-        hash
-    }
-
-    pub fn deep_clone(&self) -> Self {
-        self.clone_box()
-    }
-
-    #[track_caller]
-    pub fn get_mut(&mut self) -> &mut dyn Segment {
-        Rc::get_mut(&mut self.value).unwrap()
-    }
-
-    #[track_caller]
-    pub fn make_mut(&mut self) -> &mut dyn Segment {
-        let mut this = self.deep_clone();
-        std::mem::swap(self, &mut this);
-        Rc::get_mut(&mut self.value).unwrap()
-    }
-
-    pub fn reference(&self) -> ObjectReferenceSegment {
-        ObjectReferenceSegment(
-            self.clone(),
-            match self.get_type() {
-                SyntaxKind::TableReference => ObjectReferenceKind::Table,
-                SyntaxKind::WildcardIdentifier => ObjectReferenceKind::WildcardIdentifier,
-                _ => ObjectReferenceKind::Object,
-            },
-        )
-    }
-
-    pub fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
-        let mut result = Vec::with_capacity(self.segments().len() + 1);
-
-        if reverse {
-            for seg in self.segments().iter().rev() {
-                result.append(&mut seg.recursive_crawl_all(reverse));
-            }
-            result.push(self.clone());
-        } else {
-            result.push(self.clone());
-            for seg in self.segments() {
-                result.append(&mut seg.recursive_crawl_all(reverse));
-            }
-        }
-
-        result
+    pub fn child(&self, seg_types: SyntaxSet) -> Option<ErasedSegment> {
+        self.segments().iter().find(|seg| seg_types.contains(seg.get_type())).cloned()
     }
 
     pub fn recursive_crawl(
@@ -221,45 +203,439 @@ impl ErasedSegment {
 
         acc
     }
+}
 
-    pub fn raw_segments_with_ancestors(&self) -> &[(ErasedSegment, Vec<PathStep>)] {
-        self.value.raw_segments_with_ancestors().get_or_init(|| {
-            let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
-                Vec::with_capacity(self.segments().len());
-            let code_idxs: Rc<[usize]> = self.code_indices().into();
+impl ErasedSegment {
+    #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
+    #[track_caller]
+    pub fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => {
+                SegmentBuilder::node(self.value.id, self.value.syntax_kind, node.dialect, segments)
+                    .with_position(self.get_position_marker().unwrap())
+                    .finish()
+            }
+            NodeOrTokenKind::Token(_) => self.deep_clone(),
+        }
+    }
 
-            for (idx, seg) in self.segments().iter().enumerate() {
-                let new_step = vec![PathStep {
-                    segment: self.clone(),
-                    idx,
-                    len: self.segments().len(),
-                    code_idxs: code_idxs.clone(),
-                }];
+    fn change_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
+        let NodeOrTokenKind::Node(node) = &self.value.kind else { unimplemented!() };
 
-                // Use seg.get_segments().is_empty() as a workaround to check if the segment is
-                // a SyntaxKind::Raw type. In the original Python code, this was achieved
-                // using seg.is_type(SyntaxKind::Raw). Here, we assume that a SyntaxKind::Raw
-                // segment is characterized by having no sub-segments.
+        ErasedSegment {
+            value: Rc::new(NodeOrToken {
+                id: self.value.id,
+                syntax_kind: self.value.syntax_kind,
+                position_marker: None,
+                kind: NodeOrTokenKind::Node(NodeData {
+                    dialect: node.dialect,
+                    segments,
+                    raw: node.raw.clone(),
+                    source_fixes: node.source_fixes.clone(),
+                    descendant_type_set: node.descendant_type_set.clone(),
+                    raw_segments_with_ancestors: node.raw_segments_with_ancestors.clone(),
+                }),
+            }),
+            hash: self.hash.clone(),
+        }
+    }
 
-                if seg.segments().is_empty() {
-                    buffer.push((seg.clone(), new_step));
-                } else {
-                    let extended =
-                        seg.raw_segments_with_ancestors().iter().map(|(raw_seg, stack)| {
-                            let mut new_step = new_step.clone();
-                            new_step.extend_from_slice(stack);
-                            (raw_seg.clone(), new_step)
-                        });
+    pub(crate) fn indent_val(&self) -> i8 {
+        self.value.syntax_kind.indent_val()
+    }
 
-                    buffer.extend(extended);
+    pub(crate) fn can_start_end_non_code(&self) -> bool {
+        matches!(self.value.syntax_kind, SyntaxKind::File | SyntaxKind::Unparsable)
+    }
+
+    pub(crate) fn dialect(&self) -> DialectKind {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => node.dialect,
+            NodeOrTokenKind::Token(_) => todo!(),
+        }
+    }
+
+    pub(crate) fn get_start_loc(&self) -> (usize, usize) {
+        match self.get_position_marker() {
+            Some(pos_marker) => pos_marker.working_loc(),
+            None => unreachable!("{self:?} has no PositionMarker"),
+        }
+    }
+
+    pub(crate) fn get_end_loc(&self) -> (usize, usize) {
+        match self.get_position_marker() {
+            Some(pos_marker) => pos_marker.working_loc_after(&self.raw()),
+            None => {
+                unreachable!("{self:?} has no PositionMarker")
+            }
+        }
+    }
+
+    pub(crate) fn select_children(
+        &self,
+        start_seg: Option<&ErasedSegment>,
+        stop_seg: Option<&ErasedSegment>,
+        select_if: Option<fn(&ErasedSegment) -> bool>,
+        loop_while: Option<fn(&ErasedSegment) -> bool>,
+    ) -> Vec<ErasedSegment> {
+        let segments = self.segments();
+
+        let start_index = start_seg
+            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
+            .map_or(0, |index| index + 1);
+
+        let stop_index = stop_seg
+            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
+            .unwrap_or(segments.len());
+
+        let mut buff = Vec::new();
+
+        for seg in segments.iter().skip(start_index).take(stop_index - start_index) {
+            if let Some(loop_while) = &loop_while {
+                if !loop_while(seg) {
+                    break;
                 }
             }
 
-            buffer
-        })
+            if select_if.as_ref().map_or(true, |f| f(seg)) {
+                buff.push(seg.clone());
+            }
+        }
+
+        buff
     }
 
-    pub fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep> {
+    pub(crate) fn is_templated(&self) -> bool {
+        if let Some(pos_marker) = self.get_position_marker() {
+            pos_marker.source_slice.start != pos_marker.source_slice.end && !pos_marker.is_literal()
+        } else {
+            panic!("PosMarker must be set");
+        }
+    }
+
+    pub(crate) fn iter_segments(
+        &self,
+        expanding: Option<SyntaxSet>,
+        pass_through: bool,
+    ) -> Vec<ErasedSegment> {
+        let mut result = Vec::new();
+        for s in self.gather_segments() {
+            if let Some(expanding) = expanding {
+                if expanding.contains(s.get_type()) {
+                    result.extend(
+                        s.iter_segments(if pass_through { Some(expanding) } else { None }, false),
+                    );
+                } else {
+                    result.push(s);
+                }
+            } else {
+                result.push(s);
+            }
+        }
+        result
+    }
+
+    pub(crate) fn code_indices(&self) -> Vec<usize> {
+        self.segments()
+            .iter()
+            .enumerate()
+            .filter(|(_, seg)| seg.is_code())
+            .map(|(idx, _)| idx)
+            .collect()
+    }
+
+    pub(crate) fn children(&self, seg_types: SyntaxSet) -> Vec<ErasedSegment> {
+        let mut buff = Vec::new();
+        for seg in self.segments() {
+            if seg_types.contains(seg.get_type()) {
+                buff.push(seg.clone());
+            }
+        }
+        buff
+    }
+
+    pub(crate) fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
+        let mut acc = Vec::new();
+
+        if self.get_position_marker().is_none() {
+            return Vec::new();
+        }
+
+        if self.get_position_marker().unwrap().is_literal() {
+            acc.extend(self.iter_source_fix_patches(templated_file));
+            acc.push(FixPatch::new(
+                self.get_position_marker().unwrap().templated_slice,
+                self.raw().into(),
+                // SyntaxKind::Literal.into(),
+                self.get_position_marker().unwrap().source_slice,
+                templated_file.templated_str.as_ref().unwrap()
+                    [self.get_position_marker().unwrap().templated_slice]
+                    .to_string(),
+                templated_file.source_str[self.get_position_marker().unwrap().source_slice]
+                    .to_string(),
+            ));
+        }
+
+        acc
+    }
+
+    pub(crate) fn descendant_type_set(&self) -> &SyntaxSet {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => node.descendant_type_set.get_or_init(|| {
+                let mut result_set = SyntaxSet::EMPTY;
+
+                for seg in self.segments() {
+                    result_set =
+                        result_set.union(&seg.descendant_type_set().union(&seg.class_types()));
+                }
+
+                result_set
+            }),
+            NodeOrTokenKind::Token(_) => const { &SyntaxSet::EMPTY },
+        }
+    }
+
+    pub(crate) fn get_raw_upper(&self) -> Option<String> {
+        self.raw().to_uppercase().into()
+    }
+
+    pub(crate) fn is_comment(&self) -> bool {
+        matches!(
+            self.value.syntax_kind,
+            SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment
+        )
+    }
+
+    pub(crate) fn is_whitespace(&self) -> bool {
+        matches!(self.value.syntax_kind, SyntaxKind::Whitespace | SyntaxKind::Newline)
+    }
+
+    pub(crate) fn is_indent(&self) -> bool {
+        matches!(
+            self.value.syntax_kind,
+            SyntaxKind::Indent | SyntaxKind::Implicit | SyntaxKind::Dedent
+        )
+    }
+
+    pub(crate) fn get_position_marker(&self) -> Option<PositionMarker> {
+        self.value.position_marker.clone()
+    }
+
+    pub(crate) fn gather_segments(&self) -> Vec<ErasedSegment> {
+        self.segments().to_vec()
+    }
+
+    pub(crate) fn iter_source_fix_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
+        let mut patches = Vec::new();
+        for source_fix in &self.get_source_fixes() {
+            patches.push(FixPatch::new(
+                source_fix.templated_slice.clone(),
+                source_fix.edit.clone(),
+                // String::from("source"),
+                source_fix.source_slice.clone(),
+                templated_file.templated_str.clone().unwrap()[source_fix.templated_slice.clone()]
+                    .to_string(),
+                templated_file.source_str[source_fix.source_slice.clone()].to_string(),
+            ));
+        }
+        patches
+    }
+
+    pub(crate) fn id(&self) -> u32 {
+        self.value.id
+    }
+
+    /// Return any source fixes as list.
+    pub(crate) fn get_source_fixes(&self) -> Vec<SourceFix> {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => node.source_fixes.clone(),
+            NodeOrTokenKind::Token(_) => Vec::new(),
+        }
+    }
+
+    pub(crate) fn edit(
+        &self,
+        id: u32,
+        raw: Option<String>,
+        _source_fixes: Option<Vec<SourceFix>>,
+    ) -> ErasedSegment {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(_node) => {
+                todo!()
+            }
+            NodeOrTokenKind::Token(token) => {
+                let raw = raw.as_deref().unwrap_or(token.raw.as_ref());
+                SegmentBuilder::token(id, raw, self.value.syntax_kind)
+                    .with_position(self.get_position_marker().unwrap())
+                    .finish()
+            }
+        }
+    }
+
+    pub(crate) fn instance_types(&self) -> SyntaxSet {
+        SyntaxSet::EMPTY
+    }
+
+    pub(crate) fn combined_types(&self) -> SyntaxSet {
+        self.instance_types().union(&self.class_types())
+    }
+
+    pub(crate) fn class_types(&self) -> SyntaxSet {
+        match self.value.syntax_kind {
+            SyntaxKind::ColumnReference => {
+                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
+            }
+            SyntaxKind::WildcardIdentifier => {
+                SyntaxSet::new(&[SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference])
+            }
+            SyntaxKind::TableReference => {
+                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
+            }
+            _ => SyntaxSet::single(self.get_type()),
+        }
+    }
+
+    pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
+        for seg in self.get_raw_segments() {
+            if !seg.raw().is_empty() {
+                return Some(seg.get_raw_upper().unwrap());
+            }
+        }
+        None
+    }
+
+    pub(crate) fn is(&self, other: &ErasedSegment) -> bool {
+        Rc::ptr_eq(&self.value, &other.value)
+    }
+
+    pub(crate) fn addr(&self) -> usize {
+        fn addr<T: ?Sized>(t: *const T) -> usize {
+            let c: *const () = t.cast();
+            sptr::Strict::addr(c)
+        }
+
+        addr(Rc::as_ptr(&self.value))
+    }
+
+    pub(crate) fn direct_descendant_type_set(&self) -> SyntaxSet {
+        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(&it.class_types()))
+    }
+
+    pub(crate) fn is_keyword(&self, p0: &str) -> bool {
+        self.is_type(SyntaxKind::Keyword) && self.raw().eq_ignore_ascii_case(p0)
+    }
+
+    pub(crate) fn hash_value(&self) -> u64 {
+        let mut hash = self.hash.load(Ordering::Acquire);
+
+        if hash == 0 {
+            let mut hasher = ahash::AHasher::default();
+            self.get_type().hash(&mut hasher);
+            self.raw().hash(&mut hasher);
+
+            if let Some(marker) = &self.get_position_marker() {
+                marker.source_position().hash(&mut hasher);
+            } else {
+                None::<usize>.hash(&mut hasher);
+            }
+
+            hash = hasher.finish();
+
+            let exchange = self.hash.compare_exchange(0, hash, Ordering::AcqRel, Ordering::Acquire);
+            if let Err(old) = exchange {
+                hash = old
+            }
+        }
+
+        hash
+    }
+
+    pub(crate) fn deep_clone(&self) -> Self {
+        Self { value: Rc::new(self.value.as_ref().clone()), hash: self.hash.clone() }
+    }
+
+    #[track_caller]
+    pub(crate) fn get_mut(&mut self) -> &mut NodeOrToken {
+        Rc::get_mut(&mut self.value).unwrap()
+    }
+
+    #[track_caller]
+    pub(crate) fn make_mut(&mut self) -> &mut NodeOrToken {
+        let mut this = self.deep_clone();
+        std::mem::swap(self, &mut this);
+        Rc::get_mut(&mut self.value).unwrap()
+    }
+
+    pub(crate) fn reference(&self) -> ObjectReferenceSegment {
+        ObjectReferenceSegment(
+            self.clone(),
+            match self.get_type() {
+                SyntaxKind::TableReference => ObjectReferenceKind::Table,
+                SyntaxKind::WildcardIdentifier => ObjectReferenceKind::WildcardIdentifier,
+                _ => ObjectReferenceKind::Object,
+            },
+        )
+    }
+
+    pub(crate) fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
+        let mut result = Vec::with_capacity(self.segments().len() + 1);
+
+        if reverse {
+            for seg in self.segments().iter().rev() {
+                result.append(&mut seg.recursive_crawl_all(reverse));
+            }
+            result.push(self.clone());
+        } else {
+            result.push(self.clone());
+            for seg in self.segments() {
+                result.append(&mut seg.recursive_crawl_all(reverse));
+            }
+        }
+
+        result
+    }
+
+    pub(crate) fn raw_segments_with_ancestors(&self) -> &[(ErasedSegment, Vec<PathStep>)] {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => node.raw_segments_with_ancestors.get_or_init(|| {
+                let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
+                    Vec::with_capacity(self.segments().len());
+                let code_idxs: Rc<[usize]> = self.code_indices().into();
+
+                for (idx, seg) in self.segments().iter().enumerate() {
+                    let new_step = vec![PathStep {
+                        segment: self.clone(),
+                        idx,
+                        len: self.segments().len(),
+                        code_idxs: code_idxs.clone(),
+                    }];
+
+                    // Use seg.get_segments().is_empty() as a workaround to check if the segment is
+                    // a SyntaxKind::Raw type. In the original Python code, this was achieved
+                    // using seg.is_type(SyntaxKind::Raw). Here, we assume that a SyntaxKind::Raw
+                    // segment is characterized by having no sub-segments.
+
+                    if seg.segments().is_empty() {
+                        buffer.push((seg.clone(), new_step));
+                    } else {
+                        let extended =
+                            seg.raw_segments_with_ancestors().iter().map(|(raw_seg, stack)| {
+                                let mut new_step = new_step.clone();
+                                new_step.extend_from_slice(stack);
+                                (raw_seg.clone(), new_step)
+                            });
+
+                        buffer.extend(extended);
+                    }
+                }
+
+                buffer
+            }),
+            NodeOrTokenKind::Token(_) => &[],
+        }
+    }
+
+    pub(crate) fn path_to(&self, other: &ErasedSegment) -> Vec<PathStep> {
         let midpoint = other;
 
         for (idx, seg) in enumerate(self.segments()) {
@@ -285,7 +661,7 @@ impl ErasedSegment {
         Vec::new()
     }
 
-    pub fn apply_fixes(
+    pub(crate) fn apply_fixes(
         &self,
         fixes: &mut FxHashMap<u32, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
@@ -389,356 +765,75 @@ impl ErasedSegment {
     }
 }
 
-impl Deref for ErasedSegment {
-    type Target = dyn Segment;
+#[cfg(any(test, feature = "serde"))]
+pub mod serde {
+    use serde::ser::SerializeMap;
+    use serde::{Deserialize, Serialize};
 
-    fn deref(&self) -> &Self::Target {
-        self.value.as_ref()
+    use crate::core::parser::segments::base::ErasedSegment;
+
+    #[derive(Serialize, Deserialize)]
+    #[serde(untagged)]
+    pub enum SerialisedSegmentValue {
+        Single(String),
+        Nested(Vec<TupleSerialisedSegment>),
+    }
+
+    #[derive(Deserialize)]
+    pub struct TupleSerialisedSegment(String, SerialisedSegmentValue);
+
+    impl Serialize for TupleSerialisedSegment {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            let mut map = serializer.serialize_map(None)?;
+            map.serialize_key(&self.0)?;
+            map.serialize_value(&self.1)?;
+            map.end()
+        }
+    }
+
+    impl TupleSerialisedSegment {
+        pub fn sinlge(key: String, value: String) -> Self {
+            Self(key, SerialisedSegmentValue::Single(value))
+        }
+
+        pub fn nested(key: String, segments: Vec<TupleSerialisedSegment>) -> Self {
+            Self(key, SerialisedSegmentValue::Nested(segments))
+        }
+    }
+
+    impl ErasedSegment {
+        pub fn to_serialised(&self, code_only: bool, show_raw: bool) -> TupleSerialisedSegment {
+            if show_raw && self.segments().is_empty() {
+                TupleSerialisedSegment::sinlge(
+                    self.get_type().as_str().to_string(),
+                    self.raw().to_string(),
+                )
+            } else if code_only {
+                let segments = self
+                    .segments()
+                    .iter()
+                    .filter(|seg| seg.is_code() && !seg.is_meta())
+                    .map(|seg| seg.to_serialised(code_only, show_raw))
+                    .collect::<Vec<_>>();
+
+                TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
+            } else {
+                let segments = self
+                    .segments()
+                    .iter()
+                    .map(|seg| seg.to_serialised(code_only, show_raw))
+                    .collect::<Vec<_>>();
+
+                TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
+            }
+        }
     }
 }
 
 impl PartialEq for ErasedSegment {
-    fn eq(&self, other: &Self) -> bool {
-        self.value.as_ref() == other.value.as_ref()
-    }
-}
-
-impl ErasedSegment {
-    pub fn of<T: Segment>(value: T) -> Self {
-        Self { value: Rc::new(value), hash: Rc::new(AtomicU64::new(0)) }
-    }
-}
-
-pub trait AsAny {
-    fn as_any(&self) -> &dyn Any;
-    fn as_any_mut(&mut self) -> &mut dyn Any;
-}
-
-impl<T: Any> AsAny for T {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        self
-    }
-}
-
-pub trait Segment: Any + AsAny + DynClone + Debug + CloneSegment {
-    #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
-    #[track_caller]
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    fn copy(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        todo!("{}", std::any::type_name::<Self>())
-    }
-
-    fn can_start_end_non_code(&self) -> bool {
-        false
-    }
-
-    #[track_caller]
-    fn dialect(&self) -> DialectKind {
-        todo!("{}", std::any::type_name::<Self>())
-    }
-
-    fn type_name(&self) -> &'static str {
-        std::any::type_name::<Self>()
-    }
-
-    fn get_start_loc(&self) -> (usize, usize) {
-        match self.get_position_marker() {
-            Some(pos_marker) => pos_marker.working_loc(),
-            None => unreachable!("{self:?} has no PositionMarker"),
-        }
-    }
-
-    fn get_end_loc(&self) -> (usize, usize) {
-        match self.get_position_marker() {
-            Some(pos_marker) => pos_marker.working_loc_after(&self.raw()),
-            None => {
-                unreachable!("{self:?} has no PositionMarker")
-            }
-        }
-    }
-
-    fn to_serialised(
-        &self,
-        code_only: bool,
-        show_raw: bool,
-        include_meta: bool,
-    ) -> TupleSerialisedSegment {
-        if show_raw && self.segments().is_empty() {
-            TupleSerialisedSegment::sinlge(
-                self.get_type().as_str().to_string(),
-                self.raw().to_string(),
-            )
-        } else if code_only {
-            let segments = self
-                .segments()
-                .iter()
-                .filter(|seg| seg.is_code() && !seg.is_meta())
-                .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
-                .collect_vec();
-
-            TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
-        } else {
-            let segments = self
-                .segments()
-                .iter()
-                .map(|seg| seg.to_serialised(code_only, show_raw, include_meta))
-                .collect_vec();
-
-            TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
-        }
-    }
-
-    fn raw_segments_with_ancestors(&self) -> &OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>> {
-        todo!("{}", std::any::type_name::<Self>())
-    }
-
-    fn select_children(
-        &self,
-        start_seg: Option<&ErasedSegment>,
-        stop_seg: Option<&ErasedSegment>,
-        select_if: Option<fn(&ErasedSegment) -> bool>,
-        loop_while: Option<fn(&ErasedSegment) -> bool>,
-    ) -> Vec<ErasedSegment> {
-        let segments = self.segments();
-
-        let start_index = start_seg
-            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
-            .map_or(0, |index| index + 1);
-
-        let stop_index = stop_seg
-            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
-            .unwrap_or(segments.len());
-
-        let mut buff = Vec::new();
-
-        for seg in segments.iter().skip(start_index).take(stop_index - start_index) {
-            if let Some(loop_while) = &loop_while {
-                if !loop_while(seg) {
-                    break;
-                }
-            }
-
-            if select_if.as_ref().map_or(true, |f| f(seg)) {
-                buff.push(seg.clone());
-            }
-        }
-
-        buff
-    }
-
-    fn is_templated(&self) -> bool {
-        if let Some(pos_marker) = self.get_position_marker() {
-            pos_marker.source_slice.start != pos_marker.source_slice.end && !pos_marker.is_literal()
-        } else {
-            panic!("PosMarker must be set");
-        }
-    }
-
-    fn iter_segments(
-        &self,
-        expanding: Option<SyntaxSet>,
-        pass_through: bool,
-    ) -> Vec<ErasedSegment> {
-        let mut result = Vec::new();
-        for s in self.gather_segments() {
-            if let Some(expanding) = expanding {
-                if expanding.contains(s.get_type()) {
-                    result.extend(
-                        s.iter_segments(if pass_through { Some(expanding) } else { None }, false),
-                    );
-                } else {
-                    result.push(s);
-                }
-            } else {
-                result.push(s);
-            }
-        }
-        result
-    }
-
-    fn code_indices(&self) -> Vec<usize> {
-        self.segments()
-            .iter()
-            .enumerate()
-            .filter(|(_, seg)| seg.is_code())
-            .map(|(idx, _)| idx)
-            .collect()
-    }
-
-    fn get_parent(&self) -> Option<ErasedSegment> {
-        None
-    }
-
-    fn child(&self, seg_types: SyntaxSet) -> Option<ErasedSegment> {
-        self.gather_segments().into_iter().find(|seg| seg_types.contains(seg.get_type()))
-    }
-
-    fn children(&self, seg_types: SyntaxSet) -> Vec<ErasedSegment> {
-        let mut buff = Vec::new();
-        for seg in self.gather_segments() {
-            if seg_types.contains(seg.get_type()) {
-                buff.push(seg);
-            }
-        }
-        buff
-    }
-
-    fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
-        let mut acc = Vec::new();
-
-        if self.get_position_marker().is_none() {
-            return Vec::new();
-        }
-
-        if self.get_position_marker().unwrap().is_literal() {
-            acc.extend(self.iter_source_fix_patches(templated_file));
-            acc.push(FixPatch::new(
-                self.get_position_marker().unwrap().templated_slice,
-                self.raw().into(),
-                // SyntaxKind::Literal.into(),
-                self.get_position_marker().unwrap().source_slice,
-                templated_file.templated_str.as_ref().unwrap()
-                    [self.get_position_marker().unwrap().templated_slice]
-                    .to_string(),
-                templated_file.source_str[self.get_position_marker().unwrap().source_slice]
-                    .to_string(),
-            ));
-        }
-
-        acc
-    }
-
-    fn descendant_type_set(&self) -> &SyntaxSet {
-        const { &SyntaxSet::EMPTY }
-    }
-
-    fn raw(&self) -> Cow<str> {
-        self.segments().iter().map(|segment| segment.raw()).join("").into()
-    }
-
-    fn get_raw_upper(&self) -> Option<String> {
-        self.raw().to_uppercase().into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        todo!()
-    }
-
-    fn is_type(&self, type_: SyntaxKind) -> bool {
-        self.get_type() == type_
-    }
-    fn is_code(&self) -> bool {
-        self.segments().iter().any(|s| s.is_code())
-    }
-    fn is_comment(&self) -> bool {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-    fn is_whitespace(&self) -> bool {
-        false
-    }
-    fn is_meta(&self) -> bool {
-        false
-    }
-
-    #[track_caller]
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    #[allow(unused_variables)]
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        unimplemented!()
-    }
-
-    #[track_caller]
-    fn set_segments(&mut self, _segments: Vec<ErasedSegment>) {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    fn gather_segments(&self) -> Vec<ErasedSegment> {
-        self.segments().to_vec()
-    }
-
-    fn iter_source_fix_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
-        let mut patches = Vec::new();
-        for source_fix in &self.get_source_fixes() {
-            patches.push(FixPatch::new(
-                source_fix.templated_slice.clone(),
-                source_fix.edit.clone(),
-                // String::from("source"),
-                source_fix.source_slice.clone(),
-                templated_file.templated_str.clone().unwrap()[source_fix.templated_slice.clone()]
-                    .to_string(),
-                templated_file.source_str[source_fix.source_slice.clone()].to_string(),
-            ));
-        }
-        patches
-    }
-
-    fn id(&self) -> u32 {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    fn set_id(&mut self, id: u32) {
-        _ = id;
-        todo!("{}", std::any::type_name::<Self>())
-    }
-
-    /// Return any source fixes as list.
-    fn get_source_fixes(&self) -> Vec<SourceFix> {
-        self.segments().iter().flat_map(|seg| seg.get_source_fixes()).collect()
-    }
-
-    /// Stub.
-    #[allow(unused_variables)]
-    fn edit(
-        &self,
-        id: u32,
-        raw: Option<String>,
-        source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        unimplemented!("{}", std::any::type_name::<Self>())
-    }
-
-    /// Group and count fixes by anchor, return dictionary.
-    fn compute_anchor_edit_info(&self, fixes: &Vec<LintFix>) -> AHashMap<u32, AnchorEditInfo> {
-        let mut anchor_info = AHashMap::<u32, AnchorEditInfo>::new();
-        for fix in fixes {
-            // :TRICKY: Use segment uuid as the dictionary key since
-            // different segments may compare as equal.
-            let anchor_id = fix.anchor.id();
-            anchor_info.entry(anchor_id).or_default().add(fix.clone());
-        }
-        anchor_info
-    }
-
-    fn instance_types(&self) -> SyntaxSet {
-        SyntaxSet::EMPTY
-    }
-
-    fn combined_types(&self) -> SyntaxSet {
-        self.instance_types().union(&self.class_types())
-    }
-
-    fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::EMPTY
-    }
-}
-
-dyn_clone::clone_trait_object!(Segment);
-
-impl PartialEq for dyn Segment {
     fn eq(&self, other: &Self) -> bool {
         if self.id() == other.id() {
             return true;
@@ -756,18 +851,18 @@ impl PartialEq for dyn Segment {
     }
 }
 
-impl Eq for ErasedSegment {}
+pub trait AsAny {
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+}
 
-impl Hash for dyn Segment {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.get_type().hash(state);
-        self.raw().hash(state);
+impl<T: Any> AsAny for T {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 
-        if let Some(marker) = &self.get_position_marker() {
-            marker.source_position().hash(state);
-        } else {
-            None::<usize>.hash(state);
-        }
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
     }
 }
 
@@ -829,7 +924,7 @@ pub fn position_segments(
         let mut new_seg =
             if !segment.segments().is_empty() && old_position.as_ref() != Some(&new_position) {
                 let child_segments = position_segments(segment.segments(), &new_position);
-                segment.copy(child_segments)
+                segment.change_segments(child_segments)
             } else {
                 segment.deep_clone()
             };
@@ -841,141 +936,43 @@ pub fn position_segments(
     segment_buffer
 }
 
+#[derive(Debug, Clone)]
+pub struct NodeOrToken {
+    id: u32,
+    syntax_kind: SyntaxKind,
+    position_marker: Option<PositionMarker>,
+    kind: NodeOrTokenKind,
+}
+
+#[derive(Debug, Clone)]
+pub enum NodeOrTokenKind {
+    Node(NodeData),
+    Token(TokenData),
+}
+
+impl NodeOrToken {
+    pub fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        self.position_marker = position_marker;
+    }
+
+    pub fn set_id(&mut self, id: u32) {
+        self.id = id;
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct NodeData {
+    dialect: DialectKind,
+    segments: Vec<ErasedSegment>,
+    raw: OnceCell<String>,
+    source_fixes: Vec<SourceFix>,
+    descendant_type_set: OnceCell<SyntaxSet>,
+    raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct TokenData {
     raw: SmolStr,
-    position_marker: Option<PositionMarker>,
-    pub code_type: SyntaxKind,
-
-    id: u32,
-}
-
-impl TokenData {
-    pub fn of(id: u32, raw: &str, kind: SyntaxKind) -> ErasedSegment {
-        Self::create(id, raw, None, TokenDataNewArgs { code_type: kind })
-    }
-
-    pub fn whitespace(id: u32, raw: &str) -> ErasedSegment {
-        Self::create(id, raw, None, TokenDataNewArgs { code_type: SyntaxKind::Whitespace })
-    }
-
-    pub fn newline(id: u32, raw: &str) -> ErasedSegment {
-        Self::create(id, raw, None, TokenDataNewArgs { code_type: SyntaxKind::Newline })
-    }
-
-    pub fn keyword(id: u32, raw: &str) -> ErasedSegment {
-        Self::create(id, raw, None, TokenDataNewArgs { code_type: SyntaxKind::Keyword })
-    }
-
-    pub fn symbol(id: u32, raw: &str) -> ErasedSegment {
-        Self::create(id, raw, None, TokenDataNewArgs { code_type: SyntaxKind::Symbol })
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct TokenDataNewArgs {
-    pub code_type: SyntaxKind,
-}
-
-impl TokenData {
-    pub fn create(
-        id: u32,
-        raw: &str,
-        position_maker: Option<PositionMarker>,
-        args: TokenDataNewArgs,
-    ) -> ErasedSegment {
-        TokenData {
-            raw: raw.into(),
-            position_marker: position_maker,
-            code_type: args.code_type,
-            id,
-        }
-        .to_erased_segment()
-    }
-}
-
-impl Segment for TokenData {
-    fn new(&self, _segments: Vec<ErasedSegment>) -> ErasedSegment {
-        self.clone().to_erased_segment()
-    }
-
-    fn raw(&self) -> Cow<str> {
-        self.raw.as_str().into()
-    }
-
-    fn get_type(&self) -> SyntaxKind {
-        self.code_type
-    }
-
-    fn is_meta(&self) -> bool {
-        matches!(self.code_type, SyntaxKind::EndOfFile)
-    }
-
-    fn is_code(&self) -> bool {
-        !self.is_comment() && !self.is_whitespace() && !self.is_meta()
-    }
-
-    fn is_comment(&self) -> bool {
-        matches!(
-            self.code_type,
-            SyntaxKind::Comment | SyntaxKind::InlineComment | SyntaxKind::BlockComment
-        )
-    }
-
-    fn is_whitespace(&self) -> bool {
-        matches!(self.code_type, SyntaxKind::Whitespace | SyntaxKind::Newline)
-    }
-
-    fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.position_marker.clone()
-    }
-
-    fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
-        self.position_marker = position_marker
-    }
-
-    fn segments(&self) -> &[ErasedSegment] {
-        &[]
-    }
-
-    fn id(&self) -> u32 {
-        self.id
-    }
-
-    fn set_id(&mut self, id: u32) {
-        self.id = id;
-    }
-
-    /// Create a new segment, with exactly the same position but different
-    /// content.
-    ///
-    ///         Returns:
-    ///             A copy of this object with new contents.
-    ///
-    ///         Used mostly by fixes.
-    ///
-    ///         NOTE: This *doesn't* copy the uuid. The edited segment is a new
-    /// segment.
-    ///
-    /// From RawSegment implementation
-    fn edit(
-        &self,
-        id: u32,
-        raw: Option<String>,
-        _source_fixes: Option<Vec<SourceFix>>,
-    ) -> ErasedSegment {
-        TokenData::create(
-            id,
-            raw.unwrap_or(self.raw.to_string()).as_str(),
-            self.position_marker.clone(),
-            TokenDataNewArgs { code_type: self.code_type },
-        )
-        .config(|this| this.get_mut().set_id(id))
-    }
-
-    fn class_types(&self) -> SyntaxSet {
-        SyntaxSet::single(self.get_type())
-    }
 }
 
 #[track_caller]
@@ -985,29 +982,32 @@ pub fn pos_marker(segments: &[ErasedSegment]) -> PositionMarker {
     PositionMarker::from_child_markers(markers)
 }
 
+#[derive(Debug, Clone)]
+pub struct PathStep {
+    pub segment: ErasedSegment,
+    pub idx: usize,
+    pub len: usize,
+    pub code_idxs: Rc<[usize]>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::linter::linter::compute_anchor_edit_info;
+    use crate::core::parser::segments::base::Tables;
     use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
-    use crate::dialects::ansi::Tables;
+    use crate::core::rules::base::LintFix;
 
     #[test]
     /// Test comparison of raw segments.
     fn test_parser_base_segments_raw_compare() {
         let template = TemplatedFile::from_string("foobar".to_string());
-        let rs1 = Box::new(TokenData::create(
-            0,
-            "foobar",
-            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
-            TokenDataNewArgs { code_type: SyntaxKind::Word },
-        ));
-
-        let rs2 = Box::new(TokenData::create(
-            0,
-            "foobar",
-            Some(PositionMarker::new(0..6, 0..6, template.clone(), None, None)),
-            TokenDataNewArgs { code_type: SyntaxKind::Word },
-        ));
+        let rs1 = SegmentBuilder::token(0, "foobar", SyntaxKind::Word)
+            .with_position(PositionMarker::new(0..6, 0..6, template.clone(), None, None))
+            .finish();
+        let rs2 = SegmentBuilder::token(0, "foobar", SyntaxKind::Word)
+            .with_position(PositionMarker::new(0..6, 0..6, template.clone(), None, None))
+            .finish();
 
         assert_eq!(rs1, rs2)
     }
@@ -1048,7 +1048,7 @@ mod tests {
             ),
         ];
 
-        let anchor_edit_info = raw_segs[0].compute_anchor_edit_info(&fixes);
+        let anchor_edit_info = compute_anchor_edit_info(fixes);
 
         // Check the target segment is the only key we have.
         assert_eq!(anchor_edit_info.keys().collect::<Vec<_>>(), vec![&raw_segs[0].id()]);

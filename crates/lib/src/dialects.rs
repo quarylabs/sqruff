@@ -498,6 +498,7 @@ pub enum SyntaxKind {
     FunctionNameIdentifier,
     Dedent,
     Indent,
+    Implicit,
     AtSignLiteral,
     QuestionMark,
     RightArrow,
@@ -575,6 +576,16 @@ pub enum SyntaxKind {
     PragmaStatement,
     PragmaReference,
     Slash,
+}
+
+impl SyntaxKind {
+    pub fn indent_val(self) -> i8 {
+        match self {
+            SyntaxKind::Indent | SyntaxKind::Implicit => 1,
+            SyntaxKind::Dedent => -1,
+            _ => 0,
+        }
+    }
 }
 
 impl SyntaxKind {

@@ -3,9 +3,8 @@ use rustc_hash::FxHashMap;
 
 use super::elements::ReflowBlock;
 use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{EditType, LintFix, LintResult};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::reflow::config::Spacing;
 use crate::utils::reflow::helpers::pretty_segment_name;
@@ -418,7 +417,7 @@ pub fn handle_respace_inline_without_space(
         return (segment_buffer, existing_results, false);
     }
 
-    let added_whitespace = TokenData::whitespace(tables.next_id(), " ");
+    let added_whitespace = SegmentBuilder::whitespace(tables.next_id(), " ");
 
     // Add it to the buffer first (the easy bit). The hard bit is to then determine
     // how to generate the appropriate LintFix objects.
@@ -514,7 +513,7 @@ pub fn handle_respace_inline_without_space(
             next_block.segments[0].clone().into(),
             vec![LintFix::create_before(
                 next_block.segments[0].clone(),
-                vec![TokenData::whitespace(tables.next_id(), " ")],
+                vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
             )],
             None,
             Some(desc),
@@ -534,9 +533,9 @@ mod tests {
     use pretty_assertions::assert_eq;
     use smol_str::ToSmolStr;
 
+    use crate::core::parser::segments::base::Tables;
     use crate::core::parser::segments::test_functions::parse_ansi_string;
     use crate::core::rules::base::EditType;
-    use crate::dialects::ansi::Tables;
     use crate::helpers::enter_panic;
     use crate::utils::reflow::helpers::fixes_from_results;
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};

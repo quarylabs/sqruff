@@ -6,10 +6,8 @@ use nohash_hasher::IntMap;
 use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
-use crate::core::parser::segments::meta::{Indent, MetaSegmentKind};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::respace::{
@@ -56,10 +54,10 @@ impl ReflowPoint {
         let mut implicit_indents = Vec::new();
 
         for seg in segments {
-            if let Some(indent) = seg.as_any().downcast_ref::<Indent>() {
-                running_sum += indent.indent_val() as isize;
+            if seg.is_indent() {
+                running_sum += seg.indent_val() as isize;
 
-                if indent.is_implicit() {
+                if seg.is_type(SyntaxKind::Implicit) {
                     implicit_indents.push(running_sum);
                 }
             }
@@ -190,7 +188,7 @@ impl ReflowPoint {
                     return (Vec::new(), self.clone());
                 }
 
-                let new_indent = TokenData::whitespace(tables.next_id(), desired_indent);
+                let new_indent = SegmentBuilder::whitespace(tables.next_id(), desired_indent);
 
                 let (last_newline_idx, last_newline) = self
                     .segments
@@ -224,12 +222,7 @@ impl ReflowPoint {
             }
         } else {
             // There isn't currently a newline.
-            let new_newline = TokenData::create(
-                tables.next_id(),
-                "\n",
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::Newline },
-            );
+            let new_newline = SegmentBuilder::newline(tables.next_id(), "\n");
             // Check for whitespace
             let ws_seg = self.segments.iter().find(|seg| seg.is_type(SyntaxKind::Whitespace));
 
@@ -290,7 +283,7 @@ impl ReflowPoint {
                     new_point,
                 );
             } else {
-                let new_indent = TokenData::whitespace(tables.next_id(), desired_indent);
+                let new_indent = SegmentBuilder::whitespace(tables.next_id(), desired_indent);
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(
@@ -394,7 +387,9 @@ impl ReflowPoint {
                     let prev_seg = segments_slice
                         .iter()
                         .rev()
-                        .find(|seg| !seg.is_type(SyntaxKind::Indent))
+                        .find(|seg| {
+                            !matches!(seg.get_type(), SyntaxKind::Indent | SyntaxKind::Implicit)
+                        })
                         .unwrap();
 
                     if prev_seg.is_type(SyntaxKind::Newline)

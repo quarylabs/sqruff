@@ -2,13 +2,12 @@ use ahash::AHashMap;
 use itertools::{enumerate, Itertools};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{
     EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
 };
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -269,12 +268,7 @@ impl RuleLT09 {
                 fixes.extend(ws_to_delete.into_iter().map(LintFix::delete));
                 fixes.push(LintFix::create_before(
                     select_target.clone(),
-                    vec![TokenData::create(
-                        tables.next_id(),
-                        "\n",
-                        None,
-                        TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                    )],
+                    vec![SegmentBuilder::newline(tables.next_id(), "\n")],
                 ));
             }
 
@@ -293,12 +287,7 @@ impl RuleLT09 {
 
                     fixes.push(LintFix::create_before(
                         from_segment.clone(),
-                        vec![TokenData::create(
-                            tables.next_id(),
-                            "\n",
-                            None,
-                            TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                        )],
+                        vec![SegmentBuilder::newline(tables.next_id(), "\n")],
                     ));
                 }
             }
@@ -337,7 +326,7 @@ impl RuleLT09 {
         }
 
         let mut insert_buff = vec![
-            TokenData::whitespace(context.tables.next_id(), " "),
+            SegmentBuilder::whitespace(context.tables.next_id(), " "),
             select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
         ];
 
@@ -355,8 +344,10 @@ impl RuleLT09 {
         let start_idx = if !modifier.is_empty() {
             let buff = std::mem::take(&mut insert_buff);
 
-            insert_buff =
-                vec![TokenData::whitespace(context.tables.next_id(), " "), modifier[0].clone()];
+            insert_buff = vec![
+                SegmentBuilder::whitespace(context.tables.next_id(), " "),
+                modifier[0].clone(),
+            ];
 
             insert_buff.extend(buff);
 
@@ -426,12 +417,7 @@ impl RuleLT09 {
                         local_fixes.push(LintFix::create_after(
                             select_clause[0].clone(),
                             if add_newline {
-                                vec![TokenData::create(
-                                    context.tables.next_id(),
-                                    "\n",
-                                    None,
-                                    TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                                )]
+                                vec![SegmentBuilder::newline(context.tables.next_id(), "\n")]
                             } else {
                                 vec![]
                             }

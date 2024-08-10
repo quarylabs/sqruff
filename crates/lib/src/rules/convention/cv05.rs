@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -137,10 +137,10 @@ WHERE a IS NULL
         for item in edit {
             match item {
                 CorrectionListItem::KeywordSegment(keyword) => {
-                    seg.push(TokenData::keyword(context.tables.next_id(), &keyword));
+                    seg.push(SegmentBuilder::keyword(context.tables.next_id(), &keyword));
                 }
                 CorrectionListItem::WhitespaceSegment => {
-                    seg.push(TokenData::whitespace(context.tables.next_id(), " "));
+                    seg.push(SegmentBuilder::whitespace(context.tables.next_id(), " "));
                 }
             };
         }

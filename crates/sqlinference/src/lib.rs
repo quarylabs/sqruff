@@ -1,8 +1,7 @@
 use sqruff_lib::core::linter::linter::Linter;
 use sqruff_lib::core::parser::parser::Parser;
-use sqruff_lib::core::parser::segments::base::ErasedSegment;
+use sqruff_lib::core::parser::segments::base::{ErasedSegment, Tables};
 use sqruff_lib::core::templaters::base::TemplatedFile;
-use sqruff_lib::dialects::ansi::Tables;
 
 pub mod aggregate_functions;
 pub mod columns;

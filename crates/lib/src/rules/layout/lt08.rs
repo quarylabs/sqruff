@@ -4,7 +4,7 @@ use ahash::AHashMap;
 use itertools::Itertools;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::SegmentBuilder;
 use crate::core::rules::base::{
     EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
 };
@@ -188,15 +188,10 @@ SELECT a FROM plop
             let fixes = vec![LintFix {
                 edit_type: fix_type,
                 anchor: fix_point.unwrap(),
-                edit: repeat(TokenData::create(
-                    context.tables.next_id(),
-                    "\n",
-                    None,
-                    TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                ))
-                .take(num_newlines)
-                .collect_vec()
-                .into(),
+                edit: repeat(SegmentBuilder::newline(context.tables.next_id(), "\n"))
+                    .take(num_newlines)
+                    .collect_vec()
+                    .into(),
                 source: Vec::new(),
             }];
 

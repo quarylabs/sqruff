@@ -6,7 +6,6 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Once};
 
 use crate::core::parser::matchable::Matchable;
-use crate::core::parser::segments::base::{ErasedSegment, Segment};
 
 pub type IndexMap<K, V> = indexmap::IndexMap<K, V, BuildHasherDefault<ahash::AHasher>>;
 pub type IndexSet<V> = indexmap::IndexSet<V, BuildHasherDefault<ahash::AHasher>>;
@@ -18,18 +17,6 @@ pub trait ToMatchable: Matchable + Sized {
 }
 
 impl<T: Matchable> ToMatchable for T {}
-
-pub trait ToErasedSegment {
-    fn to_erased_segment(self) -> ErasedSegment
-    where
-        Self: Sized;
-}
-
-impl<T: Segment> ToErasedSegment for T {
-    fn to_erased_segment(self) -> ErasedSegment {
-        ErasedSegment::of(self)
-    }
-}
 
 pub fn capitalize(s: &str) -> String {
     assert!(s.is_ascii());

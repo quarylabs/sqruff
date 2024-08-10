@@ -3,11 +3,10 @@ use itertools::chain;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::Tables;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
@@ -50,16 +49,16 @@ fn shorthand_fix_list(
 ) -> Vec<LintFix> {
     let mut edits = if shorthand_arg_1.get_raw_segments().len() > 1 {
         vec![
-            TokenData::of(tables.next_id(), "(", SyntaxKind::StartBracket),
+            SegmentBuilder::token(tables.next_id(), "(", SyntaxKind::StartBracket).finish(),
             shorthand_arg_1,
-            TokenData::of(tables.next_id(), ")", SyntaxKind::EndBracket),
+            SegmentBuilder::token(tables.next_id(), ")", SyntaxKind::EndBracket).finish(),
         ]
     } else {
         vec![shorthand_arg_1]
     };
 
     edits.extend([
-        TokenData::of(tables.next_id(), "::", SyntaxKind::CastingOperator),
+        SegmentBuilder::token(tables.next_id(), "::", SyntaxKind::CastingOperator).finish(),
         shorthand_arg_2,
     ]);
 
@@ -422,55 +421,32 @@ fn convert_fix_list(
     convert_arg_2: ErasedSegment,
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
-    use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+    use crate::core::parser::segments::base::ErasedSegment;
 
     let mut edits: Vec<ErasedSegment> = vec![
-        TokenData::create(
-            tables.next_id(),
-            "convert",
-            None,
-            TokenDataNewArgs { code_type: SyntaxKind::FunctionNameIdentifier },
-        ),
-        TokenData::create(
-            tables.next_id(),
-            "(",
-            None,
-            TokenDataNewArgs { code_type: SyntaxKind::StartBracket },
-        ),
+        SegmentBuilder::token(tables.next_id(), "convert", SyntaxKind::FunctionNameIdentifier)
+            .finish(),
+        SegmentBuilder::token(tables.next_id(), "(", SyntaxKind::StartBracket).finish(),
         convert_arg_1,
-        TokenData::create(
-            tables.next_id(),
-            ",",
-            None,
-            TokenDataNewArgs { code_type: SyntaxKind::Comma },
-        ),
-        TokenData::create(
-            tables.next_id(),
-            " ",
-            None,
-            TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-        ),
+        SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
+        SegmentBuilder::whitespace(tables.next_id(), " "),
         convert_arg_2,
-        TokenData::create(
-            tables.next_id(),
-            ")",
-            None,
-            TokenDataNewArgs { code_type: SyntaxKind::EndBracket },
-        ),
+        SegmentBuilder::token(tables.next_id(), ")", SyntaxKind::EndBracket).finish(),
     ];
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
-            TokenData::create(tables.next_id(), "convert", None, <_>::default()),
-            TokenData::symbol(tables.next_id(), "("),
+            SegmentBuilder::token(tables.next_id(), "convert", SyntaxKind::FunctionNameIdentifier)
+                .finish(),
+            SegmentBuilder::symbol(tables.next_id(), "("),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            TokenData::symbol(tables.next_id(), ","),
-            TokenData::whitespace(tables.next_id(), " "),
+            SegmentBuilder::symbol(tables.next_id(), ","),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
         ];
 
-        let post_edits: Vec<ErasedSegment> = vec![TokenData::symbol(tables.next_id(), ")")];
+        let post_edits: Vec<ErasedSegment> = vec![SegmentBuilder::symbol(tables.next_id(), ")")];
 
         for _type in later_types.base {
             edits = chain(
@@ -492,31 +468,33 @@ fn cast_fix_list(
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
     let mut edits = vec![
-        TokenData::of(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier),
-        TokenData::of(tables.next_id(), "(", SyntaxKind::StartBracket),
+        SegmentBuilder::token(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier)
+            .finish(),
+        SegmentBuilder::token(tables.next_id(), "(", SyntaxKind::StartBracket).finish(),
     ];
     edits.extend_from_slice(cast_arg_1);
     edits.extend([
-        TokenData::whitespace(tables.next_id(), " "),
-        TokenData::keyword(tables.next_id(), "as"),
-        TokenData::whitespace(tables.next_id(), " "),
+        SegmentBuilder::whitespace(tables.next_id(), " "),
+        SegmentBuilder::keyword(tables.next_id(), "as"),
+        SegmentBuilder::whitespace(tables.next_id(), " "),
         cast_arg_2,
-        TokenData::of(tables.next_id(), ")", SyntaxKind::EndBracket),
+        SegmentBuilder::token(tables.next_id(), ")", SyntaxKind::EndBracket).finish(),
     ]);
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
-            TokenData::create(tables.next_id(), "cast", None, <_>::default()),
-            TokenData::symbol(tables.next_id(), "("),
+            SegmentBuilder::token(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier)
+                .finish(),
+            SegmentBuilder::symbol(tables.next_id(), "("),
         ];
 
         let in_edits: Vec<ErasedSegment> = vec![
-            TokenData::whitespace(tables.next_id(), " "),
-            TokenData::keyword(tables.next_id(), "as"),
-            TokenData::whitespace(tables.next_id(), " "),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
+            SegmentBuilder::keyword(tables.next_id(), "as"),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
         ];
 
-        let post_edits: Vec<ErasedSegment> = vec![TokenData::symbol(tables.next_id(), ")")];
+        let post_edits: Vec<ErasedSegment> = vec![SegmentBuilder::symbol(tables.next_id(), ")")];
 
         for _type in later_types.base {
             let mut xs = Vec::new();

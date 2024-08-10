@@ -2,7 +2,7 @@ use ahash::AHashMap;
 
 use crate::core::config::Value;
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::SegmentBuilder;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -74,14 +74,9 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                TokenData::keyword(rule_cx.tables.next_id(), "union"),
-                TokenData::create(
-                    rule_cx.tables.next_id(),
-                    " ",
-                    None,
-                    TokenDataNewArgs { code_type: SyntaxKind::Whitespace },
-                ),
-                TokenData::keyword(rule_cx.tables.next_id(), "distinct"),
+                SegmentBuilder::keyword(rule_cx.tables.next_id(), "union"),
+                SegmentBuilder::whitespace(rule_cx.tables.next_id(), " "),
+                SegmentBuilder::keyword(rule_cx.tables.next_id(), "distinct"),
             ];
 
             let segments = rule_cx.segment.clone();
@@ -92,14 +87,9 @@ SELECT a, b FROM table_2
             && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
         {
             let edits = vec![
-                TokenData::keyword(rule_cx.tables.next_id(), "UNION"),
-                TokenData::create(
-                    rule_cx.tables.next_id(),
-                    " ",
-                    None,
-                    TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                ),
-                TokenData::keyword(rule_cx.tables.next_id(), "DISTINCT"),
+                SegmentBuilder::keyword(rule_cx.tables.next_id(), "UNION"),
+                SegmentBuilder::whitespace(rule_cx.tables.next_id(), " "),
+                SegmentBuilder::keyword(rule_cx.tables.next_id(), "DISTINCT"),
             ];
 
             let segments = rule_cx.segment.clone();

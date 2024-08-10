@@ -14,16 +14,16 @@ use crate::core::parser::match_algorithms::{
 use crate::core::parser::match_result::{MatchResult, Matched, Span};
 use crate::core::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
 use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::parser::segments::meta::{Indent, IndentChange, MetaSegmentKind};
+use crate::core::parser::segments::meta::Indent;
 use crate::core::parser::types::ParseMode;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
 fn flush_metas(
     tpre_nc_idx: u32,
     post_nc_idx: u32,
-    meta_buffer: Vec<IndentChange>,
+    meta_buffer: Vec<SyntaxKind>,
     _segments: &[ErasedSegment],
-) -> Vec<(u32, IndentChange)> {
+) -> Vec<(u32, SyntaxKind)> {
     let meta_idx =
         if meta_buffer.iter().all(|it| it.indent_val() >= 0) { tpre_nc_idx } else { post_nc_idx };
     meta_buffer.into_iter().map(|it| (meta_idx, it)).collect()

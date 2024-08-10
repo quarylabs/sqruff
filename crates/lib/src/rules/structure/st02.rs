@@ -2,7 +2,7 @@ use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -128,7 +128,8 @@ from fancy_table
                         && then_expression_upper != else_expression_upper
                     {
                         let coalesce_arg_1 = condition_expression.clone();
-                        let coalesce_arg_2 = TokenData::keyword(context.tables.next_id(), "false");
+                        let coalesce_arg_2 =
+                            SegmentBuilder::keyword(context.tables.next_id(), "false");
                         let preceding_not = then_expression_upper == "FALSE";
 
                         let fixes = Self::coalesce_fix_list(
@@ -269,20 +270,25 @@ impl RuleST02 {
         preceding_not: bool,
     ) -> Vec<LintFix> {
         let mut edits = vec![
-            TokenData::of(context.tables.next_id(), "coalesce", SyntaxKind::FunctionNameIdentifier),
-            TokenData::symbol(context.tables.next_id(), "("),
+            SegmentBuilder::token(
+                context.tables.next_id(),
+                "coalesce",
+                SyntaxKind::FunctionNameIdentifier,
+            )
+            .finish(),
+            SegmentBuilder::symbol(context.tables.next_id(), "("),
             coalesce_arg_1,
-            TokenData::symbol(context.tables.next_id(), ","),
-            TokenData::whitespace(context.tables.next_id(), " "),
+            SegmentBuilder::symbol(context.tables.next_id(), ","),
+            SegmentBuilder::whitespace(context.tables.next_id(), " "),
             coalesce_arg_2,
-            TokenData::symbol(context.tables.next_id(), ")"),
+            SegmentBuilder::symbol(context.tables.next_id(), ")"),
         ];
 
         if preceding_not {
             edits = chain(
                 [
-                    TokenData::keyword(context.tables.next_id(), "not"),
-                    TokenData::whitespace(context.tables.next_id(), " "),
+                    SegmentBuilder::keyword(context.tables.next_id(), "not"),
+                    SegmentBuilder::whitespace(context.tables.next_id(), " "),
                 ],
                 edits,
             )

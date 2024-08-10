@@ -7,11 +7,11 @@ use smol_str::SmolStr;
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::{ObjectReferenceSegment, Tables};
+use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
@@ -251,13 +251,9 @@ fn validate_one_reference(
         vec![LintFix::create_before(
             if !ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
             vec![
-                TokenData::create(
-                    tables.next_id(),
-                    table_ref_str,
-                    None,
-                    TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
-                ),
-                TokenData::symbol(tables.next_id(), "."),
+                SegmentBuilder::token(tables.next_id(), table_ref_str, SyntaxKind::NakedIdentifier)
+                    .finish(),
+                SegmentBuilder::symbol(tables.next_id(), "."),
             ],
         )]
     } else {

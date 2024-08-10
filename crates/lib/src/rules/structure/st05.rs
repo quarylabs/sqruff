@@ -10,13 +10,12 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::dialects::init::DialectKind;
 use crate::core::linter::linter::compute_anchor_edit_info;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::{Node, ObjectReferenceLevel, Tables};
+use crate::dialects::ansi::ObjectReferenceLevel;
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::ToErasedSegment;
 use crate::utils::analysis::query::{Query, Selectable};
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::context::FunctionalContext;
@@ -161,14 +160,13 @@ join c using(x)
             local_fixes.push(LintFix::replace(
                 this_seg_clone.clone(),
                 vec![
-                    Node::new(
+                    SegmentBuilder::node(
                         context.tables.next_id(),
-                        context.dialect.name,
                         this_seg_clone.get_type(),
+                        context.dialect.name,
                         vec![new_table_ref],
-                        false,
                     )
-                    .to_erased_segment(),
+                    .finish(),
                 ],
                 None,
             ));
@@ -437,13 +435,8 @@ impl CTEBuilder {
 
             if ctes.peek().is_some() {
                 cte_segments.extend([
-                    TokenData::of(tables.next_id(), ",", SyntaxKind::Comma),
-                    TokenData::create(
-                        tables.next_id(),
-                        "\n",
-                        None,
-                        TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                    ),
+                    SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
+                    SegmentBuilder::newline(tables.next_id(), "\n"),
                 ]);
             }
         }
@@ -460,19 +453,14 @@ impl CTEBuilder {
     ) -> ErasedSegment {
         let mut segments = vec![
             segmentify(tables, "WITH", case_preference),
-            TokenData::whitespace(tables.next_id(), " "),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
         ];
         segments.extend(self.get_cte_segments(tables));
-        segments.push(TokenData::create(
-            tables.next_id(),
-            "\n",
-            None,
-            TokenDataNewArgs { code_type: SyntaxKind::Newline },
-        ));
+        segments.push(SegmentBuilder::newline(tables.next_id(), "\n"));
         segments.push(output_select_clone);
 
-        Node::new(tables.next_id(), dialect, SyntaxKind::WithCompoundStatement, segments, false)
-            .to_erased_segment()
+        SegmentBuilder::node(tables.next_id(), SyntaxKind::WithCompoundStatement, dialect, segments)
+            .finish()
     }
 }
 
@@ -500,7 +488,7 @@ impl CTEBuilder {
             if missing_space_after_from {
                 fixes.push(LintFix::create_after(
                     from_segment.unwrap().base[0].clone(),
-                    vec![TokenData::whitespace(tables.next_id(), " ")],
+                    vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
                     None,
                 ))
             }
@@ -672,7 +660,7 @@ fn segmentify(tables: &Tables, input_el: &str, casing: Case) -> ErasedSegment {
     if casing == Case::Upper {
         input_el = input_el.to_uppercase_smolstr();
     }
-    TokenData::keyword(tables.next_id(), &input_el)
+    SegmentBuilder::keyword(tables.next_id(), &input_el)
 }
 
 fn create_cte_seg(
@@ -682,50 +670,45 @@ fn create_cte_seg(
     case_preference: Case,
     dialect: &Dialect,
 ) -> ErasedSegment {
-    Node::new(
+    SegmentBuilder::node(
         tables.next_id(),
-        dialect.name,
         SyntaxKind::CommonTableExpression,
+        dialect.name,
         vec![
-            TokenData::create(
-                tables.next_id(),
-                &alias_name,
-                None,
-                TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
-            ),
-            TokenData::whitespace(tables.next_id(), " "),
+            SegmentBuilder::token(tables.next_id(), &alias_name, SyntaxKind::NakedIdentifier)
+                .finish(),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
             segmentify(tables, "AS", case_preference),
-            TokenData::whitespace(tables.next_id(), " "),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
             subquery,
         ],
-        false,
     )
-    .to_erased_segment()
+    .finish()
 }
 
 fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> ErasedSegment {
-    Node::new(
+    SegmentBuilder::node(
         tables.next_id(),
-        dialect.name,
         SyntaxKind::TableExpression,
+        dialect.name,
         vec![
-            Node::new(
+            SegmentBuilder::node(
                 tables.next_id(),
-                dialect.name,
                 SyntaxKind::TableReference,
-                vec![TokenData::create(
-                    tables.next_id(),
-                    table_name,
-                    None,
-                    TokenDataNewArgs { code_type: SyntaxKind::NakedIdentifier },
-                )],
-                false,
+                dialect.name,
+                vec![
+                    SegmentBuilder::token(
+                        tables.next_id(),
+                        table_name,
+                        SyntaxKind::NakedIdentifier,
+                    )
+                    .finish(),
+                ],
             )
-            .to_erased_segment(),
+            .finish(),
         ],
-        false,
     )
-    .to_erased_segment()
+    .finish()
 }
 
 pub struct SegmentCloneMap {

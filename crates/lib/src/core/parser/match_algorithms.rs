@@ -9,7 +9,6 @@ use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::Matchable;
 use super::segments::base::ErasedSegment;
 use crate::core::errors::SQLParseError;
-use crate::core::parser::segments::meta::IndentChange;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
 pub fn skip_start_index_forward_to_code(
@@ -289,8 +288,8 @@ pub fn resolve_bracket(
                 let match_span = match_result.span;
                 let persists = bracket_persists[type_idx];
                 let insert_segments = vec![
-                    (opening_match.span.end, IndentChange::Indent),
-                    (match_result.span.start, IndentChange::Dedent),
+                    (opening_match.span.end, SyntaxKind::Indent),
+                    (match_result.span.start, SyntaxKind::Dedent),
                 ];
 
                 child_matches.push(match_result);

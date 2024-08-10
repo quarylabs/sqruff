@@ -1,7 +1,7 @@
 use ahash::{AHashMap, AHashSet};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -89,8 +89,10 @@ SELECT * FROM zoo
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
                     if elem.is_type(SyntaxKind::Newline) {
                         break;
-                    } else if !(elem.is_type(SyntaxKind::Indent)
-                        || elem.is_type(SyntaxKind::Dedent)
+                    } else if !(matches!(
+                        elem.get_type(),
+                        SyntaxKind::Indent | SyntaxKind::Implicit
+                    ) || elem.is_type(SyntaxKind::Dedent)
                         || elem.is_type(SyntaxKind::Whitespace))
                     {
                         contains_non_whitespace = true;
@@ -104,12 +106,7 @@ SELECT * FROM zoo
                     seg.clone().into(),
                     vec![LintFix::create_before(
                         seg,
-                        vec![TokenData::create(
-                            context.tables.next_id(),
-                            "\n",
-                            None,
-                            TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                        )],
+                        vec![SegmentBuilder::newline(context.tables.next_id(), "\n")],
                     )],
                     None,
                     None,

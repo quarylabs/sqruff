@@ -1,9 +1,9 @@
 use super::context::ParseContext;
 use super::helpers::check_still_complete;
-use super::segments::base::{pos_marker, ErasedSegment};
+use super::segments::base::{pos_marker, ErasedSegment, Tables};
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLParseError;
-use crate::dialects::ansi::{FileSegment, Tables};
+use crate::dialects::ansi::FileSegment;
 
 /// Instantiates parsed queries from a sequence of lexed raw segments.
 pub struct Parser<'a> {
@@ -68,7 +68,7 @@ impl<'a> Parser<'a> {
 mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::linter::Linter;
-    use crate::dialects::ansi::Tables;
+    use crate::core::parser::segments::base::Tables;
 
     #[test]
     #[ignore]

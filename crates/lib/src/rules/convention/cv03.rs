@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
@@ -113,7 +113,7 @@ FROM foo
         } else if self.select_clause_trailing_comma == "require"
             && !last_content.is_type(SyntaxKind::Comma)
         {
-            let new_comma = TokenData::symbol(rule_cx.tables.next_id(), ",");
+            let new_comma = SegmentBuilder::symbol(rule_cx.tables.next_id(), ",");
 
             let fix: Vec<LintFix> = vec![LintFix::replace(
                 last_content.clone(),

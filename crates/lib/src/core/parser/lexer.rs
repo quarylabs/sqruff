@@ -5,14 +5,13 @@ use std::ops::Range;
 use fancy_regex::Regex;
 
 use super::markers::PositionMarker;
-use super::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use super::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLLexError, ValueError};
-use crate::core::parser::segments::base::Segment;
+use crate::core::parser::segments::base::Tables;
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::Tables;
 use crate::dialects::SyntaxKind;
 
 /// An element matched during lexing.
@@ -59,12 +58,7 @@ impl<'a> TemplateElement<'a> {
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
         let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
-        TokenData::create(
-            0,
-            slice,
-            Some(pos_marker),
-            TokenDataNewArgs { code_type: self.matcher.syntax_kind },
-        )
+        SegmentBuilder::token(0, slice, self.matcher.syntax_kind).with_position(pos_marker).finish()
     }
 }
 
@@ -355,7 +349,7 @@ impl<'a> Lexer<'a> {
     /// TODO: Taking in an iterator, also can make the typing better than use
     /// unwrap.
     #[allow(dead_code)]
-    fn violations_from_segments(segments: Vec<impl Segment>) -> Vec<SQLLexError> {
+    fn violations_from_segments(segments: Vec<ErasedSegment>) -> Vec<SQLLexError> {
         segments
             .into_iter()
             .filter(|s| s.is_type(SyntaxKind::Unlexable))
@@ -442,12 +436,11 @@ impl<'a> Lexer<'a> {
             .unwrap_or_else(|| {
                 PositionMarker::from_point(0, 0, templated_file.clone(), None, None)
             });
-        segments.push(TokenData::create(
-            0,
-            "",
-            Some(position_maker),
-            TokenDataNewArgs { code_type: SyntaxKind::EndOfFile },
-        ));
+        segments.push(
+            SegmentBuilder::token(0, "", SyntaxKind::EndOfFile)
+                .with_position(position_maker)
+                .finish(),
+        );
 
         segments
     }

@@ -3,7 +3,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::linter::Linter;
-use sqruff_lib::dialects::ansi::Tables;
+use sqruff_lib::core::parser::segments::base::Tables;
 
 #[cfg(all(
     not(target_os = "windows"),

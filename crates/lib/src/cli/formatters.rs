@@ -313,7 +313,7 @@ mod tests {
     use crate::core::config::Value;
     use crate::core::errors::SQLLintError;
     use crate::core::parser::markers::PositionMarker;
-    use crate::core::parser::segments::base::{TokenData, TokenDataNewArgs};
+    use crate::core::parser::segments::base::SegmentBuilder;
     use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
@@ -399,19 +399,15 @@ mod tests {
             }
         }
 
-        let s = TokenData::create(
-            0,
-            "foobarbar",
-            PositionMarker::new(
+        let s = SegmentBuilder::token(0, "foobarbar", SyntaxKind::Word)
+            .with_position(PositionMarker::new(
                 10..19,
                 10..19,
                 TemplatedFile::from_string("      \n\n  foobarbar".into()),
                 None,
                 None,
-            )
-            .into(),
-            TokenDataNewArgs { code_type: SyntaxKind::Word },
-        );
+            ))
+            .finish();
 
         let mut v = SQLLintError::new("DESC", s);
 

@@ -1,7 +1,7 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, TokenData, TokenDataNewArgs};
+use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use crate::core::rules::base::{
     Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups,
 };
@@ -153,12 +153,7 @@ Add trailing newline to the end. The $ character represents end of file.
                 segment.first().unwrap().clone().into(),
                 vec![LintFix::create_after(
                     fix_anchor_segment,
-                    vec![TokenData::create(
-                        context.tables.next_id(),
-                        "\n",
-                        None,
-                        TokenDataNewArgs { code_type: SyntaxKind::Newline },
-                    )],
+                    vec![SegmentBuilder::newline(context.tables.next_id(), "\n")],
                     None,
                 )],
                 None,

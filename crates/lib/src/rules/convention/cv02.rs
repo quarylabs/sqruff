@@ -1,12 +1,11 @@
 use ahash::AHashMap;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::TokenData;
+use crate::core::parser::segments::base::SegmentBuilder;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::Config;
 
 /// Prefer using `COALESCE` over `IFNULL` or `NVL`.
 ///
@@ -96,12 +95,12 @@ FROM baz;
         let fix = LintFix::replace(
             context.segment.clone(),
             vec![
-                TokenData::of(
+                SegmentBuilder::token(
                     context.tables.next_id(),
                     "COALESCE",
                     SyntaxKind::FunctionNameIdentifier,
                 )
-                .config(|this| this.get_mut().set_id(context.tables.next_id())),
+                .finish(),
             ],
             None,
         );

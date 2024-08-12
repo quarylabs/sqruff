@@ -20,11 +20,11 @@ impl RuleAL06 {
 
         for from_expression_element in from_expression_elements {
             let table_ref = from_expression_element
-                .child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) })
+                .child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) })
                 .and_then(|table_expression| {
                     table_expression.child(
                         const {
-                            SyntaxSet::new(&[
+                            &SyntaxSet::new(&[
                                 SyntaxKind::ObjectReference,
                                 SyntaxKind::TableReference,
                             ])
@@ -37,14 +37,14 @@ impl RuleAL06 {
             };
 
             let Some(alias_exp_ref) = from_expression_element
-                .child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
+                .child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
             else {
                 return Vec::new();
             };
 
             if let Some(min_alias_length) = self.min_alias_length {
                 if let Some(alias_identifier_ref) =
-                    alias_exp_ref.child(const { SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
+                    alias_exp_ref.child(const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
                 {
                     let alias_identifier = alias_identifier_ref.raw();
                     if alias_identifier.len() < min_alias_length {
@@ -65,7 +65,7 @@ impl RuleAL06 {
 
             if let Some(max_alias_length) = self.max_alias_length {
                 if let Some(alias_identifier_ref) =
-                    alias_exp_ref.child(const { SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
+                    alias_exp_ref.child(const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) })
                 {
                     let alias_identifier = alias_identifier_ref.raw();
 
@@ -149,7 +149,7 @@ JOIN
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let children = FunctionalContext::new(context.clone()).segment().children(None);
         let from_expression_elements = children
-            .recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }, true);
+            .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }, true);
         self.lint_aliases(from_expression_elements.base)
     }
 

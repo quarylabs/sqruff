@@ -421,18 +421,18 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
     let main_extracted = if let Some(from_clause) = query.inner.borrow().selectables[0]
         .selectable
-        .child(const { SyntaxSet::single(SyntaxKind::FromClause) })
+        .child(const { &SyntaxSet::single(SyntaxKind::FromClause) })
     {
         let has_group_by = query.inner.borrow().selectables[0]
             .selectable
-            .child(const { SyntaxSet::single(SyntaxKind::GroupbyClause) })
+            .child(const { &SyntaxSet::single(SyntaxKind::GroupbyClause) })
             .is_some();
 
         let relation = from_clause
             .recursive_crawl(
-                const { SyntaxSet::single(SyntaxKind::FromExpressionElement) },
+                const { &SyntaxSet::single(SyntaxKind::FromExpressionElement) },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 false,
             )
             .into_iter()
@@ -441,13 +441,13 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
         let select_clause = query.inner.borrow().selectables[0]
             .selectable
-            .child(const { SyntaxSet::single(SyntaxKind::SelectClause) })
+            .child(const { &SyntaxSet::single(SyntaxKind::SelectClause) })
             .unwrap();
 
         let select_clause_elements = select_clause.recursive_crawl(
-            const { SyntaxSet::single(SyntaxKind::SelectClauseElement) },
+            const { &SyntaxSet::single(SyntaxKind::SelectClauseElement) },
             false,
-            None,
+            &SyntaxSet::EMPTY,
             false,
         );
 
@@ -455,9 +455,9 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
         let mut extracted_tables = vec![extracted_table];
 
         let joins = from_clause.recursive_crawl(
-            const { SyntaxSet::single(SyntaxKind::JoinClause) },
+            const { &SyntaxSet::single(SyntaxKind::JoinClause) },
             true,
-            None,
+            &SyntaxSet::EMPTY,
             false,
         );
         if !joins.is_empty() {
@@ -488,18 +488,18 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
             for select_clause_element in select_clause_elements {
                 if let Some(alias) = select_clause_element
-                    .child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
                 {
                     let raw_segments = alias.get_raw_segments();
                     let alias = raw_segments.iter().rev().find(|it| it.is_code()).unwrap();
 
                     if let Some(expr) = select_clause_element
-                        .child(const { SyntaxSet::single(SyntaxKind::Expression) })
+                        .child(const { &SyntaxSet::single(SyntaxKind::Expression) })
                     {
                         if expr
                             .child(
                                 const {
-                                    SyntaxSet::new(&[
+                                    &SyntaxSet::new(&[
                                         SyntaxKind::CastExpression,
                                         SyntaxKind::CaseExpression,
                                     ])
@@ -518,15 +518,15 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                     }
 
                     if let Some(function) = select_clause_element
-                        .child(const { SyntaxSet::single(SyntaxKind::Function) })
+                        .child(const { &SyntaxSet::single(SyntaxKind::Function) })
                     {
                         let name = function
-                            .child(const { SyntaxSet::single(SyntaxKind::FunctionName) })
+                            .child(const { &SyntaxSet::single(SyntaxKind::FunctionName) })
                             .unwrap()
                             .raw()
                             .to_string();
                         let args = function
-                            .child(const { SyntaxSet::single(SyntaxKind::Bracketed) })
+                            .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
                             .unwrap();
                         let args = fn_args(args);
 
@@ -711,7 +711,7 @@ fn avg_min_max_function_parser(
     group_by: bool,
 ) -> Result<(), String> {
     if let Some(column_reference) =
-        first_arg.child(const { SyntaxSet::single(SyntaxKind::ColumnReference) })
+        first_arg.child(const { &SyntaxSet::single(SyntaxKind::ColumnReference) })
     {
         let out = extracted_tables.get_source(column_reference.raw().as_ref())?;
         if let UnderlyingColumn((source, column)) = out {
@@ -754,8 +754,9 @@ fn extract_extracted_from_joins(
 
     if joins.iter().cloned().all(|it| join_operator(it).eq_ignore_ascii_case("left outer")) {
         for join in joins {
-            let relation =
-                join.child(const { SyntaxSet::single(SyntaxKind::FromExpressionElement) }).unwrap();
+            let relation = join
+                .child(const { &SyntaxSet::single(SyntaxKind::FromExpressionElement) })
+                .unwrap();
             let extracted_table = extract_table(&relation, dialect)?;
             match extracted_table {
                 Extracted::AliasedStar(alias, _) => {
@@ -777,8 +778,9 @@ fn extract_extracted_from_joins(
     for join in joins {
         let join_operator = join_operator(join.clone());
         if join_operator.eq_ignore_ascii_case("inner") {
-            let relation =
-                join.child(const { SyntaxSet::single(SyntaxKind::FromExpressionElement) }).unwrap();
+            let relation = join
+                .child(const { &SyntaxSet::single(SyntaxKind::FromExpressionElement) })
+                .unwrap();
             let extracted_table = extract_table(&relation, dialect)?;
             extracted.push(extracted_table);
         } else {
@@ -976,14 +978,14 @@ fn extract_table(
     dialect: &sqruff_lib::core::dialects::base::Dialect,
 ) -> Result<Extracted, String> {
     if let Some(table_expression) =
-        table_factor.child(const { SyntaxSet::single(SyntaxKind::TableExpression) })
+        table_factor.child(const { &SyntaxSet::single(SyntaxKind::TableExpression) })
     {
         if table_expression.segments()[0].get_type() == SyntaxKind::Bracketed {
             let subquery = table_expression
                 .recursive_crawl(
-                    const { SyntaxSet::single(SyntaxKind::SelectStatement) },
+                    const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
                     true,
-                    None,
+                    &SyntaxSet::EMPTY,
                     true,
                 )
                 .into_iter()
@@ -1007,9 +1009,9 @@ fn extract_table(
 
         if let Some(alias) = table_factor
             .recursive_crawl(
-                const { SyntaxSet::single(SyntaxKind::AliasExpression) },
+                const { &SyntaxSet::single(SyntaxKind::AliasExpression) },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 false,
             )
             .into_iter()

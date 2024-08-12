@@ -243,7 +243,7 @@ impl RuleLT09 {
             {
                 let mut start_seg = select_targets_info.select_idx.unwrap();
                 let modifier =
-                    segment.child(const { SyntaxSet::new(&[SyntaxKind::SelectClauseModifier]) });
+                    segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseModifier]) });
 
                 if let Some(modifier) = modifier {
                     start_seg = segment.segments().iter().position(|it| it == &modifier).unwrap();

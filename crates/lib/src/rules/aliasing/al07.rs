@@ -67,21 +67,21 @@ impl RuleAL07 {
                 }
 
                 let select_clause =
-                    segment.child(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).unwrap();
+                    segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) }).unwrap();
                 let mut ids_refs = Vec::new();
 
                 let alias_name = alias_identifier_ref.raw();
                 if !alias_name.is_empty() {
                     // Find all references to alias in select clause
                     for alias_with_column in select_clause.recursive_crawl(
-                        const { SyntaxSet::new(&[SyntaxKind::ObjectReference]) },
+                        const { &SyntaxSet::new(&[SyntaxKind::ObjectReference]) },
                         true,
-                        None,
+                        &SyntaxSet::EMPTY,
                         true,
                     ) {
                         if let Some(used_alias_ref) = alias_with_column.child(
                             const {
-                                SyntaxSet::new(&[
+                                &SyntaxSet::new(&[
                                     SyntaxKind::Identifier,
                                     SyntaxKind::NakedIdentifier,
                                 ])
@@ -97,7 +97,7 @@ impl RuleAL07 {
                     for exp_ref in column_reference_segments.clone() {
                         if let Some(used_alias_ref) = exp_ref.child(
                             const {
-                                SyntaxSet::new(&[
+                                &SyntaxSet::new(&[
                                     SyntaxKind::Identifier,
                                     SyntaxKind::NakedIdentifier,
                                 ])
@@ -105,7 +105,7 @@ impl RuleAL07 {
                         ) {
                             if used_alias_ref.raw() == alias_name
                                 && exp_ref
-                                    .child(const { SyntaxSet::new(&[SyntaxKind::Dot]) })
+                                    .child(const { &SyntaxSet::new(&[SyntaxKind::Dot]) })
                                     .is_some()
                             {
                                 ids_refs.push(used_alias_ref);
@@ -165,13 +165,13 @@ impl RuleAL07 {
 
         for from_expression in from_expression_elements {
             let table_expression =
-                from_expression.child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) });
+                from_expression.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) });
             let Some(table_expression) = table_expression else {
                 continue;
             };
 
             let table_ref =
-                table_expression.child(const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) });
+                table_expression.child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) });
             let Some(table_ref) = table_ref else {
                 continue;
             };
@@ -183,16 +183,16 @@ impl RuleAL07 {
             }
 
             let whitespace_ref =
-                from_expression.child(const { SyntaxSet::new(&[SyntaxKind::Whitespace]) });
+                from_expression.child(const { &SyntaxSet::new(&[SyntaxKind::Whitespace]) });
 
             let alias_exp_ref =
-                from_expression.child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
+                from_expression.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
             let Some(alias_exp_ref) = alias_exp_ref else {
                 continue;
             };
 
             let alias_identifier_ref = alias_exp_ref.child(
-                const { SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
+                const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
             );
 
             acc.push(TableAliasInfo {
@@ -297,18 +297,18 @@ FROM
         );
         for clause in chain(from_clause_segment, after_from_clause) {
             for from_expression_element in clause.recursive_crawl(
-                const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
+                const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 true,
             ) {
                 from_expression_elements.push(from_expression_element);
             }
 
             for from_expression_element in clause.recursive_crawl(
-                const { SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
+                const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 true,
             ) {
                 column_reference_segments.push(from_expression_element);

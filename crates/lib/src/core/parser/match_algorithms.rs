@@ -53,7 +53,7 @@ pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
 pub fn first_non_whitespace(
     segments: &[ErasedSegment],
     start_idx: u32,
-) -> Option<(String, SyntaxSet)> {
+) -> Option<(String, &SyntaxSet)> {
     for segment in segments.iter().skip(start_idx as usize) {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
@@ -226,9 +226,8 @@ fn next_match(
         let idxs = raw_simple_map.get(&first_trimmed_raw(seg)).cloned().unwrap_or_default();
         let mut matcher_idxs = Vec::from_iter(idxs);
 
-        let class_types = seg.class_types();
         let keys = type_simple_map.keys().copied().collect();
-        let type_overlap = class_types.intersection(&keys);
+        let type_overlap = seg.class_types().clone().intersection(&keys);
 
         for typ in type_overlap {
             matcher_idxs.extend(type_simple_map[&typ].clone());

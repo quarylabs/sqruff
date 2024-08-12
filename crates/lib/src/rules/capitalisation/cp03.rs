@@ -107,7 +107,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[
+        SegmentSeekerCrawler::new(const {SyntaxSet::new(&[
             SyntaxKind::FunctionNameIdentifier,
             SyntaxKind::BareFunction,
         ]) })

@@ -594,7 +594,7 @@ impl SyntaxKind {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct SyntaxSet([u64; 9]);
 
 impl SyntaxSet {
@@ -698,7 +698,7 @@ impl SyntaxSet {
     }
 
     pub fn iter(&self) -> SyntaxSetIter {
-        SyntaxSetIter { set: *self, index: 0 }
+        SyntaxSetIter { set: self.clone(), index: 0 }
     }
 }
 

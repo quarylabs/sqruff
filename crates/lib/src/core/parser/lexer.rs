@@ -57,8 +57,10 @@ impl<'a> TemplateElement<'a> {
         pos_marker: PositionMarker,
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
-        let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
-        SegmentBuilder::token(0, slice, self.matcher.syntax_kind).with_position(pos_marker).finish()
+        let slice = subslice.map(|slice| &self.raw[slice]);
+        SegmentBuilder::token_inner(0, slice, self.matcher.syntax_kind)
+            .with_position(pos_marker)
+            .finish()
     }
 }
 

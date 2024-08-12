@@ -64,12 +64,16 @@ impl SegmentBuilder {
     }
 
     pub fn token(id: u32, raw: &str, syntax_kind: SyntaxKind) -> Self {
+        Self::token_inner(id, Some(raw), syntax_kind)
+    }
+
+    pub(crate) fn token_inner(id: u32, raw: Option<&str>, syntax_kind: SyntaxKind) -> Self {
         SegmentBuilder {
             node_or_token: NodeOrToken {
                 id,
                 syntax_kind,
                 position_marker: None,
-                kind: NodeOrTokenKind::Token(TokenData { raw: raw.into() }),
+                kind: NodeOrTokenKind::Token(TokenData { raw: raw.map(Into::into) }),
             },
         }
     }
@@ -128,7 +132,10 @@ impl ErasedSegment {
                 .raw
                 .get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join(""))
                 .into(),
-            NodeOrTokenKind::Token(token) => token.raw.as_str().into(),
+            NodeOrTokenKind::Token(token) => match &token.raw {
+                None => self.get_position_marker().unwrap().source_str().into(),
+                Some(raw) => raw.as_str().into(),
+            },
         }
     }
 
@@ -463,7 +470,7 @@ impl ErasedSegment {
                 todo!()
             }
             NodeOrTokenKind::Token(token) => {
-                let raw = raw.as_deref().unwrap_or(token.raw.as_ref());
+                let raw = raw.as_deref().or(token.raw.as_deref()).unwrap_or_default();
                 SegmentBuilder::token(id, raw, self.value.syntax_kind)
                     .with_position(self.get_position_marker().unwrap().clone())
                     .finish()
@@ -970,7 +977,7 @@ pub struct NodeData {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TokenData {
-    raw: SmolStr,
+    raw: Option<SmolStr>,
 }
 
 #[track_caller]

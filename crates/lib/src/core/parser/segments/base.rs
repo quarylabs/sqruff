@@ -471,14 +471,6 @@ impl ErasedSegment {
         }
     }
 
-    pub(crate) fn instance_types(&self) -> SyntaxSet {
-        SyntaxSet::EMPTY
-    }
-
-    pub(crate) fn combined_types(&self) -> SyntaxSet {
-        self.instance_types().union(self.class_types())
-    }
-
     pub(crate) fn class_types(&self) -> &SyntaxSet {
         &self.value.class_types
     }
@@ -981,15 +973,11 @@ pub struct PathStep {
 
 fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {
     match syntax_kind {
-        SyntaxKind::ColumnReference => {
-            SyntaxSet::new(&[SyntaxKind::ObjectReference, syntax_kind])
-        }
+        SyntaxKind::ColumnReference => SyntaxSet::new(&[SyntaxKind::ObjectReference, syntax_kind]),
         SyntaxKind::WildcardIdentifier => {
             SyntaxSet::new(&[SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference])
         }
-        SyntaxKind::TableReference => {
-            SyntaxSet::new(&[SyntaxKind::ObjectReference, syntax_kind])
-        }
+        SyntaxKind::TableReference => SyntaxSet::new(&[SyntaxKind::ObjectReference, syntax_kind]),
         _ => SyntaxSet::single(syntax_kind),
     }
 }

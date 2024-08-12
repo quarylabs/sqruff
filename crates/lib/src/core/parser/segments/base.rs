@@ -193,7 +193,7 @@ impl ErasedSegment {
 
         if recurse_into || !matches {
             for seg in self.segments() {
-                if no_recursive_types.is_empty() || no_recursive_types.contains(seg.get_type()) {
+                if no_recursive_types.is_empty() || !no_recursive_types.contains(seg.get_type()) {
                     let segments =
                         seg.recursive_crawl(types, recurse_into, no_recursive_types, true);
                     acc.extend(segments);

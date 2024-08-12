@@ -141,7 +141,7 @@ impl ReflowConfig {
         block_class_types: &SyntaxSet,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
-        let configured_types = block_class_types.intersection(&self.config_types);
+        let configured_types = block_class_types.clone().intersection(&self.config_types);
 
         let mut block_config = BlockConfig::new();
 
@@ -172,10 +172,11 @@ impl ReflowConfig {
                 let parent_classes =
                     &depth_info.stack_class_types[depth_info.stack_class_types.len() - 1 - idx];
 
-                let configured_parent_types = self.config_types.intersection(parent_classes);
+                let configured_parent_types =
+                    self.config_types.clone().intersection(parent_classes);
 
                 if parent_start {
-                    for seg_type in configured_parent_types {
+                    for seg_type in configured_parent_types.clone() {
                         let before = self
                             .configs
                             .get(&seg_type)

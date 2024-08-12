@@ -111,14 +111,14 @@ impl RuleCV06 {
         for comment_segment in parent_segment
             .recursive_crawl(
                 const {
-                    SyntaxSet::new(&[
+                    &SyntaxSet::new(&[
                         SyntaxKind::Comment,
                         SyntaxKind::InlineComment,
                         SyntaxKind::BlockComment,
                     ])
                 },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 false,
             )
             .iter()
@@ -146,7 +146,12 @@ impl RuleCV06 {
         match statement_segment {
             None => false,
             Some(statement_segment) => statement_segment
-                .recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::Newline]) }, true, None, true)
+                .recursive_crawl(
+                    const { &SyntaxSet::new(&[SyntaxKind::Newline]) },
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
                 .is_empty(),
         }
     }

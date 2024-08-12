@@ -83,10 +83,10 @@ left join bar
         let mut table_aliases = Vec::new();
         let children = FunctionalContext::new(context.clone()).segment().children(None);
         let join_clauses =
-            children.recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }, true);
+            children.recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }, true);
         let join_on_conditions = join_clauses
             .children(None)
-            .recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::JoinOnCondition]) }, true);
+            .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::JoinOnCondition]) }, true);
 
         if join_on_conditions.is_empty() {
             return Vec::new();
@@ -94,7 +94,7 @@ left join bar
 
         let from_expression_alias = FromExpressionElementSegment(
             children.recursive_crawl(
-                const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
+                const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
                 true,
             )[0]
             .clone(),
@@ -119,7 +119,7 @@ left join bar
 
         let join_on_condition_expressions = join_on_conditions
             .children(None)
-            .recursive_crawl(const { SyntaxSet::new(&[SyntaxKind::Expression]) }, true);
+            .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::Expression]) }, true);
 
         for expression in join_on_condition_expressions {
             let mut expression_group = Vec::new();
@@ -153,18 +153,24 @@ left join bar
             let first_column_reference = subcondition[0].clone();
             let second_column_reference = subcondition[2].clone();
             let raw_comparison_operators = comparison_operator
-                .children(const { SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) });
+                .children(const { &SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) });
             let first_table_seg = first_column_reference
                 .child(
                     const {
-                        SyntaxSet::new(&[SyntaxKind::NakedIdentifier, SyntaxKind::QuotedIdentifier])
+                        &SyntaxSet::new(&[
+                            SyntaxKind::NakedIdentifier,
+                            SyntaxKind::QuotedIdentifier,
+                        ])
                     },
                 )
                 .unwrap();
             let second_table_seg = second_column_reference
                 .child(
                     const {
-                        SyntaxSet::new(&[SyntaxKind::NakedIdentifier, SyntaxKind::QuotedIdentifier])
+                        &SyntaxSet::new(&[
+                            SyntaxKind::NakedIdentifier,
+                            SyntaxKind::QuotedIdentifier,
+                        ])
                     },
                 )
                 .unwrap();

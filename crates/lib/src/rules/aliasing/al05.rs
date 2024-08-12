@@ -152,18 +152,18 @@ impl RuleAL05 {
         dialect_name: DialectKind,
     ) -> bool {
         for segment in from_expression_element
-            .iter_segments(Some(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) }), false)
+            .iter_segments(Some(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }), false)
         {
             if segment.is_type(SyntaxKind::TableExpression) {
                 return if segment
-                    .child(const { SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
                     .is_some()
                 {
                     matches!(dialect_name, DialectKind::Snowflake)
                 } else {
                     segment
                         .iter_segments(
-                            Some(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) }),
+                            Some(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }),
                             false,
                         )
                         .iter()

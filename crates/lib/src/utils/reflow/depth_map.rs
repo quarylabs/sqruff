@@ -112,7 +112,7 @@ impl DepthInfo {
         let stack_hashes: Vec<u64> = stack.iter().map(|ps| ps.segment.hash_value()).collect();
         let stack_hash_set: IntSet<u64> = IntSet::from_iter(stack_hashes.clone());
 
-        let stack_class_types = stack.iter().map(|ps| ps.segment.class_types()).collect();
+        let stack_class_types = stack.iter().map(|ps| ps.segment.class_types().clone()).collect();
 
         let stack_positions: IntMap<u64, StackPosition> = zip(stack_hashes.iter(), stack.iter())
             .map(|(&hash, path)| (hash, StackPosition::from_path_step(path)))

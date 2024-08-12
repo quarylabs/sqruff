@@ -23,9 +23,9 @@ pub struct SelectStatementColumnsAndTables {
 pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
     segment
         .recursive_crawl(
-            const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+            const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
             true,
-            Some(const { SyntaxSet::single(SyntaxKind::SelectStatement) }),
+            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
             true,
         )
         .into_iter()
@@ -44,7 +44,7 @@ pub fn get_select_statement_info(
         return None;
     }
 
-    let sc = segment.child(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) })?;
+    let sc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })?;
     let mut reference_buffer = get_object_references(&sc);
     for potential_clause in [
         SyntaxKind::WhereClause,
@@ -53,29 +53,29 @@ pub fn get_select_statement_info(
         SyntaxKind::OrderbyClause,
         SyntaxKind::QualifyClause,
     ] {
-        let clause = segment.child(SyntaxSet::new(&[potential_clause]));
+        let clause = segment.child(&SyntaxSet::new(&[potential_clause]));
         if let Some(clause) = clause {
             reference_buffer.extend(get_object_references(&clause));
         }
     }
 
     let select_clause =
-        segment.child(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).unwrap();
+        segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) }).unwrap();
     let select_targets =
-        select_clause.children(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
+        select_clause.children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
     let select_targets =
         select_targets.iter().map(|it| SelectClauseElementSegment(it.clone())).collect_vec();
 
     let col_aliases = select_targets.iter().flat_map(|s| s.alias()).collect_vec();
 
     let mut using_cols: Vec<SmolStr> = Vec::new();
-    let fc = segment.child(const { SyntaxSet::new(&[SyntaxKind::FromClause]) });
+    let fc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::FromClause]) });
 
     if let Some(fc) = fc {
         for join_clause in fc.recursive_crawl(
-            const { SyntaxSet::new(&[SyntaxKind::JoinClause]) },
+            const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) },
             true,
-            Some(const { SyntaxSet::single(SyntaxKind::SelectStatement) }),
+            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
             true,
         ) {
             let mut seen_using = false;
@@ -122,7 +122,7 @@ pub fn get_aliases_from_select(
     segment: &ErasedSegment,
     dialect: Option<&Dialect>,
 ) -> (Vec<AliasInfo>, Vec<SmolStr>) {
-    let fc = segment.child(const { SyntaxSet::new(&[SyntaxKind::FromClause]) });
+    let fc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::FromClause]) });
     let Some(fc) = fc else {
         return (Vec::new(), Vec::new());
     };
@@ -159,9 +159,9 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
     };
 
     for function_name in table_expr.recursive_crawl(
-        const { SyntaxSet::new(&[SyntaxKind::FunctionName]) },
+        const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) },
         true,
-        None,
+        &SyntaxSet::EMPTY,
         true,
     ) {
         if dialect.sets("value_table_functions").contains(function_name.raw().to_uppercase().trim())
@@ -179,9 +179,9 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
     };
 
     let fc = segment.recursive_crawl(
-        const { SyntaxSet::new(&[SyntaxKind::FromPivotExpression]) },
+        const { &SyntaxSet::new(&[SyntaxKind::FromPivotExpression]) },
         true,
-        None,
+        &SyntaxSet::EMPTY,
         true,
     );
     if !fc.is_empty() {
@@ -190,9 +190,9 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
 
     let mut pivot_table_column_aliases = Vec::new();
     for pivot_table_column_alias in segment.recursive_crawl(
-        const { SyntaxSet::new(&[SyntaxKind::PivotColumnReference]) },
+        const { &SyntaxSet::new(&[SyntaxKind::PivotColumnReference]) },
         true,
-        None,
+        &SyntaxSet::EMPTY,
         true,
     ) {
         let raw = pivot_table_column_alias.raw().into();

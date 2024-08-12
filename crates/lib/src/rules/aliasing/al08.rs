@@ -72,12 +72,12 @@ FROM
         let mut violations = Vec::new();
 
         for clause_element in
-            context.segment.children(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
+            context.segment.children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
         {
             let mut column_alias = None;
 
             if let Some(alias_expression) =
-                clause_element.child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
+                clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
             {
                 for it in alias_expression.segments() {
                     if !it.is_code() || it.get_raw_upper().unwrap() == "AS" {
@@ -88,7 +88,7 @@ FROM
                     break;
                 }
             } else if let Some(column_reference) =
-                clause_element.child(const { SyntaxSet::new(&[SyntaxKind::ColumnReference]) })
+                clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) })
             {
                 column_alias = column_reference.segments().last().cloned();
             }

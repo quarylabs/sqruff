@@ -62,7 +62,7 @@ pub fn simple(
 
     let simple_raws: AHashSet<_> = simple_buff.iter().flat_map(|(raws, _)| raws).cloned().collect();
 
-    let simple_types: SyntaxSet = simple_buff.iter().flat_map(|(_, types)| *types).collect();
+    let simple_types: SyntaxSet = simple_buff.iter().flat_map(|(_, types)| types.clone()).collect();
 
     Some((simple_raws, simple_types))
 }

@@ -77,9 +77,9 @@ FROM cte1
             .collect();
 
         for reference in context.segment.recursive_crawl(
-            const { SyntaxSet::new(&[SyntaxKind::TableReference]) },
+            const { &SyntaxSet::new(&[SyntaxKind::TableReference]) },
             true,
-            Some(const { SyntaxSet::single(SyntaxKind::WithCompoundStatement) }),
+            const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
             true,
         ) {
             remaining_ctes.shift_remove(&reference.get_raw_upper().unwrap());

@@ -21,11 +21,11 @@ impl Segments {
         self.base.iter()
     }
 
-    pub fn recursive_crawl(&self, types: SyntaxSet, recurse_into: bool) -> Segments {
+    pub fn recursive_crawl(&self, types: &SyntaxSet, recurse_into: bool) -> Segments {
         let mut segments = Vec::new();
 
         for s in &self.base {
-            segments.extend(s.recursive_crawl(types, recurse_into, None, true));
+            segments.extend(s.recursive_crawl(types, recurse_into, &SyntaxSet::EMPTY, true));
         }
 
         Segments::from_vec(segments, self.templated_file.clone())

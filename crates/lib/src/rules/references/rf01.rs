@@ -224,9 +224,9 @@ FROM foo
 
         let dml_target_table = if !context.segment.is_type(SyntaxKind::SelectStatement) {
             let refs = context.segment.recursive_crawl(
-                const { SyntaxSet::new(&[SyntaxKind::TableReference]) },
+                const { &SyntaxSet::new(&[SyntaxKind::TableReference]) },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 true,
             );
             if let Some(reference) = refs.first() {

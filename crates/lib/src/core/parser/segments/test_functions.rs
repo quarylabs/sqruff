@@ -130,7 +130,7 @@ pub fn make_result_tuple(
                 if matcher_keywords.contains(&&*raw) {
                     SegmentBuilder::keyword(0, &raw).config(|this| {
                         this.get_mut()
-                            .set_position_marker(Some(elem.get_position_marker().unwrap()))
+                            .set_position_marker(Some(elem.get_position_marker().unwrap().clone()))
                     })
                 } else {
                     elem.clone()

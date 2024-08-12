@@ -93,7 +93,7 @@ impl SQLLintError {
         Self {
             base: SQLBaseError::new().config(|this| {
                 this.description = description.into();
-                this.set_position_marker(segment.get_position_marker().unwrap());
+                this.set_position_marker(segment.get_position_marker().unwrap().clone());
             }),
         }
     }
@@ -196,7 +196,7 @@ impl From<SQLParseError> for SQLBaseError {
     fn from(value: SQLParseError) -> Self {
         let (mut line_no, mut line_pos) = Default::default();
 
-        let pos_marker = value.segment.and_then(|segment| segment.get_position_marker());
+        let pos_marker = value.segment.as_ref().and_then(|segment| segment.get_position_marker());
 
         if let Some(pos_marker) = pos_marker {
             (line_no, line_pos) = pos_marker.source_position();

@@ -223,7 +223,7 @@ fn determine_aligned_inline_spacing(
     // If the segment we're aligning, has position. Use that position.
     // If it doesn't, then use the provided one. We can't do sibling analysis
     // without it.
-    if let Some(pos_marker) = &next_seg.get_position_marker() {
+    if let Some(pos_marker) = next_seg.get_position_marker() {
         next_pos = pos_marker.clone();
     }
 
@@ -340,7 +340,7 @@ pub fn handle_respace_inline_with_space(
             && let Some(next_block) = next_block
         {
             let next_pos = if let Some(pos_marker) = next_block.segments[0].get_position_marker() {
-                Some(pos_marker)
+                Some(pos_marker.clone())
             } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
                 Some(pos_marker.end_point_marker())
             } else if let Some(prev_block) = prev_block

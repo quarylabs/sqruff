@@ -181,7 +181,7 @@ impl MatchResult {
 
                 vec![
                     SegmentBuilder::token(old.id(), old.raw().as_ref(), kind)
-                        .with_position(old.get_position_marker().unwrap())
+                        .with_position(old.get_position_marker().unwrap().clone())
                         .finish(),
                 ]
             }

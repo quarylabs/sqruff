@@ -87,7 +87,9 @@ impl PositionMarker {
     }
 
     #[track_caller]
-    pub fn from_child_markers(markers: impl Iterator<Item = PositionMarker>) -> PositionMarker {
+    pub fn from_child_markers<'a>(
+        markers: impl Iterator<Item = &'a PositionMarker>,
+    ) -> PositionMarker {
         let mut source_start = usize::MAX;
         let mut source_end = usize::MIN;
         let mut template_start = usize::MAX;
@@ -99,7 +101,7 @@ impl PositionMarker {
             source_end = source_end.max(marker.source_slice.end);
             template_start = template_start.min(marker.templated_slice.start);
             template_end = template_end.max(marker.templated_slice.end);
-            templated_files.insert(marker.templated_file);
+            templated_files.insert(marker.templated_file.clone());
         }
 
         // FIXME:

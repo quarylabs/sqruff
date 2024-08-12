@@ -359,7 +359,7 @@ impl<'a> Lexer<'a> {
                         "Unable to lex characters: {}",
                         s.raw().chars().take(10).collect::<String>()
                     ),
-                    s.get_position_marker().unwrap(),
+                    s.get_position_marker().unwrap().clone(),
                 )
             })
             .collect()

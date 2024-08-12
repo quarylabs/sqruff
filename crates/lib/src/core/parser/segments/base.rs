@@ -212,7 +212,7 @@ impl ErasedSegment {
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => {
                 SegmentBuilder::node(self.value.id, self.value.syntax_kind, node.dialect, segments)
-                    .with_position(self.get_position_marker().unwrap())
+                    .with_position(self.get_position_marker().unwrap().clone())
                     .finish()
             }
             NodeOrTokenKind::Token(_) => self.deep_clone(),
@@ -361,18 +361,17 @@ impl ErasedSegment {
             return Vec::new();
         }
 
-        if self.get_position_marker().unwrap().is_literal() {
+        let pos_marker = self.get_position_marker().unwrap();
+        if pos_marker.is_literal() {
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(
-                self.get_position_marker().unwrap().templated_slice,
+                pos_marker.templated_slice.clone(),
                 self.raw().into(),
                 // SyntaxKind::Literal.into(),
-                self.get_position_marker().unwrap().source_slice,
-                templated_file.templated_str.as_ref().unwrap()
-                    [self.get_position_marker().unwrap().templated_slice]
+                pos_marker.source_slice.clone(),
+                templated_file.templated_str.as_ref().unwrap()[pos_marker.templated_slice.clone()]
                     .to_string(),
-                templated_file.source_str[self.get_position_marker().unwrap().source_slice]
-                    .to_string(),
+                templated_file.source_str[pos_marker.source_slice.clone()].to_string(),
             ));
         }
 
@@ -417,8 +416,8 @@ impl ErasedSegment {
         )
     }
 
-    pub(crate) fn get_position_marker(&self) -> Option<PositionMarker> {
-        self.value.position_marker.clone()
+    pub(crate) fn get_position_marker(&self) -> Option<&PositionMarker> {
+        self.value.position_marker.as_ref()
     }
 
     pub(crate) fn gather_segments(&self) -> Vec<ErasedSegment> {
@@ -466,7 +465,7 @@ impl ErasedSegment {
             NodeOrTokenKind::Token(token) => {
                 let raw = raw.as_deref().unwrap_or(token.raw.as_ref());
                 SegmentBuilder::token(id, raw, self.value.syntax_kind)
-                    .with_position(self.get_position_marker().unwrap())
+                    .with_position(self.get_position_marker().unwrap().clone())
                     .finish()
             }
         }
@@ -719,7 +718,7 @@ impl ErasedSegment {
                     let mut s = s.deep_clone();
                     if f.edit_type == EditType::Replace && !consumed_pos && s.raw() == seg.raw() {
                         consumed_pos = true;
-                        s.get_mut().set_position_marker(seg.get_position_marker());
+                        s.get_mut().set_position_marker(seg.get_position_marker().cloned());
                     }
 
                     seg_buffer.push(s);
@@ -880,7 +879,7 @@ pub fn position_segments(
     for (idx, segment) in enumerate(segments) {
         let old_position = segment.get_position_marker();
 
-        let mut new_position = match old_position.clone() {
+        let mut new_position = match old_position {
             Some(pos_marker) => pos_marker.clone(),
             None => {
                 let start_point = if idx > 0 {
@@ -921,13 +920,12 @@ pub fn position_segments(
         (line_no, line_pos) =
             PositionMarker::infer_next_position(&segment.raw(), line_no, line_pos);
 
-        let mut new_seg =
-            if !segment.segments().is_empty() && old_position.as_ref() != Some(&new_position) {
-                let child_segments = position_segments(segment.segments(), &new_position);
-                segment.change_segments(child_segments)
-            } else {
-                segment.deep_clone()
-            };
+        let mut new_seg = if !segment.segments().is_empty() && old_position != Some(&new_position) {
+            let child_segments = position_segments(segment.segments(), &new_position);
+            segment.change_segments(child_segments)
+        } else {
+            segment.deep_clone()
+        };
 
         new_seg.get_mut().set_position_marker(new_position.into());
         segment_buffer.push(new_seg);

@@ -4866,7 +4866,7 @@ impl FileSegment {
         dialect: DialectKind,
         segments: Vec<ErasedSegment>,
     ) -> ErasedSegment {
-        SegmentBuilder::node(tables.next_id(), SyntaxKind::File, dialect, segments)
+        SegmentBuilder::node_inner(tables.next_id(), false, SyntaxKind::File, dialect, segments)
             .position_from_segments()
             .finish()
     }
@@ -4907,8 +4907,9 @@ impl FileSegment {
         let unmatched = &segments[match_span.end as usize..end_idx as usize];
 
         let content: &[ErasedSegment] = if !has_match {
-            &[SegmentBuilder::node(
+            &[SegmentBuilder::node_inner(
                 tables.next_id(),
+                false,
                 SyntaxKind::Unparsable,
                 dialect,
                 segments[start_idx as usize..end_idx as usize].to_vec(),
@@ -4921,9 +4922,15 @@ impl FileSegment {
 
             matched.extend_from_slice(head);
             matched.push(
-                SegmentBuilder::node(tables.next_id(), SyntaxKind::File, dialect, tail.to_vec())
-                    .position_from_segments()
-                    .finish(),
+                SegmentBuilder::node_inner(
+                    tables.next_id(),
+                    false,
+                    SyntaxKind::File,
+                    dialect,
+                    tail.to_vec(),
+                )
+                .position_from_segments()
+                .finish(),
             );
             &matched
         } else {

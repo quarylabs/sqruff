@@ -58,7 +58,7 @@ impl<'a> TemplateElement<'a> {
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
         let slice = subslice.map(|slice| &self.raw[slice]);
-        SegmentBuilder::token_inner(0, slice, self.matcher.syntax_kind)
+        SegmentBuilder::token_inner(0, false, slice, self.matcher.syntax_kind)
             .with_position(pos_marker)
             .finish()
     }

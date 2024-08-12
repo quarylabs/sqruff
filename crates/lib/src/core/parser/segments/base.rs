@@ -18,6 +18,7 @@ use crate::core::rules::base::EditType;
 use crate::core::templaters::base::TemplatedFile;
 use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::dialects::{SyntaxKind, SyntaxSet};
+use crate::helpers::Config;
 
 pub struct SegmentBuilder {
     node_or_token: NodeOrToken,
@@ -46,10 +47,21 @@ impl SegmentBuilder {
         dialect: DialectKind,
         segments: Vec<ErasedSegment>,
     ) -> Self {
+        Self::node_inner(id, true, syntax_kind, dialect, segments)
+    }
+
+    pub(crate) fn node_inner(
+        id: u32,
+        synthesized: bool,
+        syntax_kind: SyntaxKind,
+        dialect: DialectKind,
+        segments: Vec<ErasedSegment>,
+    ) -> Self {
         SegmentBuilder {
             node_or_token: NodeOrToken {
                 id,
                 syntax_kind,
+                synthesized,
                 position_marker: None,
                 kind: NodeOrTokenKind::Node(NodeData {
                     dialect,
@@ -64,14 +76,20 @@ impl SegmentBuilder {
     }
 
     pub fn token(id: u32, raw: &str, syntax_kind: SyntaxKind) -> Self {
-        Self::token_inner(id, Some(raw), syntax_kind)
+        Self::token_inner(id, true, Some(raw), syntax_kind)
     }
 
-    pub(crate) fn token_inner(id: u32, raw: Option<&str>, syntax_kind: SyntaxKind) -> Self {
+    pub(crate) fn token_inner(
+        id: u32,
+        synthesized: bool,
+        raw: Option<&str>,
+        syntax_kind: SyntaxKind,
+    ) -> Self {
         SegmentBuilder {
             node_or_token: NodeOrToken {
                 id,
                 syntax_kind,
+                synthesized,
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData { raw: raw.map(Into::into) }),
             },
@@ -127,15 +145,16 @@ impl Eq for ErasedSegment {}
 
 impl ErasedSegment {
     pub fn raw(&self) -> Cow<str> {
+        if !self.value.synthesized {
+            return self.get_position_marker().unwrap().source_str().into();
+        }
+
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => node
                 .raw
                 .get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join(""))
                 .into(),
-            NodeOrTokenKind::Token(token) => match &token.raw {
-                None => self.get_position_marker().unwrap().source_str().into(),
-                Some(raw) => raw.as_str().into(),
-            },
+            NodeOrTokenKind::Token(token) => token.raw.as_deref().unwrap().into(),
         }
     }
 
@@ -234,6 +253,7 @@ impl ErasedSegment {
                 id: self.value.id,
                 syntax_kind: self.value.syntax_kind,
                 position_marker: None,
+                synthesized: true,
                 kind: NodeOrTokenKind::Node(NodeData {
                     dialect: node.dialect,
                     segments,
@@ -558,6 +578,7 @@ impl ErasedSegment {
 
     pub(crate) fn deep_clone(&self) -> Self {
         Self { value: Rc::new(self.value.as_ref().clone()), hash: self.hash.clone() }
+            .config(|this| this.get_mut().synthesized = true)
     }
 
     #[track_caller]
@@ -947,6 +968,7 @@ pub struct NodeOrToken {
     syntax_kind: SyntaxKind,
     position_marker: Option<PositionMarker>,
     kind: NodeOrTokenKind,
+    synthesized: bool,
 }
 
 #[derive(Debug, Clone)]

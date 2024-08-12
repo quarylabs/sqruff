@@ -171,9 +171,15 @@ impl MatchResult {
         match matched {
             Matched::SyntaxKind(kind) => {
                 vec![
-                    SegmentBuilder::node(tables.next_id(), kind, dialect, result_segments)
-                        .position_from_segments()
-                        .finish(),
+                    SegmentBuilder::node_inner(
+                        tables.next_id(),
+                        false,
+                        kind,
+                        dialect,
+                        result_segments,
+                    )
+                    .position_from_segments()
+                    .finish(),
                 ]
             }
             Matched::Newtype(kind) => {

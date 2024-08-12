@@ -625,11 +625,11 @@ fn is_child(maybe_parent: Segments, maybe_child: Segments) -> bool {
     let child_markers = maybe_child[0].get_position_marker().unwrap();
     let parent_pos = maybe_parent[0].get_position_marker().unwrap();
 
-    if child_markers < parent_pos.start_point_marker() {
+    if child_markers < &parent_pos.start_point_marker() {
         return false;
     }
 
-    if child_markers > parent_pos.end_point_marker() {
+    if child_markers > &parent_pos.end_point_marker() {
         return false;
     }
 

@@ -115,7 +115,7 @@ from x
 
         let select_clause_segment = context.segment.clone();
         let select_target_elements = select_clause_segment
-            .children(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
+            .children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
 
         if select_target_elements.is_empty() {
             return Vec::new();
@@ -132,7 +132,7 @@ from x
                 for e in *band {
                     match e {
                         Validate::Types(types) => {
-                            if segment.child(*types).is_some() {
+                            if segment.child(types).is_some() {
                                 validate(
                                     i,
                                     segment.clone(),
@@ -145,9 +145,10 @@ from x
                         Validate::Function { name } => {
                             (|| {
                                 let function = segment
-                                    .child(const { SyntaxSet::new(&[SyntaxKind::Function]) })?;
-                                let function_name = function
-                                    .child(const { SyntaxSet::new(&[SyntaxKind::FunctionName]) })?;
+                                    .child(const { &SyntaxSet::new(&[SyntaxKind::Function]) })?;
+                                let function_name = function.child(
+                                    const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) },
+                                )?;
                                 if function_name.raw() == *name {
                                     validate(
                                         i,
@@ -164,8 +165,8 @@ from x
                         Validate::Expression { child_typ } => {
                             (|| {
                                 let expression = segment
-                                    .child(const { SyntaxSet::new(&[SyntaxKind::Expression]) })?;
-                                if expression.child(SyntaxSet::new(&[*child_typ])).is_some()
+                                    .child(const { &SyntaxSet::new(&[SyntaxKind::Expression]) })?;
+                                if expression.child(&SyntaxSet::new(&[*child_typ])).is_some()
                                     && matches!(
                                         expression.segments()[0].get_type(),
                                         SyntaxKind::ColumnReference

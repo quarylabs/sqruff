@@ -620,7 +620,7 @@ impl ReflowElement {
 
 impl ReflowElement {
     pub fn class_types(segments: &[ErasedSegment]) -> SyntaxSet {
-        segments.iter().fold(SyntaxSet::EMPTY, |set, seg| set.union(&seg.combined_types()))
+        segments.iter().flat_map(|segment| segment.class_types()).collect()
     }
 }
 

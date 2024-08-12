@@ -62,6 +62,7 @@ impl SegmentBuilder {
                 id,
                 syntax_kind,
                 synthesized,
+                class_types: class_types(syntax_kind),
                 position_marker: None,
                 kind: NodeOrTokenKind::Node(NodeData {
                     dialect,
@@ -90,6 +91,7 @@ impl SegmentBuilder {
                 id,
                 syntax_kind,
                 synthesized,
+                class_types: class_types(syntax_kind),
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData { raw: raw.map(Into::into) }),
             },
@@ -193,33 +195,31 @@ impl ErasedSegment {
         self.recursive_crawl_all(false).into_iter().filter(|it| it.segments().is_empty()).collect()
     }
 
-    pub fn child(&self, seg_types: SyntaxSet) -> Option<ErasedSegment> {
+    pub fn child(&self, seg_types: &SyntaxSet) -> Option<ErasedSegment> {
         self.segments().iter().find(|seg| seg_types.contains(seg.get_type())).cloned()
     }
 
     pub fn recursive_crawl(
         &self,
-        types: SyntaxSet,
+        types: &SyntaxSet,
         recurse_into: bool,
-        no_recursive_types: Option<SyntaxSet>,
+        no_recursive_types: &SyntaxSet,
         allow_self: bool,
     ) -> Vec<ErasedSegment> {
         let mut acc = Vec::new();
 
-        let matches = allow_self && self.class_types().intersects(&types);
+        let matches = allow_self && self.class_types().intersects(types);
         if matches {
             acc.push(self.clone());
         }
 
-        if !self.descendant_type_set().intersects(&types) {
+        if !self.descendant_type_set().intersects(types) {
             return acc;
         }
 
         if recurse_into || !matches {
             for seg in self.segments() {
-                if no_recursive_types
-                    .map_or(true, |no_recursive_types| !no_recursive_types.contains(seg.get_type()))
-                {
+                if no_recursive_types.is_empty() || !no_recursive_types.contains(seg.get_type()) {
                     let segments =
                         seg.recursive_crawl(types, recurse_into, no_recursive_types, true);
                     acc.extend(segments);
@@ -252,6 +252,7 @@ impl ErasedSegment {
             value: Rc::new(NodeOrToken {
                 id: self.value.id,
                 syntax_kind: self.value.syntax_kind,
+                class_types: self.value.class_types.clone(),
                 position_marker: None,
                 synthesized: true,
                 kind: NodeOrTokenKind::Node(NodeData {
@@ -342,7 +343,7 @@ impl ErasedSegment {
 
     pub(crate) fn iter_segments(
         &self,
-        expanding: Option<SyntaxSet>,
+        expanding: Option<&SyntaxSet>,
         pass_through: bool,
     ) -> Vec<ErasedSegment> {
         let mut result = Vec::new();
@@ -371,7 +372,7 @@ impl ErasedSegment {
             .collect()
     }
 
-    pub(crate) fn children(&self, seg_types: SyntaxSet) -> Vec<ErasedSegment> {
+    pub(crate) fn children(&self, seg_types: &SyntaxSet) -> Vec<ErasedSegment> {
         let mut buff = Vec::new();
         for seg in self.segments() {
             if seg_types.contains(seg.get_type()) {
@@ -408,14 +409,12 @@ impl ErasedSegment {
     pub(crate) fn descendant_type_set(&self) -> &SyntaxSet {
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => node.descendant_type_set.get_or_init(|| {
-                let mut result_set = SyntaxSet::EMPTY;
-
-                for seg in self.segments() {
-                    result_set =
-                        result_set.union(&seg.descendant_type_set().union(&seg.class_types()));
-                }
-
-                result_set
+                self.segments()
+                    .iter()
+                    .flat_map(|segment| {
+                        segment.descendant_type_set().clone().union(segment.class_types())
+                    })
+                    .collect()
             }),
             NodeOrTokenKind::Token(_) => const { &SyntaxSet::EMPTY },
         }
@@ -498,27 +497,8 @@ impl ErasedSegment {
         }
     }
 
-    pub(crate) fn instance_types(&self) -> SyntaxSet {
-        SyntaxSet::EMPTY
-    }
-
-    pub(crate) fn combined_types(&self) -> SyntaxSet {
-        self.instance_types().union(&self.class_types())
-    }
-
-    pub(crate) fn class_types(&self) -> SyntaxSet {
-        match self.value.syntax_kind {
-            SyntaxKind::ColumnReference => {
-                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
-            }
-            SyntaxKind::WildcardIdentifier => {
-                SyntaxSet::new(&[SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference])
-            }
-            SyntaxKind::TableReference => {
-                SyntaxSet::new(&[SyntaxKind::ObjectReference, self.get_type()])
-            }
-            _ => SyntaxSet::single(self.get_type()),
-        }
+    pub(crate) fn class_types(&self) -> &SyntaxSet {
+        &self.value.class_types
     }
 
     pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
@@ -544,7 +524,7 @@ impl ErasedSegment {
     }
 
     pub(crate) fn direct_descendant_type_set(&self) -> SyntaxSet {
-        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(&it.class_types()))
+        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(it.class_types()))
     }
 
     pub(crate) fn is_keyword(&self, p0: &str) -> bool {
@@ -966,6 +946,7 @@ pub fn position_segments(
 pub struct NodeOrToken {
     id: u32,
     syntax_kind: SyntaxKind,
+    class_types: SyntaxSet,
     position_marker: Option<PositionMarker>,
     kind: NodeOrTokenKind,
     synthesized: bool,
@@ -1015,6 +996,17 @@ pub struct PathStep {
     pub idx: usize,
     pub len: usize,
     pub code_idxs: Rc<[usize]>,
+}
+
+fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {
+    match syntax_kind {
+        SyntaxKind::ColumnReference => SyntaxSet::new(&[SyntaxKind::ObjectReference, syntax_kind]),
+        SyntaxKind::WildcardIdentifier => {
+            SyntaxSet::new(&[SyntaxKind::WildcardIdentifier, SyntaxKind::ObjectReference])
+        }
+        SyntaxKind::TableReference => SyntaxSet::new(&[SyntaxKind::ObjectReference, syntax_kind]),
+        _ => SyntaxSet::single(syntax_kind),
+    }
 }
 
 #[cfg(test)]

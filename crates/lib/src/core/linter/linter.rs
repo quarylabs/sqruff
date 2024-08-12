@@ -145,7 +145,11 @@ impl Linter {
             let linted_dir = LintedDir::new(path.display().to_string());
             let key = result.add(linted_dir);
 
-            let paths = self.paths_from_path(path, None, None, None, None);
+            let paths = if path.is_file() {
+                vec![path.to_string_lossy().to_string()]
+            } else {
+                self.paths_from_path(path, None, None, None, None)
+            };
 
             expanded_paths.reserve(paths.len());
             expanded_path_to_linted_dir.reserve(paths.len());

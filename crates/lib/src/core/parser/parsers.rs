@@ -43,7 +43,7 @@ impl Matchable for TypedParser {
         crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         let _ = (parse_context, crumbs);
-        (AHashSet::new(), self.target_types).into()
+        (AHashSet::new(), self.target_types.clone()).into()
     }
 
     fn match_segments(

@@ -70,7 +70,7 @@ from table_a
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let Some(function_name) =
-            context.segment.child(const { SyntaxSet::new(&[SyntaxKind::FunctionName]) })
+            context.segment.child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
         else {
             return Vec::new();
         };

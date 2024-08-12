@@ -275,7 +275,7 @@ impl RuleST05 {
             let select = nsq.query.inner.borrow().selectables[0].clone().selectable;
             let anchor = anchor.recursive_crawl(
                 const {
-                    SyntaxSet::new(&[
+                    &SyntaxSet::new(&[
                         SyntaxKind::Keyword,
                         SyntaxKind::Symbol,
                         SyntaxKind::StartBracket,
@@ -283,7 +283,7 @@ impl RuleST05 {
                     ])
                 },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 true,
             )[0]
             .clone();
@@ -318,7 +318,7 @@ impl RuleST05 {
     ) -> Vec<NestedSubQuerySummary<'a>> {
         let mut acc = Vec::new();
 
-        let parent_types = CONFIG_MAPPING[&self.forbid_subquery_in];
+        let parent_types = &CONFIG_MAPPING[&self.forbid_subquery_in];
         let mut queries = vec![query.clone()];
         queries.extend(query.inner.borrow().ctes.values().cloned());
 
@@ -385,9 +385,9 @@ impl RuleST05 {
 fn get_first_select_statement_descendant(segment: &ErasedSegment) -> Option<ErasedSegment> {
     segment
         .recursive_crawl(
-            const { SyntaxSet::single(SyntaxKind::SelectStatement) },
+            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
             false,
-            None,
+            &SyntaxSet::EMPTY,
             true,
         )
         .into_iter()
@@ -503,7 +503,7 @@ impl CTEBuilder {
         let mut missing_space_after_from = false;
         let from_clause_children = None;
         let mut from_segment = None;
-        let from_clause = segment.child(const { SyntaxSet::single(SyntaxKind::FromClause) });
+        let from_clause = segment.child(const { &SyntaxSet::single(SyntaxKind::FromClause) });
 
         if let Some(from_clause) = &from_clause {
             let from_clause_children = Segments::from_vec(from_clause.segments().to_vec(), None);
@@ -551,7 +551,7 @@ impl CTEBuilder {
             let id_seg = cte
                 .child(
                     const {
-                        SyntaxSet::new(&[
+                        &SyntaxSet::new(&[
                             SyntaxKind::Identifier,
                             SyntaxKind::NakedIdentifier,
                             SyntaxKind::QuotedIdentifier,
@@ -645,9 +645,9 @@ enum Case {
 fn get_case_preference(root_select: &Segments) -> Case {
     let root_segment = root_select.first().expect("Root SELECT not found");
     let first_keyword = root_segment.recursive_crawl(
-        const { SyntaxSet::single(SyntaxKind::Keyword) },
+        const { &SyntaxSet::single(SyntaxKind::Keyword) },
         false,
-        None,
+        &SyntaxSet::EMPTY,
         true,
     )[0]
     .clone();

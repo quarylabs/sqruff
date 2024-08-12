@@ -4956,14 +4956,14 @@ impl FromClauseSegment {
         let mut join_clauses = Vec::new();
 
         for from_expression in
-            self.0.children(const { SyntaxSet::new(&[SyntaxKind::FromExpression]) })
+            self.0.children(const { &SyntaxSet::new(&[SyntaxKind::FromExpression]) })
         {
             direct_table_children.extend(
                 from_expression
-                    .children(const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }),
+                    .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }),
             );
             join_clauses.extend(
-                from_expression.children(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }),
+                from_expression.children(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }),
             );
         }
 
@@ -4976,7 +4976,7 @@ impl FromClauseSegment {
                 clause
             } else {
                 tmp = clause
-                    .child(const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
                     .unwrap();
                 &tmp
             };
@@ -5004,9 +5004,9 @@ impl SelectClauseElementSegment {
         let alias_expression_segment = self
             .0
             .recursive_crawl(
-                const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) },
+                const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 true,
             )
             .first()?
@@ -5028,9 +5028,9 @@ impl SelectClauseElementSegment {
             column_reference_segments.push(aliased_segment.clone());
         } else {
             column_reference_segments.extend(aliased_segment.recursive_crawl(
-                const { SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
+                const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
                 true,
-                None,
+                &SyntaxSet::EMPTY,
                 true,
             ));
         }
@@ -5046,36 +5046,36 @@ impl SelectClauseElementSegment {
 impl FromExpressionElementSegment {
     pub fn eventual_alias(&self) -> AliasInfo {
         let mut tbl_expression =
-            self.0.child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) }).or_else(|| {
-                self.0.child(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) }).and_then(
+            self.0.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) }).or_else(|| {
+                self.0.child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }).and_then(
                     |bracketed| {
-                        bracketed.child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) })
+                        bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) })
                     },
                 )
             });
 
         if let Some(tbl_expression_inner) = &tbl_expression
             && tbl_expression_inner
-                .child(const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
+                .child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
                 .is_none()
         {
-            let bracketed = tbl_expression_inner.child(const { SyntaxSet::new(&[SyntaxKind::Bracketed]) });
+            let bracketed = tbl_expression_inner.child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) });
             if let Some(bracketed) = bracketed {
-                tbl_expression = bracketed.child(const { SyntaxSet::new(&[SyntaxKind::TableExpression]) });
+                tbl_expression = bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) });
             }
         }
 
         let reference = tbl_expression.and_then(|tbl_expression| {
-            tbl_expression.child(const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
+            tbl_expression.child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
         });
 
         let reference = reference.as_ref().map(|reference| reference.reference());
 
         let alias_expression =
-            self.0.child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
+            self.0.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
         if let Some(alias_expression) = alias_expression {
             let segment = alias_expression.child(
-                const { SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
+                const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
             );
             if let Some(segment) = segment {
                 return AliasInfo {
@@ -5244,7 +5244,7 @@ impl ObjectReferenceSegment {
 
                 for elem in self.0.recursive_crawl(
                     const {
-                        SyntaxSet::new(&[
+                        &SyntaxSet::new(&[
                             SyntaxKind::Identifier,
                             SyntaxKind::NakedIdentifier,
                             SyntaxKind::QuotedIdentifier,
@@ -5255,7 +5255,7 @@ impl ObjectReferenceSegment {
                         ])
                     },
                     true,
-                    None,
+                    &SyntaxSet::EMPTY,
                     true,
                 ) {
                     if !elem.is_type(SyntaxKind::Dot) {
@@ -5296,14 +5296,14 @@ impl ObjectReferenceSegment {
 
                 for elem in self.0.recursive_crawl(
                     const {
-                        SyntaxSet::new(&[
+                        &SyntaxSet::new(&[
                             SyntaxKind::Identifier,
                             SyntaxKind::NakedIdentifier,
                             SyntaxKind::QuotedIdentifier,
                         ])
                     },
                     true,
-                    None,
+                    &SyntaxSet::EMPTY,
                     true,
                 ) {
                     acc.extend(self.iter_reference_parts(elem));
@@ -5316,7 +5316,7 @@ impl ObjectReferenceSegment {
 
                 for elem in self.0.recursive_crawl(
                     const {
-                        SyntaxSet::new(&[
+                        &SyntaxSet::new(&[
                             SyntaxKind::Identifier,
                             SyntaxKind::Star,
                             SyntaxKind::NakedIdentifier,
@@ -5324,7 +5324,7 @@ impl ObjectReferenceSegment {
                         ])
                     },
                     true,
-                    None,
+                    &SyntaxSet::EMPTY,
                     true,
                 ) {
                     acc.extend(self.iter_reference_parts(elem));
@@ -5356,15 +5356,15 @@ impl JoinClauseSegment {
         let mut buff = Vec::new();
 
         let from_expression =
-            self.0.child(const { SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }).unwrap();
+            self.0.child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }).unwrap();
         let alias = FromExpressionElementSegment(from_expression.clone()).eventual_alias();
 
         buff.push((from_expression.clone(), alias));
 
         for join_clause in self.0.recursive_crawl(
-            const { SyntaxSet::new(&[SyntaxKind::JoinClause]) },
+            const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) },
             true,
-            Some(const { SyntaxSet::single(SyntaxKind::SelectStatement) }),
+            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
             true,
         ) {
             if join_clause.id() == join_clause.id() {

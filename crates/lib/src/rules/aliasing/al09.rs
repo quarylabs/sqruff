@@ -66,16 +66,16 @@ FROM table;
             let clause_element_raw_segment = clause_element.get_raw_segments();
 
             let column =
-                clause_element.child(const { SyntaxSet::new(&[SyntaxKind::ColumnReference]) });
+                clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) });
             let alias_expression =
-                clause_element.child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
+                clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
 
             if let Some(column) = column {
                 if let Some(alias_expression) = alias_expression {
                     if column
                         .child(
                             const {
-                                SyntaxSet::new(&[
+                                &SyntaxSet::new(&[
                                     SyntaxKind::Identifier,
                                     SyntaxKind::NakedIdentifier,
                                 ])
@@ -83,24 +83,24 @@ FROM table;
                         )
                         .is_some()
                         || column
-                            .child(const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
+                            .child(const { &SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
                             .is_some()
                     {
                         let Some(whitespace) = clause_element
-                            .child(const { SyntaxSet::new(&[SyntaxKind::Whitespace]) })
+                            .child(const { &SyntaxSet::new(&[SyntaxKind::Whitespace]) })
                         else {
                             return Vec::new();
                         };
 
                         let column_identifier = if let Some(quoted_identifier) =
-                            column.child(const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
+                            column.child(const { &SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
                         {
                             quoted_identifier.clone()
                         } else {
                             column
                                 .children(
                                     const {
-                                        SyntaxSet::new(&[
+                                        &SyntaxSet::new(&[
                                             SyntaxKind::Identifier,
                                             SyntaxKind::NakedIdentifier,
                                         ])
@@ -112,10 +112,10 @@ FROM table;
                         };
 
                         let alias_identifier = alias_expression
-                            .child(const { SyntaxSet::new(&[SyntaxKind::NakedIdentifier]) })
+                            .child(const { &SyntaxSet::new(&[SyntaxKind::NakedIdentifier]) })
                             .or_else(|| {
                                 alias_expression.child(
-                                    const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) },
+                                    const { &SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) },
                                 )
                             })
                             .expect("identifier is none");

@@ -207,8 +207,12 @@ fn determine_aligned_inline_spacing(
 
     // We've got a parent. Find some siblings.
     let mut siblings = Vec::new();
-    for sibling in parent_segment.recursive_crawl(SyntaxSet::single(segment_type), true, None, true)
-    {
+    for sibling in parent_segment.recursive_crawl(
+        &SyntaxSet::single(segment_type),
+        true,
+        &SyntaxSet::EMPTY,
+        true,
+    ) {
         // Purge any siblings with a boundary between them
         if align_scope.is_none()
             || !parent_segment

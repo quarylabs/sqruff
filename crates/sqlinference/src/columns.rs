@@ -23,12 +23,13 @@ pub fn get_columns_internal(
     let ast = query.inner.borrow().selectables[0].selectable.clone();
 
     for segment in ast.recursive_crawl(
-        const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) },
+        const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) },
         false,
-        None,
+        &SyntaxSet::EMPTY,
         false,
     ) {
-        if let Some(alias) = segment.child(const { SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
+        if let Some(alias) =
+            segment.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
         {
             let raw_segments = alias.get_raw_segments();
             let alias = raw_segments.iter().rev().find(|it| it.is_code()).unwrap();

@@ -6,7 +6,6 @@ import {
   BrowserMessageReader,
   BrowserMessageWriter,
   PublishDiagnosticsParams,
-  RequestType,
   DocumentFormattingParams,
 } from "vscode-languageserver/browser";
 

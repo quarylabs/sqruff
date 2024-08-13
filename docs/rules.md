@@ -1791,7 +1791,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `bigquery`, `sparksql`
+**Dialects where this rule is skipped:** `redshift`, `bigquery`, `sparksql`
 
 ### references.qualification
 
@@ -1863,7 +1863,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `bigquery`
+**Dialects where this rule is skipped:** `bigquery`, `redshift`
 
 ### references.keywords
 

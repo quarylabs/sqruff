@@ -12,10 +12,9 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: Sys
-                - dot: .
-                - naked_identifier: dual
+              - naked_identifier: Sys
+              - dot: .
+              - naked_identifier: dual
     - where_clause:
       - keyword: where
       - expression:
@@ -45,18 +44,16 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl_b
+              - naked_identifier: tbl_b
 - statement_terminator: ;
 - statement:
   - insert_statement:
     - keyword: insert
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: sch
-        - dot: .
-        - naked_identifier: tbl_b
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: tbl_b
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -90,8 +87,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: blah
+                    - naked_identifier: blah
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -109,6 +105,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tmp
+                - naked_identifier: tmp
 - statement_terminator: ;

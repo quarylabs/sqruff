@@ -13,20 +13,18 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '"my_table2"'
+              - quoted_identifier: '"my_table2"'
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - quoted_identifier: '"my_database"'
-                  - dot: .
-                  - quoted_identifier: '"my_schema"'
-                  - dot: .
-                  - quoted_identifier: '"my_table"'
+                - quoted_identifier: '"my_database"'
+                - dot: .
+                - quoted_identifier: '"my_schema"'
+                - dot: .
+                - quoted_identifier: '"my_table"'
           - join_on_condition:
             - keyword: ON
             - bracketed:

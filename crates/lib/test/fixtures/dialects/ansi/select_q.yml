@@ -14,15 +14,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: data
+              - naked_identifier: data
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: data_max
+                - naked_identifier: data_max
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -42,10 +40,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - quoted_identifier: '"other_db"'
-                  - dot: .
-                  - quoted_identifier: '"other_data"'
+                - quoted_identifier: '"other_db"'
+                - dot: .
+                - quoted_identifier: '"other_data"'
             - alias_expression:
               - keyword: AS
               - naked_identifier: od

@@ -1,0 +1,13 @@
+file:
+- statement:
+  - show_datashares_statement:
+    - keyword: SHOW
+    - keyword: DATASHARES
+- statement_terminator: ;
+- statement:
+  - show_datashares_statement:
+    - keyword: SHOW
+    - keyword: DATASHARES
+    - keyword: LIKE
+    - quoted_literal: '''sales%'''
+- statement_terminator: ;

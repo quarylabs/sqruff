@@ -6,5 +6,4 @@ file:
     - keyword: if
     - keyword: exists
     - table_reference:
-      - object_reference:
-        - naked_identifier: a
+      - naked_identifier: a

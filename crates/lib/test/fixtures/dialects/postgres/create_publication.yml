@@ -27,8 +27,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
 - statement_terminator: ;
 - statement:
   - create_publication_statement:
@@ -41,15 +40,13 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: sch
-            - dot: .
-            - naked_identifier: ghi
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: ghi
 - statement_terminator: ;
 - statement:
   - create_publication_statement:
@@ -62,17 +59,15 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
     - comma: ','
     - publication_objects:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: sch
-            - dot: .
-            - naked_identifier: ghi
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: ghi
 - statement_terminator: ;
 - statement:
   - create_publication_statement:
@@ -85,8 +80,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
         - star: '*'
 - statement_terminator: ;
 - statement:
@@ -100,54 +94,46 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: a
+          - naked_identifier: a
     - comma: ','
     - publication_objects:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: aa
+          - naked_identifier: aa
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: ab
+          - naked_identifier: ab
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: ac
+          - naked_identifier: ac
     - comma: ','
     - publication_objects:
       - keyword: TABLE
       - publication_table:
         - keyword: ONLY
         - table_reference:
-          - object_reference:
-            - naked_identifier: b
+          - naked_identifier: b
     - comma: ','
     - publication_objects:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: c
+          - naked_identifier: c
         - star: '*'
     - comma: ','
     - publication_objects:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: ca
+          - naked_identifier: ca
         - star: '*'
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: cb
+          - naked_identifier: cb
         - star: '*'
     - comma: ','
     - publication_objects:
@@ -157,16 +143,14 @@ file:
         - bracketed:
           - start_bracket: (
           - table_reference:
-            - object_reference:
-              - naked_identifier: d
+            - naked_identifier: d
           - end_bracket: )
     - comma: ','
     - publication_objects:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: e
+          - naked_identifier: e
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -177,8 +161,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: f
+          - naked_identifier: f
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -192,8 +175,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: g
+          - naked_identifier: g
         - star: '*'
         - bracketed:
           - start_bracket: (
@@ -208,8 +190,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: h
+          - naked_identifier: h
         - keyword: WHERE
         - bracketed:
           - start_bracket: (
@@ -226,8 +207,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: i
+          - naked_identifier: i
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -305,13 +285,11 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: a
+          - naked_identifier: a
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: b
+          - naked_identifier: b
     - keyword: WITH
     - definition_parameters:
       - bracketed:
@@ -340,13 +318,11 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: a
+          - naked_identifier: a
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: b
+          - naked_identifier: b
     - keyword: WITH
     - definition_parameters:
       - bracketed:
@@ -369,13 +345,11 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: a
+          - naked_identifier: a
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: b
+          - naked_identifier: b
     - keyword: WITH
     - definition_parameters:
       - bracketed:
@@ -415,13 +389,11 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: departments
+          - naked_identifier: departments
 - statement_terminator: ;
 - statement:
   - create_publication_statement:
@@ -434,8 +406,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: departments
+          - naked_identifier: departments
         - keyword: WHERE
         - bracketed:
           - start_bracket: (
@@ -467,8 +438,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: mydata
+          - naked_identifier: mydata
     - keyword: WITH
     - definition_parameters:
       - bracketed:
@@ -491,13 +461,11 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: departments
+          - naked_identifier: departments
     - comma: ','
     - publication_objects:
       - keyword: TABLES
@@ -537,8 +505,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:

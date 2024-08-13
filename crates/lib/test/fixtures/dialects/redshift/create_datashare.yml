@@ -1,0 +1,40 @@
+file:
+- statement:
+  - create_datashare_statement:
+    - keyword: CREATE
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: CREATE
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: demoshare
+    - keyword: SET
+    - keyword: PUBLICACCESSIBLE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: 'TRUE'
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: CREATE
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: demoshare
+    - keyword: PUBLICACCESSIBLE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: 'FALSE'
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: CREATE
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: demoshare
+    - keyword: PUBLICACCESSIBLE
+    - keyword: 'FALSE'
+- statement_terminator: ;

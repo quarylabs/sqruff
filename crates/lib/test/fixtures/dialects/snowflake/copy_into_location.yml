@@ -7,10 +7,9 @@ file:
       - stage_path: '''@public.dir/airflow-pipelines/'''
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - quoted_identifier: '"MODEL"'
-        - dot: .
-        - quoted_identifier: '"FCT_ROLLING_ACTIVE_USERS_L28"'
+      - quoted_identifier: '"MODEL"'
+      - dot: .
+      - quoted_identifier: '"FCT_ROLLING_ACTIVE_USERS_L28"'
     - keyword: FILE_FORMAT
     - comparison_operator:
       - raw_comparison_operator: =

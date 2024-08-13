@@ -16,8 +16,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -47,8 +46,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - alias_expression:
             - naked_identifier: t
           - sample_expression:
@@ -80,8 +78,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - alias_expression:
             - keyword: AS
             - naked_identifier: t
@@ -110,8 +107,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -137,8 +133,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -171,8 +166,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test_1
+              - naked_identifier: test_1
           - sample_expression:
             - keyword: TABLESAMPLE
             - bracketed:
@@ -186,8 +180,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test_2
+                - naked_identifier: test_2
             - sample_expression:
               - keyword: TABLESAMPLE
               - bracketed:
@@ -220,8 +213,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test_1
+              - naked_identifier: test_1
           - alias_expression:
             - naked_identifier: t1
           - sample_expression:
@@ -237,8 +229,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test_2
+                - naked_identifier: test_2
             - alias_expression:
               - naked_identifier: t2
             - sample_expression:
@@ -273,8 +264,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test_1
+              - naked_identifier: test_1
           - alias_expression:
             - keyword: AS
             - naked_identifier: t1
@@ -291,8 +281,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test_2
+                - naked_identifier: test_2
             - alias_expression:
               - keyword: AS
               - naked_identifier: t2

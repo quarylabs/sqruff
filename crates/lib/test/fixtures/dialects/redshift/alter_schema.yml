@@ -1,0 +1,47 @@
+file:
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema2
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: new_owner
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: QUOTA
+    - numeric_literal: '50'
+    - keyword: GB
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: QUOTA
+    - keyword: UNLIMITED
+- statement_terminator: ;

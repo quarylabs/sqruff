@@ -24,12 +24,10 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders_clone
+      - naked_identifier: orders_clone
     - keyword: CLONE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
 - statement_terminator: ;
 - statement:
   - create_clone_statement:

@@ -12,8 +12,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
     - limit_clause:
       - keyword: LIMIT
       - numeric_literal: '10'
@@ -45,8 +44,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: survey
+              - naked_identifier: survey
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -127,8 +125,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: heartbeats
+                    - naked_identifier: heartbeats
                 - alias_expression:
                   - naked_identifier: h
           - where_clause:
@@ -226,8 +223,7 @@ file:
                           - from_expression_element:
                             - table_expression:
                               - table_reference:
-                                - object_reference:
-                                  - naked_identifier: time_cte
+                                - naked_identifier: time_cte
                   - end_bracket: )
               - keyword: as
               - data_type:
@@ -279,8 +275,7 @@ file:
                       - from_expression_element:
                         - table_expression:
                           - table_reference:
-                            - object_reference:
-                              - naked_identifier: time_cte
+                            - naked_identifier: time_cte
                   - groupby_clause:
                     - keyword: GROUP
                     - keyword: BY

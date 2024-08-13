@@ -1,0 +1,35 @@
+file:
+- statement:
+  - manage_rls_policy_statement:
+    - keyword: ATTACH
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: policy_concerts
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: tickit_category_redshift
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: analyst
+    - comma: ','
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: dbadmin
+- statement_terminator: ;
+- statement:
+  - manage_rls_policy_statement:
+    - keyword: ATTACH
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: policy_name
+    - keyword: ON
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: PUBLIC
+- statement_terminator: ;

@@ -51,23 +51,20 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table1
+                - naked_identifier: table1
           - join_clause:
             - keyword: CROSS
             - keyword: JOIN
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: constants
+                  - naked_identifier: constants
           - join_clause:
             - keyword: JOIN
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: table2
+                  - naked_identifier: table2
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: foo

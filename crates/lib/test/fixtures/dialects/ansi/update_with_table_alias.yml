@@ -3,8 +3,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alias_expression:
       - keyword: AS
       - naked_identifier: tttd

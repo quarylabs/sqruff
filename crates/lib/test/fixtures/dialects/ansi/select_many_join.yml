@@ -13,8 +13,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: a
+              - naked_identifier: a
           - alias_expression:
             - keyword: as
             - naked_identifier: foo
@@ -23,15 +22,13 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: b
+                - naked_identifier: b
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: c
+                - naked_identifier: c
             - alias_expression:
               - keyword: as
               - naked_identifier: foobar
@@ -40,15 +37,13 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: d
+                - naked_identifier: d
       - comma: ','
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: e
+              - naked_identifier: e
           - alias_expression:
             - keyword: as
             - naked_identifier: bar
@@ -57,8 +52,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: f
+                - naked_identifier: f
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
@@ -79,15 +73,13 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: h
+                - naked_identifier: h
       - comma: ','
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: baz
+              - naked_identifier: baz
           - alias_expression:
             - keyword: as
             - naked_identifier: buzz

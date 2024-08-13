@@ -1,0 +1,8 @@
+file:
+- statement:
+  - drop_datashare_statement:
+    - keyword: DROP
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: datashare_name
+- statement_terminator: ;

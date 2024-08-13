@@ -8,8 +8,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -107,8 +106,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: table_identifier
+                  - naked_identifier: table_identifier
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -116,8 +114,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student
+      - naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -147,8 +144,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student_copy
+      - naked_identifier: student_copy
     - keyword: STORED
     - keyword: AS
     - keyword: ORC
@@ -166,16 +162,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: student
+                - naked_identifier: student
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student
+      - naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -216,8 +210,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student
+      - naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -258,8 +251,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student
+      - naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -293,8 +285,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student
+      - naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -328,8 +319,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student
+      - naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -362,8 +352,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: family
+      - naked_identifier: family
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -457,8 +446,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: avroexample
+      - naked_identifier: avroexample
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -498,8 +486,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: family
+      - naked_identifier: family
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -533,8 +520,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: clustered_by_test1
+      - naked_identifier: clustered_by_test1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -568,8 +554,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: clustered_by_test2
+      - naked_identifier: clustered_by_test2
     - bracketed:
       - start_bracket: (
       - column_definition:

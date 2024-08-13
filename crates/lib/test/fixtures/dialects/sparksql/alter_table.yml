@@ -4,23 +4,20 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Student
+      - naked_identifier: Student
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: StudentInfo
+      - naked_identifier: StudentInfo
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Default
-        - dot: .
-        - naked_identifier: StudentInfo
+      - naked_identifier: Default
+      - dot: .
+      - naked_identifier: StudentInfo
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -47,8 +44,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: StudentInfo
+      - naked_identifier: StudentInfo
     - keyword: ADD
     - keyword: COLUMNS
     - bracketed:
@@ -73,8 +69,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: StudentInfo
+      - naked_identifier: StudentInfo
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
@@ -87,8 +82,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: StudentInfo
+      - naked_identifier: StudentInfo
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -101,8 +95,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: StudentInfo
+      - naked_identifier: StudentInfo
     - keyword: ADD
     - keyword: IF
     - keyword: NOT
@@ -122,8 +115,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: StudentInfo
+      - naked_identifier: StudentInfo
     - keyword: ADD
     - keyword: IF
     - keyword: NOT
@@ -152,8 +144,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: StudentInfo
+      - naked_identifier: StudentInfo
     - keyword: DROP
     - keyword: IF
     - keyword: EXISTS
@@ -172,10 +163,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -192,10 +182,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -212,10 +201,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -232,10 +220,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -249,8 +236,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Table_Identifier
+      - naked_identifier: Table_Identifier
     - keyword: SET
     - keyword: SERDEPROPERTIES
     - bracketed:
@@ -273,8 +259,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Test_Tab
+      - naked_identifier: Test_Tab
     - keyword: SET
     - keyword: SERDE
     - quoted_literal: '''org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'''
@@ -284,10 +269,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: SERDE
     - quoted_literal: '''org.apache.hadoop'''
@@ -313,8 +297,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Loc_Orc
+      - naked_identifier: Loc_Orc
     - keyword: SET
     - keyword: FILEFORMAT
     - data_source_format:
@@ -325,8 +308,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: P1
+      - naked_identifier: P1
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -352,10 +334,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: SET
     - keyword: LOCATION
     - quoted_literal: '''/path/to/part/ways'''
@@ -365,10 +346,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -393,10 +373,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Dbx
-        - dot: .
-        - naked_identifier: Tab1
+      - naked_identifier: Dbx
+      - dot: .
+      - naked_identifier: Tab1
     - keyword: RECOVER
     - keyword: PARTITIONS
 - statement_terminator: ;

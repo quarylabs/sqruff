@@ -4,42 +4,14 @@ file:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
 - statement_terminator: ;
 - statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - quoted_identifier: '"abc"'
-- statement_terminator: ;
-- statement:
-  - drop_view_statement:
-    - keyword: DROP
-    - keyword: VIEW
-    - keyword: IF
-    - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: abc
-- statement_terminator: ;
-- statement:
-  - drop_view_statement:
-    - keyword: DROP
-    - keyword: VIEW
-    - table_reference:
-      - object_reference:
-        - naked_identifier: abc
-    - comma: ','
-    - table_reference:
-      - object_reference:
-        - quoted_identifier: '"def"'
-    - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: ghi
+      - quoted_identifier: '"abc"'
 - statement_terminator: ;
 - statement:
   - drop_view_statement:
@@ -48,24 +20,42 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
-    - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: def
-    - comma: ','
-    - table_reference:
-      - object_reference:
-        - naked_identifier: ghi
+      - naked_identifier: abc
 - statement_terminator: ;
 - statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
+    - comma: ','
+    - table_reference:
+      - quoted_identifier: '"def"'
+    - comma: ','
+    - table_reference:
+      - naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: abc
+    - comma: ','
+    - table_reference:
+      - naked_identifier: def
+    - comma: ','
+    - table_reference:
+      - naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: abc
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -75,8 +65,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -84,16 +73,13 @@ file:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: def
+      - naked_identifier: def
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: ghi
+      - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -103,16 +89,13 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: def
+      - naked_identifier: def
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: ghi
+      - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -120,8 +103,7 @@ file:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -131,8 +113,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -140,16 +121,13 @@ file:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: def
+      - naked_identifier: def
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: ghi
+      - naked_identifier: ghi
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -159,15 +137,12 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: def
+      - naked_identifier: def
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: ghi
+      - naked_identifier: ghi
     - keyword: RESTRICT
 - statement_terminator: ;

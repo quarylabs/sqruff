@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: counters
+      - naked_identifier: counters
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -21,8 +20,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -70,8 +68,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: array_int
+      - naked_identifier: array_int
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -89,8 +86,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -136,8 +132,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -183,8 +178,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -217,8 +211,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -245,8 +238,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -292,8 +284,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -326,8 +317,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -353,8 +343,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -386,8 +375,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -440,8 +428,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cinemas
+      - naked_identifier: cinemas
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -484,8 +471,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: employees
+      - naked_identifier: employees
     - keyword: OF
     - parameter: employee_type
     - bracketed:
@@ -513,8 +499,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement
+      - naked_identifier: measurement
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -550,8 +535,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_year_month
+      - naked_identifier: measurement_year_month
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -608,8 +592,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities
+      - naked_identifier: cities
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -664,8 +647,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -703,13 +685,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_y2016m07
+      - naked_identifier: measurement_y2016m07
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement
+      - naked_identifier: measurement
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -739,13 +719,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_ym_older
+      - naked_identifier: measurement_ym_older
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_year_month
+      - naked_identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -775,13 +753,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_ym_y2016m11
+      - naked_identifier: measurement_ym_y2016m11
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_year_month
+      - naked_identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -809,13 +785,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_ym_y2016m12
+      - naked_identifier: measurement_ym_y2016m12
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_year_month
+      - naked_identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -843,13 +817,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_ym_y2017m01
+      - naked_identifier: measurement_ym_y2017m01
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement_year_month
+      - naked_identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -877,13 +849,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities_ab
+      - naked_identifier: cities_ab
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities
+      - naked_identifier: cities
     - bracketed:
       - start_bracket: (
       - table_constraint:
@@ -920,13 +890,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities_ab
+      - naked_identifier: cities_ab
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities
+      - naked_identifier: cities
     - bracketed:
       - start_bracket: (
       - table_constraint:
@@ -971,13 +939,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities_ab_10000_to_100000
+      - naked_identifier: cities_ab_10000_to_100000
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities_ab
+      - naked_identifier: cities_ab
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -999,13 +965,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders_p1
+      - naked_identifier: orders_p1
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -1024,13 +988,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders_p2
+      - naked_identifier: orders_p2
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -1049,13 +1011,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders_p3
+      - naked_identifier: orders_p3
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -1074,13 +1034,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders_p4
+      - naked_identifier: orders_p4
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - keyword: FOR
     - keyword: VALUES
     - partition_bound_spec:
@@ -1099,13 +1057,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities_partdef
+      - naked_identifier: cities_partdef
     - keyword: PARTITION
     - keyword: OF
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities
+      - naked_identifier: cities
     - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
@@ -1114,8 +1070,7 @@ file:
     - keyword: UNLOGGED
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: staging
+      - naked_identifier: staging
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1172,8 +1127,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement
+      - naked_identifier: measurement
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1217,10 +1171,9 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: public
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: public
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1298,10 +1251,9 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: main
-        - dot: .
-        - naked_identifier: test_table
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: test_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1330,8 +1282,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: groups
+      - naked_identifier: groups
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1354,8 +1305,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: users
+      - naked_identifier: users
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1379,8 +1329,7 @@ file:
       - column_constraint_segment:
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: groups
+          - naked_identifier: groups
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -1397,8 +1346,7 @@ file:
       - column_constraint_segment:
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: groups
+          - naked_identifier: groups
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -1415,8 +1363,7 @@ file:
       - column_constraint_segment:
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: groups
+          - naked_identifier: groups
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -1431,8 +1378,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1557,8 +1503,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: primary_key_options
+      - naked_identifier: primary_key_options
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1602,10 +1547,9 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: quotas
-        - dot: .
-        - naked_identifier: usage
+      - naked_identifier: quotas
+      - dot: .
+      - naked_identifier: usage
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1622,10 +1566,9 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: quotas
-        - dot: .
-        - naked_identifier: my_table
+      - naked_identifier: quotas
+      - dot: .
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1639,8 +1582,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: with_constraints1
+      - naked_identifier: with_constraints1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1660,8 +1602,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: with_constraints2
+      - naked_identifier: with_constraints2
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1681,8 +1622,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: with_constraints3
+      - naked_identifier: with_constraints3
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1717,8 +1657,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: with_constraints33
+      - naked_identifier: with_constraints33
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1745,8 +1684,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: with_constraints4
+      - naked_identifier: with_constraints4
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1777,8 +1715,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: with_constraints5
+      - naked_identifier: with_constraints5
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1811,8 +1748,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: with_constraints6
+      - naked_identifier: with_constraints6
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1845,8 +1781,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_with_storage_param
+      - naked_identifier: test_with_storage_param
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1870,8 +1805,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_with_storage_params
+      - naked_identifier: test_with_storage_params
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1901,8 +1835,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl
+      - naked_identifier: tbl
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -1988,8 +1921,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: reservation
+      - naked_identifier: reservation
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -2020,8 +1952,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: room_reservation
+      - naked_identifier: room_reservation
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -2065,8 +1996,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: no_using
+      - naked_identifier: no_using
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -2099,8 +2029,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: many_options
+      - naked_identifier: many_options
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -2356,8 +2285,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: example_table
+      - naked_identifier: example_table
     - bracketed:
       - start_bracket: (
       - end_bracket: )
@@ -2365,7 +2293,6 @@ file:
     - bracketed:
       - start_bracket: (
       - table_reference:
-        - object_reference:
-          - naked_identifier: parent_table
+        - naked_identifier: parent_table
       - end_bracket: )
 - statement_terminator: ;

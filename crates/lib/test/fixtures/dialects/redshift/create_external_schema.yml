@@ -1,0 +1,166 @@
+file:
+- statement:
+  - create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: '''sampledb'''
+    - keyword: region
+    - quoted_literal: '''us-west-2'''
+    - keyword: iam_role
+    - quoted_literal: '''arn:aws:iam::123456789012:role/MySpectrumRole'''
+- statement_terminator: ;
+- statement:
+  - create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: '''spectrum_db'''
+    - keyword: iam_role
+    - quoted_literal: '''arn:aws:iam::123456789012:role/MySpectrumRole'''
+    - keyword: create
+    - keyword: external
+    - keyword: database
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+- statement_terminator: ;
+- statement:
+  - create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: hive_schema
+    - keyword: from
+    - keyword: hive
+    - keyword: metastore
+    - keyword: database
+    - quoted_literal: '''hive_db'''
+    - keyword: uri
+    - quoted_literal: '''172.10.10.10'''
+    - keyword: port
+    - numeric_literal: '99'
+    - keyword: iam_role
+    - quoted_literal: '''arn:aws:iam::123456789012:role/MySpectrumRole'''
+- statement_terminator: ;
+- statement:
+  - create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: '''spectrum_db'''
+    - keyword: iam_role
+    - quoted_literal: '''arn:aws:iam::123456789012:role/myRedshiftRole,arn:aws:iam::123456789012:role/myS3Role'''
+    - keyword: catalog_role
+    - quoted_literal: '''arn:aws:iam::123456789012:role/myAthenaRole'''
+    - keyword: create
+    - keyword: external
+    - keyword: database
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+- statement_terminator: ;
+- statement:
+  - create_external_schema_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: myRedshiftSchema
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: DATABASE
+    - quoted_literal: '''my_aurora_db'''
+    - keyword: SCHEMA
+    - quoted_literal: '''my_aurora_schema'''
+    - keyword: URI
+    - quoted_literal: '''endpoint to aurora hostname'''
+    - keyword: PORT
+    - numeric_literal: '5432'
+    - keyword: IAM_ROLE
+    - quoted_literal: '''arn:aws:iam::123456789012:role/MyAuroraRole'''
+    - keyword: SECRET_ARN
+    - quoted_literal: '''arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'''
+- statement_terminator: ;
+- statement:
+  - create_external_schema_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: sales_schema
+    - keyword: FROM
+    - keyword: REDSHIFT
+    - keyword: DATABASE
+    - quoted_literal: '''sales_db'''
+    - keyword: SCHEMA
+    - quoted_literal: '''public'''
+- statement_terminator: ;
+- statement:
+  - create_external_schema_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: myRedshiftSchema
+    - keyword: FROM
+    - keyword: MYSQL
+    - keyword: DATABASE
+    - quoted_literal: '''my_aurora_db'''
+    - keyword: URI
+    - quoted_literal: '''endpoint to aurora hostname'''
+    - keyword: IAM_ROLE
+    - quoted_literal: '''arn:aws:iam::123456789012:role/MyAuroraRole'''
+    - keyword: SECRET_ARN
+    - quoted_literal: '''arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'''
+- statement_terminator: ;
+- statement:
+  - create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: '''sampledb'''
+    - keyword: region
+    - quoted_literal: '''us-west-2'''
+    - keyword: iam_role
+    - quoted_literal: '''arn:aws:iam::123456789012:role/MySpectrumRole'''
+- statement_terminator: ;

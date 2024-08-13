@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
-use ahash::AHashMap;
-use smol_str::SmolStr;
+use ahash::{AHashMap, AHashSet};
+use smol_str::{SmolStr, ToSmolStr};
 
 use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
@@ -87,6 +87,35 @@ FROM foo
 
         let query = Query::from_segment(&context.segment, context.dialect, None);
         self.analyze_table_aliases(query.clone(), context.dialect);
+
+        if context.dialect.name == DialectKind::Redshift {
+            let mut references = AHashSet::default();
+            let mut aliases = AHashSet::default();
+
+            for alias in &query.inner.borrow().payload.aliases {
+                aliases.insert(alias.ref_str.clone());
+                if let Some(object_reference) = &alias.object_reference {
+                    for seg in object_reference.segments() {
+                        if const {
+                            SyntaxSet::new(&[
+                                SyntaxKind::Identifier,
+                                SyntaxKind::NakedIdentifier,
+                                SyntaxKind::QuotedIdentifier,
+                                SyntaxKind::ObjectReference,
+                            ])
+                        }
+                        .contains(seg.get_type())
+                        {
+                            references.insert(seg.raw().to_smolstr());
+                        }
+                    }
+                }
+            }
+
+            if aliases.intersection(&references).next().is_some() {
+                return Vec::new();
+            }
+        }
 
         for alias in &RefCell::borrow(&query.inner).payload.aliases {
             if Self::is_alias_required(&alias.from_expression_element, context.dialect.name) {

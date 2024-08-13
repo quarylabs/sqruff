@@ -26,15 +26,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: memberships
+              - naked_identifier: memberships
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: users
+                - naked_identifier: users
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -55,8 +53,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: rona_mms_charge_accounts
+                - naked_identifier: rona_mms_charge_accounts
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -149,15 +146,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: memberships
+              - naked_identifier: memberships
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: users
+                - naked_identifier: users
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -178,8 +173,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: rona_mms_charge_accounts
+                - naked_identifier: rona_mms_charge_accounts
           - join_on_condition:
             - keyword: ON
             - expression:

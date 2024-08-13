@@ -4,8 +4,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
@@ -24,8 +23,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurements
+      - naked_identifier: measurements
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
@@ -51,8 +49,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: transactions
+      - naked_identifier: transactions
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
@@ -83,8 +80,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: COLUMN
@@ -97,8 +93,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -132,8 +127,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -171,8 +165,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -227,8 +220,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -247,8 +239,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -262,8 +253,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -277,8 +267,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -292,8 +281,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -309,8 +297,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -324,8 +311,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -347,8 +333,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -369,8 +354,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -389,8 +373,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -413,8 +396,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -429,8 +411,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -451,8 +432,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -468,8 +448,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -485,8 +464,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -502,8 +480,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -521,8 +498,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -538,8 +514,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -563,8 +538,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -587,8 +561,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -609,8 +582,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -635,8 +607,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - alter_table_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -649,8 +620,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - keyword: RENAME
     - keyword: COLUMN
     - column_reference:
@@ -664,21 +634,18 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: suppliers
+      - naked_identifier: suppliers
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - keyword: RENAME
     - keyword: CONSTRAINT
     - parameter: zipchk
@@ -690,8 +657,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -706,8 +672,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -722,8 +687,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -753,8 +717,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -786,8 +749,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: CONSTRAINT
@@ -798,8 +760,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: CONSTRAINT
@@ -811,8 +772,7 @@ file:
     - keyword: TABLE
     - keyword: ONLY
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: CONSTRAINT
@@ -823,8 +783,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -840,8 +799,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: addresses
+          - naked_identifier: addresses
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -853,8 +811,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -870,8 +827,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: addresses
+          - naked_identifier: addresses
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -885,8 +841,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -902,8 +857,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: addresses
+          - naked_identifier: addresses
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -921,8 +875,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -938,8 +891,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: addresses
+          - naked_identifier: addresses
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -953,8 +905,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: VALIDATE
       - keyword: CONSTRAINT
@@ -965,8 +916,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -988,8 +938,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -1006,8 +955,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: SET
       - keyword: TABLESPACE
@@ -1019,8 +967,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: SET
       - relation_options:
@@ -1038,8 +985,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: SET
       - relation_options:
@@ -1057,8 +1003,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: SET
       - relation_options:
@@ -1082,10 +1027,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: myschema
-        - dot: .
-        - naked_identifier: distributors
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: distributors
     - keyword: SET
     - keyword: SCHEMA
     - table_reference:
@@ -1097,8 +1041,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: DROP
       - keyword: CONSTRAINT
@@ -1122,8 +1065,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement
+      - naked_identifier: measurement
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: measurement_y2016m07
@@ -1148,8 +1090,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities
+      - naked_identifier: cities
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: cities_ab
@@ -1171,8 +1112,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: orders_p4
@@ -1194,8 +1134,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: cities
+      - naked_identifier: cities
     - keyword: ATTACH
     - keyword: PARTITION
     - parameter: cities_partdef
@@ -1206,8 +1145,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement
+      - naked_identifier: measurement
     - keyword: DETACH
     - keyword: PARTITION
     - parameter: measurement_y2015m12
@@ -1217,8 +1155,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: measurement
+      - naked_identifier: measurement
     - keyword: DETACH
     - keyword: PARTITION
     - parameter: measurement_y2021m10
@@ -1230,10 +1167,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: landing
-        - dot: .
-        - naked_identifier: workorderhistory
+      - naked_identifier: landing
+      - dot: .
+      - naked_identifier: workorderhistory
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -1249,10 +1185,9 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: landing
-            - dot: .
-            - naked_identifier: workorder
+          - naked_identifier: landing
+          - dot: .
+          - naked_identifier: workorder
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -1264,8 +1199,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
@@ -1282,10 +1216,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: obm_buildings
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: obm_buildings
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: to
@@ -1296,8 +1229,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -1323,8 +1255,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -1341,8 +1272,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
       - column_reference:
@@ -1374,10 +1304,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: test
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: test
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
@@ -1388,10 +1317,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: test
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: test
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
@@ -1405,10 +1333,9 @@ file:
     - keyword: EXISTS
     - keyword: ONLY
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: test
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: test
     - alter_table_action_segment:
       - keyword: OWNER
       - keyword: TO
@@ -1419,10 +1346,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: history
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: history
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -1449,8 +1375,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl
+      - naked_identifier: tbl
     - alter_table_action_segment:
       - keyword: ADD
       - keyword: COLUMN
@@ -1513,8 +1438,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl
+      - naked_identifier: tbl
     - alter_table_action_segment:
       - keyword: ADD
       - column_reference:
@@ -1557,8 +1481,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl
+      - naked_identifier: tbl
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -1705,8 +1628,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - alter_table_action_segment:
       - keyword: SET
       - relation_options:
@@ -1760,8 +1682,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - alter_table_action_segment:
       - keyword: RESET
       - relation_options:
@@ -1815,8 +1736,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -1874,8 +1794,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - alter_table_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -1933,8 +1852,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: reservation
+      - naked_identifier: reservation
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -1959,8 +1877,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: room_reservation
+      - naked_identifier: room_reservation
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -1996,8 +1913,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: no_using
+      - naked_identifier: no_using
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:
@@ -2024,8 +1940,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: many_options
+      - naked_identifier: many_options
     - alter_table_action_segment:
       - keyword: ADD
       - table_constraint:

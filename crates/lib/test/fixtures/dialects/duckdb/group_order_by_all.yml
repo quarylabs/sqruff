@@ -41,8 +41,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: star_wars_locations
+              - naked_identifier: star_wars_locations
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -94,8 +93,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: star_wars_locations
+              - naked_identifier: star_wars_locations
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -128,8 +126,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: star_wars_universe
+              - naked_identifier: star_wars_universe
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -157,8 +154,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: luke_whats_wrong
+              - naked_identifier: luke_whats_wrong
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY

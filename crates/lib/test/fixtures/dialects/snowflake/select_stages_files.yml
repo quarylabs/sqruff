@@ -152,8 +152,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - stage_path: '@mystage1'
+              - stage_path: '@mystage1'
           - alias_expression:
             - naked_identifier: t
 - statement_terminator: ;

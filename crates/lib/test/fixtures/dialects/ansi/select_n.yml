@@ -26,8 +26,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: benchmark_summaries
+              - naked_identifier: benchmark_summaries
           - alias_expression:
             - keyword: AS
             - naked_identifier: exists_left
@@ -37,8 +36,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: business_types
+                - naked_identifier: business_types
             - alias_expression:
               - keyword: AS
               - naked_identifier: exists_right

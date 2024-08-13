@@ -10,8 +10,7 @@ file:
     - keyword: DESCRIBE
     - keyword: DETAIL
     - table_reference:
-      - object_reference:
-        - naked_identifier: eventstable
+      - naked_identifier: eventstable
 - statement_terminator: ;
 - statement:
   - describe_detail_statement:

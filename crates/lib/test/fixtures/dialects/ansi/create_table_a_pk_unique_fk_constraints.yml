@@ -4,8 +4,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -56,8 +55,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: table2
+          - naked_identifier: table2
         - bracketed:
           - start_bracket: (
           - column_reference:

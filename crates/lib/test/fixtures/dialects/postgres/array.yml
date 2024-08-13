@@ -57,8 +57,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: sal_emp
+      - naked_identifier: sal_emp
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -88,8 +87,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: tictactoe
+      - naked_identifier: tictactoe
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -120,8 +118,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: sal_emp
+              - naked_identifier: sal_emp
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -170,8 +167,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: sal_emp
+      - naked_identifier: sal_emp
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -221,8 +217,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: sal_emp
+      - naked_identifier: sal_emp
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -280,8 +275,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: sal_emp
+              - naked_identifier: sal_emp
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -327,8 +321,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: sal_emp
+              - naked_identifier: sal_emp
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -342,8 +335,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: sal_emp
+      - naked_identifier: sal_emp
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -369,8 +361,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: sal_emp
+      - naked_identifier: sal_emp
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -705,8 +696,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: direction_with_vertical_change
+              - naked_identifier: direction_with_vertical_change
 - statement_terminator: ;
 - statement:
   - select_statement:

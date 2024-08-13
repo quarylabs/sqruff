@@ -36,8 +36,7 @@ file:
                       - from_expression_element:
                         - table_expression:
                           - table_reference:
-                            - object_reference:
-                              - naked_identifier: mytable
+                            - naked_identifier: mytable
                 - end_bracket: )
             - select_statement:
               - select_clause:
@@ -59,8 +58,7 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: mycte1
+                        - naked_identifier: mycte1
           - end_bracket: )
       - select_statement:
         - select_clause:
@@ -82,7 +80,6 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: mycte2
+                  - naked_identifier: mycte2
     - end_bracket: )
 - statement_terminator: ;

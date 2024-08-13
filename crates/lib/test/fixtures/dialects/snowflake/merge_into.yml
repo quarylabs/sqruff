@@ -4,10 +4,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: xxxx
-        - dot: .
-        - naked_identifier: example_table
+      - naked_identifier: xxxx
+      - dot: .
+      - naked_identifier: example_table
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
@@ -24,12 +23,10 @@ file:
     - keyword: merge
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: target_table
+      - naked_identifier: target_table
     - keyword: using
     - table_reference:
-      - object_reference:
-        - naked_identifier: source_table
+      - naked_identifier: source_table
     - join_on_condition:
       - keyword: on
       - expression:
@@ -69,12 +66,10 @@ file:
     - keyword: merge
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: using
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - join_on_condition:
       - keyword: on
       - expression:
@@ -110,12 +105,10 @@ file:
     - keyword: merge
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: using
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - join_on_condition:
       - keyword: on
       - expression:

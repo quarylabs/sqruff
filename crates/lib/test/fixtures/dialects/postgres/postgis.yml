@@ -4,10 +4,9 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: foo
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:

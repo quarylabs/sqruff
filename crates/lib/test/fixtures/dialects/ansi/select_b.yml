@@ -13,15 +13,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: bar
+                - naked_identifier: bar
           - join_on_condition:
             - keyword: ON
             - bracketed:

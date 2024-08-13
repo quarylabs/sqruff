@@ -4,26 +4,23 @@ file:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer
+      - naked_identifier: customer
 - statement_terminator: ;
 - statement:
   - show_statement:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-      - object_reference:
-        - naked_identifier: salesdb
-        - dot: .
-        - naked_identifier: customer
+      - naked_identifier: salesdb
+      - dot: .
+      - naked_identifier: customer
 - statement_terminator: ;
 - statement:
   - show_statement:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer
+      - naked_identifier: customer
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -45,8 +42,7 @@ file:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer
+      - naked_identifier: customer
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -62,8 +58,7 @@ file:
     - keyword: SHOW
     - keyword: PARTITIONS
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer
+      - naked_identifier: customer
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (

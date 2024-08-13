@@ -5,13 +5,11 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1_mv
+      - naked_identifier: table1_mv
     - keyword: rename
     - keyword: to
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_mv
+      - naked_identifier: my_mv
 - statement_terminator: ;
 - statement:
   - alter_materialized_view_statement:
@@ -19,8 +17,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_mv
+      - naked_identifier: my_mv
     - keyword: cluster
     - keyword: by
     - expression:
@@ -37,8 +34,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_mv
+      - naked_identifier: my_mv
     - keyword: suspend
     - keyword: recluster
 - statement_terminator: ;
@@ -48,8 +44,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_mv
+      - naked_identifier: my_mv
     - keyword: resume
     - keyword: recluster
 - statement_terminator: ;
@@ -59,8 +54,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_mv
+      - naked_identifier: my_mv
     - keyword: suspend
 - statement_terminator: ;
 - statement:
@@ -69,8 +63,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_mv
+      - naked_identifier: my_mv
     - keyword: resume
 - statement_terminator: ;
 - statement:
@@ -79,8 +72,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_mv
+      - naked_identifier: my_mv
     - keyword: drop
     - keyword: clustering
     - keyword: key
@@ -91,8 +83,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: mv1
+      - naked_identifier: mv1
     - keyword: set
     - keyword: secure
 - statement_terminator: ;
@@ -102,8 +93,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: mv1
+      - naked_identifier: mv1
     - keyword: set
     - comment_equals_clause:
       - keyword: comment
@@ -117,8 +107,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: mv1
+      - naked_identifier: mv1
     - keyword: set
     - tag_equals:
       - keyword: tag
@@ -134,8 +123,7 @@ file:
     - keyword: materialized
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: mv1
+      - naked_identifier: mv1
     - keyword: unset
     - tag_equals:
       - keyword: tag

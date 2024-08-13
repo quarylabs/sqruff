@@ -5,8 +5,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - refresh_materialized_view_statement:
@@ -15,8 +14,7 @@ file:
     - keyword: VIEW
     - keyword: CONCURRENTLY
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - refresh_materialized_view_statement:
@@ -24,8 +22,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - with_data_clause:
       - keyword: WITH
       - keyword: DATA
@@ -36,8 +33,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - with_data_clause:
       - keyword: WITH
       - keyword: NO

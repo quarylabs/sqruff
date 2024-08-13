@@ -12,8 +12,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: b
+              - naked_identifier: b
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -28,8 +27,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -44,8 +42,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: case
+              - naked_identifier: case
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -60,8 +57,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: issue
+              - naked_identifier: issue
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -93,8 +89,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: my_table
+              - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -109,14 +104,12 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: my_table
+              - naked_identifier: my_table
         - join_clause:
           - keyword: cross
           - keyword: join
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: my_table2
+                - naked_identifier: my_table2
 - statement_terminator: ;

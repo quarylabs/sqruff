@@ -39,18 +39,16 @@ file:
     - keyword: DROP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: db_name
+      - naked_identifier: db_name
 - statement_terminator: ;
 - statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: name
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: name
 - statement_terminator: ;
 - statement:
   - drop_table_statement:
@@ -59,16 +57,14 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: db_name
+      - naked_identifier: db_name
 - statement_terminator: ;
 - statement:
   - drop_table_statement:
     - keyword: DROP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: db_name
+      - naked_identifier: db_name
     - on_cluster_clause:
       - keyword: ON
       - keyword: CLUSTER
@@ -79,8 +75,7 @@ file:
     - keyword: DROP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: db_name
+      - naked_identifier: db_name
     - keyword: SYNC
 - statement_terminator: ;
 - statement:
@@ -89,8 +84,7 @@ file:
     - keyword: TEMPORARY
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: db_name
+      - naked_identifier: db_name
 - statement_terminator: ;
 - statement:
   - drop_dictionary_statement:
@@ -226,18 +220,16 @@ file:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_name
+      - naked_identifier: view_name
 - statement_terminator: ;
 - statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: view_name
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: view_name
 - statement_terminator: ;
 - statement:
   - drop_view_statement:
@@ -246,16 +238,14 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_name
+      - naked_identifier: view_name
 - statement_terminator: ;
 - statement:
   - drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_name
+      - naked_identifier: view_name
     - on_cluster_clause:
       - keyword: ON
       - keyword: CLUSTER
@@ -266,8 +256,7 @@ file:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_name
+      - naked_identifier: view_name
     - keyword: SYNC
 - statement_terminator: ;
 - statement:

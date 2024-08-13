@@ -8,8 +8,7 @@ file:
     - keyword: LIVE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: target
+      - naked_identifier: target
 - statement_terminator: ;
 - statement:
   - apply_changes_into_statement:
@@ -18,10 +17,9 @@ file:
     - keyword: INTO
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: live
-          - dot: .
-          - naked_identifier: target
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -92,8 +90,7 @@ file:
     - keyword: LIVE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: target
+      - naked_identifier: target
 - statement_terminator: ;
 - statement:
   - apply_changes_into_statement:
@@ -102,10 +99,9 @@ file:
     - keyword: INTO
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: live
-          - dot: .
-          - naked_identifier: target
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -167,8 +163,7 @@ file:
     - keyword: LIVE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: target
+      - naked_identifier: target
 - statement_terminator: ;
 - statement:
   - apply_changes_into_statement:
@@ -177,10 +172,9 @@ file:
     - keyword: INTO
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: live
-          - dot: .
-          - naked_identifier: target
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -228,8 +222,7 @@ file:
     - keyword: LIVE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: target
+      - naked_identifier: target
 - statement_terminator: ;
 - statement:
   - apply_changes_into_statement:
@@ -238,10 +231,9 @@ file:
     - keyword: INTO
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: live
-          - dot: .
-          - naked_identifier: target
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
     - from_clause:
       - keyword: FROM
       - from_expression:

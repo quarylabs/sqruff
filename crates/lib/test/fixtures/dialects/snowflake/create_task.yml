@@ -23,8 +23,7 @@ file:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-          - object_reference:
-            - naked_identifier: mytable
+          - naked_identifier: mytable
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -63,8 +62,7 @@ file:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-          - object_reference:
-            - naked_identifier: mytable
+          - naked_identifier: mytable
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -130,8 +128,7 @@ file:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-          - object_reference:
-            - naked_identifier: mytable
+          - naked_identifier: mytable
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -157,8 +154,7 @@ file:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-          - object_reference:
-            - naked_identifier: mytable
+          - naked_identifier: mytable
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -195,10 +191,9 @@ file:
         - keyword: INSERT
         - keyword: INTO
         - table_reference:
-          - object_reference:
-            - naked_identifier: sch
-            - dot: .
-            - naked_identifier: s_session
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: s_session
         - select_statement:
           - select_clause:
             - keyword: SELECT
@@ -257,8 +252,7 @@ file:
                           - from_expression_element:
                             - table_expression:
                               - table_reference:
-                                - object_reference:
-                                  - naked_identifier: base_table
+                                - naked_identifier: base_table
                     - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -282,10 +276,9 @@ file:
       - update_statement:
         - keyword: UPDATE
         - table_reference:
-          - object_reference:
-            - naked_identifier: sch
-            - dot: .
-            - naked_identifier: s_session
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: s_session
         - set_clause_list:
           - keyword: SET
           - set_clause:
@@ -377,8 +370,7 @@ file:
                                     - from_expression_element:
                                       - table_expression:
                                         - table_reference:
-                                          - object_reference:
-                                            - naked_identifier: derived_table
+                                          - naked_identifier: derived_table
                               - end_bracket: )
                     - orderby_clause:
                       - keyword: ORDER

@@ -4,10 +4,9 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_view
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
     - keyword: as
     - select_statement:
       - select_clause:
@@ -22,10 +21,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: schema
-                  - dot: .
-                  - naked_identifier: table
+                - naked_identifier: schema
+                - dot: .
+                - naked_identifier: table
     - with_no_schema_binding_clause:
       - keyword: with
       - keyword: no

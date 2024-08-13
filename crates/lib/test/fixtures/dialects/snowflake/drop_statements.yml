@@ -51,10 +51,9 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: T1
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: T1
 - statement_terminator: ;
 - statement:
   - drop_external_table_statement:
@@ -64,10 +63,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: T1
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: T1
 - statement_terminator: ;
 - statement:
   - drop_external_table_statement:
@@ -77,10 +75,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: T1
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: T1
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -180,10 +177,9 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: MV1
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: MV1
 - statement_terminator: ;
 - statement:
   - drop_materialized_view_statement:
@@ -193,10 +189,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: MV1
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: MV1
 - statement_terminator: ;
 - statement:
   - drop_object_statement:
@@ -437,10 +432,9 @@ file:
     - keyword: DROP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: T2
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: T2
 - statement_terminator: ;
 - statement:
   - drop_table_statement:
@@ -449,10 +443,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: T2
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: T2
 - statement_terminator: ;
 - statement:
   - drop_table_statement:
@@ -461,10 +454,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: T2
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: T2
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -524,10 +516,9 @@ file:
     - keyword: DROP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: MY_VIEW
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: MY_VIEW
 - statement_terminator: ;
 - statement:
   - drop_view_statement:
@@ -536,10 +527,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-        - dot: .
-        - naked_identifier: MY_VIEW
+      - naked_identifier: MY_SCHEMA
+      - dot: .
+      - naked_identifier: MY_VIEW
 - statement_terminator: ;
 - statement:
   - drop_object_statement:

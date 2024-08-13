@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: student
+      - naked_identifier: student
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -43,8 +42,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_delta_table
+      - naked_identifier: my_delta_table
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:

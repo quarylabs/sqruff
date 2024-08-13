@@ -3,8 +3,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -26,8 +25,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: weather
+      - naked_identifier: weather
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -77,8 +75,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: weather
+      - naked_identifier: weather
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -140,8 +137,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: weather
+      - naked_identifier: weather
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -193,8 +189,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: employees
+      - naked_identifier: employees
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -213,8 +208,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: accounts
+              - naked_identifier: accounts
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -241,8 +235,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: employees
+      - naked_identifier: employees
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -277,8 +270,7 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: accounts
+                        - naked_identifier: accounts
               - where_clause:
                 - keyword: WHERE
                 - expression:
@@ -293,8 +285,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -326,8 +317,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: salesmen
+                      - naked_identifier: salesmen
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -347,8 +337,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -372,8 +361,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: salesmen
+              - naked_identifier: salesmen
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -392,8 +380,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: summary
+      - naked_identifier: summary
     - alias_expression:
       - naked_identifier: s
     - set_clause_list:
@@ -469,8 +456,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: data
+                      - naked_identifier: data
                   - alias_expression:
                     - naked_identifier: d
             - where_clause:
@@ -492,8 +478,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -512,8 +497,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -532,8 +516,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: employees
+      - naked_identifier: employees
     - set_clause_list:
       - keyword: SET
       - set_clause:

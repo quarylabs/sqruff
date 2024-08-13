@@ -4,33 +4,30 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: new_name
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: new_name
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -47,12 +44,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -66,12 +62,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -88,12 +83,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMNS
     - bracketed:
@@ -115,12 +109,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -149,12 +142,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -171,12 +163,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -210,12 +201,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -234,12 +224,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -278,12 +267,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -302,12 +290,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -325,12 +312,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: COLUMN
     - column_definition:
@@ -348,12 +334,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: RENAME
     - keyword: COLUMN
     - column_reference:
@@ -367,12 +352,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: RENAME
     - keyword: COLUMN
     - column_reference:
@@ -388,12 +372,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
@@ -408,12 +391,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
@@ -430,12 +412,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
@@ -448,12 +429,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
@@ -465,12 +445,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
@@ -486,12 +465,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ALTER
     - keyword: COLUMN
     - column_reference:
@@ -505,12 +483,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: COLUMN
     - column_reference:
@@ -521,12 +498,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: COLUMN
     - column_reference:
@@ -539,12 +515,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: PARTITION
     - keyword: FIELD
@@ -556,12 +531,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: PARTITION
     - keyword: FIELD
@@ -580,12 +554,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: PARTITION
     - keyword: FIELD
@@ -604,12 +577,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: PARTITION
     - keyword: FIELD
@@ -626,12 +598,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: ADD
     - keyword: PARTITION
     - keyword: FIELD
@@ -652,12 +623,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: PARTITION
     - keyword: FIELD
@@ -669,12 +639,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: PARTITION
     - keyword: FIELD
@@ -693,12 +662,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: PARTITION
     - keyword: FIELD
@@ -717,12 +685,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: PARTITION
     - keyword: FIELD
@@ -739,12 +706,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: PARTITION
     - keyword: FIELD
@@ -756,12 +722,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: REPLACE
     - keyword: PARTITION
     - keyword: FIELD
@@ -781,12 +746,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: REPLACE
     - keyword: PARTITION
     - keyword: FIELD
@@ -808,12 +772,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: WRITE
     - keyword: ORDERED
     - keyword: BY
@@ -828,12 +791,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: WRITE
     - keyword: ORDERED
     - keyword: BY
@@ -850,12 +812,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: WRITE
     - keyword: ORDERED
     - keyword: BY
@@ -876,12 +837,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: WRITE
     - keyword: LOCALLY
     - keyword: ORDERED
@@ -897,12 +857,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: WRITE
     - keyword: DISTRIBUTED
     - keyword: BY
@@ -913,12 +872,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: WRITE
     - keyword: DISTRIBUTED
     - keyword: BY
@@ -937,12 +895,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: SET
     - keyword: IDENTIFIER
     - keyword: FIELDS
@@ -954,12 +911,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: SET
     - keyword: IDENTIFIER
     - keyword: FIELDS
@@ -974,12 +930,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: IDENTIFIER
     - keyword: FIELDS
@@ -991,12 +946,11 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - keyword: DROP
     - keyword: IDENTIFIER
     - keyword: FIELDS

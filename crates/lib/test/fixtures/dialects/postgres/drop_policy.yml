@@ -7,8 +7,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
 - statement_terminator: ;
 - statement:
   - drop_policy_statement:
@@ -20,8 +19,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
 - statement_terminator: ;
 - statement:
   - drop_policy_statement:
@@ -31,8 +29,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -43,8 +40,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -57,7 +53,6 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: RESTRICT
 - statement_terminator: ;

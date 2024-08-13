@@ -14,8 +14,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
           - alias_expression:
             - keyword: AS
             - naked_identifier: f

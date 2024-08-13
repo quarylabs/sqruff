@@ -57,12 +57,11 @@ file:
     - keyword: replace
     - keyword: table
     - table_reference:
-      - object_reference:
-        - keyword: identifier
-        - bracketed:
-          - start_bracket: (
-          - quoted_identifier: '''my_db.my_schema.my_table'''
-          - end_bracket: )
+      - keyword: identifier
+      - bracketed:
+        - start_bracket: (
+        - quoted_identifier: '''my_db.my_schema.my_table'''
+        - end_bracket: )
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -78,12 +77,11 @@ file:
     - keyword: replace
     - keyword: table
     - table_reference:
-      - object_reference:
-        - keyword: identifier
-        - bracketed:
-          - start_bracket: (
-          - quoted_identifier: '''"my_table"'''
-          - end_bracket: )
+      - keyword: identifier
+      - bracketed:
+        - start_bracket: (
+        - quoted_identifier: '''"my_table"'''
+        - end_bracket: )
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -122,12 +120,11 @@ file:
     - keyword: insert
     - keyword: into
     - table_reference:
-      - object_reference:
-        - keyword: identifier
-        - bracketed:
-          - start_bracket: (
-          - variable: $table_name
-          - end_bracket: )
+      - keyword: identifier
+      - bracketed:
+        - start_bracket: (
+        - variable: $table_name
+        - end_bracket: )
     - values_clause:
       - keyword: values
       - bracketed:
@@ -162,12 +159,11 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - keyword: identifier
-                - bracketed:
-                  - start_bracket: (
-                  - variable: $table_name
-                  - end_bracket: )
+              - keyword: identifier
+              - bracketed:
+                - start_bracket: (
+                - variable: $table_name
+                - end_bracket: )
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -187,12 +183,11 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - keyword: identifier
-                - bracketed:
-                  - start_bracket: (
-                  - quoted_identifier: '''my_table'''
-                  - end_bracket: )
+              - keyword: identifier
+              - bracketed:
+                - start_bracket: (
+                - quoted_identifier: '''my_table'''
+                - end_bracket: )
     - orderby_clause:
       - keyword: order
       - keyword: by

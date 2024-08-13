@@ -28,6 +28,5 @@ file:
     - keyword: DESCRIBE
     - keyword: HISTORY
     - table_reference:
-      - object_reference:
-        - naked_identifier: EVENTSTABLE
+      - naked_identifier: EVENTSTABLE
 - statement_terminator: ;

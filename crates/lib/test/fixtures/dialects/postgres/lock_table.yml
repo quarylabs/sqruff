@@ -4,8 +4,7 @@ file:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - keyword: IN
     - keyword: SHARE
     - keyword: MODE
@@ -15,8 +14,7 @@ file:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - keyword: IN
     - keyword: SHARE
     - keyword: ROW
@@ -28,8 +26,7 @@ file:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: team
+      - naked_identifier: team
     - keyword: IN
     - keyword: ACCESS
     - keyword: EXCLUSIVE
@@ -40,8 +37,7 @@ file:
     - keyword: lock
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: stud1
+      - naked_identifier: stud1
     - keyword: IN
     - keyword: SHARE
     - keyword: UPDATE
@@ -53,7 +49,6 @@ file:
     - keyword: LOCK
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: crontable
+      - naked_identifier: crontable
     - keyword: NOWAIT
 - statement_terminator: ;

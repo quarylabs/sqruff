@@ -12,8 +12,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -36,8 +35,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -63,8 +61,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: demo1
+              - naked_identifier: demo1
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -90,8 +87,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: demo1
+              - naked_identifier: demo1
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -117,8 +113,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: demo1
+              - naked_identifier: demo1
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -143,8 +138,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -167,8 +161,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -192,8 +185,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -217,8 +209,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -242,8 +233,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -267,8 +257,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -292,8 +281,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -318,8 +306,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -346,8 +333,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - orderby_clause:
       - keyword: order
       - keyword: by
@@ -374,8 +360,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: testtable
+              - naked_identifier: testtable
     - limit_clause:
       - keyword: offset
       - numeric_literal: '3'

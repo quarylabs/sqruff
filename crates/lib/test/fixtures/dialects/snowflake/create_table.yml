@@ -7,8 +7,7 @@ file:
     - keyword: not
     - keyword: exists
     - table_reference:
-      - object_reference:
-        - quoted_identifier: '"p08_base"'
+      - quoted_identifier: '"p08_base"'
     - keyword: as
     - select_statement:
       - select_clause:
@@ -32,8 +31,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - quoted_identifier: '"_p08"'
+                - quoted_identifier: '"_p08"'
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -43,8 +41,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -58,8 +55,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -73,8 +69,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -96,8 +91,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -122,8 +116,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: CLUSTER
     - keyword: BY
     - bracketed:
@@ -145,8 +138,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: CLUSTER
     - keyword: BY
     - function:
@@ -171,8 +163,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable_copy2
+      - naked_identifier: mytable_copy2
     - keyword: as
     - select_statement:
       - select_clause:
@@ -192,20 +183,17 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: mytable_copy
+                - naked_identifier: mytable_copy
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable_2
+      - naked_identifier: mytable_2
     - keyword: like
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -213,8 +201,7 @@ file:
     - keyword: temporary
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: demo_temporary
+      - naked_identifier: demo_temporary
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -229,8 +216,7 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: demo_temp
+      - naked_identifier: demo_temp
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -246,8 +232,7 @@ file:
     - keyword: temporary
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: demo_local_temporary
+      - naked_identifier: demo_local_temporary
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -263,8 +248,7 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: demo_local_temp
+      - naked_identifier: demo_local_temp
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -280,8 +264,7 @@ file:
     - keyword: temporary
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: demo_global_temporary
+      - naked_identifier: demo_global_temporary
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -297,8 +280,7 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: demo_global_temp
+      - naked_identifier: demo_global_temp
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -313,8 +295,7 @@ file:
     - keyword: volatile
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: demo_volatile
+      - naked_identifier: demo_volatile
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -328,8 +309,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: example
+      - naked_identifier: example
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -351,8 +331,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: testtable_summary
+      - naked_identifier: testtable_summary
     - bracketed:
       - start_bracket: (
       - naked_identifier: name
@@ -380,16 +359,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: testtable
+                - naked_identifier: testtable
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: testtable_summary
+      - naked_identifier: testtable_summary
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -418,16 +395,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: testtable
+                - naked_identifier: testtable
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: testtable_summary
+      - naked_identifier: testtable_summary
     - keyword: as
     - select_statement:
       - select_clause:
@@ -449,8 +424,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: testtable
+                - naked_identifier: testtable
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -459,8 +433,7 @@ file:
     - keyword: replace
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: parquet_col
+      - naked_identifier: parquet_col
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -559,16 +532,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - stage_path: '@my_stage'
+                - stage_path: '@my_stage'
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: collation_demo
+      - naked_identifier: collation_demo
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -609,8 +580,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: using
     - keyword: template
     - bracketed:
@@ -667,8 +637,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: dollar_sign_table
+      - naked_identifier: dollar_sign_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -682,10 +651,9 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: dollar_sign_schema
-        - dot: .
-        - naked_identifier: dollar_sign_table
+      - naked_identifier: dollar_sign_schema
+      - dot: .
+      - naked_identifier: dollar_sign_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -699,8 +667,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: timestamp_column_default_value_demo
+      - naked_identifier: timestamp_column_default_value_demo
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -753,8 +720,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_table
+      - naked_identifier: test_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -776,10 +742,9 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_schema
-        - dot: .
-        - naked_identifier: test_table
+      - naked_identifier: test_schema
+      - dot: .
+      - naked_identifier: test_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -803,10 +768,9 @@ file:
     - keyword: replace
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_schema
-        - dot: .
-        - naked_identifier: test_table
+      - naked_identifier: test_schema
+      - dot: .
+      - naked_identifier: test_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -828,10 +792,9 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_schema
-        - dot: .
-        - naked_identifier: test_table
+      - naked_identifier: test_schema
+      - dot: .
+      - naked_identifier: test_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -847,8 +810,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_table
+      - naked_identifier: test_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -883,10 +845,9 @@ file:
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: SCHEMA1
-        - dot: .
-        - naked_identifier: TABLE1
+      - naked_identifier: SCHEMA1
+      - dot: .
+      - naked_identifier: TABLE1
     - bracketed:
       - start_bracket: (
       - column_definition:

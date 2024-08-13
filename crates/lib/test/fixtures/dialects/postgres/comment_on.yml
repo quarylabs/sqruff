@@ -5,8 +5,7 @@ file:
     - keyword: ON
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: IS
     - quoted_literal: '''This is my table.'''
 - statement_terminator: ;
@@ -16,8 +15,7 @@ file:
     - keyword: ON
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: IS
     - keyword: 'NULL'
 - statement_terminator: ;
@@ -416,10 +414,9 @@ file:
     - keyword: ON
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_table
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
     - keyword: IS
     - quoted_literal: '''Employee Information'''
 - statement_terminator: ;
@@ -510,8 +507,7 @@ file:
     - keyword: ON
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_view
+      - naked_identifier: my_view
     - keyword: IS
     - quoted_literal: '''View of departmental costs'''
 - statement_terminator: ;

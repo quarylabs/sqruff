@@ -10,8 +10,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
 - statement_terminator: ;
 - statement:
   - alter_publication_statement:
@@ -24,15 +23,13 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
     - comma: ','
     - publication_objects:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: ghi
+          - naked_identifier: ghi
 - statement_terminator: ;
 - statement:
   - alter_publication_statement:
@@ -45,28 +42,24 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: ghi
+          - naked_identifier: ghi
         - star: '*'
       - comma: ','
       - publication_table:
         - keyword: ONLY
         - table_reference:
-          - object_reference:
-            - naked_identifier: jkl
+          - naked_identifier: jkl
       - comma: ','
       - publication_table:
         - keyword: ONLY
         - bracketed:
           - start_bracket: (
           - table_reference:
-            - object_reference:
-              - naked_identifier: mno
+            - naked_identifier: mno
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -80,13 +73,11 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: def
+          - naked_identifier: def
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: ghi
+          - naked_identifier: ghi
     - comma: ','
     - publication_objects:
       - keyword: TABLES
@@ -205,8 +196,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -218,8 +208,7 @@ file:
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: departments
+          - naked_identifier: departments
 - statement_terminator: ;
 - statement:
   - alter_publication_statement:
@@ -232,8 +221,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -250,8 +238,7 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: departments
+          - naked_identifier: departments
 - statement_terminator: ;
 - statement:
   - alter_publication_statement:
@@ -283,13 +270,11 @@ file:
       - keyword: TABLE
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
       - comma: ','
       - publication_table:
         - table_reference:
-          - object_reference:
-            - naked_identifier: departments
+          - naked_identifier: departments
     - comma: ','
     - publication_objects:
       - keyword: TABLES

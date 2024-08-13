@@ -1,0 +1,24 @@
+file:
+- statement:
+  - lock_table_statement:
+    - keyword: lock
+    - table_reference:
+      - naked_identifier: event
+    - comma: ','
+    - table_reference:
+      - naked_identifier: sales
+- statement_terminator: ;
+- statement:
+  - lock_table_statement:
+    - keyword: LOCK
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: schema_name
+      - dot: .
+      - naked_identifier: table_name1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: schema_name
+      - dot: .
+      - naked_identifier: table_name2
+- statement_terminator: ;

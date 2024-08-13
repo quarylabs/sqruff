@@ -16,8 +16,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: baz
+              - naked_identifier: baz
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -58,8 +57,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: nurses
+              - naked_identifier: nurses
     - groupby_clause:
       - keyword: group
       - keyword: by
@@ -100,8 +98,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: nurses
+              - naked_identifier: nurses
     - groupby_clause:
       - keyword: group
       - keyword: by

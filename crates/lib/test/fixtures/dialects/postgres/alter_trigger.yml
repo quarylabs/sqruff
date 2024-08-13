@@ -7,8 +7,7 @@ file:
       - naked_identifier: foo
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: RENAME
     - keyword: TO
     - trigger_reference:
@@ -22,8 +21,7 @@ file:
       - naked_identifier: foo
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: DEPENDS
     - keyword: ON
     - keyword: EXTENSION
@@ -38,8 +36,7 @@ file:
       - naked_identifier: foo
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: NO
     - keyword: DEPENDS
     - keyword: ON
@@ -55,8 +52,7 @@ file:
       - naked_identifier: emp_stamp
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: emp
+      - naked_identifier: emp
     - keyword: RENAME
     - keyword: TO
     - trigger_reference:
@@ -70,8 +66,7 @@ file:
       - naked_identifier: emp_stamp
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: emp
+      - naked_identifier: emp
     - keyword: DEPENDS
     - keyword: ON
     - keyword: EXTENSION

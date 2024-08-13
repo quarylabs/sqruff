@@ -1,0 +1,112 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: auto
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: avro
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: backup
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: bzip2
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: case_insensitive
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: case_sensitive
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: compound
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: defaults
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: deflate
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: distkey
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: diststyle
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: encode
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: even
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: excluding
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: explicit
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: gzip
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: including
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: interleaved
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: language
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: lzop
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: offline
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: partitioned
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: sortkey
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: wallet
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: zstd
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: foo
+- statement_terminator: ;

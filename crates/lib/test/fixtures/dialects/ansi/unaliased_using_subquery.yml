@@ -13,8 +13,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: A_TABLE
+              - naked_identifier: A_TABLE
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
@@ -34,8 +33,7 @@ file:
                       - from_expression_element:
                         - table_expression:
                           - table_reference:
-                            - object_reference:
-                              - naked_identifier: B_TABLE
+                            - naked_identifier: B_TABLE
                 - end_bracket: )
           - keyword: USING
           - bracketed:

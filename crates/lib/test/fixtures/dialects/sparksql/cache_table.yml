@@ -4,8 +4,7 @@ file:
     - keyword: CACHE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: TESTCACHE
+      - naked_identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -29,8 +28,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: TESTDATA
+                - naked_identifier: TESTDATA
 - statement_terminator: ;
 - statement:
   - cache_table:
@@ -38,8 +36,7 @@ file:
     - keyword: LAZY
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: TESTCACHE
+      - naked_identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -59,16 +56,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: TESTDATA
+                - naked_identifier: TESTDATA
 - statement_terminator: ;
 - statement:
   - cache_table:
     - keyword: CACHE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: TESTCACHE
+      - naked_identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -89,16 +84,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: TESTDATA
+                - naked_identifier: TESTDATA
 - statement_terminator: ;
 - statement:
   - cache_table:
     - keyword: CACHE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: TESTCACHE
+      - naked_identifier: TESTCACHE
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
@@ -121,14 +114,12 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: TESTDATA
+                - naked_identifier: TESTDATA
 - statement_terminator: ;
 - statement:
   - cache_table:
     - keyword: CACHE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: TESTCACHE
+      - naked_identifier: TESTCACHE
 - statement_terminator: ;

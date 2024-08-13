@@ -7,8 +7,7 @@ file:
       - bucket_path: '''s3://mybucket/unload/'''
     - keyword: from
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - s3_external_stage_parameters:
       - keyword: credentials
       - comparison_operator:

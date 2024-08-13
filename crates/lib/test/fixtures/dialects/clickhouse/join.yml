@@ -13,16 +13,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: ALL
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -51,16 +49,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: ANY
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -89,15 +85,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -126,16 +120,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -164,8 +156,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: INNER
           - keyword: ALL
@@ -173,8 +164,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -203,8 +193,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: INNER
           - keyword: ANY
@@ -212,8 +201,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -242,8 +230,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: ALL
           - keyword: INNER
@@ -251,8 +238,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -281,8 +267,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: ANY
           - keyword: INNER
@@ -290,8 +275,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -320,16 +304,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -359,8 +341,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: LEFT
           - keyword: ANTI
@@ -368,8 +349,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -398,8 +378,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -410,8 +389,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -431,8 +409,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -443,8 +420,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -464,8 +440,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -476,8 +451,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -497,8 +471,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -509,8 +482,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -531,8 +503,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: ANTI
           - keyword: LEFT
@@ -540,8 +511,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -570,8 +540,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -582,8 +551,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -603,8 +571,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -615,8 +582,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -636,8 +602,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -648,8 +613,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -669,8 +633,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -681,8 +644,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - bracketed:
             - start_bracket: (
@@ -705,8 +667,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -717,8 +678,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -738,8 +698,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -751,8 +710,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -773,8 +731,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: LEFT
           - keyword: ANTI
@@ -783,8 +740,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -813,8 +769,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -826,8 +781,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -847,8 +801,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -860,8 +813,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -881,8 +833,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -894,8 +845,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -915,8 +865,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -928,8 +877,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -949,16 +897,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: RIGHT
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -988,8 +934,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: RIGHT
           - keyword: ANTI
@@ -997,8 +942,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -1027,8 +971,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1039,8 +982,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1060,8 +1002,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1072,8 +1013,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1093,8 +1033,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1105,8 +1044,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1127,8 +1065,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: ANTI
           - keyword: RIGHT
@@ -1136,8 +1073,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -1166,8 +1102,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1178,8 +1113,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1199,8 +1133,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1211,8 +1144,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1232,8 +1164,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1244,8 +1175,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1265,8 +1195,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1277,8 +1206,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1298,8 +1226,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1311,8 +1238,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1332,8 +1258,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1345,8 +1270,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1366,8 +1290,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1379,8 +1302,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1400,8 +1322,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1413,8 +1334,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1435,8 +1355,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
           - alias_expression:
             - naked_identifier: ASOF
         - join_clause:
@@ -1444,8 +1363,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -1474,16 +1392,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -1499,8 +1415,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1511,8 +1426,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1532,8 +1446,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1543,8 +1456,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1564,8 +1476,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
           - alias_expression:
             - keyword: as
             - naked_identifier: t1
@@ -1577,8 +1488,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test2
+                - naked_identifier: test2
           - keyword: USING
           - naked_identifier: ty1
           - comma: ','
@@ -1610,8 +1520,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: test1
+                          - naked_identifier: test1
               - end_bracket: )
           - alias_expression:
             - keyword: AS

@@ -10,8 +10,7 @@ file:
       - naked_identifier: transaction_updated
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: transaction_master
+      - naked_identifier: transaction_master
     - bracketed:
       - start_bracket: (
       - index_column_definition:

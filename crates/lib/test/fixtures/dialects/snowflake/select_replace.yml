@@ -27,8 +27,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -68,6 +67,5 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
 - statement_terminator: ;

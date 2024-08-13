@@ -14,10 +14,9 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: sch
-                - dot: .
-                - naked_identifier: table1
+              - naked_identifier: sch
+              - dot: .
+              - naked_identifier: table1
           - alias_expression:
             - keyword: as
             - naked_identifier: t

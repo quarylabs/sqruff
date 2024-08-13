@@ -10,8 +10,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_load
+      - naked_identifier: test_load
 - statement_terminator: ;
 - statement:
   - load_data_statement:
@@ -24,8 +23,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_load_partition
+      - naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -52,8 +50,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_load
+      - naked_identifier: test_load
 - statement_terminator: ;
 - statement:
   - load_data_statement:
@@ -65,8 +62,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_load_partition
+      - naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -92,8 +88,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: test_load_partition
+      - naked_identifier: test_load_partition
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (

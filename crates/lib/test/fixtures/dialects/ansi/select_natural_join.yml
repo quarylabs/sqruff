@@ -13,16 +13,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -38,8 +36,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: INNER
@@ -47,8 +44,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -64,8 +60,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: LEFT
@@ -73,8 +68,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -90,8 +84,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: LEFT
@@ -100,8 +93,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -117,8 +109,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: RIGHT
@@ -126,8 +117,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -143,8 +133,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: RIGHT
@@ -153,8 +142,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -170,8 +158,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: FULL
@@ -179,8 +166,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -196,8 +182,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table1
+              - naked_identifier: table1
         - join_clause:
           - keyword: NATURAL
           - keyword: FULL
@@ -206,6 +191,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table2
+                - naked_identifier: table2
 - statement_terminator: ;

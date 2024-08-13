@@ -3,8 +3,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -52,8 +51,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: table2
+              - naked_identifier: table2
           - alias_expression:
             - naked_identifier: t2
 - statement_terminator: ;

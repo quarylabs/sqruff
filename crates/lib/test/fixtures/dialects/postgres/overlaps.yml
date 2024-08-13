@@ -16,8 +16,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test_overlaps
+              - naked_identifier: test_overlaps
     - where_clause:
       - keyword: where
       - expression:
@@ -61,8 +60,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test_overlaps
+              - naked_identifier: test_overlaps
     - where_clause:
       - keyword: where
       - expression:

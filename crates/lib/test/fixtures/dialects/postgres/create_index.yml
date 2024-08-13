@@ -8,8 +8,7 @@ file:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -26,8 +25,7 @@ file:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -54,8 +52,7 @@ file:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -79,8 +76,7 @@ file:
     - keyword: INDEX
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -107,8 +103,7 @@ file:
       - naked_identifier: title_idx_german
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -128,8 +123,7 @@ file:
       - naked_identifier: title_idx_nulls_low
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -148,8 +142,7 @@ file:
       - naked_identifier: title_idx_nulls_high
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -169,8 +162,7 @@ file:
       - naked_identifier: title_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -196,8 +188,7 @@ file:
       - naked_identifier: gin_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: documents_table
+      - naked_identifier: documents_table
     - keyword: USING
     - index_access_method:
       - naked_identifier: GIN
@@ -226,8 +217,7 @@ file:
       - naked_identifier: code_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -246,8 +236,7 @@ file:
       - naked_identifier: pointloc
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: points
+      - naked_identifier: points
     - keyword: USING
     - index_access_method:
       - naked_identifier: gist
@@ -278,8 +267,7 @@ file:
       - naked_identifier: sales_quantity_index
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: sales_table
+      - naked_identifier: sales_table
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -295,8 +283,7 @@ file:
       - naked_identifier: super_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: super_table
+      - naked_identifier: super_table
     - keyword: USING
     - index_access_method:
       - naked_identifier: btree
@@ -317,10 +304,9 @@ file:
       - naked_identifier: opclass_index
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: schema
-        - dot: .
-        - naked_identifier: opclass_table
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: opclass_table
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -339,10 +325,9 @@ file:
       - naked_identifier: opclass_index_with_parameters
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: schema
-        - dot: .
-        - naked_identifier: opclass_table
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: opclass_table
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -377,8 +362,7 @@ file:
       - naked_identifier: tests_success_constraint
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: tests
+      - naked_identifier: tests
     - bracketed:
       - start_bracket: (
       - index_element:
@@ -402,8 +386,7 @@ file:
       - naked_identifier: nulls_distinct_index
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: documents_table
+      - naked_identifier: documents_table
     - keyword: USING
     - index_access_method:
       - naked_identifier: GIN
@@ -434,8 +417,7 @@ file:
       - naked_identifier: nulls_not_distinct_index
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: documents_table
+      - naked_identifier: documents_table
     - keyword: USING
     - index_access_method:
       - naked_identifier: GIN
@@ -467,8 +449,7 @@ file:
       - naked_identifier: code_idx
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - bracketed:
       - start_bracket: (
       - index_element:

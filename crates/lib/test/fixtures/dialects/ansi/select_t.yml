@@ -13,8 +13,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: TABLE_1
+              - naked_identifier: TABLE_1
         - join_clause:
           - keyword: FULL
           - keyword: OUTER
@@ -37,8 +36,7 @@ file:
                         - from_expression_element:
                           - table_expression:
                             - table_reference:
-                              - object_reference:
-                                - naked_identifier: Table_B
+                              - naked_identifier: Table_B
                     - where_clause:
                       - keyword: WHERE
                       - expression:
@@ -63,8 +61,7 @@ file:
                         - from_expression_element:
                           - table_expression:
                             - table_reference:
-                              - object_reference:
-                                - naked_identifier: TABLE_C
+                              - naked_identifier: TABLE_C
                     - where_clause:
                       - keyword: WHERE
                       - expression:

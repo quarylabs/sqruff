@@ -16,8 +16,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -43,8 +42,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -70,8 +68,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -98,8 +95,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -125,8 +121,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -152,8 +147,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -179,8 +173,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -208,8 +201,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -243,8 +235,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -278,8 +269,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -313,8 +303,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -349,8 +338,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -385,8 +373,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -417,8 +404,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: ilike_all_table
+              - naked_identifier: ilike_all_table
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -448,8 +434,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: ilike_any_table
+              - naked_identifier: ilike_any_table
     - where_clause:
       - keyword: WHERE
       - expression:

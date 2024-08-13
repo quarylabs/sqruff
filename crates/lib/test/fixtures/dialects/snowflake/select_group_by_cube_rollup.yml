@@ -28,8 +28,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: people
+              - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -72,8 +71,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: people
+              - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY

@@ -8,12 +8,14 @@ pub mod duckdb;
 pub mod hive;
 pub mod postgres;
 pub mod postgres_keywords;
+pub mod redshift;
+mod redshift_keywords;
 pub mod snowflake;
 pub mod snowflake_keywords;
 pub mod sparksql;
 pub mod sparksql_keywords;
 pub mod sqlite;
-mod sqlite_keywords;
+pub mod sqlite_keywords;
 
 #[derive(
     Debug,
@@ -576,6 +578,31 @@ pub enum SyntaxKind {
     PragmaStatement,
     PragmaReference,
     Slash,
+    DataFormatSegment,
+    AuthorizationSegment,
+    ColumnAttributeSegment,
+    ShowModelStatement,
+    CreateExternalSchemaStatement,
+    CreateLibraryStatement,
+    UnloadStatement,
+    DeclareStatement,
+    FetchStatement,
+    CloseStatement,
+    CreateDatashareStatement,
+    DescDatashareStatement,
+    DropDatashareStatement,
+    ShowDatasharesStatement,
+    GrantDatashareStatement,
+    CreateRlsPolicyStatement,
+    ManageRlsPolicyStatement,
+    DropRlsPolicyStatement,
+    AnalyzeCompressionStatement,
+    PartitionedBySegment,
+    RowFormatDelimitedSegment,
+    ObjectUnpivoting,
+    ArrayUnnesting,
+    AlterGroup,
+    CreateGroup,
 }
 
 impl SyntaxKind {

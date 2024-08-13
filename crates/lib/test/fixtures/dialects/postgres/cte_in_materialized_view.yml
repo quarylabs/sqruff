@@ -5,10 +5,9 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: mv_sales
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: mv_sales
     - keyword: TABLESPACE
     - tablespace_reference:
       - naked_identifier: pg_default
@@ -46,8 +45,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: orders
+                      - naked_identifier: orders
             - groupby_clause:
               - keyword: GROUP
               - keyword: BY
@@ -72,8 +70,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: regional_sales
+                      - naked_identifier: regional_sales
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -106,8 +103,7 @@ file:
                           - from_expression_element:
                             - table_expression:
                               - table_reference:
-                                - object_reference:
-                                  - naked_identifier: regional_sales
+                                - naked_identifier: regional_sales
                   - end_bracket: )
           - end_bracket: )
       - select_statement:
@@ -154,8 +150,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: orders
+                  - naked_identifier: orders
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -176,8 +171,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: top_regions
+                          - naked_identifier: top_regions
               - end_bracket: )
         - groupby_clause:
           - keyword: GROUP

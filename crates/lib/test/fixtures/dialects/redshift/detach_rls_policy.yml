@@ -1,0 +1,39 @@
+file:
+- statement:
+  - manage_rls_policy_statement:
+    - keyword: DETACH
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: policy_concerts
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: tickit_category_redshift
+    - keyword: FROM
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: analyst
+    - comma: ','
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: dbadmin
+- statement_terminator: ;
+- statement:
+  - manage_rls_policy_statement:
+    - keyword: DETACH
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: policy_concerts
+    - keyword: ON
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: tickit_category_redshift
+    - keyword: FROM
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: role1
+    - comma: ','
+    - role_reference:
+      - naked_identifier: user1
+- statement_terminator: ;

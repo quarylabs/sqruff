@@ -112,8 +112,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: employees
+              - naked_identifier: employees
     - where_clause:
       - keyword: where
       - expression:
@@ -143,8 +142,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t1
+              - naked_identifier: t1
     - where_clause:
       - keyword: where
       - expression:

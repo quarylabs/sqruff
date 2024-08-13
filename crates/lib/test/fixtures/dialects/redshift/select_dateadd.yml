@@ -1,0 +1,20 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dateadd
+          - bracketed:
+            - start_bracket: (
+            - date_part: month
+            - comma: ','
+            - expression:
+              - numeric_literal: '18'
+            - comma: ','
+            - expression:
+              - quoted_literal: '''2008-02-28'''
+            - end_bracket: )
+- statement_terminator: ;

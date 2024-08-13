@@ -4,8 +4,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -37,8 +36,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -83,8 +81,7 @@ file:
     - keyword: ABORT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -129,8 +126,7 @@ file:
     - keyword: FAIL
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -175,8 +171,7 @@ file:
     - keyword: IGNORE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -221,8 +216,7 @@ file:
     - keyword: REPLACE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -265,8 +259,7 @@ file:
     - keyword: REPLACE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -311,8 +304,7 @@ file:
     - keyword: ROLLBACK
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -355,8 +347,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -394,8 +385,7 @@ file:
                       - from_expression_element:
                         - table_expression:
                           - table_reference:
-                            - object_reference:
-                              - naked_identifier: t2
+                            - naked_identifier: t2
                 - end_bracket: )
             - alias_expression:
               - keyword: AS
@@ -406,8 +396,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: DEFAULT
     - keyword: VALUES
 - statement_terminator: ;
@@ -416,8 +405,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:

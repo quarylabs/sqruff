@@ -40,19 +40,16 @@ file:
   - vacuum_statement:
     - keyword: VACUUM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl
+      - naked_identifier: tbl
 - statement_terminator: ;
 - statement:
   - vacuum_statement:
     - keyword: VACUUM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl1
+      - naked_identifier: tbl1
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl2
+      - naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
   - vacuum_statement:
@@ -62,20 +59,17 @@ file:
     - keyword: VERBOSE
     - keyword: ANALYSE
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl1
+      - naked_identifier: tbl1
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl2
+      - naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
   - vacuum_statement:
     - keyword: VACUUM
     - keyword: FULL
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl1
+      - naked_identifier: tbl1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -86,16 +80,14 @@ file:
       - end_bracket: )
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl2
+      - naked_identifier: tbl2
 - statement_terminator: ;
 - statement:
   - vacuum_statement:
     - keyword: VACUUM
     - keyword: FULL
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl1
+      - naked_identifier: tbl1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -103,8 +95,7 @@ file:
       - end_bracket: )
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl2
+      - naked_identifier: tbl2
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -132,8 +123,7 @@ file:
       - keyword: FREEZE
       - end_bracket: )
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl1
+      - naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
   - vacuum_statement:
@@ -145,8 +135,7 @@ file:
       - keyword: FREEZE
       - end_bracket: )
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl1
+      - naked_identifier: tbl1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -157,8 +146,7 @@ file:
       - end_bracket: )
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl2
+      - naked_identifier: tbl2
     - bracketed:
       - start_bracket: (
       - column_reference:

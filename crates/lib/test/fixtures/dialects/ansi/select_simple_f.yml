@@ -16,8 +16,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: boo
+              - naked_identifier: boo
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY

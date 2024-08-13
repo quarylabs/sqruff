@@ -19,6 +19,5 @@ file:
     - keyword: undrop
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
 - statement_terminator: ;

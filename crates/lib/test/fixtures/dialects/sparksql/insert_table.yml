@@ -5,8 +5,7 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -26,8 +25,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -47,8 +45,7 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -68,8 +65,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -101,8 +97,7 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - values_clause:
       - keyword: VALUES
       - bracketed:
@@ -134,8 +129,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -161,8 +155,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: persons
+                - naked_identifier: persons
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -177,8 +170,7 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -204,8 +196,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: persons
+                - naked_identifier: persons
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -220,36 +211,30 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: visiting_students
+      - naked_identifier: visiting_students
 - statement_terminator: ;
 - statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: visiting_students
+      - naked_identifier: visiting_students
 - statement_terminator: ;
 - statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: applicants
+      - naked_identifier: applicants
     - keyword: SELECT
     - column_reference:
       - naked_identifier: name
@@ -273,12 +258,10 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: applicants
+      - naked_identifier: applicants
     - keyword: SELECT
     - column_reference:
       - naked_identifier: name
@@ -302,8 +285,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -330,8 +312,7 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -358,8 +339,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -393,8 +373,7 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (

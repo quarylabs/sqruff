@@ -212,9 +212,8 @@ FROM foo
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
-        // TODO Add others when finished, whole list["bigquery", "databricks", "hive",
-        // "redshift", "soql", "sparksql"]
-        &[DialectKind::Bigquery, DialectKind::Sparksql]
+        // TODO Add others when finished, whole list["databricks", "hive", "soql"]
+        &[DialectKind::Redshift, DialectKind::Bigquery, DialectKind::Sparksql]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

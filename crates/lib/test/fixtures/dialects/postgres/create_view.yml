@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: vista
+      - naked_identifier: vista
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -20,8 +19,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: vista
+      - naked_identifier: vista
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -34,8 +32,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: vista
+      - naked_identifier: vista
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -55,8 +52,7 @@ file:
     - keyword: TEMP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: vista
+      - naked_identifier: vista
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -76,8 +72,7 @@ file:
     - keyword: TEMPORARY
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: vista
+      - naked_identifier: vista
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -96,8 +91,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: comedies
+      - naked_identifier: comedies
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -112,8 +106,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: films
+                - naked_identifier: films
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -128,8 +121,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: pg_comedies
+      - naked_identifier: pg_comedies
     - keyword: AS
     - values_clause:
       - keyword: VALUES
@@ -170,8 +162,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: pg_comedies
+      - naked_identifier: pg_comedies
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -186,8 +177,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: comedies
+                - naked_identifier: comedies
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -207,8 +197,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: with
     - relation_options:
       - bracketed:
@@ -228,8 +217,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: with
     - relation_options:
       - bracketed:
@@ -249,8 +237,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: with
     - relation_options:
       - bracketed:
@@ -273,8 +260,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: with
     - relation_options:
       - bracketed:
@@ -297,8 +283,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: with
     - relation_options:
       - bracketed:
@@ -323,16 +308,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: OTHER_VIEW
+                - naked_identifier: OTHER_VIEW
 - statement_terminator: ;
 - statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: with
     - relation_options:
       - bracketed:
@@ -357,16 +340,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: OTHER_VIEW
+                - naked_identifier: OTHER_VIEW
 - statement_terminator: ;
 - statement:
   - create_view_statement:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: with
     - relation_options:
       - bracketed:
@@ -425,8 +406,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: as
     - select_statement:
       - select_clause:
@@ -441,8 +421,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: OTHER_VIEW
+                - naked_identifier: OTHER_VIEW
     - with_check_option:
       - keyword: with
       - keyword: local
@@ -454,8 +433,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: as
     - select_statement:
       - select_clause:
@@ -470,8 +448,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: OTHER_VIEW
+                - naked_identifier: OTHER_VIEW
     - with_check_option:
       - keyword: with
       - keyword: cascaded
@@ -486,8 +463,7 @@ file:
     - keyword: RECURSIVE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - quoted_identifier: '"grouping_node"'
+      - quoted_identifier: '"grouping_node"'
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -584,8 +560,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - quoted_identifier: '"grouping_managementgroup"'
+                  - quoted_identifier: '"grouping_managementgroup"'
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -648,15 +623,13 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - quoted_identifier: '"grouping_managementgroup"'
+                  - quoted_identifier: '"grouping_managementgroup"'
           - comma: ','
           - from_expression:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - quoted_identifier: '"grouping_node"'
+                  - quoted_identifier: '"grouping_node"'
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -672,8 +645,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - keyword: as
     - select_statement:
       - select_clause:
@@ -690,6 +662,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: OTHER_VIEW
+                - naked_identifier: OTHER_VIEW
 - statement_terminator: ;

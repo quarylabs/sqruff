@@ -23,7 +23,7 @@ impl<T: Any> AsAnyMut for T {
     }
 }
 
-pub trait Matchable: Any + Debug + DynEq + AsAnyMut + Send + Sync {
+pub trait Matchable: Any + Debug + DynEq + AsAnyMut + Send + Sync + dyn_clone::DynClone {
     fn mk_from_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         let _ = segments;
         unimplemented!("{}", std::any::type_name::<Self>())
@@ -97,6 +97,8 @@ pub trait Matchable: Any + Debug + DynEq + AsAnyMut + Send + Sync {
         unimplemented!("{}", std::any::type_name::<Self>())
     }
 }
+
+dyn_clone::clone_trait_object!(Matchable);
 
 pub type MatchableCacheKey = u32;
 

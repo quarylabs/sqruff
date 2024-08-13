@@ -1,0 +1,20 @@
+file:
+- statement:
+  - drop_rls_policy_statement:
+    - keyword: DROP
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: policy_concerts
+- statement_terminator: ;
+- statement:
+  - drop_rls_policy_statement:
+    - keyword: DROP
+    - keyword: RLS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: policy_concerts
+    - keyword: CASCADE
+- statement_terminator: ;

@@ -54,7 +54,7 @@ SELECT a, b FROM table_2
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
-        // TODO: add ansi, hive, mysql, redshift
+        // TODO: add ansi, hive, mysql
         // TODO This feels wrong and should bneed fixing
         &[
             DialectKind::Bigquery,

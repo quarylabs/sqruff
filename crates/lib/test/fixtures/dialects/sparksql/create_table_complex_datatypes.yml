@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -59,8 +58,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -128,8 +126,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -235,8 +232,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - bracketed:
       - start_bracket: (
       - column_definition:

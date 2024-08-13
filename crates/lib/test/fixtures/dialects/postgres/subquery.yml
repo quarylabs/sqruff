@@ -4,8 +4,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: target_table
+      - naked_identifier: target_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -25,8 +24,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table1
+                - naked_identifier: table1
           - join_clause:
             - keyword: INNER
             - keyword: JOIN
@@ -48,8 +46,7 @@ file:
                         - from_expression_element:
                           - table_expression:
                             - table_reference:
-                              - object_reference:
-                                - naked_identifier: table2
+                              - naked_identifier: table2
                   - end_bracket: )
               - alias_expression:
                 - keyword: AS

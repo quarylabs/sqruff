@@ -1,0 +1,14 @@
+file:
+- statement:
+  - show_model_statement:
+    - keyword: SHOW
+    - keyword: MODEL
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+  - show_model_statement:
+    - keyword: SHOW
+    - keyword: MODEL
+    - object_reference:
+      - naked_identifier: mdl
+- statement_terminator: ;

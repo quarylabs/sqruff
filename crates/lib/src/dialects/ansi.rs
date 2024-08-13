@@ -160,6 +160,22 @@ pub fn raw_dialect() -> Dialect {
     //   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
     ansi_dialect.sets_mut("value_table_functions");
 
+    ansi_dialect.add([(
+        "ObjectReferenceSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::ObjectReference,
+            Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+                .config(|this| {
+                    this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                    this.disallow_gaps();
+                    this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                })
+                .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
+
     ansi_dialect.add([
         // Real segments
         ("DelimiterGrammar".into(), Ref::new("SemicolonSegment").to_matchable().into()),
@@ -1089,22 +1105,6 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "ObjectReferenceSegment".into(),
-            NodeMatcher::new(
-                SyntaxKind::ObjectReference,
-                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
-                    .config(|this| {
-                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
-                        this.disallow_gaps();
-                        this.terminators =
-                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                    })
-                    .to_matchable(),
-            )
-            .to_matchable()
-            .into(),
-        ),
-        (
             "ExpressionSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::Expression,
@@ -1677,7 +1677,7 @@ pub fn raw_dialect() -> Dialect {
             "TableReferenceSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::TableReference,
-                Ref::new("ObjectReferenceSegment").to_matchable(),
+                ansi_dialect.grammar("ObjectReferenceSegment").match_grammar().unwrap().clone(),
             )
             .to_matchable()
             .into(),

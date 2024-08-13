@@ -3,8 +3,7 @@ file:
   - cluster_statement:
     - keyword: CLUSTER
     - table_reference:
-      - object_reference:
-        - naked_identifier: employees
+      - naked_identifier: employees
     - keyword: USING
     - database_reference:
       - naked_identifier: employees_ind
@@ -14,8 +13,7 @@ file:
     - keyword: CLUSTER
     - keyword: VERBOSE
     - table_reference:
-      - object_reference:
-        - naked_identifier: employees
+      - naked_identifier: employees
     - keyword: USING
     - database_reference:
       - naked_identifier: employees_ind
@@ -24,8 +22,7 @@ file:
   - cluster_statement:
     - keyword: CLUSTER
     - table_reference:
-      - object_reference:
-        - naked_identifier: employees
+      - naked_identifier: employees
 - statement_terminator: ;
 - statement:
   - cluster_statement:
@@ -43,17 +40,15 @@ file:
       - naked_identifier: index_name
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
 - statement_terminator: ;
 - statement:
   - cluster_statement:
     - keyword: CLUSTER
     - table_reference:
-      - object_reference:
-        - naked_identifier: public
-        - dot: .
-        - naked_identifier: temp_table
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: temp_table
     - keyword: USING
     - database_reference:
       - naked_identifier: idx_temp_table_ra

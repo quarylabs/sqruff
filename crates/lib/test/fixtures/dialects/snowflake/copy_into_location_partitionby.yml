@@ -7,8 +7,7 @@ file:
       - stage_path: '@%t1'
     - keyword: from
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - partition_by_segment:
       - keyword: partition
       - keyword: by

@@ -4,8 +4,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -19,8 +18,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -42,8 +40,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -62,8 +59,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -80,8 +76,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -96,8 +91,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -112,8 +106,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -134,8 +127,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -154,8 +146,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -173,8 +164,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -193,8 +183,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -217,8 +206,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -250,8 +238,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: reporting_tbl
+      - naked_identifier: reporting_tbl
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -268,8 +255,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: rpt_enc_table
+      - naked_identifier: rpt_enc_table
     - alter_table_table_column_action:
       - keyword: ADD
       - column_reference:
@@ -285,8 +271,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: RENAME
       - keyword: COLUMN
@@ -301,8 +286,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - alter_table_table_column_action:
       - keyword: alter
       - keyword: column
@@ -317,8 +301,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - alter_table_table_column_action:
       - keyword: alter
       - column_reference:
@@ -332,8 +315,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - alter_table_table_column_action:
       - keyword: modify
       - column_reference:
@@ -354,8 +336,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - alter_table_table_column_action:
       - keyword: alter
       - column_reference:
@@ -382,10 +363,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: xxxx
-        - dot: .
-        - naked_identifier: example_table
+      - naked_identifier: xxxx
+      - dot: .
+      - naked_identifier: example_table
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
@@ -402,10 +382,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: aschema
-        - dot: .
-        - naked_identifier: atable
+      - naked_identifier: aschema
+      - dot: .
+      - naked_identifier: atable
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
@@ -426,8 +405,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
@@ -444,8 +422,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
@@ -475,8 +452,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
@@ -502,8 +478,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
@@ -518,8 +493,7 @@ file:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: modify
       - keyword: column
@@ -541,8 +515,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
@@ -561,8 +534,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: MODIFY
       - keyword: COLUMN
@@ -578,8 +550,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
@@ -591,10 +562,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: some_schema
-        - dot: .
-        - naked_identifier: empl_info
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
@@ -606,8 +576,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
@@ -627,8 +596,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
@@ -644,8 +612,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: DROP
       - keyword: COLUMN
@@ -659,8 +626,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: DROP
       - column_reference:
@@ -673,8 +639,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: empl_info
+      - naked_identifier: empl_info
     - alter_table_table_column_action:
       - keyword: RENAME
       - keyword: COLUMN
@@ -689,10 +654,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_table
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
     - keyword: drop
     - keyword: PRIMARY
     - keyword: KEY
@@ -702,10 +666,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_table
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
     - keyword: add
     - keyword: PRIMARY
     - keyword: KEY

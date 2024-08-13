@@ -7,8 +7,7 @@ file:
       - naked_identifier: foo
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - drop_trigger_statement:
@@ -20,8 +19,7 @@ file:
       - naked_identifier: foo
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - drop_trigger_statement:
@@ -31,8 +29,7 @@ file:
       - naked_identifier: foo
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -45,8 +42,7 @@ file:
       - naked_identifier: foo
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -57,6 +53,5 @@ file:
       - naked_identifier: if_dist_exists
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
 - statement_terminator: ;

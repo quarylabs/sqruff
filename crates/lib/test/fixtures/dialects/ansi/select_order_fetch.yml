@@ -14,8 +14,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: EMPLOYEE
+              - naked_identifier: EMPLOYEE
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

@@ -19,8 +19,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: person
+                  - naked_identifier: person
 - statement_terminator: ;
 - statement:
   - explain_statement:
@@ -56,8 +55,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: person
+                  - naked_identifier: person
         - where_clause:
           - keyword: WHERE
           - expression:
@@ -95,13 +93,11 @@ file:
         - keyword: ALTER
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: student
+          - naked_identifier: student
         - keyword: RENAME
         - keyword: TO
         - table_reference:
-          - object_reference:
-            - naked_identifier: studentinfo
+          - naked_identifier: studentinfo
 - statement_terminator: ;
 - statement:
   - explain_statement:
@@ -111,13 +107,11 @@ file:
         - keyword: ALTER
         - keyword: VIEW
         - table_reference:
-          - object_reference:
-            - naked_identifier: view_identifier
+          - naked_identifier: view_identifier
         - keyword: RENAME
         - keyword: TO
         - table_reference:
-          - object_reference:
-            - naked_identifier: view_identifier
+          - naked_identifier: view_identifier
 - statement_terminator: ;
 - statement:
   - explain_statement:
@@ -174,8 +168,7 @@ file:
         - keyword: CREATE
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: student
+          - naked_identifier: student
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -209,8 +202,7 @@ file:
         - keyword: CREATE
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: student
+          - naked_identifier: student
         - bracketed:
           - start_bracket: (
           - column_definition:
@@ -243,12 +235,10 @@ file:
         - keyword: CREATE
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: student_dupli
+          - naked_identifier: student_dupli
         - keyword: LIKE
         - table_reference:
-          - object_reference:
-            - naked_identifier: student
+          - naked_identifier: student
         - row_format_clause:
           - keyword: ROW
           - keyword: FORMAT
@@ -278,8 +268,7 @@ file:
         - keyword: CREATE
         - keyword: VIEW
         - table_reference:
-          - object_reference:
-            - naked_identifier: experienced_employee_extended
+          - naked_identifier: experienced_employee_extended
         - keyword: AS
         - select_statement:
           - select_clause:
@@ -293,8 +282,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: experienced_employee
+                    - naked_identifier: experienced_employee
 - statement_terminator: ;
 - statement:
   - explain_statement:
@@ -335,8 +323,7 @@ file:
         - keyword: TRUNCATE
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: student
+          - naked_identifier: student
         - keyword: PARTITION
         - bracketed:
           - start_bracket: (
@@ -356,8 +343,7 @@ file:
         - keyword: REPAIR
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: table_identifier
+          - naked_identifier: table_identifier
         - keyword: ADD
         - keyword: PARTITIONS
 - statement_terminator: ;
@@ -369,8 +355,7 @@ file:
         - keyword: REFRESH
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: tbl1
+          - naked_identifier: tbl1
 - statement_terminator: ;
 - statement:
   - explain_statement:
@@ -396,8 +381,7 @@ file:
         - keyword: INTO
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: test_load
+          - naked_identifier: test_load
 - statement_terminator: ;
 - statement:
   - explain_statement:
@@ -408,8 +392,7 @@ file:
         - keyword: INTO
         - keyword: TABLE
         - table_reference:
-          - object_reference:
-            - naked_identifier: students
+          - naked_identifier: students
         - values_clause:
           - keyword: VALUES
           - bracketed:
@@ -434,6 +417,5 @@ file:
         - keyword: IF
         - keyword: EXISTS
         - table_reference:
-          - object_reference:
-            - naked_identifier: view_identifier
+          - naked_identifier: view_identifier
 - statement_terminator: ;

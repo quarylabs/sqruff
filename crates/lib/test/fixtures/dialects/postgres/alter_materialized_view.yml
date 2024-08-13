@@ -5,8 +5,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -21,8 +20,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -38,8 +36,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -59,8 +56,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -86,8 +82,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -104,8 +99,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -124,8 +118,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -143,8 +136,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -164,8 +156,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - column_reference:
@@ -180,8 +171,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: ALTER
       - keyword: COLUMN
@@ -197,8 +187,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: CLUSTER
       - keyword: ON
@@ -210,8 +199,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: SET
       - keyword: WITHOUT
@@ -223,8 +211,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: SET
       - bracketed:
@@ -238,8 +225,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: SET
       - bracketed:
@@ -255,8 +241,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: SET
       - bracketed:
@@ -275,8 +260,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: RESET
       - bracketed:
@@ -290,8 +274,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: RESET
       - bracketed:
@@ -307,8 +290,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
@@ -321,8 +303,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - alter_materialized_view_action_segment:
       - keyword: OWNER
       - keyword: TO
@@ -335,8 +316,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: DEPENDS
     - keyword: ON
     - keyword: EXTENSION
@@ -349,8 +329,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: NO
     - keyword: DEPENDS
     - keyword: ON
@@ -364,8 +343,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RENAME
     - column_reference:
       - naked_identifier: column_name
@@ -381,8 +359,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RENAME
     - keyword: COLUMN
     - column_reference:
@@ -397,13 +374,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: baz
+      - naked_identifier: baz
 - statement_terminator: ;
 - statement:
   - alter_materialized_view_statement:
@@ -413,13 +388,11 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: baz
+      - naked_identifier: baz
 - statement_terminator: ;
 - statement:
   - alter_materialized_view_statement:
@@ -427,8 +400,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: SET
     - keyword: SCHEMA
     - table_reference:
@@ -443,8 +415,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: SET
     - keyword: SCHEMA
     - table_reference:

@@ -1,0 +1,104 @@
+file:
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: test_sp1
+    - procedure_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: f1
+        - data_type:
+          - keyword: int
+        - comma: ','
+        - parameter: f2
+        - data_type:
+          - keyword: varchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '20'
+              - end_bracket: )
+        - end_bracket: )
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: |-
+          $$
+          DECLARE
+            min_val int;
+          BEGIN
+            DROP TABLE IF EXISTS tmp_tbl;
+            CREATE TEMP TABLE tmp_tbl(id int);
+            INSERT INTO tmp_tbl values (f1),(10001),(10002);
+            SELECT INTO min_val MIN(id) FROM tmp_tbl;
+            RAISE INFO 'min_val = %, f2 = %', min_val, f2;
+          END;
+          $$
+      - language_clause:
+        - keyword: LANGUAGE
+        - naked_identifier: plpgsql
+      - keyword: SECURITY
+      - keyword: INVOKER
+- statement_terminator: ;
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: test_sp2
+    - procedure_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: f1
+        - keyword: IN
+        - data_type:
+          - keyword: int
+        - comma: ','
+        - parameter: f2
+        - keyword: INOUT
+        - data_type:
+          - keyword: varchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '256'
+              - end_bracket: )
+        - comma: ','
+        - parameter: out_var
+        - keyword: OUT
+        - data_type:
+          - keyword: varchar
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '256'
+              - end_bracket: )
+        - end_bracket: )
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: |-
+          $$
+          DECLARE
+            loop_var int;
+          BEGIN
+            IF f1 is null OR f2 is null THEN
+              RAISE EXCEPTION 'input cannot be null';
+            END IF;
+            DROP TABLE if exists my_etl;
+            CREATE TEMP TABLE my_etl(a int, b varchar);
+              FOR loop_var IN 1..f1 LOOP
+                  insert into my_etl values (loop_var, f2);
+                  f2 := f2 || '+' || f2;
+              END LOOP;
+            SELECT INTO out_var count(*) from my_etl;
+          END;
+          $$
+      - language_clause:
+        - keyword: LANGUAGE
+        - naked_identifier: plpgsql
+- statement_terminator: ;

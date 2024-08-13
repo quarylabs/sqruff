@@ -7,8 +7,7 @@ file:
       - naked_identifier: li1
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: entries_data
+      - naked_identifier: entries_data
     - bracketed:
       - start_bracket: (
       - index_column_definition:
@@ -35,8 +34,7 @@ file:
       - naked_identifier: acctchng_magnitude
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: account_change
+      - naked_identifier: account_change
     - bracketed:
       - start_bracket: (
       - index_column_definition:
@@ -63,8 +61,7 @@ file:
       - naked_identifier: t2xy
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - bracketed:
       - start_bracket: (
       - index_column_definition:
@@ -85,8 +82,7 @@ file:
       - naked_identifier: team_leader
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: person
+      - naked_identifier: person
     - bracketed:
       - start_bracket: (
       - index_column_definition:
@@ -106,8 +102,7 @@ file:
       - naked_identifier: ex1
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: tab1
+      - naked_identifier: tab1
     - bracketed:
       - start_bracket: (
       - index_column_definition:
@@ -139,8 +134,7 @@ file:
       - naked_identifier: po_parent
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: purchaseorder
+      - naked_identifier: purchaseorder
     - bracketed:
       - start_bracket: (
       - index_column_definition:
@@ -163,8 +157,7 @@ file:
       - naked_identifier: ex2
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: tab2
+      - naked_identifier: tab2
     - bracketed:
       - start_bracket: (
       - index_column_definition:

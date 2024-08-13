@@ -14,15 +14,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: join
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -52,16 +50,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: join
           - keyword: lateral
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -91,8 +87,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: tbl1
+              - naked_identifier: tbl1
         - join_clause:
           - keyword: full
           - keyword: outer
@@ -101,8 +96,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl2
+                - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
             - expression:
@@ -122,8 +116,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl3
+                - naked_identifier: tbl3
           - join_on_condition:
             - keyword: on
             - expression:
@@ -144,8 +137,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl4
+                - naked_identifier: tbl4
           - join_on_condition:
             - keyword: on
             - expression:

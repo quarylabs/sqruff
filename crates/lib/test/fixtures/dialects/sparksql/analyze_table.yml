@@ -4,8 +4,7 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: COMPUTE
     - keyword: STATISTICS
     - keyword: NOSCAN
@@ -15,8 +14,7 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: COMPUTE
     - keyword: STATISTICS
 - statement_terminator: ;
@@ -25,8 +23,7 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -44,8 +41,7 @@ file:
     - keyword: ANALYZE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: students
+      - naked_identifier: students
     - keyword: COMPUTE
     - keyword: STATISTICS
     - keyword: FOR

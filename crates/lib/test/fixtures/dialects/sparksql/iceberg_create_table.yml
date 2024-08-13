@@ -4,12 +4,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -38,12 +37,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -81,12 +79,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -148,12 +145,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: prod
-        - dot: .
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: sample
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
     - using_clause:
       - keyword: USING
       - data_source_format:

@@ -7,8 +7,7 @@ file:
     - keyword: TRANSIENT
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: new_tab
+      - naked_identifier: new_tab
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -23,5 +22,4 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tab
+                - naked_identifier: tab

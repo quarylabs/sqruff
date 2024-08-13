@@ -13,8 +13,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t1
+              - naked_identifier: t1
         - changes_clause:
           - keyword: changes
           - bracketed:
@@ -50,8 +49,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t1
+              - naked_identifier: t1
         - changes_clause:
           - keyword: changes
           - bracketed:
@@ -86,8 +84,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t1
+              - naked_identifier: t1
         - changes_clause:
           - keyword: changes
           - bracketed:
@@ -135,8 +132,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t1
+              - naked_identifier: t1
         - changes_clause:
           - keyword: changes
           - bracketed:

@@ -1,0 +1,117 @@
+file:
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: SET
+    - keyword: PUBLICACCESSIBLE
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: SET
+    - keyword: INCLUDENEW
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+    - keyword: FOR
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: ADD
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: ADD
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: tbl1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: ADD
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: ADD
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: public
+      - dot: .
+      - function_name_identifier: fn1
+    - comma: ','
+    - function_name:
+      - naked_identifier: public
+      - dot: .
+      - function_name_identifier: fn2
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: ADD
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: IN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: REMOVE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: tbl1
+- statement_terminator: ;

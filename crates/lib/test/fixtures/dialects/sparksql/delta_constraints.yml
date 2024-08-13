@@ -4,10 +4,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -21,10 +20,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: ADD
     - keyword: CONSTRAINT
     - column_reference:
@@ -45,10 +43,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: DROP
     - keyword: CONSTRAINT
     - column_reference:
@@ -59,10 +56,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: ADD
     - keyword: CONSTRAINT
     - column_reference:

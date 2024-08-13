@@ -13,8 +13,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: real_data
+              - naked_identifier: real_data
           - sample_expression:
             - keyword: sample
             - bracketed:
@@ -93,8 +92,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: dummy_data
+                - naked_identifier: dummy_data
             - sample_expression:
               - keyword: SAMPLE
               - bracketed:

@@ -16,10 +16,9 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: system
-                - dot: .
-                - naked_identifier: dictionaries
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: dictionaries
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -77,8 +76,7 @@ file:
       - keyword: FROM
       - keyword: TABLE
       - table_reference:
-        - object_reference:
-          - naked_identifier: table
+        - naked_identifier: table
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -90,10 +88,9 @@ file:
       - keyword: FROM
       - keyword: TABLE
       - table_reference:
-        - object_reference:
-          - naked_identifier: database
-          - dot: .
-          - naked_identifier: table
+        - naked_identifier: database
+        - dot: .
+        - naked_identifier: table
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -135,8 +132,7 @@ file:
       - keyword: DISTRIBUTED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: distributed_table_name
+        - naked_identifier: distributed_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -146,10 +142,9 @@ file:
       - keyword: DISTRIBUTED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: distributed_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: distributed_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -158,8 +153,7 @@ file:
       - keyword: FLUSH
       - keyword: DISTRIBUTED
       - table_reference:
-        - object_reference:
-          - naked_identifier: distributed_table_name
+        - naked_identifier: distributed_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -168,10 +162,9 @@ file:
       - keyword: FLUSH
       - keyword: DISTRIBUTED
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: distributed_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: distributed_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -181,8 +174,7 @@ file:
       - keyword: DISTRIBUTED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: distributed_table_name
+        - naked_identifier: distributed_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -192,10 +184,9 @@ file:
       - keyword: DISTRIBUTED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: distributed_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: distributed_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -215,8 +206,7 @@ file:
       - keyword: STOP
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -225,10 +215,9 @@ file:
       - keyword: STOP
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -248,8 +237,7 @@ file:
       - keyword: START
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -258,10 +246,9 @@ file:
       - keyword: START
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -279,10 +266,9 @@ file:
       - keyword: TTL
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -292,8 +278,7 @@ file:
       - keyword: TTL
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -311,8 +296,7 @@ file:
       - keyword: TTL
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -322,10 +306,9 @@ file:
       - keyword: TTL
       - keyword: MERGES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -341,8 +324,7 @@ file:
       - keyword: STOP
       - keyword: MOVES
       - table_reference:
-        - object_reference:
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -351,10 +333,9 @@ file:
       - keyword: STOP
       - keyword: MOVES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -370,8 +351,7 @@ file:
       - keyword: START
       - keyword: MOVES
       - table_reference:
-        - object_reference:
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -380,10 +360,9 @@ file:
       - keyword: START
       - keyword: MOVES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -409,8 +388,7 @@ file:
       - keyword: STOP
       - keyword: FETCHES
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -419,10 +397,9 @@ file:
       - keyword: STOP
       - keyword: FETCHES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -438,8 +415,7 @@ file:
       - keyword: START
       - keyword: FETCHES
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -448,10 +424,9 @@ file:
       - keyword: START
       - keyword: FETCHES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -469,8 +444,7 @@ file:
       - keyword: REPLICATED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -480,10 +454,9 @@ file:
       - keyword: REPLICATED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -501,8 +474,7 @@ file:
       - keyword: REPLICATED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -512,10 +484,9 @@ file:
       - keyword: REPLICATED
       - keyword: SENDS
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -533,8 +504,7 @@ file:
       - keyword: REPLICATION
       - keyword: QUEUES
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -544,10 +514,9 @@ file:
       - keyword: REPLICATION
       - keyword: QUEUES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -565,8 +534,7 @@ file:
       - keyword: REPLICATION
       - keyword: QUEUES
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -576,10 +544,9 @@ file:
       - keyword: REPLICATION
       - keyword: QUEUES
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -588,8 +555,7 @@ file:
       - keyword: SYNC
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -598,10 +564,9 @@ file:
       - keyword: SYNC
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -610,8 +575,7 @@ file:
       - keyword: SYNC
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
       - keyword: STRICT
 - statement_terminator: ;
 - statement:
@@ -625,8 +589,7 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -639,8 +602,7 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
       - keyword: STRICT
 - statement_terminator: ;
 - statement:
@@ -654,10 +616,9 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -670,10 +631,9 @@ file:
         - keyword: CLUSTER
         - naked_identifier: cluster_name
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
       - keyword: STRICT
 - statement_terminator: ;
 - statement:
@@ -683,8 +643,7 @@ file:
       - keyword: RESTART
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -693,10 +652,9 @@ file:
       - keyword: RESTART
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -705,8 +663,7 @@ file:
       - keyword: RESTORE
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -715,10 +672,9 @@ file:
       - keyword: RESTORE
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
 - statement_terminator: ;
 - statement:
   - system_statement:
@@ -727,8 +683,7 @@ file:
       - keyword: RESTORE
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: replicated_merge_tree_family_table_name
       - on_cluster_clause:
         - keyword: ON
         - keyword: CLUSTER
@@ -741,10 +696,9 @@ file:
       - keyword: RESTORE
       - keyword: REPLICA
       - table_reference:
-        - object_reference:
-          - naked_identifier: db
-          - dot: .
-          - naked_identifier: replicated_merge_tree_family_table_name
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
       - on_cluster_clause:
         - keyword: ON
         - keyword: CLUSTER

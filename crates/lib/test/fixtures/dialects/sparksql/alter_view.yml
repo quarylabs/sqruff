@@ -4,38 +4,33 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_identifier
+      - naked_identifier: view_identifier
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_identifier
+      - naked_identifier: view_identifier
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: tempdb1
-        - dot: .
-        - naked_identifier: v1
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v1
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: tempdb1
-        - dot: .
-        - naked_identifier: v2
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_identifier
+      - naked_identifier: view_identifier
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -52,10 +47,9 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: tempdb1
-        - dot: .
-        - naked_identifier: v2
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
     - keyword: SET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -78,8 +72,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_identifier
+      - naked_identifier: view_identifier
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -93,8 +86,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_identifier
+      - naked_identifier: view_identifier
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - keyword: IF
@@ -110,10 +102,9 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: tempdb1
-        - dot: .
-        - naked_identifier: v2
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
     - keyword: UNSET
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -130,8 +121,7 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_identifier
+      - naked_identifier: view_identifier
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -151,10 +141,9 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: tempdb1
-                    - dot: .
-                    - naked_identifier: v1
+                  - naked_identifier: tempdb1
+                  - dot: .
+                  - naked_identifier: v1
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -162,10 +151,9 @@ file:
     - keyword: ALTER
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: tempdb1
-        - dot: .
-        - naked_identifier: v2
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -183,8 +171,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tempdb1
-                  - dot: .
-                  - naked_identifier: v1
+                - naked_identifier: tempdb1
+                - dot: .
+                - naked_identifier: v1
 - statement_terminator: ;

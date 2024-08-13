@@ -26,15 +26,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: orders
+              - naked_identifier: orders
         - join_clause:
           - keyword: join
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: customers
+                - naked_identifier: customers
           - join_on_condition:
             - keyword: on
             - bracketed:
@@ -117,15 +115,13 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: orders
+                - naked_identifier: orders
           - join_clause:
             - keyword: join
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: customers
+                  - naked_identifier: customers
             - join_on_condition:
               - keyword: on
               - bracketed:
@@ -212,15 +208,13 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: orders
+                    - naked_identifier: orders
               - join_clause:
                 - keyword: join
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: customers
+                      - naked_identifier: customers
                 - join_on_condition:
                   - keyword: on
                   - bracketed:
@@ -247,8 +241,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: products
+                  - naked_identifier: products
             - join_on_condition:
               - keyword: on
               - bracketed:
@@ -338,15 +331,13 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: orders
+                        - naked_identifier: orders
                   - join_clause:
                     - keyword: join
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: customers
+                          - naked_identifier: customers
                     - join_on_condition:
                       - keyword: on
                       - bracketed:
@@ -373,8 +364,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: products
+                      - naked_identifier: products
                 - join_on_condition:
                   - keyword: on
                   - bracketed:
@@ -401,8 +391,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: random
+                  - naked_identifier: random
             - join_on_condition:
               - keyword: on
               - bracketed:

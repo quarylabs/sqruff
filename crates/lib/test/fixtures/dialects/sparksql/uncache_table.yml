@@ -4,8 +4,7 @@ file:
     - keyword: UNCACHE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
 - statement_terminator: ;
 - statement:
   - uncache_table:
@@ -14,6 +13,5 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
 - statement_terminator: ;

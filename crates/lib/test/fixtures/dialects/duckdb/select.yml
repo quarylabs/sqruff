@@ -24,8 +24,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: capitals
+                - naked_identifier: capitals
     - set_operator:
       - keyword: UNION
       - keyword: BY
@@ -43,8 +42,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: weather
+                - naked_identifier: weather
 - statement_terminator: ;
 - statement:
   - set_expression:
@@ -61,8 +59,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: capitals
+                - naked_identifier: capitals
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -81,6 +78,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: weather
+                - naked_identifier: weather
 - statement_terminator: ;

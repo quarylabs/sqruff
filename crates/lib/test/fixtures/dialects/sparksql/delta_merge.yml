@@ -4,12 +4,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: people10m
+      - naked_identifier: people10m
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: people10mupdates
+      - naked_identifier: people10mupdates
     - join_on_condition:
       - keyword: ON
       - expression:
@@ -202,12 +200,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: logs
+      - naked_identifier: logs
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: new_deduped_logs
+      - naked_identifier: new_deduped_logs
     - join_on_condition:
       - keyword: ON
       - expression:
@@ -237,12 +233,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: logs
+      - naked_identifier: logs
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: new_deduped_logs
+      - naked_identifier: new_deduped_logs
     - join_on_condition:
       - keyword: ON
       - expression:
@@ -311,8 +305,7 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: customers
+      - naked_identifier: customers
     - keyword: USING
     - bracketed:
       - start_bracket: (
@@ -341,8 +334,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: updates
+                    - naked_identifier: updates
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -367,16 +359,14 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: updates
+                    - naked_identifier: updates
               - join_clause:
                 - keyword: INNER
                 - keyword: JOIN
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: customers
+                      - naked_identifier: customers
                 - join_on_condition:
                   - keyword: ON
                   - expression:
@@ -529,8 +519,7 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: target
+      - naked_identifier: target
     - alias_expression:
       - naked_identifier: t
     - keyword: USING
@@ -614,8 +603,7 @@ file:
                         - from_expression_element:
                           - table_expression:
                             - table_reference:
-                              - object_reference:
-                                - naked_identifier: changes
+                              - naked_identifier: changes
                     - groupby_clause:
                       - keyword: GROUP
                       - keyword: BY

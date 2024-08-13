@@ -151,7 +151,7 @@ CREATE TABLE DBO.ColumnNames
 
         identifier = identifier.replace("_", "");
 
-        if context.dialect.name == DialectKind::Snowflake
+        if context.dialect.name == DialectKind::Redshift
             && identifier.starts_with('#')
             && context
                 .parent_stack

@@ -31,6 +31,5 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_test
+              - naked_identifier: t_test
 - statement_terminator: ;

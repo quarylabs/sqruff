@@ -68,8 +68,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -115,8 +114,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -250,8 +248,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -319,8 +316,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -436,8 +432,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -483,8 +478,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -553,8 +547,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -621,8 +614,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -683,8 +675,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test
+              - naked_identifier: test
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW

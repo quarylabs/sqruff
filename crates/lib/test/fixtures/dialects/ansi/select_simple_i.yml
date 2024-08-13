@@ -64,15 +64,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: unaliased
+              - naked_identifier: unaliased
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: aliased_1
+                - naked_identifier: aliased_1
             - alias_expression:
               - keyword: as
               - naked_identifier: foo
@@ -81,8 +79,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: aliased_2
+                - naked_identifier: aliased_2
             - alias_expression:
               - naked_identifier: bar
           - keyword: USING

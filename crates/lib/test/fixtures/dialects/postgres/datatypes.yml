@@ -4,8 +4,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: a
+      - naked_identifier: a
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -90,8 +89,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: b
+      - naked_identifier: b
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -125,8 +123,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: c
+      - naked_identifier: c
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -189,8 +186,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: d
+      - naked_identifier: d
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -204,8 +200,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: e
+      - naked_identifier: e
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -281,8 +276,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: f
+      - naked_identifier: f
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -296,8 +290,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: g
+      - naked_identifier: g
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -426,8 +419,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: h
+      - naked_identifier: h
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -446,8 +438,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: i
+      - naked_identifier: i
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -491,8 +482,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: j
+      - naked_identifier: j
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -521,8 +511,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: k
+      - naked_identifier: k
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -563,8 +552,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: l
+      - naked_identifier: l
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -578,8 +566,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: l
+      - naked_identifier: l
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -598,8 +585,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: m
+      - naked_identifier: m
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -613,8 +599,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: n
+      - naked_identifier: n
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -628,8 +613,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: o
+      - naked_identifier: o
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -648,8 +632,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: p
+      - naked_identifier: p
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -730,8 +713,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: q
+      - naked_identifier: q
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -762,8 +744,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: r
+      - naked_identifier: r
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -779,8 +760,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: a
+      - naked_identifier: a
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -813,8 +793,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: a
+              - naked_identifier: a
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -839,16 +818,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: a
+              - naked_identifier: a
 - statement_terminator: ;
 - statement:
   - create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - bracketed:
       - start_bracket: (
       - column_reference:

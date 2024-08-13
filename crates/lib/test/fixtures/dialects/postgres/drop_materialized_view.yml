@@ -5,8 +5,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - drop_materialized_view_statement:
@@ -14,12 +13,10 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - drop_materialized_view_statement:
@@ -27,8 +24,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -37,12 +33,10 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -51,8 +45,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -61,12 +54,10 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -77,8 +68,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - drop_materialized_view_statement:
@@ -88,12 +78,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
 - statement_terminator: ;
 - statement:
   - drop_materialized_view_statement:
@@ -103,8 +91,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -115,12 +102,10 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
@@ -131,8 +116,7 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
@@ -143,11 +127,9 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: RESTRICT
 - statement_terminator: ;

@@ -7,8 +7,7 @@ file:
       - bucket_path: '''azure://myaccount.blob.core.windows.net/mycontainer/unload/'''
     - keyword: from
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - azure_blob_storage_external_stage_parameters:
       - keyword: credentials
       - comparison_operator:

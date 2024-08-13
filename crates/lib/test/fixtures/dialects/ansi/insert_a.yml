@@ -4,8 +4,7 @@ file:
     - keyword: INSERT
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl_b
+      - naked_identifier: tbl_b
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -23,8 +22,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl_c
+      - naked_identifier: tbl_c
     - bracketed:
       - start_bracket: (
       - select_statement:
@@ -40,7 +38,6 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
+                  - naked_identifier: table1
       - end_bracket: )
 - statement_terminator: ;

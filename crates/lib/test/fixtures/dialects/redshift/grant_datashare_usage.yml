@@ -1,0 +1,40 @@
+file:
+- statement:
+  - grant_datashare_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: TO
+    - keyword: ACCOUNT
+    - quoted_literal: '''123456789012'''
+- statement_terminator: ;
+- statement:
+  - grant_datashare_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: TO
+    - keyword: ACCOUNT
+    - quoted_literal: '''123456789012'''
+    - keyword: VIA
+    - keyword: DATA
+    - keyword: CATALOG
+- statement_terminator: ;
+- statement:
+  - grant_datashare_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: TO
+    - keyword: NAMESPACE
+    - quoted_literal: '''13b8833d-17c6-4f16-8fe4-1a018f5ed00d'''
+- statement_terminator: ;

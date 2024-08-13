@@ -1,0 +1,63 @@
+file:
+- statement:
+  - create_group:
+    - keyword: create
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+- statement_terminator: ;
+- statement:
+  - create_group:
+    - keyword: create
+    - keyword: group
+    - object_reference:
+      - quoted_identifier: '"admin_group"'
+- statement_terminator: ;
+- statement:
+  - create_group:
+    - keyword: create
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: user
+    - object_reference:
+      - naked_identifier: admin1
+- statement_terminator: ;
+- statement:
+  - create_group:
+    - keyword: create
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: with
+    - keyword: user
+    - object_reference:
+      - naked_identifier: admin1
+- statement_terminator: ;
+- statement:
+  - create_group:
+    - keyword: create
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: user
+    - object_reference:
+      - naked_identifier: admin1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: admin2
+- statement_terminator: ;
+- statement:
+  - create_group:
+    - keyword: create
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: with
+    - keyword: user
+    - object_reference:
+      - naked_identifier: admin1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: admin2
+- statement_terminator: ;

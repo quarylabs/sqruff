@@ -13,8 +13,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: u
+              - naked_identifier: u
           - alias_expression:
             - keyword: as
             - naked_identifier: t
@@ -40,8 +39,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: u
+              - naked_identifier: u
           - alias_expression:
             - keyword: as
             - naked_identifier: t
@@ -67,8 +65,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: u
+              - naked_identifier: u
           - alias_expression:
             - keyword: as
             - naked_identifier: t
@@ -94,8 +91,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: u
+              - naked_identifier: u
           - alias_expression:
             - keyword: as
             - bracketed:
@@ -120,8 +116,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: u
+              - naked_identifier: u
           - alias_expression:
             - naked_identifier: t
             - bracketed:
@@ -146,8 +141,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: u
+              - naked_identifier: u
           - alias_expression:
             - naked_identifier: t
             - bracketed:
@@ -172,8 +166,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: u
+              - naked_identifier: u
           - alias_expression:
             - naked_identifier: t
             - bracketed:

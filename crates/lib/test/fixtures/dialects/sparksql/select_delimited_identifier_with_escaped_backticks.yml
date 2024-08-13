@@ -12,8 +12,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '`some``table`'
+              - quoted_identifier: '`some``table`'
           - alias_expression:
             - quoted_identifier: '`some``alias`'
 - statement_terminator: ;
@@ -30,8 +29,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '`some``table`'
+              - quoted_identifier: '`some``table`'
           - alias_expression:
             - keyword: as
             - quoted_identifier: '`some``alias`'
@@ -51,8 +49,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '`some``table`'
+              - quoted_identifier: '`some``table`'
           - alias_expression:
             - quoted_identifier: '`some````alias`'
 - statement_terminator: ;
@@ -71,8 +68,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '`some``table`'
+              - quoted_identifier: '`some``table`'
           - alias_expression:
             - quoted_identifier: '```some````alias```'
 - statement_terminator: ;
@@ -91,8 +87,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '`some``table`'
+              - quoted_identifier: '`some``table`'
           - alias_expression:
             - quoted_identifier: '`some``alias`'
 - statement_terminator: ;
@@ -112,8 +107,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '`some``table`'
+              - quoted_identifier: '`some``table`'
           - alias_expression:
             - keyword: AS
             - quoted_identifier: '`some``alias`'

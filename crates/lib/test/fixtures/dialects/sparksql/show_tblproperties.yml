@@ -4,26 +4,23 @@ file:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer
+      - naked_identifier: customer
 - statement_terminator: ;
 - statement:
   - show_statement:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-      - object_reference:
-        - naked_identifier: salesdb
-        - dot: .
-        - naked_identifier: customer
+      - naked_identifier: salesdb
+      - dot: .
+      - naked_identifier: customer
 - statement_terminator: ;
 - statement:
   - show_statement:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer
+      - naked_identifier: customer
     - bracketed:
       - start_bracket: (
       - property_name_identifier:
@@ -39,8 +36,7 @@ file:
     - keyword: SHOW
     - keyword: TBLPROPERTIES
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer
+      - naked_identifier: customer
     - bracketed:
       - start_bracket: (
       - property_name_identifier:

@@ -4,8 +4,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -24,8 +23,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -59,8 +57,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -96,8 +93,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -115,8 +111,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: distributors
+      - naked_identifier: distributors
     - alias_expression:
       - keyword: AS
       - naked_identifier: d
@@ -144,8 +139,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -173,8 +167,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: test
+      - naked_identifier: test
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -202,8 +195,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -217,8 +209,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -232,8 +223,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tmp_films
+                - naked_identifier: tmp_films
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -248,8 +238,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -270,8 +259,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -294,8 +282,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -321,8 +308,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -355,8 +341,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -395,8 +380,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -442,8 +426,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -479,8 +462,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - alias_expression:
       - keyword: AS
       - naked_identifier: f
@@ -554,8 +536,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -589,8 +570,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -630,8 +610,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -684,8 +663,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: foobar
+                      - naked_identifier: foobar
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -701,8 +679,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: megatable
+      - naked_identifier: megatable
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -754,8 +731,7 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: megatable
+                        - naked_identifier: megatable
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: mt
@@ -784,8 +760,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: abc
+      - naked_identifier: abc
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -810,8 +785,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: baz
+                - naked_identifier: baz
     - keyword: RETURNING
     - expression:
       - column_reference:

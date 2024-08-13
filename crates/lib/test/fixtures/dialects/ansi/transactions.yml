@@ -8,8 +8,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: tbl
+      - naked_identifier: tbl
     - set_clause_list:
       - keyword: SET
       - set_clause:

@@ -4,8 +4,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -25,8 +24,7 @@ file:
     - keyword: OVERWRITE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -45,8 +43,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -80,8 +77,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -99,8 +95,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -118,8 +113,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -133,8 +127,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tmp_films
+                - naked_identifier: tmp_films
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -150,12 +143,10 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -183,8 +174,7 @@ file:
         - end_bracket: )
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -198,8 +188,7 @@ file:
       - end_bracket: )
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - values_clause:
       - keyword: values
       - bracketed:
@@ -236,8 +225,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src
+                - naked_identifier: src
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -246,12 +234,10 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -279,8 +265,7 @@ file:
         - end_bracket: )
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -294,8 +279,7 @@ file:
       - end_bracket: )
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - values_clause:
       - keyword: values
       - bracketed:
@@ -332,8 +316,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src
+                - naked_identifier: src
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -341,8 +324,7 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - values_clause:
       - keyword: values
       - bracketed:
@@ -383,8 +365,7 @@ file:
     - keyword: all
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - values_clause:
       - keyword: values
       - bracketed:
@@ -423,15 +404,13 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src1
+                - naked_identifier: src1
         - comma: ','
         - from_expression:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src2
+                - naked_identifier: src2
       - where_clause:
         - keyword: where
         - expression:
@@ -460,8 +439,7 @@ file:
     - keyword: then
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: when
     - expression:
       - column_reference:
@@ -472,17 +450,14 @@ file:
     - keyword: then
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - keyword: else
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - select_statement:
       - select_clause:
         - keyword: select
@@ -495,8 +470,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src
+                - naked_identifier: src
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -512,8 +486,7 @@ file:
     - keyword: then
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: when
     - expression:
       - column_reference:
@@ -524,17 +497,14 @@ file:
     - keyword: then
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - keyword: else
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
     - select_statement:
       - select_clause:
         - keyword: select
@@ -547,8 +517,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src
+                - naked_identifier: src
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -564,8 +533,7 @@ file:
     - keyword: then
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -606,18 +574,16 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src
+                - naked_identifier: src
 - statement_terminator: ;
 - statement:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
-        - dot: .
-        - naked_identifier: bar
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: bar
     - bracketed:
       - start_bracket: (
       - select_statement:

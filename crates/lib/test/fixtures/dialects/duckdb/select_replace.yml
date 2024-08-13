@@ -34,6 +34,5 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: star_wars_owned_by_disney
+              - naked_identifier: star_wars_owned_by_disney
 - statement_terminator: ;

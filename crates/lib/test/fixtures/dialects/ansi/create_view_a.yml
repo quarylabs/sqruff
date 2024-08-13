@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: a
+      - naked_identifier: a
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -19,16 +18,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table1
+                - naked_identifier: table1
           - join_clause:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: table2
+                  - naked_identifier: table2
             - join_on_condition:
               - keyword: ON
               - bracketed:
@@ -53,8 +50,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: vw_appt_latest
+      - naked_identifier: vw_appt_latest
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -80,8 +76,7 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: dim_appt
+                        - naked_identifier: dim_appt
                     - alias_expression:
                       - naked_identifier: da
               - where_clause:
@@ -107,7 +102,6 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: most_current
+                    - naked_identifier: most_current
       - end_bracket: )
 - statement_terminator: ;

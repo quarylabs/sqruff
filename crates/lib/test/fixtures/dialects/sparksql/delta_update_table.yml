@@ -3,8 +3,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: events
+      - naked_identifier: events
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -50,8 +49,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: all_events
+      - naked_identifier: all_events
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -96,16 +94,14 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: good_events
+                        - naked_identifier: good_events
           - end_bracket: )
 - statement_terminator: ;
 - statement:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: orders
+      - naked_identifier: orders
     - alias_expression:
       - keyword: AS
       - naked_identifier: t1
@@ -137,8 +133,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: returned_orders
+                      - naked_identifier: returned_orders
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -158,8 +153,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: events
+      - naked_identifier: events
     - set_clause_list:
       - keyword: SET
       - set_clause:
@@ -189,8 +183,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: events2
+                      - naked_identifier: events2
             - where_clause:
               - keyword: WHERE
               - expression:

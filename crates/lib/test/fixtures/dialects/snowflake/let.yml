@@ -77,12 +77,11 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: some_database
-                  - dot: .
-                  - naked_identifier: schema
-                  - dot: .
-                  - naked_identifier: some_table
+                - naked_identifier: some_database
+                - dot: .
+                - naked_identifier: schema
+                - dot: .
+                - naked_identifier: some_table
 - statement_terminator: ;
 - statement:
   - scripting_let_statement:
@@ -115,12 +114,11 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: some_database
-                        - dot: .
-                        - naked_identifier: schema
-                        - dot: .
-                        - naked_identifier: some_table
+                      - naked_identifier: some_database
+                      - dot: .
+                      - naked_identifier: schema
+                      - dot: .
+                      - naked_identifier: some_table
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -143,12 +141,11 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: some_database
-                        - dot: .
-                        - naked_identifier: schema
-                        - dot: .
-                        - naked_identifier: some_table
+                      - naked_identifier: some_database
+                      - dot: .
+                      - naked_identifier: schema
+                      - dot: .
+                      - naked_identifier: some_table
         - end_bracket: )
 - statement_terminator: ;
 - statement:

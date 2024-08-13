@@ -4,10 +4,9 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -21,8 +20,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: more_people
+                - naked_identifier: more_people
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -30,10 +28,9 @@ file:
     - keyword: OVERWRITE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -47,8 +44,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: more_people
+                - naked_identifier: more_people
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -72,10 +68,9 @@ file:
     - keyword: INSERT
     - keyword: OVERWRITE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -89,6 +84,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: more_people
+                - naked_identifier: more_people
 - statement_terminator: ;

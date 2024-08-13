@@ -18,10 +18,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -33,10 +32,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -63,10 +61,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: TIMESTAMP
     - keyword: AS
@@ -92,10 +89,9 @@ file:
     - keyword: RESTORE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: default
-        - dot: .
-        - naked_identifier: people10m
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
     - keyword: TO
     - keyword: VERSION
     - keyword: AS

@@ -7,8 +7,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: ext_table
+      - naked_identifier: ext_table
     - keyword: with
     - keyword: location
     - comparison_operator:
@@ -39,8 +38,7 @@ file:
     - keyword: external
     - keyword: table
     - table_reference:
-      - object_reference:
-        - quoted_identifier: '"_p08"'
+      - quoted_identifier: '"_p08"'
     - keyword: with
     - keyword: location
     - comparison_operator:
@@ -73,10 +71,9 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: EXTERNAL_TABLES
-        - dot: .
-        - naked_identifier: TRIPS
+      - naked_identifier: EXTERNAL_TABLES
+      - dot: .
+      - naked_identifier: TRIPS
     - bracketed:
       - start_bracket: (
       - naked_identifier: tripduration

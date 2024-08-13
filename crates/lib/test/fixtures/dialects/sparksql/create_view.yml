@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: experienced_employee_extended
+      - naked_identifier: experienced_employee_extended
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -20,8 +19,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: experienced_employee
+                - naked_identifier: experienced_employee
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -35,8 +33,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: experienced_employee
+      - naked_identifier: experienced_employee
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -81,8 +78,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: temp2
+                - naked_identifier: temp2
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -90,8 +86,7 @@ file:
     - keyword: TEMP
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: experienced_employee_temp
+      - naked_identifier: experienced_employee_temp
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -106,8 +101,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: experienced_employee
+                - naked_identifier: experienced_employee
       - limit_clause:
         - keyword: limit
         - numeric_literal: '2'
@@ -119,8 +113,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: experienced_employee_rep
+      - naked_identifier: experienced_employee_rep
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -135,8 +128,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: experienced_employee
+                - naked_identifier: experienced_employee
       - limit_clause:
         - keyword: limit
         - numeric_literal: '2'
@@ -147,8 +139,7 @@ file:
     - keyword: TEMPORARY
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: pulse_article_search_data
+      - naked_identifier: pulse_article_search_data
     - keyword: USING
     - data_source_format:
       - object_reference:

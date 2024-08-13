@@ -11,8 +11,7 @@ file:
     - keyword: REINDEX
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - reindex_statement_segment:
@@ -27,8 +26,7 @@ file:
     - keyword: TABLE
     - keyword: CONCURRENTLY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_broken_table
+      - naked_identifier: my_broken_table
 - statement_terminator: ;
 - statement:
   - reindex_statement_segment:

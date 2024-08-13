@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: users
+      - naked_identifier: users
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -35,8 +34,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: users
+      - naked_identifier: users
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -66,8 +64,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Persons
+      - naked_identifier: Persons
     - bracketed:
       - start_bracket: (
       - column_definition:

@@ -16,8 +16,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
@@ -54,8 +53,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
@@ -95,8 +93,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
@@ -131,8 +128,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
@@ -174,8 +170,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
@@ -210,8 +205,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
@@ -253,8 +247,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
@@ -299,8 +292,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - keyword: STDOUT
@@ -345,8 +337,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: my_table
+                  - naked_identifier: my_table
       - end_bracket: )
     - keyword: TO
     - keyword: PROGRAM
@@ -378,8 +369,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -392,8 +382,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TO
     - quoted_literal: '''/tmp/dump.csv'''
     - keyword: WITH
@@ -423,8 +412,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -449,8 +437,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -484,8 +471,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -501,8 +487,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -530,8 +515,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TO
     - keyword: STDOUT
     - keyword: WITH
@@ -561,8 +545,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: FROM
     - quoted_literal: '''/tmp/dump.csv'''
 - statement_terminator: ;
@@ -570,8 +553,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: FROM
     - keyword: STDIN
 - statement_terminator: ;
@@ -579,8 +561,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: FROM
     - keyword: PROGRAM
     - quoted_literal: '''/path/to/script'''
@@ -589,8 +570,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -603,8 +583,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -623,8 +602,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -641,8 +619,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -687,8 +664,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -722,8 +698,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: FROM
     - keyword: STDIN
     - keyword: WITH
@@ -745,8 +720,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: FROM
     - keyword: STDIN
     - keyword: WITH
@@ -776,8 +750,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: FROM
     - keyword: STDIN
     - keyword: WITH
@@ -805,8 +778,7 @@ file:
   - copy_statement:
     - keyword: COPY
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: FROM
     - keyword: STDIN
     - keyword: WITH

@@ -4,8 +4,7 @@ file:
     - keyword: create
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: example1
+      - naked_identifier: example1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -44,8 +43,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -106,8 +104,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: WatchLog_old
+      - naked_identifier: WatchLog_old
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -162,8 +159,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: WatchLog_new
+      - naked_identifier: WatchLog_new
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -219,12 +215,10 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: WatchLog
+      - naked_identifier: WatchLog
     - keyword: as
     - table_reference:
-      - object_reference:
-        - naked_identifier: WatchLog_old
+      - naked_identifier: WatchLog_old
     - engine:
       - keyword: ENGINE
       - comparison_operator:
@@ -251,12 +245,10 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: hits_all
+      - naked_identifier: hits_all
     - keyword: AS
     - table_reference:
-      - object_reference:
-        - naked_identifier: hits
+      - naked_identifier: hits
     - engine:
       - keyword: ENGINE
       - comparison_operator:
@@ -297,10 +289,9 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: table_name
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: table_name
     - keyword: AS
     - function:
       - function_name:
@@ -314,8 +305,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -342,8 +332,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: codec_example
+      - naked_identifier: codec_example
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -390,8 +379,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -432,10 +420,9 @@ file:
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: base
-        - dot: .
-        - naked_identifier: t1
+      - naked_identifier: base
+      - dot: .
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -467,10 +454,9 @@ file:
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: base
-        - dot: .
-        - naked_identifier: t1
+      - naked_identifier: base
+      - dot: .
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -505,8 +491,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -532,8 +517,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: all_hits
+      - naked_identifier: all_hits
     - on_cluster_clause:
       - keyword: ON
       - keyword: CLUSTER
@@ -577,8 +561,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -615,8 +598,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: example_table
+      - naked_identifier: example_table
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -690,8 +672,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: example_table
+      - naked_identifier: example_table
     - bracketed:
       - start_bracket: (
       - column_definition:

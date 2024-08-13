@@ -1,0 +1,30 @@
+file:
+- statement:
+  - desc_datashare_statement:
+    - keyword: DESC
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+- statement_terminator: ;
+- statement:
+  - desc_datashare_statement:
+    - keyword: DESC
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: of
+    - keyword: ACCOUNT
+    - quoted_literal: '''123456789012'''
+    - keyword: NAMESPACE
+    - quoted_literal: '''13b8833d-17c6-4f16-8fe4-1a018f5ed00d'''
+- statement_terminator: ;
+- statement:
+  - desc_datashare_statement:
+    - keyword: DESC
+    - keyword: DATASHARE
+    - object_reference:
+      - naked_identifier: salesshare
+    - keyword: of
+    - keyword: NAMESPACE
+    - quoted_literal: '''13b8833d-17c6-4f16-8fe4-1a018f5ed00d'''
+- statement_terminator: ;

@@ -12,8 +12,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -23,8 +22,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -60,6 +58,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: pivot
+                - naked_identifier: pivot
 - statement_terminator: ;

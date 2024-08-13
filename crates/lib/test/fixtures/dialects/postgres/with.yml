@@ -21,8 +21,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: other_table
+                    - naked_identifier: other_table
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -37,8 +36,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: w
+                - naked_identifier: w
             - alias_expression:
               - keyword: AS
               - naked_identifier: w1
@@ -47,8 +45,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: w
+                  - naked_identifier: w
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: w2
@@ -99,8 +96,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: big_table
+                    - naked_identifier: big_table
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -115,8 +111,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: w
+                - naked_identifier: w
             - alias_expression:
               - keyword: AS
               - naked_identifier: w1
@@ -125,8 +120,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: w
+                  - naked_identifier: w
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: w2
@@ -200,8 +194,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: tree
+                      - naked_identifier: tree
                   - alias_expression:
                     - naked_identifier: t
           - set_operator:
@@ -233,8 +226,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: tree
+                      - naked_identifier: tree
                   - alias_expression:
                     - naked_identifier: t
               - comma: ','
@@ -242,8 +234,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: search_tree
+                      - naked_identifier: search_tree
                   - alias_expression:
                     - naked_identifier: st
             - where_clause:
@@ -282,8 +273,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: search_tree
+                - naked_identifier: search_tree
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -336,8 +326,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: tree
+                      - naked_identifier: tree
                   - alias_expression:
                     - naked_identifier: t
           - set_operator:
@@ -369,8 +358,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: tree
+                      - naked_identifier: tree
                   - alias_expression:
                     - naked_identifier: t
               - comma: ','
@@ -378,8 +366,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: search_tree
+                      - naked_identifier: search_tree
                   - alias_expression:
                     - naked_identifier: st
             - where_clause:
@@ -418,8 +405,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: search_tree
+                - naked_identifier: search_tree
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -477,8 +463,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: graph
+                      - naked_identifier: graph
                   - alias_expression:
                     - naked_identifier: g
           - set_operator:
@@ -519,8 +504,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: graph
+                      - naked_identifier: graph
                   - alias_expression:
                     - naked_identifier: g
               - comma: ','
@@ -528,8 +512,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: search_graph
+                      - naked_identifier: search_graph
                   - alias_expression:
                     - naked_identifier: sg
             - where_clause:
@@ -568,8 +551,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: search_graph
+                - naked_identifier: search_graph
 - statement_terminator: ;
 - statement:
   - with_compound_statement:
@@ -583,8 +565,7 @@ file:
           - keyword: INSERT
           - keyword: INTO
           - table_reference:
-            - object_reference:
-              - naked_identifier: a
+            - naked_identifier: a
           - values_clause:
             - keyword: VALUES
             - bracketed:
@@ -608,8 +589,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl
+                - naked_identifier: tbl
 - statement_terminator: ;
 - statement:
   - with_compound_statement:
@@ -622,8 +602,7 @@ file:
         - update_statement:
           - keyword: UPDATE
           - table_reference:
-            - object_reference:
-              - naked_identifier: a
+            - naked_identifier: a
           - set_clause_list:
             - keyword: SET
             - set_clause:
@@ -648,8 +627,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl
+                - naked_identifier: tbl
 - statement_terminator: ;
 - statement:
   - with_compound_statement:
@@ -663,8 +641,7 @@ file:
           - keyword: DELETE
           - keyword: FROM
           - table_reference:
-            - object_reference:
-              - naked_identifier: a
+            - naked_identifier: a
           - keyword: RETURNING
           - star: '*'
         - end_bracket: )
@@ -681,6 +658,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tbl
+                - naked_identifier: tbl
 - statement_terminator: ;

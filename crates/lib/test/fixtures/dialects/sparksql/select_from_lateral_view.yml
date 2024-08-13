@@ -36,8 +36,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -111,8 +110,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -202,8 +200,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -261,8 +258,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -321,8 +317,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -380,8 +375,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -434,8 +428,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -489,8 +482,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - alias_expression:
             - keyword: AS
             - naked_identifier: p
@@ -547,8 +539,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - alias_expression:
             - keyword: AS
             - naked_identifier: p
@@ -599,8 +590,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - alias_expression:
             - keyword: AS
             - naked_identifier: p
@@ -656,8 +646,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
           - alias_expression:
             - keyword: AS
             - naked_identifier: p

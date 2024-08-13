@@ -34,6 +34,5 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - quoted_identifier: '`(delimited)-table!`'
+              - quoted_identifier: '`(delimited)-table!`'
 - statement_terminator: ;

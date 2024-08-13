@@ -8,16 +8,14 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: table_mv
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: table_mv
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: table
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: table
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -35,10 +33,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: db
-                  - dot: .
-                  - naked_identifier: table_kafka
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: table_kafka
 - statement_terminator: ;
 - statement:
   - create_materialized_view_statement:
@@ -46,12 +43,10 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_mv
+      - naked_identifier: table_mv
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: table
+      - naked_identifier: table
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -69,8 +64,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table_kafka
+                - naked_identifier: table_kafka
 - statement_terminator: ;
 - statement:
   - create_materialized_view_statement:
@@ -81,20 +75,18 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: table_mv
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: table_mv
     - on_cluster_clause:
       - keyword: ON
       - keyword: CLUSTER
       - naked_identifier: mycluster
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: db
-        - dot: .
-        - naked_identifier: table
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: table
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -112,10 +104,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: db
-                  - dot: .
-                  - naked_identifier: table_kafka
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: table_kafka
 - statement_terminator: ;
 - statement:
   - create_materialized_view_statement:
@@ -123,12 +114,10 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_mv
+      - naked_identifier: table_mv
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: table
+      - naked_identifier: table
     - engine:
       - keyword: ENGINE
       - comparison_operator:
@@ -156,8 +145,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table_kafka
+                - naked_identifier: table_kafka
 - statement_terminator: ;
 - statement:
   - create_materialized_view_statement:
@@ -165,8 +153,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_mv
+      - naked_identifier: table_mv
     - engine:
       - keyword: ENGINE
       - comparison_operator:
@@ -194,8 +181,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table_kafka
+                - naked_identifier: table_kafka
 - statement_terminator: ;
 - statement:
   - create_materialized_view_statement:
@@ -203,8 +189,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_mv
+      - naked_identifier: table_mv
     - engine:
       - keyword: ENGINE
       - comparison_operator:
@@ -233,6 +218,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table_kafka
+                - naked_identifier: table_kafka
 - statement_terminator: ;

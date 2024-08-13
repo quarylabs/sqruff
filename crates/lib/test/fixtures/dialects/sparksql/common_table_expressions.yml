@@ -37,8 +37,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t
+                - naked_identifier: t
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -88,8 +87,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: t2
+                      - naked_identifier: t2
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -104,8 +102,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t
+                - naked_identifier: t
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -160,8 +157,7 @@ file:
                       - from_expression_element:
                         - table_expression:
                           - table_reference:
-                            - object_reference:
-                              - naked_identifier: t
+                            - naked_identifier: t
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -198,8 +194,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: t
+                          - naked_identifier: t
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -207,8 +202,7 @@ file:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: v
+      - naked_identifier: v
     - keyword: AS
     - with_compound_statement:
       - keyword: WITH
@@ -257,8 +251,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: t
+                  - naked_identifier: t
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -274,8 +267,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: v
+              - naked_identifier: v
 - statement_terminator: ;
 - statement:
   - with_compound_statement:
@@ -323,8 +315,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: t
+                      - naked_identifier: t
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -339,6 +330,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;

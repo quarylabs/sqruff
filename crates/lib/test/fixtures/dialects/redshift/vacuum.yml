@@ -1,0 +1,76 @@
+file:
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - table_reference:
+      - naked_identifier: sales
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - table_reference:
+      - naked_identifier: sales
+    - keyword: to
+    - numeric_literal: '100'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - keyword: recluster
+    - table_reference:
+      - naked_identifier: sales
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - keyword: sort
+    - keyword: only
+    - table_reference:
+      - naked_identifier: sales
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - keyword: delete
+    - keyword: only
+    - table_reference:
+      - naked_identifier: sales
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - keyword: reindex
+    - table_reference:
+      - naked_identifier: listing
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - keyword: reindex
+    - table_reference:
+      - naked_identifier: listing
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+  - vacuum_statement:
+    - keyword: vacuum
+    - table_reference:
+      - naked_identifier: listing
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+    - keyword: BOOST
+- statement_terminator: ;

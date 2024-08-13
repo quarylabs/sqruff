@@ -26,8 +26,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: dealer
+              - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -69,8 +68,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: dealer
+              - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -119,8 +117,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: dealer
+              - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -162,8 +159,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: dealer
+              - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -212,8 +208,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: dealer
+              - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -255,8 +250,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: dealer
+              - naked_identifier: dealer
     - having_clause:
       - keyword: HAVING
       - expression:

@@ -4,8 +4,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: CLUSTER
       - keyword: BY
@@ -25,8 +24,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: CLUSTER
       - keyword: BY
@@ -66,8 +64,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: CLUSTER
       - keyword: BY
@@ -92,8 +89,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RECLUSTER
 - statement_terminator: ;
@@ -102,8 +98,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RECLUSTER
       - keyword: MAX_SIZE
@@ -116,8 +111,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RECLUSTER
       - where_clause:
@@ -143,8 +137,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RECLUSTER
       - keyword: MAX_SIZE
@@ -174,8 +167,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: SUSPEND
       - keyword: RECLUSTER
@@ -185,8 +177,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: RESUME
       - keyword: RECLUSTER
@@ -196,8 +187,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - alter_table_clustering_action:
       - keyword: DROP
       - keyword: CLUSTERING

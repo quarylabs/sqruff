@@ -333,8 +333,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table
+              - naked_identifier: t_table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -365,8 +364,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: t_table
+              - naked_identifier: t_table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -387,8 +385,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: my_table
+              - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -413,10 +410,9 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: schema1
-                - dot: .
-                - naked_identifier: table1
+              - naked_identifier: schema1
+              - dot: .
+              - naked_identifier: table1
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
@@ -469,8 +465,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -496,8 +491,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -520,8 +514,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -544,8 +537,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -561,8 +553,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -588,8 +579,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: test1
+              - naked_identifier: test1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -614,8 +604,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: periods
+              - naked_identifier: periods
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -697,8 +686,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: mytable
+              - naked_identifier: mytable
     - for_clause:
       - keyword: FOR
       - keyword: UPDATE
@@ -731,8 +719,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: mytable
+                          - naked_identifier: mytable
                 - for_clause:
                   - keyword: FOR
                   - keyword: UPDATE
@@ -765,15 +752,13 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: mytable1
+              - naked_identifier: mytable1
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: mytable2
+                - naked_identifier: mytable2
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -794,12 +779,10 @@ file:
       - keyword: SHARE
       - keyword: OF
       - table_reference:
-        - object_reference:
-          - naked_identifier: mytable1
+        - naked_identifier: mytable1
       - comma: ','
       - table_reference:
-        - object_reference:
-          - naked_identifier: mytable2
+        - naked_identifier: mytable2
       - keyword: SKIP
       - keyword: LOCKED
     - limit_clause:
@@ -820,8 +803,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
           - sample_expression:
             - keyword: TABLESAMPLE
             - keyword: SYSTEM
@@ -844,8 +826,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
           - sample_expression:
             - keyword: TABLESAMPLE
             - keyword: BERNOULLI
@@ -882,8 +863,7 @@ file:
                     - from_expression_element:
                       - table_expression:
                         - table_reference:
-                          - object_reference:
-                            - naked_identifier: mytable
+                          - naked_identifier: mytable
                 - for_clause:
                   - keyword: FOR
                   - keyword: UPDATE
@@ -912,14 +892,12 @@ file:
     - into_clause:
       - keyword: INTO
       - table_reference:
-        - object_reference:
-          - naked_identifier: j
+        - naked_identifier: j
     - from_clause:
       - keyword: from
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: foo
+              - naked_identifier: foo
 - statement_terminator: ;

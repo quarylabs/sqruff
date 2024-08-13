@@ -7,8 +7,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: RENAME
     - keyword: TO
     - object_reference:
@@ -22,8 +21,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: TO
     - role_reference:
       - naked_identifier: current_user
@@ -36,8 +34,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: TO
     - role_reference:
       - naked_identifier: public
@@ -52,8 +49,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: WITH
     - keyword: CHECK
     - bracketed:
@@ -79,8 +75,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: WITH
     - keyword: CHECK
     - bracketed:
@@ -101,8 +96,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: USING
     - bracketed:
       - start_bracket: (
@@ -123,8 +117,7 @@ file:
       - naked_identifier: sales_rep_is_self
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: invoices
+      - naked_identifier: invoices
     - keyword: WITH
     - keyword: CHECK
     - bracketed:
@@ -154,8 +147,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: allowed_users
+                      - naked_identifier: allowed_users
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

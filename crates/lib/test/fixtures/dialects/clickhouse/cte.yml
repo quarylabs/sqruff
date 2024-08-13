@@ -110,8 +110,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: hits
+                - naked_identifier: hits
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -176,10 +175,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: system
-                  - dot: .
-                  - naked_identifier: parts
+                - naked_identifier: system
+                - dot: .
+                - naked_identifier: parts
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -218,10 +216,9 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: system
-                          - dot: .
-                          - naked_identifier: parts
+                        - naked_identifier: system
+                        - dot: .
+                        - naked_identifier: parts
               - where_clause:
                 - keyword: WHERE
                 - expression:
@@ -266,10 +263,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: system
-                  - dot: .
-                  - naked_identifier: parts
+                - naked_identifier: system
+                - dot: .
+                - naked_identifier: parts
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
@@ -315,8 +311,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: test1
+                    - naked_identifier: test1
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -331,6 +326,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: test1
+                - naked_identifier: test1
 - statement_terminator: ;

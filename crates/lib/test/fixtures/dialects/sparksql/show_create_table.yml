@@ -6,8 +6,7 @@ file:
     - keyword: TABLE
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: test
+        - naked_identifier: test
 - statement_terminator: ;
 - statement:
   - show_statement:
@@ -16,8 +15,7 @@ file:
     - keyword: TABLE
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: test
+        - naked_identifier: test
     - keyword: AS
     - keyword: SERDE
 - statement_terminator: ;

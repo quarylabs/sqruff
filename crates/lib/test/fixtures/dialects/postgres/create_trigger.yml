@@ -9,8 +9,7 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -33,8 +32,7 @@ file:
     - keyword: INSERT
     - keyword: on
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -63,8 +61,7 @@ file:
       - naked_identifier: baz
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -88,12 +85,10 @@ file:
     - keyword: DELETE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: baz
+      - naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: DEFERRED
@@ -123,12 +118,10 @@ file:
     - keyword: DELETE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: baz
+      - naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: DEFERRED
@@ -159,8 +152,7 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: WHEN
     - bracketed:
       - start_bracket: (
@@ -197,8 +189,7 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: FUNCTION
     - function:
@@ -221,21 +212,18 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: REFERENCING
     - keyword: OLD
     - keyword: TABLE
     - keyword: as
     - table_reference:
-      - object_reference:
-        - naked_identifier: old_table
+      - naked_identifier: old_table
     - keyword: NEW
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-      - object_reference:
-        - naked_identifier: new_table
+      - naked_identifier: new_table
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function:
@@ -260,8 +248,7 @@ file:
     - keyword: UPDATE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -292,8 +279,7 @@ file:
       - naked_identifier: transactions
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -326,8 +312,7 @@ file:
     - keyword: TRUNCATE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -355,8 +340,7 @@ file:
       - naked_identifier: balance
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -379,8 +363,7 @@ file:
     - keyword: UPDATE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -420,8 +403,7 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_view
+      - naked_identifier: my_view
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -444,15 +426,13 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: transfer
+      - naked_identifier: transfer
     - keyword: REFERENCING
     - keyword: NEW
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-      - object_reference:
-        - naked_identifier: inserted
+      - naked_identifier: inserted
     - keyword: FOR
     - keyword: EACH
     - keyword: STATEMENT
@@ -475,21 +455,18 @@ file:
     - keyword: UPDATE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: paired_items
+      - naked_identifier: paired_items
     - keyword: REFERENCING
     - keyword: NEW
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-      - object_reference:
-        - naked_identifier: newtab
+      - naked_identifier: newtab
     - keyword: OLD
     - keyword: TABLE
     - keyword: AS
     - table_reference:
-      - object_reference:
-        - naked_identifier: oldtab
+      - naked_identifier: oldtab
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW
@@ -512,8 +489,7 @@ file:
     - keyword: UPDATE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: FOR
     - keyword: EACH
     - keyword: ROW

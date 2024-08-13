@@ -4,8 +4,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
 - statement_terminator: ;
 - statement:
   - delete_statement:
@@ -13,16 +12,14 @@ file:
     - keyword: FROM
     - keyword: ONLY
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
 - statement_terminator: ;
 - statement:
   - delete_statement:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - star: '*'
 - statement_terminator: ;
 - statement:
@@ -30,8 +27,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - alias_expression:
       - keyword: AS
       - naked_identifier: f
@@ -41,8 +37,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - alias_expression:
       - naked_identifier: f
 - statement_terminator: ;
@@ -51,13 +46,11 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - keyword: USING
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: producers
+        - naked_identifier: producers
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -83,16 +76,14 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - alias_expression:
       - keyword: AS
       - naked_identifier: f
     - keyword: USING
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: producers
+        - naked_identifier: producers
     - alias_expression:
       - keyword: AS
       - naked_identifier: p
@@ -123,24 +114,21 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - alias_expression:
       - keyword: AS
       - naked_identifier: f
     - keyword: USING
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: producers
+        - naked_identifier: producers
     - alias_expression:
       - keyword: AS
       - naked_identifier: p
     - comma: ','
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: actors
+        - naked_identifier: actors
     - alias_expression:
       - keyword: AS
       - naked_identifier: a
@@ -190,15 +178,13 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - alias_expression:
       - naked_identifier: f
     - keyword: USING
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: producers
+        - naked_identifier: producers
     - alias_expression:
       - naked_identifier: p
     - where_clause:
@@ -228,22 +214,19 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - alias_expression:
       - naked_identifier: f
     - keyword: USING
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: producers
+        - naked_identifier: producers
     - alias_expression:
       - naked_identifier: p
     - comma: ','
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: actors
+        - naked_identifier: actors
     - alias_expression:
       - naked_identifier: a
     - where_clause:
@@ -292,8 +275,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - keyword: WHERE
     - keyword: CURRENT
     - keyword: OF
@@ -305,8 +287,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: films
+      - naked_identifier: films
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -322,8 +303,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -340,8 +320,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -360,8 +339,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -383,8 +361,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -405,8 +382,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -429,8 +405,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -459,8 +434,7 @@ file:
     - keyword: DELETE
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: tasks
+      - naked_identifier: tasks
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -502,15 +476,13 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: bar
+                    - naked_identifier: bar
         - end_bracket: )
     - delete_statement:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-        - object_reference:
-          - naked_identifier: films
+        - naked_identifier: films
 - statement_terminator: ;
 - statement:
   - with_compound_statement:
@@ -553,8 +525,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: t
+                      - naked_identifier: t
             - where_clause:
               - keyword: WHERE
               - expression:
@@ -568,6 +539,5 @@ file:
       - keyword: DELETE
       - keyword: FROM
       - table_reference:
-        - object_reference:
-          - naked_identifier: films
+        - naked_identifier: films
 - statement_terminator: ;

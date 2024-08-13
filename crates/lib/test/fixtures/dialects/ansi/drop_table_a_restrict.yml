@@ -4,6 +4,5 @@ file:
     - keyword: drop
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: a
+      - naked_identifier: a
     - keyword: restrict

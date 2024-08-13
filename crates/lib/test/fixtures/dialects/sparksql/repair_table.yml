@@ -5,8 +5,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - keyword: ADD
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -16,8 +15,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - keyword: DROP
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -27,8 +25,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
     - keyword: SYNC
     - keyword: PARTITIONS
 - statement_terminator: ;
@@ -38,8 +35,7 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_identifier
+      - naked_identifier: table_identifier
 - statement_terminator: ;
 - statement:
   - msck_repair_table_statement:
@@ -47,6 +43,5 @@ file:
     - keyword: REPAIR
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
 - statement_terminator: ;

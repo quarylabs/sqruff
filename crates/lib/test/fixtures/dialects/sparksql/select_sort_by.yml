@@ -31,8 +31,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -60,8 +59,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -100,8 +98,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -128,8 +125,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -167,8 +163,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -198,8 +193,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -240,8 +234,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -270,8 +263,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -311,8 +303,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -343,8 +334,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -386,8 +376,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -420,8 +409,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -450,8 +438,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - sort_by_clause:
       - keyword: SORT
       - keyword: BY
@@ -501,8 +488,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -535,8 +521,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -565,8 +550,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: person
+              - naked_identifier: person
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY

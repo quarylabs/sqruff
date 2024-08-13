@@ -25,6 +25,5 @@ file:
     - keyword: FOR
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: events
+      - naked_identifier: events
 - statement_terminator: ;

@@ -1,0 +1,34 @@
+file:
+- statement:
+  - update_statement:
+    - keyword: update
+    - table_reference:
+      - naked_identifier: tbl1
+    - set_clause_list:
+      - keyword: set
+      - set_clause:
+        - column_reference:
+          - naked_identifier: col1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: col2
+- statement_terminator: ;
+- statement:
+  - update_statement:
+    - keyword: update
+    - table_reference:
+      - naked_identifier: tbl1
+    - alias_expression:
+      - keyword: as
+      - naked_identifier: set
+    - set_clause_list:
+      - keyword: set
+      - set_clause:
+        - column_reference:
+          - naked_identifier: col1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: col2
+- statement_terminator: ;

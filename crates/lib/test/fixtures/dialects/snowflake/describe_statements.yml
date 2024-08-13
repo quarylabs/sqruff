@@ -268,48 +268,43 @@ file:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_table
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_table
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -320,8 +315,7 @@ file:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -332,8 +326,7 @@ file:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -344,8 +337,7 @@ file:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -357,8 +349,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - describe_statement:
@@ -366,8 +357,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
 - statement_terminator: ;
 - statement:
   - describe_statement:
@@ -375,8 +365,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -388,8 +377,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -401,8 +389,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -414,8 +401,7 @@ file:
     - keyword: EXTERNAL
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: TYPE
     - comparison_operator:
       - raw_comparison_operator: =
@@ -426,40 +412,36 @@ file:
     - keyword: DESCRIBE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_view
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESC
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_view
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESCRIBE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_view
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESC
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_view
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:
@@ -467,8 +449,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_view
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:
@@ -476,8 +457,7 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_view
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:
@@ -485,12 +465,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_view
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:
@@ -498,12 +477,11 @@ file:
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
-        - dot: .
-        - naked_identifier: my_view
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
 - statement_terminator: ;
 - statement:
   - describe_statement:

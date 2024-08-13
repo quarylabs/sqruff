@@ -4,8 +4,7 @@ file:
     - keyword: create
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: another_view
+      - naked_identifier: another_view
     - comment_equals_clause:
       - keyword: comment
       - comparison_operator:
@@ -28,16 +27,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: other_table
+                - naked_identifier: other_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: basic_view
+      - naked_identifier: basic_view
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -55,8 +52,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src_table
+                - naked_identifier: src_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -64,8 +60,7 @@ file:
     - keyword: TEMPORARY
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_with_comments
+      - naked_identifier: view_with_comments
     - comment_equals_clause:
       - keyword: COMMENT
       - comparison_operator:
@@ -88,8 +83,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src_table
+                - naked_identifier: src_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -98,8 +92,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_with_replace_and_comment
+      - naked_identifier: view_with_replace_and_comment
     - comment_equals_clause:
       - keyword: COMMENT
       - comparison_operator:
@@ -122,8 +115,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src_table
+                - naked_identifier: src_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -137,8 +129,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: secure_recursive_view_with_comment
+      - naked_identifier: secure_recursive_view_with_comment
     - comment_equals_clause:
       - keyword: COMMENT
       - comparison_operator:
@@ -161,8 +152,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src_table
+                - naked_identifier: src_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -171,8 +161,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_with_comment_and_copy_grants
+      - naked_identifier: view_with_comment_and_copy_grants
     - comment_equals_clause:
       - keyword: COMMENT
       - comparison_operator:
@@ -197,8 +186,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src_table
+                - naked_identifier: src_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -207,8 +195,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_with_tags_and_copy_grants
+      - naked_identifier: view_with_tags_and_copy_grants
     - tag_bracketed_equals:
       - keyword: WITH
       - keyword: TAG
@@ -245,8 +232,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src_table
+                - naked_identifier: src_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -255,8 +241,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_with_column_comment
+      - naked_identifier: view_with_column_comment
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -285,8 +270,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: src_table
+                - naked_identifier: src_table
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -300,8 +284,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: view_with_all_implemented_features
+      - naked_identifier: view_with_all_implemented_features
     - comment_equals_clause:
       - keyword: COMMENT
       - comparison_operator:
@@ -338,8 +321,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: table_1
+                      - naked_identifier: table_1
           - end_bracket: )
       - select_statement:
         - select_clause:
@@ -357,16 +339,14 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: table_2
+                  - naked_identifier: table_2
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: my_cte
+                    - naked_identifier: my_cte
               - join_on_condition:
                 - keyword: ON
                 - expression:
@@ -388,8 +368,7 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: vw_appt_latest
+      - naked_identifier: vw_appt_latest
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -415,8 +394,7 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: dim_appt
+                        - naked_identifier: dim_appt
                     - alias_expression:
                       - naked_identifier: da
               - where_clause:
@@ -442,7 +420,6 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: most_current
+                    - naked_identifier: most_current
       - end_bracket: )
 - statement_terminator: ;

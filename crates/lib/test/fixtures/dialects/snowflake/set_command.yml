@@ -64,8 +64,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: table1
+                      - naked_identifier: table1
         - end_bracket: )
       - binary_operator: /
       - numeric_literal: '2'

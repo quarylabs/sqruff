@@ -4,8 +4,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
@@ -20,8 +19,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - bracketed:
@@ -39,8 +37,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
@@ -62,8 +59,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
@@ -83,8 +79,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: ADD
     - keyword: COLUMNS
     - column_definition:
@@ -118,8 +113,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - column_reference:
       - naked_identifier: col_name_old
@@ -134,8 +128,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -151,8 +144,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -170,8 +162,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -190,8 +181,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -212,8 +202,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - column_reference:
       - naked_identifier: col_name_1
@@ -230,8 +219,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -249,8 +237,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -270,8 +257,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -292,8 +278,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -316,8 +301,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: boxes
+      - naked_identifier: boxes
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:
@@ -336,8 +320,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - keyword: REPLACE
     - keyword: COLUMNS
     - bracketed:
@@ -358,8 +341,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: boxes
+      - naked_identifier: boxes
     - keyword: REPLACE
     - keyword: COLUMNS
     - bracketed:

@@ -3,8 +3,7 @@ file:
   - update_statement:
     - keyword: UPDATE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table_name
+      - naked_identifier: table_name
     - set_clause_list:
       - keyword: SET
       - set_clause:

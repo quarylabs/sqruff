@@ -4,21 +4,18 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: view1
+      - naked_identifier: view1
     - keyword: rename
     - keyword: to
     - table_reference:
-      - object_reference:
-        - naked_identifier: view2
+      - naked_identifier: view2
 - statement_terminator: ;
 - statement:
   - alter_view_statement:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: view1
+      - naked_identifier: view1
     - keyword: set
     - keyword: secure
 - statement_terminator: ;
@@ -27,8 +24,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: view1
+      - naked_identifier: view1
     - keyword: unset
     - keyword: secure
 - statement_terminator: ;
@@ -37,8 +33,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: user_info_v
+      - naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
@@ -54,8 +49,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: user_info_v
+      - naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
@@ -80,8 +74,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: user_info_v
+      - naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
@@ -95,8 +88,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: user_info_v
+      - naked_identifier: user_info_v
     - keyword: modify
     - keyword: column
     - column_reference:
@@ -117,8 +109,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: v1
+      - naked_identifier: v1
     - keyword: add
     - keyword: row
     - keyword: access
@@ -137,8 +128,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: v1
+      - naked_identifier: v1
     - keyword: drop
     - keyword: row
     - keyword: access
@@ -151,8 +141,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: v1
+      - naked_identifier: v1
     - keyword: drop
     - keyword: row
     - keyword: access
@@ -178,8 +167,7 @@ file:
     - keyword: alter
     - keyword: view
     - table_reference:
-      - object_reference:
-        - naked_identifier: v1
+      - naked_identifier: v1
     - keyword: modify
     - keyword: column
     - column_reference:

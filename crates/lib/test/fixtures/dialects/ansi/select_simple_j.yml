@@ -12,16 +12,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: correctly_substituted
+              - naked_identifier: correctly_substituted
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: needs_substitution
+                - naked_identifier: needs_substitution
         - join_clause:
           - keyword: LEFT
           - keyword: OUTER
@@ -29,5 +27,4 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: some_other_table
+                - naked_identifier: some_other_table

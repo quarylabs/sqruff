@@ -20,8 +20,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: employees
+              - naked_identifier: employees
         - connectby_clause:
           - keyword: start
           - keyword: with
@@ -81,8 +80,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: employees
+              - naked_identifier: employees
         - connectby_clause:
           - keyword: start
           - keyword: with
@@ -149,8 +147,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: components
+              - naked_identifier: components
         - connectby_clause:
           - keyword: start
           - keyword: with
@@ -204,8 +201,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: employees
+              - naked_identifier: employees
         - connectby_clause:
           - keyword: start
           - keyword: with

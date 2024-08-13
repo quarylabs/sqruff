@@ -33,8 +33,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: ladder
+                      - naked_identifier: ladder
             - orderby_clause:
               - keyword: ORDER
               - keyword: BY
@@ -53,5 +52,4 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: counter
+                - naked_identifier: counter

@@ -11,14 +11,12 @@ file:
       - naked_identifier: address
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: customers
+      - naked_identifier: customers
     - keyword: BEGIN
     - update_statement:
       - keyword: UPDATE
       - table_reference:
-        - object_reference:
-          - naked_identifier: orders
+        - naked_identifier: orders
       - set_clause_list:
         - keyword: SET
         - set_clause:
@@ -58,14 +56,12 @@ file:
       - naked_identifier: cust_addr
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: customer_address
+      - naked_identifier: customer_address
     - keyword: BEGIN
     - update_statement:
       - keyword: UPDATE
       - table_reference:
-        - object_reference:
-          - naked_identifier: customer
+        - naked_identifier: customer
       - set_clause_list:
         - keyword: SET
         - set_clause:
@@ -101,8 +97,7 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: leads
+      - naked_identifier: leads
     - keyword: BEGIN
     - select_statement:
       - select_clause:
@@ -122,15 +117,13 @@ file:
     - keyword: UPDATE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: leads
+      - naked_identifier: leads
     - keyword: BEGIN
     - insert_statement:
       - keyword: INSERT
       - keyword: INTO
       - table_reference:
-        - object_reference:
-          - naked_identifier: lead_logs
+        - naked_identifier: lead_logs
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -213,15 +206,13 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: emp_details
+      - naked_identifier: emp_details
     - keyword: BEGIN
     - insert_statement:
       - keyword: INSERT
       - keyword: INTO
       - table_reference:
-        - object_reference:
-          - naked_identifier: emp_log
+        - naked_identifier: emp_log
       - bracketed:
         - start_bracket: (
         - column_reference:

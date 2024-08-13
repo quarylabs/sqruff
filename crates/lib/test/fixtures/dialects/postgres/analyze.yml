@@ -3,23 +3,20 @@ file:
   - analyze_statement:
     - keyword: ANALYZE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - analyze_statement:
     - keyword: ANALYSE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - analyze_statement:
     - keyword: ANALYZE
     - keyword: VERBOSE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - analyze_statement:
@@ -31,8 +28,7 @@ file:
       - keyword: SKIP_LOCKED
       - end_bracket: )
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - analyze_statement:
@@ -46,8 +42,7 @@ file:
       - boolean_literal: 'TRUE'
       - end_bracket: )
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - analyze_statement:
@@ -60,16 +55,14 @@ file:
       - boolean_literal: 'FALSE'
       - end_bracket: )
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - analyze_statement:
     - keyword: ANALYZE
     - keyword: VERBOSE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -83,8 +76,7 @@ file:
   - analyze_statement:
     - keyword: ANALYZE
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -95,8 +87,7 @@ file:
       - end_bracket: )
     - comma: ','
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo2
+      - naked_identifier: foo2
     - bracketed:
       - start_bracket: (
       - column_reference:

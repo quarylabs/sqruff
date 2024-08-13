@@ -159,10 +159,9 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: system
-                - dot: .
-                - naked_identifier: databases
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: databases
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -1188,8 +1187,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1237,8 +1235,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1254,8 +1251,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table2
+      - naked_identifier: table2
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1278,40 +1274,6 @@ file:
     - keyword: EXISTS
     - database_reference:
       - naked_identifier: db_name
-    - database_engine:
-      - keyword: ENGINE
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - engine_function:
-        - keyword: MaterializedMySQL
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''localhost:3306'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''db'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''user'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''***'''
-          - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: DATABASE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - database_reference:
-      - naked_identifier: db_name
-    - on_cluster_clause:
-      - keyword: ON
-      - keyword: CLUSTER
-      - naked_identifier: cluster
     - database_engine:
       - keyword: ENGINE
       - comparison_operator:
@@ -1366,11 +1328,44 @@ file:
           - expression:
             - quoted_literal: '''***'''
           - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: db_name
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+    - database_engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - engine_function:
+        - keyword: MaterializedMySQL
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''localhost:3306'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''db'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''user'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''***'''
+          - end_bracket: )
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1386,8 +1381,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table2
+      - naked_identifier: table2
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1481,8 +1475,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1498,104 +1491,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table2
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: id
-        - data_type:
-          - data_type_identifier: UInt32
-      - comma: ','
-      - column_definition:
-        - naked_identifier: name
-        - data_type:
-          - data_type_identifier: String
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: DATABASE
-    - database_reference:
-      - naked_identifier: db_name
-    - on_cluster_clause:
-      - keyword: ON
-      - keyword: CLUSTER
-      - naked_identifier: cluster
-    - database_engine:
-      - keyword: ENGINE
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - engine_function:
-        - keyword: MaterializedMySQL
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''localhost:3306'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''db'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''user'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''***'''
-          - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: DATABASE
-    - database_reference:
-      - naked_identifier: db_name
-    - on_cluster_clause:
-      - keyword: ON
-      - keyword: CLUSTER
-      - naked_identifier: cluster
-    - database_engine:
-      - keyword: ENGINE
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - engine_function:
-        - keyword: MaterializedMySQL
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''localhost:3306'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''db'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''user'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''***'''
-          - end_bracket: )
-    - keyword: TABLE
-    - keyword: OVERRIDE
-    - table_reference:
-      - object_reference:
-        - naked_identifier: table1
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: id
-        - data_type:
-          - data_type_identifier: UInt32
-      - comma: ','
-      - column_definition:
-        - naked_identifier: name
-        - data_type:
-          - data_type_identifier: String
-      - end_bracket: )
-    - keyword: TABLE
-    - keyword: OVERRIDE
-    - table_reference:
-      - object_reference:
-        - naked_identifier: table2
+      - naked_identifier: table2
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1639,11 +1535,6 @@ file:
           - expression:
             - quoted_literal: '''***'''
           - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: materialized_mysql_database_engine
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''InnoDB'''
 - statement_terminator: ;
 - statement:
   - create_database_statement:
@@ -1675,16 +1566,10 @@ file:
           - expression:
             - quoted_literal: '''***'''
           - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: materialized_mysql_database_engine
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''InnoDB'''
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1700,106 +1585,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table2
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: id
-        - data_type:
-          - data_type_identifier: UInt32
-      - comma: ','
-      - column_definition:
-        - naked_identifier: name
-        - data_type:
-          - data_type_identifier: String
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: DATABASE
-    - database_reference:
-      - naked_identifier: db_name
-    - database_engine:
-      - keyword: ENGINE
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - engine_function:
-        - keyword: MaterializedMySQL
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''localhost:3306'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''db'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''user'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''***'''
-          - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: materialized_mysql_database_engine
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''InnoDB'''
-- statement_terminator: ;
-- statement:
-  - create_database_statement:
-    - keyword: CREATE
-    - keyword: DATABASE
-    - database_reference:
-      - naked_identifier: db_name
-    - database_engine:
-      - keyword: ENGINE
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - engine_function:
-        - keyword: MaterializedMySQL
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - quoted_literal: '''localhost:3306'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''db'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''user'''
-          - comma: ','
-          - expression:
-            - quoted_literal: '''***'''
-          - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: materialized_mysql_database_engine
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''InnoDB'''
-    - keyword: TABLE
-    - keyword: OVERRIDE
-    - table_reference:
-      - object_reference:
-        - naked_identifier: table1
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: id
-        - data_type:
-          - data_type_identifier: UInt32
-      - comma: ','
-      - column_definition:
-        - naked_identifier: name
-        - data_type:
-          - data_type_identifier: String
-      - end_bracket: )
-    - keyword: TABLE
-    - keyword: OVERRIDE
-    - table_reference:
-      - object_reference:
-        - naked_identifier: table2
+      - naked_identifier: table2
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1887,8 +1673,7 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -1904,8 +1689,207 @@ file:
     - keyword: TABLE
     - keyword: OVERRIDE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table2
+      - naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db_name
+    - database_engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - engine_function:
+        - keyword: MaterializedMySQL
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''localhost:3306'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''db'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''user'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''***'''
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''InnoDB'''
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db_name
+    - database_engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - engine_function:
+        - keyword: MaterializedMySQL
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''localhost:3306'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''db'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''user'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''***'''
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''InnoDB'''
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+      - naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+      - naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db_name
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+    - database_engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - engine_function:
+        - keyword: MaterializedMySQL
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''localhost:3306'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''db'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''user'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''***'''
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''InnoDB'''
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db_name
+    - on_cluster_clause:
+      - keyword: ON
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+    - database_engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - engine_function:
+        - keyword: MaterializedMySQL
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''localhost:3306'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''db'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''user'''
+          - comma: ','
+          - expression:
+            - quoted_literal: '''***'''
+          - end_bracket: )
+      - keyword: SETTINGS
+      - naked_identifier: materialized_mysql_database_engine
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''InnoDB'''
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+      - naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: UInt32
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: String
+      - end_bracket: )
+    - keyword: TABLE
+    - keyword: OVERRIDE
+    - table_reference:
+      - naked_identifier: table2
     - bracketed:
       - start_bracket: (
       - column_definition:

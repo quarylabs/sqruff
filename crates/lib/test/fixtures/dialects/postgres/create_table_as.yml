@@ -5,8 +5,7 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -22,8 +21,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: t2
+                  - naked_identifier: t2
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -32,8 +30,7 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -47,8 +44,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
@@ -56,8 +52,7 @@ file:
     - keyword: TEMPORARY
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -71,16 +66,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -96,8 +89,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: t2
+                  - naked_identifier: t2
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -105,8 +97,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -120,8 +111,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
@@ -131,8 +121,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -146,16 +135,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: ON
     - keyword: COMMIT
     - keyword: DELETE
@@ -173,16 +160,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: ON
     - keyword: COMMIT
     - keyword: PRESERVE
@@ -200,16 +185,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: ON
     - keyword: COMMIT
     - keyword: DROP
@@ -226,16 +209,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -251,8 +232,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: t2
+                  - naked_identifier: t2
       - end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -264,8 +244,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -279,8 +258,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
     - with_data_clause:
       - keyword: WITH
       - keyword: NO
@@ -291,8 +269,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -308,8 +285,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: t2
+                  - naked_identifier: t2
       - end_bracket: )
     - with_data_clause:
       - keyword: WITH
@@ -320,8 +296,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -335,8 +310,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
     - with_data_clause:
       - keyword: WITH
       - keyword: DATA
@@ -347,8 +321,7 @@ file:
     - keyword: UNLOGGED
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -362,8 +335,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
@@ -372,8 +344,7 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -387,8 +358,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
@@ -397,8 +367,7 @@ file:
     - keyword: TEMP
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -412,16 +381,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: USING
     - parameter: method
     - keyword: AS
@@ -437,16 +404,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: WITHOUT
     - keyword: OIDS
     - keyword: AS
@@ -462,16 +427,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -515,21 +478,18 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t2
+      - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: AS
     - keyword: EXECUTE
     - function:
@@ -544,8 +504,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: TABLESPACE
     - tablespace_reference:
       - naked_identifier: ts
@@ -562,16 +521,14 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: WITH
     - bracketed:
       - start_bracket: (
@@ -593,8 +550,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: t2
+                - naked_identifier: t2
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
@@ -602,8 +558,7 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: t1
+      - naked_identifier: t1
     - keyword: with
     - bracketed:
       - start_bracket: (
@@ -643,8 +598,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: tablename
+                - naked_identifier: tablename
 - statement_terminator: ;
 - statement:
   - create_table_as_statement:
@@ -652,8 +606,7 @@ file:
     - keyword: temp
     - keyword: table
     - table_reference:
-      - object_reference:
-        - naked_identifier: a_new_table
+      - naked_identifier: a_new_table
     - keyword: with
     - bracketed:
       - start_bracket: (
@@ -688,10 +641,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: schema
-                  - dot: .
-                  - naked_identifier: tablename
+                - naked_identifier: schema
+                - dot: .
+                - naked_identifier: tablename
       - groupby_clause:
         - keyword: group
         - keyword: by

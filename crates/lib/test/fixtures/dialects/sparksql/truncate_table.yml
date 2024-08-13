@@ -4,8 +4,7 @@ file:
     - keyword: TRUNCATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Student
+      - naked_identifier: Student
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
@@ -21,6 +20,5 @@ file:
     - keyword: TRUNCATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: Student
+      - naked_identifier: Student
 - statement_terminator: ;

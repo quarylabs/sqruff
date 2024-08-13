@@ -7,8 +7,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: TO
     - object_reference:
       - naked_identifier: current_user
@@ -21,10 +20,9 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: sch
-        - dot: .
-        - naked_identifier: accounts
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: accounts
     - keyword: AS
     - keyword: permissive
     - keyword: FOR
@@ -41,8 +39,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: TO
     - object_reference:
       - naked_identifier: public
@@ -57,8 +54,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: WITH
     - keyword: CHECK
     - bracketed:
@@ -84,8 +80,7 @@ file:
       - naked_identifier: emp_rls_policy
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: employee
+      - naked_identifier: employee
     - keyword: FOR
     - keyword: all
     - keyword: TO
@@ -117,8 +112,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: WITH
     - keyword: CHECK
     - bracketed:
@@ -139,8 +133,7 @@ file:
       - naked_identifier: account_managers
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: accounts
+      - naked_identifier: accounts
     - keyword: USING
     - bracketed:
       - start_bracket: (

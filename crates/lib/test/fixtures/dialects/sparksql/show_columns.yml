@@ -6,8 +6,7 @@ file:
     - keyword: IN
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: customer
+        - naked_identifier: customer
 - statement_terminator: ;
 - statement:
   - show_statement:
@@ -16,10 +15,9 @@ file:
     - keyword: IN
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: salesdb
-          - dot: .
-          - naked_identifier: customer
+        - naked_identifier: salesdb
+        - dot: .
+        - naked_identifier: customer
 - statement_terminator: ;
 - statement:
   - show_statement:
@@ -28,8 +26,7 @@ file:
     - keyword: IN
     - table_expression:
       - table_reference:
-        - object_reference:
-          - naked_identifier: customer
+        - naked_identifier: customer
     - keyword: IN
     - database_reference:
       - naked_identifier: salesdb

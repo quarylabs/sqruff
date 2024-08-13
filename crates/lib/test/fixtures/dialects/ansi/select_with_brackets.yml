@@ -15,8 +15,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: my_table
+                - naked_identifier: my_table
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -35,8 +34,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: my_table
+                - naked_identifier: my_table
             - alias_expression:
               - naked_identifier: tt
           - end_bracket: )
@@ -60,8 +58,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: my_table
+                    - naked_identifier: my_table
                 - alias_expression:
                   - naked_identifier: tt
             - end_bracket: )
@@ -88,8 +85,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: my_table
+                      - naked_identifier: my_table
                   - alias_expression:
                     - naked_identifier: tt
                 - end_bracket: )

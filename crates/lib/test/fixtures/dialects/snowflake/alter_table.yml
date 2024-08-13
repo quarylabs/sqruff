@@ -4,34 +4,29 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_old_table
+      - naked_identifier: my_old_table
     - keyword: RENAME
     - keyword: TO
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_new_table
+      - naked_identifier: my_new_table
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_existing_table
+      - naked_identifier: my_existing_table
     - keyword: SWAP
     - keyword: WITH
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_another_table
+      - naked_identifier: my_another_table
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_existing_table
+      - naked_identifier: my_existing_table
     - keyword: ADD
     - keyword: SEARCH
     - keyword: OPTIMIZATION
@@ -41,8 +36,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_existing_table
+      - naked_identifier: my_existing_table
     - keyword: DROP
     - keyword: SEARCH
     - keyword: OPTIMIZATION
@@ -52,8 +46,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: SET
     - parameter: DATA_RETENTION_TIME_IN_DAYS
     - comparison_operator:
@@ -65,8 +58,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: SET
     - parameter: DEFAULT_DDL_COLLATION
     - comparison_operator:
@@ -78,8 +70,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: my_table
+      - naked_identifier: my_table
     - keyword: SET
     - parameter: COMMENT
     - comparison_operator:
@@ -91,8 +82,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -110,8 +100,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -129,8 +118,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -151,8 +139,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -166,8 +153,7 @@ file:
         - end_bracket: )
       - keyword: REFERENCES
       - table_reference:
-        - object_reference:
-          - naked_identifier: table2
+        - naked_identifier: table2
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -179,8 +165,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -194,8 +179,7 @@ file:
         - end_bracket: )
       - keyword: REFERENCES
       - table_reference:
-        - object_reference:
-          - naked_identifier: table2
+        - naked_identifier: table2
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -207,8 +191,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -222,10 +205,9 @@ file:
         - end_bracket: )
       - keyword: REFERENCES
       - table_reference:
-        - object_reference:
-          - quoted_identifier: '"schema1"'
-          - dot: .
-          - quoted_identifier: '"table1"'
+        - quoted_identifier: '"schema1"'
+        - dot: .
+        - quoted_identifier: '"table1"'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -237,8 +219,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -252,10 +233,9 @@ file:
         - end_bracket: )
       - keyword: REFERENCES
       - table_reference:
-        - object_reference:
-          - quoted_identifier: '"schema1"'
-          - dot: .
-          - quoted_identifier: '"table1"'
+        - quoted_identifier: '"schema1"'
+        - dot: .
+        - quoted_identifier: '"table1"'
       - bracketed:
         - start_bracket: (
         - column_reference:
@@ -270,8 +250,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: DROP
       - keyword: CONSTRAINT
@@ -288,8 +267,7 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: table1
+      - naked_identifier: table1
     - alter_table_constraint_action:
       - keyword: RENAME
       - keyword: CONSTRAINT
@@ -302,10 +280,9 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - quoted_identifier: '"ADW_TEMP"'
-        - dot: .
-        - quoted_identifier: '"FRUIT_PRICE_SAT"'
+      - quoted_identifier: '"ADW_TEMP"'
+      - dot: .
+      - quoted_identifier: '"FRUIT_PRICE_SAT"'
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
@@ -319,10 +296,9 @@ file:
         - end_bracket: )
       - keyword: REFERENCES
       - table_reference:
-        - object_reference:
-          - quoted_identifier: '"ADW_TEMP"'
-          - dot: .
-          - quoted_identifier: '"OFFER_SAT"'
+        - quoted_identifier: '"ADW_TEMP"'
+        - dot: .
+        - quoted_identifier: '"OFFER_SAT"'
       - bracketed:
         - start_bracket: (
         - column_reference:

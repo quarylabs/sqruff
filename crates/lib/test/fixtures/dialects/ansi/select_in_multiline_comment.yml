@@ -20,8 +20,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: table_a
+                    - naked_identifier: table_a
         - end_bracket: )
     - comma: ','
     - common_table_expression:
@@ -42,8 +41,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: a
+                    - naked_identifier: a
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -58,5 +56,4 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: b
+                - naked_identifier: b

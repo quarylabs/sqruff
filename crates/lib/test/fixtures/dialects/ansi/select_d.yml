@@ -16,8 +16,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: some_table
+              - naked_identifier: some_table
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -45,6 +44,5 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - object_reference:
-                        - naked_identifier: another_table
+                      - naked_identifier: another_table
           - end_bracket: )

@@ -26,8 +26,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: user_tb
+              - naked_identifier: user_tb
           - alias_expression:
             - keyword: as
             - naked_identifier: u
@@ -37,8 +36,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: product_tb
+                - naked_identifier: product_tb
             - alias_expression:
               - keyword: as
               - naked_identifier: p

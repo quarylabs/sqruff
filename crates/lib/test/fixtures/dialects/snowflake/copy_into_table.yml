@@ -4,8 +4,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@my_int_stage'
@@ -15,8 +14,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@my_int_stage'
@@ -38,8 +36,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@my_int_stage'
@@ -60,8 +57,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@my_int_stage'
@@ -87,8 +83,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@my_int_stage'
@@ -114,8 +109,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@my_int_stage'
@@ -141,16 +135,14 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
 - statement_terminator: ;
 - statement:
   - copy_into_table_statement:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@%mytable'
@@ -160,8 +152,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@~/data_files'
@@ -171,8 +162,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@mydb.myschema.mystage'
@@ -182,8 +172,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: from
     - storage_location:
       - stage_path: '@mydatabase.myschema.%mytable'
@@ -193,8 +182,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - copy_options:
       - keyword: purge
       - comparison_operator:
@@ -206,8 +194,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: validation_mode
     - comparison_operator:
       - raw_comparison_operator: =
@@ -218,8 +205,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: validation_mode
     - comparison_operator:
       - raw_comparison_operator: =
@@ -230,8 +216,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable
+      - naked_identifier: mytable
     - keyword: validation_mode
     - comparison_operator:
       - raw_comparison_operator: =
@@ -242,8 +227,7 @@ file:
     - keyword: COPY
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: target_table
+      - naked_identifier: target_table
     - keyword: FROM
     - bracketed:
       - start_bracket: (
@@ -259,8 +243,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - stage_path: '@source_stage'
+                  - stage_path: '@source_stage'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -268,8 +251,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable1
+      - naked_identifier: mytable1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -296,8 +278,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable1
+      - naked_identifier: mytable1
     - keyword: from
     - bracketed:
       - start_bracket: (
@@ -313,8 +294,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - stage_path: '@ext.stage/path1'
+                  - stage_path: '@ext.stage/path1'
       - end_bracket: )
     - keyword: file_format
     - comparison_operator:
@@ -334,8 +314,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable1
+      - naked_identifier: mytable1
     - keyword: from
     - storage_location:
       - bucket_path: '''s3://bucket/source'''
@@ -361,8 +340,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable1
+      - naked_identifier: mytable1
     - bracketed:
       - start_bracket: (
       - column_reference:
@@ -389,8 +367,7 @@ file:
     - keyword: copy
     - keyword: into
     - table_reference:
-      - object_reference:
-        - naked_identifier: mytable1
+      - naked_identifier: mytable1
     - bracketed:
       - start_bracket: (
       - column_reference:

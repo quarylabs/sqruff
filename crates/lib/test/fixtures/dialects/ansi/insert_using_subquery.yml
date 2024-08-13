@@ -4,8 +4,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - select_statement:
       - select_clause:
         - keyword: SELECT
@@ -20,8 +19,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - select_statement:
@@ -39,8 +37,7 @@ file:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - bracketed:

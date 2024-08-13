@@ -13,8 +13,7 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: boo
+              - naked_identifier: boo
 - statement_terminator: ;
 - statement:
   - with_compound_statement:
@@ -43,8 +42,7 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: foo
+                    - naked_identifier: foo
         - end_bracket: )
     - select_statement:
       - select_clause:
@@ -66,6 +64,5 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: blah
+                - naked_identifier: blah
 - statement_terminator: ;

@@ -1,0 +1,26 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+        - keyword: TOP
+        - numeric_literal: '10'
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: example_value_col
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: example_schema
+              - dot: .
+              - naked_identifier: some_table
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: example_value_col
+- statement_terminator: ;

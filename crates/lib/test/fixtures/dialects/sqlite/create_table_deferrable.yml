@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: messages
+      - naked_identifier: messages
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -28,8 +27,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -43,8 +41,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: messages
+      - naked_identifier: messages
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -67,8 +64,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -84,8 +80,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: messages
+      - naked_identifier: messages
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -108,8 +103,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -125,8 +119,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: messages
+      - naked_identifier: messages
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -149,8 +142,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -165,8 +157,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: messages
+      - naked_identifier: messages
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -189,8 +180,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -207,8 +197,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: messages
+      - naked_identifier: messages
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -231,8 +220,7 @@ file:
           - end_bracket: )
         - keyword: REFERENCES
         - table_reference:
-          - object_reference:
-            - naked_identifier: users
+          - naked_identifier: users
         - bracketed:
           - start_bracket: (
           - column_reference:
@@ -249,8 +237,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: track
+      - naked_identifier: track
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -270,8 +257,7 @@ file:
         - column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-            - object_reference:
-              - naked_identifier: artist
+            - naked_identifier: artist
           - bracketed:
             - start_bracket: (
             - column_reference:
@@ -285,8 +271,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: track
+      - naked_identifier: track
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -306,8 +291,7 @@ file:
         - column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-            - object_reference:
-              - naked_identifier: artist
+            - naked_identifier: artist
           - bracketed:
             - start_bracket: (
             - column_reference:
@@ -323,8 +307,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: track
+      - naked_identifier: track
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -344,8 +327,7 @@ file:
         - column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-            - object_reference:
-              - naked_identifier: artist
+            - naked_identifier: artist
           - bracketed:
             - start_bracket: (
             - column_reference:
@@ -361,8 +343,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: track
+      - naked_identifier: track
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -382,8 +363,7 @@ file:
         - column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-            - object_reference:
-              - naked_identifier: artist
+            - naked_identifier: artist
           - bracketed:
             - start_bracket: (
             - column_reference:
@@ -398,8 +378,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: track
+      - naked_identifier: track
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -419,8 +398,7 @@ file:
         - column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-            - object_reference:
-              - naked_identifier: artist
+            - naked_identifier: artist
           - bracketed:
             - start_bracket: (
             - column_reference:
@@ -437,8 +415,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: track
+      - naked_identifier: track
     - bracketed:
       - start_bracket: (
       - column_definition:
@@ -458,8 +435,7 @@ file:
         - column_constraint_segment:
           - keyword: REFERENCES
           - table_reference:
-            - object_reference:
-              - naked_identifier: artist
+            - naked_identifier: artist
           - bracketed:
             - start_bracket: (
             - column_reference:

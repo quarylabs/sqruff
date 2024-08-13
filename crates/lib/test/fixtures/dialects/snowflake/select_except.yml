@@ -14,8 +14,7 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: table1
+                - naked_identifier: table1
     - set_operator:
       - keyword: EXCEPT
     - bracketed:
@@ -33,6 +32,5 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: table1
+                  - naked_identifier: table1
       - end_bracket: )

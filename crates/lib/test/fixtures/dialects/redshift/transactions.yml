@@ -1,0 +1,68 @@
+file:
+- statement:
+  - transaction_statement:
+    - keyword: begin
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: start
+    - keyword: transaction
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: work
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: transaction
+    - keyword: isolation
+    - keyword: level
+    - keyword: serializable
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: begin
+    - keyword: transaction
+    - keyword: isolation
+    - keyword: level
+    - keyword: serializable
+    - keyword: read
+    - keyword: only
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: start
+    - keyword: transaction
+    - keyword: read
+    - keyword: write
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: commit
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: end
+    - keyword: work
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: commit
+    - keyword: transaction
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: rollback
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: abort
+    - keyword: work
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: rollback
+    - keyword: transaction
+- statement_terminator: ;

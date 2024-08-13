@@ -1,0 +1,84 @@
+file:
+- statement:
+  - alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: add
+    - keyword: user
+    - object_reference:
+      - naked_identifier: dwuser
+- statement_terminator: ;
+- statement:
+  - alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: add
+    - keyword: user
+    - object_reference:
+      - naked_identifier: dwuser1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: dwuser2
+- statement_terminator: ;
+- statement:
+  - alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: drop
+    - keyword: user
+    - object_reference:
+      - naked_identifier: dwuser
+- statement_terminator: ;
+- statement:
+  - alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: drop
+    - keyword: user
+    - object_reference:
+      - naked_identifier: dwuser1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: dwuser2
+- statement_terminator: ;
+- statement:
+  - alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: rename
+    - keyword: to
+    - object_reference:
+      - naked_identifier: administrators
+- statement_terminator: ;
+- statement:
+  - alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+      - naked_identifier: admin_group
+    - keyword: add
+    - keyword: user
+    - object_reference:
+      - quoted_identifier: '"test.user"'
+- statement_terminator: ;
+- statement:
+  - alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+      - quoted_identifier: '"admin_group"'
+    - keyword: add
+    - keyword: user
+    - object_reference:
+      - quoted_identifier: '"test.user"'
+- statement_terminator: ;

@@ -24,16 +24,14 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: word
+              - naked_identifier: word
         - join_clause:
           - keyword: INNER
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: paragraph
+                - naked_identifier: paragraph
           - join_on_condition:
             - keyword: ON
             - expression:

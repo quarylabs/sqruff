@@ -13,16 +13,14 @@ file:
     - into_clause:
       - keyword: INTO
       - table_reference:
-        - object_reference:
-          - naked_identifier: baz
+        - naked_identifier: baz
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - object_reference:
-                - naked_identifier: qux
+              - naked_identifier: qux
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -37,8 +35,7 @@ file:
       - keyword: TEMP
       - keyword: TABLE
       - table_reference:
-        - object_reference:
-          - naked_identifier: baz
+        - naked_identifier: baz
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -52,8 +49,7 @@ file:
       - keyword: INTO
       - keyword: TEMPORARY
       - table_reference:
-        - object_reference:
-          - naked_identifier: baz
+        - naked_identifier: baz
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -67,6 +63,5 @@ file:
       - keyword: INTO
       - keyword: UNLOGGED
       - table_reference:
-        - object_reference:
-          - naked_identifier: baz
+        - naked_identifier: baz
 - statement_terminator: ;

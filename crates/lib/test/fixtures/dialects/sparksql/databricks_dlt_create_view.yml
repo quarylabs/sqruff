@@ -6,8 +6,7 @@ file:
     - keyword: LIVE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: filtered_data
+      - naked_identifier: filtered_data
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -25,10 +24,9 @@ file:
           - from_expression_element:
             - table_expression:
               - table_reference:
-                - object_reference:
-                  - naked_identifier: live
-                  - dot: .
-                  - naked_identifier: taxi_raw
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
 - statement_terminator: ;
 - statement:
   - create_view_statement:
@@ -38,8 +36,7 @@ file:
     - keyword: LIVE
     - keyword: VIEW
     - table_reference:
-      - object_reference:
-        - naked_identifier: customers_silver
+      - naked_identifier: customers_silver
     - keyword: AS
     - select_statement:
       - select_clause:

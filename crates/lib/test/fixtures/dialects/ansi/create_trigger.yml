@@ -9,8 +9,7 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -31,8 +30,7 @@ file:
     - keyword: INSERT
     - keyword: on
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -59,8 +57,7 @@ file:
       - naked_identifier: baz
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
@@ -82,12 +79,10 @@ file:
     - keyword: DELETE
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: FROM
     - table_reference:
-      - object_reference:
-        - naked_identifier: baz
+      - naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: IMMEDIATE
@@ -114,8 +109,7 @@ file:
     - keyword: INSERT
     - keyword: ON
     - table_reference:
-      - object_reference:
-        - naked_identifier: bar
+      - naked_identifier: bar
     - keyword: WHEN
     - bracketed:
       - start_bracket: (

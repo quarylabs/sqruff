@@ -1,0 +1,53 @@
+file:
+- statement:
+  - alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+      - naked_identifier: the_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: the_schema
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+        - keyword: EXECUTE
+      - keyword: ON
+      - alter_default_privileges_schema_object:
+        - keyword: PROCEDURES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+        - role_reference:
+          - naked_identifier: the_other_user
+- statement_terminator: ;
+- statement:
+  - alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+      - naked_identifier: the_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: the_schema
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+        - keyword: EXECUTE
+      - keyword: ON
+      - alter_default_privileges_schema_object:
+        - keyword: ROUTINES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+        - role_reference:
+          - naked_identifier: the_other_user
+- statement_terminator: ;

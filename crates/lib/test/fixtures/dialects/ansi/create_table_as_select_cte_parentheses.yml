@@ -4,8 +4,7 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - object_reference:
-        - naked_identifier: final_rows
+      - naked_identifier: final_rows
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -29,8 +28,7 @@ file:
                   - from_expression_element:
                     - table_expression:
                       - table_reference:
-                        - object_reference:
-                          - naked_identifier: source_data
+                        - naked_identifier: source_data
             - end_bracket: )
         - select_statement:
           - select_clause:
@@ -45,6 +43,5 @@ file:
               - from_expression_element:
                 - table_expression:
                   - table_reference:
-                    - object_reference:
-                      - naked_identifier: source_table
+                    - naked_identifier: source_table
       - end_bracket: )

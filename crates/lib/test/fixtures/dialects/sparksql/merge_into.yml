@@ -4,12 +4,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t
+      - naked_identifier: t
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: u
+      - naked_identifier: u
     - join_on_condition:
       - keyword: ON
       - bracketed:
@@ -64,8 +62,7 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t
+      - naked_identifier: t
     - keyword: USING
     - bracketed:
       - start_bracket: (
@@ -82,8 +79,7 @@ file:
             - from_expression_element:
               - table_expression:
                 - table_reference:
-                  - object_reference:
-                    - naked_identifier: u
+                  - naked_identifier: u
       - end_bracket: )
     - alias_expression:
       - keyword: AS
@@ -142,12 +138,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t
+      - naked_identifier: t
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: u
+      - naked_identifier: u
     - join_on_condition:
       - keyword: ON
       - bracketed:
@@ -188,12 +182,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t
+      - naked_identifier: t
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: u
+      - naked_identifier: u
     - join_on_condition:
       - keyword: ON
       - bracketed:
@@ -288,12 +280,10 @@ file:
     - keyword: MERGE
     - keyword: INTO
     - table_reference:
-      - object_reference:
-        - naked_identifier: t
+      - naked_identifier: t
     - keyword: USING
     - table_reference:
-      - object_reference:
-        - naked_identifier: u
+      - naked_identifier: u
     - join_on_condition:
       - keyword: ON
       - bracketed:

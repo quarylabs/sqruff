@@ -7,7 +7,7 @@ use configparser::ini::Ini;
 use itertools::Itertools;
 
 use super::dialects::base::Dialect;
-use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
+use crate::core::dialects::init::{dialect_selector, get_default_dialect};
 use crate::core::errors::SQLFluffUserError;
 use crate::utils::reflow::config::ReflowConfig;
 
@@ -217,15 +217,8 @@ impl FluffConfig {
         if self._configs.get("core")?.get("dialect").is_some() {
             return None;
         }
-        // Get list of available dialects for the error message. We must
-        // import here rather than at file scope in order to avoid a circular
-        // import.
-        Some(SQLFluffUserError::new(format!(
-            "No dialect was specified. You must configure a dialect or
-specify one on the command line using --dialect after the
-command. Available dialects: {}",
-            dialect_readout().join(", ").as_str()
-        )))
+
+        todo!()
     }
 
     pub fn get_dialect(&self) -> &Dialect {

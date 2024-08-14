@@ -9,18 +9,15 @@ use super::{SyntaxKind, SyntaxSet};
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::dialects::init::DialectKind;
-use crate::core::errors::SQLParseError;
-use crate::core::parser::context::ParseContext;
 use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
 use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, Pattern};
-use crate::core::parser::match_result::{MatchResult, Matched};
-use crate::core::parser::matchable::Matchable;
+use crate::core::parser::matchable::{Matchable, NodeMatcher};
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
-use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
@@ -47,52 +44,20 @@ impl<T> BoxedE for T {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct NodeMatcher {
-    node_kind: SyntaxKind,
-    pub(crate) match_grammar: Arc<dyn Matchable>,
+pub trait SegmentExt {
+    fn reference(&self) -> ObjectReferenceSegment;
 }
 
-impl NodeMatcher {
-    pub fn new(node_kind: SyntaxKind, match_grammar: Arc<dyn Matchable>) -> Self {
-        Self { node_kind, match_grammar }
-    }
-}
-
-impl PartialEq for NodeMatcher {
-    fn eq(&self, _other: &Self) -> bool {
-        todo!()
-    }
-}
-
-impl Matchable for NodeMatcher {
-    fn get_type(&self) -> SyntaxKind {
-        self.node_kind
-    }
-
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        self.match_grammar.clone().into()
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        if idx >= segments.len() as u32 {
-            return Ok(MatchResult::empty_at(idx));
-        }
-
-        if segments[idx as usize].get_type() == self.get_type() {
-            return Ok(MatchResult::from_span(idx, idx + 1));
-        }
-
-        let grammar = self.match_grammar().unwrap();
-        let match_result = parse_context
-            .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
-
-        Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
+impl SegmentExt for ErasedSegment {
+    fn reference(&self) -> ObjectReferenceSegment {
+        ObjectReferenceSegment(
+            self.clone(),
+            match self.get_type() {
+                SyntaxKind::TableReference => ObjectReferenceKind::Table,
+                SyntaxKind::WildcardIdentifier => ObjectReferenceKind::WildcardIdentifier,
+                _ => ObjectReferenceKind::Object,
+            },
+        )
     }
 }
 
@@ -4856,87 +4821,6 @@ pub fn statement_segment() -> Arc<dyn Matchable> {
 
 pub fn wildcard_expression_segment() -> Arc<dyn Matchable> {
     Sequence::new(vec![Ref::new("WildcardIdentifierSegment").boxed()]).to_matchable()
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct FileSegment;
-impl FileSegment {
-    pub fn of(
-        tables: &Tables,
-        dialect: DialectKind,
-        segments: Vec<ErasedSegment>,
-    ) -> ErasedSegment {
-        SegmentBuilder::node(tables.next_id(), SyntaxKind::File, dialect, segments)
-            .position_from_segments()
-            .finish()
-    }
-
-    pub fn root_parse(
-        &self,
-        tables: &Tables,
-        dialect: DialectKind,
-        segments: &[ErasedSegment],
-        parse_context: &mut ParseContext,
-        _f_name: Option<String>,
-    ) -> Result<ErasedSegment, SQLParseError> {
-        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0) as u32;
-
-        let end_idx = segments
-            .iter()
-            .rposition(|segment| segment.is_code())
-            .map_or(start_idx, |idx| idx as u32 + 1);
-
-        if start_idx == end_idx {
-            return Ok(FileSegment::of(tables, dialect, segments.to_vec()));
-        }
-
-        let final_seg = segments.last().unwrap();
-        assert!(final_seg.get_position_marker().is_some());
-
-        let file_segment = parse_context.dialect().r#ref("FileSegment");
-
-        let match_result = file_segment.match_grammar().unwrap().match_segments(
-            &segments[..end_idx as usize],
-            start_idx,
-            parse_context,
-        )?;
-
-        let match_span = match_result.span;
-        let has_match = match_result.has_match();
-        let mut matched = match_result.apply(tables, dialect, segments);
-        let unmatched = &segments[match_span.end as usize..end_idx as usize];
-
-        let content: &[ErasedSegment] = if !has_match {
-            &[SegmentBuilder::node(
-                tables.next_id(),
-                SyntaxKind::Unparsable,
-                dialect,
-                segments[start_idx as usize..end_idx as usize].to_vec(),
-            )
-            .position_from_segments()
-            .finish()]
-        } else if !unmatched.is_empty() {
-            let idx = unmatched.iter().position(|it| it.is_code()).unwrap_or(unmatched.len());
-            let (head, tail) = unmatched.split_at(idx);
-
-            matched.extend_from_slice(head);
-            matched.push(
-                SegmentBuilder::node(tables.next_id(), SyntaxKind::File, dialect, tail.to_vec())
-                    .position_from_segments()
-                    .finish(),
-            );
-            &matched
-        } else {
-            matched.extend_from_slice(unmatched);
-            &matched
-        };
-
-        Ok(Self::of(
-            tables,
-            dialect,
-            [&segments[..start_idx as usize], content, &segments[end_idx as usize..]].concat(),
-        ))
-    }
 }
 
 pub struct FromExpressionElementSegment(pub ErasedSegment);

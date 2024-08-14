@@ -6,10 +6,10 @@ use crate::core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumbe
 use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
+use crate::core::parser::matchable::NodeMatcher;
 use crate::core::parser::parsers::TypedParser;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
-use crate::dialects::ansi::NodeMatcher;
 use crate::dialects::sqlite_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};

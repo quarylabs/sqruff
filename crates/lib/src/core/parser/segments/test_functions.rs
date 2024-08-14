@@ -3,7 +3,6 @@ use std::ops::Range;
 use super::base::{ErasedSegment, SegmentBuilder};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
-use crate::core::dialects::init::dialect_selector;
 use crate::core::linter::linter::Linter;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::markers::PositionMarker;
@@ -13,7 +12,7 @@ use crate::dialects::SyntaxKind;
 use crate::helpers::Config;
 
 pub fn fresh_ansi_dialect() -> Dialect {
-    dialect_selector("ansi").unwrap()
+    todo!()
 }
 
 pub fn bracket_segments() -> Vec<ErasedSegment> {

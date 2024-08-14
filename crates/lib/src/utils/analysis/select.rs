@@ -5,7 +5,8 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::ansi::{
-    FromClauseSegment, JoinClauseSegment, ObjectReferenceSegment, SelectClauseElementSegment,
+    FromClauseSegment, JoinClauseSegment, ObjectReferenceSegment, SegmentExt,
+    SelectClauseElementSegment,
 };
 use crate::dialects::{SyntaxKind, SyntaxSet};
 

@@ -7,6 +7,7 @@ use super::select::SelectStatementColumnsAndTables;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::parser::segments::base::ErasedSegment;
+use crate::dialects::ansi::SegmentExt;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::helpers::IndexMap;
 use crate::utils::analysis::select::get_select_statement_info;

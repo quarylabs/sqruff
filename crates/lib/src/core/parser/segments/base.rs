@@ -16,7 +16,6 @@ use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
 use crate::core::rules::base::EditType;
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
 pub struct SegmentBuilder {
@@ -543,17 +542,6 @@ impl ErasedSegment {
         let mut this = self.deep_clone();
         std::mem::swap(self, &mut this);
         Rc::get_mut(&mut self.value).unwrap()
-    }
-
-    pub(crate) fn reference(&self) -> ObjectReferenceSegment {
-        ObjectReferenceSegment(
-            self.clone(),
-            match self.get_type() {
-                SyntaxKind::TableReference => ObjectReferenceKind::Table,
-                SyntaxKind::WildcardIdentifier => ObjectReferenceKind::WildcardIdentifier,
-                _ => ObjectReferenceKind::Object,
-            },
-        )
     }
 
     pub(crate) fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {

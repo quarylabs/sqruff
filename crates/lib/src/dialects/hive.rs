@@ -5,7 +5,7 @@ use crate::core::parser::grammar::anyof::one_of;
 use crate::core::parser::grammar::base::Ref;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
-use crate::dialects::ansi::NodeMatcher;
+use crate::core::parser::matchable::NodeMatcher;
 use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;

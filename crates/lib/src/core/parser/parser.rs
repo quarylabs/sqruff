@@ -1,6 +1,6 @@
 use super::context::ParseContext;
 use super::helpers::check_still_complete;
-use super::segments::base::{pos_marker, ErasedSegment, Tables};
+use super::segments::base::{ErasedSegment, Tables};
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLParseError;
 use crate::dialects::ansi::FileSegment;
@@ -41,17 +41,13 @@ impl<'a> Parser<'a> {
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
-        let mut root = self.root_segment.root_parse(
+        let root = self.root_segment.root_parse(
             tables,
             parse_cx.dialect().name,
             segments,
             &mut parse_cx,
             f_name,
         )?;
-
-        // FIXME: remove hack
-        let pos = pos_marker(root.segments());
-        root.get_mut().set_position_marker(pos.into());
 
         // Basic Validation, that we haven't dropped anything.
         check_still_complete(segments, &[root.clone()], &[]);

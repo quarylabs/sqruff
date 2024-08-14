@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     const cl = new LanguageClient(
-      "sqruff-lsp",
+      "sqruff-sqruff-lsp",
       "Sqruff LSP",
       {
         documentSelector: [{ language: "sql" }],

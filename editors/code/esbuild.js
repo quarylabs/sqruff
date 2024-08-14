@@ -43,7 +43,7 @@ esbuild
 
 esbuild
 	.build({
-		entryPoints: ["src/lsp-worker.ts"],
+		entryPoints: ["src/sqruff-lsp-worker.ts"],
 		bundle: true,
 		outfile: "dist/browserServerMain.js",
 		format: "iife",

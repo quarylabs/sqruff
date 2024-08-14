@@ -19,7 +19,7 @@ cargo test
 5. Release `sqruff-lib` crate
 
 ```bash
-cargo publish -p sqruff-lib
+cargo publish -p sqruff-sqruff-lib
 ```
 
 5. Release `sqruff` crate

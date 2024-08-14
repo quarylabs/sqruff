@@ -5,7 +5,7 @@ edition = "2021"
 license = "Apache-2.0"
 
 [workspace]
-members = ["crates/lib", "crates/cli", "crates/lsp", "crates/sqlinference"]
+members = ["crates/*"]
 resolver = "2"
 
 # https://github.com/rustwasm/wasm-bindgen/issues/3451#issuecomment-1562982835

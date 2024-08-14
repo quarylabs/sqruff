@@ -1,0 +1,10 @@
+[package]
+name = "sqruff-ansi"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+sqruff-core = { path = "../sqruff-core" }
+itertools = "0.13.0"

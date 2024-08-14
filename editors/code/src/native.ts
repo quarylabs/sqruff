@@ -36,13 +36,13 @@ export function activate(context: vscode.ExtensionContext) {
     serverModule = "sqruff";
   }
 
-  let args = ["lsp"];
+  let args = ["sqruff-lsp"];
   let serverOptions: ServerOptions = {
     run: { command: serverModule, options: {}, args: args },
     debug: { command: serverModule, options: {}, args: args },
   };
 
-  const cl = new LanguageClient("sqruff-lsp", "Sqruff LSP", serverOptions, {
+  const cl = new LanguageClient("sqruff-sqruff-lsp", "Sqruff LSP", serverOptions, {
     documentSelector: [{ language: "sql" }],
   });
 

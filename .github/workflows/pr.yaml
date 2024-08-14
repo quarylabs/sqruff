@@ -45,7 +45,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Add WASM target
         run: rustup target add wasm32-unknown-unknown
-      - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
+      - run: cargo build --package sqruff-sqruff-lib --locked --release --target wasm32-unknown-unknown
   typescript:
     name: TypeScript
     runs-on: ubuntu-latest
@@ -85,7 +85,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
       - uses: Swatinem/rust-cache@v2
       - name: Run benchmarks
-        run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml
+        run: cargo run --color=always --bin bench --manifest-path ./crates/sqruff/Cargo.toml
   fmt:
     name: Format
     runs-on: ubuntu-latest

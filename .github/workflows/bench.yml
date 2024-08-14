@@ -9,4 +9,4 @@ jobs:
       - uses: boa-dev/criterion-compare-action@59f4d964c5f19d7f13d36f5c0944b18ce6652cb0
         with:
           branchName: ${{ github.base_ref }}
-          package: "sqruff-lib"
+          package: "sqruff-sqruff-lib"

@@ -1,0 +1,28 @@
+[package]
+name = "sqruff-core"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+serde = []
+
+[dependencies]
+strum_macros = "0.26.4"
+strum = "0.26.3"
+ahash = "0.8.11"
+dyn-clone = "1.0.17"
+dyn_ord = "0.2.1"
+fancy-regex = "0.13.0"
+itertools = "0.13.0"
+nohash-hasher = "0.2.0"
+pretty_assertions = "1.4.0"
+rustc-hash = "2.0.0"
+smol_str = "0.2.2"
+sptr = "0.3.2"
+indexmap = "2.4"
+configparser = "3.1.0"
+phf = { version = "0.11.2", features = ["unicase", "macros"] }
+common-path = "1.0.0"
+unicase = "2.7.0"

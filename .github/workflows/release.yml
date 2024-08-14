@@ -128,16 +128,16 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
-      - name: Publish sqruff-lib to Cargo
+      - name: Publish sqruff-sqruff-lib to Cargo
         uses: actions-rs/cargo@v1
         with:
          command: publish
-         args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib
-      - name: Publish sqruff-lsp to Cargo
+         args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-sqruff-lib
+      - name: Publish sqruff-sqruff-lsp to Cargo
         uses: actions-rs/cargo@v1
         with:
           command: publish
-          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lsp
+          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-sqruff-lsp
       - name: Publish sqruff to Cargo
         uses: actions-rs/cargo@v1
         with:

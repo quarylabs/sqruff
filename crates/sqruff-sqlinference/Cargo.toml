@@ -1,0 +1,9 @@
+[package]
+name = "sqruff-sqlinference"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+sqruff-lib = { version = "0.12.1", path = "../sqruff-lib" }

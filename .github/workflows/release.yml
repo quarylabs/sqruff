@@ -108,6 +108,17 @@ jobs:
           draft: true
           files: |
             sqruff-*
+  convert_release_to_not_draft:
+    name: Convert release to not draft
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs:
+      - release
+      - release-vsix
+    steps:
+      - uses: eregon/publish-release@v1
+        with:
+          release_id: ${{ github.event.release.tag_name }}
   update-homebrew-formula:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest

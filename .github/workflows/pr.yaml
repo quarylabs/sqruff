@@ -11,13 +11,13 @@ jobs:
   check-licenses-readmes-match:
     name: Check licenses match
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@v4
       - name: Copy LICENSE to editors/code directory
         run: cp LICENSE editors/code/LICENSE
       - name: Copy README.md to editors/code directory
         run: cp README.md editors/code/README.md
-      - name: Check there is no change 
+      - name: Check there is no change
         run: git diff --quiet || exit 1
   check-versions-match:
     name: Check versions match
@@ -113,3 +113,12 @@ jobs:
         run: cargo clippy --all --all-features -- -D warnings
       - name: Check unused dependencies
         run: cargo machete
+  check-github-actions-formatting:
+    name: Check GitHub Actions formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Install make
+        run: sudo apt-get install make
+      - run: make prettier_lint

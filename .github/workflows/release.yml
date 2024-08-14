@@ -2,7 +2,7 @@ on:
   push:
     tags:
       - "v*.*.*"
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   check-versions-match:
@@ -19,15 +19,15 @@ jobs:
           RELEASE_VERSION=${{ github.event.release.tag_name }}
           STRIPPED_VERSION=${RELEASE_VERSION#v}
           ./.hacking/check_versions_match.sh $STRIPPED_VERSION
-  release-vsix: 
+  release-vsix:
     name: Release VSIX
     runs-on: ubuntu-latest
-    needs: 
+    needs:
       - check-versions-match
     defaults:
       run:
         working-directory: ./editors/code
-    steps: 
+    steps:
       - uses: actions/checkout@v4
       - name: Install Nodejs
         uses: actions/setup-node@v4
@@ -108,10 +108,22 @@ jobs:
           draft: true
           files: |
             sqruff-*
+  convert_release_to_not_draft:
+    name: Convert release to not draft
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs:
+      - release
+      - release-vsix
+    steps:
+      - uses: eregon/publish-release@v1
+        with:
+          release_id: ${{ github.event.release.tag_name }}
   update-homebrew-formula:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest
-    needs: release
+    needs:
+      - convert_release_to_not_draft
     permissions: write-all
     env:
       HOMEBREW_ACCESS_TOKEN: ${{ secrets.HOMEBREW_ACCESS_TOKEN }}
@@ -121,7 +133,8 @@ jobs:
   publish-to-cargo:
     name: Publish to Cargo
     runs-on: ubuntu-latest
-    needs: [release, check-versions-match]
+    needs:
+      - convert_release_to_not_draft
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
@@ -131,8 +144,8 @@ jobs:
       - name: Publish sqruff-lib to Cargo
         uses: actions-rs/cargo@v1
         with:
-         command: publish
-         args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib
+          command: publish
+          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib
       - name: Publish sqruff-lsp to Cargo
         uses: actions-rs/cargo@v1
         with:
@@ -141,5 +154,5 @@ jobs:
       - name: Publish sqruff to Cargo
         uses: actions-rs/cargo@v1
         with:
-         command: publish
-         args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff
+          command: publish
+          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff

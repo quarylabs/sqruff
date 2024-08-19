@@ -13,13 +13,17 @@ This document contains the help content for the `sqruff` command-line program.
 
 sqruff is a sql formatter and linter
 
-**Usage:** `sqruff <COMMAND>`
+**Usage:** `sqruff [OPTIONS] <COMMAND>`
 
 ###### **Subcommands:**
 
 * `lint` — lint files
 * `fix` — fix files
 * `lsp` — Run an LSP server
+
+###### **Options:**
+
+* `--config <CONFIG>` — Path to a configuration file
 
 
 

@@ -8,6 +8,9 @@ use clap::{Parser, Subcommand, ValueEnum};
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
+    /// Path to a configuration file.
+    #[arg(long)]
+    pub config: Option<String>,
 }
 
 #[derive(Debug, Subcommand)]

@@ -27,7 +27,15 @@ fn main() {
 
     let cli = Cli::parse();
 
-    let config = FluffConfig::from_root(None, false, None).unwrap();
+    let mut extra_config_path = None;
+    let mut ignore_local_config = false;
+
+    if cli.config.is_some() {
+        extra_config_path = cli.config;
+        ignore_local_config = true;
+    }
+
+    let config = FluffConfig::from_root(extra_config_path, ignore_local_config, None).unwrap();
     match cli.command {
         Commands::Lint(LintArgs { paths, format }) => {
             let mut linter = linter(config, format);

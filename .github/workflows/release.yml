@@ -117,12 +117,14 @@ jobs:
       - release-vsix
     steps:
       - uses: eregon/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           release_id: ${{ github.event.release.tag_name }}
   update-homebrew-formula:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest
-    needs: release
+    needs: [convert_release_to_not_draft]
     permissions: write-all
     env:
       HOMEBREW_ACCESS_TOKEN: ${{ secrets.HOMEBREW_ACCESS_TOKEN }}
@@ -132,7 +134,7 @@ jobs:
   publish-to-cargo:
     name: Publish to Cargo
     runs-on: ubuntu-latest
-    needs: [release, check-versions-match]
+    needs: [convert_release_to_not_draft]
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1

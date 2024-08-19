@@ -318,21 +318,16 @@ impl ConfigLoader {
     pub fn load_config_up_to_path(
         &self,
         path: impl AsRef<Path>,
-        _extra_config_path: Option<String>,
+        extra_config_path: Option<String>,
         ignore_local_config: bool,
     ) -> AHashMap<String, Value> {
         let path = path.as_ref();
 
-        let config_paths: Box<dyn Iterator<Item = PathBuf>> = if ignore_local_config {
-            Box::new(std::iter::empty())
-        } else {
-            Box::new(Self::iter_config_locations_up_to_path(path, None, ignore_local_config))
-        };
-
         let config_stack = if ignore_local_config {
-            Vec::new()
+            extra_config_path.map(|path| vec![self.load_config_at_path(path)]).unwrap_or_default()
         } else {
-            config_paths.into_iter().map(|path| self.load_config_at_path(path)).collect_vec()
+            let configs = Self::iter_config_locations_up_to_path(path, None, ignore_local_config);
+            configs.map(|path| self.load_config_at_path(path)).collect_vec()
         };
 
         nested_combine(config_stack)

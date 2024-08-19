@@ -314,7 +314,6 @@ impl ConfigLoader {
         head.chain(tail)
     }
 
-    #[allow(unused_variables)]
     pub fn load_config_up_to_path(
         &self,
         path: impl AsRef<Path>,

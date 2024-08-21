@@ -102,7 +102,7 @@ pub struct Tables {
 }
 
 impl Tables {
-    pub(crate) fn next_id(&self) -> u32 {
+    pub fn next_id(&self) -> u32 {
         let id = self.counter.get();
         self.counter.set(id + 1);
         id
@@ -124,6 +124,27 @@ impl Hash for ErasedSegment {
 impl Eq for ErasedSegment {}
 
 impl ErasedSegment {
+    pub fn unnest(&self) -> ErasedSegment {
+        let mut this = self;
+        while this.is_type(SyntaxKind::Bracketed) {
+            this = this.segments().iter().find(|it| !it.segments().is_empty()).unwrap();
+        }
+        this.clone()
+    }
+
+    pub fn deep_clone(&self) -> Self {
+        Self { value: Rc::new(self.value.as_ref().clone()), hash: self.hash.clone() }
+    }
+
+    pub fn deep_clone2(&self) -> Self {
+        if self.segments().is_empty() {
+            return self.deep_clone();
+        }
+
+        let segments = self.segments().iter().map(|it| it.deep_clone2()).collect();
+        SegmentBuilder::node(self.id(), self.get_type(), self.dialect(), segments).finish()
+    }
+
     pub fn raw(&self) -> Cow<str> {
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => node
@@ -217,6 +238,15 @@ impl ErasedSegment {
             }
             NodeOrTokenKind::Token(_) => self.deep_clone(),
         }
+    }
+
+    #[track_caller]
+    pub fn get_mut(&mut self) -> &mut NodeOrToken {
+        self.hash = Default::default();
+
+        let ptr = Rc::get_mut(&mut self.value).unwrap();
+        ptr.clear_cache();
+        ptr
     }
 
     fn change_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
@@ -415,7 +445,7 @@ impl ErasedSegment {
         )
     }
 
-    pub(crate) fn get_position_marker(&self) -> Option<&PositionMarker> {
+    pub fn get_position_marker(&self) -> Option<&PositionMarker> {
         self.value.position_marker.as_ref()
     }
 
@@ -483,7 +513,7 @@ impl ErasedSegment {
         None
     }
 
-    pub(crate) fn is(&self, other: &ErasedSegment) -> bool {
+    pub fn is(&self, other: &ErasedSegment) -> bool {
         Rc::ptr_eq(&self.value, &other.value)
     }
 
@@ -529,15 +559,6 @@ impl ErasedSegment {
         hash
     }
 
-    pub(crate) fn deep_clone(&self) -> Self {
-        Self { value: Rc::new(self.value.as_ref().clone()), hash: self.hash.clone() }
-    }
-
-    #[track_caller]
-    pub(crate) fn get_mut(&mut self) -> &mut NodeOrToken {
-        Rc::get_mut(&mut self.value).unwrap()
-    }
-
     #[track_caller]
     pub(crate) fn make_mut(&mut self) -> &mut NodeOrToken {
         let mut this = self.deep_clone();
@@ -556,7 +577,7 @@ impl ErasedSegment {
         )
     }
 
-    pub(crate) fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
+    pub fn recursive_crawl_all(&self, reverse: bool) -> Vec<ErasedSegment> {
         let mut result = Vec::with_capacity(self.segments().len() + 1);
 
         if reverse {
@@ -640,7 +661,7 @@ impl ErasedSegment {
         Vec::new()
     }
 
-    pub(crate) fn apply_fixes(
+    pub fn apply_fixes(
         &self,
         fixes: &mut FxHashMap<u32, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
@@ -930,6 +951,23 @@ pub enum NodeOrTokenKind {
 }
 
 impl NodeOrToken {
+    fn clear_cache(&mut self) {
+        match &mut self.kind {
+            NodeOrTokenKind::Node(node) => {
+                node.raw = OnceCell::new();
+                node.descendant_type_set = OnceCell::new();
+                node.raw_segments_with_ancestors = OnceCell::new();
+            }
+            NodeOrTokenKind::Token(_) => {}
+        }
+    }
+    pub fn segments(&mut self) -> &mut [ErasedSegment] {
+        match &mut self.kind {
+            NodeOrTokenKind::Node(node) => &mut node.segments,
+            NodeOrTokenKind::Token(_) => &mut [],
+        }
+    }
+
     pub fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.position_marker = position_marker;
     }

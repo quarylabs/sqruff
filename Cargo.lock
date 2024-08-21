@@ -1767,14 +1767,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sqruff-lineage"
-version = "0.14.0"
-dependencies = [
- "serde_yaml",
- "sqruff-lib",
-]
-
-[[package]]
 name = "sqruff-lsp"
 version = "0.14.0"
 dependencies = [

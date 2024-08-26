@@ -24,9 +24,10 @@ use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables}
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
 use crate::core::templaters::base::{TemplatedFile, Templater};
-use crate::core::templaters::raw::RawTemplater;
 use crate::dialects::SyntaxKind;
 use crate::rules::get_ruleset;
+use crate::templaters::placeholder::PlaceholderTemplater;
+use crate::templaters::raw::RawTemplater;
 
 pub struct Linter {
     config: FluffConfig,
@@ -42,11 +43,12 @@ impl Linter {
         templater: Option<Arc<dyn Templater>>,
     ) -> Linter {
         let rules = crate::rules::layout::rules();
-        let templater = match templater {
+        let templater: Arc<dyn Templater> = match templater {
             Some(templater) => templater,
             None => {
                 let templater = config.get("templater", "core").as_string();
                 match templater {
+                    Some("placeholder") => Arc::<PlaceholderTemplater>::default(),
                     Some("raw") => Arc::<RawTemplater>::default(),
                     None => Arc::<RawTemplater>::default(),
                     _ => panic!("Unknown templater: {}", templater.unwrap()),

@@ -144,7 +144,7 @@ impl SqlError for SQLTemplaterError {
 #[derive(Debug)]
 pub struct SQLFluffUserError {
     #[allow(dead_code)]
-    value: String,
+    pub(crate) value: String,
 }
 
 impl SQLFluffUserError {

@@ -7,4 +7,5 @@ pub mod core;
 pub mod dialects;
 pub mod helpers;
 pub mod rules;
+pub mod templaters;
 pub mod utils;

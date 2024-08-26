@@ -28,7 +28,7 @@ console = "0.15.8"
 # Codegen dependencies
 clap-markdown = { version = "0.1.4", optional = true }
 minijinja = { version = "2.1.2", optional = true }
-serde = { version = "1.0.204", features = ["derive"], optional = true }
+serde = { version = "1.0.209", features = ["derive"], optional = true }
 
 [target.'cfg(all(not(target_os = "windows"), not(target_os = "openbsd"), any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")))'.dependencies]
 jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }

@@ -572,47 +572,6 @@ impl RawFileSlice {
     }
 }
 
-#[derive(Default)]
-pub struct RawTemplater {}
-
-impl Templater for RawTemplater {
-    fn name(&self) -> &str {
-        "raw"
-    }
-
-    fn template_selection(&self) -> &str {
-        "templater"
-    }
-
-    fn config_pairs(&self) -> (String, String) {
-        return ("templater".to_string(), self.name().to_string());
-    }
-
-    fn sequence_files(
-        &self,
-        f_names: Vec<String>,
-        _: Option<&FluffConfig>,
-        _: Option<&OutputStreamFormatter>,
-    ) -> Vec<String> {
-        // Default is to process in the original order.
-        f_names
-    }
-
-    fn process(
-        &self,
-        in_str: &str,
-        f_name: &str,
-        _config: Option<&FluffConfig>,
-        _formatter: Option<&OutputStreamFormatter>,
-    ) -> Result<TemplatedFile, SQLFluffUserError> {
-        if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
-        {
-            return Ok(tf);
-        }
-        panic!("Not implemented")
-    }
-}
-
 pub trait Templater: Send + Sync {
     /// The name of the templater.
     fn name(&self) -> &str;
@@ -657,17 +616,6 @@ mod tests {
         .for_each(|(in_str, expected)| {
             assert_eq!(expected, iter_indices_of_newlines(in_str).collect::<Vec<usize>>())
         });
-    }
-
-    #[test]
-    /// Test the raw templater
-    fn test_templater_raw() {
-        let templater = RawTemplater::default();
-        let in_str = "SELECT * FROM {{blah}}";
-
-        let outstr = templater.process(in_str, "test.sql", None, None).unwrap();
-
-        assert_eq!(outstr.templated_str, Some(in_str.to_string()));
     }
 
     // const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";

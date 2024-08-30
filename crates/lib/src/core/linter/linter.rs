@@ -42,15 +42,18 @@ impl Linter {
         templater: Option<Arc<dyn Templater>>,
     ) -> Linter {
         let rules = crate::rules::layout::rules();
-        match templater {
-            Some(templater) => Linter { config, formatter, templater, _rules: rules },
-            None => Linter {
-                config,
-                formatter,
-                templater: Arc::<RawTemplater>::default(),
-                _rules: rules,
-            },
-        }
+        let templater = match templater {
+            Some(templater) => templater,
+            None => {
+                let templater = config.get("templater", "core").as_string();
+                match templater {
+                    Some("raw") => Arc::<RawTemplater>::default(),
+                    None => Arc::<RawTemplater>::default(),
+                    _ => panic!("Unknown templater: {}", templater.unwrap()),
+                }
+            }
+        };
+        Linter { config, formatter, templater, _rules: rules }
     }
 
     /// Lint strings directly.

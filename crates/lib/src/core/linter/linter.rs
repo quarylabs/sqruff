@@ -23,7 +23,8 @@ use crate::core::parser::parser::Parser;
 use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
-use crate::core::templaters::base::{RawTemplater, TemplatedFile, Templater};
+use crate::core::templaters::base::{TemplatedFile, Templater};
+use crate::core::templaters::raw::RawTemplater;
 use crate::dialects::SyntaxKind;
 use crate::rules::get_ruleset;
 

@@ -4,11 +4,15 @@ use crate::core::errors::SQLFluffUserError;
 use crate::core::templaters::base::{TemplatedFile, Templater};
 
 #[derive(Default)]
-pub struct RawTemplater {}
+pub struct RawTemplater;
 
 impl Templater for RawTemplater {
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "raw"
+    }
+
+    fn description(&self) -> &'static str {
+        r"The raw templater simply returns the input string as the output string. It passes through the input string unchanged and is useful if you need no templating. It is the defualt templater."
     }
 
     fn template_selection(&self) -> &str {

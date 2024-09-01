@@ -574,7 +574,10 @@ impl RawFileSlice {
 
 pub trait Templater: Send + Sync {
     /// The name of the templater.
-    fn name(&self) -> &str;
+    fn name(&self) -> &'static str;
+
+    /// Description of the templater.
+    fn description(&self) -> &'static str;
 
     /// Template Selector
     fn template_selection(&self) -> &str;

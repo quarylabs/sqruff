@@ -5,6 +5,7 @@ use minijinja::{context, Environment};
 use serde::Serialize;
 use sqruff_lib::core::rules::base::ErasedRule;
 use sqruff_lib::rules::rules;
+use sqruff_lib::templaters::templaters;
 
 use crate::commands::Cli;
 
@@ -30,6 +31,33 @@ pub(crate) fn codegen_docs() {
     let file_rules = std::fs::File::create("docs/rules.md").unwrap();
     let mut writer = std::io::BufWriter::new(file_rules);
     writer.write_all(tmpl.render(context!(rules => rules)).unwrap().as_bytes()).unwrap();
+
+    // Templaters Docs
+    let mut env = Environment::new();
+    let crate_dir = env!("CARGO_MANIFEST_DIR");
+    let template_path =
+        Path::new(crate_dir).join("src").join("docs").join("generate_templater_docs_template.md");
+    let template = std::fs::read_to_string(template_path).expect("Failed to read template file");
+    env.add_template("templaters", &template).unwrap();
+
+    let tmpl = env.get_template("templaters").unwrap();
+    let templater = templaters();
+    let templaters = templater.into_iter().map(Templater::from).collect::<Vec<_>>();
+    let file_templaters = std::fs::File::create("docs/templaters.md").unwrap();
+    let mut writer = std::io::BufWriter::new(file_templaters);
+    writer.write_all(tmpl.render(context!(templaters => templaters)).unwrap().as_bytes()).unwrap();
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct Templater {
+    name: &'static str,
+    description: &'static str,
+}
+
+impl From<Box<dyn sqruff_lib::core::templaters::base::Templater>> for Templater {
+    fn from(value: Box<dyn sqruff_lib::core::templaters::base::Templater>) -> Self {
+        Templater { name: value.name(), description: value.description() }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]

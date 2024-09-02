@@ -500,8 +500,10 @@ impl ErasedSegment {
     }
 
     pub(crate) fn iter_source_fix_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
-        let mut patches = Vec::new();
-        for source_fix in &self.get_source_fixes() {
+        let source_fixes = self.get_source_fixes();
+        let mut patches = Vec::with_capacity(source_fixes.len());
+
+        for source_fix in &source_fixes {
             patches.push(FixPatch::new(
                 source_fix.templated_slice.clone(),
                 source_fix.edit.clone(),
@@ -512,6 +514,7 @@ impl ErasedSegment {
                 templated_file.source_str[source_fix.source_slice.clone()].to_string(),
             ));
         }
+
         patches
     }
 

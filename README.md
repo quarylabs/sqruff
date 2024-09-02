@@ -103,9 +103,13 @@ sqruff --help
 
 For all the details on the CLI commands and options, see the [CLI documentation](./docs/cli.md).
 
-### Configuration
+## Docs
 
-For all the details on the rules options, see the [configuration documentation](./docs/rules.md).
+For more details about, see the documents in the [docs](./docs/) folder which contains: 
+
+- [Details on the rules](./docs/rules.md)
+- [Details on the CLI](./docs/cli.md)
+- [Details on the templaters](./docs/templaters.md)
 
 ## Community
 

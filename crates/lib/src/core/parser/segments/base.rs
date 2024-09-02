@@ -358,6 +358,13 @@ impl ErasedSegment {
     pub(crate) fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
         let mut acc = Vec::new();
 
+        let templated_raw = &templated_file.templated_str.as_ref().unwrap()
+            [self.get_position_marker().unwrap().templated_slice.clone()];
+        if self.raw() == templated_raw {
+            acc.extend(self.iter_source_fix_patches(templated_file));
+            return acc;
+        }
+
         if self.get_position_marker().is_none() {
             return Vec::new();
         }
@@ -374,6 +381,75 @@ impl ErasedSegment {
                     .to_string(),
                 templated_file.source_str[pos_marker.source_slice.clone()].to_string(),
             ));
+        } else if self.segments().is_empty() {
+            return acc;
+        } else {
+            let mut segments = self.segments();
+
+            while !segments.is_empty()
+                && matches!(
+                    segments.last().unwrap().get_type(),
+                    SyntaxKind::EndOfFile
+                        | SyntaxKind::Indent
+                        | SyntaxKind::Dedent
+                        | SyntaxKind::Implicit
+                )
+            {
+                segments = &segments[..segments.len() - 1];
+            }
+
+            let pos = self.get_position_marker().unwrap();
+            let mut source_idx = pos.source_slice.start;
+            let mut templated_idx = pos.templated_slice.start;
+            let mut insert_buff = String::new();
+
+            for segment in segments {
+                let pos_marker = segment.get_position_marker().unwrap();
+                if !segment.raw().is_empty() && pos_marker.is_point() {
+                    insert_buff.push_str(segment.raw().as_ref());
+                    continue;
+                }
+
+                let start_diff = pos_marker.templated_slice.start - templated_idx;
+
+                if start_diff > 0 || !insert_buff.is_empty() {
+                    let fixed_raw = std::mem::take(&mut insert_buff);
+                    let raw_segments = segment.get_raw_segments();
+                    let first_segment_pos = raw_segments[0].get_position_marker().unwrap();
+
+                    acc.push(FixPatch::new(
+                        templated_idx..first_segment_pos.templated_slice.start,
+                        fixed_raw.into(),
+                        source_idx..first_segment_pos.source_slice.start,
+                        String::new(),
+                        String::new(),
+                    ));
+                }
+
+                acc.extend(segment.iter_patches(templated_file));
+
+                source_idx = pos_marker.source_slice.end;
+                templated_idx = pos_marker.templated_slice.end;
+            }
+
+            let end_diff = pos.templated_slice.end - templated_idx;
+            if end_diff != 0 || !insert_buff.is_empty() {
+                let source_slice = source_idx..pos.source_slice.end;
+                let templated_slice = templated_idx..pos.templated_slice.end;
+
+                let templated_str = templated_file.templated_str.as_ref().unwrap()
+                    [templated_slice.clone()]
+                .to_owned();
+                let source_str = templated_file.source_str[source_slice.clone()].to_owned();
+
+                acc.push(FixPatch::new(
+                    templated_slice,
+                    insert_buff.into(),
+                    source_slice,
+                    templated_str,
+                    source_str,
+                ));
+            }
         }
 
         acc

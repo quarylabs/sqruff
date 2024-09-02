@@ -20,11 +20,10 @@ use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use crate::core::parser::segments::base::{ErasedSegment, Tables};
 use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
 use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
 use crate::core::templaters::base::{TemplatedFile, Templater};
-use crate::dialects::SyntaxKind;
 use crate::rules::get_ruleset;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
@@ -205,26 +204,15 @@ impl Linter {
     ) -> LintedFile {
         let mut violations = parsed_string.violations;
 
-        let (tree, initial_linting_errors) = if let Some(tree) = parsed_string.tree {
-            self.lint_fix_parsed(tables, tree, rules, fix)
-        } else {
-            (
-                SegmentBuilder::node(
-                    tables.next_id(),
-                    SyntaxKind::EndOfFile,
-                    self.config.dialect.name,
-                    Vec::new(),
-                )
-                .finish(),
-                Vec::new(),
-            )
-        };
+        let (tree, initial_linting_errors) =
+            parsed_string.tree.map(|tree| self.lint_fix_parsed(tables, tree, rules, fix)).unzip();
 
-        violations.extend(initial_linting_errors.into_iter().map(Into::into));
+        violations.extend(initial_linting_errors.unwrap_or_default().into_iter().map(Into::into));
 
         let linted_file = LintedFile {
             path: parsed_string.f_name,
-            patches: tree.iter_patches(&parsed_string.templated_file),
+            patches: tree
+                .map_or(Vec::new(), |tree| tree.iter_patches(&parsed_string.templated_file)),
             templated_file: parsed_string.templated_file,
             violations,
         };
@@ -236,7 +224,6 @@ impl Linter {
         linted_file
     }
 
-    #[allow(unused_variables)]
     pub fn lint_fix_parsed(
         &self,
         tables: &Tables,
@@ -308,7 +295,7 @@ impl Linter {
                         }
 
                         let mut anchor_info = compute_anchor_edit_info(fixes);
-                        let (new_tree, _, _, valid) = tree.apply_fixes(&mut anchor_info);
+                        let (new_tree, _, _, _valid) = tree.apply_fixes(&mut anchor_info);
 
                         if false {
                             println!(

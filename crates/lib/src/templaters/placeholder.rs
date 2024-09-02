@@ -243,7 +243,11 @@ impl Templater for PlaceholderTemplater {
 
 #[cfg(test)]
 mod tests {
+    use std::mem::take;
+
     use super::*;
+    use crate::core::linter::linter::Linter;
+    use crate::rules::layout::rules;
 
     #[test]
     /// Test the templaters when nothing has to be replaced.
@@ -579,5 +583,29 @@ param_style = unknown
             out_str.err().unwrap().value,
             "Unknown param_style 'unknown' for templater 'placeholder'"
         );
+    }
+
+    #[test]
+    /// Test the linter fully with this templater.
+    fn test_templater_placeholder() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = ansi
+templater = placeholder
+rules = all
+
+[sqruff:templater:placeholder]
+param_style = percent
+"#,
+        );
+        let sql = "SELECT a,b FROM users WHERE a = %s";
+
+        let mut linter = Linter::new(config, None, None);
+        let rules = rules();
+        let mut result = linter.lint_string_wrapped(sql, None, Some(true), rules);
+        let result = take(&mut result.paths[0].files[0]).fix_string();
+
+        assert_eq!(result, "SELECT\n    a,\n    b\nFROM users WHERE a = %s\n");
     }
 }

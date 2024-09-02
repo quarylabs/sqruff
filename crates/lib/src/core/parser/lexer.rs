@@ -450,9 +450,9 @@ fn iter_segments(
     lexed_elements: Vec<TemplateElement>,
     templated_file: &TemplatedFile,
 ) -> Vec<ErasedSegment> {
-    let mut result = Vec::with_capacity(lexed_elements.len());
+    let mut result: Vec<ErasedSegment> = Vec::with_capacity(lexed_elements.len());
     // An index to track where we've got to in the templated file.
-    let tfs_idx = 0;
+    let mut tfs_idx = 0;
     // We keep a map of previous block locations in case they re-occur.
     // let block_stack = BlockTracker()
     let templated_file_slices = &templated_file.sliced_file;
@@ -462,16 +462,16 @@ fn iter_segments(
         let consumed_element_length = 0;
         let mut stashed_source_idx = None;
 
-        for (mut tfs_idx, tfs) in templated_file_slices
+        for (idx, tfs) in templated_file_slices
             .iter()
             .skip(tfs_idx)
             .enumerate()
             .map(|(i, tfs)| (i + tfs_idx, tfs))
         {
             // Is it a zero slice?
-            if is_zero_slice(tfs.templated_slice.clone()) {
-                let _slice = if tfs_idx + 1 < templated_file_slices.len() {
-                    templated_file_slices[tfs_idx + 1].clone().into()
+            if is_zero_slice(&tfs.templated_slice) {
+                let _slice = if idx + 1 < templated_file_slices.len() {
+                    templated_file_slices[idx + 1].clone().into()
                 } else {
                     None
                 };
@@ -503,7 +503,6 @@ fn iter_segments(
                     ));
 
                     // If it was an exact match, consume the templated element too.
-                    #[allow(unused_assignments)]
                     if element.template_slice.end == tfs.templated_slice.end {
                         tfs_idx += 1
                     }
@@ -535,6 +534,7 @@ fn iter_segments(
 
                         let incremental_length =
                             tfs.templated_slice.end - element.template_slice.start;
+
                         result.push(element.to_segment(
                             PositionMarker::new(
                                 element.template_slice.start + consumed_element_length + tfs_offset
@@ -552,7 +552,7 @@ fn iter_segments(
                         // set the start yet, stash it too.
                         // lexer_logger.debug("     Spilling over literal slice.")
                         if stashed_source_idx.is_none() {
-                            stashed_source_idx = (element.template_slice.start + tfs_idx).into();
+                            stashed_source_idx = (element.template_slice.start + idx).into();
                             // lexer_logger.debug(
                             //     "     Stashing a source start. %s", stashed_source_idx
                             // )
@@ -561,11 +561,55 @@ fn iter_segments(
                     }
                 }
             } else if matches!(tfs.slice_type.as_str(), "templated" | "block_start") {
-                unimplemented!();
+                // Found a templated slice. Does it have length in the templated file?
+                // If it doesn't, then we'll pick it up next.
+                if !is_zero_slice(&tfs.templated_slice) {
+                    // If it's a block_start. Append to the block stack.
+                    // NOTE: This is rare, but call blocks do occasionally
+                    // have length (and so don't get picked up by
+                    // _handle_zero_length_slice)
+                    if tfs.slice_type == "block_start" {
+                        unimplemented!()
+                        // block_stack.enter(tfs.source_slice)
+                    }
+
+                    // Is our current element totally contained in this slice?
+                    if element.template_slice.end <= tfs.templated_slice.end {
+                        // lexer_logger.debug("     Contained templated slice.")
+                        // Yes it is. Add lexed element with source slices as the whole
+                        // span of the source slice for the file slice.
+                        // If we've got an existing stashed source start, use that
+                        // as the start of the source slice.
+                        let slice_start = if let Some(stashed_source_idx) = stashed_source_idx {
+                            stashed_source_idx
+                        } else {
+                            tfs.source_slice.start + consumed_element_length
+                        };
+
+                        result.push(element.to_segment(
+                            PositionMarker::new(
+                                slice_start..tfs.source_slice.end,
+                                element.template_slice.clone(),
+                                templated_file.clone(),
+                                None,
+                                None,
+                            ),
+                            Some(consumed_element_length..element.raw.len()),
+                        ));
+
+                        // If it was an exact match, consume the templated element too.
+                        if element.template_slice.end == tfs.templated_slice.end {
+                            tfs_idx += 1
+                        }
+                        // Carry on to the next lexed element
+                        break;
+                    } else {
+                        unimplemented!()
+                    }
+                }
             }
         }
     }
-
     result
 }
 

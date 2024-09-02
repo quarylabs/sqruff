@@ -104,10 +104,9 @@ impl PositionMarker {
             templated_files.insert(marker.templated_file.clone());
         }
 
-        // FIXME:
-        // if templated_files.len() != 1 {
-        //     panic!("Attempted to make a parent marker from multiple files.");
-        // }
+        if templated_files.len() != 1 {
+            panic!("Attempted to make a parent marker from multiple files.");
+        }
 
         let templated_file = templated_files.into_iter().next().unwrap();
         PositionMarker::new(
@@ -227,6 +226,10 @@ impl PositionMarker {
 
     pub(crate) fn with_working_position(self, line_no: usize, line_pos: usize) -> PositionMarker {
         Self { working_line_no: line_no, working_line_pos: line_pos, ..self }
+    }
+
+    pub(crate) fn is_point(&self) -> bool {
+        self.source_slice.is_empty() && self.templated_slice.is_empty()
     }
 }
 

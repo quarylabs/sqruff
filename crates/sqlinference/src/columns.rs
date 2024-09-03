@@ -25,7 +25,7 @@ pub fn get_columns_internal(
     for segment in ast.recursive_crawl(
         const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) },
         false,
-        &SyntaxSet::EMPTY,
+        const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
         false,
     ) {
         if let Some(alias) =
@@ -81,5 +81,32 @@ ORDER BY a DESC, b",
         .unwrap();
         assert_eq!(cols, vec!["d", "a", "c", "total_hours"]);
         assert_eq!(unnamed, vec!["123", "my_func(b)"]);
+    }
+
+    #[test]
+    fn test_sub_query() {
+        let config = FluffConfig::new(Default::default(), None, None);
+        let parser = Parser::new(&config, None);
+
+        let (cols, unnamed) = get_columns_internal(
+            &parser,
+            "
+SELECT
+    account_id,
+    valid_date,
+    gross_as_percentage
+FROM
+    (
+        SELECT
+            account_id,
+            valid_date,
+            gross_as_percentage
+        FROM
+            q.stg_savings_account_rates
+    )",
+        )
+        .unwrap();
+        assert_eq!(cols, vec!["account_id", "valid_date", "gross_as_percentage"]);
+        assert_eq!(unnamed, Vec::<String>::new());
     }
 }

@@ -116,11 +116,10 @@ jobs:
       - release
       - release-vsix
     steps:
-      - uses: eregon/publish-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release Draft
+        uses: crs-k/release-draft@v0.6.1
         with:
-          release_id: ${{ github.event.release.tag_name }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
   update-homebrew-formula:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest

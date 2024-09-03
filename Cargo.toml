@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.15.0"
+version = "0.15.1"
 repository = "https://github.com/quarylabs/sqruff"
 edition = "2021"
 license = "Apache-2.0"

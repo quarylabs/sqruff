@@ -169,6 +169,11 @@ impl ErasedSegment {
         self.recursive_crawl_all(false).into_iter().filter(|it| it.segments().is_empty()).collect()
     }
 
+    #[cfg(feature = "stringify")]
+    pub fn stringify(&self) -> String {
+        serde_yaml::to_string(&self.to_serialised(true, true)).unwrap()
+    }
+
     pub fn child(&self, seg_types: &SyntaxSet) -> Option<ErasedSegment> {
         self.segments().iter().find(|seg| seg_types.contains(seg.get_type())).cloned()
     }

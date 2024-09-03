@@ -185,7 +185,7 @@ pub fn handle_segment(
     seg: ErasedSegment,
     context: &RuleContext,
 ) -> LintResult {
-    if seg.raw().is_empty() {
+    if seg.raw().is_empty() || seg.is_templated() {
         return LintResult::new(None, Vec::new(), None, None, None);
     }
 

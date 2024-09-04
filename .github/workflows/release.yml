@@ -29,6 +29,7 @@ jobs:
         working-directory: ./editors/code
     steps:
       - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
       - name: Install Nodejs
         uses: actions/setup-node@v4
         with:
@@ -74,11 +75,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
-
       - name: Install musl-tools on Linux
         run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
         if: contains(matrix.platform.name, 'musl')
-
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
@@ -87,7 +86,6 @@ jobs:
           toolchain: nightly
           args: --locked --release
           strip: true
-
       - name: Package as archive
         shell: bash
         run: |

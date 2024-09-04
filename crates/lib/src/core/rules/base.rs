@@ -246,7 +246,7 @@ impl LintFix {
         )
     }
 
-    fn raw_slices_from_templated_slices<'a>(
+    fn raw_slices_from_templated_slices(
         &self,
         templated_file: &TemplatedFile,
         templated_slices: impl Iterator<Item = Range<usize>>,

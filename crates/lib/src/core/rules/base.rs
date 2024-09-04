@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::fmt::{self, Debug};
-use std::ops::Deref;
+use std::ops::{Deref, Range};
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -15,6 +15,7 @@ use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::DialectKind;
 use crate::core::errors::SQLLintError;
 use crate::core::parser::segments::base::{ErasedSegment, Tables};
+use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
 use crate::helpers::{Config, IndexMap};
 
 #[derive(Clone)]
@@ -195,6 +196,114 @@ impl LintFix {
             false
         }
     }
+
+    fn fix_slices(
+        &self,
+        templated_file: &TemplatedFile,
+        within_only: bool,
+    ) -> AHashSet<RawFileSlice> {
+        let anchor_slice = self.anchor.get_position_marker().unwrap().templated_slice.clone();
+
+        let adjust_boundary = if !within_only { 1 } else { 0 };
+
+        let templated_slice = match self.edit_type {
+            EditType::CreateBefore => anchor_slice.start - 1..anchor_slice.start + adjust_boundary,
+            EditType::CreateAfter => anchor_slice.end - adjust_boundary..anchor_slice.end + 1,
+            EditType::Replace => {
+                let pos = self.anchor.get_position_marker().unwrap();
+                if pos.source_slice.start == pos.source_slice.end {
+                    return AHashSet::new();
+                } else if self
+                    .edit
+                    .as_deref()
+                    .unwrap_or(&[])
+                    .iter()
+                    .all(|it| it.segments().is_empty() && !it.get_source_fixes().is_empty())
+                {
+                    let source_edit_slices: Vec<_> = self
+                        .edit
+                        .as_deref()
+                        .unwrap_or(&[])
+                        .iter()
+                        .flat_map(|edit| edit.get_source_fixes())
+                        .map(|source_fixe| source_fixe.source_slice.clone())
+                        .collect();
+
+                    let slice =
+                        templated_file.raw_slices_spanning_source_slice(&source_edit_slices[0]);
+                    return AHashSet::from_iter(slice);
+                }
+
+                anchor_slice
+            }
+            _ => anchor_slice,
+        };
+
+        self.raw_slices_from_templated_slices(
+            templated_file,
+            std::iter::once(templated_slice),
+            RawFileSlice::new(String::new(), "literal".to_string(), usize::MAX, None, None).into(),
+        )
+    }
+
+    fn raw_slices_from_templated_slices<'a>(
+        &self,
+        templated_file: &TemplatedFile,
+        templated_slices: impl Iterator<Item = Range<usize>>,
+        file_end_slice: Option<RawFileSlice>,
+    ) -> AHashSet<RawFileSlice> {
+        let mut raw_slices = AHashSet::new();
+
+        for templated_slice in templated_slices {
+            let templated_slice =
+                templated_file.templated_slice_to_source_slice(templated_slice.clone());
+
+            match templated_slice {
+                Ok(templated_slice) => raw_slices
+                    .extend(templated_file.raw_slices_spanning_source_slice(&templated_slice)),
+                Err(_) => {
+                    if let Some(file_end_slice) = file_end_slice.clone() {
+                        raw_slices.insert(file_end_slice);
+                    }
+                }
+            }
+        }
+
+        raw_slices
+    }
+
+    pub fn has_template_conflicts(&self, templated_file: &TemplatedFile) -> bool {
+        if self.edit_type == EditType::Replace
+            && self.edit.is_none()
+            && self.edit.as_ref().unwrap().len() == 1
+        {
+            let edit = &self.edit.as_ref().unwrap()[0];
+            if edit.raw() == self.anchor.raw() && !edit.get_source_fixes().is_empty() {
+                return false;
+            }
+        }
+
+        let check_fn = if let EditType::CreateAfter | EditType::CreateBefore = self.edit_type {
+            itertools::all
+        } else {
+            itertools::any
+        };
+
+        let fix_slices = self.fix_slices(templated_file, false);
+        let result = check_fn(fix_slices, |fs: RawFileSlice| fs.slice_type == "templated");
+
+        if result || self.source.is_empty() {
+            return result;
+        }
+
+        let templated_slices = None;
+        let raw_slices = self.raw_slices_from_templated_slices(
+            templated_file,
+            templated_slices.into_iter(),
+            None,
+        );
+        raw_slices.iter().any(|fs| fs.slice_type == "templated")
+    }
 }
 
 impl PartialEq for LintFix {
@@ -306,6 +415,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         tables: &Tables,
         dialect: &Dialect,
         fix: bool,
+        templated_file: &TemplatedFile,
         tree: ErasedSegment,
         config: &FluffConfig,
     ) -> (Vec<SQLLintError>, Vec<LintFix>) {
@@ -349,7 +459,7 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
                 // Assume this means no problems (also means no memory)
             } else {
                 for elem in resp {
-                    self.process_lint_result(elem, &mut new_lerrs, &mut new_fixes);
+                    self.process_lint_result(elem, templated_file, &mut new_lerrs, &mut new_fixes);
                 }
             }
 
@@ -364,9 +474,14 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
     fn process_lint_result(
         &self,
         res: LintResult,
+        templated_file: &TemplatedFile,
         new_lerrs: &mut Vec<SQLLintError>,
         new_fixes: &mut Vec<LintFix>,
     ) {
+        if res.fixes.iter().any(|it| it.has_template_conflicts(templated_file)) {
+            return;
+        }
+
         let ignored = false;
 
         if let Some(lerr) = res.to_linting_error(self.erased()) {

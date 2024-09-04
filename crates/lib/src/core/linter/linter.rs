@@ -204,8 +204,12 @@ impl Linter {
     ) -> LintedFile {
         let mut violations = parsed_string.violations;
 
-        let (tree, initial_linting_errors) =
-            parsed_string.tree.map(|tree| self.lint_fix_parsed(tables, tree, rules, fix)).unzip();
+        let (tree, initial_linting_errors) = parsed_string
+            .tree
+            .map(|tree| {
+                self.lint_fix_parsed(tables, tree, &parsed_string.templated_file, rules, fix)
+            })
+            .unzip();
 
         violations.extend(initial_linting_errors.unwrap_or_default().into_iter().map(Into::into));
 
@@ -228,6 +232,7 @@ impl Linter {
         &self,
         tables: &Tables,
         mut tree: ErasedSegment,
+        templated_file: &TemplatedFile,
         rules: Vec<ErasedRule>,
         fix: bool,
     ) -> (ErasedSegment, Vec<SQLLintError>) {
@@ -273,8 +278,14 @@ impl Linter {
                         continue;
                     }
 
-                    let (linting_errors, fixes) =
-                        rule.crawl(tables, &self.config.dialect, fix, tree.clone(), &self.config);
+                    let (linting_errors, fixes) = rule.crawl(
+                        tables,
+                        &self.config.dialect,
+                        fix,
+                        templated_file,
+                        tree.clone(),
+                        &self.config,
+                    );
 
                     if is_first_linter_pass {
                         initial_linting_errors.extend(linting_errors);

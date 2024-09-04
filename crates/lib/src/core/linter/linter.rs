@@ -112,7 +112,7 @@ impl Linter {
             formatter.dispatch_parse_header(/*f_name.clone()*/);
         }
 
-        Ok(Self::parse_rendered(tables, rendered, parse_statistics))
+        Ok(self.parse_rendered(tables, rendered, parse_statistics))
     }
 
     /// Lint a string.
@@ -191,7 +191,7 @@ impl Linter {
         fix: bool,
     ) -> LintedFile {
         let tables = Tables::default();
-        let parsed = Self::parse_rendered(&tables, rendered, false);
+        let parsed = self.parse_rendered(&tables, rendered, false);
         self.lint_parsed(&tables, parsed, rule_pack.rules.clone(), fix)
     }
 
@@ -373,7 +373,7 @@ impl Linter {
         Ok(RenderedFile {
             templated_file: templated_file.unwrap(),
             templater_violations,
-            config: config.clone(),
+
             f_name: f_name.to_owned(),
             encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
@@ -382,6 +382,7 @@ impl Linter {
 
     /// Parse a rendered file.
     pub fn parse_rendered(
+        &self,
         tables: &Tables,
         rendered: RenderedFile,
         parse_statistics: bool,
@@ -397,7 +398,7 @@ impl Linter {
 
         if rendered.templated_file.is_templated() {
             let (t, lvs) =
-                Self::lex_templated_file(tables, rendered.templated_file.clone(), &rendered.config);
+                Self::lex_templated_file(tables, rendered.templated_file.clone(), &self.config);
             tokens = t;
             if !lvs.is_empty() {
                 unimplemented!("violations.extend(lvs);")
@@ -411,7 +412,7 @@ impl Linter {
             let (p, pvs) = Self::parse_tokens(
                 tables,
                 &token_list,
-                &rendered.config,
+                &self.config,
                 Some(rendered.f_name.to_string()),
                 parse_statistics,
             );

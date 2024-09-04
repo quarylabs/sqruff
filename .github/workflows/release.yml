@@ -116,10 +116,9 @@ jobs:
       - release
       - release-vsix
     steps:
-      - run: gh release edit $VERSION --draft=false
+      - run: ./.hacking/scripts/convert_release_to_not_draft.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ github.event.release.tag_name }}
   update-homebrew-formula:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest

@@ -116,10 +116,10 @@ jobs:
       - release
       - release-vsix
     steps:
-      - name: Release Draft
-        uses: crs-k/release-draft@v0.6.1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: gh release edit $VERSION --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.event.release.tag_name }}
   update-homebrew-formula:
     name: Update Homebrew Formula
     runs-on: ubuntu-latest

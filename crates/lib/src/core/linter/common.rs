@@ -1,4 +1,3 @@
-use crate::core::config::FluffConfig;
 use crate::core::errors::{SQLBaseError, SQLTemplaterError};
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::core::templaters::base::TemplatedFile;
@@ -11,7 +10,6 @@ use crate::core::templaters::base::TemplatedFile;
 pub struct RenderedFile {
     pub templated_file: TemplatedFile,
     pub templater_violations: Vec<SQLTemplaterError>,
-    pub config: FluffConfig,
     pub(crate) f_name: String,
     pub encoding: String,
     pub source_str: String,

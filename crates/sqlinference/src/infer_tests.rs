@@ -591,7 +591,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                 for mut segment in select_clause_element.segments() {
                     match segment.get_type() {
                         SyntaxKind::ColumnReference => {
-                            let out = extracted_tables.get_source(segment.raw().as_ref()).unwrap();
+                            let out = extracted_tables.get_source(segment.raw().as_ref())?;
 
                             if segment.raw().contains('.') {
                                 segment = segment.segments().last().unwrap();

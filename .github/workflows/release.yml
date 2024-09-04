@@ -116,6 +116,8 @@ jobs:
       - release
       - release-vsix
     steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x ./.hacking/scripts/check_versions_match.sh
       - run: ./.hacking/scripts/convert_release_to_not_draft.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

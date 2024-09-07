@@ -146,13 +146,7 @@ impl OutputStreamFormatter {
 
         text_buffer
     }
-    #[allow(unused_variables)]
-    pub fn dispatch_file_violations(
-        &self,
-        linted_file: &LintedFile,
-        only_fixable: bool,
-        warn_unused_ignores: bool,
-    ) {
+    pub fn dispatch_file_violations(&self, linted_file: &LintedFile, only_fixable: bool) {
         if self.verbosity < 0 {
             return;
         }

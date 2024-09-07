@@ -9,7 +9,7 @@ use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::dialects::init::DialectKind;
-use crate::core::linter::linter::compute_anchor_edit_info;
+use crate::core::linter::core::compute_anchor_edit_info;
 use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;

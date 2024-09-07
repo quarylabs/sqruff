@@ -7,7 +7,7 @@ use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::dialects::init::DialectKind;
 use crate::core::errors::{SQLBaseError, SQLFluffUserError};
-use crate::core::linter::linter::Linter;
+use crate::core::linter::core::Linter;
 use crate::core::rules::base::ErasedRule;
 
 pub fn get_simple_config(

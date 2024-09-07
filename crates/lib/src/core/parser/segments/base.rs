@@ -1067,7 +1067,7 @@ fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::linter::linter::compute_anchor_edit_info;
+    use crate::core::linter::core::compute_anchor_edit_info;
     use crate::core::parser::segments::base::Tables;
     use crate::core::parser::segments::test_functions::{raw_seg, raw_segments};
     use crate::core::rules::base::LintFix;

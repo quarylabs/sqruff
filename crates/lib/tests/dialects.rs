@@ -5,7 +5,7 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::dialects::init::DialectKind;
-use sqruff_lib::core::linter::linter::Linter;
+use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::parser::segments::base::{ErasedSegment, Tables};
 use sqruff_lib::helpers;
 use strum::IntoEnumIterator;

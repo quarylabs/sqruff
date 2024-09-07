@@ -334,7 +334,7 @@ mod tests {
     use std::mem::take;
 
     use super::*;
-    use crate::core::linter::linter::Linter;
+    use crate::core::linter::core::Linter;
     use crate::rules::layout::rules;
 
     #[test]

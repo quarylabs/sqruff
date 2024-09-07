@@ -147,9 +147,6 @@ impl std::fmt::Display for IndentLine {
     }
 }
 
-#[allow(unused_variables, dead_code)]
-fn revise_templated_lines(lines: Vec<IndentLine>, elements: ReflowSequenceType) {}
-
 fn revise_comment_lines(lines: &mut [IndentLine], elements: &ReflowSequenceType) {
     let mut comment_line_buffer = Vec::new();
     let mut changes = Vec::new();

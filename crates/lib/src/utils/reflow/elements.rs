@@ -575,7 +575,6 @@ impl From<ReflowPoint> for ReflowElement {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-#[allow(clippy::large_enum_variant)]
 pub enum ReflowElement {
     Block(ReflowBlock),
     Point(ReflowPoint),

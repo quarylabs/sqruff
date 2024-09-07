@@ -1,4 +1,4 @@
-use sqruff_lib::core::linter::linter::Linter;
+use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::parser::parser::Parser;
 use sqruff_lib::core::parser::segments::base::{ErasedSegment, Tables};
 use sqruff_lib::core::templaters::base::TemplatedFile;

@@ -2,7 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 #[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::linter::Linter;
+use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::parser::segments::base::Tables;
 use sqruff_lib::utils::reflow::depth_map::DepthMap;
 

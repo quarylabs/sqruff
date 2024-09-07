@@ -15,3 +15,6 @@ opt-level = "s"
 [profile.release]
 lto = true
 codegen-units = 1
+
+[workspace.dependencies]
+wasm-pack = "0.13.0"

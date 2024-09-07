@@ -2,7 +2,7 @@ use clap::Parser as _;
 use commands::{FixArgs, Format, LintArgs};
 use sqruff_lib::cli::formatters::OutputStreamFormatter;
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::linter::Linter;
+use sqruff_lib::core::linter::core::Linter;
 
 use crate::commands::{Cli, Commands};
 #[cfg(feature = "codegen-docs")]

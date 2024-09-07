@@ -222,7 +222,7 @@ impl Linter {
         };
 
         if let Some(formatter) = &self.formatter {
-            formatter.dispatch_file_violations(&linted_file, false, false);
+            formatter.dispatch_file_violations(&linted_file, false);
         }
 
         linted_file
@@ -350,25 +350,20 @@ impl Linter {
             return Err(error);
         }
 
-        #[allow(unused_assignments)]
-        let mut templated_file = None;
-
         let templater_violations = vec![];
-        match self.templater.process(
+        let templated_file = match self.templater.process(
             in_str.as_str(),
             f_name.as_str(),
             Some(config),
             self.formatter.as_ref(),
         ) {
-            Ok(file) => {
-                templated_file = Some(file);
-            }
+            Ok(file) => Some(file),
             Err(_s) => {
                 // TODO Implement linter warning
                 panic!("not implemented")
                 // linter_logger::warning(s.to_string());
             }
-        }
+        };
 
         Ok(RenderedFile {
             templated_file: templated_file.unwrap(),
@@ -393,18 +388,15 @@ impl Linter {
         }
 
         let mut violations = Vec::new();
-        #[allow(unused_assignments)]
-        let mut tokens: Option<Vec<ErasedSegment>> = None;
-
-        if rendered.templated_file.is_templated() {
+        let tokens = if rendered.templated_file.is_templated() {
             let (t, lvs) =
                 Self::lex_templated_file(tables, rendered.templated_file.clone(), &self.config);
-            tokens = t;
             if !lvs.is_empty() {
                 unimplemented!("violations.extend(lvs);")
             }
+            t
         } else {
-            tokens = None;
+            None
         };
 
         let parsed: Option<ErasedSegment>;
@@ -630,7 +622,7 @@ pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> FxHashMap<u32, An
 #[cfg(test)]
 mod tests {
     use crate::core::config::FluffConfig;
-    use crate::core::linter::linter::Linter;
+    use crate::core::linter::core::Linter;
     use crate::core::parser::segments::base::Tables;
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {

@@ -4,7 +4,7 @@ use super::base::{ErasedSegment, SegmentBuilder};
 use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::DialectKind;
-use crate::core::linter::linter::Linter;
+use crate::core::linter::core::Linter;
 use crate::core::parser::lexer::{Lexer, StringOrTemplate};
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::base::Tables;

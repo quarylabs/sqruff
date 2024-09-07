@@ -14,7 +14,7 @@ use lsp_types::{
 };
 use serde_json::Value;
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::linter::Linter;
+use sqruff_lib::core::linter::core::Linter;
 use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]

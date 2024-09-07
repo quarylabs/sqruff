@@ -63,7 +63,7 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 mod tests {
     use crate::core::config::FluffConfig;
-    use crate::core::linter::linter::Linter;
+    use crate::core::linter::core::Linter;
     use crate::core::parser::segments::base::Tables;
 
     #[test]

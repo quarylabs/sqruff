@@ -1,5 +1,5 @@
+use super::core::Linter;
 use super::linted_file::LintedFile;
-use super::linter::Linter;
 
 pub trait Runner: Sized {
     fn run(

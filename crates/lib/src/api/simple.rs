@@ -1,10 +1,11 @@
 use std::mem::take;
+use std::str::FromStr;
 
 use ahash::AHashMap;
 
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
-use crate::core::dialects::init::dialect_selector;
+use crate::core::dialects::init::DialectKind;
 use crate::core::errors::{SQLBaseError, SQLFluffUserError};
 use crate::core::linter::linter::Linter;
 use crate::core::rules::base::ErasedRule;
@@ -17,13 +18,8 @@ pub fn get_simple_config(
 ) -> Result<FluffConfig, SQLFluffUserError> {
     let mut overrides = AHashMap::new();
     if let Some(dialect) = dialect {
-        let selected = dialect_selector(&dialect);
-        if selected.is_none() {
-            return Err(SQLFluffUserError::new(format!(
-                "Error loading dialect '{}': {}",
-                dialect, "Dialect not found"
-            )));
-        }
+        DialectKind::from_str(dialect.as_str())
+            .map_err(|error| SQLFluffUserError::new(error.to_string()))?;
         overrides.insert("dialect".to_owned(), dialect);
     }
     if let Some(rules) = rules {

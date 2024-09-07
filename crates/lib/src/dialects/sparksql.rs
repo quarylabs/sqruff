@@ -18,7 +18,7 @@ use crate::dialects::{ansi, SyntaxKind};
 use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
-pub fn sparksql_dialect() -> Dialect {
+pub fn dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
     let hive_dialect = super::hive::raw_dialect();
     let mut sparksql_dialect = ansi_dialect;

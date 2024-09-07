@@ -126,7 +126,7 @@ FROM baz;
 #[cfg(test)]
 mod tests {
     use crate::api::simple::{fix, lint};
-    use crate::core::dialects::init::get_default_dialect;
+    use crate::core::dialects::init::DialectKind;
     use crate::core::rules::base::Erased;
     use crate::rules::convention::cv02::RuleCV02;
 
@@ -136,7 +136,7 @@ mod tests {
         let sql = "SELECT\n\tIFNULL(NULL, 100),\n\tNVL(NULL, 100);";
         let result = lint(
             sql.into(),
-            get_default_dialect().to_string(),
+            DialectKind::default().as_ref().to_string(),
             vec![RuleCV02.erased()],
             None,
             None,
@@ -154,7 +154,7 @@ mod tests {
 
         let result = lint(
             sql.into(),
-            get_default_dialect().to_string(),
+            DialectKind::default().as_ref().to_string(),
             vec![RuleCV02.erased()],
             None,
             None,

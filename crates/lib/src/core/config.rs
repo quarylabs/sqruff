@@ -7,7 +7,7 @@ use configparser::ini::Ini;
 use itertools::Itertools;
 
 use super::dialects::base::Dialect;
-use crate::core::dialects::init::{dialect_readout, dialect_selector, get_default_dialect};
+use crate::core::dialects::init::{dialect_readout, DialectKind};
 use crate::core::errors::SQLFluffUserError;
 use crate::utils::reflow::config::ReflowConfig;
 
@@ -98,14 +98,13 @@ impl FluffConfig {
 
         let mut configs = nested_combine(defaults, configs);
 
-        let dialect = match configs.get("core").and_then(|map| map.as_map().unwrap().get("dialect"))
-        {
-            None => get_default_dialect(),
-            Some(Value::String(std)) => std.as_ref(),
-            _value => get_default_dialect(),
-        };
-
-        let dialect = dialect_selector(dialect).unwrap();
+        let dialect =
+            match configs.get("core").and_then(|map| map.as_map().unwrap().get("dialect")) {
+                None => DialectKind::default(),
+                Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
+                _value => DialectKind::default(),
+            }
+            .into();
 
         for (in_key, out_key) in [
             // Deal with potential ignore & warning parameters

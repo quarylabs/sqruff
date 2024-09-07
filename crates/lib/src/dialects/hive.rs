@@ -11,7 +11,7 @@ use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
 pub fn raw_dialect() -> Dialect {
-    let mut hive_dialect = super::ansi::ansi_dialect();
+    let mut hive_dialect = super::ansi::dialect();
 
     hive_dialect.add([
         (

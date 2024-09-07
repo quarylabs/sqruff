@@ -34,7 +34,7 @@ impl<T> Boxed for T {
     }
 }
 
-pub fn snowflake_dialect() -> Dialect {
+pub fn dialect() -> Dialect {
     let mut snowflake_dialect = raw_dialect();
     snowflake_dialect.name = DialectKind::Snowflake;
 

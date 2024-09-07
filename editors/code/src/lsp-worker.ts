@@ -32,7 +32,7 @@ sqruffInit(sqruffWasmData).then(() => {
   const sendDiagnosticsCallback = (params: PublishDiagnosticsParams) =>
     connection.sendDiagnostics(params);
 
-  let lsp = new sqruffLsp.Wasm(sendDiagnosticsCallback);
+  const lsp = new sqruffLsp.Wasm(sendDiagnosticsCallback);
 
   connection.onInitialize(() => lsp.onInitialize());
   connection.onInitialized(() => updateConfig());

@@ -28,18 +28,18 @@ export function activate(context: vscode.ExtensionContext) {
     ];
 
     for (const fileEvent of fileEvents) {
-      fileEvent.onDidChange((_) => {
+      fileEvent.onDidChange(() => {
         cl.sendRequest("changeConfig");
       });
-      fileEvent.onDidCreate((_) => {
+      fileEvent.onDidCreate(() => {
         cl.sendRequest("changeConfig");
       });
-      fileEvent.onDidDelete((_) => {
+      fileEvent.onDidDelete(() => {
         cl.sendRequest("deleteConfig");
       });
     }
 
-    cl.onRequest("loadConfig", async (_path: string) => {
+    cl.onRequest("loadConfig", async () => {
       if (vscode.workspace.workspaceFolders === undefined) {
         return "";
       }
@@ -56,6 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
           break;
         } catch (error) {
           // Continue to the next file if an error occurs
+          console.error(error);
         }
       }
 

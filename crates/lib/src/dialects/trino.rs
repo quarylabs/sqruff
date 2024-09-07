@@ -28,36 +28,37 @@ pub fn dialect() -> Dialect {
         "localtimestamp",
     ]);
 
-    // Set the reserved keywords
     trino_dialect.sets_mut("unreserved_keywords").clear();
-    trino_dialect.update_keywords_set_from_multiline_string("reserved_keywords", UNRESERVED_WORDS);
-
+    trino_dialect
+        .update_keywords_set_from_multiline_string("unreserved_keywords", UNRESERVED_WORDS);
     trino_dialect.sets_mut("reserved_keywords").clear();
     trino_dialect.update_keywords_set_from_multiline_string("reserved_keywords", RESERVED_WORDS);
 
-    trino_dialect.replace_grammar(
-        "DateTimeLiteralGrammar",
-        Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![
-                Ref::keyword("DATE"),
-                Ref::keyword("TIME"),
-                Ref::keyword("TIMESTAMP")
-            ]),
-            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::Literal),
-            Ref::new("IntervalExpressionSegment"),
-        ])
-        .to_matchable(),
-    );
+    trino_dialect.add([
+        (
+            "DateTimeLiteralGrammar".into(),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DATE"),
+                    Ref::keyword("TIME"),
+                    Ref::keyword("TIMESTAMP")
+                ]),
+                TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::Literal),
+                Ref::new("IntervalExpressionSegment"),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LikeGrammar".into(),
+            Sequence::new(vec_of_erased![Ref::keyword("LIKE")]).to_matchable().into(),
+        ),
+    ]);
 
-    trino_dialect.replace_grammar(
-        "LikeGrammar",
-        Sequence::new(vec_of_erased![Ref::keyword("LIKE")]).to_matchable(),
-    );
+    trino_dialect.add([("MLTableExpressionSegment".into(), Nothing::new().to_matchable().into())]);
 
-    trino_dialect.replace_grammar("MLTableExpressionSegment", Nothing::new().to_matchable());
-
-    trino_dialect.replace_grammar(
-        "FromClauseTerminatorGrammar",
+    trino_dialect.add([(
+        "FromClauseTerminatorGrammar".into(),
         one_of(vec_of_erased![
             Ref::keyword("WHERE"),
             Ref::keyword("LIMIT"),
@@ -70,11 +71,12 @@ pub fn dialect() -> Dialect {
             Ref::new("WithDataClauseSegment"),
             Ref::keyword("FETCH"),
         ])
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
-    trino_dialect.replace_grammar(
-        "OrderByClauseTerminators",
+    trino_dialect.add([(
+        "OrderByClauseTerminators".into(),
         one_of(vec_of_erased![
             Ref::keyword("LIMIT"),
             Ref::keyword("HAVING"),
@@ -82,11 +84,12 @@ pub fn dialect() -> Dialect {
             Ref::new("FrameClauseUnitGrammar"),
             Ref::keyword("FETCH"),
         ])
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
-    trino_dialect.replace_grammar(
-        "SelectClauseTerminatorGrammar",
+    trino_dialect.add([(
+        "SelectClauseTerminatorGrammar".into(),
         one_of(vec_of_erased![
             Ref::keyword("FROM"),
             Ref::keyword("WHERE"),
@@ -95,11 +98,12 @@ pub fn dialect() -> Dialect {
             Ref::new("SetOperatorSegment"),
             Ref::keyword("FETCH"),
         ])
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
-    trino_dialect.replace_grammar(
-        "WhereClauseTerminatorGrammar",
+    trino_dialect.add([(
+        "WhereClauseTerminatorGrammar".into(),
         one_of(vec_of_erased![
             Ref::keyword("LIMIT"),
             Sequence::new(vec_of_erased![Ref::keyword("GROUP"), Ref::keyword("BY")]),
@@ -108,22 +112,24 @@ pub fn dialect() -> Dialect {
             Ref::keyword("WINDOW"),
             Ref::keyword("FETCH"),
         ])
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
-    trino_dialect.replace_grammar(
-        "HavingClauseTerminatorGrammar",
+    trino_dialect.add([(
+        "HavingClauseTerminatorGrammar".into(),
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
             Ref::keyword("LIMIT"),
             Ref::keyword("WINDOW"),
             Ref::keyword("FETCH"),
         ])
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
-    trino_dialect.replace_grammar(
-        "GroupByClauseTerminatorGrammar",
+    trino_dialect.add([(
+        "GroupByClauseTerminatorGrammar".into(),
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![Ref::keyword("ORDER"), Ref::keyword("BY")]),
             Ref::keyword("LIMIT"),
@@ -131,13 +137,14 @@ pub fn dialect() -> Dialect {
             Ref::keyword("WINDOW"),
             Ref::keyword("FETCH"),
         ])
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
     // NOTE: This block was copy/pasted from dialect_ansi.py with these changes made
     //  - "PRIOR" keyword removed
-    trino_dialect.replace_grammar(
-        "Expression_A_Unary_Operator_Grammar",
+    trino_dialect.add([(
+        "Expression_A_Unary_Operator_Grammar".into(),
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::new("SignedSegmentGrammar"),
@@ -148,23 +155,27 @@ pub fn dialect() -> Dialect {
             Ref::new("TildeSegment"),
             Ref::new("NotOperatorGrammar"),
         ])
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
-    trino_dialect.replace_grammar(
-        "PostFunctionGrammar",
-        ansi_dialect.grammar("PostFunctionGrammar").copy(
-            Some(vec_of_erased![Ref::new("WithinGroupClauseSegment"),]),
-            None,
-            None,
-            None,
-            Vec::new(),
-            false,
-        ),
-    );
+    trino_dialect.add([(
+        "PostFunctionGrammar".into(),
+        ansi_dialect
+            .grammar("PostFunctionGrammar")
+            .copy(
+                Some(vec_of_erased![Ref::new("WithinGroupClauseSegment"),]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            )
+            .into(),
+    )]);
 
-    trino_dialect.replace_grammar(
-        "FunctionContentsGrammar",
+    trino_dialect.add([(
+        "FunctionContentsGrammar".into(),
         AnyNumberOf::new(vec_of_erased!(
             Ref::new("ExpressionSegment"),
             // A cast-like function
@@ -217,8 +228,9 @@ pub fn dialect() -> Dialect {
             Ref::new("EmptyStructLiteralSegment"),
             Ref::new("ListaggOverflowClauseSegment"),
         ))
-        .to_matchable(),
-    );
+        .to_matchable()
+        .into(),
+    )]);
 
     // An `OVERLAPS` clause like in `SELECT`.
     trino_dialect.add([(
@@ -356,15 +368,20 @@ pub fn dialect() -> Dialect {
 
     // Overriding StatementSegment to allow for additional segment parsing.
     trino_dialect.replace_grammar(
-        "StatementSegment",
-        ansi_dialect.grammar("StatementSegment").copy(
-            Some(vec_of_erased![Ref::new("AnalyzeStatementSegment")]),
-            None,
-            None,
-            Some(vec_of_erased![Ref::new("TransactionStatementSegment")]),
-            Vec::new(),
-            false,
-        ),
+        "StatementSegment".into(),
+        ansi::statement_segment()
+            .copy(
+                Some(vec_of_erased![
+                    Ref::new("AnalyzeStatementSegment"),
+                    Ref::new("CommentOnStatementSegment")
+                ]),
+                None,
+                None,
+                Some(vec_of_erased![Ref::new("TransactionStatementSegment")]),
+                Vec::new(),
+                false,
+            )
+            .into(),
     );
 
     // An 'ANALYZE' statement as per docs https://trino.io/docs/current/sql/analyze.html
@@ -392,7 +409,7 @@ pub fn dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-    //
+
     // // An WITHIN GROUP clause for window functions.
     trino_dialect.add([(
         "WithinGroupClauseSegment".into(),
@@ -435,6 +452,7 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    trino_dialect.expand();
     trino_dialect
 }
 

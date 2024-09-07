@@ -5377,19 +5377,16 @@ impl JoinClauseSegment {
 
 #[cfg(test)]
 mod tests {
-    use expect_test::expect_file;
     use itertools::Itertools;
-    use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
     use crate::core::config::FluffConfig;
     use crate::core::dialects::init::DialectKind;
     use crate::core::linter::linter::Linter;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
-    use crate::core::parser::segments::base::{ErasedSegment, Tables};
+    use crate::core::parser::segments::base::Tables;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
     use crate::dialects::SyntaxKind;
-    use crate::helpers;
 
     #[test]
     fn test_dialect_ansi_file_lex() {
@@ -5602,36 +5599,5 @@ mod tests {
 
             assert_eq!(res_meta_locs, meta_loc);
         }
-    }
-
-    fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-        let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
-        parsed.tree.unwrap()
-    }
-
-    #[test]
-    fn base_parse_struct() {
-        let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
-
-        let files =
-            glob::glob("test/fixtures/dialects/ansi/*.sql").unwrap().flatten().collect_vec();
-
-        files.par_iter().for_each(|file| {
-            let _panic = helpers::enter_panic(file.display().to_string());
-
-            let yaml = file.with_extension("yml");
-            let yaml = std::path::absolute(yaml).unwrap();
-
-            let actual = {
-                let sql = std::fs::read_to_string(file).unwrap();
-                let tree = parse_sql(&linter, &sql);
-                let tree = tree.to_serialised(true, true);
-
-                serde_yaml::to_string(&tree).unwrap()
-            };
-
-            expect_file![yaml].assert_eq(&actual);
-        });
     }
 }

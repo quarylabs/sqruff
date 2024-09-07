@@ -18,7 +18,7 @@ use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
-pub fn clickhouse_dialect() -> Dialect {
+pub fn dialect() -> Dialect {
     let mut clickhouse_dialect = raw_dialect();
     clickhouse_dialect.name = DialectKind::Clickhouse;
     clickhouse_dialect.sets_mut("unreserved_keywords").extend(UNRESERVED_KEYWORDS);

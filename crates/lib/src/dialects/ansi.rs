@@ -96,7 +96,7 @@ impl Matchable for NodeMatcher {
     }
 }
 
-pub fn ansi_dialect() -> Dialect {
+pub fn dialect() -> Dialect {
     raw_dialect().config(|this| this.expand())
 }
 

@@ -20,7 +20,7 @@ use crate::dialects::SyntaxKind;
 use crate::helpers::{Config, ToMatchable};
 use crate::vec_of_erased;
 
-pub fn bigquery_dialect() -> Dialect {
+pub fn dialect() -> Dialect {
     let mut dialect = raw_dialect();
     dialect.name = DialectKind::Bigquery;
 

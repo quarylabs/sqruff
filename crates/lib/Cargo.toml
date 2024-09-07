@@ -18,6 +18,10 @@ doctest = false
 name = "rules"
 harness = false
 
+[[test]]
+name = "dialects"
+harness = false
+
 [[bench]]
 name = "parsing"
 harness = false

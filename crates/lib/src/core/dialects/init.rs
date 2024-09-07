@@ -22,13 +22,13 @@ pub enum DialectKind {
     #[default]
     Ansi,
     Bigquery,
-    Postgres,
-    Snowflake,
     Clickhouse,
-    Sparksql,
     Duckdb,
-    Sqlite,
+    Postgres,
     Redshift,
+    Snowflake,
+    Sparksql,
+    Sqlite,
 }
 
 impl From<DialectKind> for Dialect {
@@ -36,13 +36,13 @@ impl From<DialectKind> for Dialect {
         match val {
             DialectKind::Ansi => crate::dialects::ansi::dialect(),
             DialectKind::Bigquery => crate::dialects::bigquery::dialect(),
-            DialectKind::Postgres => crate::dialects::postgres::dialect(),
-            DialectKind::Snowflake => crate::dialects::snowflake::dialect(),
             DialectKind::Clickhouse => crate::dialects::clickhouse::dialect(),
-            DialectKind::Sparksql => crate::dialects::sparksql::dialect(),
             DialectKind::Duckdb => crate::dialects::duckdb::dialect(),
-            DialectKind::Sqlite => crate::dialects::sqlite::dialect(),
+            DialectKind::Postgres => crate::dialects::postgres::dialect(),
             DialectKind::Redshift => crate::dialects::redshift::dialect(),
+            DialectKind::Snowflake => crate::dialects::snowflake::dialect(),
+            DialectKind::Sparksql => crate::dialects::sparksql::dialect(),
+            DialectKind::Sqlite => crate::dialects::sqlite::dialect(),
         }
     }
 }
@@ -50,4 +50,17 @@ impl From<DialectKind> for Dialect {
 /// Generate a readout of available dialects.
 pub fn dialect_readout() -> Vec<String> {
     DialectKind::iter().map(|x| x.as_ref().to_string()).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn dialect_readout_is_alphabetically_sorted() {
+        let readout = super::dialect_readout();
+
+        let mut sorted = readout.clone();
+        sorted.sort();
+
+        assert_eq!(readout, sorted);
+    }
 }

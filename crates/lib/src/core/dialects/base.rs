@@ -58,7 +58,11 @@ impl Dialect {
 
     #[track_caller]
     pub fn replace_grammar(&mut self, name: &'static str, match_grammar: Arc<dyn Matchable>) {
-        match self.library.get_mut(name).unwrap() {
+        match self
+            .library
+            .get_mut(name)
+            .unwrap_or_else(|| panic!("Failed to get mutable reference for {name}"))
+        {
             DialectElementType::Matchable(matchable) => {
                 dyn_clone::arc_make_mut(matchable)
                     .as_any_mut()

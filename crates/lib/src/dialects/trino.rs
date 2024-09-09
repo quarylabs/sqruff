@@ -610,7 +610,7 @@ pub fn dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::keyword("COMMENT"),
                 Ref::keyword("ON"),
-                Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![Ref::keyword("TABLE"), Ref::keyword("VIEW"),]),
                         Ref::new("TableReferenceSegment"),
@@ -619,6 +619,10 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("COLUMN"),
                         Ref::new("ColumnReferenceSegment"),
                     ]),
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("IS"),
+                    one_of(vec_of_erased![Ref::new("QuotedLiteralSegment"), Ref::keyword("NULL")]),
                 ]),
             ])
             .to_matchable()

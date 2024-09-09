@@ -75,6 +75,119 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    // trino_dialect.add([(
+    //     "DataTypeSegment".into(),
+    //     one_of(vec_of_erased![
+    //         // Boolean
+    //         Ref::keyword("BOOLEAN"),
+    //         // Integer
+    //         Ref::keyword("TINYINT"),
+    //         Ref::keyword("SMALLINT"),
+    //         Ref::keyword("INTEGER"),
+    //         Ref::keyword("INT"),
+    //         Ref::keyword("BIGINT"),
+    //         // Floating-point
+    //         Ref::keyword("REAL"),
+    //         Ref::keyword("DOUBLE"),
+    //         // Fixed-precision
+    //         Sequence::new(vec_of_erased![
+    //             Ref::keyword("DECIMAL"),
+    //             Ref::new("BracketedArguments").optional(),
+    //         ]),
+    //         // String
+    //         Sequence::new(vec_of_erased![
+    //             one_of(vec_of_erased![Ref::keyword("CHAR"),
+    // Ref::keyword("VARCHAR")]),             
+    // Ref::new("BracketedArguments").optional(),         ]),
+    //         Ref::keyword("VARBINARY"),
+    //         Ref::keyword("JSON"),
+    //         // Date and time
+    //         Sequence::new(vec_of_erased![Ref::keyword("DATE"),]),
+    //         // TODO Fix the next line
+    //         // Sequence::new(vec_of_erased![
+    //         //     one_of(vec_of_erased![Ref::keyword("TIME"),
+    // Ref::keyword("TIMESTAMP")]).to_matchable(),         //
+    // Ref::new("BracketedArguments").optional().to_matchable(),         //
+    // Sequence::new(vec_of_erased![         //
+    // one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+    //         //         Ref::keyword("TIME"),
+    //         //         Ref::keyword("ZONE"),
+    //         //     ])
+    //         //     .optional().into(),
+    //         // ]).to_matchable(),
+    //         // Structural
+    //         Ref::new("ArrayTypeSegment"),
+    //         Ref::keyword("MAP"),
+    //         Ref::new("RowTypeSegment"),
+    //         // Others
+    //         Ref::keyword("IPADDRESS"),
+    //         Ref::keyword("UUID"),
+    //     ]).to_matchable().into(),
+    // )]);
+
+    // // Data type segment. See https://trino.io/docs/current/language/types.html
+    trino_dialect.replace_grammar(
+        "DatatypeSegment".into(),
+        one_of(vec_of_erased![
+            // Boolean
+            Ref::keyword("BOOLEAN"),
+            // Integer
+            Ref::keyword("TINYINT"),
+            Ref::keyword("SMALLINT"),
+            Ref::keyword("INTEGER"),
+            Ref::keyword("INT"),
+            Ref::keyword("BIGINT"),
+            // Floating-point
+            Ref::keyword("REAL"),
+            Ref::keyword("DOUBLE"),
+            // Fixed-precision
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DECIMAL"),
+                Ref::new("BracketedArguments").optional(),
+            ]),
+            // String
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("CHAR"), Ref::keyword("VARCHAR")]),
+                Ref::new("BracketedArguments").optional(),
+            ]),
+            Ref::keyword("VARBINARY"),
+            Ref::keyword("JSON"),
+            // Date and time
+            Sequence::new(vec_of_erased![Ref::keyword("DATE"),]),
+            // TODO Fix the next line
+            // Sequence::new(vec_of_erased![
+            //     one_of(vec_of_erased![Ref::keyword("TIME"),
+            // Ref::keyword("TIMESTAMP")]).to_matchable(),     Ref::new("
+            // BracketedArguments").optional().to_matchable(),
+            //     Sequence::new(vec_of_erased![
+            //         one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+            //         Ref::keyword("TIME"),
+            //         Ref::keyword("ZONE"),
+            //     ])
+            //     .optional().into(),
+            // ]).to_matchable(),
+            // Structural
+            Ref::new("ArrayTypeSegment"),
+            Ref::keyword("MAP"),
+            Ref::new("RowTypeSegment"),
+            // Others
+            Ref::keyword("IPADDRESS"),
+            Ref::keyword("UUID"),
+        ])
+        .to_matchable(),
+    );
+
+    // Expression to construct a ROW datatype.
+    trino_dialect.add([(
+        "RowTypeSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ROW"),
+            Ref::new("RowTypeSchemaSegment").optional(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     trino_dialect.add([(
         "OrderByClauseTerminators".into(),
         one_of(vec_of_erased![
@@ -447,6 +560,32 @@ pub fn dialect() -> Dialect {
                 ]),
             ])
             .to_matchable(),
+        )
+        .to_matchable()
+        .into(),
+    )]);
+
+    // `COMMENT ON` statement. https://trino.io/docs/current/sql/comment.html
+    trino_dialect.add([(
+        "CommentOnStatementSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::CommentClause,
+            Sequence::new(vec_of_erased![
+                Ref::keyword("COMMENT"),
+                Ref::keyword("ON"),
+                Sequence::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![Ref::keyword("TABLE"), Ref::keyword("VIEW"),]),
+                        Ref::new("TableReferenceSegment"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("COLUMN"),
+                        Ref::new("ColumnReferenceSegment"),
+                    ]),
+                ]),
+            ])
+            .to_matchable()
+            .into(),
         )
         .to_matchable()
         .into(),

@@ -251,7 +251,7 @@ impl Matchable for AnyNumberOf {
         }
 
         if let Some(remove_elements) = remove {
-            new_elements.retain(|elem| !remove_elements.iter().any(|r| Arc::ptr_eq(elem, r)));
+            new_elements.retain(|elem| !remove_elements.iter().any(|r| elem.dyn_eq(r.as_ref())));
         }
 
         let mut new_grammar = self.clone();

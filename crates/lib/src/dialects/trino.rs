@@ -97,7 +97,7 @@ pub fn dialect() -> Dialect {
     //         // String
     //         Sequence::new(vec_of_erased![
     //             one_of(vec_of_erased![Ref::keyword("CHAR"),
-    // Ref::keyword("VARCHAR")]),             
+    // Ref::keyword("VARCHAR")]),
     // Ref::new("BracketedArguments").optional(),         ]),
     //         Ref::keyword("VARBINARY"),
     //         Ref::keyword("JSON"),
@@ -184,6 +184,43 @@ pub fn dialect() -> Dialect {
             Ref::keyword("ROW"),
             Ref::new("RowTypeSchemaSegment").optional(),
         ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    //class RowTypeSchemaSegment(BaseSegment):
+    //     """Expression to construct the schema of a ROW datatype."""
+    //
+    //     type = "struct_type_schema"
+    //     match_grammar = Bracketed(
+    //         Delimited(  # Comma-separated list of field names/types
+    //             Sequence(
+    //                 OneOf(
+    //                     # ParameterNames can look like Datatypes so can't use
+    //                     # Optional=True here and instead do a OneOf in order
+    //                     # with DataType only first, followed by both.
+    //                     Ref("DatatypeSegment"),
+    //                     Sequence(
+    //                         Ref("ParameterNameSegment"),
+    //                         Ref("DatatypeSegment"),
+    //                     ),
+    //                 )
+    //             )
+    //         )
+    //     )
+
+    // Expression to construct the schema of a ROW datatype.
+    trino_dialect.add([(
+        "RowTypeSchemaSegment".into(),
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
+            vec_of_erased![one_of(vec_of_erased![
+                Ref::new("DatatypeSegment"),
+                Sequence::new(vec_of_erased![
+                    Ref::new("ParameterNameSegment"),
+                    Ref::new("DatatypeSegment"),
+                ]),
+            ]),]
+        )])])
         .to_matchable()
         .into(),
     )]);
@@ -600,7 +637,6 @@ pub fn dialect() -> Dialect {
 mod tests {
     use expect_test::expect_file;
     use itertools::Itertools;
-    use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
     use crate::core::config::{FluffConfig, Value};
     use crate::core::linter::core::Linter;
@@ -632,7 +668,7 @@ mod tests {
         let files =
             glob::glob("test/fixtures/dialects/trino/*.sql").unwrap().flatten().collect_vec();
 
-        files.par_iter().for_each(|file| {
+        files.iter().for_each(|file| {
             let _panic = helpers::enter_panic(file.display().to_string());
 
             let yaml = file.with_extension("yml");

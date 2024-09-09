@@ -6,7 +6,8 @@ use crate::core::parser::grammar::anyof::{one_of, AnyNumberOf};
 use crate::core::parser::grammar::base::{Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
-use crate::core::parser::parsers::TypedParser;
+use crate::core::parser::lexer::Matcher;
+use crate::core::parser::parsers::{StringParser, TypedParser};
 use crate::dialects::ansi::NodeMatcher;
 use crate::dialects::trino_keywords::{RESERVED_WORDS, UNRESERVED_WORDS};
 use crate::dialects::{ansi, SyntaxKind};
@@ -33,6 +34,30 @@ pub fn dialect() -> Dialect {
         .update_keywords_set_from_multiline_string("unreserved_keywords", UNRESERVED_WORDS);
     trino_dialect.sets_mut("reserved_keywords").clear();
     trino_dialect.update_keywords_set_from_multiline_string("reserved_keywords", RESERVED_WORDS);
+
+    trino_dialect.insert_lexer_matchers(
+        vec![Matcher::string("right_arrow", "->", SyntaxKind::RightArrow)],
+        "like_operator",
+    );
+
+    // trino_dialect.add(
+    //     RightArrowOperator=StringParser("->", SymbolSegment,
+    // type="binary_operator"),     StartAngleBracketSegment=StringParser(
+    //         "<", SymbolSegment, type="start_angle_bracket"
+    //     ),
+    //     EndAngleBracketSegment=StringParser(">", SymbolSegment,
+    // type="end_angle_bracket"), )
+    trino_dialect.add([
+        ("RightArrowOperator".into(), StringParser::new("->", SyntaxKind::BinaryOperator).into()),
+        (
+            "StartAngleBracketSegment".into(),
+            StringParser::new("<", SyntaxKind::StartAngleBracket).into(),
+        ),
+        (
+            "EndAngleBracketSegment".into(),
+            StringParser::new(">", SyntaxKind::EndAngleBracket).into(),
+        ),
+    ]);
 
     trino_dialect.bracket_sets_mut("angle_bracket_pairs").clear();
     trino_dialect.bracket_sets_mut("angle_bracket_pairs").extend([(

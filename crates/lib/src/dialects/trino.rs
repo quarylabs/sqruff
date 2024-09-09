@@ -572,7 +572,7 @@ pub fn dialect() -> Dialect {
                 ]),
             ]),
         ])
-        .to_matchable(),
+        .to_matchable().into(),
     )]);
 
     // Prefix for array literals optionally specifying the type.

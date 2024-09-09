@@ -62,7 +62,6 @@ pub fn dialect() -> Dialect {
         ),
     ]);
 
-    trino_dialect.bracket_sets_mut("angle_bracket_pairs").clear();
     trino_dialect.bracket_sets_mut("angle_bracket_pairs").extend([(
         "angle",
         "StartAngleBracketSegment",
@@ -603,8 +602,10 @@ pub fn dialect() -> Dialect {
     trino_dialect.add([(
         "ArrayTypeSchemaSegment".into(),
         one_of(vec_of_erased![
-            Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")])
-                .config(|c| c.bracket_type = "angle"),
+            Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]).config(|c| {
+                c.bracket_type = "angle";
+                c.bracket_pairs_set = "angle_bracket_pairs"
+            }),
             Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")])
                 .config(|c| c.bracket_type = "round"),
         ])

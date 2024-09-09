@@ -35,18 +35,12 @@ pub fn dialect() -> Dialect {
     trino_dialect.sets_mut("reserved_keywords").clear();
     trino_dialect.update_keywords_set_from_multiline_string("reserved_keywords", RESERVED_WORDS);
 
+    //     # Regexp Replace w/ Lambda: https://trino.io/docs/422/functions/regexp.html
     trino_dialect.insert_lexer_matchers(
         vec![Matcher::string("right_arrow", "->", SyntaxKind::RightArrow)],
         "like_operator",
     );
 
-    // trino_dialect.add(
-    //     RightArrowOperator=StringParser("->", SymbolSegment,
-    // type="binary_operator"),     StartAngleBracketSegment=StringParser(
-    //         "<", SymbolSegment, type="start_angle_bracket"
-    //     ),
-    //     EndAngleBracketSegment=StringParser(">", SymbolSegment,
-    // type="end_angle_bracket"), )
     trino_dialect.add([
         (
             "RightArrowOperator".into(),
@@ -68,6 +62,10 @@ pub fn dialect() -> Dialect {
         "EndAngleBracketSegment",
         false,
     )]);
+
+    trino_dialect.patch_lexer_matchers(vec![
+        Matcher::regex("double_quote", r#""([^"]|"")*""#, SyntaxKind::DoubleQuote),
+    ]);
 
     trino_dialect.add([
         (

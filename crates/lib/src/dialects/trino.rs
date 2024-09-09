@@ -63,9 +63,11 @@ pub fn dialect() -> Dialect {
         false,
     )]);
 
-    trino_dialect.patch_lexer_matchers(vec![
-        Matcher::regex("double_quote", r#""([^"]|"")*""#, SyntaxKind::DoubleQuote),
-    ]);
+    trino_dialect.patch_lexer_matchers(vec![Matcher::regex(
+        "double_quote",
+        r#""([^"]|"")*""#,
+        SyntaxKind::DoubleQuote,
+    )]);
 
     trino_dialect.add([
         (
@@ -342,6 +344,20 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
+    trino_dialect.replace_grammar(
+        "BinaryOperatorGrammar",
+        one_of(vec_of_erased![
+            Ref::new("ArithmeticBinaryOperatorGrammar"),
+            Ref::new("StringBinaryOperatorGrammar"),
+            Ref::new("BooleanBinaryOperatorGrammar"),
+            Ref::new("ComparisonOperatorGrammar"),
+            // Add arrow operators for functions (e.g. regexp_replace)
+            Ref::new("RightArrowOperator"),
+        ])
+        .to_matchable()
+        .into(),
+    );
+
     // An `OVERLAPS` clause like in `SELECT`.
     trino_dialect.add([(
         "OverlapsClauseSegment".into(),
@@ -542,26 +558,21 @@ pub fn dialect() -> Dialect {
     // https://trino.io/docs/current/functions/aggregate.html#array_agg
     trino_dialect.add([(
         "ListaggOverflowClauseSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::ListaggOverflowClauseSegment,
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ON"),
-                Ref::keyword("OVERFLOW"),
-                one_of(vec_of_erased![
-                    Ref::keyword("ERROR"),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("TRUNCATE"),
-                        Ref::new("SingleQuotedIdentifierSegment").optional(),
-                        one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT"),])
-                            .config(|c| c.optional()),
-                        Ref::keyword("COUNT").optional(),
-                    ]),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ON"),
+            Ref::keyword("OVERFLOW"),
+            one_of(vec_of_erased![
+                Ref::keyword("ERROR"),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TRUNCATE"),
+                    Ref::new("SingleQuotedIdentifierSegment").optional(),
+                    one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT"),])
+                        .config(|c| c.optional()),
+                    Ref::keyword("COUNT").optional(),
                 ]),
-            ])
-            .to_matchable(),
-        )
-        .to_matchable()
-        .into(),
+            ]),
+        ])
+        .to_matchable(),
     )]);
 
     // Prefix for array literals optionally specifying the type.

@@ -605,7 +605,6 @@ pub enum SyntaxKind {
     ArrayUnnesting,
     AlterGroup,
     CreateGroup,
-    ListaggOverflowClauseSegment,
     UnorderedSelectStatementSegment,
 }
 

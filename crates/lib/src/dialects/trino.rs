@@ -464,7 +464,7 @@ mod tests {
     use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
     use crate::core::config::{FluffConfig, Value};
-    use crate::core::linter::linter::Linter;
+    use crate::core::linter::core::Linter;
     use crate::core::parser::segments::base::{ErasedSegment, Tables};
     use crate::helpers;
 

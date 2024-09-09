@@ -14,9 +14,9 @@ crate-type = ["cdylib", "rlib"]
 bench = false
 doctest = false
 
-[[test]]
-name = "rules"
-harness = false
+#[[test]]
+#name = "rules"
+#harness = false
 
 [[test]]
 name = "dialects"

@@ -153,7 +153,16 @@ pub fn dialect() -> Dialect {
             Ref::keyword("VARBINARY"),
             Ref::keyword("JSON"),
             // Date and time
-            Sequence::new(vec_of_erased![Ref::keyword("DATE"),]),
+            Ref::keyword("DATE"),
+            Sequence::new(vec_of_erased![
+                one_of(vec_of_erased![Ref::keyword("TIME"), Ref::keyword("TIMESTAMP")]),
+                Ref::new("BracketedArguments").optional(),
+                Sequence::new(vec_of_erased![
+                    one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+                    Ref::keyword("TIME"),
+                    Ref::keyword("ZONE"),
+                ]).config(|c| c.optional()),
+            ]),
             // TODO Fix the next line
             // Sequence::new(vec_of_erased![
             //     one_of(vec_of_erased![Ref::keyword("TIME"),

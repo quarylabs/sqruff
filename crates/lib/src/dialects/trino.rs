@@ -34,6 +34,14 @@ pub fn dialect() -> Dialect {
     trino_dialect.sets_mut("reserved_keywords").clear();
     trino_dialect.update_keywords_set_from_multiline_string("reserved_keywords", RESERVED_WORDS);
 
+    trino_dialect.bracket_sets_mut("angle_bracket_pairs").clear();
+    trino_dialect.bracket_sets_mut("angle_bracket_pairs").extend([(
+        "angle",
+        "StartAngleBracketSegment",
+        "EndAngleBracketSegment",
+        false,
+    )]);
+
     trino_dialect.add([
         (
             "DateTimeLiteralGrammar".into(),
@@ -571,7 +579,9 @@ pub fn dialect() -> Dialect {
                 .config(|c| c.bracket_type = "angle"),
             Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")])
                 .config(|c| c.bracket_type = "round"),
-        ]).to_matchable().into(),
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     // `COMMENT ON` statement. https://trino.io/docs/current/sql/comment.html

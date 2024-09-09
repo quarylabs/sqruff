@@ -546,6 +546,7 @@ pub fn dialect() -> Dialect {
                 Ref::keyword("WITHIN"),
                 Ref::keyword("GROUP"),
                 Bracketed::new(vec_of_erased![Ref::new("OrderByClauseSegment").optional()]),
+                Ref::new("FilterClauseGrammar").optional(),
             ])
             .to_matchable(),
         )

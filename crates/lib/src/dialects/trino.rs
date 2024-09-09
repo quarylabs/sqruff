@@ -163,18 +163,6 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("ZONE"),
                 ]).config(|c| c.optional()),
             ]),
-            // TODO Fix the next line
-            // Sequence::new(vec_of_erased![
-            //     one_of(vec_of_erased![Ref::keyword("TIME"),
-            // Ref::keyword("TIMESTAMP")]).to_matchable(),     Ref::new("
-            // BracketedArguments").optional().to_matchable(),
-            //     Sequence::new(vec_of_erased![
-            //         one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
-            //         Ref::keyword("TIME"),
-            //         Ref::keyword("ZONE"),
-            //     ])
-            //     .optional().into(),
-            // ]).to_matchable(),
             // Structural
             Ref::new("ArrayTypeSegment"),
             Ref::keyword("MAP"),
@@ -196,27 +184,6 @@ pub fn dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
-
-    //class RowTypeSchemaSegment(BaseSegment):
-    //     """Expression to construct the schema of a ROW datatype."""
-    //
-    //     type = "struct_type_schema"
-    //     match_grammar = Bracketed(
-    //         Delimited(  # Comma-separated list of field names/types
-    //             Sequence(
-    //                 OneOf(
-    //                     # ParameterNames can look like Datatypes so can't use
-    //                     # Optional=True here and instead do a OneOf in order
-    //                     # with DataType only first, followed by both.
-    //                     Ref("DatatypeSegment"),
-    //                     Sequence(
-    //                         Ref("ParameterNameSegment"),
-    //                         Ref("DatatypeSegment"),
-    //                     ),
-    //                 )
-    //             )
-    //         )
-    //     )
 
     // Expression to construct the schema of a ROW datatype.
     trino_dialect.add([(
@@ -457,6 +424,7 @@ pub fn dialect() -> Dialect {
     )]);
 
     // A frame clause for window functions.
+    // https://trino.io/blog/2021/03/10/introducing-new-window-features.html
     let frame_extent = one_of(vec_of_erased![
         Sequence::new(vec_of_erased![Ref::keyword("CURRENT"), Ref::keyword("ROW"),]),
         Sequence::new(vec_of_erased![

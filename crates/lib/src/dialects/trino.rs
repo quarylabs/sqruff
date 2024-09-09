@@ -48,14 +48,17 @@ pub fn dialect() -> Dialect {
     //     EndAngleBracketSegment=StringParser(">", SymbolSegment,
     // type="end_angle_bracket"), )
     trino_dialect.add([
-        ("RightArrowOperator".into(), StringParser::new("->", SyntaxKind::BinaryOperator).into()),
+        (
+            "RightArrowOperator".into(),
+            StringParser::new("->", SyntaxKind::BinaryOperator).to_matchable().into(),
+        ),
         (
             "StartAngleBracketSegment".into(),
-            StringParser::new("<", SyntaxKind::StartAngleBracket).into(),
+            StringParser::new("<", SyntaxKind::StartAngleBracket).to_matchable().into(),
         ),
         (
             "EndAngleBracketSegment".into(),
-            StringParser::new(">", SyntaxKind::EndAngleBracket).into(),
+            StringParser::new(">", SyntaxKind::EndAngleBracket).to_matchable().into(),
         ),
     ]);
 

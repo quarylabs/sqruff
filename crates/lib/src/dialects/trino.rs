@@ -75,57 +75,7 @@ pub fn dialect() -> Dialect {
         .into(),
     )]);
 
-    // trino_dialect.add([(
-    //     "DataTypeSegment".into(),
-    //     one_of(vec_of_erased![
-    //         // Boolean
-    //         Ref::keyword("BOOLEAN"),
-    //         // Integer
-    //         Ref::keyword("TINYINT"),
-    //         Ref::keyword("SMALLINT"),
-    //         Ref::keyword("INTEGER"),
-    //         Ref::keyword("INT"),
-    //         Ref::keyword("BIGINT"),
-    //         // Floating-point
-    //         Ref::keyword("REAL"),
-    //         Ref::keyword("DOUBLE"),
-    //         // Fixed-precision
-    //         Sequence::new(vec_of_erased![
-    //             Ref::keyword("DECIMAL"),
-    //             Ref::new("BracketedArguments").optional(),
-    //         ]),
-    //         // String
-    //         Sequence::new(vec_of_erased![
-    //             one_of(vec_of_erased![Ref::keyword("CHAR"),
-    // Ref::keyword("VARCHAR")]),
-    // Ref::new("BracketedArguments").optional(),         ]),
-    //         Ref::keyword("VARBINARY"),
-    //         Ref::keyword("JSON"),
-    //         // Date and time
-    //         Sequence::new(vec_of_erased![Ref::keyword("DATE"),]),
-    //         // TODO Fix the next line
-    //         // Sequence::new(vec_of_erased![
-    //         //     one_of(vec_of_erased![Ref::keyword("TIME"),
-    // Ref::keyword("TIMESTAMP")]).to_matchable(),         //
-    // Ref::new("BracketedArguments").optional().to_matchable(),         //
-    // Sequence::new(vec_of_erased![         //
-    // one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
-    //         //         Ref::keyword("TIME"),
-    //         //         Ref::keyword("ZONE"),
-    //         //     ])
-    //         //     .optional().into(),
-    //         // ]).to_matchable(),
-    //         // Structural
-    //         Ref::new("ArrayTypeSegment"),
-    //         Ref::keyword("MAP"),
-    //         Ref::new("RowTypeSegment"),
-    //         // Others
-    //         Ref::keyword("IPADDRESS"),
-    //         Ref::keyword("UUID"),
-    //     ]).to_matchable().into(),
-    // )]);
-
-    // // Data type segment. See https://trino.io/docs/current/language/types.html
+    // Data type segment. See https://trino.io/docs/current/language/types.html
     trino_dialect.replace_grammar(
         "DatatypeSegment".into(),
         one_of(vec_of_erased![
@@ -161,7 +111,8 @@ pub fn dialect() -> Dialect {
                     one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
                     Ref::keyword("TIME"),
                     Ref::keyword("ZONE"),
-                ]).config(|c| c.optional()),
+                ])
+                .config(|c| c.optional()),
             ]),
             // Structural
             Ref::new("ArrayTypeSegment"),
@@ -578,6 +529,49 @@ pub fn dialect() -> Dialect {
         )
         .to_matchable()
         .into(),
+    )]);
+
+    // Prefix for array literals optionally specifying the type.
+    trino_dialect.add([(
+        "ArrayTypeSegment".into(),
+        Sequence::new(vec_of_erased![
+            Ref::keyword("ARRAY"),
+            Ref::new("ArrayTypeSchemaSegment").optional()
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    //     """Data type segment of the array.
+    //
+    //     Trino supports ARRAY(DATA_TYPE) and ARRAY<DATA_TYPE>
+    //     """
+    //
+    //     type = "array_type_schema"
+    //     match_grammar = OneOf(
+    //         Bracketed(
+    //             Ref("DatatypeSegment"),
+    //             bracket_pairs_set="angle_bracket_pairs",
+    //             bracket_type="angle",
+    //         ),
+    //         Bracketed(
+    //             Ref("DatatypeSegment"),
+    //             bracket_pairs_set="bracket_pairs",
+    //             bracket_type="round",
+    //         ),
+    //     )
+
+    // Data type segment of the array.
+    // Trino supports ARRAY(DATA_TYPE) and ARRAY<DATA_TYPE>
+    trino_dialect.add([(
+        "ArrayTypeSchemaSegment".into(),
+        one_of(vec_of_erased![
+            Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")])
+                .config(|c| c.bracket_type = "angle"),
+            Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")])
+                .config(|c| c.bracket_type = "round"),
+        ]).to_matchable().into(),
     )]);
 
     // `COMMENT ON` statement. https://trino.io/docs/current/sql/comment.html

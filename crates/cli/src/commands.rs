@@ -9,7 +9,7 @@ pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
     /// Path to a configuration file.
-    #[arg(long)]
+    #[arg(long, global = true)]
     pub config: Option<String>,
 }
 

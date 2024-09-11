@@ -1,8 +1,9 @@
 use itertools::Itertools;
-use smol_str::SmolStr;
+use smol_str::{SmolStr, ToSmolStr};
 
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
+use crate::core::dialects::init::DialectKind;
 use crate::core::parser::segments::base::ErasedSegment;
 use crate::dialects::ansi::{
     FromClauseSegment, JoinClauseSegment, ObjectReferenceSegment, SelectClauseElementSegment,
@@ -204,9 +205,65 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
     pivot_table_column_aliases
 }
 
-fn get_lambda_argument_columns(
-    _segment: &ErasedSegment,
-    _dialect: Option<&Dialect>,
-) -> Vec<SmolStr> {
-    Vec::new()
+fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<SmolStr> {
+    let Some(dialect) = dialect else {
+        return Vec::new();
+    };
+
+    if !matches!(dialect.name, DialectKind::Athena | DialectKind::Sparksql) {
+        return Vec::new();
+    }
+
+    let mut lambda_argument_columns = Vec::new();
+    for potential_lambda in segment.recursive_crawl(
+        const { &SyntaxSet::single(SyntaxKind::Expression) },
+        true,
+        &SyntaxSet::EMPTY,
+        true,
+    ) {
+        let Some(potential_arrow) =
+            potential_lambda.child(&SyntaxSet::single(SyntaxKind::BinaryOperator))
+        else {
+            continue;
+        };
+
+        if potential_arrow.raw() == "->" {
+            let arrow_operator = &potential_arrow;
+            let mut argument_segments = potential_lambda.select_children(
+                None,
+                Some(arrow_operator),
+                Some(|it: &ErasedSegment| {
+                    matches!(it.get_type(), SyntaxKind::Bracketed | SyntaxKind::ColumnReference)
+                }),
+                None,
+            );
+
+            assert_eq!(argument_segments.len(), 1);
+            let child_segment = argument_segments.pop().unwrap();
+
+            match child_segment.get_type() {
+                SyntaxKind::Bracketed => {
+                    let start_bracket =
+                        child_segment.child(&SyntaxSet::single(SyntaxKind::StartBracket)).unwrap();
+
+                    if start_bracket.raw() == "(" {
+                        let bracketed_arguments =
+                            child_segment.children(&SyntaxSet::single(SyntaxKind::ColumnReference));
+
+                        lambda_argument_columns.extend(
+                            bracketed_arguments
+                                .into_iter()
+                                .map(|argument| argument.raw().to_smolstr()),
+                        )
+                    }
+                }
+                SyntaxKind::ColumnReference => {
+                    lambda_argument_columns.push(child_segment.raw().to_smolstr())
+                }
+                _ => {}
+            }
+        }
+    }
+
+    lambda_argument_columns
 }

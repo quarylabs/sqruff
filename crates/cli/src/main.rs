@@ -20,6 +20,10 @@ mod docs;
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
+#[cfg(target_os = "windows")]
+#[global_allocator]
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 #[cfg_attr(feature = "codegen-docs", allow(unreachable_code))]
 fn main() {
     #[cfg(feature = "codegen-docs")]

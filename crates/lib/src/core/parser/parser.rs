@@ -5,7 +5,7 @@ use crate::core::config::FluffConfig;
 use crate::core::errors::SQLParseError;
 use crate::dialects::ansi::FileSegment;
 
-/// Instantiates parsed queries from a sequence of lexed raw segments.
+#[derive(Clone)]
 pub struct Parser<'a> {
     config: &'a FluffConfig,
     root_segment: FileSegment,

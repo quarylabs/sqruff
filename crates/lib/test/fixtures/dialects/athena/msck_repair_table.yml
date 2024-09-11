@@ -1,0 +1,9 @@
+file:
+- statement:
+  - msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+- statement_terminator: ;

@@ -1,0 +1,9 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: viewname
+- statement_terminator: ;

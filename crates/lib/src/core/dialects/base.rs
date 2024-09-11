@@ -22,7 +22,7 @@ pub struct Dialect {
     // TODO: Can we use PHF here? https://crates.io/crates/phf
     library: AHashMap<Cow<'static, str>, DialectElementType>,
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
-    bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,
+    pub bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,
 }
 
 impl PartialEq for Dialect {

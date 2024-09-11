@@ -1,0 +1,29 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: sampledb
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - quoted_literal: '''*myregex*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: sampledb
+    - quoted_literal: '''*myregex*'''
+- statement_terminator: ;

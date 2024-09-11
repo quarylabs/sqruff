@@ -1,0 +1,36 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: field_1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: field_2
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: field_3
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: time
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: date
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: timestamp
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: my_table
+- statement_terminator: ;

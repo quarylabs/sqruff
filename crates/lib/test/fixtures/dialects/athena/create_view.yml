@@ -1,0 +1,73 @@
+file:
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: test
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: orderkey
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: orderstatus
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: totalprice
+            - binary_operator: /
+            - numeric_literal: '2'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: half
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: orders
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: test
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: orderkey
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: orderstatus
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: totalprice
+            - binary_operator: /
+            - numeric_literal: '4'
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: quarter
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: orders
+- statement_terminator: ;

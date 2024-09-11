@@ -160,21 +160,30 @@ pub fn raw_dialect() -> Dialect {
     //   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
     ansi_dialect.sets_mut("value_table_functions");
 
-    ansi_dialect.add([(
-        "ObjectReferenceSegment".into(),
-        NodeMatcher::new(
-            SyntaxKind::ObjectReference,
-            Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
-                .config(|this| {
-                    this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
-                    this.disallow_gaps();
-                    this.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
-                })
-                .to_matchable(),
-        )
-        .to_matchable()
-        .into(),
-    )]);
+    ansi_dialect.add([
+        (
+            "ArrayTypeSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::ArrayType, Nothing::new().to_matchable())
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ObjectReferenceSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::ObjectReference,
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").boxed()])
+                    .config(|this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.disallow_gaps();
+                        this.terminators =
+                            vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+                    })
+                    .to_matchable(),
+            )
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     ansi_dialect.add([
         // Real segments

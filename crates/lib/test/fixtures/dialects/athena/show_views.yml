@@ -1,0 +1,31 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: sampledb
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: LIKE
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: IN
+    - database_reference:
+      - naked_identifier: sampledb
+    - keyword: LIKE
+    - quoted_literal: '''regex*'''
+- statement_terminator: ;

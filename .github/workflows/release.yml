@@ -5,9 +5,20 @@ on:
   workflow_dispatch:
 
 jobs:
+  convert-release-as-draft:
+    name: Convert release to draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x .hacking/scripts/convert_release_to_draft.sh
+      - run: .hacking/scripts/convert_release_to_draft.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   check-versions-match:
     name: Check versions match
     runs-on: ubuntu-latest
+    needs:
+      - convert-release-as-draft
     steps:
       - uses: actions/checkout@v4
       - name: Install jq

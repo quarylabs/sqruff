@@ -17,8 +17,8 @@ use crate::core::parser::grammar::conditional::Conditional;
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::{Matcher, Pattern};
-use crate::core::parser::match_result::{MatchResult, Matched};
 use crate::core::parser::matchable::Matchable;
+use crate::core::parser::node_matcher::NodeMatcher;
 use crate::core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use crate::core::parser::segments::bracketed::BracketedSegmentMatcher;
@@ -26,13 +26,7 @@ use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
 use crate::helpers::{Config, ToMatchable};
-
-#[macro_export]
-macro_rules! vec_of_erased {
-    ($($elem:expr),* $(,)?) => {{
-        vec![$(Arc::new($elem)),*]
-    }};
-}
+use crate::vec_of_erased;
 
 trait BoxedE {
     fn boxed(self) -> Arc<Self>;
@@ -46,56 +40,6 @@ impl<T> BoxedE for T {
         Arc::new(self)
     }
 }
-
-#[derive(Debug, Clone)]
-pub struct NodeMatcher {
-    node_kind: SyntaxKind,
-    pub(crate) match_grammar: Arc<dyn Matchable>,
-}
-
-impl NodeMatcher {
-    pub fn new(node_kind: SyntaxKind, match_grammar: Arc<dyn Matchable>) -> Self {
-        Self { node_kind, match_grammar }
-    }
-}
-
-impl PartialEq for NodeMatcher {
-    fn eq(&self, _other: &Self) -> bool {
-        todo!()
-    }
-}
-
-impl Matchable for NodeMatcher {
-    fn get_type(&self) -> SyntaxKind {
-        self.node_kind
-    }
-
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
-        self.match_grammar.clone().into()
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        if idx >= segments.len() as u32 {
-            return Ok(MatchResult::empty_at(idx));
-        }
-
-        if segments[idx as usize].get_type() == self.get_type() {
-            return Ok(MatchResult::from_span(idx, idx + 1));
-        }
-
-        let grammar = self.match_grammar().unwrap();
-        let match_result = parse_context
-            .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
-
-        Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
-    }
-}
-
 pub fn dialect() -> Dialect {
     raw_dialect().config(|this| this.expand())
 }

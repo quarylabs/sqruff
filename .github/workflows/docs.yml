@@ -1,6 +1,8 @@
 on:
   pull_request:
 name: codegen-docs
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
   codegen-docs:
     name: codegen-docs

@@ -30,7 +30,6 @@ pub enum DialectKind {
     Snowflake,
     Sparksql,
     Sqlite,
-    Trino,
 }
 
 impl From<DialectKind> for Dialect {
@@ -46,7 +45,6 @@ impl From<DialectKind> for Dialect {
             DialectKind::Snowflake => crate::dialects::snowflake::dialect(),
             DialectKind::Sparksql => crate::dialects::sparksql::dialect(),
             DialectKind::Sqlite => crate::dialects::sqlite::dialect(),
-            DialectKind::Trino => crate::dialects::trino::dialect(),
         }
     }
 }

@@ -18,8 +18,6 @@ pub mod sparksql;
 pub mod sparksql_keywords;
 pub mod sqlite;
 pub mod sqlite_keywords;
-pub mod trino;
-pub mod trino_keywords;
 
 #[derive(
     Debug,

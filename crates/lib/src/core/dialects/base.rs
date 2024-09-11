@@ -8,9 +8,9 @@ use ahash::{AHashMap, AHashSet};
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::lexer::Matcher;
 use crate::core::parser::matchable::Matchable;
+use crate::core::parser::node_matcher::NodeMatcher;
 use crate::core::parser::parsers::StringParser;
 use crate::core::parser::types::DialectElementType;
-use crate::dialects::ansi::NodeMatcher;
 use crate::dialects::SyntaxKind;
 use crate::helpers::capitalize;
 

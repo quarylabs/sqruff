@@ -5,7 +5,6 @@ use std::sync::Arc;
 
 use itertools::Itertools;
 
-use super::ansi::NodeMatcher;
 use super::SyntaxKind;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::DialectKind;
@@ -14,6 +13,7 @@ use crate::core::parser::grammar::base::{Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
+use crate::core::parser::node_matcher::NodeMatcher;
 use crate::core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;

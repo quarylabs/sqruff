@@ -9,11 +9,11 @@ use crate::core::parser::grammar::base::{Anything, Nothing, Ref};
 use crate::core::parser::grammar::delimited::Delimited;
 use crate::core::parser::grammar::sequence::{Bracketed, Sequence};
 use crate::core::parser::lexer::Matcher;
+use crate::core::parser::node_matcher::NodeMatcher;
 use crate::core::parser::parsers::RegexParser;
 use crate::core::parser::segments::generator::SegmentGenerator;
 use crate::core::parser::segments::meta::MetaSegment;
 use crate::core::parser::types::ParseMode;
-use crate::dialects::ansi::NodeMatcher;
 use crate::dialects::redshift_keywords::{
     REDSHIFT_RESERVED_KEYWORDS, REDSHIFT_UNRESERVED_KEYWORDS,
 };

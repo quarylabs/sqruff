@@ -1,5 +1,7 @@
 pub mod ansi;
 pub mod ansi_keywords;
+pub mod athena;
+pub mod athena_keywords;
 pub mod bigquery;
 pub mod bigquery_keywords;
 pub mod clickhouse;
@@ -607,6 +609,10 @@ pub enum SyntaxKind {
     CreateGroup,
     ListaggOverflowClauseSegment,
     UnorderedSelectStatementSegment,
+    MapType,
+    MapTypeSchema,
+    PrepareStatement,
+    ExecuteStatement,
 }
 
 impl SyntaxKind {

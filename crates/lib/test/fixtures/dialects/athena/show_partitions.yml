@@ -1,0 +1,8 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - naked_identifier: tablename
+- statement_terminator: ;

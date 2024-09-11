@@ -21,6 +21,7 @@ use super::base::Dialect;
 pub enum DialectKind {
     #[default]
     Ansi,
+    Athena,
     Bigquery,
     Clickhouse,
     Duckdb,
@@ -36,6 +37,7 @@ impl From<DialectKind> for Dialect {
     fn from(val: DialectKind) -> Self {
         match val {
             DialectKind::Ansi => crate::dialects::ansi::dialect(),
+            DialectKind::Athena => crate::dialects::athena::dialect(),
             DialectKind::Bigquery => crate::dialects::bigquery::dialect(),
             DialectKind::Clickhouse => crate::dialects::clickhouse::dialect(),
             DialectKind::Duckdb => crate::dialects::duckdb::dialect(),

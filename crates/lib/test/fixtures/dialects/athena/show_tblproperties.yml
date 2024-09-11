@@ -1,0 +1,19 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TBLPROPERTIES
+    - table_reference:
+      - naked_identifier: tablename
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: TBLPROPERTIES
+    - table_reference:
+      - naked_identifier: tablename
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''tblname'''
+      - end_bracket: )
+- statement_terminator: ;

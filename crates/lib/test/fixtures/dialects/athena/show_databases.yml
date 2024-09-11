@@ -1,0 +1,13 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - keyword: LIKE
+    - quoted_literal: '''regex'''
+- statement_terminator: ;

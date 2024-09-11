@@ -1,0 +1,101 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: _
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: __
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: __TEST
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - bracketed:
+            - start_bracket: (
+            - table_expression:
+              - values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''a'''
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''b'''
+                  - end_bracket: )
+            - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: _
+            - bracketed:
+              - start_bracket: (
+              - identifier_list:
+                - naked_identifier: a
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - bracketed:
+            - start_bracket: (
+            - table_expression:
+              - values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''a'''
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''b'''
+                  - end_bracket: )
+            - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: __
+            - bracketed:
+              - start_bracket: (
+              - identifier_list:
+                - naked_identifier: a
+              - end_bracket: )
+- statement_terminator: ;

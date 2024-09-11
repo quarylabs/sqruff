@@ -26,6 +26,7 @@ Sqruff currently supports the following SQL dialects:
 
 - **ANSI SQL** - Standard SQL syntax
 - [**BigQuery**](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
+- [**Athena**](https://docs.aws.amazon.com/athena/latest/ug/ddl-sql-reference.html)
 - [**Clickhouse**](https://clickhouse.com/docs/en/sql-reference/)
 - [**PostgreSQL**](https://www.postgresql.org/docs/current/sql.html)
 - [**Snowflake**](https://docs.snowflake.com/en/sql-reference.html)

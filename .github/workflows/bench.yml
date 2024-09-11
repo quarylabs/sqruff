@@ -1,5 +1,7 @@
 on: [pull_request]
 name: benchmark pull requests
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
   benchmark:
     name: run benchmark

@@ -7,6 +7,7 @@ env:
   CARGO_NET_RETRY: 10
   RUSTUP_MAX_RETRIES: 10
   RUST_BACKTRACE: short
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
   check-licenses-readmes-match:
     name: Check licenses match
@@ -49,22 +50,26 @@ jobs:
   typescript:
     name: TypeScript
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./editors/code
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
       - name: Install Nodejs
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@nightly
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-      - run: npm ci
-      - run: npm run build:wasm_lsp
-      - run: npm run check-types
-      - run: npm run lint
-      - run: npm run format:check
+      - run: cd editors/code && pnpm run build:wasm_lsp
+      - run: cd editors/code && pnpm run check-types
+      - run: cd editors/code && pnpm run lint
+      - run: cd editors/code && pnpm run format:check
   test:
     name: Test
     runs-on: ubuntu-latest

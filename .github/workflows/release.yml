@@ -3,7 +3,8 @@ on:
     tags:
       - "v*.*.*"
   workflow_dispatch:
-
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
   convert-release-as-draft:
     name: Convert release to draft
@@ -35,19 +36,22 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - check-versions-match
-    defaults:
-      run:
-        working-directory: ./editors/code
     steps:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
       - name: Install Nodejs
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-      - run: npm ci
-      - run: npm run package
+      - run: cd editors/code && pnpm run package
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:

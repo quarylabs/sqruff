@@ -3,19 +3,19 @@ use std::cell::RefCell;
 use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::SmolStr;
-
-use crate::core::config::Value;
-use crate::core::dialects::base::Dialect;
-use crate::core::dialects::common::AliasInfo;
-use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::object_reference::{
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::common::AliasInfo;
+use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::object_reference::{
     ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment,
 };
+
+use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
-use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::analysis::query::{Query, Selectable};
 
 #[derive(Debug, Default, Clone)]

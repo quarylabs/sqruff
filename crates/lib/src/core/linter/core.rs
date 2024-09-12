@@ -3,31 +3,35 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use ahash::{AHashMap, AHashSet, HashMapExt};
+use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use regex::Regex;
-use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::errors::{
+    SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError,
+};
+use sqruff_lib_core::helpers;
+use sqruff_lib_core::linter::compute_anchor_edit_info;
+use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
+use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::segments::fix::SourceFix;
+use sqruff_lib_core::templaters::base::TemplatedFile;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
 use super::runner::RunnerContext;
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
-use crate::core::dialects::base::Dialect;
-use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
-use crate::core::parser::lexer::{Lexer, StringOrTemplate};
-use crate::core::parser::parser::Parser;
-use crate::core::parser::segments::base::{ErasedSegment, Tables};
-use crate::core::parser::segments::fix::{AnchorEditInfo, SourceFix};
-use crate::core::rules::base::{ErasedRule, LintFix, LintPhase, RulePack};
-use crate::core::templaters::base::{TemplatedFile, Templater};
+use crate::core::rules::base::{ErasedRule, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
+use crate::templaters::Templater;
 
 pub struct Linter {
     config: FluffConfig,
@@ -594,7 +598,7 @@ impl Linter {
         let mut filtered_buffer = AHashSet::new();
 
         for fpath in buffer {
-            let npath = crate::helpers::normalize(&fpath).to_str().unwrap().to_string();
+            let npath = helpers::normalize(&fpath).to_str().unwrap().to_string();
             filtered_buffer.insert(npath);
         }
 
@@ -608,22 +612,12 @@ impl Linter {
     }
 }
 
-pub(crate) fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> FxHashMap<u32, AnchorEditInfo> {
-    let mut anchor_info = FxHashMap::new();
-
-    for fix in fixes {
-        let anchor_id = fix.anchor.id();
-        anchor_info.entry(anchor_id).or_insert_with(AnchorEditInfo::default).add(fix);
-    }
-
-    anchor_info
-}
-
 #[cfg(test)]
 mod tests {
+    use sqruff_lib_core::parser::segments::base::Tables;
+
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;
-    use crate::core::parser::segments::base::Tables;
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
         paths.into_iter().map(|path| path.replace(['/', '\\'], ".")).collect()

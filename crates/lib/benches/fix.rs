@@ -1,9 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 #[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
-use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::core::parser::segments::base::Tables;
+use sqruff_lib_core::parser::segments::base::Tables;
 
 #[cfg(all(
     not(target_os = "windows"),
@@ -67,7 +66,7 @@ ORDER BY
 fn fix(c: &mut Criterion) {
     let passes = [("fix_complex_query", COMPLEX_QUERY)];
 
-    let linter = Linter::new(FluffConfig::default(), None, None);
+    let linter = Linter::new(sqruff_lib::core::config::FluffConfig::default(), None, None);
     for (name, source) in passes {
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, source, None, None, None).unwrap();

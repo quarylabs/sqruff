@@ -1,13 +1,12 @@
 use ahash::AHashMap;
 use itertools::Itertools;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::rules::LintFix;
 
 use crate::core::config::Value;
-use crate::core::rules::base::{
-    Erased, ErasedRule, LintFix, LintPhase, LintResult, Rule, RuleGroups,
-};
+use crate::core::rules::base::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::dialects::SyntaxKind;
 use crate::utils::functional::segments::Segments;
 
 #[derive(Debug, Default, Clone)]

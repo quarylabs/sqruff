@@ -54,8 +54,8 @@ struct Templater {
     description: &'static str,
 }
 
-impl From<Box<dyn sqruff_lib::core::templaters::base::Templater>> for Templater {
-    fn from(value: Box<dyn sqruff_lib::core::templaters::base::Templater>) -> Self {
+impl From<Box<dyn sqruff_lib::templaters::Templater>> for Templater {
+    fn from(value: Box<dyn sqruff_lib::templaters::Templater>) -> Self {
         Templater { name: value.name(), description: value.description() }
     }
 }

@@ -1,10 +1,10 @@
 use ahash::{AHashMap, AHashSet};
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, TokenSeekerCrawler};
-use crate::dialects::SyntaxKind;
 
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV09 {

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use sqruff_lib::helpers::Config;
+use sqruff_lib_core::helpers::Config;
 
 use crate::ir::{Expr, ExprKind, Tables};
 use crate::trie::{TrieNode, TrieResult};

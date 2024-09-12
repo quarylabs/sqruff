@@ -1,14 +1,17 @@
-pub mod context;
-pub mod grammar;
-mod helpers;
-pub mod lexer;
-pub mod markers;
-pub mod match_algorithms;
-pub mod match_result;
-pub mod matchable;
-pub mod node_matcher;
-#[allow(clippy::module_inception)]
-pub mod parser;
-pub mod parsers;
-pub mod segments;
-pub mod types;
+#[cfg(test)]
+mod tests {
+    use sqruff_lib_core::parser::segments::base::Tables;
+
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+
+    #[test]
+    #[ignore]
+    fn test_parser_parse_error() {
+        let in_str = "SELECT ;".to_string();
+        let config = FluffConfig::new(<_>::default(), None, None);
+        let linter = Linter::new(config, None, None);
+        let tables = Tables::default();
+        let _ = linter.parse_string(&tables, &in_str, None, None, None);
+    }
+}

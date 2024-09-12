@@ -1,11 +1,11 @@
 use ahash::AHashMap;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::al01::{Aliasing, RuleAL01};
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Clone)]

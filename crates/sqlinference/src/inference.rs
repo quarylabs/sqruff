@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use sqruff_lib::core::parser::parser::Parser;
+use sqruff_lib_core::parser::parser::Parser;
 
 use crate::infer_tests::{infer_tests, InferenceReason};
 use crate::test::Test;

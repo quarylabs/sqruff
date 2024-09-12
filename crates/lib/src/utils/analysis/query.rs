@@ -2,13 +2,13 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use smol_str::{SmolStr, ToSmolStr};
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::common::AliasInfo;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::helpers::IndexMap;
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 use super::select::SelectStatementColumnsAndTables;
-use crate::core::dialects::base::Dialect;
-use crate::core::dialects::common::AliasInfo;
-use crate::core::parser::segments::base::ErasedSegment;
-use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::IndexMap;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 

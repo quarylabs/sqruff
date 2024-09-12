@@ -5,9 +5,9 @@ use std::sync::Mutex;
 
 use anstyle::{AnsiColor, Effects, Style};
 use itertools::enumerate;
+use sqruff_lib_core::errors::SQLBaseError;
 
 use crate::core::config::FluffConfig;
-use crate::core::errors::SQLBaseError;
 use crate::core::linter::linted_file::LintedFile;
 
 const LIGHT_GREY: Style = AnsiColor::Black.on_default().effects(Effects::BOLD);
@@ -213,8 +213,7 @@ impl OutputStreamFormatter {
         let mut desc = format!("{severity}{desc}");
 
         if let Some(rule) = &violation.rule {
-            let text = self.colorize(rule.name(), LIGHT_GREY);
-
+            let text = self.colorize(rule.name, LIGHT_GREY);
             let text = format!(" [{text}]");
             desc.push_str(&text);
         }
@@ -297,21 +296,16 @@ impl Status {
 mod tests {
     use std::fs::File;
 
-    use ahash::AHashMap;
     use anstyle::AnsiColor;
     use fancy_regex::Regex;
+    use sqruff_lib_core::dialects::syntax::SyntaxKind;
+    use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
+    use sqruff_lib_core::parser::markers::PositionMarker;
+    use sqruff_lib_core::parser::segments::base::SegmentBuilder;
     use tempdir::TempDir;
 
     use super::OutputStreamFormatter;
     use crate::cli::formatters::split_string_on_spaces;
-    use crate::core::config::Value;
-    use crate::core::errors::SQLLintError;
-    use crate::core::parser::markers::PositionMarker;
-    use crate::core::parser::segments::base::SegmentBuilder;
-    use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
-    use crate::core::rules::context::RuleContext;
-    use crate::core::rules::crawlers::Crawler;
-    use crate::dialects::SyntaxKind;
 
     #[test]
     fn test_short_string() {
@@ -352,46 +346,6 @@ mod tests {
     fn test_cli_formatters_violation() {
         let (_temp, formatter) = mk_formatter();
 
-        #[derive(Debug, Clone)]
-        struct RuleGhost;
-
-        impl Rule for RuleGhost {
-            fn load_from_config(
-                &self,
-                _config: &AHashMap<String, Value>,
-            ) -> Result<ErasedRule, String> {
-                unimplemented!()
-            }
-
-            fn name(&self) -> &'static str {
-                "some-name"
-            }
-
-            fn description(&self) -> &'static str {
-                ""
-            }
-
-            fn long_description(&self) -> &'static str {
-                "Ghost rule for testing purposes"
-            }
-
-            fn groups(&self) -> &'static [RuleGroups] {
-                todo!()
-            }
-
-            fn code(&self) -> &'static str {
-                "A"
-            }
-
-            fn eval(&self, _: RuleContext) -> Vec<LintResult> {
-                todo!()
-            }
-
-            fn crawl_behaviour(&self) -> Crawler {
-                todo!()
-            }
-        }
-
         let s = SegmentBuilder::token(0, "foobarbar", SyntaxKind::Word)
             .with_position(PositionMarker::new(
                 10..19,
@@ -404,11 +358,11 @@ mod tests {
 
         let mut v = SQLLintError::new("DESC", s);
 
-        v.rule = Some(RuleGhost.erased());
+        v.rule = Some(ErrorStructRule { name: "some-name", code: "DESC" });
 
         let f = formatter.format_violation(v, 90);
 
-        assert_eq!(escape_ansi(&f), "L:   3 | P:   3 |    A | DESC [some-name]");
+        assert_eq!(escape_ansi(&f), "L:   3 | P:   3 | DESC | DESC [some-name]");
     }
 
     #[test]

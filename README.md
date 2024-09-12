@@ -28,11 +28,12 @@ Sqruff currently supports the following SQL dialects:
 - [**BigQuery**](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
 - [**Athena**](https://docs.aws.amazon.com/athena/latest/ug/ddl-sql-reference.html)
 - [**Clickhouse**](https://clickhouse.com/docs/en/sql-reference/)
+- [**DuckDB**](https://duckdb.org/docs/sql/introduction)
 - [**PostgreSQL**](https://www.postgresql.org/docs/current/sql.html)
 - [**Snowflake**](https://docs.snowflake.com/en/sql-reference.html)
 - [**SparkSql**](https://spark.apache.org/sql/)
 - [**SQLite**](https://www.sqlite.org/lang.html)
-- [**DuckDB**](https://duckdb.org/docs/sql/introduction)
+- [**Trino**](https://trino.io/docs/current/sql.html)
 
 While those above are the supported dialects, we are working on adding support for more dialects in the future.
 

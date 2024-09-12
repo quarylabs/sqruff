@@ -14,9 +14,11 @@ use smol_str::SmolStr;
 use crate::core::dialects::init::DialectKind;
 use crate::core::parser::markers::PositionMarker;
 use crate::core::parser::segments::fix::{AnchorEditInfo, FixPatch, SourceFix};
+use crate::core::parser::segments::object_reference::{
+    ObjectReferenceKind, ObjectReferenceSegment,
+};
 use crate::core::rules::base::EditType;
 use crate::core::templaters::base::TemplatedFile;
-use crate::dialects::ansi::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 
 pub struct SegmentBuilder {

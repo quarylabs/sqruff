@@ -8,11 +8,13 @@ use crate::core::config::Value;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::common::AliasInfo;
 use crate::core::dialects::init::DialectKind;
+use crate::core::parser::segments::object_reference::{
+    ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment,
+};
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
-use crate::dialects::ansi::{ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::analysis::query::{Query, Selectable};
 

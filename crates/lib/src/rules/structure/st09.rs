@@ -4,10 +4,11 @@ use smol_str::{SmolStr, StrExt, ToSmolStr};
 
 use crate::core::config::Value;
 use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder};
+use crate::core::parser::segments::from::FromExpressionElementSegment;
+use crate::core::parser::segments::join::JoinClauseSegment;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::{FromExpressionElementSegment, JoinClauseSegment};
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;

@@ -1,6 +1,11 @@
 pub mod base;
 pub mod bracketed;
+pub mod file;
 pub mod fix;
+pub mod from;
 pub mod generator;
+pub mod join;
 pub mod meta;
+pub mod object_reference;
+pub mod select;
 pub mod test_functions;

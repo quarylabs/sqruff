@@ -5,10 +5,10 @@ use smol_str::SmolStr;
 
 use crate::core::config::Value;
 use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
+use crate::core::parser::segments::object_reference::ObjectReferenceSegment;
 use crate::core::rules::base::{CloneRule, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::ObjectReferenceSegment;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::rules::aliasing::al04::RuleAL04;
 

@@ -11,10 +11,10 @@ use crate::core::dialects::common::AliasInfo;
 use crate::core::dialects::init::DialectKind;
 use crate::core::linter::core::compute_anchor_edit_info;
 use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use crate::core::parser::segments::object_reference::ObjectReferenceLevel;
 use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::ansi::ObjectReferenceLevel;
 use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::analysis::query::{Query, Selectable};
 use crate::utils::analysis::select::get_select_statement_info;
@@ -52,10 +52,6 @@ impl Rule for RuleST05 {
             forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
         }
         .erased())
-    }
-
-    fn is_fix_compatible(&self) -> bool {
-        true
     }
 
     fn name(&self) -> &'static str {
@@ -234,6 +230,10 @@ join c using(x)
         }
 
         lint_results
+    }
+
+    fn is_fix_compatible(&self) -> bool {
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

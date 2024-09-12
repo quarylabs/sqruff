@@ -6,8 +6,8 @@ use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
-use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
+use crate::core::parser::parser::Parser;
 use crate::dialects::SyntaxKind;
 use crate::helpers::IndexSet;
 
@@ -32,11 +32,19 @@ pub struct ParseContext<'a> {
     pub(crate) terminators: Vec<Arc<dyn Matchable>>,
     loc_keys: IndexSet<LocKeyData>,
     parse_cache: FxHashMap<CacheKey, MatchResult>,
-    pub(crate) indentation_config: AHashMap<String, bool>,
+    pub(crate) indentation_config: &'a AHashMap<String, bool>,
+}
+
+impl<'a> From<&'a Parser<'a>> for ParseContext<'a> {
+    fn from(parser: &'a Parser) -> Self {
+        let dialect = parser.dialect();
+        let indentation_config = &parser.indentation_config;
+        Self::new(dialect, indentation_config)
+    }
 }
 
 impl<'a> ParseContext<'a> {
-    pub fn new(dialect: &'a Dialect, indentation_config: AHashMap<String, bool>) -> Self {
+    pub fn new(dialect: &'a Dialect, indentation_config: &'a AHashMap<String, bool>) -> Self {
         Self {
             dialect,
             terminators: Vec::new(),
@@ -48,15 +56,6 @@ impl<'a> ParseContext<'a> {
 
     pub fn dialect(&self) -> &Dialect {
         self.dialect
-    }
-
-    pub fn from_config(config: &'a FluffConfig) -> Self {
-        let dialect = &config.dialect;
-        let indentation_config = config.raw["indentation"].as_map().unwrap();
-        let indentation_config: AHashMap<_, _> =
-            indentation_config.iter().map(|(key, value)| (key.clone(), value.to_bool())).collect();
-
-        Self::new(dialect, indentation_config)
     }
 
     pub(crate) fn deeper_match<T>(

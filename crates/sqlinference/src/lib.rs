@@ -10,7 +10,7 @@ pub mod test;
 
 pub fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = Tables::default();
-    let (tokens, _) = Linter::lex_templated_file(&tables, source.into(), parser.config());
+    let (tokens, _) = Linter::lex_templated_file(&tables, source.into(), parser.dialect());
 
     let tokens = tokens.unwrap_or_default();
     let tables = Tables::default();

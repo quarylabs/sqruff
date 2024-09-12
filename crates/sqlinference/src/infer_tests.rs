@@ -210,7 +210,7 @@ pub fn infer_tests(
                     .filter(|test| {
                         let (operation, group_by) = operation;
                         aggregate_is_test_inferrable(
-                            parser.config().get_dialect().name(),
+                            parser.dialect().name(),
                             test,
                             operation,
                             group_by,
@@ -378,7 +378,7 @@ pub fn get_column_with_source(
     select_statement: &str,
 ) -> Result<ExtractedSelect, String> {
     let ast = parse_sql(parser, select_statement);
-    let query: Query<()> = Query::from_root(&ast, parser.config().get_dialect()).unwrap();
+    let query: Query<()> = Query::from_root(&ast, parser.dialect()).unwrap();
     extract_select(&query)
 }
 
@@ -1423,7 +1423,7 @@ mod tests {
         ];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config);
+        let parser = (&config).into();
 
         for test in tests {
             let inferred_tests =
@@ -1534,7 +1534,7 @@ mod tests {
         ];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config);
+        let parser = (&config).into();
 
         for test in tests {
             let inferred_tests =
@@ -2131,7 +2131,7 @@ FROM q.stg_employees e) SELECT * FROM data",
         ];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config);
+        let parser = (&config).into();
 
         for test in tests {
             let inferred_tests =
@@ -2306,7 +2306,7 @@ GROUP BY department",
         }];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config);
+        let parser = (&config).into();
 
         for test in tests {
             let inferred_tests =
@@ -2397,7 +2397,7 @@ LEFT JOIN q.shift_last sl
         }];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config);
+        let parser = (&config).into();
 
         for test in tests {
             let inferred_tests =
@@ -2437,7 +2437,7 @@ LEFT JOIN q.shift_last sl
         ];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config);
+        let parser = (&config).into();
 
         for (sql, want) in tests {
             let selected = get_column_with_source(&parser, sql).unwrap();
@@ -2580,7 +2580,7 @@ from final",
         ];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config);
+        let parser = (&config).into();
 
         for (sql, expected_map_entries, expected_not_parseable, expected_count) in tests {
             let selected = get_column_with_source(&parser, sql).unwrap();

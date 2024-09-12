@@ -1,14 +1,15 @@
 use std::str::FromStr;
 
 use ahash::AHashMap;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::base::SegmentBuilder;
+use sqruff_lib_core::rules::LintFix;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::SegmentBuilder;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::{SyntaxKind, SyntaxSet};
 
 #[derive(Clone, Debug)]
 pub struct RuleAM05 {

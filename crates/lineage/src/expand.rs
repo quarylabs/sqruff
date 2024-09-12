@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use sqruff_lib::core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 use crate::ir::{lower_inner, specific_statement_segment, Expr, ExprKind, Tables};
 

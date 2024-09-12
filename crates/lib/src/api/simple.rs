@@ -2,11 +2,11 @@ use std::mem::take;
 use std::str::FromStr;
 
 use ahash::AHashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::errors::{SQLBaseError, SQLFluffUserError};
 
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
-use crate::core::dialects::init::DialectKind;
-use crate::core::errors::{SQLBaseError, SQLFluffUserError};
 use crate::core::linter::core::Linter;
 use crate::core::rules::base::ErasedRule;
 

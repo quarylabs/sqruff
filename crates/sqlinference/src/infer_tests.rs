@@ -1,11 +1,12 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
-use sqruff_lib::core::parser::parser::Parser;
-use sqruff_lib::core::parser::segments::base::ErasedSegment;
-use sqruff_lib::dialects::{SyntaxKind, SyntaxSet};
 use sqruff_lib::utils::analysis::query::Query;
 use sqruff_lib::utils::functional::segments::Segments;
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 use crate::aggregate_functions::aggregate_is_test_inferrable;
 use crate::infer_tests::Source::{UnderlyingColumn, UnderlyingColumnWithOperation};
@@ -748,7 +749,7 @@ fn join_operator(join: ErasedSegment) -> String {
 
 fn extract_extracted_from_joins(
     joins: Vec<ErasedSegment>,
-    dialect: &sqruff_lib::core::dialects::base::Dialect,
+    dialect: &Dialect,
 ) -> Result<Vec<Extracted>, String> {
     let mut extracted = vec![];
 
@@ -973,10 +974,7 @@ impl ExtractedFunc for Vec<Extracted> {
     }
 }
 
-fn extract_table(
-    table_factor: &ErasedSegment,
-    dialect: &sqruff_lib::core::dialects::base::Dialect,
-) -> Result<Extracted, String> {
+fn extract_table(table_factor: &ErasedSegment, dialect: &Dialect) -> Result<Extracted, String> {
     if let Some(table_expression) =
         table_factor.child(const { &SyntaxSet::single(SyntaxKind::TableExpression) })
     {

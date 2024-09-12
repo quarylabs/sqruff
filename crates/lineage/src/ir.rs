@@ -1,6 +1,6 @@
 use append_only_vec::AppendOnlyVec;
-use sqruff_lib::core::parser::segments::base::ErasedSegment;
-use sqruff_lib::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 use crate::{Node, NodeData};
 

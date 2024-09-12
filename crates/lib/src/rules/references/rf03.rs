@@ -3,17 +3,18 @@ use std::cell::RefCell;
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use smol_str::SmolStr;
+use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
+use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::helpers::capitalize;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
+use sqruff_lib_core::rules::LintFix;
 
 use crate::core::config::Value;
-use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
-use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use crate::core::parser::segments::object_reference::ObjectReferenceSegment;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::capitalize;
 use crate::utils::analysis::query::Query;
 
 #[derive(Debug, Clone, Default)]

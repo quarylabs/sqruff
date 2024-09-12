@@ -1,7 +1,9 @@
+use sqruff_lib_core::errors::SQLFluffUserError;
+use sqruff_lib_core::templaters::base::TemplatedFile;
+
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
-use crate::core::errors::SQLFluffUserError;
-use crate::core::templaters::base::{TemplatedFile, Templater};
+use crate::templaters::Templater;
 
 #[derive(Default)]
 pub struct RawTemplater;

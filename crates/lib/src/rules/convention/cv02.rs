@@ -1,11 +1,12 @@
 use ahash::AHashMap;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::base::SegmentBuilder;
+use sqruff_lib_core::rules::LintFix;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::SegmentBuilder;
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::{SyntaxKind, SyntaxSet};
 
 /// Prefer using `COALESCE` over `IFNULL` or `NVL`.
 ///
@@ -125,8 +126,9 @@ FROM baz;
 
 #[cfg(test)]
 mod tests {
+    use sqruff_lib_core::dialects::init::DialectKind;
+
     use crate::api::simple::{fix, lint};
-    use crate::core::dialects::init::DialectKind;
     use crate::core::rules::base::Erased;
     use crate::rules::convention::cv02::RuleCV02;
 

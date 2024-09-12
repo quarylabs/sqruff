@@ -2,10 +2,11 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 #[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::parser::context::ParseContext;
-use sqruff_lib::core::parser::parser::Parser;
-use sqruff_lib::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
-use sqruff_lib::dialects::SyntaxKind;
+use sqruff_lib::core::test_functions::fresh_ansi_dialect;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::parser::context::ParseContext;
+use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_core::parser::segments::test_functions::lex;
 
 #[cfg(all(
     not(target_os = "windows"),

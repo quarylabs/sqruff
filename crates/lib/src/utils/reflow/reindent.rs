@@ -4,15 +4,16 @@ use std::mem::take;
 use ahash::{AHashMap, AHashSet};
 use itertools::{chain, enumerate, Itertools};
 use smol_str::SmolStr;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::helpers::skip_last;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::rules::LintFix;
 use strum_macros::EnumString;
 
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::helpers::fixes_from_results;
 use super::rebreak::{identify_rebreak_spans, LinePosition, RebreakSpan};
-use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::skip_last;
+use crate::core::rules::base::LintResult;
 use crate::utils::reflow::elements::IndentStats;
 
 fn has_untemplated_newline(point: &ReflowPoint) -> bool {
@@ -1400,9 +1401,9 @@ impl Iterator for Range {
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
+    use sqruff_lib::core::test_functions::parse_ansi_string;
 
     use super::{IndentLine, IndentPoint};
-    use crate::core::parser::segments::test_functions::parse_ansi_string;
     use crate::utils::reflow::sequence::ReflowSequence;
 
     #[test]

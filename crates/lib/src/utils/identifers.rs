@@ -1,5 +1,5 @@
-use crate::core::parser::segments::base::ErasedSegment;
-use crate::dialects::SyntaxKind;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment]) -> bool {
     match policy {

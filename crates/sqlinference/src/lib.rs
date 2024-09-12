@@ -1,6 +1,6 @@
 use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::core::parser::parser::Parser;
-use sqruff_lib::core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
 
 pub mod aggregate_functions;
 pub mod columns;

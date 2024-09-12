@@ -2,16 +2,16 @@ use std::iter::repeat;
 
 use ahash::AHashMap;
 use itertools::Itertools;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::edit_type::EditType;
+use sqruff_lib_core::helpers::IndexMap;
+use sqruff_lib_core::parser::segments::base::SegmentBuilder;
+use sqruff_lib_core::rules::LintFix;
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::SegmentBuilder;
-use crate::core::rules::base::{
-    EditType, Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups,
-};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::{SyntaxKind, SyntaxSet};
-use crate::helpers::IndexMap;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT08;

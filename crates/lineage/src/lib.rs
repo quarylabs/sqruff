@@ -4,8 +4,8 @@ use std::fmt::Display;
 use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
-use sqruff_lib::core::parser::parser::Parser;
-use sqruff_lib::core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 mod expand;
 mod ir;
@@ -71,7 +71,7 @@ impl<'config> Lineage<'config> {
 }
 
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
-    let tables = sqruff_lib::core::parser::segments::base::Tables::default();
+    let tables = sqruff_lib_core::parser::segments::base::Tables::default();
     let (tokens, _) = sqruff_lib::core::linter::core::Linter::lex_templated_file(
         &tables,
         source.into(),
@@ -79,7 +79,7 @@ fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     );
 
     let tokens = tokens.unwrap_or_default();
-    let tables = sqruff_lib::core::parser::segments::base::Tables::default();
+    let tables = sqruff_lib_core::parser::segments::base::Tables::default();
     parser.parse(&tables, &tokens, None, false).unwrap().unwrap()
 }
 
@@ -355,7 +355,7 @@ mod tests {
     use std::collections::HashMap;
 
     use sqruff_lib::core::config::{FluffConfig, Value};
-    use sqruff_lib::core::parser::parser::Parser;
+    use sqruff_lib_core::parser::parser::Parser;
 
     use crate::Lineage;
 

@@ -1,7 +1,7 @@
 use itertools::{chain, Itertools};
+use sqruff_lib_core::helpers::IndexMap;
 
 use crate::core::rules::base::{ErasedRule, RuleManifest, RuleSet};
-use crate::helpers::IndexMap;
 
 pub mod aliasing;
 pub mod ambiguous;

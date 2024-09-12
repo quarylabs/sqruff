@@ -1,11 +1,13 @@
 use itertools::{enumerate, Itertools};
 use rustc_hash::FxHashMap;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::edit_type::EditType;
+use sqruff_lib_core::parser::markers::PositionMarker;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::rules::LintFix;
 
 use super::elements::ReflowBlock;
-use crate::core::parser::markers::PositionMarker;
-use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use crate::core::rules::base::{EditType, LintFix, LintResult};
-use crate::dialects::{SyntaxKind, SyntaxSet};
+use crate::core::rules::base::LintResult;
 use crate::utils::reflow::config::Spacing;
 use crate::utils::reflow::helpers::pretty_segment_name;
 
@@ -536,12 +538,12 @@ mod tests {
     use itertools::Itertools;
     use pretty_assertions::assert_eq;
     use smol_str::ToSmolStr;
+    use sqruff_lib::core::test_functions::parse_ansi_string;
+    use sqruff_lib_core::edit_type::EditType;
+    use sqruff_lib_core::helpers::enter_panic;
 
-    use crate::core::parser::segments::base::Tables;
-    use crate::core::parser::segments::test_functions::parse_ansi_string;
-    use crate::core::rules::base::EditType;
-    use crate::helpers::enter_panic;
     use crate::utils::reflow::helpers::fixes_from_results;
+    use crate::utils::reflow::respace::Tables;
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
     #[test]

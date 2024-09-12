@@ -1,11 +1,11 @@
 use ahash::{AHashMap, AHashSet};
 use itertools::enumerate;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::dialects::SyntaxKind;
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Debug, Default, Clone)]

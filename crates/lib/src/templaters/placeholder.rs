@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use fancy_regex::Regex;
+use sqruff_lib_core::errors::SQLFluffUserError;
+use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
 
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
-use crate::core::errors::SQLFluffUserError;
-use crate::core::templaters::base::{RawFileSlice, TemplatedFile, TemplatedFileSlice, Templater};
+use crate::templaters::Templater;
 
 #[derive(Default)]
 pub struct PlaceholderTemplater;

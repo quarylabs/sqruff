@@ -84,7 +84,6 @@ impl Linter {
     }
 
     /// Parse a string.
-    #[allow(unused_variables)]
     pub fn parse_string(
         &self,
         tables: &Tables,
@@ -101,7 +100,7 @@ impl Linter {
 
         // Scan the raw file for config commands.
         self.config.process_raw_file_for_config(in_str);
-        let rendered = self.render_string(in_str, f_name.clone(), &self.config, Some(encoding))?;
+        let rendered = self.render_string(in_str, f_name, &self.config, Some(encoding))?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));

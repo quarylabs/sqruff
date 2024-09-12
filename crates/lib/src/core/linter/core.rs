@@ -430,7 +430,7 @@ impl Linter {
         f_name: Option<String>,
         parse_statistics: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
-        let parser = Parser::new(config, None);
+        let parser = Parser::new(config);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
         let parsed = match parser.parse(tables, tokens, f_name, parse_statistics) {

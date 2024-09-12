@@ -156,7 +156,7 @@ mod tests {
         }];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         for test in tests {
             let actual = figure_out_skippable_tests(
@@ -225,7 +225,7 @@ mod tests {
         ];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         for test in tests {
             let actual = figure_out_skippable_tests(
@@ -292,7 +292,7 @@ mod tests {
         }];
 
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         for test in tests {
             println!("Running test: {}", test.name);

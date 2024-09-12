@@ -362,7 +362,7 @@ mod tests {
     #[test]
     fn test_lineage() {
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
             .source("y", "SELECT * FROM x")
@@ -392,7 +392,7 @@ mod tests {
     #[test]
     fn test_lineage_sql_with_cte() {
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) =
             Lineage::new(parser, "a", "WITH z AS (SELECT a FROM y) SELECT a FROM z")
@@ -427,7 +427,7 @@ mod tests {
     #[test]
     fn test_lineage_source_with_cte() {
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
             .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
@@ -460,7 +460,7 @@ mod tests {
     #[test]
     fn test_lineage_source_with_star() {
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) =
             Lineage::new(parser, "a", "WITH y AS (SELECT * FROM x) SELECT a FROM y").build();
@@ -482,7 +482,7 @@ mod tests {
     #[test]
     fn test_lineage_external_col() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(
             parser.clone(),
@@ -498,7 +498,7 @@ mod tests {
     #[test]
     fn test_lineage_values() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM y")
             .source("y", "SELECT a FROM (VALUES (1), (2)) AS t (a)")
@@ -531,7 +531,7 @@ mod tests {
     #[test]
     fn test_lineage_union() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(
             parser.clone(),
@@ -566,7 +566,7 @@ mod tests {
             None,
             None,
         );
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(
             parser,
@@ -586,7 +586,7 @@ mod tests {
     #[test]
     fn test_subquery() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(
             parser.clone(),
@@ -623,7 +623,7 @@ mod tests {
     #[test]
     fn test_lineage_cte_union() {
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(
             parser,
@@ -665,7 +665,7 @@ mod tests {
     #[test]
     fn test_lineage_source_union() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(parser, "x", "SELECT x, created_at FROM dataset;")
             .source(
@@ -705,7 +705,7 @@ mod tests {
     #[test]
     fn test_select_star() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) =
             Lineage::new(parser, "x", "SELECT x from (SELECT * from table_a)").build();
@@ -725,7 +725,7 @@ mod tests {
     #[test]
     fn test_unnest() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) = Lineage::new(
             parser,
@@ -751,7 +751,7 @@ mod tests {
             None,
             None,
         );
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) =
             Lineage::new(parser.clone(), "a", "WITH x AS (SELECT 1 a) SELECT a FROM x").build();
@@ -770,7 +770,7 @@ mod tests {
     #[test]
     fn test_trim() {
         let config: FluffConfig = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) =
             Lineage::new(parser, "a", "SELECT a, b, c\nFROM (select a, b, c from y) z")
@@ -796,7 +796,7 @@ mod tests {
     #[test]
     fn test_node_name_doesnt_contain_comment() {
         let config = FluffConfig::default();
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (tables, node) =
             Lineage::new(parser, "x", "SELECT * FROM (SELECT x /* c */ FROM t1) AS t2").build();

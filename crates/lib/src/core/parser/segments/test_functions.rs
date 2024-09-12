@@ -44,7 +44,7 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
     // are defined elsewhere in the codebase.
     let raw_file = elems.concat();
 
-    let templated_file = TemplatedFile::from_string(raw_file);
+    let templated_file: TemplatedFile = raw_file.into();
     let mut idx = 0;
     let mut buff: Vec<ErasedSegment> = Vec::new();
 

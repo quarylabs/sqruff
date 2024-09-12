@@ -300,7 +300,7 @@ impl<'a> Lexer<'a> {
         let template;
         let mut str_buff = match raw {
             StringOrTemplate::String(s) => {
-                template = TemplatedFile::from_string(s.into());
+                template = s.into();
                 s
             }
             StringOrTemplate::Template(slot) => {

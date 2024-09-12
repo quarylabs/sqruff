@@ -33,7 +33,7 @@ impl Default for PositionMarker {
         PositionMarker {
             source_slice: 0..0,
             templated_slice: 0..0,
-            templated_file: TemplatedFile::from_string("".to_string()),
+            templated_file: "".to_string().into(),
             working_line_no: 0,
             working_line_pos: 0,
         }
@@ -281,7 +281,7 @@ mod tests {
     /// Test that we can correctly infer positions from strings & locations.
     #[test]
     fn test_markers_setting_position_raw() {
-        let template = TemplatedFile::from_string("foobar".to_string());
+        let template: TemplatedFile = "foobar".into();
         // Check inference in the template
         assert_eq!(template.get_line_pos_of_char_pos(2, true), (1, 3));
         assert_eq!(template.get_line_pos_of_char_pos(2, false), (1, 3));
@@ -294,7 +294,7 @@ mod tests {
     /// Test that we can correctly set positions manually.
     #[test]
     fn test_markers_setting_position_working() {
-        let templ = TemplatedFile::from_string("foobar".to_string());
+        let templ: TemplatedFile = "foobar".into();
         let pos = PositionMarker::new(2..5, 2..5, templ, Some(4), Some(4));
         // Can we NOT infer when we're told.
         assert_eq!(pos.working_loc(), (4, 4))
@@ -303,7 +303,7 @@ mod tests {
     /// Test that we can correctly compare markers.
     #[test]
     fn test_markers_comparison() {
-        let templ = TemplatedFile::from_string("abc".to_string());
+        let templ: TemplatedFile = "abc".into();
 
         // Assuming start and end are usize, based on typical Rust slicing/indexing.
         let a_pos = PositionMarker::new(0..1, 0..1, templ.clone(), None, None);

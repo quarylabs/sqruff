@@ -311,7 +311,6 @@ mod tests {
     use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
     use crate::core::rules::context::RuleContext;
     use crate::core::rules::crawlers::Crawler;
-    use crate::core::templaters::base::TemplatedFile;
     use crate::dialects::SyntaxKind;
 
     #[test]
@@ -397,7 +396,7 @@ mod tests {
             .with_position(PositionMarker::new(
                 10..19,
                 10..19,
-                TemplatedFile::from_string("      \n\n  foobarbar".into()),
+                "      \n\n  foobarbar".into(),
                 None,
                 None,
             ))

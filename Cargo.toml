@@ -17,4 +17,7 @@ lto = true
 codegen-units = 1
 
 [workspace.dependencies]
+ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
+indexmap = "2.5.0"
+sqruff-lib = { version = "0.17.0", path = "crates/lib" }
 wasm-pack = "0.13.0"

@@ -9,6 +9,7 @@ use itertools::Itertools;
 use super::dialects::base::Dialect;
 use crate::core::dialects::init::{dialect_readout, DialectKind};
 use crate::core::errors::SQLFluffUserError;
+use crate::core::parser::parser::Parser;
 use crate::utils::reflow::config::ReflowConfig;
 
 /// split_comma_separated_string takes a string and splits it on commas and
@@ -563,4 +564,14 @@ fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String
     }
 
     result
+}
+
+impl<'a> From<&'a FluffConfig> for Parser<'a> {
+    fn from(config: &'a FluffConfig) -> Self {
+        let dialect = config.get_dialect();
+        let indentation_config = config.raw["indentation"].as_map().unwrap();
+        let indentation_config: AHashMap<_, _> =
+            indentation_config.iter().map(|(key, value)| (key.clone(), value.to_bool())).collect();
+        Self::new(dialect, indentation_config)
+    }
 }

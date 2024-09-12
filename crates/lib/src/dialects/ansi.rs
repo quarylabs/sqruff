@@ -4814,6 +4814,7 @@ mod tests {
     use crate::core::linter::core::Linter;
     use crate::core::parser::context::ParseContext;
     use crate::core::parser::lexer::{Lexer, StringOrTemplate};
+    use crate::core::parser::parser::Parser;
     use crate::core::parser::segments::base::Tables;
     use crate::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
     use crate::dialects::SyntaxKind;
@@ -4936,9 +4937,12 @@ mod tests {
         ];
 
         let dialect = fresh_ansi_dialect();
+        let config: FluffConfig = FluffConfig::new(<_>::default(), None, None);
 
         for (segment_ref, sql_string) in cases {
-            let mut ctx = ParseContext::new(&dialect, <_>::default());
+            let config = config.clone();
+            let parser: Parser = (&config).into();
+            let mut ctx: ParseContext = (&parser).into();
 
             let segment = dialect.r#ref(segment_ref);
             let mut segments = lex(&dialect, sql_string);

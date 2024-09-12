@@ -14,6 +14,7 @@ use super::linted_dir::LintedDir;
 use super::runner::RunnerContext;
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
+use crate::core::dialects::base::Dialect;
 use crate::core::errors::{SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SqlError};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
@@ -388,8 +389,11 @@ impl Linter {
 
         let mut violations = Vec::new();
         let tokens = if rendered.templated_file.is_templated() {
-            let (t, lvs) =
-                Self::lex_templated_file(tables, rendered.templated_file.clone(), &self.config);
+            let (t, lvs) = Self::lex_templated_file(
+                tables,
+                rendered.templated_file.clone(),
+                &self.config.dialect,
+            );
             if !lvs.is_empty() {
                 unimplemented!("violations.extend(lvs);")
             }
@@ -429,7 +433,7 @@ impl Linter {
         f_name: Option<String>,
         parse_statistics: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
-        let parser = Parser::new(config);
+        let parser: Parser = config.into();
         let mut violations: Vec<SQLParseError> = Vec::new();
 
         let parsed = match parser.parse(tables, tokens, f_name, parse_statistics) {
@@ -450,12 +454,12 @@ impl Linter {
     pub fn lex_templated_file(
         tables: &Tables,
         templated_file: TemplatedFile,
-        config: &FluffConfig,
+        dialect: &Dialect,
     ) -> (Option<Vec<ErasedSegment>>, Vec<SQLLexError>) {
         let mut violations: Vec<SQLLexError> = vec![];
         // linter_logger.info("LEXING RAW ({})", templated_file.fname);
         // Get the lexer
-        let lexer = Lexer::new(&config.dialect);
+        let lexer = Lexer::new(dialect);
         // Lex the file and log any problems
         let result = lexer.lex(tables, StringOrTemplate::Template(templated_file));
         match result {

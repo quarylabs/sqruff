@@ -2,10 +2,8 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 #[cfg(unix)]
 use pprof::criterion::{Output, PProfProfiler};
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::dialects::base::Dialect;
 use sqruff_lib::core::parser::context::ParseContext;
-use sqruff_lib::core::parser::matchable::Matchable;
-use sqruff_lib::core::parser::segments::base::ErasedSegment;
+use sqruff_lib::core::parser::parser::Parser;
 use sqruff_lib::core::parser::segments::test_functions::{fresh_ansi_dialect, lex};
 use sqruff_lib::dialects::SyntaxKind;
 
@@ -95,7 +93,16 @@ fn parse(c: &mut Criterion) {
 
     for (name, source) in passes {
         let config = FluffConfig::default();
-        let (mut ctx, segment, segments) = mk_segments(&dialect, &config, source);
+        let config_for_parser = config.clone();
+        let parser: Parser = (&config_for_parser).into();
+        let mut ctx: ParseContext = (&parser).into();
+        let segment = dialect.r#ref("FileSegment");
+        let mut segments = lex(config.get_dialect(), source);
+
+        if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
+            segments.pop();
+        }
+
         c.bench_function(name, |b| {
             b.iter(|| {
                 let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
@@ -103,22 +110,6 @@ fn parse(c: &mut Criterion) {
             });
         });
     }
-}
-
-fn mk_segments<'a>(
-    dialect: &'a Dialect,
-    config: &FluffConfig,
-    source: &str,
-) -> (ParseContext<'a>, std::sync::Arc<dyn Matchable>, Vec<ErasedSegment>) {
-    let ctx = ParseContext::new(dialect, <_>::default());
-    let segment = dialect.r#ref("FileSegment");
-    let mut segments = lex(config.get_dialect(), source);
-
-    if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
-        segments.pop();
-    }
-
-    (ctx, segment, segments)
 }
 
 #[cfg(unix)]

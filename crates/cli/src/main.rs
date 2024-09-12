@@ -55,7 +55,7 @@ fn main() {
                                 file.path,
                                 violation.line_no,
                                 violation.line_pos,
-                                violation.rule.as_ref().unwrap().code(),
+                                violation.rule.as_ref().unwrap().code,
                                 violation.description
                             );
                             eprintln!("{line}");

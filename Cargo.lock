@@ -1055,6 +1055,7 @@ dependencies = [
  "indexmap 2.5.0",
  "polonius-the-crab",
  "sqruff-lib",
+ "sqruff-lib-core",
 ]
 
 [[package]]
@@ -1820,7 +1821,6 @@ dependencies = [
  "configparser",
  "criterion",
  "dyn-clone",
- "dyn_ord",
  "enum_dispatch",
  "expect-test",
  "fancy-regex",
@@ -1842,8 +1842,9 @@ dependencies = [
  "serde_yaml",
  "slyce",
  "smol_str",
- "sptr",
  "sqruff-lib",
+ "sqruff-lib-core",
+ "sqruff-lib-dialects",
  "strum",
  "strum_macros",
  "tempdir",
@@ -1851,6 +1852,42 @@ dependencies = [
  "tracing",
  "unicase",
  "walkdir",
+]
+
+[[package]]
+name = "sqruff-lib-core"
+version = "0.17.0"
+dependencies = [
+ "ahash",
+ "dyn-clone",
+ "dyn_ord",
+ "fancy-regex",
+ "indexmap 2.5.0",
+ "itertools 0.13.0",
+ "nohash-hasher",
+ "pretty_assertions",
+ "rustc-hash",
+ "serde",
+ "serde_yaml",
+ "smol_str",
+ "sptr",
+ "strum",
+ "strum_macros",
+]
+
+[[package]]
+name = "sqruff-lib-dialects"
+version = "0.17.0"
+dependencies = [
+ "ahash",
+ "dyn-clone",
+ "expect-test",
+ "glob",
+ "itertools 0.13.0",
+ "rayon",
+ "serde_yaml",
+ "sqruff-lib-core",
+ "strum",
 ]
 
 [[package]]
@@ -1873,6 +1910,7 @@ name = "sqruff-sqlinference"
 version = "0.17.0"
 dependencies = [
  "sqruff-lib",
+ "sqruff-lib-core",
 ]
 
 [[package]]

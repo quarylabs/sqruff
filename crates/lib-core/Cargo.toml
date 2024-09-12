@@ -1,0 +1,33 @@
+[package]
+name = "sqruff-lib-core"
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+serde = ["dep:serde"]
+stringify = ["dep:serde_yaml", "serde"]
+
+[dependencies]
+dyn_ord = "0.2.1"
+smol_str = "0.3.1"
+ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
+strum = "0.26.3"
+indexmap = "2.5.0"
+dyn-clone = "1.0.17"
+strum_macros = "0.26.4"
+nohash-hasher = "0.2.0"
+itertools = "0.13.0"
+fancy-regex = "0.13"
+pretty_assertions = "1.4.0"
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_yaml = { version = "0.9.34", optional = true }
+rustc-hash = "2.0.0"
+sptr = "0.3.2"
+
+[dev-dependencies]
+serde = { version = "1.0", features = ["derive"] }

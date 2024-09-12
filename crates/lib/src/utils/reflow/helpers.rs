@@ -1,8 +1,9 @@
 use smol_str::{SmolStr, ToSmolStr};
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::rules::LintFix;
 
-use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::SyntaxKind;
+use crate::core::rules::base::LintResult;
 
 /// Return a list of fixes from an iterable of LintResult.
 pub fn fixes_from_results(

@@ -2,13 +2,14 @@ use std::iter::zip;
 
 use itertools::{chain, Itertools};
 use nohash_hasher::IntMap;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::rules::LintFix;
 
 use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
-use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::{SyntaxKind, SyntaxSet};
+use crate::core::rules::base::LintResult;
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,

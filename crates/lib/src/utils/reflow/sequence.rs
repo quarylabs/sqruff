@@ -2,6 +2,9 @@ use std::cmp::PartialEq;
 use std::mem::take;
 
 use itertools::Itertools;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::rules::LintFix;
 
 use super::config::ReflowConfig;
 use super::depth_map::DepthMap;
@@ -9,9 +12,7 @@ use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceTyp
 use super::rebreak::rebreak_sequence;
 use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length};
 use crate::core::config::FluffConfig;
-use crate::core::parser::segments::base::{ErasedSegment, Tables};
-use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::SyntaxKind;
+use crate::core::rules::base::LintResult;
 
 pub struct ReflowSequence<'a> {
     root_segment: ErasedSegment,

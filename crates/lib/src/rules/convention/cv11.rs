@@ -1,13 +1,14 @@
 use ahash::AHashMap;
 use itertools::chain;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::rules::LintFix;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
-use crate::core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
-use crate::core::rules::base::{Erased, ErasedRule, LintFix, LintResult, Rule, RuleGroups};
+use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::dialects::{SyntaxKind, SyntaxSet};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::functional::segments::Segments;
 
@@ -421,7 +422,7 @@ fn convert_fix_list(
     convert_arg_2: ErasedSegment,
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
-    use crate::core::parser::segments::base::ErasedSegment;
+    use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
     let mut edits: Vec<ErasedSegment> = vec![
         SegmentBuilder::token(tables.next_id(), "convert", SyntaxKind::FunctionNameIdentifier)

@@ -1,15 +1,14 @@
 use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
-
-use crate::core::dialects::base::Dialect;
-use crate::core::dialects::common::{AliasInfo, ColumnAliasInfo};
-use crate::core::dialects::init::DialectKind;
-use crate::core::parser::segments::base::ErasedSegment;
-use crate::core::parser::segments::from::FromClauseSegment;
-use crate::core::parser::segments::join::JoinClauseSegment;
-use crate::core::parser::segments::object_reference::ObjectReferenceSegment;
-use crate::core::parser::segments::select::SelectClauseElementSegment;
-use crate::dialects::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
+use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::parser::segments::from::FromClauseSegment;
+use sqruff_lib_core::parser::segments::join::JoinClauseSegment;
+use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
+use sqruff_lib_core::parser::segments::select::SelectClauseElementSegment;
 
 #[derive(Clone)]
 pub struct SelectStatementColumnsAndTables {

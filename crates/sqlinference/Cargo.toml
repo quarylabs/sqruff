@@ -7,3 +7,4 @@ license.workspace = true
 
 [dependencies]
 sqruff-lib.workspace = true
+sqruff-lib-core = { path = "../lib-core" }

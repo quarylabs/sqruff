@@ -5,11 +5,12 @@ use std::str::FromStr;
 use ahash::AHashMap;
 use configparser::ini::Ini;
 use itertools::Itertools;
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::dialects::init::{dialect_readout, DialectKind};
+use sqruff_lib_core::errors::SQLFluffUserError;
+use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_dialects::kind_to_dialect;
 
-use super::dialects::base::Dialect;
-use crate::core::dialects::init::{dialect_readout, DialectKind};
-use crate::core::errors::SQLFluffUserError;
-use crate::core::parser::parser::Parser;
 use crate::utils::reflow::config::ReflowConfig;
 
 /// split_comma_separated_string takes a string and splits it on commas and
@@ -99,14 +100,14 @@ impl FluffConfig {
 
         let mut configs = nested_combine(defaults, configs);
 
-        let dialect =
-            match configs.get("core").and_then(|map| map.as_map().unwrap().get("dialect")) {
-                None => DialectKind::default(),
-                Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
-                _value => DialectKind::default(),
-            }
-            .into();
+        let dialect = match configs.get("core").and_then(|map| map.as_map().unwrap().get("dialect"))
+        {
+            None => DialectKind::default(),
+            Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
+            _value => DialectKind::default(),
+        };
 
+        let dialect = kind_to_dialect(&dialect);
         for (in_key, out_key) in [
             // Deal with potential ignore & warning parameters
             ("ignore", "ignore"),

@@ -2,10 +2,9 @@ use std::ops::Range;
 
 use itertools::Itertools;
 use rustc_hash::FxHashSet;
-
-use crate::core::errors::SQLBaseError;
-use crate::core::parser::segments::fix::FixPatch;
-use crate::core::templaters::base::{RawFileSlice, TemplatedFile};
+use sqruff_lib_core::errors::SQLBaseError;
+use sqruff_lib_core::parser::segments::fix::FixPatch;
+use sqruff_lib_core::templaters::base::{RawFileSlice, TemplatedFile};
 
 #[derive(Debug, Default)]
 pub struct LintedFile {
@@ -177,8 +176,9 @@ impl LintedFile {
 
 #[cfg(test)]
 mod test {
+    use sqruff_lib_core::templaters::base::TemplatedFileSlice;
+
     use super::*;
-    use crate::core::templaters::base::TemplatedFileSlice;
 
     /// Test _build_up_fixed_source_string. This is part of fix_string().
     #[test]
@@ -256,7 +256,7 @@ mod test {
             (
                 // Templated no fixes.
                 // A templated file, but with no fixes, so no subdivision of the
-                // file is required and we should just get a single slice.
+                // file is required, and we should just get a single slice.
                 vec![],
                 vec![],
                 "a {{ b }} c",

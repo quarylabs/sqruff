@@ -2,9 +2,8 @@ use std::iter::zip;
 
 use ahash::{AHashMap, AHashSet};
 use nohash_hasher::{IntMap, IntSet};
-
-use crate::core::parser::segments::base::{ErasedSegment, PathStep};
-use crate::dialects::SyntaxSet;
+use sqruff_lib_core::dialects::syntax::SyntaxSet;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, PathStep};
 
 /// An element of the stack_positions property of DepthInfo.
 #[derive(Debug, PartialEq, Eq, Clone)]

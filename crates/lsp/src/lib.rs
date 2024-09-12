@@ -191,8 +191,7 @@ impl LanguageServer {
                     lsp_types::Range::new(pos, pos)
                 };
 
-                let code =
-                    violation.rule.map(|rule| NumberOrString::String(rule.code().to_string()));
+                let code = violation.rule.map(|rule| NumberOrString::String(rule.code.to_string()));
 
                 Diagnostic::new(
                     range,

@@ -1,13 +1,14 @@
 use std::cmp::PartialEq;
 use std::str::FromStr;
 
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::helpers::capitalize;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::rules::LintFix;
 use strum_macros::{AsRefStr, EnumString};
 
 use super::elements::{ReflowElement, ReflowSequenceType};
-use crate::core::parser::segments::base::{ErasedSegment, Tables};
-use crate::core::rules::base::{LintFix, LintResult};
-use crate::dialects::SyntaxKind;
-use crate::helpers::capitalize;
+use crate::core::rules::base::LintResult;
 use crate::utils::reflow::depth_map::StackPositionType;
 use crate::utils::reflow::elements::ReflowPoint;
 use crate::utils::reflow::helpers::{deduce_line_indent, fixes_from_results};
@@ -512,9 +513,10 @@ fn reorder_and_insert(
 
 #[cfg(test)]
 mod tests {
-    use crate::core::parser::segments::base::Tables;
-    use crate::core::parser::segments::test_functions::parse_ansi_string;
-    use crate::helpers::enter_panic;
+    use sqruff_lib::core::test_functions::parse_ansi_string;
+    use sqruff_lib_core::helpers::enter_panic;
+    use sqruff_lib_core::parser::segments::base::Tables;
+
     use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
     #[test]

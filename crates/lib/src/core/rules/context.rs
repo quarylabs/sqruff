@@ -3,11 +3,11 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use ahash::AHashMap;
+use sqruff_lib_core::dialects::base::Dialect;
+use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib_core::templaters::base::TemplatedFile;
 
 use crate::core::config::FluffConfig;
-use crate::core::dialects::base::Dialect;
-use crate::core::parser::segments::base::{ErasedSegment, Tables};
-use crate::core::templaters::base::TemplatedFile;
 
 /// Struct for holding the context passed to rule eval function
 #[derive(Clone, Debug)]

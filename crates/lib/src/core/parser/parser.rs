@@ -3,7 +3,7 @@ use super::helpers::check_still_complete;
 use super::segments::base::{ErasedSegment, Tables};
 use crate::core::config::FluffConfig;
 use crate::core::errors::SQLParseError;
-use crate::dialects::ansi::FileSegment;
+use crate::core::parser::segments::file::FileSegment;
 
 #[derive(Clone)]
 pub struct Parser<'a> {

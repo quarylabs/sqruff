@@ -46,7 +46,7 @@ itertools = "0.13.0"
 regex = "1"
 walkdir = "2.5.0"
 enum_dispatch = "0.3.13"
-indexmap = "2.5.0"
+indexmap.workspace = true
 common-path = "1.0.0"
 configparser = "3.1.0"
 phf = { version = "0.11.2", features = ["macros", "unicase"] }
@@ -55,7 +55,7 @@ anstyle = "1.0"
 tracing = "0.1.40"
 pretty_assertions = "1.4.0"
 slyce = "0.3.1"
-ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
+ahash.workspace = true
 lazy-regex = "3.2.0"
 rayon = "1.10.0"
 smol_str = "0.3.1"

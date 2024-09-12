@@ -7,6 +7,6 @@ license.workspace = true
 
 [dependencies]
 append-only-vec = "0.1.5"
-indexmap = "2.4.0"
+indexmap.workspace = true
 polonius-the-crab = "0.4.1"
 sqruff-lib = { path = "../lib" }

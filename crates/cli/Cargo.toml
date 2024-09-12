@@ -20,7 +20,7 @@ harness = false
 codegen-docs = ["clap-markdown", "minijinja", "serde"]
 
 [dependencies]
-sqruff-lib = { version = "0.17.0", path = "../lib" }
+sqruff-lib.workspace = true
 lsp = { version = "0.17.0", package = "sqruff-lsp", path = "../lsp" }
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"

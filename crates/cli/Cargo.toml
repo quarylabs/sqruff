@@ -37,4 +37,4 @@ minijinja = { version = "2.1.2", optional = true }
 serde = { version = "1.0.204", features = ["derive"], optional = true }
 
 [dev-dependencies]
-ui_test = "0.23"
+ui_test = "0.26"

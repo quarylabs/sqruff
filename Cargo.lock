@@ -73,15 +73,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ansi_term"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d52a9bb7ec0cf484c551830a7ce27bd20d67eac647e1befb56b0be4ee39a55d2"
-dependencies = [
- "winapi",
-]
-
-[[package]]
 name = "anstream"
 version = "0.6.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1383,11 +1374,11 @@ dependencies = [
 
 [[package]]
 name = "prettydiff"
-version = "0.6.4"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ff1fec61082821f8236cf6c0c14e8172b62ce8a72a0eedc30d3b247bb68dc11"
+checksum = "abec3fb083c10660b3854367697da94c674e9e82aa7511014dc958beeb7215e9"
 dependencies = [
- "ansi_term",
+ "owo-colors",
  "pad",
 ]
 
@@ -1770,9 +1761,9 @@ dependencies = [
 
 [[package]]
 name = "spanned"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed14ba8b4b82241bd5daba2c49185d4a0581a0058355fe96537338f002b8605d"
+checksum = "86af297923fbcfd107c20a189a6e9c872160df71a7190ae4a7a6c5dce4b2feb6"
 dependencies = [
  "bstr",
  "color-eyre",
@@ -2114,9 +2105,9 @@ dependencies = [
 
 [[package]]
 name = "ui_test"
-version = "0.23.0"
+version = "0.26.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29e5f4ffcbab82453958fbf59990e981b8e8a177dcd60c2bd8f9b52c3036a6e1"
+checksum = "32ee4c40e5a5f9fa6864ff976473e5d6a6e9884b6ce68b40690d9f87e1994c83"
 dependencies = [
  "annotate-snippets",
  "anyhow",
@@ -2128,7 +2119,6 @@ dependencies = [
  "comma",
  "crossbeam-channel",
  "indicatif",
- "lazy_static",
  "levenshtein",
  "prettydiff",
  "regex",
@@ -2137,7 +2127,6 @@ dependencies = [
  "serde",
  "serde_json",
  "spanned",
- "tempfile",
 ]
 
 [[package]]

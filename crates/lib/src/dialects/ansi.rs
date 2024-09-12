@@ -5352,9 +5352,8 @@ mod tests {
 
         for (raw, res) in test_cases {
             // Assume FluffConfig and Lexer are defined somewhere in your codebase
-            let config = FluffConfig::new(<_>::default(), None, None);
-
-            let lexer = Lexer::new(&config, None);
+            let ansi = fresh_ansi_dialect();
+            let lexer = Lexer::new(&ansi);
 
             let tables = Tables::default();
             // Assume that the lex function returns a Result with tokens

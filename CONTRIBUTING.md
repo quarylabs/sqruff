@@ -36,3 +36,10 @@ To run the extension locally, install npm in the `editors/code` directory and ru
 npm run build:wasm_lsp && npm run compile && npm run run-in-browser
 ```
 
+## Updating the fixtures for the dialect tests (the yaml files)
+
+One of the big set of tests that exist in the codebase are those to ensure the parsing of the SQL dialects is correct. These tests are stored in `crates/lib/test/fixtures/dialects` and there is a folder for each dialect. In each folder there is an a set of sql files and an accompanying yaml file that contains the expected output of parsing the sql file. To update the yaml files, run the tests with the `UPDATE_EXPECT` environment variable set to `1`.
+
+```bash
+env UPDATE_EXPECT=1 cargo test
+```

@@ -3,11 +3,10 @@ use std::fmt::Debug;
 use std::ops::Range;
 
 use fancy_regex::Regex;
-
+use crate::core::dialects::base::Dialect;
 use super::markers::PositionMarker;
 use super::segments::base::{ErasedSegment, SegmentBuilder};
-use crate::core::config::FluffConfig;
-use crate::core::dialects::base::Dialect;
+use crate::core::dialects::init::DialectKind;
 use crate::core::errors::{SQLLexError, ValueError};
 use crate::core::parser::segments::base::Tables;
 use crate::core::slice_helpers::{is_zero_slice, offset_slice};
@@ -271,8 +270,8 @@ impl Pattern {
 }
 
 /// The Lexer class actually does the lexing step.
-pub struct Lexer<'a> {
-    config: &'a FluffConfig,
+pub struct Lexer {
+    dialect: DialectKind,
     last_resort_lexer: Matcher,
 }
 
@@ -281,11 +280,11 @@ pub enum StringOrTemplate<'a> {
     Template(TemplatedFile),
 }
 
-impl<'a> Lexer<'a> {
+impl Lexer {
     /// Create a new lexer.
-    pub fn new(config: &'a FluffConfig, _dialect: Option<Dialect>) -> Self {
+    pub fn new(dialect: DialectKind) -> Self {
         Lexer {
-            config,
+            dialect,
             last_resort_lexer: Matcher::regex("<unlexable>", r"[^\t\n.]*", SyntaxKind::Unlexable),
         }
     }
@@ -312,7 +311,8 @@ impl<'a> Lexer<'a> {
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
-        let lexer_matchers = self.config.get_dialect().lexer_matchers();
+        let dialect = Dialect::from(self.dialect);
+        let lexer_matchers = dialect.lexer_matchers();
 
         loop {
             let mut res = Lexer::lex_match(str_buff, lexer_matchers);

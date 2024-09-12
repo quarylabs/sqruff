@@ -456,7 +456,7 @@ impl Linter {
         let mut violations: Vec<SQLLexError> = vec![];
         // linter_logger.info("LEXING RAW ({})", templated_file.fname);
         // Get the lexer
-        let lexer = Lexer::new(config, None);
+        let lexer = Lexer::new(config.dialect.name);
         // Lex the file and log any problems
         let result = lexer.lex(tables, StringOrTemplate::Template(templated_file));
         match result {

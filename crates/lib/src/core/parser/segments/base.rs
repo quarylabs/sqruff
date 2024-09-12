@@ -1075,7 +1075,7 @@ mod tests {
     #[test]
     /// Test comparison of raw segments.
     fn test_parser_base_segments_raw_compare() {
-        let template = TemplatedFile::from_string("foobar".to_string());
+        let template: TemplatedFile = "foobar".into();
         let rs1 = SegmentBuilder::token(0, "foobar", SyntaxKind::Word)
             .with_position(PositionMarker::new(0..6, 0..6, template.clone(), None, None))
             .finish();

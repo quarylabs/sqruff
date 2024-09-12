@@ -55,11 +55,23 @@ impl TemplatedFile {
             )?),
         })
     }
+}
 
-    pub fn from_string(raw: String) -> TemplatedFile {
+impl From<String> for TemplatedFile {
+    fn from(raw: String) -> Self {
         TemplatedFile {
             inner: Arc::new(
-                TemplatedFileInner::new(raw.clone(), "<string>".to_string(), None, None, None)
+                TemplatedFileInner::new(raw, "<string>".to_string(), None, None, None).unwrap(),
+            ),
+        }
+    }
+}
+
+impl From<&str> for TemplatedFile {
+    fn from(raw: &str) -> Self {
+        TemplatedFile {
+            inner: Arc::new(
+                TemplatedFileInner::new(raw.to_string(), "<string>".to_string(), None, None, None)
                     .unwrap(),
             ),
         }

@@ -74,7 +74,7 @@ fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = sqruff_lib::core::parser::segments::base::Tables::default();
     let (tokens, _) = sqruff_lib::core::linter::core::Linter::lex_templated_file(
         &tables,
-        sqruff_lib::core::templaters::base::TemplatedFile::from_string(source.into()),
+        source.into(),
         parser.config(),
     );
 

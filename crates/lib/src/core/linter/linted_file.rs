@@ -364,7 +364,7 @@ mod test {
 
     #[allow(dead_code)]
     fn templated_file_1() -> TemplatedFile {
-        TemplatedFile::from_string("abc".into())
+        "abc".into()
     }
 
     #[allow(dead_code)]

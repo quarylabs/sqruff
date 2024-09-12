@@ -1,0 +1,84 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bare_function: CURRENT_DATE
+          - binary_operator: +
+          - interval_expression:
+            - keyword: INTERVAL
+            - quoted_literal: '''1'''
+            - keyword: YEAR
+- statement_terminator: ;
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bare_function: CURRENT_DATE
+          - binary_operator: '-'
+          - interval_expression:
+            - keyword: INTERVAL
+            - quoted_literal: '''14'''
+            - keyword: MONTH
+- statement_terminator: ;
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bare_function: CURRENT_DATE
+          - binary_operator: +
+          - interval_expression:
+            - keyword: INTERVAL
+            - quoted_literal: '''32'''
+            - keyword: DAY
+- statement_terminator: ;
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bare_function: CURRENT_TIME
+          - binary_operator: '-'
+          - interval_expression:
+            - keyword: INTERVAL
+            - quoted_literal: '''13'''
+            - keyword: HOUR
+- statement_terminator: ;
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bare_function: CURRENT_TIME
+          - binary_operator: +
+          - interval_expression:
+            - keyword: INTERVAL
+            - quoted_literal: '''64'''
+            - keyword: MINUTE
+- statement_terminator: ;
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bare_function: CURRENT_TIME
+          - binary_operator: '-'
+          - interval_expression:
+            - keyword: INTERVAL
+            - quoted_literal: '''61'''
+            - keyword: SECOND
+- statement_terminator: ;

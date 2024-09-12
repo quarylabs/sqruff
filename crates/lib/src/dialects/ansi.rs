@@ -5459,13 +5459,12 @@ mod tests {
         ];
 
         let dialect = fresh_ansi_dialect();
-        let config = FluffConfig::default();
 
         for (segment_ref, sql_string) in cases {
             let mut ctx = ParseContext::new(&dialect, <_>::default());
 
             let segment = dialect.r#ref(segment_ref);
-            let mut segments = lex(&config, sql_string);
+            let mut segments = lex(&dialect, sql_string);
 
             if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
                 segments.pop();

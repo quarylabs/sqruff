@@ -27,7 +27,7 @@ pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
 }
 
 pub fn lex(config: &FluffConfig, string: &str) -> Vec<ErasedSegment> {
-    let lexer = Lexer::new(config, None);
+    let lexer = Lexer::new(&config.dialect);
     let tables = Tables::default();
     let (segments, errors) = lexer.lex(&tables, StringOrTemplate::String(string)).unwrap();
     assert_eq!(errors, &[]);

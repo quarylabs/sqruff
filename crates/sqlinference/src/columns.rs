@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn test_get_columns_internal() {
         let config = FluffConfig::new(Default::default(), None, None);
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (cols, unnamed) = get_columns_internal(
             &parser,
@@ -86,7 +86,7 @@ ORDER BY a DESC, b",
     #[test]
     fn test_sub_query() {
         let config = FluffConfig::new(Default::default(), None, None);
-        let parser = Parser::new(&config, None);
+        let parser = Parser::new(&config);
 
         let (cols, unnamed) = get_columns_internal(
             &parser,

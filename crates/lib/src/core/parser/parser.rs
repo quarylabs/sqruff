@@ -8,12 +8,11 @@ use crate::dialects::ansi::FileSegment;
 #[derive(Clone)]
 pub struct Parser<'a> {
     config: &'a FluffConfig,
-    root_segment: FileSegment,
 }
 
 impl<'a> Parser<'a> {
-    pub fn new(config: &'a FluffConfig, _dialect: Option<String>) -> Self {
-        Self { config, root_segment: FileSegment }
+    pub fn new(config: &'a FluffConfig) -> Self {
+        Self { config }
     }
 
     pub fn config(&self) -> &FluffConfig {
@@ -41,7 +40,7 @@ impl<'a> Parser<'a> {
         // Kick off parsing with the root segment. The BaseFileSegment has
         // a unique entry point to facilitate exaclty this. All other segments
         // will use the standard .match()/.parse() route.
-        let root = self.root_segment.root_parse(
+        let root = FileSegment.root_parse(
             tables,
             parse_cx.dialect().name,
             segments,

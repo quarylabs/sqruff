@@ -1,7 +1,6 @@
 use std::ops::Range;
 
 use super::base::{ErasedSegment, SegmentBuilder};
-use crate::core::config::FluffConfig;
 use crate::core::dialects::base::Dialect;
 use crate::core::dialects::init::DialectKind;
 use crate::core::linter::core::Linter;
@@ -26,8 +25,8 @@ pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
     linter.parse_string(&tables, sql, None, None, None).unwrap().tree.unwrap()
 }
 
-pub fn lex(config: &FluffConfig, string: &str) -> Vec<ErasedSegment> {
-    let lexer = Lexer::new(&config.dialect);
+pub fn lex(dialect: &Dialect, string: &str) -> Vec<ErasedSegment> {
+    let lexer = Lexer::new(dialect);
     let tables = Tables::default();
     let (segments, errors) = lexer.lex(&tables, StringOrTemplate::String(string)).unwrap();
     assert_eq!(errors, &[]);

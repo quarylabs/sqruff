@@ -112,7 +112,7 @@ fn mk_segments<'a>(
 ) -> (ParseContext<'a>, std::sync::Arc<dyn Matchable>, Vec<ErasedSegment>) {
     let ctx = ParseContext::new(dialect, <_>::default());
     let segment = dialect.r#ref("FileSegment");
-    let mut segments = lex(config, source);
+    let mut segments = lex(config.get_dialect(), source);
 
     if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
         segments.pop();

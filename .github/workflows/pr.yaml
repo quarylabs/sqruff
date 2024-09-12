@@ -30,6 +30,14 @@ jobs:
       - name: Allow running check_versions_match.sh
         run: chmod +x ./.hacking/scripts/check_versions_match.sh
       - run: ./.hacking/scripts/check_versions_match.sh
+  check:
+    name: Rust Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo check --all --all-features --tests --benches
   compile:
     name: Compile
     runs-on: ubuntu-latest

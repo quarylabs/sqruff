@@ -1,12 +1,15 @@
+use std::str::FromStr;
+
 use ahash::HashSet;
 use expect_test::expect_file;
 use itertools::Itertools;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
-use sqruff_lib::core::config::{FluffConfig, Value};
+use sqruff_lib::core::dialects::base::Dialect;
 use sqruff_lib::core::dialects::init::DialectKind;
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::core::parser::segments::base::{ErasedSegment, Tables};
+use sqruff_lib::core::parser::lexer::{Lexer, StringOrTemplate};
+use sqruff_lib::core::parser::parser::Parser;
+use sqruff_lib::core::parser::segments::base::Tables;
 use sqruff_lib::helpers;
 use strum::IntoEnumIterator;
 
@@ -75,27 +78,14 @@ fn main() {
     assert_eq!(dialects_dirs.len(), dialects.len());
 
     // Go through each of the dialects and check if the files are present
-    for dialect in &dialects {
-        let linter = Linter::new(
-            FluffConfig::new(
-                [(
-                    "core".into(),
-                    Value::Map(
-                        [("dialect".into(), Value::String(Box::from(dialect.to_string())))].into(),
-                    ),
-                )]
-                .into(),
-                None,
-                None,
-            ),
-            None,
-            None,
-        );
+    for dialect_name in &dialects {
+        let dialect_kind = DialectKind::from_str(dialect_name).unwrap();
+        let dialect = Dialect::from(dialect_kind);
 
-        let path = format!("test/fixtures/dialects/{}/*.sql", dialect);
+        let path = format!("test/fixtures/dialects/{}/*.sql", dialect_name);
         let files = glob::glob(&path).unwrap().flatten().collect_vec();
 
-        println!("For dialect: {}, found {} files", dialect, files.len());
+        println!("For dialect: {}, found {} files", dialect_name, files.len());
 
         files.par_iter().for_each(|file| {
             let _panic = helpers::enter_panic(file.display().to_string());
@@ -105,7 +95,14 @@ fn main() {
 
             let actual = {
                 let sql = std::fs::read_to_string(file).unwrap();
-                let tree = parse_sql(&linter, &sql);
+                let tables = Tables::default();
+                let lexer = Lexer::from(&dialect);
+                let parser = Parser::new(&dialect, <_>::default());
+                let tokens = lexer.lex(&tables, StringOrTemplate::String(&sql)).unwrap();
+                assert!(tokens.1.is_empty());
+
+                let parsed = parser.parse(&tables, &tokens.0, None, false).unwrap();
+                let tree = parsed.unwrap();
                 let tree = tree.to_serialised(true, true);
 
                 serde_yaml::to_string(&tree).unwrap()
@@ -114,10 +111,4 @@ fn main() {
             expect_file![yaml].assert_eq(&actual);
         });
     }
-}
-
-fn parse_sql(linter: &Linter, sql: &str) -> ErasedSegment {
-    let tables = Tables::default();
-    let parsed = linter.parse_string(&tables, sql, None, None, None).unwrap();
-    parsed.tree.unwrap()
 }

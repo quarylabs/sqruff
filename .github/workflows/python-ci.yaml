@@ -134,7 +134,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build sdist
-        uses: PyO3/maturin-action@v1.4
+        uses: PyO3/maturin-action@v1.44.0
         with:
           working-directory: crates/cli
           command: sdist

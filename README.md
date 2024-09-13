@@ -123,7 +123,6 @@ For example to set the dialect to SQLite you would create the following `.sqruff
 dialect = sqlite
 ```
 
-
 #### Help
 
 To get help on the available commands and options, run the following command:

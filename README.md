@@ -123,10 +123,6 @@ For example to set the dialect to SQLite you would create the following `.sqruff
 dialect = sqlite
 ```
 
-[!NOTE]
-Sqruff aims to be backward compatible with Sqlfluff. If you are migrating from Sqlfluff, 
-you should be able to run Sqruff with your `.sqlfluff` configuration file without making any changes. 
-This is a work in progress so please [raise an issue](https://github.com/quarylabs/sqruff/issues) if you encounter any problems.
 
 #### Help
 

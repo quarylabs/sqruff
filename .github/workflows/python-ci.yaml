@@ -18,7 +18,6 @@ on:
 permissions:
   contents: read
 
-
 jobs:
   linux:
     runs-on: ${{ matrix.platform.runner }}
@@ -45,6 +44,7 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
+          working-directory: crates/cli
           target: ${{ matrix.platform.target }}
           args: --release --out dist
           sccache: 'true'

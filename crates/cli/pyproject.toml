@@ -1,0 +1,12 @@
+[build-system]
+requires = ["maturin>=0.14,<0.15"] 
+build-backend = "maturin" 
+
+[project]
+name = "findrs" 
+description = "Find all files containing a given name." 
+requires-python = ">=3.7" 
+
+[tool.maturin]
+bindings = "bin" 
+strip = true 

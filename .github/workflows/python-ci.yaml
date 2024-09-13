@@ -36,11 +36,13 @@ jobs:
             target: s390x
           - runner: ubuntu-latest
             target: ppc64le
+    defaults:
+      run:
+        working-directory: crates/cli
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
         uses: PyO3/maturin-action@v1
-        working-directory: crates/cli
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist

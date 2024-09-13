@@ -275,6 +275,12 @@ pub struct Lexer<'a> {
     last_resort_lexer: Matcher,
 }
 
+impl<'a> From<&'a Dialect> for Lexer<'a> {
+    fn from(dialect: &'a Dialect) -> Self {
+        Lexer::new(dialect)
+    }
+}
+
 pub enum StringOrTemplate<'a> {
     String(&'a str),
     Template(TemplatedFile),

@@ -357,7 +357,7 @@ impl Linter {
             Some(config),
             self.formatter.as_ref(),
         ) {
-            Ok(file) => Some(file),
+            Ok(file) => file,
             Err(_s) => {
                 // TODO Implement linter warning
                 panic!("not implemented")
@@ -366,7 +366,7 @@ impl Linter {
         };
 
         Ok(RenderedFile {
-            templated_file: templated_file.unwrap(),
+            templated_file,
             templater_violations,
 
             f_name: f_name.to_owned(),
@@ -448,9 +448,6 @@ impl Linter {
     }
 
     /// Lex a templated file.
-    ///
-    /// NOTE: This potentially mutates the config, so make sure to
-    /// use the returned one.
     pub fn lex_templated_file(
         tables: &Tables,
         templated_file: TemplatedFile,

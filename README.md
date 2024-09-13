@@ -112,15 +112,15 @@ sqruff fix <file/paths/directory>
 
 #### Configuration
 
-Settings for SQL dialect, indentation, capitaliazation and more can be set in a `.sqlfluff` configration file.
+Settings for SQL dialect, indentation, capitaliazation and more can be set in a `.sqruff` configration file.
 
-The `.sqlfluff` file should be in the directory that Sqruff is being run from.
+The `.sqruff` file should be in the directory that Sqruff is being run from.
 
-For example to set the dialect to SQLite you would create the following `.sqlfluff` file:
+For example to set the dialect to SQLite you would create the following `.sqruff` file:
 
 ```toml
 [sqruff]
-dialect = SQLite
+dialect = sqlite
 ```
 
 #### Help

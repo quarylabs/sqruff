@@ -136,6 +136,7 @@ jobs:
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
+          working-directory: crates/cli
           command: sdist
           args: --out dist
       - name: Upload sdist

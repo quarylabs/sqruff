@@ -1,6 +1,6 @@
 // use super::pos::PosMarker;
 
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref, DerefMut, Range};
 
 use fancy_regex::Regex;
 
@@ -28,6 +28,7 @@ pub struct SQLBaseError {
     pub line_pos: usize,
     pub description: String,
     pub rule: Option<ErasedRule>,
+    pub source_slice: Range<usize>,
 }
 
 impl Default for SQLBaseError {
@@ -46,6 +47,7 @@ impl SQLBaseError {
             line_no: 0,
             line_pos: 0,
             rule: None,
+            source_slice: 0..0,
         }
     }
 
@@ -58,6 +60,8 @@ impl SQLBaseError {
 
         self.line_no = line_no;
         self.line_pos = line_pos;
+
+        self.source_slice = position_marker.source_slice;
     }
 
     pub fn desc(&self) -> &str {

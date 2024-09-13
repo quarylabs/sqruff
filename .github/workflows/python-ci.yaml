@@ -15,6 +15,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+defaults:
+ run:
+  working-directory: crates/cli
+
 permissions:
   contents: read
 
@@ -90,6 +94,7 @@ jobs:
           - runner: windows-latest
             target: x86
     steps:
+      - run: pwd
       - uses: actions/checkout@v4
       - name: Build wheels
         uses: PyO3/maturin-action@v1

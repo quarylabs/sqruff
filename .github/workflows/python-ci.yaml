@@ -15,10 +15,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: ./crates/cli
-
 permissions:
   contents: read
 
@@ -43,6 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
+        run: cd crates/cli
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}

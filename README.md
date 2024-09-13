@@ -61,6 +61,21 @@ Using `bash`:
 curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | bash
 ```
 
+#### GitHub Action
+
+You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline.
+
+```yaml
+jobs:
+  sqruff-lint:
+    name: Lint with sqruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: quarylabs/install-sqruff-cli-action@main
+      - run: sqruff lint .
+```
+
 #### For other platforms
 
 Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) or compile it yourself and with cargo with the following commands.

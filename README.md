@@ -24,7 +24,7 @@ SQRUFF is an innovative SQL linter and formatter for modern development environm
 
 Sqruff currently supports the following SQL dialects:
 
-- **ANSI SQL** - Standard SQL syntax
+- **ANSI SQL** - Standard SQL syntax - **This dialect is used by default of no other dialect is configured**
 - [**BigQuery**](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
 - [**Athena**](https://docs.aws.amazon.com/athena/latest/ug/ddl-sql-reference.html)
 - [**Clickhouse**](https://clickhouse.com/docs/en/sql-reference/)
@@ -108,6 +108,19 @@ To fix a single or set of files, run the following command:
 
 ```bash
 sqruff fix <file/paths/directory>
+```
+
+#### Configuration
+
+Settings for SQL dialect, indentation, capitaliazation and more can be set in a `.sqlfluff` configration file.
+
+The `.sqlfluff` file should be in the directory that Sqruff is being run from.
+
+For example to set the dialect to SQLite you would create the following `.sqlfluff` file:
+
+```toml
+[sqlfluff]
+dialect = SQLite
 ```
 
 #### Help

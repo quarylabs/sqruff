@@ -24,7 +24,7 @@ SQRUFF is an innovative SQL linter and formatter for modern development environm
 
 Sqruff currently supports the following SQL dialects:
 
-- **ANSI SQL** - Standard SQL syntax - **This dialect is used by default if no other dialect is configured**
+- **ANSI SQL** - Standard SQL syntax - **This dialect is used by default**
 - [**BigQuery**](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
 - [**Athena**](https://docs.aws.amazon.com/athena/latest/ug/ddl-sql-reference.html)
 - [**Clickhouse**](https://clickhouse.com/docs/en/sql-reference/)

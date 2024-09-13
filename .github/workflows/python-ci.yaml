@@ -137,6 +137,7 @@ jobs:
         uses: PyO3/maturin-action@v1.44.0
         with:
           working-directory: crates/cli
+          target: ubuntu-latest
           command: sdist
           args: --out dist
       - name: Upload sdist

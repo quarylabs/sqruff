@@ -15,10 +15,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: crates/cli
-
 permissions:
   contents: read
 

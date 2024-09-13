@@ -25,17 +25,11 @@ pub struct Linter {
     base: SqruffLinter,
 }
 
-impl Default for Linter {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 #[wasm_bindgen]
 impl Linter {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
-        Self { base: SqruffLinter::new(FluffConfig::default(), None, None) }
+    pub fn new(source: &str) -> Self {
+        Self { base: SqruffLinter::new(FluffConfig::from_source(source), None, None) }
     }
 
     #[wasm_bindgen]

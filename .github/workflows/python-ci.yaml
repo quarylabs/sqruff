@@ -38,8 +38,8 @@ jobs:
             target: ppc64le
     steps:
       - uses: actions/checkout@v4
+      - run: cd crates/cli
       - name: Build wheels
-        run: cd crates/cli
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}

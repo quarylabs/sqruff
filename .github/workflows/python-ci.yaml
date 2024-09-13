@@ -38,11 +38,8 @@ jobs:
             target: ppc64le
     steps:
       - uses: actions/checkout@v4
-      - run: pwd
-      - run: cd crates/cli
-      - run: pwd
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@v1.44
         with:
           working-directory: crates/cli
           target: ${{ matrix.platform.target }}
@@ -71,8 +68,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@v1.44
         with:
+          working-directory: crates/cli
           target: ${{ matrix.platform.target }}
           args: --release --out dist
           sccache: 'true'
@@ -95,8 +93,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@v1.44
         with:
+          working-directory: crates/cli
           target: ${{ matrix.platform.target }}
           args: --release --out dist
           sccache: 'true'
@@ -118,8 +117,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@v1.44
         with:
+          working-directory: crates/cli
           target: ${{ matrix.platform.target }}
           args: --release --out dist
           sccache: 'true'
@@ -134,8 +134,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build sdist
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@v1.44
         with:
+          working-directory: crates/cli
           command: sdist
           args: --out dist
       - name: Upload sdist
@@ -144,17 +145,17 @@ jobs:
           name: wheels-sdist
           path: dist
 
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [linux, musllinux, windows, macos, sdist]
-    steps:
-      - uses: actions/download-artifact@v4
-      - name: Publish to PyPI
-        uses: PyO3/maturin-action@v1
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        with:
-          command: upload
-          args: --non-interactive --skip-existing wheels-*/*
+  #release:
+  #  name: Release
+  #  runs-on: ubuntu-latest
+  #  if: "startsWith(github.ref, 'refs/tags/')"
+  #  needs: [linux, musllinux, windows, macos, sdist]
+  #  steps:
+  #    - uses: actions/download-artifact@v4
+  #    - name: Publish to PyPI
+  #      uses: PyO3/maturin-action@v1.44
+  #      env:
+  #        MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+  #      with:
+  #        command: upload
+  #        args: --non-interactive --skip-existing wheels-*/*

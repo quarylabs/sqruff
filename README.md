@@ -118,7 +118,7 @@ The `.sqruff` file should be in the directory that Sqruff is being run from.
 
 For example to set the dialect to SQLite you would create the following `.sqruff` file:
 
-```toml
+```ini
 [sqruff]
 dialect = sqlite
 ```

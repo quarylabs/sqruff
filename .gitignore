@@ -14,3 +14,4 @@ dist
 .DS_Store
 
 .venv/
+.eslintcache

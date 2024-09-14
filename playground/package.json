@@ -2,11 +2,10 @@
   "name": "playground",
   "type": "module",
   "scripts": {
-    "build:wasm": "wasm-pack build ../crates/lib-wasm --target web --out-dir ../../playground/src/pkg",
-    "build": "vite build",
+    "build:wasm": "wasm-pack build ../crates/lib-wasm --release --target web --out-dir ../../playground/src/pkg",
+    "build": "pnpm run build:wasm && vite build",
     "dev": "vite",
     "dev:wasm": "wasm-pack build ../crates/lib-wasm --dev --target web --out-dir ../../playground/src/pkg",
-    "fmt": "prettier --cache -w .",
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {

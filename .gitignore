@@ -12,4 +12,6 @@ dist
 .idea
 
 .DS_Store
+
+.venv/
 .eslintcache

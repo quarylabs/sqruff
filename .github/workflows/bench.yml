@@ -1,14 +1,14 @@
-on: [pull_request]
-name: benchmark pull requests
-env:
-  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
-jobs:
-  benchmark:
-    name: run benchmark
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: boa-dev/criterion-compare-action@59f4d964c5f19d7f13d36f5c0944b18ce6652cb0
-        with:
-          branchName: ${{ github.base_ref }}
-          package: "sqruff-lib"
+#on: [pull_request]
+#name: benchmark pull requests
+#env:
+#  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
+#jobs:
+#  benchmark:
+#    name: run benchmark
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: boa-dev/criterion-compare-action@59f4d964c5f19d7f13d36f5c0944b18ce6652cb0
+#        with:
+#          branchName: ${{ github.base_ref }}
+#          package: "sqruff-lib"

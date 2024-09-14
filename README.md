@@ -20,7 +20,7 @@ SQRUFF is an innovative SQL linter and formatter for modern development environm
 - **Formatting:** Automated, configurable formatting for SQL code consistency.
 - **Portability:** Designed to be easily integrated into various development workflows.
 
-## Dialects Supported 
+## Dialects Supported
 
 Sqruff currently supports the following SQL dialects:
 
@@ -47,7 +47,7 @@ Open our Quary template [template](https://github.dev/quarylabs/template/blob/ma
 
 #### macOS
 
-You can use [brew](https://brew.sh/) to install sqruff easily on macOS. 
+You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
 
 ```bash
 brew install quarylabs/quary/sqruff
@@ -135,7 +135,7 @@ For all the details on the CLI commands and options, see the [CLI documentation]
 
 ## Docs
 
-For more details about, see the documents in the [docs](./docs/) folder which contains: 
+For more details about, see the documents in the [docs](./docs/) folder which contains:
 
 - [Details on the rules](./docs/rules.md)
 - [Details on the CLI](./docs/cli.md)
@@ -145,7 +145,7 @@ For more details about, see the documents in the [docs](./docs/) folder which co
 
 Join the Quary community on [Slack](https://join.slack.com/t/quarylabs/shared_invite/zt-2dlbfnztw-dMLXJVL38NcbhqRuM5gUcw) to ask questions, suggest features, or share your projects. Also feel free to raise any issues in the repository.
 
-## Contributing 
+## Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to run things locally and on how to contribute.
 

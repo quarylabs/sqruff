@@ -19,114 +19,110 @@ permissions:
   contents: read
 
 jobs:
-#  linux:
-#    runs-on: ${{ matrix.platform.runner }}
-#    strategy:
-#      matrix:
-#        platform:
-#          - runner: ubuntu-latest
-#            target: x86_64
-#          - runner: ubuntu-latest
-#            target: x86
-#          - runner: ubuntu-latest
-#            target: aarch64
-#          - runner: ubuntu-latest
-#            target: armv7
-#          #- runner: ubuntu-latest
-#          #  target: s390x
-#          - runner: ubuntu-latest
-#            target: ppc64le
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Build wheels
-#        uses: PyO3/maturin-action@v1
-#        with:
-#          working-directory: crates/cli
-#          target: ${{ matrix.platform.target }}
-#          args: --release --out dist
-#          sccache: 'true'
-#          manylinux: auto
-#      - name: Upload wheels
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: wheels-linux-${{ matrix.platform.target }}
-#          path: crates/cli/dist
-#
-#  musllinux:
-#    runs-on: ${{ matrix.platform.runner }}
-#    strategy:
-#      matrix:
-#        platform:
-#          - runner: ubuntu-latest
-#            target: x86_64
-#          - runner: ubuntu-latest
-#            target: x86
-#          - runner: ubuntu-latest
-#            target: aarch64
-#          - runner: ubuntu-latest
-#            target: armv7
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Build wheels
-#        uses: PyO3/maturin-action@v1
-#        with:
-#          working-directory: crates/cli
-#          target: ${{ matrix.platform.target }}
-#          args: --release --out dist
-#          sccache: 'true'
-#          manylinux: musllinux_1_2
-#      - name: Upload wheels
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: wheels-musllinux-${{ matrix.platform.target }}
-#          path: crates/cli/dist
-#
-#  windows:
-#    runs-on: ${{ matrix.platform.runner }}
-#    strategy:
-#      matrix:
-#        platform:
-#          - runner: windows-latest
-#            target: x64
-#          - runner: windows-latest
-#            target: x86
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Build wheels
-#        uses: PyO3/maturin-action@v1
-#        with:
-#          working-directory: crates/cli
-#          target: ${{ matrix.platform.target }}
-#          args: --release --out dist
-#          sccache: 'true'
-#      - name: Upload wheels
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: wheels-windows-${{ matrix.platform.target }}
-#          path: crates/cli/dist
-#  macos:
-#    runs-on: ${{ matrix.platform.runner }}
-#    strategy:
-#      matrix:
-#        platform:
-#          - runner: macos-12
-#            target: x86_64
-#          - runner: macos-14
-#            target: aarch64
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Build wheels
-#        uses: PyO3/maturin-action@v1
-#        with:
-#          working-directory: crates/cli
-#          target: ${{ matrix.platform.target }}
-#          args: --release --out dist
-#          sccache: 'true'
-#      - name: Upload wheels
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: wheels-macos-${{ matrix.platform.target }}
-#          path: crates/cli/dist
+  linux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64
+          - runner: ubuntu-latest
+            target: x86
+          - runner: ubuntu-latest
+            target: aarch64
+          - runner: ubuntu-latest
+            target: armv7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          working-directory: crates/cli
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist
+          sccache: 'true'
+          manylinux: auto
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.platform.target }}
+          path: crates/cli/dist
+
+  musllinux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64
+          - runner: ubuntu-latest
+            target: x86
+          - runner: ubuntu-latest
+            target: aarch64
+          - runner: ubuntu-latest
+            target: armv7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          working-directory: crates/cli
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist
+          sccache: 'true'
+          manylinux: musllinux_1_2
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-musllinux-${{ matrix.platform.target }}
+          path: crates/cli/dist
+
+  windows:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: windows-latest
+            target: x64
+          - runner: windows-latest
+            target: x86
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          working-directory: crates/cli
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist
+          sccache: 'true'
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-${{ matrix.platform.target }}
+          path: crates/cli/dist
+  macos:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: macos-12
+            target: x86_64
+          - runner: macos-14
+            target: aarch64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          working-directory: crates/cli
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist
+          sccache: 'true'
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-${{ matrix.platform.target }}
+          path: crates/cli/dist
 
   ## For some reason the sdist command fails with an error when running the github action.
   ## Not sure if thisnis actually needed for sqruff???

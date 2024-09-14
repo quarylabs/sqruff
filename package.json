@@ -5,5 +5,12 @@
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
-  "engineStrict": true
+  "engineStrict": true,
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  },
+  "scripts": {
+    "fmt": "prettier --cache -w editors playground README.md .github/**/*.{yaml,yml}",
+    "fmt:check": "prettier --cache --check editors playground README.md .github/**/*.{yaml,yml}"
+  }
 }

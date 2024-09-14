@@ -1,139 +1,139 @@
-#on:
-#  pull_request:
-#  merge_group:
-#name: PR Checks
-#env:
-#  CARGO_INCREMENTAL: 0
-#  CARGO_NET_RETRY: 10
-#  RUSTUP_MAX_RETRIES: 10
-#  RUST_BACKTRACE: short
-#  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
-#jobs:
-#  check-licenses-readmes-match:
-#    name: Check licenses match
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Copy LICENSE to editors/code directory
-#        run: cp LICENSE editors/code/LICENSE
-#      - name: Copy README.md to editors/code directory
-#        run: cp README.md editors/code/README.md
-#      - name: Check there is no change
-#        run: git diff --quiet || exit 1
-#  check-versions-match:
-#    name: Check versions match
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Install jq
-#        run: sudo apt-get install jq
-#      - name: Allow running check_versions_match.sh
-#        run: chmod +x ./.hacking/scripts/check_versions_match.sh
-#      - run: ./.hacking/scripts/check_versions_match.sh
-#  check:
-#    name: Rust Check
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: Swatinem/rust-cache@v2
-#      - uses: dtolnay/rust-toolchain@nightly
-#      - run: cargo check --all --all-features --tests --benches
-#  compile:
-#    name: Compile
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: Swatinem/rust-cache@v2
-#      - uses: dtolnay/rust-toolchain@nightly
-#      - run: cargo build --locked --release --all-features
-#  compile-wasm:
-#    name: Compile wasm32-unknown-unknown
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: Swatinem/rust-cache@v2
-#      - name: Add WASM target
-#        run: rustup target add wasm32-unknown-unknown
-#      - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
-#  typescript:
-#    name: TypeScript
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: Swatinem/rust-cache@v2
-#      - uses: pnpm/action-setup@v4
-#        name: Install pnpm
-#        with:
-#          version: 9
-#          run_install: false
-#      - name: Install Nodejs
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version-file: ".nvmrc"
-#          cache: "pnpm"
-#      - run: pnpm install --frozen-lockfile
-#      - uses: dtolnay/rust-toolchain@nightly
-#      - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-#      - run: cd editors/code && pnpm run build:wasm_lsp
-#      - run: cd editors/code && pnpm run check-types
-#      - run: cd editors/code && pnpm run lint
-#      - run: cd editors/code && pnpm run format:check
-#  test:
-#    name: Test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: dtolnay/rust-toolchain@nightly
-#      - uses: Swatinem/rust-cache@v2
-#      - uses: taiki-e/install-action@nextest
-#      - name: Run tests
-#        run: cargo nextest run --locked --release
-#      - name: Check for diffs
-#        run: git diff --quiet || exit 1
-#  benchmark:
-#    name: Benchmark
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: dtolnay/rust-toolchain@nightly
-#      - uses: Swatinem/rust-cache@v2
-#      - name: Run benchmarks
-#        run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml
-#  fmt:
-#    name: Format
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: Swatinem/rust-cache@v2
-#      - name: Checkout sources
-#        uses: actions/checkout@v4
-#      - uses: dtolnay/rust-toolchain@nightly
-#        with:
-#          components: rustfmt
-#      - name: Run cargo fmt
-#        run: cargo fmt --all -- --check
-#  lint:
-#    name: Lint
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: Swatinem/rust-cache@v2
-#      - name: Checkout sources
-#        uses: actions/checkout@v4
-#      - uses: dtolnay/rust-toolchain@nightly
-#        with:
-#          components: clippy
-#      - uses: taiki-e/install-action@cargo-machete
-#      - name: Run cargo clippy
-#        run: cargo clippy --all --all-features -- -D warnings
-#      - name: Check unused dependencies
-#        run: cargo machete
-#  check-github-actions-formatting:
-#    name: Check GitHub Actions formatting
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version-file: .nvmrc
-#      - name: Install make
-#        run: sudo apt-get install make
-#      - run: make prettier_lint
+on:
+  pull_request:
+  merge_group:
+name: PR Checks
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  RUSTUP_MAX_RETRIES: 10
+  RUST_BACKTRACE: short
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
+jobs:
+  check-licenses-readmes-match:
+    name: Check licenses match
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy LICENSE to editors/code directory
+        run: cp LICENSE editors/code/LICENSE
+      - name: Copy README.md to editors/code directory
+        run: cp README.md editors/code/README.md
+      - name: Check there is no change
+        run: git diff --quiet || exit 1
+  check-versions-match:
+    name: Check versions match
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get install jq
+      - name: Allow running check_versions_match.sh
+        run: chmod +x ./.hacking/scripts/check_versions_match.sh
+      - run: ./.hacking/scripts/check_versions_match.sh
+  check:
+    name: Rust Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo check --all --all-features --tests --benches
+  compile:
+    name: Compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo build --locked --release --all-features
+  compile-wasm:
+    name: Compile wasm32-unknown-unknown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Add WASM target
+        run: rustup target add wasm32-unknown-unknown
+      - run: cargo build --package sqruff-lib --locked --release --target wasm32-unknown-unknown
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - run: cd editors/code && pnpm run build:wasm_lsp
+      - run: cd editors/code && pnpm run check-types
+      - run: cd editors/code && pnpm run lint
+      - run: cd editors/code && pnpm run format:check
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@nextest
+      - name: Run tests
+        run: cargo nextest run --locked --release
+      - name: Check for diffs
+        run: git diff --quiet || exit 1
+  benchmark:
+    name: Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+      - name: Run benchmarks
+        run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Swatinem/rust-cache@v2
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Swatinem/rust-cache@v2
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy
+      - uses: taiki-e/install-action@cargo-machete
+      - name: Run cargo clippy
+        run: cargo clippy --all --all-features -- -D warnings
+      - name: Check unused dependencies
+        run: cargo machete
+  check-github-actions-formatting:
+    name: Check GitHub Actions formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install make
+        run: sudo apt-get install make
+      - run: make prettier_lint

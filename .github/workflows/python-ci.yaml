@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 jobs:
-  linux:
+#  linux:
 #    runs-on: ${{ matrix.platform.runner }}
 #    strategy:
 #      matrix:

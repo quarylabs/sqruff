@@ -14,6 +14,13 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
+    pub fn from_dialect(dialect: &'a Dialect) -> Self {
+        Self {
+            dialect,
+            indentation_config: AHashMap::default(),
+        }
+    }
+
     pub fn new(dialect: &'a Dialect, indentation_config: AHashMap<String, bool>) -> Self {
         Self { dialect, indentation_config }
     }

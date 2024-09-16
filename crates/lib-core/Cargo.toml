@@ -23,7 +23,7 @@ strum_macros = "0.26.4"
 nohash-hasher = "0.2.0"
 itertools = "0.13.0"
 fancy-regex = "0.13"
-pretty_assertions = "1.4.0"
+pretty_assertions = "1.4.1"
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_yaml = { version = "0.9.34", optional = true }
 rustc-hash = "2.0.0"

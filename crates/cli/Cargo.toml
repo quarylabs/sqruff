@@ -21,7 +21,7 @@ codegen-docs = ["clap-markdown", "minijinja", "serde"]
 
 [dependencies]
 sqruff-lib.workspace = true
-lsp = { version = "0.17.0", package = "sqruff-lsp", path = "../lsp" }
+lsp = { version = "0.18.0", package = "sqruff-lsp", path = "../lsp" }
 clap = { version = "4", features = ["derive"] }
 console = "0.15.8"
 

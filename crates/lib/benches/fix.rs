@@ -69,7 +69,7 @@ fn fix(c: &mut Criterion) {
     let linter = Linter::new(sqruff_lib::core::config::FluffConfig::default(), None, None);
     for (name, source) in passes {
         let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, source, None, None, None).unwrap();
+        let parsed = linter.parse_string(&tables, source, None, None).unwrap();
 
         c.bench_function(name, |b| {
             b.iter(|| {

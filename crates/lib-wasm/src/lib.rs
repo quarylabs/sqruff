@@ -37,7 +37,7 @@ impl Linter {
         let line_index = LineIndex::new(sql);
 
         let rule_pack = self.base.get_rulepack().rules();
-        let result = self.base.lint_string(sql, None, None, None, rule_pack, false);
+        let result = self.base.lint_string(sql, None, None, rule_pack, false);
         let violations = result.violations;
 
         violations
@@ -60,7 +60,7 @@ impl Linter {
     #[wasm_bindgen]
     pub fn format(&self, sql: &str) -> String {
         let rule_pack = self.base.get_rulepack().rules();
-        let tree = self.base.lint_string(sql, None, None, None, rule_pack, true);
+        let tree = self.base.lint_string(sql, None, None, rule_pack, true);
         tree.fix_string()
     }
 }

@@ -11,7 +11,6 @@ pub struct RenderedFile {
     pub templated_file: TemplatedFile,
     pub templater_violations: Vec<SQLTemplaterError>,
     pub(crate) f_name: String,
-    pub encoding: String,
     pub source_str: String,
 }
 

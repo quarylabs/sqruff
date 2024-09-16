@@ -73,14 +73,7 @@ impl Linter {
         let f_name = f_name.unwrap_or_else(|| "<string input>".into());
 
         let mut linted_path = LintedDir::new(f_name.clone());
-        linted_path.add(self.lint_string(
-            sql,
-            Some(f_name),
-            None,
-            None,
-            rules,
-            fix.unwrap_or_default(),
-        ));
+        linted_path.add(self.lint_string(sql, Some(f_name), None, rules, fix.unwrap_or_default()));
 
         let mut result = LintingResult::new();
         result.add(linted_path);
@@ -94,18 +87,17 @@ impl Linter {
         tables: &Tables,
         in_str: &str,
         f_name: Option<String>,
-        encoding: Option<String>,
+
         parse_statistics: Option<bool>,
     ) -> Result<ParsedString, SQLFluffUserError> {
         let f_name = f_name.unwrap_or_else(|| "<string>".to_string());
-        let encoding = encoding.unwrap_or_else(|| "utf-8".to_string());
         let parse_statistics = parse_statistics.unwrap_or(false);
 
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
 
         // Scan the raw file for config commands.
         self.config.process_raw_file_for_config(in_str);
-        let rendered = self.render_string(in_str, f_name, &self.config, Some(encoding))?;
+        let rendered = self.render_string(in_str, f_name, &self.config)?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));
@@ -126,7 +118,6 @@ impl Linter {
         in_str: &str,
         f_name: Option<String>,
         config: Option<&FluffConfig>,
-        _encoding: Option<String>,
         rules: Vec<ErasedRule>,
         fix: bool,
     ) -> LintedFile {
@@ -134,7 +125,7 @@ impl Linter {
         let _defaulted_config = config.unwrap_or(&self.config);
         // Parse the string.
         let tables = Tables::default();
-        let parsed = self.parse_string(&tables, in_str, f_name, None, None).unwrap();
+        let parsed = self.parse_string(&tables, in_str, f_name, None).unwrap();
 
         // Lint the file and return the LintedFile
         self.lint_parsed(&tables, parsed, rules, fix)
@@ -185,7 +176,7 @@ impl Linter {
 
     pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
-        self.render_string(&in_str, fname, &self.config, None).unwrap()
+        self.render_string(&in_str, fname, &self.config).unwrap()
     }
 
     pub fn lint_rendered(
@@ -346,7 +337,6 @@ impl Linter {
         in_str: &str,
         f_name: String,
         config: &FluffConfig,
-        encoding: Option<String>,
     ) -> Result<RenderedFile, SQLFluffUserError> {
         let in_str = Self::normalise_newlines(in_str);
 
@@ -372,9 +362,7 @@ impl Linter {
         Ok(RenderedFile {
             templated_file,
             templater_violations,
-
             f_name: f_name.to_owned(),
-            encoding: encoding.to_owned().unwrap_or_else(|| "UTF-8".into()),
             source_str: f_name.to_owned(),
         })
     }
@@ -708,7 +696,7 @@ mod tests {
     fn test_linter_empty_file() {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, "", None, None, None).unwrap();
+        let parsed = linter.parse_string(&tables, "", None, None).unwrap();
 
         assert!(parsed.violations.is_empty());
     }
@@ -735,7 +723,7 @@ mod tests {
 
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let tables = Tables::default();
-        let _parsed = linter.parse_string(&tables, &sql, None, None, None).unwrap();
+        let _parsed = linter.parse_string(&tables, &sql, None, None).unwrap();
     }
 
     #[test]

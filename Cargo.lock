@@ -1919,6 +1919,7 @@ version = "0.17.0"
 dependencies = [
  "line-index",
  "sqruff-lib",
+ "sqruff-lib-core",
  "wasm-bindgen",
 ]
 

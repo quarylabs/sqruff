@@ -12,4 +12,5 @@ bench = false
 [dependencies]
 line-index = "0.1.1"
 sqruff-lib.workspace = true
+sqruff-lib-core = { path = "../lib-core", features = ["stringify"] }
 wasm-bindgen = "0.2"

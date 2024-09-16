@@ -171,8 +171,8 @@ impl ErasedSegment {
     }
 
     #[cfg(feature = "stringify")]
-    pub fn stringify(&self) -> String {
-        serde_yaml::to_string(&self.to_serialised(true, true)).unwrap()
+    pub fn stringify(&self, code_only: bool) -> String {
+        serde_yaml::to_string(&self.to_serialised(code_only, true)).unwrap()
     }
 
     pub fn child(&self, seg_types: &SyntaxSet) -> Option<ErasedSegment> {

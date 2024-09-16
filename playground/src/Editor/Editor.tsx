@@ -1,6 +1,6 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { Panel, PanelGroup } from "react-resizable-panels";
-import { Linter } from "../pkg";
+import { Linter, Result } from "../pkg";
 import PrimarySideBar from "./PrimarySideBar";
 import { HorizontalResizeHandle } from "./ResizeHandle";
 import SecondaryPanel, { SecondaryTool } from "./SecondaryPanel";
@@ -61,26 +61,14 @@ export default function Editor({
 
   const deferredSource = useDeferredValue(source);
 
-  const checkResult = useMemo(() => {
+  const checkResult: Result = useMemo(() => {
     const { sqlSource, settingsSource } = deferredSource;
     try {
-      console.log(settingsSource);
       const linter = new Linter(settingsSource);
 
-      let secondary = "";
-      switch (secondaryTool) {
-        case "Format":
-          secondary = linter.format(sqlSource);
-          break;
-      }
-
-      return {
-        diagnostics: linter.check(sqlSource),
-        secondary: secondary,
-      };
+      return linter.check(sqlSource, secondaryTool);
     } catch (error) {
-      console.log(error);
-      return { diagnostics: [], secondary: "" };
+      return new Result();
     }
   }, [deferredSource, secondaryTool]);
 

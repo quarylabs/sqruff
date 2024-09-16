@@ -2,6 +2,7 @@ import MonacoEditor from "@monaco-editor/react";
 
 export enum SecondaryTool {
   "Format" = "Format",
+  "Cst" = "Cst",
 }
 
 export default function SecondaryPanel({ result }: { result: string }) {

@@ -1,5 +1,5 @@
 import SideBar, { SideBarEntry } from "./SideBar";
-import { FormatIcon } from "./Icons";
+import { FormatIcon, StructureIcon } from "./Icons";
 import { SecondaryTool } from "./SecondaryPanel";
 
 interface RightSideBarProps {
@@ -20,6 +20,15 @@ export default function SecondarySideBar({
         onClick={() => onSelected(SecondaryTool.Format)}
       >
         <FormatIcon />
+      </SideBarEntry>
+
+      <SideBarEntry
+        title="CST"
+        position={"right"}
+        selected={selected === SecondaryTool.Cst}
+        onClick={() => onSelected(SecondaryTool.Cst)}
+      >
+        <StructureIcon />
       </SideBarEntry>
     </SideBar>
   );

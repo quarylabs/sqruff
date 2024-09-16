@@ -50,6 +50,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@nightly
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: cd editors/code && pnpm run package
       - name: Publish GitHub release

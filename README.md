@@ -14,11 +14,14 @@
   </a>
 </p>
 
-SQRUFF is an innovative SQL linter and formatter for modern development environments, written in Rust. Key features include:
+`sqruff` is a SQL linter and formatter written in Rust. Key features include:
 
 - **Linting:** Advanced, customizable SQL linting capabilities to ensure query quality.
 - **Formatting:** Automated, configurable formatting for SQL code consistency.
-- **Portability:** Designed to be easily integrated into various development workflows.
+- **Speed:** Fast and efficient, with minimal overhead.
+- **Portability:** Designed to be easily integrated into various development workflows like a website.
+
+Try it out in the [playground](https://playground.quary.dev)!
 
 ## Dialects Supported
 
@@ -39,9 +42,9 @@ While those above are the supported dialects, we are working on adding support f
 
 ## Getting Started
 
-### Try it out in your browser
+### Try it in your browser
 
-Open our Quary template [template](https://github.dev/quarylabs/template/blob/main/models/shifts_summary.sql), install the [recommended sqruff extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff), change the file and see the fixes on save.
+Open the [playground](https://playground.quary.dev) to try out the linter and formatter online.
 
 ### Installation
 
@@ -151,4 +154,4 @@ Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelin
 
 ## Credits
 
-The sqruff project wouldn't be possible without "heavy inspiration" from [Sqlfluff](https://sqlfluff.com/)! We're very grateful to their awesome work!
+The sqruff project wouldn't be possible without "heavy inspiration" from the [sqlfluff](https://sqlfluff.com/) and [ruff](https://github.com/astral-sh/ruff) projects! We're very grateful to their awesome work!

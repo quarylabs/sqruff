@@ -2,6 +2,8 @@
   "name": "playground",
   "type": "module",
   "scripts": {
+    "build:wasm": "wasm-pack build ../crates/lib-wasm --target web --out-dir ../../playground/src/pkg",
+    "build": "vite build",
     "dev": "vite",
     "dev:wasm": "wasm-pack build ../crates/lib-wasm --dev --target web --out-dir ../../playground/src/pkg",
     "fmt": "prettier --cache -w .",

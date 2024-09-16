@@ -173,7 +173,7 @@ mod tests {
         for (raw, err_locations) in tests {
             let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
             let tables = Tables::default();
-            let parsed = lnt.parse_string(&tables, raw, None, None, None).unwrap();
+            let parsed = lnt.parse_string(&tables, raw, None, None).unwrap();
             assert!(!parsed.violations.is_empty());
 
             let locs: Vec<(usize, usize)> =
@@ -191,7 +191,7 @@ mod tests {
         .expect("Unable to read file");
 
         let tables = Tables::default();
-        let parsed = lnt.parse_string(&tables, &file_content, None, None, None).unwrap();
+        let parsed = lnt.parse_string(&tables, &file_content, None, None).unwrap();
 
         for raw_seg in parsed.tree.unwrap().get_raw_segments() {
             if raw_seg.is_type(SyntaxKind::Whitespace) || raw_seg.is_type(SyntaxKind::Newline) {
@@ -213,7 +213,7 @@ mod tests {
 
         for (sql_string, meta_loc) in cases {
             let tables = Tables::default();
-            let parsed = lnt.parse_string(&tables, sql_string, None, None, None).unwrap();
+            let parsed = lnt.parse_string(&tables, sql_string, None, None).unwrap();
             let tree = parsed.tree.unwrap();
 
             let res_meta_locs = tree

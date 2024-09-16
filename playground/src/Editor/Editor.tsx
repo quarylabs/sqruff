@@ -68,6 +68,7 @@ export default function Editor({
 
       return linter.check(sqlSource, secondaryTool);
     } catch (error) {
+      console.log(error);
       return new Result();
     }
   }, [deferredSource, secondaryTool]);
@@ -113,8 +114,7 @@ export default function Editor({
 
 function parseSecondaryTool(tool: string): SecondaryTool | null {
   if (Object.hasOwn(SecondaryTool, tool)) {
-    return tool as any;
+    return tool as SecondaryTool;
   }
-
   return null;
 }

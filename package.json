@@ -10,6 +10,7 @@
     "prettier": "^3.3.3"
   },
   "scripts": {
+    "lint": "pnpm run -r lint",
     "fmt": "prettier --cache -w editors playground README.md .github/**/*.{yaml,yml}",
     "fmt:check": "prettier --cache --check editors playground README.md .github/**/*.{yaml,yml}"
   }

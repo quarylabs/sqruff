@@ -17,7 +17,7 @@ module.exports = {
         radiate: "#D7FF64",
         flare: "#6340AC",
         rock: "#78876E",
-        galaxy: "#261230",
+        galaxy: "#181818",
         space: "#30173D",
         comet: "#6F5D6F",
         cosmic: "#DE5FE9",

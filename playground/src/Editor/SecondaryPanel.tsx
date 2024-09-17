@@ -25,7 +25,7 @@ export default function SecondaryPanel({
             scrollBeyondLastLine: false,
             contextmenu: false,
           }}
-          language={tool === "Format" ? "sql" : "yml"}
+          language={tool === "Format" ? "sql" : "yaml"}
           value={result}
         />
       </div>

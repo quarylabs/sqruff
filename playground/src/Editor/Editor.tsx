@@ -99,7 +99,10 @@ export default function Editor({
               className={"my-2"}
               minSize={10}
             >
-              <SecondaryPanel result={checkResult.secondary} />
+              <SecondaryPanel
+                tool={secondaryTool}
+                result={checkResult.secondary}
+              />
             </Panel>
           </>
         )}

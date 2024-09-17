@@ -64,6 +64,14 @@ Using `bash`:
 curl -fsSL https://raw.githubusercontent.com/quarylabs/sqruff/main/install.sh | bash
 ```
 
+#### Pip
+
+You can also install sqruff using [pip](https://pypi.org/project/sqruff/).
+
+```bash
+pip install sqruff
+```
+
 #### GitHub Action
 
 You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline.

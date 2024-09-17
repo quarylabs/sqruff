@@ -141,7 +141,8 @@ impl FluffConfig {
 
         let mut this = Self {
             raw: configs,
-            dialect,
+            dialect: dialect
+                .expect("Dialect is disabled. Please enable the corresponding feature."),
             extra_config_path,
             _configs: AHashMap::new(),
             indentation: indentation.unwrap_or_default(),

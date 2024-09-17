@@ -12,6 +12,32 @@ crate-type = ["cdylib", "rlib"]
 name = "dialects"
 harness = false
 
+[features]
+default = [
+    "athena",
+    "bigquery",
+    "clickhouse",
+    "duckdb",
+    "hive",
+    "postgres",
+    "redshift",
+    "snowflake",
+    "sparksql",
+    "sqlite",
+    "trino",
+]
+athena = []
+bigquery = []
+clickhouse = []
+duckdb = ["postgres"]
+hive = []
+postgres = []
+redshift = ["postgres"]
+snowflake = []
+sparksql = ["hive"]
+sqlite = []
+trino = []
+
 [dependencies]
 sqruff-lib-core = { path = "../lib-core" }
 itertools = "0.13.0"

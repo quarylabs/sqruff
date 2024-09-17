@@ -80,7 +80,10 @@ fn main() {
     // Go through each of the dialects and check if the files are present
     for dialect_name in &dialects {
         let dialect_kind = DialectKind::from_str(dialect_name).unwrap();
-        let dialect = kind_to_dialect(&dialect_kind);
+        let Some(dialect) = kind_to_dialect(&dialect_kind) else {
+            println!("{} disabled", dialect_name);
+            continue;
+        };
 
         let path = format!("test/fixtures/dialects/{}/*.sql", dialect_name);
         let files = glob::glob(&path).unwrap().flatten().collect_vec();

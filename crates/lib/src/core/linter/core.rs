@@ -553,7 +553,7 @@ impl Linter {
 
         let mut buffer = Vec::new();
         let mut ignores = AHashMap::new();
-        let sql_file_exts = self.config.sql_file_exts(); // Replace with actual extensions
+        let sql_file_exts = self.config.sql_file_exts();
 
         for (dirpath, _, filenames) in path_walk {
             for fname in filenames {
@@ -593,6 +593,10 @@ impl Linter {
         let mut files = filtered_buffer.into_iter().collect_vec();
         files.sort();
         files
+    }
+
+    pub fn config(&self) -> &FluffConfig {
+        &self.config
     }
 
     pub fn config_mut(&mut self) -> &mut FluffConfig {

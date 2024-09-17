@@ -1917,7 +1917,9 @@ dependencies = [
 name = "sqruff-wasm"
 version = "0.18.0"
 dependencies = [
+ "ahash",
  "line-index",
+ "lineage",
  "sqruff-lib",
  "sqruff-lib-core",
  "wasm-bindgen",

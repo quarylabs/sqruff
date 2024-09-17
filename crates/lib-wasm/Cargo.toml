@@ -14,3 +14,5 @@ line-index = "0.1.1"
 sqruff-lib.workspace = true
 sqruff-lib-core = { path = "../lib-core", features = ["stringify"] }
 wasm-bindgen = "0.2"
+lineage = { path = "../lineage" }
+ahash.workspace = true

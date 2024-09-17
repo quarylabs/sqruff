@@ -1,6 +1,9 @@
+use ahash::AHashMap;
 use line_index::LineIndex;
+use lineage::{Lineage, Node};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
+use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::base::Tables;
 use wasm_bindgen::prelude::*;
 
@@ -32,7 +35,7 @@ pub struct Linter {
 pub enum Tool {
     Format = "Format",
     Cst = "Cst",
-    None = "None",
+    Lineage = "Lineage",
 }
 
 #[wasm_bindgen]
@@ -79,10 +82,7 @@ impl Linter {
         let tables = Tables::default();
         let parsed = self.base.parse_string(&tables, sql, None, None).unwrap();
 
-        let mut cst = None;
-        if tool == Tool::Cst {
-            cst = parsed.tree.clone();
-        }
+        let cst = if tool == Tool::Cst { parsed.tree.clone() } else { None };
 
         let mut result = self.base.lint_parsed(&tables, parsed, rule_pack, tool == Tool::Format);
         let violations = &mut result.violations;
@@ -106,10 +106,61 @@ impl Linter {
         let secondary = match tool {
             Tool::Format => result.fix_string(),
             Tool::Cst => cst.unwrap().stringify(false),
-            Tool::None => String::new(),
-            Tool::__Invalid => String::new(),
+            Tool::Lineage => {
+                let parser = Parser::new(self.base.config().get_dialect(), AHashMap::new());
+                let (tables, node) = Lineage::new(parser, "", sql).build();
+
+                print_tree(&tables, node, "", "", "")
+            }
+            Tool::__Invalid => String::from("Error: unsupported tool"),
         };
 
         Result { diagnostics, secondary }
     }
+}
+
+fn print_tree(
+    tables: &lineage::ir::Tables,
+    node: Node,
+    parent_prefix: &str,
+    immediate_prefix: &str,
+    parent_suffix: &str,
+) -> String {
+    use std::fmt::Write;
+
+    let node_data = &tables.nodes[node];
+
+    let name = &node_data.name;
+    let source = tables.stringify(node_data.source);
+    let expression = tables.stringify(node_data.expression);
+    let source_name = &node_data.source_name;
+    let reference_node_name = &&node_data.reference_node_name;
+
+    let mut string = String::new();
+
+    let _ = writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}name: {name}", "", 0);
+    let _ = writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}source: {source}", "", 0);
+    let _ =
+        writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}expression: {expression}", "", 0);
+    let _ =
+        writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}source_name: {source_name}", "", 0);
+    let _ = writeln!(
+        string,
+        "{:1$}{parent_prefix}{immediate_prefix}reference_node_name: {reference_node_name}",
+        "", 0
+    );
+
+    let mut it = node_data.downstream.iter().peekable();
+    let child_prefix = format!("{0}{1}", parent_prefix, parent_suffix);
+
+    while let Some(child) = it.next().copied() {
+        let ret = match it.peek() {
+            None => print_tree(tables, child, &child_prefix, "└─ ", "   "),
+            Some(_) => print_tree(tables, child, &child_prefix, "├─ ", "│  "),
+        };
+
+        string.push_str(&ret);
+    }
+
+    string
 }

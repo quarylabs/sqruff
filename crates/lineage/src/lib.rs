@@ -558,7 +558,7 @@ mod tests {
     #[test]
     #[ignore = "TODO"]
     fn test_lineage_lateral_flatten() {
-        let dialect = sqruff_lib_dialects::kind_to_dialect(&DialectKind::Snowflake);
+        let dialect = sqruff_lib_dialects::snowflake::dialect();
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(

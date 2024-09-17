@@ -1,5 +1,5 @@
 import SideBar, { SideBarEntry } from "./SideBar";
-import { FormatIcon, StructureIcon } from "./Icons";
+import { FormatIcon, LineageIcon, StructureIcon } from "./Icons";
 import { SecondaryTool } from "./SecondaryPanel";
 
 interface RightSideBarProps {
@@ -29,6 +29,15 @@ export default function SecondarySideBar({
         onClick={() => onSelected(SecondaryTool.Cst)}
       >
         <StructureIcon />
+      </SideBarEntry>
+
+      <SideBarEntry
+        title="Lineage"
+        position={"right"}
+        selected={selected === SecondaryTool.Lineage}
+        onClick={() => onSelected(SecondaryTool.Lineage)}
+      >
+        <LineageIcon />
       </SideBarEntry>
     </SideBar>
   );

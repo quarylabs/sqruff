@@ -8,7 +8,7 @@ use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 mod expand;
-mod ir;
+pub mod ir;
 mod qualify;
 mod schema;
 mod scope;

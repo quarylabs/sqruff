@@ -3,31 +3,32 @@ import MonacoEditor from "@monaco-editor/react";
 export enum SecondaryTool {
   "Format" = "Format",
   "Cst" = "Cst",
+  "Lineage" = "Lineage",
 }
 
-export default function SecondaryPanel({ result }: { result: string }) {
+export default function SecondaryPanel({
+  tool,
+  result,
+}: {
+  tool: SecondaryTool;
+  result: string;
+}) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-grow">
-        <Content result={result} />
+        <MonacoEditor
+          options={{
+            readOnly: true,
+            minimap: { enabled: false },
+            fontSize: 14,
+            roundedSelection: false,
+            scrollBeyondLastLine: false,
+            contextmenu: false,
+          }}
+          language={tool === "Format" ? "sql" : "yml"}
+          value={result}
+        />
       </div>
     </div>
-  );
-}
-
-function Content({ result }: { result: string }) {
-  return (
-    <MonacoEditor
-      options={{
-        readOnly: true,
-        minimap: { enabled: false },
-        fontSize: 14,
-        roundedSelection: false,
-        scrollBeyondLastLine: false,
-        contextmenu: false,
-      }}
-      language={"sql"}
-      value={result}
-    />
   );
 }

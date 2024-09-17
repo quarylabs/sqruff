@@ -114,7 +114,7 @@ impl Tables {
         dummy
     }
 
-    pub(crate) fn stringify(&self, expr: Expr) -> String {
+    pub fn stringify(&self, expr: Expr) -> String {
         match &self.exprs[expr].kind {
             ExprKind::Function(callee, args) => {
                 let args =

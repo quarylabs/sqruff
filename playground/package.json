@@ -2,7 +2,7 @@
   "name": "playground",
   "type": "module",
   "scripts": {
-    "build:wasm": "wasm-pack build ../crates/lib-wasm --release --target web --out-dir ../../playground/src/pkg",
+    "build:wasm": "cross-env RUSTFLAGS=\"-C opt-level=z\" wasm-pack build ../crates/lib-wasm --target web --out-dir ../../playground/src/pkg -Z build-std=panic_abort,std -Z build-std-features=panic_immediate_abort",
     "build": "pnpm run build:wasm && vite build",
     "dev": "vite",
     "dev:wasm": "wasm-pack build ../crates/lib-wasm --dev --target web --out-dir ../../playground/src/pkg",
@@ -13,6 +13,7 @@
     "@typescript-eslint/eslint-plugin": "^8.6.0",
     "@typescript-eslint/parser": "^8.6.0",
     "classnames": "^2.5.1",
+    "cross-env": "^7.0.3",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.30.0",

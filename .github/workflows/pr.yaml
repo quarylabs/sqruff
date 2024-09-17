@@ -73,6 +73,7 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - uses: dtolnay/rust-toolchain@nightly
+      - run: rustup component add rust-src --toolchain nightly-2024-07-22-x86_64-unknown-linux-gnu
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: pnpm run ci
   test:

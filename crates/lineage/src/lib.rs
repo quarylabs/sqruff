@@ -4,6 +4,7 @@ use std::fmt::Display;
 use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
+use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
 use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
@@ -72,13 +73,13 @@ impl<'config> Lineage<'config> {
 
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = sqruff_lib_core::parser::segments::base::Tables::default();
-    let (tokens, _) = sqruff_lib::core::linter::core::Linter::lex_templated_file(
-        &tables,
-        source.into(),
-        parser.dialect(),
-    );
+    let ansi = sqruff_lib_dialects::ansi::dialect();
+    let lexer = Lexer::new(&ansi);
 
-    let tokens = tokens.unwrap_or_default();
+    let tokens = lexer
+        .lex(&tables, StringOrTemplate::String(source))
+        .map_or(Vec::new(), |(tokens, _)| tokens);
+
     let tables = sqruff_lib_core::parser::segments::base::Tables::default();
     parser.parse(&tables, &tokens, None, false).unwrap().unwrap()
 }
@@ -354,15 +355,15 @@ fn to_node(
 mod tests {
     use std::collections::HashMap;
 
-    use sqruff_lib::core::config::{FluffConfig, Value};
+    use sqruff_lib_core::dialects::init::DialectKind;
     use sqruff_lib_core::parser::parser::Parser;
 
     use crate::Lineage;
 
     #[test]
     fn test_lineage() {
-        let config = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
             .source("y", "SELECT * FROM x")
@@ -391,8 +392,8 @@ mod tests {
 
     #[test]
     fn test_lineage_sql_with_cte() {
-        let config = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
             Lineage::new(parser, "a", "WITH z AS (SELECT a FROM y) SELECT a FROM z")
@@ -426,8 +427,8 @@ mod tests {
 
     #[test]
     fn test_lineage_source_with_cte() {
-        let config = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
             .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
@@ -459,8 +460,8 @@ mod tests {
 
     #[test]
     fn test_lineage_source_with_star() {
-        let config = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
             Lineage::new(parser, "a", "WITH y AS (SELECT * FROM x) SELECT a FROM y").build();
@@ -481,8 +482,8 @@ mod tests {
 
     #[test]
     fn test_lineage_external_col() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
             parser.clone(),
@@ -497,8 +498,8 @@ mod tests {
 
     #[test]
     fn test_lineage_values() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM y")
             .source("y", "SELECT a FROM (VALUES (1), (2)) AS t (a)")
@@ -530,8 +531,8 @@ mod tests {
 
     #[test]
     fn test_lineage_union() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
             parser.clone(),
@@ -557,16 +558,8 @@ mod tests {
     #[test]
     #[ignore = "TODO"]
     fn test_lineage_lateral_flatten() {
-        let config = FluffConfig::new(
-            [(
-                "core".into(),
-                Value::Map([("dialect".into(), Value::String("snowflake".into()))].into()),
-            )]
-            .into(),
-            None,
-            None,
-        );
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::kind_to_dialect(&DialectKind::Snowflake);
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
             parser,
@@ -585,8 +578,8 @@ mod tests {
 
     #[test]
     fn test_subquery() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
             parser.clone(),
@@ -622,8 +615,8 @@ mod tests {
 
     #[test]
     fn test_lineage_cte_union() {
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
             parser,
@@ -664,8 +657,8 @@ mod tests {
 
     #[test]
     fn test_lineage_source_union() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "x", "SELECT x, created_at FROM dataset;")
             .source(
@@ -704,8 +697,8 @@ mod tests {
 
     #[test]
     fn test_select_star() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
             Lineage::new(parser, "x", "SELECT x from (SELECT * from table_a)").build();
@@ -724,8 +717,8 @@ mod tests {
 
     #[test]
     fn test_unnest() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
             parser,
@@ -742,16 +735,8 @@ mod tests {
     #[test]
     #[ignore = "TODO:"]
     fn test_lineage_normalize() {
-        let config = FluffConfig::new(
-            [(
-                "core".into(),
-                Value::Map([("dialect".into(), Value::String("snowflake".into()))].into()),
-            )]
-            .into(),
-            None,
-            None,
-        );
-        let parser: Parser = (&config).into();
+        let dialect = sqruff_lib_dialects::snowflake::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
             Lineage::new(parser.clone(), "a", "WITH x AS (SELECT 1 a) SELECT a FROM x").build();
@@ -769,8 +754,8 @@ mod tests {
 
     #[test]
     fn test_trim() {
-        let config: FluffConfig = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
             Lineage::new(parser, "a", "SELECT a, b, c\nFROM (select a, b, c from y) z")
@@ -795,8 +780,8 @@ mod tests {
 
     #[test]
     fn test_node_name_doesnt_contain_comment() {
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
             Lineage::new(parser, "x", "SELECT * FROM (SELECT x /* c */ FROM t1) AS t2").build();

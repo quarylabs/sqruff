@@ -1054,8 +1054,8 @@ dependencies = [
  "append-only-vec",
  "indexmap 2.5.0",
  "polonius-the-crab",
- "sqruff-lib",
  "sqruff-lib-core",
+ "sqruff-lib-dialects",
 ]
 
 [[package]]

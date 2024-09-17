@@ -114,16 +114,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: Swatinem/rust-cache@v2
-      - name: Checkout sources
-        uses: actions/checkout@v4
+      - uses: taiki-e/install-action@cargo-hack
+      - uses: taiki-e/install-action@cargo-machete
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy
-      - uses: taiki-e/install-action@cargo-machete
+      - name: Checkout sources
+        uses: actions/checkout@v4
       - name: Run cargo clippy
         run: cargo clippy --all --all-features -- -D warnings
       - name: Check unused dependencies
         run: cargo machete
+      - name: Cargo hack
+        run: cargo hack check --each-feature --exclude-features=codegen-docs
+
   prettier-formatting:
     name: Check Prettier formatting
     runs-on: ubuntu-latest

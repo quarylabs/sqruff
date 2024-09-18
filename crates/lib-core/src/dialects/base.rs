@@ -17,7 +17,6 @@ use crate::parser::types::DialectElementType;
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
     pub name: DialectKind,
-    root_segment_name: &'static str,
     lexer_matchers: Option<Vec<Matcher>>,
     // TODO: Can we use PHF here? https://crates.io/crates/phf
     library: AHashMap<Cow<'static, str>, DialectElementType>,
@@ -27,13 +26,13 @@ pub struct Dialect {
 
 impl PartialEq for Dialect {
     fn eq(&self, other: &Self) -> bool {
-        self.root_segment_name == other.root_segment_name
+        self.name == other.name
     }
 }
 
 impl Dialect {
-    pub fn new(root_segment_name: &'static str) -> Self {
-        Dialect { name: DialectKind::Ansi, root_segment_name, ..Default::default() }
+    pub fn new() -> Self {
+        Dialect { name: DialectKind::Ansi, ..Default::default() }
     }
 
     pub fn name(&self) -> DialectKind {
@@ -242,14 +241,6 @@ impl Dialect {
                 }
             }
         }
-    }
-
-    pub fn root_segment_name(&self) -> &'static str {
-        self.root_segment_name
-    }
-
-    pub fn get_root_segment(&self) -> Arc<dyn Matchable> {
-        self.r#ref(self.root_segment_name())
     }
 }
 

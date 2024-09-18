@@ -33,9 +33,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@nightly
-      - name: Install rust-src
-        run: rustup component add rust-src --toolchain nightly-2024-07-22-x86_64-unknown-linux-gnu
+        run: rustup install nightly-2024-07-22 && rustup component add rust-src --toolchain nightly-2024-07-22-x86_64-unknown-linux-gnu
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Install dependencies

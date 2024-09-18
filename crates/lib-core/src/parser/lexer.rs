@@ -67,14 +67,6 @@ pub struct Match<'a> {
     pub elements: Vec<Element<'a>>,
 }
 
-impl Match<'_> {
-    /// A LexMatch is truthy if it contains a non-zero number of matched
-    /// elements.
-    pub fn is_non_empty(&self) -> bool {
-        !self.elements.is_empty()
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct Matcher {
     pattern: Pattern,

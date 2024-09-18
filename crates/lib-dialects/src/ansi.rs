@@ -39,7 +39,7 @@ pub fn dialect() -> Dialect {
 }
 
 pub fn raw_dialect() -> Dialect {
-    let mut ansi_dialect = Dialect::new("FileSegment");
+    let mut ansi_dialect = Dialect::new();
 
     ansi_dialect.set_lexer_matchers(lexer_matchers());
 

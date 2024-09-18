@@ -5,4 +5,3 @@ mod parser;
 pub mod rules;
 pub mod string_helpers;
 pub mod test_functions;
-pub mod timing;

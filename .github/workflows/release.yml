@@ -171,3 +171,25 @@ jobs:
         with:
           command: publish
           args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff
+  publish-to-marketplace:
+    name: Publish VSIX to VSCode Marketplace
+    runs-on: ubuntu-latest
+    needs:
+      - release-vsix
+      - convert_release_to_not_draft
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Install vsce
+        run: npm install -g vsce
+      - name: Download VSIX file
+        run: |
+          curl -L -o extension.vsix https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/editors/code/sqruff-${{ github.event.release.tag_name }}.vsix
+      - name: Publish to VSCode Marketplace
+        run: vsce publish --packagePath extension.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }} # Set up the VSCE Personal Access Token in GitHub secrets
+

@@ -100,7 +100,7 @@ fn main() {
                 let sql = std::fs::read_to_string(file).unwrap();
                 let tables = Tables::default();
                 let lexer = Lexer::from(&dialect);
-                let parser = Parser::new(&dialect, <_>::default());
+                let parser = Parser::from(&dialect);
                 let tokens = lexer.lex(&tables, StringOrTemplate::String(&sql)).unwrap();
                 assert!(tokens.1.is_empty());
 

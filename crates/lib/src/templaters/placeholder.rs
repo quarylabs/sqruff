@@ -336,7 +336,6 @@ mod tests {
 
     use super::*;
     use crate::core::linter::core::Linter;
-    use crate::rules::layout::rules;
 
     #[test]
     /// Test the templaters when nothing has to be replaced.
@@ -691,8 +690,7 @@ param_style = percent
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
         let mut linter = Linter::new(config, None, None);
-        let rules = rules();
-        let mut result = linter.lint_string_wrapped(sql, None, Some(true), rules);
+        let mut result = linter.lint_string_wrapped(sql, None, true);
         let result = take(&mut result.paths[0].files[0]).fix_string();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users WHERE a = %s\n");

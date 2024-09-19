@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
@@ -35,9 +35,9 @@ use crate::templaters::Templater;
 
 pub struct Linter {
     config: FluffConfig,
-    pub formatter: Option<OutputStreamFormatter>,
+    formatter: Option<OutputStreamFormatter>,
     templater: Arc<dyn Templater>,
-    pub _rules: Vec<ErasedRule>,
+    rules: OnceLock<Vec<ErasedRule>>,
 }
 
 impl Linter {
@@ -46,7 +46,6 @@ impl Linter {
         formatter: Option<OutputStreamFormatter>,
         templater: Option<Arc<dyn Templater>>,
     ) -> Linter {
-        let rules = crate::rules::layout::rules();
         let templater: Arc<dyn Templater> = match templater {
             Some(templater) => templater,
             None => {
@@ -59,21 +58,20 @@ impl Linter {
                 }
             }
         };
-        Linter { config, formatter, templater, _rules: rules }
+        Linter { config, formatter, templater, rules: OnceLock::new() }
     }
 
     /// Lint strings directly.
     pub fn lint_string_wrapped(
         &mut self,
         sql: &str,
-        f_name: Option<String>,
-        fix: Option<bool>,
-        rules: Vec<ErasedRule>,
+        filename: Option<String>,
+        fix: bool,
     ) -> LintingResult {
-        let f_name = f_name.unwrap_or_else(|| "<string input>".into());
+        let filename = filename.unwrap_or_else(|| "<string input>".into());
 
-        let mut linted_path = LintedDir::new(f_name.clone());
-        linted_path.add(self.lint_string(sql, Some(f_name), None, rules, fix.unwrap_or_default()));
+        let mut linted_path = LintedDir::new(filename.clone());
+        linted_path.add(self.lint_string(sql, Some(filename), fix));
 
         let mut result = LintingResult::new();
         result.add(linted_path);
@@ -85,19 +83,16 @@ impl Linter {
     pub fn parse_string(
         &self,
         tables: &Tables,
-        in_str: &str,
-        f_name: Option<String>,
-
-        parse_statistics: Option<bool>,
+        sql: &str,
+        filename: Option<String>,
     ) -> Result<ParsedString, SQLFluffUserError> {
-        let f_name = f_name.unwrap_or_else(|| "<string>".to_string());
-        let parse_statistics = parse_statistics.unwrap_or(false);
+        let f_name = filename.unwrap_or_else(|| "<string>".to_string());
 
         let mut violations: Vec<Box<dyn SqlError>> = vec![];
 
         // Scan the raw file for config commands.
-        self.config.process_raw_file_for_config(in_str);
-        let rendered = self.render_string(in_str, f_name, &self.config)?;
+        self.config.process_raw_file_for_config(sql);
+        let rendered = self.render_string(sql, f_name, &self.config)?;
 
         for violation in &rendered.templater_violations {
             violations.push(Box::new(violation.clone()));
@@ -108,27 +103,16 @@ impl Linter {
             formatter.dispatch_parse_header(/*f_name.clone()*/);
         }
 
-        Ok(self.parse_rendered(tables, rendered, parse_statistics))
+        Ok(self.parse_rendered(tables, rendered))
     }
 
     /// Lint a string.
-    #[allow(clippy::too_many_arguments)]
-    pub fn lint_string(
-        &self,
-        in_str: &str,
-        f_name: Option<String>,
-        config: Option<&FluffConfig>,
-        rules: Vec<ErasedRule>,
-        fix: bool,
-    ) -> LintedFile {
-        // Sort out config, defaulting to the built in config if no override
-        let _defaulted_config = config.unwrap_or(&self.config);
-        // Parse the string.
+    pub fn lint_string(&self, sql: &str, filename: Option<String>, fix: bool) -> LintedFile {
         let tables = Tables::default();
-        let parsed = self.parse_string(&tables, in_str, f_name, None).unwrap();
+        let parsed = self.parse_string(&tables, sql, filename).unwrap();
 
         // Lint the file and return the LintedFile
-        self.lint_parsed(&tables, parsed, rules, fix)
+        self.lint_parsed(&tables, parsed, fix)
     }
 
     pub fn lint_paths(&mut self, mut paths: Vec<PathBuf>, fix: bool) -> LintingResult {
@@ -179,37 +163,29 @@ impl Linter {
         self.render_string(&in_str, fname, &self.config).unwrap()
     }
 
-    pub fn lint_rendered(
-        &self,
-        rendered: RenderedFile,
-        rule_pack: &RulePack,
-        fix: bool,
-    ) -> LintedFile {
+    pub fn lint_rendered(&self, rendered: RenderedFile, fix: bool) -> LintedFile {
         let tables = Tables::default();
-        let parsed = self.parse_rendered(&tables, rendered, false);
-        self.lint_parsed(&tables, parsed, rule_pack.rules.clone(), fix)
+        let parsed = self.parse_rendered(&tables, rendered);
+        self.lint_parsed(&tables, parsed, fix)
     }
 
     pub fn lint_parsed(
         &self,
         tables: &Tables,
         parsed_string: ParsedString,
-        rules: Vec<ErasedRule>,
         fix: bool,
     ) -> LintedFile {
         let mut violations = parsed_string.violations;
 
         let (tree, initial_linting_errors) = parsed_string
             .tree
-            .map(|tree| {
-                self.lint_fix_parsed(tables, tree, &parsed_string.templated_file, rules, fix)
-            })
+            .map(|tree| self.lint_fix_parsed(tables, tree, &parsed_string.templated_file, fix))
             .unzip();
 
         violations.extend(initial_linting_errors.unwrap_or_default().into_iter().map(Into::into));
 
         let linted_file = LintedFile {
-            path: parsed_string.f_name,
+            path: parsed_string.filename,
             patches: tree
                 .map_or(Vec::new(), |tree| tree.iter_patches(&parsed_string.templated_file)),
             templated_file: parsed_string.templated_file,
@@ -228,7 +204,6 @@ impl Linter {
         tables: &Tables,
         mut tree: ErasedSegment,
         templated_file: &TemplatedFile,
-        rules: Vec<ErasedRule>,
         fix: bool,
     ) -> (ErasedSegment, Vec<SQLLintError>) {
         let mut tmp;
@@ -244,15 +219,16 @@ impl Linter {
 
         for phase in phases {
             let mut rules_this_phase = if phases.len() > 1 {
-                tmp = rules
-                    .clone()
-                    .into_iter()
+                tmp = self
+                    .rules()
+                    .iter()
                     .filter(|rule| rule.lint_phase() == *phase)
+                    .cloned()
                     .collect_vec();
 
                 &tmp
             } else {
-                &rules
+                self.rules()
             };
 
             for loop_ in 0..(if *phase == LintPhase::Main { loop_limit } else { 2 }) {
@@ -260,7 +236,7 @@ impl Linter {
                 let mut changed = false;
 
                 if is_first_linter_pass {
-                    rules_this_phase = &rules;
+                    rules_this_phase = self.rules();
                 }
 
                 let last_fixes = Vec::new();
@@ -362,18 +338,13 @@ impl Linter {
         Ok(RenderedFile {
             templated_file,
             templater_violations,
-            f_name: filename.to_owned(),
-            source_str: filename.to_owned(),
+            filename,
+            source_str: sql.to_string(),
         })
     }
 
     /// Parse a rendered file.
-    pub fn parse_rendered(
-        &self,
-        tables: &Tables,
-        rendered: RenderedFile,
-        parse_statistics: bool,
-    ) -> ParsedString {
+    pub fn parse_rendered(&self, tables: &Tables, rendered: RenderedFile) -> ParsedString {
         let violations = rendered.templater_violations.clone();
         if !violations.is_empty() {
             unimplemented!()
@@ -400,8 +371,7 @@ impl Linter {
                 tables,
                 &token_list,
                 &self.config,
-                Some(rendered.f_name.to_string()),
-                parse_statistics,
+                Some(rendered.filename.to_string()),
             );
             parsed = p;
             violations.extend(pvs.into_iter().map(Into::into));
@@ -413,7 +383,7 @@ impl Linter {
             tree: parsed,
             violations,
             templated_file: rendered.templated_file,
-            f_name: rendered.f_name,
+            filename: rendered.filename,
             source_str: rendered.source_str,
         }
     }
@@ -422,13 +392,12 @@ impl Linter {
         tables: &Tables,
         tokens: &[ErasedSegment],
         config: &FluffConfig,
-        f_name: Option<String>,
-        parse_statistics: bool,
+        filename: Option<String>,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let parser: Parser = config.into();
         let mut violations: Vec<SQLParseError> = Vec::new();
 
-        let parsed = match parser.parse(tables, tokens, f_name, parse_statistics) {
+        let parsed = match parser.parse(tables, tokens, filename) {
             Ok(parsed) => parsed,
             Err(error) => {
                 violations.push(error);
@@ -599,7 +568,24 @@ impl Linter {
     }
 
     pub fn config_mut(&mut self) -> &mut FluffConfig {
+        self.rules = OnceLock::new();
         &mut self.config
+    }
+
+    pub fn set_formatter(&mut self, formatter: Option<OutputStreamFormatter>) {
+        self.formatter = formatter;
+    }
+
+    pub fn rules(&self) -> &[ErasedRule] {
+        self.rules.get_or_init(|| self.get_rulepack().rules)
+    }
+
+    pub fn formatter(&self) -> Option<&OutputStreamFormatter> {
+        self.formatter.as_ref()
+    }
+
+    pub fn formatter_mut(&mut self) -> Option<&mut OutputStreamFormatter> {
+        self.formatter.as_mut()
     }
 }
 
@@ -699,7 +685,7 @@ mod tests {
     fn test_linter_empty_file() {
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, "", None, None).unwrap();
+        let parsed = linter.parse_string(&tables, "", None).unwrap();
 
         assert!(parsed.violations.is_empty());
     }
@@ -726,7 +712,7 @@ mod tests {
 
         let linter = Linter::new(FluffConfig::new(<_>::default(), None, None), None, None);
         let tables = Tables::default();
-        let _parsed = linter.parse_string(&tables, &sql, None, None).unwrap();
+        let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
     }
 
     #[test]

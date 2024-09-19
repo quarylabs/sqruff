@@ -65,10 +65,10 @@ fn main() {
             }
 
             eprintln!("The linter processed {count} file(s).");
-            linter.formatter.as_mut().unwrap().completion_message();
+            linter.formatter_mut().unwrap().completion_message();
 
             std::process::exit(
-                if linter.formatter.unwrap().has_fail.load(std::sync::atomic::Ordering::SeqCst) {
+                if linter.formatter().unwrap().has_fail.load(std::sync::atomic::Ordering::SeqCst) {
                     1
                 } else {
                     0
@@ -101,7 +101,7 @@ fn main() {
                 }
             }
 
-            linter.formatter.as_mut().unwrap().completion_message();
+            linter.formatter_mut().unwrap().completion_message();
         }
         Commands::Lsp => lsp::run(),
     }

@@ -104,7 +104,7 @@ fn main() {
                 let tokens = lexer.lex(&tables, StringOrTemplate::String(&sql)).unwrap();
                 assert!(tokens.1.is_empty());
 
-                let parsed = parser.parse(&tables, &tokens.0, None, false).unwrap();
+                let parsed = parser.parse(&tables, &tokens.0, None).unwrap();
                 let tree = parsed.unwrap();
                 let tree = tree.to_serialised(true, true);
 

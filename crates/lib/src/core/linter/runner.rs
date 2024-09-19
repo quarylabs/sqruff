@@ -42,13 +42,11 @@ impl Runner for ParallelRunner {
     ) -> impl Iterator<Item = LintedFile> {
         use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 
-        let rule_pack = linter.get_rulepack();
-
         paths
             .par_iter()
             .map(|path| {
                 let rendered = linter.render_file(path.clone());
-                linter.lint_rendered(rendered, &rule_pack, fix)
+                linter.lint_rendered(rendered, fix)
             })
             .collect::<Vec<_>>()
             .into_iter()

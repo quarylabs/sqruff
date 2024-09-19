@@ -36,8 +36,7 @@ impl<'a> Parser<'a> {
         &self,
         tables: &Tables,
         segments: &[ErasedSegment],
-        f_name: Option<String>,
-        parse_statistics: bool,
+        filename: Option<String>,
     ) -> Result<Option<ErasedSegment>, SQLParseError> {
         if segments.is_empty() {
             // This should normally never happen because there will usually
@@ -58,15 +57,11 @@ impl<'a> Parser<'a> {
             parse_cx.dialect().name,
             segments,
             &mut parse_cx,
-            f_name,
+            filename,
         )?;
 
         // Basic Validation, that we haven't dropped anything.
         check_still_complete(segments, &[root.clone()], &[]);
-
-        if parse_statistics {
-            unimplemented!();
-        }
 
         Ok(root.into())
     }

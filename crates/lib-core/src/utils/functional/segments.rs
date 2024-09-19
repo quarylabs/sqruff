@@ -1,14 +1,14 @@
 use std::ops::Range;
 
-use sqruff_lib_core::dialects::syntax::SyntaxSet;
-use sqruff_lib_core::parser::segments::base::ErasedSegment;
-use sqruff_lib_core::templaters::base::TemplatedFile;
+use crate::dialects::syntax::SyntaxSet;
+use crate::parser::segments::base::ErasedSegment;
+use crate::templaters::base::TemplatedFile;
 
 type PredicateType = Option<fn(&ErasedSegment) -> bool>;
 
 #[derive(Debug, Default, Clone)]
 pub struct Segments {
-    pub(crate) base: Vec<ErasedSegment>,
+    pub base: Vec<ErasedSegment>,
     templated_file: Option<TemplatedFile>,
 }
 

@@ -1840,7 +1840,6 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
- "slyce",
  "smol_str",
  "sqruff-lib",
  "sqruff-lib-core",
@@ -1869,6 +1868,7 @@ dependencies = [
  "rustc-hash",
  "serde",
  "serde_yaml",
+ "slyce",
  "smol_str",
  "sptr",
  "strum",
@@ -1909,8 +1909,8 @@ dependencies = [
 name = "sqruff-sqlinference"
 version = "0.18.0"
 dependencies = [
- "sqruff-lib",
  "sqruff-lib-core",
+ "sqruff-lib-dialects",
 ]
 
 [[package]]

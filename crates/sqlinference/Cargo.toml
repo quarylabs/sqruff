@@ -6,5 +6,5 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
-sqruff-lib.workspace = true
 sqruff-lib-core = { path = "../lib-core" }
+sqruff-lib-dialects = { path = "../lib-dialects" }

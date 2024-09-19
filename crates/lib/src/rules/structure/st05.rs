@@ -12,15 +12,15 @@ use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
 use sqruff_lib_core::rules::LintFix;
+use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
+use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
+use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::utils::analysis::query::{Query, Selectable};
-use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::context::FunctionalContext;
-use crate::utils::functional::segments::Segments;
 
 const SELECT_TYPES: SyntaxSet = SyntaxSet::new(&[
     SyntaxKind::WithCompoundStatement,

@@ -1,4 +1,5 @@
-use super::segments::Segments;
+use sqruff_lib_core::utils::functional::segments::Segments;
+
 use crate::core::rules::context::RuleContext;
 
 pub struct FunctionalContext<'a> {

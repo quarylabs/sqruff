@@ -1,11 +1,11 @@
 use ahash::{AHashMap, HashSet, HashSetExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
 #[derive(Debug, Clone)]
 pub struct RuleAM07;

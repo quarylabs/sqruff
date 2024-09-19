@@ -7,7 +7,7 @@ fn main() {
     let start = Instant::now();
 
     let output = Command::new("target/release/sqruff")
-        .args(["lint", "crates/lib/test/fixtures/dialects/ansi"])
+        .args(["lint", "crates/lib-dialects/test/fixtures/dialects/ansi"])
         .output()
         .expect("Failed to execute process");
 

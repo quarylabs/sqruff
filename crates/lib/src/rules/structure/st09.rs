@@ -6,13 +6,13 @@ use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::parser::segments::from::FromExpressionElementSegment;
 use sqruff_lib_core::parser::segments::join::JoinClauseSegment;
 use sqruff_lib_core::rules::LintFix;
+use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
-use crate::utils::functional::segments::Segments;
 
 #[derive(Default, Debug, Clone)]
 pub struct RuleST09 {

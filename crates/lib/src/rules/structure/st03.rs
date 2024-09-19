@@ -3,12 +3,12 @@ use std::cell::RefCell;
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::IndexMap;
+use sqruff_lib_core::utils::analysis::query::Query;
 
 use crate::core::config::Value;
 use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::utils::analysis::query::Query;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleST03;

@@ -49,7 +49,6 @@ unicase = "2.7.0"
 anstyle = "1.0"
 tracing = "0.1.40"
 pretty_assertions = "1.4.0"
-slyce = "0.3.1"
 ahash.workspace = true
 lazy-regex = "3.2.0"
 rayon = "1.10.0"

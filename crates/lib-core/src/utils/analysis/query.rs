@@ -2,13 +2,13 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use smol_str::{SmolStr, ToSmolStr};
-use sqruff_lib_core::dialects::base::Dialect;
-use sqruff_lib_core::dialects::common::AliasInfo;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::helpers::IndexMap;
-use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
 use super::select::SelectStatementColumnsAndTables;
+use crate::dialects::base::Dialect;
+use crate::dialects::common::AliasInfo;
+use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
+use crate::helpers::IndexMap;
+use crate::parser::segments::base::ErasedSegment;
 use crate::utils::analysis::select::get_select_statement_info;
 use crate::utils::functional::segments::Segments;
 
@@ -47,7 +47,7 @@ pub struct Selectable<'me> {
 }
 
 impl<'me> Selectable<'me> {
-    pub(crate) fn find_alias(&self, table: &str) -> Option<AliasInfo> {
+    pub fn find_alias(&self, table: &str) -> Option<AliasInfo> {
         self.select_info()
             .as_ref()?
             .table_aliases
@@ -202,7 +202,7 @@ impl<'me, T: Clone + Default> Query<'me, T> {
     }
 
     #[track_caller]
-    pub(crate) fn lookup_cte(&self, name: &str, pop: bool) -> Option<Query<'me, T>> {
+    pub fn lookup_cte(&self, name: &str, pop: bool) -> Option<Query<'me, T>> {
         let cte = if pop {
             self.inner.borrow_mut().ctes.shift_remove(&name.to_uppercase())
         } else {

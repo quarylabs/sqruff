@@ -3,6 +3,7 @@ use itertools::chain;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::rules::LintFix;
+use sqruff_lib_core::utils::functional::segments::Segments;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
@@ -10,7 +11,6 @@ use crate::core::rules::base::{Erased, ErasedRule, LintResult, Rule, RuleGroups}
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::utils::functional::context::FunctionalContext;
-use crate::utils::functional::segments::Segments;
 
 #[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
 #[strum(serialize_all = "snake_case")]

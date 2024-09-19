@@ -1,4 +1,4 @@
-use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
 use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, Tables};
 
@@ -10,9 +10,10 @@ pub mod test;
 
 pub fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = Tables::default();
-    let (tokens, _) = Linter::lex_templated_file(&tables, source.into(), parser.dialect());
-
-    let tokens = tokens.unwrap_or_default();
+    let lexer = Lexer::new(parser.dialect());
+    let tokens = lexer
+        .lex(&tables, StringOrTemplate::String(source))
+        .map_or(Vec::new(), |(tokens, _)| tokens);
     let tables = Tables::default();
     parser.parse(&tables, &tokens, None, false).unwrap().unwrap()
 }

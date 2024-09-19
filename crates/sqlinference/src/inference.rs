@@ -46,7 +46,7 @@ pub fn figure_out_skippable_tests(
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib::core::config::FluffConfig;
+    use sqruff_lib_dialects::ansi;
 
     use super::*;
     use crate::inference::TestRunnerAction::{Run, Skip};
@@ -155,8 +155,8 @@ mod tests {
             ]),
         }];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             let actual = figure_out_skippable_tests(
@@ -224,8 +224,8 @@ mod tests {
             },
         ];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             let actual = figure_out_skippable_tests(
@@ -291,8 +291,8 @@ mod tests {
             ]),
         }];
 
-        let config = FluffConfig::default();
-        let parser: Parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             println!("Running test: {}", test.name);

@@ -1,12 +1,12 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
-use sqruff_lib::utils::analysis::query::Query;
-use sqruff_lib::utils::functional::segments::Segments;
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::parser::Parser;
 use sqruff_lib_core::parser::segments::base::ErasedSegment;
+use sqruff_lib_core::utils::analysis::query::Query;
+use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::aggregate_functions::aggregate_is_test_inferrable;
 use crate::infer_tests::Source::{UnderlyingColumn, UnderlyingColumnWithOperation};
@@ -1045,7 +1045,7 @@ fn fn_args(root: ErasedSegment) -> Vec<ErasedSegment> {
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib::core::config::FluffConfig;
+    use sqruff_lib_dialects::ansi;
 
     use super::*;
 
@@ -1420,8 +1420,8 @@ mod tests {
             },
         ];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             let inferred_tests =
@@ -1531,8 +1531,8 @@ mod tests {
             },
         ];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             let inferred_tests =
@@ -2128,8 +2128,8 @@ FROM q.stg_employees e) SELECT * FROM data",
             },
         ];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             let inferred_tests =
@@ -2303,8 +2303,8 @@ GROUP BY department",
             ]),
         }];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             let inferred_tests =
@@ -2394,8 +2394,8 @@ LEFT JOIN q.shift_last sl
             ]),
         }];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for test in tests {
             let inferred_tests =
@@ -2434,8 +2434,8 @@ LEFT JOIN q.shift_last sl
             ),
         ];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for (sql, want) in tests {
             let selected = get_column_with_source(&parser, sql).unwrap();
@@ -2577,8 +2577,8 @@ from final",
             ),
         ];
 
-        let config = FluffConfig::default();
-        let parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         for (sql, expected_map_entries, expected_not_parseable, expected_count) in tests {
             let selected = get_column_with_source(&parser, sql).unwrap();

@@ -1,6 +1,6 @@
-use sqruff_lib::utils::analysis::query::Query;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::parser::Parser;
+use sqruff_lib_core::utils::analysis::query::Query;
 
 use crate::parse_sql;
 
@@ -55,15 +55,15 @@ pub fn get_columns_internal(
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib::core::config::FluffConfig;
     use sqruff_lib_core::parser::parser::Parser;
+    use sqruff_lib_dialects::ansi;
 
     use super::*;
 
     #[test]
     fn test_get_columns_internal() {
-        let config = FluffConfig::new(Default::default(), None, None);
-        let parser: Parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         let (cols, unnamed) = get_columns_internal(
             &parser,
@@ -85,8 +85,8 @@ ORDER BY a DESC, b",
 
     #[test]
     fn test_sub_query() {
-        let config = FluffConfig::new(Default::default(), None, None);
-        let parser: Parser = (&config).into();
+        let dialect = ansi::dialect();
+        let parser = Parser::from(&dialect);
 
         let (cols, unnamed) = get_columns_internal(
             &parser,

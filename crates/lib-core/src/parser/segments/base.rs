@@ -53,6 +53,7 @@ impl SegmentBuilder {
                 syntax_kind,
                 class_types: class_types(syntax_kind),
                 position_marker: None,
+                code_idx: OnceCell::new(),
                 kind: NodeOrTokenKind::Node(NodeData {
                     dialect,
                     segments,
@@ -70,6 +71,7 @@ impl SegmentBuilder {
             node_or_token: NodeOrToken {
                 id,
                 syntax_kind,
+                code_idx: OnceCell::new(),
                 class_types: class_types(syntax_kind),
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData { raw: raw.into() }),
@@ -234,6 +236,7 @@ impl ErasedSegment {
                 syntax_kind: self.value.syntax_kind,
                 class_types: self.value.class_types.clone(),
                 position_marker: None,
+                code_idx: OnceCell::new(),
                 kind: NodeOrTokenKind::Node(NodeData {
                     dialect: node.dialect,
                     segments,
@@ -342,13 +345,20 @@ impl ErasedSegment {
         result
     }
 
-    pub(crate) fn code_indices(&self) -> Vec<usize> {
-        self.segments()
-            .iter()
-            .enumerate()
-            .filter(|(_, seg)| seg.is_code())
-            .map(|(idx, _)| idx)
-            .collect()
+    pub(crate) fn code_indices(&self) -> Rc<Vec<usize>> {
+        self.value
+            .code_idx
+            .get_or_init(|| {
+                Rc::from(
+                    self.segments()
+                        .iter()
+                        .enumerate()
+                        .filter(|(_, seg)| seg.is_code())
+                        .map(|(idx, _)| idx)
+                        .collect::<Vec<_>>(),
+                )
+            })
+            .clone()
     }
 
     pub fn children(&self, seg_types: &SyntaxSet) -> Vec<ErasedSegment> {
@@ -664,7 +674,7 @@ impl ErasedSegment {
             NodeOrTokenKind::Node(node) => node.raw_segments_with_ancestors.get_or_init(|| {
                 let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
                     Vec::with_capacity(self.segments().len());
-                let code_idxs: Rc<[usize]> = self.code_indices().into();
+                let code_idxs = self.code_indices();
 
                 for (idx, seg) in self.segments().iter().enumerate() {
                     let new_step = vec![PathStep {
@@ -707,7 +717,7 @@ impl ErasedSegment {
                 segment: self.clone(),
                 idx,
                 len: self.segments().len(),
-                code_idxs: self.code_indices().into(),
+                code_idxs: self.code_indices(),
             }];
 
             if seg.eq(midpoint) {
@@ -1006,6 +1016,7 @@ pub struct NodeOrToken {
     class_types: SyntaxSet,
     position_marker: Option<PositionMarker>,
     kind: NodeOrTokenKind,
+    code_idx: OnceCell<Rc<Vec<usize>>>,
 }
 
 #[derive(Debug, Clone)]
@@ -1051,7 +1062,7 @@ pub struct PathStep {
     pub segment: ErasedSegment,
     pub idx: usize,
     pub len: usize,
-    pub code_idxs: Rc<[usize]>,
+    pub code_idxs: Rc<Vec<usize>>,
 }
 
 fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {

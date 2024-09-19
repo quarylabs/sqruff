@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -5,7 +6,6 @@ use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
-use regex::Regex;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::errors::{
@@ -334,11 +334,11 @@ impl Linter {
     /// Template the file.
     pub fn render_string(
         &self,
-        in_str: &str,
-        f_name: String,
+        sql: &str,
+        filename: String,
         config: &FluffConfig,
     ) -> Result<RenderedFile, SQLFluffUserError> {
-        let in_str = Self::normalise_newlines(in_str);
+        let sql = Self::normalise_newlines(sql);
 
         if let Some(error) = config.verify_dialect_specified() {
             return Err(error);
@@ -346,8 +346,8 @@ impl Linter {
 
         let templater_violations = vec![];
         let templated_file = match self.templater.process(
-            in_str.as_str(),
-            f_name.as_str(),
+            sql.as_ref(),
+            filename.as_str(),
             Some(config),
             self.formatter.as_ref(),
         ) {
@@ -362,8 +362,8 @@ impl Linter {
         Ok(RenderedFile {
             templated_file,
             templater_violations,
-            f_name: f_name.to_owned(),
-            source_str: f_name.to_owned(),
+            f_name: filename.to_owned(),
+            source_str: filename.to_owned(),
         })
     }
 
@@ -469,9 +469,8 @@ impl Linter {
     }
 
     /// Normalise newlines to unix-style line endings.
-    fn normalise_newlines(string: &str) -> String {
-        let re = Regex::new(r"\r\n|\r").unwrap();
-        re.replace_all(string, "\n").to_string()
+    fn normalise_newlines(string: &str) -> Cow<str> {
+        lazy_regex::regex!("\r\n|\r").replace_all(string, "\n")
     }
 
     // Return a set of sql file paths from a potentially more ambiguous path string.

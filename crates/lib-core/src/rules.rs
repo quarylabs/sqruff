@@ -105,7 +105,9 @@ impl LintFix {
         let adjust_boundary = if !within_only { 1 } else { 0 };
 
         let templated_slice = match self.edit_type {
-            EditType::CreateBefore => anchor_slice.start - 1..anchor_slice.start + adjust_boundary,
+            EditType::CreateBefore => {
+                anchor_slice.start.saturating_sub(1)..anchor_slice.start + adjust_boundary
+            }
             EditType::CreateAfter => anchor_slice.end - adjust_boundary..anchor_slice.end + 1,
             EditType::Replace => {
                 let pos = self.anchor.get_position_marker().unwrap();

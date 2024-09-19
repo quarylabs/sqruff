@@ -1,6 +1,6 @@
 use std::cell::{OnceCell, RefCell};
 use std::collections::hash_map::Entry;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
 
@@ -73,10 +73,11 @@ fn qualify_columns0(tables: &mut Tables, scope: &Scope, resolver: &Resolver) {
         let table = iter.next();
 
         if table.is_none() {
-            let column_table = resolver.table(tables, column_name);
-            let column_table = tables.stringify(column_table);
-
-            tables.exprs[column].kind = ExprKind::Column(format!("{column_table}.{column_name}"));
+            if let Some(column_table) = resolver.table(tables, column_name) {
+                let column_table = tables.stringify(column_table);
+                tables.exprs[column].kind =
+                    ExprKind::Column(format!("{column_table}.{column_name}"));
+            }
         }
     }
 }
@@ -140,8 +141,6 @@ fn qualify_outputs(tables: &mut Tables, scope: &Scope) {
                 let s = tables.stringify(projection);
                 let name = s.split(".").last().unwrap();
 
-                dbg!(&s);
-
                 projection =
                     tables.alloc_expr(ExprKind::Alias(s.to_owned(), name.to_owned().into()), None);
             }
@@ -184,18 +183,39 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
             let source_columns = self.all_source_columns(tables);
 
             if source_columns.is_empty() {
-                return HashMap::default();
+                return HashMap::new();
             }
 
-            let (first_table, first_columns) = source_columns.iter().next().unwrap();
-            let source_columns_pairs: Vec<_> = source_columns.clone().into_iter().collect();
-            if source_columns_pairs.len() == 1 {
-                return HashMap::from_iter(
-                    first_columns.clone().into_iter().map(|column| (column, first_table.clone())),
-                );
+            let mut source_columns_iter = source_columns.iter();
+            let (first_table, first_columns) = source_columns_iter.next().unwrap();
+
+            if source_columns.len() == 1 {
+                // Performance optimization - avoid copying if there's only one table
+                return first_columns
+                    .iter()
+                    .map(|column| (column.clone(), first_table.clone()))
+                    .collect();
             }
 
-            todo!()
+            let mut unambiguous_columns: HashMap<String, String> =
+                first_columns.iter().map(|col| (col.clone(), first_table.clone())).collect();
+            let mut all_columns: HashSet<String> = first_columns.iter().cloned().collect();
+
+            for (table, columns) in source_columns_iter {
+                let unique: HashSet<String> = columns.iter().cloned().collect();
+                let ambiguous: HashSet<String> =
+                    all_columns.intersection(&unique).cloned().collect();
+                all_columns.extend(unique.iter().cloned());
+
+                for column in &ambiguous {
+                    unambiguous_columns.remove(column);
+                }
+                for column in unique.difference(&ambiguous) {
+                    unambiguous_columns.insert(column.clone(), table.clone());
+                }
+            }
+
+            unambiguous_columns
         })
     }
 
@@ -221,6 +241,7 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
                                 ExprKind::Alias(a, alias) => {
                                     Some(alias.clone().unwrap_or(a.clone()))
                                 }
+                                ExprKind::Star => Some("*".to_owned()),
                                 _ => None,
                             })
                             .collect()
@@ -232,7 +253,7 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
         }
     }
 
-    fn table(&self, tables: &Tables, column_name: &str) -> Expr {
+    fn table(&self, tables: &Tables, column_name: &str) -> Option<Expr> {
         let mut table_name = self.unambiguous_columns(tables).get(column_name);
 
         if table_name.is_none() && self.infer_schema {
@@ -250,26 +271,25 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
             }
         }
 
-        match table_name {
-            Some(table_name) => match self.scope.selected_sources(tables).get(table_name) {
-                Some(&(mut node, _)) => {
-                    if let ExprKind::Select { .. } = &tables.exprs[node].kind {
-                        while &tables.alias(node, false) != table_name {
-                            if let Some(parent) = tables.exprs[node].parent {
-                                node = parent;
-                            } else {
-                                break;
-                            }
+        let table_name = table_name?;
+
+        match self.scope.selected_sources(tables).get(table_name) {
+            Some(&(mut node, _)) => {
+                if let ExprKind::Select { .. } = &tables.exprs[node].kind {
+                    while &tables.alias(node, false) != table_name {
+                        if let Some(parent) = tables.exprs[node].parent {
+                            node = parent;
+                        } else {
+                            break;
                         }
                     }
-
-                    let node_alias = tables.alias(node, true);
-
-                    let this = if !node_alias.is_empty() { node_alias } else { table_name.clone() };
-                    tables.alloc_expr(ExprKind::Ident(this), None)
                 }
-                None => todo!(),
-            },
+
+                let node_alias = tables.alias(node, true);
+
+                let this = if !node_alias.is_empty() { node_alias } else { table_name.clone() };
+                Some(tables.alloc_expr(ExprKind::Ident(this), None))
+            }
             None => todo!(),
         }
     }

@@ -1,6 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt::Display;
 
+use indexmap::{IndexMap, IndexSet};
 use ir::{Expr, ExprKind, Tables};
 use schema::Schema;
 use scope::{Scope, ScopeKind, Source};
@@ -248,7 +249,6 @@ fn to_node(
 
         #[allow(clippy::unnecessary_to_owned)] // borrow checker error
         for projection in projections.to_vec() {
-            dbg!(tables.stringify(projection));
             if let &ExprKind::Alias0(_, name) = &tables.exprs[projection].kind {
                 let name = tables.stringify(name);
                 to_node(tables, &name, subquery_scope.clone(), None, node.into(), None, None);
@@ -275,7 +275,7 @@ fn to_node(
 
     // FIXME:
     let source_columns = if tables.stringify(select).split('.').collect::<Vec<_>>().len() == 1 {
-        HashSet::new()
+        IndexSet::new()
     } else {
         crate::scope::walk_in_scope(tables, select)
             .into_iter()
@@ -288,7 +288,7 @@ fn to_node(
     };
 
     let derived_tables = &scope.stats(tables).derived_tables;
-    let source_names: HashMap<String, String> = derived_tables
+    let source_names: IndexMap<String, String> = derived_tables
         .iter()
         .filter_map(|&dt_key| -> Option<(String, String)> {
             let dt = tables.exprs[dt_key].comments.first().cloned().unwrap_or_default();
@@ -355,7 +355,6 @@ fn to_node(
 mod tests {
     use std::collections::HashMap;
 
-    use sqruff_lib_core::dialects::init::DialectKind;
     use sqruff_lib_core::parser::parser::Parser;
 
     use crate::Lineage;
@@ -791,5 +790,24 @@ mod tests {
         let downstream = &tables.nodes[node_data.downstream[0]];
         assert_eq!(downstream.downstream.len(), 1);
         assert_eq!(tables.nodes[downstream.downstream[0]].name, "t1.x");
+    }
+
+    #[test]
+    fn test_lineage_downstream_id_in_join() {
+        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let parser = Parser::new(&dialect, Default::default());
+
+        let (tables, node) = Lineage::new(
+            parser,
+            "id",
+            "SELECT u.name, t.id FROM users AS u INNER JOIN tests AS t ON u.id = t.id",
+        )
+        .build();
+
+        let node_data = &tables.nodes[node];
+        assert_eq!(node_data.name, "id");
+
+        let downstream = &tables.nodes[node_data.downstream[0]];
+        assert_eq!(downstream.name, "t.id");
     }
 }

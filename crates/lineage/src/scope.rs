@@ -308,7 +308,7 @@ fn traverse_tables(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>)
     let mut sources = HashMap::new();
     let mut exprs = Vec::new();
 
-    let ExprKind::Select { from, .. } = &tables.exprs[scope.get().expr].kind else {
+    let ExprKind::Select { from, joins, .. } = &tables.exprs[scope.get().expr].kind else {
         unreachable!()
     };
 
@@ -324,6 +324,13 @@ fn traverse_tables(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>)
         if !maybe_alias.is_empty() {
             select_alias = maybe_alias;
         }
+    }
+
+    for &join in joins {
+        let ExprKind::Join { this, on: _, using: _ } = tables.exprs[join].kind else {
+            unreachable!()
+        };
+        exprs.push(this);
     }
 
     for expr in exprs {

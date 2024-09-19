@@ -114,9 +114,8 @@ impl LanguageServer {
     }
 
     fn format(&mut self, uri: Uri) -> Vec<lsp_types::TextEdit> {
-        let rule_pack = self.linter.get_rulepack().rules();
         let text = &self.documents[&uri];
-        let tree = self.linter.lint_string(text, None, None, rule_pack, true);
+        let tree = self.linter.lint_string(text, None, true);
 
         let new_text = tree.fix_string();
         let start_position = Position { line: 0, character: 0 };
@@ -176,8 +175,7 @@ impl LanguageServer {
     }
 
     fn check_file(&self, uri: Uri, text: &str) {
-        let rule_pack = self.linter.get_rulepack().rules();
-        let result = self.linter.lint_string(text, None, None, rule_pack, false);
+        let result = self.linter.lint_string(text, None, false);
 
         let diagnostics = result
             .violations

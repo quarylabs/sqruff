@@ -12,6 +12,6 @@ mod tests {
         let config = FluffConfig::new(<_>::default(), None, None);
         let linter = Linter::new(config, None, None);
         let tables = Tables::default();
-        let _ = linter.parse_string(&tables, &in_str, None, None);
+        let _ = linter.parse_string(&tables, &in_str, None);
     }
 }

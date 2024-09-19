@@ -82,7 +82,7 @@ fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
         .map_or(Vec::new(), |(tokens, _)| tokens);
 
     let tables = sqruff_lib_core::parser::segments::base::Tables::default();
-    parser.parse(&tables, &tokens, None, false).unwrap().unwrap()
+    parser.parse(&tables, &tokens, None).unwrap().unwrap()
 }
 
 pub type Node = usize;

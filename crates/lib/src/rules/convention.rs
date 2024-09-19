@@ -20,6 +20,7 @@ pub fn rules() -> Vec<ErasedRule> {
         cv02::RuleCV02.erased(),
         cv03::RuleCV03::default().erased(),
         cv04::RuleCV04::default().erased(),
+        cv05::RuleCV05.erased(),
         cv06::RuleCV06::default().erased(),
         cv07::RuleCV07.erased(),
         cv08::RuleCV08.erased(),

@@ -15,5 +15,5 @@ pub fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
         .lex(&tables, StringOrTemplate::String(source))
         .map_or(Vec::new(), |(tokens, _)| tokens);
     let tables = Tables::default();
-    parser.parse(&tables, &tokens, None, false).unwrap().unwrap()
+    parser.parse(&tables, &tokens, None).unwrap().unwrap()
 }

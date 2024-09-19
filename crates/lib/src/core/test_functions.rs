@@ -8,7 +8,7 @@ use crate::core::linter::core::Linter;
 pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
     let tables = Tables::default();
     let linter = Linter::new(<_>::default(), None, None);
-    linter.parse_string(&tables, sql, None, None).unwrap().tree.unwrap()
+    linter.parse_string(&tables, sql, None).unwrap().tree.unwrap()
 }
 
 pub fn fresh_ansi_dialect() -> Dialect {

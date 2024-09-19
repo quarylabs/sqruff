@@ -77,14 +77,12 @@ impl Linter {
     pub fn check(&self, sql: &str, tool: Tool) -> Result {
         let line_index = LineIndex::new(sql);
 
-        let rule_pack = self.base.get_rulepack().rules();
-
         let tables = Tables::default();
-        let parsed = self.base.parse_string(&tables, sql, None, None).unwrap();
+        let parsed = self.base.parse_string(&tables, sql, None).unwrap();
 
         let cst = if tool == Tool::Cst { parsed.tree.clone() } else { None };
 
-        let mut result = self.base.lint_parsed(&tables, parsed, rule_pack, tool == Tool::Format);
+        let mut result = self.base.lint_parsed(&tables, parsed, tool == Tool::Format);
         let violations = &mut result.violations;
 
         let diagnostics = violations

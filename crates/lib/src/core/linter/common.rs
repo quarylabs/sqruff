@@ -10,7 +10,7 @@ use sqruff_lib_core::templaters::base::TemplatedFile;
 pub struct RenderedFile {
     pub templated_file: TemplatedFile,
     pub templater_violations: Vec<SQLTemplaterError>,
-    pub(crate) f_name: String,
+    pub(crate) filename: String,
     pub source_str: String,
 }
 
@@ -20,6 +20,6 @@ pub struct ParsedString {
     pub tree: Option<ErasedSegment>,
     pub violations: Vec<SQLBaseError>,
     pub templated_file: TemplatedFile,
-    pub f_name: String,
+    pub filename: String,
     pub source_str: String,
 }

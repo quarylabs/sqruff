@@ -121,7 +121,11 @@ impl Tables {
                     args.iter().map(|&arg| self.stringify(arg)).collect::<Vec<_>>().join(", ");
                 format!("{callee}({args})")
             }
-            &ExprKind::Join { this, using: _ } => "join ".to_string() + &self.stringify(this),
+            &ExprKind::Join { this, on, using: _ } => {
+                let this = self.stringify(this);
+                let on = on.map_or(String::new(), |on| self.stringify(on));
+                format!("join {this} on {on}")
+            }
             ExprKind::Select { with, projections, from, joins } => {
                 let with = with.map_or(String::new(), |with| self.stringify(with) + " ");
                 let projections = projections
@@ -201,6 +205,12 @@ impl Tables {
 
                 format!("{lhs} + {rhs}")
             }
+            &ExprKind::Sub(lhs, rhs) => {
+                let lhs = self.stringify(lhs);
+                let rhs = self.stringify(rhs);
+
+                format!("{lhs} - {rhs}")
+            }
         }
     }
 
@@ -223,7 +233,8 @@ impl Tables {
             if let Some(last_node) = last.take() {
                 if prune.as_mut().map_or(true, |prune| !prune(self, last_node)) {
                     match &self.exprs[last_node].kind {
-                        ExprKind::Select { with, projections, from, .. } => {
+                        ExprKind::Select { with, projections, from, joins } => {
+                            queue.extend(joins.iter().rev());
                             queue.extend(from);
                             queue.extend(projections.iter().rev());
                             queue.extend(with);
@@ -248,12 +259,17 @@ impl Tables {
                         ExprKind::TableAlias(_, alias) => {
                             queue.extend(alias);
                         }
-                        &ExprKind::Add(lhs, rhs) => {
-                            queue.extend([rhs, lhs]);
-                        }
                         &ExprKind::From { this, alias } => {
                             queue.extend(alias);
                             queue.push(this);
+                        }
+                        &ExprKind::Join { this, on, using } => {
+                            queue.extend(using);
+                            queue.extend(on);
+                            queue.push(this);
+                        }
+                        &ExprKind::Add(lhs, rhs) | &ExprKind::Sub(lhs, rhs) => {
+                            queue.extend([rhs, lhs]);
                         }
                         _ => {}
                     };
@@ -324,10 +340,12 @@ pub(crate) enum ExprKind {
     #[allow(dead_code)]
     Join {
         this: Expr,
+        on: Option<Expr>,
         using: Option<Expr>,
     },
     ValuesClause(ErasedSegment, Option<Expr>),
     Add(Expr, Expr),
+    Sub(Expr, Expr),
     Unknown(ErasedSegment),
 }
 
@@ -479,14 +497,37 @@ pub(crate) fn lower_inner(
                 let joins: Vec<_> = join_clauses
                     .into_iter()
                     .map(|join_clause| {
-                        let first_code = join_clause
-                            .segments()
-                            .iter()
-                            .find(|segment| !segment.segments().is_empty())
-                            .unwrap();
+                        let mut cursor = Cursor::new(join_clause.segments());
 
-                        let this = lower_inner(tables, first_code.clone(), select.into());
-                        tables.alloc_expr(ExprKind::Join { this, using: None }, select.into())
+                        cursor.skip_if(&[
+                            "ANTI",
+                            "CROSS",
+                            "INNER",
+                            "OUTER",
+                            "SEMI",
+                            "STRAIGHT_JOIN",
+                        ]);
+
+                        cursor.skip_if(&["JOIN"]);
+
+                        let this = cursor.next().unwrap().clone();
+
+                        let this = lower_inner(tables, this, parent);
+
+                        let on = if let Some(join_on_condition) =
+                            cursor.next_if(SyntaxKind::JoinOnCondition)
+                        {
+                            let mut cursor = Cursor::new(join_on_condition.segments());
+
+                            debug_assert_eq!(cursor.next().unwrap().raw(), "ON");
+                            let value = cursor.next().unwrap().clone();
+
+                            Some(lower_inner(tables, value, parent))
+                        } else {
+                            None
+                        };
+
+                        tables.alloc_expr(ExprKind::Join { this, on, using: None }, parent)
                     })
                     .collect();
 
@@ -507,7 +548,31 @@ pub(crate) fn lower_inner(
             tables
                 .alloc_expr(if id == "*" { ExprKind::Star } else { ExprKind::Wildcard(id) }, parent)
         }
-        SyntaxKind::FromExpressionElement => lower_inner(tables, first_code(segment), parent),
+        SyntaxKind::FromExpressionElement => {
+            let mut cursor = Cursor::new(segment.segments());
+
+            let mut this = cursor.next().unwrap().clone();
+
+            if this.get_type() == SyntaxKind::TableExpression {
+                this = first_code(this);
+            }
+
+            let this = lower_inner(tables, this, parent);
+
+            if let Some(maybe_alias) = cursor.next() {
+                if maybe_alias.get_type() == SyntaxKind::AliasExpression {
+                    let maybe_alias = maybe_alias.clone();
+                    let raw_segments = maybe_alias.get_raw_segments();
+                    let alias = raw_segments.iter().rev().find(|it| it.is_code()).unwrap().clone();
+
+                    if let ExprKind::TableReference(_, slot) = &mut tables.exprs[this].kind {
+                        *slot = Some(alias.raw().to_string());
+                    }
+                }
+            }
+
+            this
+        }
         SyntaxKind::TableReference => {
             tables.alloc_expr(ExprKind::TableReference(segment.raw().to_string(), None), parent)
         }
@@ -553,6 +618,7 @@ pub(crate) fn lower_inner(
             while let Some(op) = segments.next() {
                 let op = match op.raw().as_ref() {
                     "+" => ExprKind::Add,
+                    "=" => ExprKind::Sub,
                     _ => unimplemented!(),
                 };
 
@@ -650,16 +716,42 @@ pub(crate) fn specific_statement_segment(parsed: ErasedSegment) -> Vec<ErasedSeg
 }
 
 struct Cursor<'me> {
-    iter: std::slice::Iter<'me, ErasedSegment>,
+    iter: std::iter::Peekable<std::slice::Iter<'me, ErasedSegment>>,
 }
 
 impl<'me> Cursor<'me> {
     fn new(segments: &'me [ErasedSegment]) -> Self {
-        Self { iter: segments.iter() }
+        Self { iter: segments.iter().peekable() }
+    }
+
+    fn peek(&mut self) -> Option<&ErasedSegment> {
+        let peeked = *self.iter.peek()?;
+        if peeked.is_code() {
+            Some(peeked)
+        } else {
+            self.iter.next();
+            self.peek()
+        }
     }
 
     fn next(&mut self) -> Option<&ErasedSegment> {
         let next = self.iter.next()?;
         if next.is_code() { Some(next) } else { self.next() }
+    }
+
+    fn next_if(&mut self, syntax_kind: SyntaxKind) -> Option<ErasedSegment> {
+        let peeked = self.peek()?;
+        if peeked.get_type() == syntax_kind { Some(peeked.clone()) } else { None }
+    }
+
+    fn skip_if(&mut self, raws: &[&str]) -> bool {
+        if let Some(peeked) = self.peek() {
+            if raws.contains(&peeked.raw().to_uppercase().as_str()) {
+                self.next();
+                return true;
+            }
+        }
+
+        false
     }
 }

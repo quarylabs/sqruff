@@ -31,6 +31,7 @@ The following rules are available in this create. This list is generated from th
 | CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. | 
 | CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause | 
 | CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
+| CV05 | [convention.is_null](#conventionis_null) | Relational operators should not be used to check for NULL values. | 
 | CV06 | [convention.terminator](#conventionterminator) | Statements must end with a semi-colon. | 
 | CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. | 
 | CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
@@ -983,6 +984,39 @@ Use count(*) unless specified otherwise by config prefer_count_1, or prefer_coun
 select
     count(*)
 from table_a
+```
+
+
+### convention.is_null
+
+Relational operators should not be used to check for NULL values.
+
+**Code:** CV05
+
+**Groups:** `all`, `core`, `convention`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+In this example, the `=` operator is used to check for `NULL` values.
+
+```sql
+SELECT
+    a
+FROM foo
+WHERE a = NULL
+```
+
+**Best practice**
+
+Use `IS` or `IS NOT` to check for `NULL` values.
+
+```sql
+SELECT
+    a
+FROM foo
+WHERE a IS NULL
 ```
 
 

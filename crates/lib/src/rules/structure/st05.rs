@@ -43,7 +43,7 @@ struct NestedSubQuerySummary<'a> {
 }
 
 #[derive(Clone, Debug, Default)]
-pub struct RuleST05 {
+pub(crate) struct RuleST05 {
     forbid_subquery_in: String,
 }
 
@@ -712,7 +712,7 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
     .finish()
 }
 
-pub struct SegmentCloneMap {
+pub(crate) struct SegmentCloneMap {
     root: ErasedSegment,
     segment_map: AHashMap<usize, ErasedSegment>,
 }

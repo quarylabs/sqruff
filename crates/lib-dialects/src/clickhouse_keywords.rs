@@ -1,4 +1,4 @@
-pub const UNRESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "ADD",
     "AFTER",
     "ALIAS",

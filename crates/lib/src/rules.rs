@@ -55,7 +55,7 @@ mod tests {
     #[test]
     fn no_rule_should_not_include_all_as_that_is_default() {
         rules().iter().for_each(|rule| {
-            assert_eq!(*rule.groups().get(0).unwrap(), RuleGroups::All);
+            assert_eq!(*rule.groups().first().unwrap(), RuleGroups::All);
         });
     }
 
@@ -71,7 +71,7 @@ mod tests {
     fn if_rule_contains_core_is_second_in_list() {
         rules().iter().for_each(|rule| {
             let groups = rule.groups();
-            if groups.into_iter().find(|&&rule| rule == RuleGroups::Core).is_some() {
+            if groups.iter().any(|&rule| rule == RuleGroups::Core) {
                 assert_eq!(groups.get(1).unwrap(), &RuleGroups::Core);
             }
         })

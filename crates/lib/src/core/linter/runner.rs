@@ -1,7 +1,7 @@
 use super::core::Linter;
 use super::linted_file::LintedFile;
 
-pub trait Runner: Sized {
+pub(crate) trait Runner: Sized {
     fn run(
         &mut self,
         paths: Vec<String>,
@@ -10,24 +10,28 @@ pub trait Runner: Sized {
     ) -> impl Iterator<Item = LintedFile>;
 }
 
-pub struct RunnerContext<'me, R> {
+pub(crate) struct RunnerContext<'me, R> {
     linter: &'me mut Linter,
     runner: R,
 }
 
 impl<'me> RunnerContext<'me, ParallelRunner> {
-    pub fn sequential(linter: &'me mut Linter) -> Self {
+    pub(crate) fn sequential(linter: &'me mut Linter) -> Self {
         Self { linter, runner: ParallelRunner }
     }
 }
 
 impl<R: Runner> RunnerContext<'_, R> {
-    pub fn run(&mut self, paths: Vec<String>, fix: bool) -> impl Iterator<Item = LintedFile> + '_ {
+    pub(crate) fn run(
+        &mut self,
+        paths: Vec<String>,
+        fix: bool,
+    ) -> impl Iterator<Item = LintedFile> + '_ {
         self.runner.run(paths, fix, self.linter)
     }
 }
 
-pub struct ParallelRunner;
+pub(crate) struct ParallelRunner;
 
 impl Runner for ParallelRunner {
     fn run(

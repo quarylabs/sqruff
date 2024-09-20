@@ -630,7 +630,6 @@ mod tests {
             assert_eq!(new_pnt.raw(), raw_point_sql_out);
 
             let fixes = fixes_from_results(results.into_iter())
-                .into_iter()
                 .map(|fix| (fix.edit_type, fix.anchor.raw().to_smolstr()))
                 .collect_vec();
 

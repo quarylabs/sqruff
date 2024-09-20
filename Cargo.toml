@@ -8,6 +8,10 @@ license = "Apache-2.0"
 members = ["crates/*"]
 resolver = "2"
 
+[workspace.lints.rust]
+unreachable_pub = "warn"
+unused_qualifications = "warn"
+
 # https://github.com/rustwasm/wasm-bindgen/issues/3451#issuecomment-1562982835
 [profile.dev]
 opt-level = "s"

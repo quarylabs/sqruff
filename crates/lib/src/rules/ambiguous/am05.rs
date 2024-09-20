@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use ahash::AHashMap;
+use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::base::SegmentBuilder;
 use sqruff_lib_core::rules::LintFix;
@@ -100,8 +101,8 @@ SELECT a, b FROM table_2
         if (self.fully_qualify_join_types == JoinType::Outer
             || self.fully_qualify_join_types == JoinType::Both)
             && ["RIGHT", "LEFT", "FULL"]
-                .contains(&&*join_clause_keywords[0].get_raw_upper().unwrap())
-            && join_clause_keywords[1].get_raw_upper().unwrap() == "JOIN"
+                .contains(&join_clause_keywords[0].raw().to_uppercase_smolstr().as_str())
+            && join_clause_keywords[1].raw().eq_ignore_ascii_case("JOIN")
         {
             let outer_keyword =
                 if join_clause_keywords[1].raw() == "JOIN" { "OUTER" } else { "outer" };
@@ -124,7 +125,7 @@ SELECT a, b FROM table_2
         // Fully qualifying inner joins
         if (self.fully_qualify_join_types == JoinType::Inner
             || self.fully_qualify_join_types == JoinType::Both)
-            && join_clause_keywords[0].get_raw_upper().unwrap() == "JOIN"
+            && join_clause_keywords[0].raw().eq_ignore_ascii_case("JOIN")
         {
             let inner_keyword =
                 if join_clause_keywords[0].raw() == "JOIN" { "INNER" } else { "inner" };

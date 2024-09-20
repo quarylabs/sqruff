@@ -1,4 +1,4 @@
-use smol_str::{SmolStr, ToSmolStr};
+use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::segments::base::ErasedSegment;
 use sqruff_lib_core::rules::LintFix;
@@ -39,5 +39,5 @@ pub fn deduce_line_indent(raw_segment: &ErasedSegment, root_segment: &ErasedSegm
         }
     }
 
-    indent_seg.map(|seg| seg.raw()).unwrap_or_default().to_smolstr()
+    indent_seg.map(|seg| seg.raw().clone()).unwrap_or_default()
 }

@@ -1,4 +1,5 @@
 use ahash::{AHashMap, AHashSet};
+use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::rules::LintFix;
@@ -57,10 +58,8 @@ ORDER BY a ASC, b DESC
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Only trigger on orderby_clause
         let order_by_spec = Self::get_order_by_info(context.segment.clone());
-        let order_types = order_by_spec
-            .iter()
-            .map(|spec| spec.order.clone())
-            .collect::<AHashSet<Option<String>>>();
+        let order_types =
+            order_by_spec.iter().map(|spec| spec.order.clone()).collect::<AHashSet<Option<_>>>();
 
         // If all or no columns are explicitly ordered, then it's not ambiguous
         if !order_types.contains(&None) || (order_types.len() == 1 && order_types.contains(&None)) {
@@ -98,7 +97,7 @@ ORDER BY a ASC, b DESC
 /// For AM03, segment that ends an ORDER BY column and any order provided.
 struct OrderByColumnInfo {
     column_reference: ErasedSegment,
-    order: Option<String>,
+    order: Option<SmolStr>,
 }
 
 impl RuleAM03 {
@@ -113,10 +112,10 @@ impl RuleAM03 {
             if child_segment.is_type(SyntaxKind::ColumnReference) {
                 column_reference = Some(child_segment.clone());
             } else if child_segment.is_type(SyntaxKind::Keyword)
-                && (child_segment.get_raw_upper() == Some("ASC".into())
-                    || child_segment.get_raw_upper() == Some("DESC".into()))
+                && (child_segment.raw().eq_ignore_ascii_case("ASC")
+                    || child_segment.raw().eq_ignore_ascii_case("DESC"))
             {
-                ordering_reference = child_segment.get_raw_upper();
+                ordering_reference = Some(child_segment.raw().to_uppercase_smolstr());
             };
 
             if column_reference.is_some() && child_segment.raw() == "," {

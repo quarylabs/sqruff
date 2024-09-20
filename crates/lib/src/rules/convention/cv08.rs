@@ -1,4 +1,5 @@
 use ahash::{AHashMap, AHashSet};
+use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
@@ -63,12 +64,12 @@ LEFT JOIN foo
             .segment
             .segments()
             .iter()
-            .map(|segment| segment.get_raw_upper().unwrap())
+            .map(|segment| segment.raw().to_uppercase_smolstr())
             .collect::<AHashSet<_>>();
 
         let mut set = AHashSet::new();
-        set.insert("RIGHT".to_string());
-        set.insert("JOIN".to_string());
+        set.insert(SmolStr::new_static("RIGHT"));
+        set.insert(SmolStr::new_static("JOIN"));
 
         if set.is_subset(&segments) {
             vec![LintResult::new(

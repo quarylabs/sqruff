@@ -121,7 +121,7 @@ FROM table;
                             })
                             .expect("identifier is none");
 
-                        if column_identifier.get_raw_upper() == alias_identifier.get_raw_upper() {
+                        if column_identifier.raw().eq_ignore_ascii_case(alias_identifier.raw()) {
                             let fixes = vec![
                                 LintFix::delete(whitespace),
                                 LintFix::delete(alias_expression),

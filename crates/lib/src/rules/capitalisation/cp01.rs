@@ -201,17 +201,17 @@ pub fn handle_segment(
 
     if first_letter_is_lowercase {
         refuted_cases.extend(["upper", "capitalise", "pascal"]);
-        if seg.raw() != seg.raw().to_lowercase() {
+        if seg.raw().as_str() != seg.raw().to_lowercase() {
             refuted_cases.insert("lower");
         }
     } else {
         refuted_cases.insert("lower");
 
         let segment_raw = seg.raw();
-        if segment_raw != segment_raw.to_uppercase() {
+        if segment_raw.as_str() != segment_raw.to_uppercase() {
             refuted_cases.insert("upper");
         }
-        if segment_raw
+        if segment_raw.as_str()
             != segment_raw.to_uppercase().chars().next().unwrap().to_string()
                 + segment_raw[1..].to_lowercase().as_str()
         {
@@ -270,7 +270,7 @@ pub fn handle_segment(
         _ => fixed_raw,
     };
 
-    if fixed_raw == seg.raw() {
+    if fixed_raw == seg.raw().as_str() {
         LintResult::new(None, Vec::new(), None, None, None)
     } else {
         let consistency =

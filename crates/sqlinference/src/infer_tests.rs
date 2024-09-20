@@ -533,7 +533,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
                         match name.to_lowercase().as_str() {
                             "count" => {
-                                if args.first().map(|it| it.raw()) == Some("*".into()) {
+                                if args.first().map(|it| it.raw().as_str()) == Some("*") {
                                     count_stars.insert(alias.raw().to_string());
                                 };
                             }

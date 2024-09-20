@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::borrow::Cow;
 use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
@@ -126,13 +125,12 @@ impl Hash for ErasedSegment {
 impl Eq for ErasedSegment {}
 
 impl ErasedSegment {
-    pub fn raw(&self) -> Cow<str> {
+    pub fn raw(&self) -> &SmolStr {
         match &self.value.kind {
-            NodeOrTokenKind::Node(node) => node
-                .raw
-                .get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join(""))
-                .into(),
-            NodeOrTokenKind::Token(token) => token.raw.as_str().into(),
+            NodeOrTokenKind::Node(node) => node.raw.get_or_init(|| {
+                SmolStr::from_iter(self.segments().iter().map(|segment| segment.raw().as_str()))
+            }),
+            NodeOrTokenKind::Token(token) => &token.raw,
         }
     }
 
@@ -389,7 +387,7 @@ impl ErasedSegment {
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(
                 pos_marker.templated_slice.clone(),
-                self.raw().into(),
+                self.raw().clone(),
                 // SyntaxKind::Literal.into(),
                 pos_marker.source_slice.clone(),
                 templated_file.templated_str.as_ref().unwrap()[pos_marker.templated_slice.clone()]
@@ -571,7 +569,7 @@ impl ErasedSegment {
     pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
         for seg in self.get_raw_segments() {
             if !seg.raw().is_empty() {
-                return Some(seg.get_raw_upper().unwrap());
+                return Some(seg.raw().to_uppercase());
             }
         }
         None
@@ -1040,7 +1038,7 @@ impl NodeOrToken {
 pub struct NodeData {
     dialect: DialectKind,
     segments: Vec<ErasedSegment>,
-    raw: OnceCell<String>,
+    raw: OnceCell<SmolStr>,
     source_fixes: Vec<SourceFix>,
     descendant_type_set: OnceCell<SyntaxSet>,
     raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,

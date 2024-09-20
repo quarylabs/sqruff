@@ -42,7 +42,7 @@ impl SelectClauseElementSegment {
         }
 
         Some(ColumnAliasInfo {
-            alias_identifier_name: alias_identifier_segment.raw().into(),
+            alias_identifier_name: alias_identifier_segment.raw().clone(),
             aliased_segment: aliased_segment.clone(),
             column_reference_segments,
         })

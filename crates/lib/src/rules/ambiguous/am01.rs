@@ -64,7 +64,7 @@ FROM foo
                 .children(Some(|it| it.is_type(SyntaxKind::Keyword)))
                 .select(
                     Some(|it: &ErasedSegment| {
-                        it.is_type(SyntaxKind::Keyword) && it.get_raw_upper().unwrap() == "DISTINCT"
+                        it.is_type(SyntaxKind::Keyword) && it.raw().eq_ignore_ascii_case("DISTINCT")
                     }),
                     None,
                     None,

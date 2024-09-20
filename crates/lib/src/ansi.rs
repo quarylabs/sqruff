@@ -43,7 +43,7 @@ mod tests {
 
             // Check if the concatenated raw components of the tokens match the original raw
             // string
-            let concatenated: String = tokens.iter().map(|token| token.raw()).collect();
+            let concatenated: String = tokens.iter().map(|token| token.raw().as_str()).collect();
             assert_eq!(concatenated, raw, "Concatenation mismatch for input: {}", raw);
         }
     }

@@ -30,7 +30,7 @@ fn priority_keyword_merge(
     base_list
 }
 
-pub fn get_keywords(
+pub(crate) fn get_keywords(
     keyword_list: &[(&'static str, &'static str)],
     keyword_type: &str,
 ) -> Vec<&'static str> {
@@ -969,7 +969,7 @@ const POSTGRES_NONDOCS_KEYWORDS: &[(&str, &str)] = &[
     ("WAL", "non-reserved"),
 ];
 
-pub const POSTGRES_POSTGIS_DATATYPE_KEYWORDS: &[(&str, &str)] = &[
+pub(crate) const POSTGRES_POSTGIS_DATATYPE_KEYWORDS: &[(&str, &str)] = &[
     ("POINT", "non-reserved"),
     ("LINESTRING", "non-reserved"),
     ("POLYGON", "non-reserved"),
@@ -1011,7 +1011,7 @@ pub const POSTGRES_POSTGIS_DATATYPE_KEYWORDS: &[(&str, &str)] = &[
 const POSTGRES_POSTGIS_OTHER_KEYWORDS: &[(&str, &str)] =
     &[("GEOMETRY", "non-reserved"), ("GEOGRAPHY", "non-reserved"), ("EMPTY", "non-reserved")];
 
-pub fn postgres_keywords() -> Vec<(&'static str, &'static str)> {
+pub(crate) fn postgres_keywords() -> Vec<(&'static str, &'static str)> {
     priority_keyword_merge(&[
         POSTGRES_DOCS_KEYWORDS,
         POSTGRES_NONDOCS_KEYWORDS,

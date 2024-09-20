@@ -1,4 +1,4 @@
-pub const RESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "ALL",
     "AND",
     "ANY",
@@ -68,7 +68,7 @@ pub const RESERVED_KEYWORDS: &[&str] = &[
     "WITH",
 ];
 
-pub const UNRESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "ADD",
     "AFTER",
     "ALTER",

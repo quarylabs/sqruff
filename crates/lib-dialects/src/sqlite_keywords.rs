@@ -2,7 +2,7 @@
 // https://www.sqlite.org/lang_keywords.html
 // Augmented with data types, and a couple of omitted keywords.
 
-pub const RESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "ABORT",
     "ACTION",
     "ADD",
@@ -152,7 +152,7 @@ pub const RESERVED_KEYWORDS: &[&str] = &[
     "WITHOUT",
 ];
 
-pub const UNRESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "INT",
     "INTEGER",
     "TINYINT",

@@ -66,7 +66,7 @@ pub(crate) enum Source {
 }
 
 impl Scope {
-    pub fn stats(&self, tables: &Tables) -> Ref<'_, Stats> {
+    pub(crate) fn stats(&self, tables: &Tables) -> Ref<'_, Stats> {
         Ref::map(self.get(), |scope| {
             scope.stats.get_or_init(|| {
                 let mut stats = Stats::default();

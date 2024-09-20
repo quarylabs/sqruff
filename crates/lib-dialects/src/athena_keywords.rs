@@ -1,4 +1,4 @@
-pub const ATHENA_RESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const ATHENA_RESERVED_KEYWORDS: &[&str] = &[
     "ALL",
     "ALTER",
     "AND",
@@ -131,7 +131,7 @@ pub const ATHENA_RESERVED_KEYWORDS: &[&str] = &[
     "WITH",
 ];
 
-pub const ATHENA_UNRESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const ATHENA_UNRESERVED_KEYWORDS: &[&str] = &[
     "ABORT",
     "ADD",
     "ADMIN",

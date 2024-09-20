@@ -21,8 +21,8 @@ pub struct Args {
 }
 
 impl Args {
-    fn parse_args(&mut self, mut iter: impl Iterator<Item = String>) {
-        while let Some(arg) = iter.next() {
+    fn parse_args(&mut self, iter: impl Iterator<Item = String>) {
+        for arg in iter {
             if arg == "--" {
                 continue;
             }

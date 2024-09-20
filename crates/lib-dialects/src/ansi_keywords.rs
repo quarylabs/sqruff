@@ -1,6 +1,6 @@
 //! A list of all SQL keywords.
 
-pub const ANSI_RESERVED_KEYWORDS: &str = "SELECT
+pub(crate) const ANSI_RESERVED_KEYWORDS: &str = "SELECT
 JOIN
 ON
 USING
@@ -24,7 +24,7 @@ SET
 NATURAL
 ";
 
-pub const ANSI_UNRESERVED_KEYWORDS: &str = "ABORT
+pub(crate) const ANSI_UNRESERVED_KEYWORDS: &str = "ABORT
 ABS
 ABSOLUTE
 ACCESS

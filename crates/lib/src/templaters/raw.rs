@@ -57,7 +57,7 @@ mod test {
     #[test]
     /// Test the raw templater
     fn test_templater_raw() {
-        let templater = RawTemplater::default();
+        let templater = RawTemplater;
         let in_str = "SELECT * FROM {{blah}}";
 
         let outstr = templater.process(in_str, "test.sql", None, None).unwrap();

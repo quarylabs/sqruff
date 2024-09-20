@@ -1,4 +1,4 @@
-pub const TRINO_RESERVED_KEYWORDS: &str = "ALTER
+pub(crate) const TRINO_RESERVED_KEYWORDS: &str = "ALTER
 AND
 AS
 BETWEEN
@@ -82,7 +82,7 @@ WHERE
 WITH
 ";
 
-pub const TRINO_UNRESERVED_KEYWORDS: &str = "ABSENT
+pub(crate) const TRINO_UNRESERVED_KEYWORDS: &str = "ABSENT
 ADD
 ADMIN
 AFTER

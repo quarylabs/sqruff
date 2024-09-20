@@ -107,7 +107,7 @@ impl LanguageServer {
                 } = serde_json::from_value(params).unwrap();
 
                 let edits = self.format(uri);
-                Some(lsp_server::Response::new_ok(id, edits))
+                Some(Response::new_ok(id, edits))
             }
             _ => None,
         }
@@ -184,7 +184,7 @@ impl LanguageServer {
             .into_iter()
             .map(|violation| {
                 let range = {
-                    let pos = lsp_types::Position::new(
+                    let pos = Position::new(
                         (violation.line_no as u32).saturating_sub(1),
                         (violation.line_pos as u32).saturating_sub(1),
                     );
@@ -290,7 +290,7 @@ pub fn save_registration_options() -> lsp_types::RegistrationParams {
 
 fn new_notification<T>(params: T::Params) -> lsp_server::Notification
 where
-    T: lsp_types::notification::Notification,
+    T: Notification,
 {
     lsp_server::Notification {
         method: T::METHOD.to_owned(),

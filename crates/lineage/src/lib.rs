@@ -238,7 +238,7 @@ fn to_node(
         .map(|subquery_scope| (subquery_scope.expr(), subquery_scope.clone()))
         .collect();
 
-    for expr in crate::scope::walk_in_scope(tables, select) {
+    for expr in scope::walk_in_scope(tables, select) {
         let Some(subquery_scope) = subquery_scopes.get(&expr) else {
             continue;
         };
@@ -277,7 +277,7 @@ fn to_node(
     let source_columns = if tables.stringify(select).split('.').collect::<Vec<_>>().len() == 1 {
         IndexSet::new()
     } else {
-        crate::scope::walk_in_scope(tables, select)
+        scope::walk_in_scope(tables, select)
             .into_iter()
             .filter_map(|it| match &tables.exprs[it].kind {
                 ExprKind::Column(column) => Some(column.clone()),

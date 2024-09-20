@@ -1,10 +1,10 @@
 use super::segments::base::ErasedSegment;
 
-pub fn join_segments_raw(segments: &[ErasedSegment]) -> String {
+pub(crate) fn join_segments_raw(segments: &[ErasedSegment]) -> String {
     segments.iter().map(|s| s.raw()).collect::<Vec<_>>().concat()
 }
 
-pub fn check_still_complete(
+pub(crate) fn check_still_complete(
     segments_in: &[ErasedSegment],
     matched_segments: &[ErasedSegment],
     unmatched_segments: &[ErasedSegment],

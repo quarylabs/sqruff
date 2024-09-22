@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use std::ops::Deref;
-use std::sync::{Arc, OnceLock};
+use std::sync::OnceLock;
 
 use ahash::AHashSet;
 
@@ -11,17 +11,19 @@ use crate::helpers::{capitalize, ToMatchable};
 use crate::parser::context::ParseContext;
 use crate::parser::match_algorithms::greedy_match;
 use crate::parser::match_result::MatchResult;
-use crate::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::parser::matchable::{
+    next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait,
+};
 use crate::parser::segments::base::ErasedSegment;
 
 #[derive(Clone)]
 pub struct Ref {
     pub(crate) reference: Cow<'static, str>,
-    pub exclude: Option<Arc<dyn Matchable>>,
-    terminators: Vec<Arc<dyn Matchable>>,
+    pub exclude: Option<Matchable>,
+    terminators: Vec<Matchable>,
     reset_terminators: bool,
-    allow_gaps: bool,
-    optional: bool,
+    pub(crate) allow_gaps: bool,
+    pub(crate) optional: bool,
     cache_key: MatchableCacheKey,
     simple_cache: OnceLock<Option<(AHashSet<String>, SyntaxSet)>>,
 }
@@ -58,7 +60,7 @@ impl Ref {
     }
 
     // Method to get the referenced element
-    fn _get_elem(&self, dialect: &Dialect) -> Arc<dyn Matchable> {
+    fn _get_elem(&self, dialect: &Dialect) -> Matchable {
         dialect.r#ref(&self.reference)
     }
 
@@ -80,7 +82,7 @@ impl PartialEq for Ref {
 
 impl Eq for Ref {}
 
-impl Matchable for Ref {
+impl MatchableTrait for Ref {
     fn is_optional(&self) -> bool {
         self.optional
     }
@@ -142,12 +144,16 @@ impl Matchable for Ref {
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
 }
 
 #[derive(Clone, Debug)]
 pub struct Anything {
     cache_key: MatchableCacheKey,
-    terminators: Vec<Arc<dyn Matchable>>,
+    terminators: Vec<Matchable>,
 }
 
 impl PartialEq for Anything {
@@ -168,13 +174,13 @@ impl Anything {
         Self { cache_key: next_matchable_cache_key(), terminators: Vec::new() }
     }
 
-    pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn terminators(mut self, terminators: Vec<Matchable>) -> Self {
         self.terminators = terminators;
         self
     }
 }
 
-impl Matchable for Anything {
+impl MatchableTrait for Anything {
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
@@ -194,6 +200,10 @@ impl Matchable for Anything {
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -211,7 +221,7 @@ impl Nothing {
     }
 }
 
-impl Matchable for Nothing {
+impl MatchableTrait for Nothing {
     fn match_segments(
         &self,
         _segments: &[ErasedSegment],
@@ -219,5 +229,9 @@ impl Matchable for Nothing {
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         Ok(MatchResult::empty_at(idx))
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }

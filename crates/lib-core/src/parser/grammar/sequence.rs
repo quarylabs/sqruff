@@ -1,21 +1,21 @@
 use std::iter::zip;
 use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
 
 use ahash::AHashSet;
 
-use super::conditional::Conditional;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
+use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
 use crate::parser::match_algorithms::{
     resolve_bracket, skip_start_index_forward_to_code, skip_stop_index_backward_to_code,
     trim_to_terminator,
 };
 use crate::parser::match_result::{MatchResult, Matched, Span};
-use crate::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::parser::matchable::{
+    next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait,
+};
 use crate::parser::segments::base::ErasedSegment;
-use crate::parser::segments::meta::Indent;
 use crate::parser::types::ParseMode;
 
 fn flush_metas(
@@ -31,11 +31,11 @@ fn flush_metas(
 
 #[derive(Debug, Clone)]
 pub struct Sequence {
-    elements: Vec<Arc<dyn Matchable>>,
+    elements: Vec<Matchable>,
     pub parse_mode: ParseMode,
     pub allow_gaps: bool,
     is_optional: bool,
-    pub terminators: Vec<Arc<dyn Matchable>>,
+    pub terminators: Vec<Matchable>,
     cache_key: MatchableCacheKey,
 }
 
@@ -46,7 +46,7 @@ impl Sequence {
 }
 
 impl Sequence {
-    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Matchable>) -> Self {
         Self {
             elements,
             allow_gaps: true,
@@ -61,7 +61,7 @@ impl Sequence {
         self.is_optional = true;
     }
 
-    pub fn terminators(mut self, terminators: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn terminators(mut self, terminators: Vec<Matchable>) -> Self {
         self.terminators = terminators;
         self
     }
@@ -78,11 +78,11 @@ impl Sequence {
 
 impl PartialEq for Sequence {
     fn eq(&self, other: &Self) -> bool {
-        zip(&self.elements, &other.elements).all(|(a, b)| a.dyn_eq(&**b))
+        zip(&self.elements, &other.elements).all(|(a, b)| a == b)
     }
 }
 
-impl Matchable for Sequence {
+impl MatchableTrait for Sequence {
     fn is_optional(&self) -> bool {
         self.is_optional
     }
@@ -131,13 +131,13 @@ impl Matchable for Sequence {
         }
 
         for elem in &self.elements {
-            if let Some(indent) = elem.as_any().downcast_ref::<Conditional>() {
+            if let Some(indent) = elem.as_conditional() {
                 let match_result = indent.match_segments(segments, matched_idx, parse_context)?;
                 for (_, submatch) in match_result.insert_segments {
                     meta_buffer.push(submatch);
                 }
                 continue;
-            } else if let Some(indent) = elem.as_any().downcast_ref::<Indent>() {
+            } else if let Some(indent) = elem.as_indent() {
                 meta_buffer.push(indent.kind);
                 continue;
             }
@@ -262,18 +262,18 @@ impl Matchable for Sequence {
 
     fn copy(
         &self,
-        insert: Option<Vec<Arc<dyn Matchable>>>,
+        insert: Option<Vec<Matchable>>,
         at: Option<usize>,
-        before: Option<Arc<dyn Matchable>>,
-        remove: Option<Vec<Arc<dyn Matchable>>>,
-        terminators: Vec<Arc<dyn Matchable>>,
+        before: Option<Matchable>,
+        remove: Option<Vec<Matchable>>,
+        terminators: Vec<Matchable>,
         replace_terminators: bool,
-    ) -> Arc<dyn Matchable> {
+    ) -> Matchable {
         let mut new_elements = self.elements.clone();
 
         if let Some(insert_elements) = insert {
             if let Some(before_element) = before {
-                if let Some(index) = self.elements.iter().position(|e| e.hack_eq(&before_element)) {
+                if let Some(index) = self.elements.iter().position(|e| e == &before_element) {
                     new_elements.splice(index..index, insert_elements);
                 } else {
                     panic!("Element for insertion before not found");
@@ -286,7 +286,7 @@ impl Matchable for Sequence {
         }
 
         if let Some(remove_elements) = remove {
-            new_elements.retain(|elem| !remove_elements.iter().any(|r| elem.dyn_eq(r.as_ref())));
+            new_elements.retain(|elem| !remove_elements.contains(elem));
         }
 
         let mut new_grammar = self.clone();
@@ -298,7 +298,11 @@ impl Matchable for Sequence {
             [self.terminators.clone(), terminators].concat()
         };
 
-        Arc::new(new_grammar)
+        new_grammar.to_matchable()
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
     }
 }
 
@@ -311,7 +315,7 @@ pub struct Bracketed {
 }
 
 impl Bracketed {
-    pub fn new(args: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn new(args: Vec<Matchable>) -> Self {
         Self {
             bracket_type: "round",
             bracket_pairs_set: "bracket_pairs",
@@ -321,7 +325,7 @@ impl Bracketed {
     }
 }
 
-type BracketInfo = Result<(Arc<dyn Matchable>, Arc<dyn Matchable>, bool), String>;
+type BracketInfo = Result<(Matchable, Matchable, bool), String>;
 
 impl Bracketed {
     pub fn bracket_type(&mut self, bracket_type: &'static str) {
@@ -361,7 +365,7 @@ impl DerefMut for Bracketed {
     }
 }
 
-impl Matchable for Bracketed {
+impl MatchableTrait for Bracketed {
     fn is_optional(&self) -> bool {
         self.this.is_optional()
     }
@@ -440,5 +444,9 @@ impl Matchable for Bracketed {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.this.cache_key()
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
     }
 }

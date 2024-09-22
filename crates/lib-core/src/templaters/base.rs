@@ -268,12 +268,6 @@ impl TemplatedFileInner {
         self.templated_str.clone().unwrap().to_string()
     }
 
-    /// Return a list a slices which reference the parts only in the source.
-    ///
-    /// All of these slices should be expected to have zero-length in the
-    /// templated file.
-    ///
-    ///         The results are NECESSARILY sorted.
     pub fn source_only_slices(&self) -> Vec<RawFileSlice> {
         let mut ret_buff = vec![];
         for element in &self.raw_sliced {
@@ -284,9 +278,6 @@ impl TemplatedFileInner {
         ret_buff
     }
 
-    /// Find a subset of the sliced file which touch this point.
-    ///
-    ///     The last_idx is exclusive, as the intent is to use this as a slice.
     pub fn find_slice_indices_of_templated_pos(
         &self,
         templated_pos: usize,

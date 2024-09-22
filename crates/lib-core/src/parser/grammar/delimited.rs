@@ -1,5 +1,4 @@
 use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
 
 use ahash::AHashSet;
 
@@ -12,7 +11,9 @@ use crate::parser::context::ParseContext;
 use crate::parser::grammar::noncode::NonCodeMatcher;
 use crate::parser::match_algorithms::{longest_match, skip_start_index_forward_to_code};
 use crate::parser::match_result::MatchResult;
-use crate::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::parser::matchable::{
+    next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait,
+};
 use crate::parser::segments::base::ErasedSegment;
 
 /// Match an arbitrary number of elements separated by a delimiter.
@@ -21,16 +22,16 @@ use crate::parser::segments::base::ErasedSegment;
 /// as different options of what can be delimited, rather than a sequence.
 #[derive(Clone, Debug)]
 pub struct Delimited {
-    base: AnyNumberOf,
+    pub base: AnyNumberOf,
     pub allow_trailing: bool,
-    delimiter: Arc<dyn Matchable>,
+    pub(crate) delimiter: Matchable,
     pub min_delimiters: usize,
     optional: bool,
     cache_key: MatchableCacheKey,
 }
 
 impl Delimited {
-    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Matchable>) -> Self {
         Self {
             base: one_of(elements),
             allow_trailing: false,
@@ -57,7 +58,7 @@ impl PartialEq for Delimited {
     }
 }
 
-impl Matchable for Delimited {
+impl MatchableTrait for Delimited {
     fn is_optional(&self) -> bool {
         self.optional || self.base.is_optional()
     }
@@ -91,13 +92,8 @@ impl Matchable for Delimited {
         let delimiter_matcher = self.delimiter.clone();
 
         let mut terminator_matchers = self.terminators.clone();
-        terminator_matchers.extend(
-            parse_context
-                .terminators
-                .iter()
-                .filter(|t| !delimiter_matcher.dyn_eq(t.as_ref()))
-                .cloned(),
-        );
+        terminator_matchers
+            .extend(parse_context.terminators.iter().filter(|&t| &delimiter_matcher != t).cloned());
 
         let delimiter_matchers = &[self.delimiter.clone()];
 
@@ -174,6 +170,10 @@ impl Matchable for Delimited {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
     }
 }
 

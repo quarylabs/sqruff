@@ -5,7 +5,9 @@ use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::MatchResult;
-use crate::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::parser::matchable::{
+    next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait,
+};
 
 #[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub struct BracketedSegmentMatcher {
@@ -24,7 +26,7 @@ impl Default for BracketedSegmentMatcher {
     }
 }
 
-impl Matchable for BracketedSegmentMatcher {
+impl MatchableTrait for BracketedSegmentMatcher {
     fn simple(
         &self,
         _parse_context: &ParseContext,
@@ -48,5 +50,9 @@ impl Matchable for BracketedSegmentMatcher {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }

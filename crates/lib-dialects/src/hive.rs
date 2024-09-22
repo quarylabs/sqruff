@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};

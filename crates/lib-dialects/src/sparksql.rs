@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -12,6 +10,7 @@ use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::bracketed::BracketedSegmentMatcher;

@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -8,6 +6,7 @@ use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyN
 use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
@@ -381,32 +380,36 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    let column_constraint = dyn_clone::clone(
-        &sqlite_dialect.grammar("ColumnConstraintSegment").match_grammar().unwrap(),
-    )
-    .copy(
-        Some(vec_of_erased![
-            one_of(vec_of_erased![
-                Ref::keyword("DEFERRABLE"),
-                Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")])
-            ])
-            .config(|config| {
-                config.optional();
-            }),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![Ref::keyword("INITIALLY"), Ref::keyword("DEFERRED")]),
-                Sequence::new(vec_of_erased![Ref::keyword("INITIALLY"), Ref::keyword("IMMEDIATE")])
-            ])
-            .config(|config| {
-                config.optional();
-            })
-        ]),
-        None,
-        None,
-        None,
-        Vec::new(),
-        false,
-    );
+    let column_constraint =
+        sqlite_dialect.grammar("ColumnConstraintSegment").match_grammar().unwrap().copy(
+            Some(vec_of_erased![
+                one_of(vec_of_erased![
+                    Ref::keyword("DEFERRABLE"),
+                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")])
+                ])
+                .config(|config| {
+                    config.optional();
+                }),
+                one_of(vec_of_erased![
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INITIALLY"),
+                        Ref::keyword("DEFERRED")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("INITIALLY"),
+                        Ref::keyword("IMMEDIATE")
+                    ])
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        );
     sqlite_dialect.replace_grammar("ColumnConstraintSegment", column_constraint);
 
     sqlite_dialect.replace_grammar(

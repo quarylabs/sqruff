@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use ahash::AHashMap;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
@@ -29,7 +27,7 @@ impl CacheKey {
 #[derive(Debug)]
 pub struct ParseContext<'a> {
     dialect: &'a Dialect,
-    pub(crate) terminators: Vec<Arc<dyn Matchable>>,
+    pub(crate) terminators: Vec<Matchable>,
     loc_keys: IndexSet<LocKeyData>,
     parse_cache: FxHashMap<CacheKey, MatchResult>,
     pub(crate) indentation_config: &'a AHashMap<String, bool>,
@@ -61,7 +59,7 @@ impl<'a> ParseContext<'a> {
     pub(crate) fn deeper_match<T>(
         &mut self,
         clear_terminators: bool,
-        push_terminators: &[Arc<dyn Matchable>],
+        push_terminators: &[Matchable],
         f: impl FnOnce(&mut Self) -> T,
     ) -> T {
         let (appended, terms) = self.set_terminators(clear_terminators, push_terminators);
@@ -75,8 +73,8 @@ impl<'a> ParseContext<'a> {
     fn set_terminators(
         &mut self,
         clear_terminators: bool,
-        push_terminators: &[Arc<dyn Matchable>],
-    ) -> (usize, Vec<Arc<dyn Matchable>>) {
+        push_terminators: &[Matchable],
+    ) -> (usize, Vec<Matchable>) {
         let mut appended = 0;
         let terminators = self.terminators.clone();
 
@@ -86,9 +84,8 @@ impl<'a> ParseContext<'a> {
         } else if !push_terminators.is_empty() {
             for terminator in push_terminators {
                 let terminator_owned = terminator.clone();
-                let terminator = &*terminator_owned;
 
-                if !self.terminators.iter().any(|item| item.dyn_eq(terminator)) {
+                if !self.terminators.contains(terminator) {
                     self.terminators.push(terminator_owned);
                     appended += 1;
                 }
@@ -101,7 +98,7 @@ impl<'a> ParseContext<'a> {
     fn reset_terminators(
         &mut self,
         appended: usize,
-        terminators: Vec<Arc<dyn Matchable>>,
+        terminators: Vec<Matchable>,
         clear_terminators: bool,
     ) {
         if clear_terminators {

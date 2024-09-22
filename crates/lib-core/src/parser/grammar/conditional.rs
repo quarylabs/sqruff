@@ -1,7 +1,7 @@
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
-use crate::parser::matchable::Matchable;
+use crate::parser::matchable::{Matchable, MatchableTrait};
 use crate::parser::segments::base::ErasedSegment;
 use crate::parser::segments::meta::Indent;
 
@@ -93,7 +93,7 @@ impl Conditional {
     }
 }
 
-impl Matchable for Conditional {
+impl MatchableTrait for Conditional {
     fn match_segments(
         &self,
         _segments: &[ErasedSegment],
@@ -109,5 +109,9 @@ impl Matchable for Conditional {
             insert_segments: vec![(idx, self.meta.kind)],
             ..Default::default()
         })
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }

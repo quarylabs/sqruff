@@ -45,7 +45,6 @@ trino = []
 sqruff-lib-core = { path = "../lib-core" }
 itertools = "0.13.0"
 ahash = "0.8.11"
-dyn-clone = "1.0.17"
 strum = "0.26.3"
 serde_yaml = "0.9.34+deprecated"
 

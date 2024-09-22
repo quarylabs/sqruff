@@ -1,7 +1,6 @@
 use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::parser::parsers::RegexParser;
 use sqruff_lib_core::parser::segments::base::SegmentBuilder;
 use sqruff_lib_core::rules::LintFix;
 
@@ -190,7 +189,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
 
         let owned = context.dialect.grammar("NakedIdentifierSegment");
 
-        let naked_identifier_parser = owned.as_any().downcast_ref::<RegexParser>().unwrap();
+        let naked_identifier_parser = owned.as_regex().unwrap();
 
         if is_full_match(naked_identifier_parser.template.as_str(), &identifier_contents)
             && naked_identifier_parser.anti_template.as_ref().map_or(true, |anti_template| {

@@ -1,12 +1,10 @@
-use std::sync::Arc;
-
 use ahash::AHashMap;
 use itertools::{enumerate, multiunzip, Itertools as _};
 use smol_str::ToSmolStr;
 
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
-use super::matchable::Matchable;
+use super::matchable::{Matchable, MatchableTrait};
 use super::segments::base::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
@@ -64,11 +62,11 @@ pub fn first_non_whitespace(
 }
 
 pub fn prune_options(
-    options: &[Arc<dyn Matchable>],
+    options: &[Matchable],
     segments: &[ErasedSegment],
     parse_context: &mut ParseContext,
     start_idx: u32,
-) -> Vec<Arc<dyn Matchable>> {
+) -> Vec<Matchable> {
     let mut available_options = vec![];
 
     // Find the first code element to match against.
@@ -110,10 +108,10 @@ pub fn prune_options(
 
 pub fn longest_match(
     segments: &[ErasedSegment],
-    matchers: &[Arc<dyn Matchable>],
+    matchers: &[Matchable],
     idx: u32,
     parse_context: &mut ParseContext,
-) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
+) -> Result<(MatchResult, Option<Matchable>), SQLParseError> {
     let max_idx = segments.len() as u32;
 
     if matchers.is_empty() || idx == max_idx {
@@ -194,9 +192,9 @@ pub fn longest_match(
 fn next_match(
     segments: &[ErasedSegment],
     idx: u32,
-    matchers: &[Arc<dyn Matchable>],
+    matchers: &[Matchable],
     parse_context: &mut ParseContext,
-) -> Result<(MatchResult, Option<Arc<dyn Matchable>>), SQLParseError> {
+) -> Result<(MatchResult, Option<Matchable>), SQLParseError> {
     let max_idx = segments.len() as u32;
 
     if idx >= max_idx {
@@ -255,15 +253,14 @@ fn next_match(
 pub fn resolve_bracket(
     segments: &[ErasedSegment],
     opening_match: MatchResult,
-    opening_matcher: Arc<dyn Matchable>,
-    start_brackets: &[Arc<dyn Matchable>],
-    end_brackets: &[Arc<dyn Matchable>],
+    opening_matcher: Matchable,
+    start_brackets: &[Matchable],
+    end_brackets: &[Matchable],
     bracket_persists: &[bool],
     parse_context: &mut ParseContext,
     nested_match: bool,
 ) -> Result<MatchResult, SQLParseError> {
-    let type_idx =
-        start_brackets.iter().position(|it| it.dyn_eq(opening_matcher.as_ref())).unwrap();
+    let type_idx = start_brackets.iter().position(|it| it == &opening_matcher).unwrap();
     let mut matched_idx = opening_match.span.end;
     let mut child_matches = vec![opening_match.clone()];
 
@@ -279,9 +276,8 @@ pub fn resolve_bracket(
         }
 
         let matcher = matcher.unwrap();
-        if end_brackets.iter().any(|it| it.dyn_eq(matcher.as_ref())) {
-            let closing_idx =
-                end_brackets.iter().position(|it| it.dyn_eq(matcher.as_ref())).unwrap();
+        if end_brackets.contains(&matcher) {
+            let closing_idx = end_brackets.iter().position(|it| it == &matcher).unwrap();
 
             if closing_idx == type_idx {
                 let match_span = match_result.span;
@@ -330,13 +326,12 @@ pub fn resolve_bracket(
     }
 }
 
-type BracketMatch =
-    Result<(MatchResult, Option<Arc<dyn Matchable>>, Vec<MatchResult>), SQLParseError>;
+type BracketMatch = Result<(MatchResult, Option<Matchable>, Vec<MatchResult>), SQLParseError>;
 
 fn next_ex_bracket_match(
     segments: &[ErasedSegment],
     idx: u32,
-    matchers: &[Arc<dyn Matchable>],
+    matchers: &[Matchable],
     parse_context: &mut ParseContext,
     bracket_pairs_set: &'static str,
 ) -> BracketMatch {
@@ -376,13 +371,13 @@ fn next_ex_bracket_match(
         }
 
         if let Some(matcher) = &matcher
-            && matchers.iter().any(|item| item.dyn_eq(matcher.as_ref()))
+            && matchers.contains(matcher)
         {
             return Ok((match_result, Some(matcher.clone()), child_matches));
         }
 
         if let Some(matcher) = &matcher
-            && end_brackets.iter().any(|item| item.dyn_eq(matcher.as_ref()))
+            && end_brackets.contains(matcher)
         {
             return Ok((MatchResult::empty_at(idx), None, Vec::new()));
         }
@@ -407,7 +402,7 @@ pub fn greedy_match(
     segments: &[ErasedSegment],
     idx: u32,
     parse_context: &mut ParseContext,
-    matchers: &[Arc<dyn Matchable>],
+    matchers: &[Matchable],
     include_terminator: bool,
     nested_match: bool,
 ) -> Result<MatchResult, SQLParseError> {
@@ -490,7 +485,7 @@ pub fn greedy_match(
 pub fn trim_to_terminator(
     segments: &[ErasedSegment],
     idx: u32,
-    terminators: &[Arc<dyn Matchable>],
+    terminators: &[Matchable],
     parse_context: &mut ParseContext,
 ) -> Result<u32, SQLParseError> {
     if idx >= segments.len() as u32 {

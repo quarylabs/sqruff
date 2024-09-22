@@ -6,7 +6,6 @@ use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use dyn_ord::DynEq;
 use itertools::{enumerate, Itertools};
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
@@ -291,11 +290,11 @@ impl ErasedSegment {
         let segments = self.segments();
 
         let start_index = start_seg
-            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
+            .and_then(|seg| segments.iter().position(|x| x == seg))
             .map_or(0, |index| index + 1);
 
         let stop_index = stop_seg
-            .and_then(|seg| segments.iter().position(|x| x.dyn_eq(seg)))
+            .and_then(|seg| segments.iter().position(|x| x == seg))
             .unwrap_or(segments.len());
 
         let mut buff = Vec::new();

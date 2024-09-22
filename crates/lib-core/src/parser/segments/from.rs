@@ -66,16 +66,17 @@ impl FromExpressionElementSegment {
                 )
             });
 
-        if let Some(tbl_expression_inner) = &tbl_expression
-            && tbl_expression_inner
-            .child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
-            .is_none()
-        {
-            let bracketed = tbl_expression_inner.child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) });
-            if let Some(bracketed) = bracketed {
-                tbl_expression = bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) });
+            if let Some(tbl_expression_inner) = &tbl_expression {
+                if tbl_expression_inner
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
+                    .is_none()
+                {
+                    if let Some(bracketed) = tbl_expression_inner.child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }) {
+                        tbl_expression = bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) });
+                    }
+                }
             }
-        }
+            
 
         let reference = tbl_expression.and_then(|tbl_expression| {
             tbl_expression.child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })

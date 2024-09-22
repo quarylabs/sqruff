@@ -219,8 +219,8 @@ fn indentation(
         .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
         .find_last(Some(|it| it.is_type(SyntaxKind::Indent)));
     let mut indent_level = 1;
-    if let Some(segment_indent) = seg_indent.last()
-        && segment_indent.is_indent()
+    if let Some(segment_indent) =
+        seg_indent.last().filter(|segment_indent| segment_indent.is_indent())
     {
         indent_level = segment_indent.indent_val() as usize + 1;
     }

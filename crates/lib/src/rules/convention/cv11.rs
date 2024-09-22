@@ -374,14 +374,14 @@ FROM foo;
                     _ => {}
                 }
 
-                if let Some(convert_content) = convert_content
-                    && convert_content.len() > 2
+                if let Some(convert_content) =
+                    convert_content.filter(|convert_content| convert_content.len() > 2)
                 {
                     fixes.clear();
                 }
 
-                if let Some(cast_content) = cast_content
-                    && cast_content.len() > 2
+                if let Some(cast_content) =
+                    cast_content.filter(|cast_content| cast_content.len() > 2)
                 {
                     fixes.clear();
                 }

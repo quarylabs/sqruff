@@ -153,9 +153,8 @@ impl MatchableTrait for Delimited {
             seeking_delimiter = !seeking_delimiter;
         }
 
-        if let Some(delimiter_match) = delimiter_match
-            && self.allow_trailing
-            && !seeking_delimiter
+        if let Some(delimiter_match) =
+            delimiter_match.filter(|_delimiter_match| self.allow_trailing && !seeking_delimiter)
         {
             delimiters += 1;
             working_match = working_match.append(delimiter_match);

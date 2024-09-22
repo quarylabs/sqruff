@@ -40,8 +40,8 @@ impl RuleRF03 {
         if !selectables.is_empty() {
             select_info = selectables[0].select_info();
 
-            if let Some(select_info) = select_info.clone()
-                && select_info.table_aliases.len() == 1
+            if let Some(select_info) =
+                select_info.clone().filter(|select_info| select_info.table_aliases.len() == 1)
             {
                 let mut fixable = true;
                 let possible_ref_tables = iter_available_targets(query.clone());
@@ -147,8 +147,8 @@ fn check_references(
             continue;
         };
 
-        if let Some(fix_inconsistent_to) = &fix_inconsistent_to
-            && single_table_references == "consistent"
+        if let Some(fix_inconsistent_to) =
+            fix_inconsistent_to.as_ref().filter(|_| single_table_references == "consistent")
         {
             let results = check_references(
                 tables,

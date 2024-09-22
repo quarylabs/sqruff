@@ -137,7 +137,7 @@ impl DepthInfo {
             self.stack_hashes[self.stack_hashes.len() - amount..].iter().copied(),
         );
 
-        let new_hash_set: IntSet<_> = self.stack_hash_set.difference(&slice_set).cloned().collect();
+        let new_hash_set: IntSet<_> = self.stack_hash_set.difference(&slice_set).copied().collect();
 
         DepthInfo {
             stack_depth: self.stack_depth - amount,
@@ -162,7 +162,7 @@ impl DepthInfo {
         let common_hashes: AHashSet<_> = self
             .stack_hash_set
             .intersection(&other.stack_hashes.iter().copied().collect())
-            .cloned()
+            .copied()
             .collect();
 
         // We should expect there to be _at least_ one common ancestor, because
@@ -171,6 +171,6 @@ impl DepthInfo {
         assert!(!common_hashes.is_empty(), "DepthInfo comparison shares no common ancestor!");
 
         let common_depth = common_hashes.len();
-        self.stack_hashes.iter().take(common_depth).cloned().collect()
+        self.stack_hashes.iter().take(common_depth).copied().collect()
     }
 }

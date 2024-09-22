@@ -12,6 +12,10 @@ resolver = "2"
 unreachable_pub = "warn"
 unused_qualifications = "warn"
 
+[workspace.lints.clippy]
+perf = "warn"
+cloned_instead_of_copied = "warn"
+
 # https://github.com/rustwasm/wasm-bindgen/issues/3451#issuecomment-1562982835
 [profile.dev]
 opt-level = "s"

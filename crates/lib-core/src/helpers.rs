@@ -58,7 +58,7 @@ pub fn normalize(p: &Path) -> PathBuf {
             // For ParentDir components, we need to use the contents of the stack.
             Component::ParentDir => {
                 // Look at the top element of stack, if any.
-                let top = stack.last().cloned();
+                let top = stack.last().copied();
 
                 match top {
                     // A component is on the stack, need more pattern matching.

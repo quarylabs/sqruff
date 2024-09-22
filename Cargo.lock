@@ -650,12 +650,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d6ef0072f8a535281e4876be788938b528e9a1d43900b82c2569af7da799125"
 
 [[package]]
-name = "dyn_ord"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d54c900bcd6e44485ab0d733a93ef8df8209d2c1306e3dcad8b5926aa743a2c"
-
-[[package]]
 name = "either"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1858,8 +1852,7 @@ name = "sqruff-lib-core"
 version = "0.18.0"
 dependencies = [
  "ahash",
- "dyn-clone",
- "dyn_ord",
+ "enum_dispatch",
  "fancy-regex",
  "indexmap 2.5.0",
  "itertools 0.13.0",
@@ -1880,7 +1873,6 @@ name = "sqruff-lib-dialects"
 version = "0.18.0"
 dependencies = [
  "ahash",
- "dyn-clone",
  "expect-test",
  "glob",
  "itertools 0.13.0",

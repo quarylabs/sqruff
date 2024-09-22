@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use itertools::Itertools;
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -12,6 +10,7 @@ use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::RegexParser;
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
@@ -20,19 +19,6 @@ use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::vec_of_erased;
 
 use crate::redshift_keywords::{REDSHIFT_RESERVED_KEYWORDS, REDSHIFT_UNRESERVED_KEYWORDS};
-
-trait BoxedE {
-    fn boxed(self) -> Arc<Self>;
-}
-
-impl<T> BoxedE for T {
-    fn boxed(self) -> Arc<Self>
-    where
-        Self: Sized,
-    {
-        Arc::new(self)
-    }
-}
 
 pub fn dialect() -> Dialect {
     raw_dialect().config(|this| this.expand())
@@ -181,7 +167,7 @@ pub fn raw_dialect() -> Dialect {
                     SyntaxKind::NakedIdentifier,
                 )
                 .anti_template(&anti_template)
-                .boxed()
+                .to_matchable()
             })
             .into(),
         ),

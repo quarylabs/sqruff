@@ -8,7 +8,7 @@ use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::markers::PositionMarker;
 use crate::parser::match_result::MatchResult;
-use crate::parser::matchable::Matchable;
+use crate::parser::matchable::{Matchable, MatchableTrait};
 
 pub type Indent = MetaSegment;
 
@@ -37,7 +37,7 @@ impl MetaSegment {
     }
 }
 
-impl Matchable for MetaSegment {
+impl MatchableTrait for MetaSegment {
     fn simple(
         &self,
         _parse_context: &ParseContext,
@@ -56,5 +56,9 @@ impl Matchable for MetaSegment {
             "{} has no match method, it should only be used in a Sequence!",
             std::any::type_name::<Self>()
         );
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }

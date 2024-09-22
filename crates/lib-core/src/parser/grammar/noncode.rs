@@ -4,13 +4,13 @@ use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
 use crate::parser::match_result::{MatchResult, Span};
-use crate::parser::matchable::{Matchable, MatchableCacheKey};
+use crate::parser::matchable::{Matchable, MatchableCacheKey, MatchableTrait};
 use crate::parser::segments::base::ErasedSegment;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct NonCodeMatcher;
 
-impl Matchable for NonCodeMatcher {
+impl MatchableTrait for NonCodeMatcher {
     fn is_optional(&self) -> bool {
         // Not optional
         false
@@ -51,5 +51,9 @@ impl Matchable for NonCodeMatcher {
 
     fn cache_key(&self) -> MatchableCacheKey {
         0
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }

@@ -2,6 +2,7 @@ use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
+use crate::parser::matchable::MatchableTrait;
 use crate::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 
 #[derive(Debug, Clone, PartialEq)]

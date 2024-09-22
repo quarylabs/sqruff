@@ -308,7 +308,7 @@ pub struct RuleSet {
 
 impl RuleSet {
     fn rule_reference_map(&self) -> AHashMap<&'static str, AHashSet<&'static str>> {
-        let valid_codes: AHashSet<_> = self.register.keys().cloned().collect();
+        let valid_codes: AHashSet<_> = self.register.keys().copied().collect();
 
         let reference_map: AHashMap<_, AHashSet<_>> =
             valid_codes.iter().map(|&code| (code, AHashSet::from([code]))).collect();
@@ -322,7 +322,7 @@ impl RuleSet {
         };
 
         let name_collisions: AHashSet<_> = {
-            let name_keys: AHashSet<_> = name_map.keys().cloned().collect();
+            let name_keys: AHashSet<_> = name_map.keys().copied().collect();
             name_keys.intersection(&valid_codes).copied().collect()
         };
 

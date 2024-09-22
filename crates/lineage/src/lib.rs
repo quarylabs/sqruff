@@ -127,7 +127,7 @@ impl Column {
                 projections
                     .iter()
                     .find(|&&it| &tables.alias_or_name(it) == column)
-                    .cloned()
+                    .copied()
                     .unwrap_or_else(fallback)
             }
             &Column::Index(index) => projections[index],

@@ -212,7 +212,7 @@ fn prune_untaken_indents(
     };
 
     let mut pruned_untaken_indents: Vec<_> =
-        untaken_indents.iter().filter(|&x| x <= &new_balance_threshold).cloned().collect();
+        untaken_indents.iter().filter(|&x| x <= &new_balance_threshold).copied().collect();
 
     if indent_stats.impulse > indent_stats.trough && !has_newline {
         for i in indent_stats.trough..indent_stats.impulse {
@@ -991,17 +991,17 @@ fn match_indents(
     matched_indents.retain(|_key, value| value != &[newline_idx]);
 
     if allow_implicit_indents {
-        let keys: Vec<_> = matched_indents.keys().cloned().collect();
+        let keys: Vec<_> = matched_indents.keys().copied().collect();
         for indent_level in keys {
             let major_points: AHashSet<_> = matched_indents[&indent_level]
                 .iter()
-                .cloned()
+                .copied()
                 .collect::<AHashSet<_>>()
                 .difference(&AHashSet::from([newline_idx]))
-                .cloned()
+                .copied()
                 .collect::<AHashSet<_>>()
-                .difference(&implicit_indents.keys().cloned().collect::<AHashSet<_>>())
-                .cloned()
+                .difference(&implicit_indents.keys().copied().collect::<AHashSet<_>>())
+                .copied()
                 .collect();
 
             if major_points.is_empty() {

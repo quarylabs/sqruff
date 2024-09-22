@@ -16,7 +16,7 @@ pub struct Args {
 }
 
 impl Args {
-    fn parse_args(&mut self, mut iter: impl Iterator<Item = String>) {
+    fn parse_args(&mut self, iter: impl Iterator<Item = String>) {
         for arg in iter {
             if arg == "--" {
                 continue;

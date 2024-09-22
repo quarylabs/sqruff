@@ -237,7 +237,7 @@ fn determine_aligned_inline_spacing(
     let mut earliest_siblings: FxHashMap<usize, usize> = FxHashMap::default();
     siblings.retain(|sibling| {
         let pos_marker = sibling.get_position_marker().unwrap();
-        let best_seen = earliest_siblings.get(&pos_marker.working_line_no).cloned();
+        let best_seen = earliest_siblings.get(&pos_marker.working_line_no).copied();
         if let Some(best_seen) = best_seen {
             if pos_marker.working_line_pos > best_seen {
                 return false;

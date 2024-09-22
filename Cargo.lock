@@ -1811,6 +1811,7 @@ version = "0.18.0"
 dependencies = [
  "ahash",
  "anstyle",
+ "append-only-vec",
  "common-path",
  "configparser",
  "criterion",

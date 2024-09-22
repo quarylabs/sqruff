@@ -1,16 +1,14 @@
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::fmt::Debug;
-use std::sync::Arc;
 
 use ahash::{AHashMap, AHashSet};
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
-use crate::helpers::capitalize;
+use crate::helpers::{capitalize, ToMatchable};
 use crate::parser::lexer::Matcher;
 use crate::parser::matchable::Matchable;
-use crate::parser::node_matcher::NodeMatcher;
 use crate::parser::parsers::StringParser;
 use crate::parser::types::DialectElementType;
 
@@ -46,7 +44,7 @@ impl Dialect {
         self.library.extend(iter);
     }
 
-    pub fn grammar(&self, name: &str) -> Arc<dyn Matchable> {
+    pub fn grammar(&self, name: &str) -> Matchable {
         match self.library.get(name).unwrap_or_else(|| panic!("not found {name}")) {
             DialectElementType::Matchable(matchable) => matchable.clone(),
             DialectElementType::SegmentGenerator(_) => {
@@ -56,18 +54,14 @@ impl Dialect {
     }
 
     #[track_caller]
-    pub fn replace_grammar(&mut self, name: &'static str, match_grammar: Arc<dyn Matchable>) {
+    pub fn replace_grammar(&mut self, name: &'static str, match_grammar: Matchable) {
         match self
             .library
             .get_mut(name)
             .unwrap_or_else(|| panic!("Failed to get mutable reference for {name}"))
         {
             DialectElementType::Matchable(matchable) => {
-                dyn_clone::arc_make_mut(matchable)
-                    .as_any_mut()
-                    .downcast_mut::<NodeMatcher>()
-                    .unwrap()
-                    .match_grammar = match_grammar;
+                matchable.as_node_matcher().unwrap().match_grammar = match_grammar;
             }
             DialectElementType::SegmentGenerator(_) => {
                 unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")
@@ -191,7 +185,7 @@ impl Dialect {
         }
     }
 
-    pub fn r#ref(&self, name: &str) -> Arc<dyn Matchable> {
+    pub fn r#ref(&self, name: &str) -> Matchable {
         match self.library.get(name) {
             Some(DialectElementType::Matchable(matchable)) => matchable.clone(),
             Some(DialectElementType::SegmentGenerator(_)) => {
@@ -236,7 +230,7 @@ impl Dialect {
                         let parser = StringParser::new(&kw.to_lowercase(), SyntaxKind::Keyword);
 
                         self.library
-                            .insert(n.into(), DialectElementType::Matchable(Arc::new(parser)));
+                            .insert(n.into(), DialectElementType::Matchable(parser.to_matchable()));
                     }
                 }
             }

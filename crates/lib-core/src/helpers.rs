@@ -2,20 +2,22 @@ use std::cell::RefCell;
 use std::hash::BuildHasherDefault;
 use std::panic;
 use std::path::{Component, Path, PathBuf};
-use std::sync::{Arc, Once};
+use std::sync::Once;
 
-use crate::parser::matchable::Matchable;
+use crate::parser::matchable::{Matchable, MatchableTraitImpl};
 
 pub type IndexMap<K, V> = indexmap::IndexMap<K, V, BuildHasherDefault<ahash::AHasher>>;
 pub type IndexSet<V> = indexmap::IndexSet<V, BuildHasherDefault<ahash::AHasher>>;
 
-pub trait ToMatchable: Matchable + Sized {
-    fn to_matchable(self) -> Arc<dyn Matchable> {
-        Arc::new(self)
-    }
+pub trait ToMatchable: Sized {
+    fn to_matchable(self) -> Matchable;
 }
 
-impl<T: Matchable> ToMatchable for T {}
+impl<T: Into<MatchableTraitImpl>> ToMatchable for T {
+    fn to_matchable(self) -> Matchable {
+        Matchable::new(self.into())
+    }
+}
 
 pub fn capitalize(s: &str) -> String {
     assert!(s.is_ascii());

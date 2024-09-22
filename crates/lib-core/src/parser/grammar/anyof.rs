@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use ahash::AHashSet;
 use itertools::{chain, Itertools};
 use nohash_hasher::IntMap;
@@ -13,7 +11,9 @@ use crate::parser::match_algorithms::{
     longest_match, skip_start_index_forward_to_code, trim_to_terminator,
 };
 use crate::parser::match_result::{MatchResult, Matched, Span};
-use crate::parser::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use crate::parser::matchable::{
+    next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait,
+};
 use crate::parser::segments::base::ErasedSegment;
 use crate::parser::types::ParseMode;
 
@@ -46,7 +46,7 @@ fn parse_mode_match_result(
 }
 
 pub fn simple(
-    elements: &[Arc<dyn Matchable>],
+    elements: &[Matchable],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
 ) -> Option<(AHashSet<String>, SyntaxSet)> {
@@ -69,9 +69,9 @@ pub fn simple(
 
 #[derive(Debug, Clone)]
 pub struct AnyNumberOf {
-    pub exclude: Option<Arc<dyn Matchable>>,
-    pub(crate) elements: Vec<Arc<dyn Matchable>>,
-    pub terminators: Vec<Arc<dyn Matchable>>,
+    pub exclude: Option<Matchable>,
+    pub(crate) elements: Vec<Matchable>,
+    pub terminators: Vec<Matchable>,
     pub reset_terminators: bool,
     pub max_times: Option<usize>,
     pub min_times: usize,
@@ -84,12 +84,12 @@ pub struct AnyNumberOf {
 
 impl PartialEq for AnyNumberOf {
     fn eq(&self, other: &Self) -> bool {
-        self.elements.iter().zip(&other.elements).all(|(lhs, rhs)| lhs.dyn_eq(rhs.as_ref()))
+        self.elements.iter().zip(&other.elements).all(|(lhs, rhs)| lhs == rhs)
     }
 }
 
 impl AnyNumberOf {
-    pub fn new(elements: Vec<Arc<dyn Matchable>>) -> Self {
+    pub fn new(elements: Vec<Matchable>) -> Self {
         Self {
             elements,
             exclude: None,
@@ -122,7 +122,7 @@ impl AnyNumberOf {
     }
 }
 
-impl Matchable for AnyNumberOf {
+impl MatchableTrait for AnyNumberOf {
     fn is_optional(&self) -> bool {
         self.optional || self.min_times == 0
     }
@@ -227,18 +227,18 @@ impl Matchable for AnyNumberOf {
     #[track_caller]
     fn copy(
         &self,
-        insert: Option<Vec<Arc<dyn Matchable>>>,
+        insert: Option<Vec<Matchable>>,
         at: Option<usize>,
-        before: Option<Arc<dyn Matchable>>,
-        remove: Option<Vec<Arc<dyn Matchable>>>,
-        terminators: Vec<Arc<dyn Matchable>>,
+        before: Option<Matchable>,
+        remove: Option<Vec<Matchable>>,
+        terminators: Vec<Matchable>,
         replace_terminators: bool,
-    ) -> Arc<dyn Matchable> {
+    ) -> Matchable {
         let mut new_elements = self.elements.clone();
 
         if let Some(insert_elements) = insert {
             if let Some(before_element) = before {
-                if let Some(index) = self.elements.iter().position(|e| e.hack_eq(&before_element)) {
+                if let Some(index) = self.elements.iter().position(|e| e == &before_element) {
                     new_elements.splice(index..index, insert_elements);
                 } else {
                     panic!("Element for insertion before not found");
@@ -251,7 +251,7 @@ impl Matchable for AnyNumberOf {
         }
 
         if let Some(remove_elements) = remove {
-            new_elements.retain(|elem| !remove_elements.iter().any(|r| elem.dyn_eq(r.as_ref())));
+            new_elements.retain(|elem| !remove_elements.contains(elem));
         }
 
         let mut new_grammar = self.clone();
@@ -263,18 +263,22 @@ impl Matchable for AnyNumberOf {
             [self.terminators.clone(), terminators].concat()
         };
 
-        Arc::new(new_grammar)
+        new_grammar.to_matchable()
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
     }
 }
 
-pub fn one_of(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
+pub fn one_of(elements: Vec<Matchable>) -> AnyNumberOf {
     let mut matcher = AnyNumberOf::new(elements);
     matcher.max_times(1);
     matcher.min_times(1);
     matcher
 }
 
-pub fn optionally_bracketed(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
+pub fn optionally_bracketed(elements: Vec<Matchable>) -> AnyNumberOf {
     let mut args = vec![Bracketed::new(elements.clone()).to_matchable()];
 
     if elements.len() == 1 {
@@ -286,7 +290,7 @@ pub fn optionally_bracketed(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
     one_of(args)
 }
 
-pub fn any_set_of(elements: Vec<Arc<dyn Matchable>>) -> AnyNumberOf {
+pub fn any_set_of(elements: Vec<Matchable>) -> AnyNumberOf {
     let mut any_number_of = AnyNumberOf::new(elements);
     any_number_of.max_times = None;
     any_number_of.max_times_per_element = Some(1);

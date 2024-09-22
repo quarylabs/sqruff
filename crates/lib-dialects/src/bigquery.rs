@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use itertools::Itertools;
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -10,6 +8,7 @@ use sqruff_lib_core::parser::grammar::base::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
@@ -123,14 +122,15 @@ pub fn dialect() -> Dialect {
         (
             "ExtendedDatetimeUnitSegment".into(),
             SegmentGenerator::new(|dialect| {
-                Arc::new(MultiStringParser::new(
+                MultiStringParser::new(
                     dialect
                         .sets("extended_datetime_units")
                         .into_iter()
                         .map(Into::into)
                         .collect_vec(),
                     SyntaxKind::DatePart,
-                ))
+                )
+                .to_matchable()
             })
             .into(),
         ),
@@ -189,10 +189,9 @@ pub fn dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({})$", pattern);
 
-                Arc::new(
-                    RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
-                        .anti_template(&anti_template),
-                )
+                RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
+                    .anti_template(&anti_template)
+                    .to_matchable()
             })
             .into(),
         ),

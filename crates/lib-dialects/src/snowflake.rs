@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use itertools::Itertools;
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -12,7 +10,7 @@ use sqruff_lib_core::parser::grammar::base::{Nothing, Ref};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::matchable::Matchable;
+use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
@@ -22,19 +20,6 @@ use sqruff_lib_core::vec_of_erased;
 
 use super::ansi::{self, raw_dialect};
 use super::snowflake_keywords::{SNOWFLAKE_RESERVED_KEYWORDS, SNOWFLAKE_UNRESERVED_KEYWORDS};
-
-trait Boxed {
-    fn boxed(self) -> Arc<Self>;
-}
-
-impl<T> Boxed for T {
-    fn boxed(self) -> Arc<Self>
-    where
-        Self: Sized,
-    {
-        Arc::new(self)
-    }
-}
 
 pub fn dialect() -> Dialect {
     let mut snowflake_dialect = raw_dialect();
@@ -705,7 +690,7 @@ pub fn dialect() -> Dialect {
 
                 RegexParser::new("[a-zA-Z_][a-zA-Z0-9_$]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)
-                    .boxed()
+                    .to_matchable()
             })
             .into(),
         ),
@@ -2640,7 +2625,7 @@ pub fn dialect() -> Dialect {
                     "PIPE",
                 ];
 
-                let schema_object_names_keywrods: Vec<Arc<dyn Matchable>> = schema_object_names
+                let schema_object_names_keywrods: Vec<Matchable> = schema_object_names
                     .iter()
                     .map(|name| Ref::keyword(name).to_matchable())
                     .collect();

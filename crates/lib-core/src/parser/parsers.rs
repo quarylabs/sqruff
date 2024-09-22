@@ -4,7 +4,7 @@ use smol_str::SmolStr;
 
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
-use super::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey};
+use super::matchable::{next_matchable_cache_key, Matchable, MatchableCacheKey, MatchableTrait};
 use super::segments::base::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
@@ -36,7 +36,7 @@ impl TypedParser {
     }
 }
 
-impl Matchable for TypedParser {
+impl MatchableTrait for TypedParser {
     fn simple(
         &self,
         parse_context: &ParseContext,
@@ -67,6 +67,10 @@ impl Matchable for TypedParser {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }
 
@@ -102,7 +106,7 @@ impl StringParser {
     }
 }
 
-impl Matchable for StringParser {
+impl MatchableTrait for StringParser {
     fn is_optional(&self) -> bool {
         self.optional
     }
@@ -137,6 +141,10 @@ impl Matchable for StringParser {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }
 
@@ -178,7 +186,7 @@ impl RegexParser {
     }
 }
 
-impl Matchable for RegexParser {
+impl MatchableTrait for RegexParser {
     fn is_optional(&self) -> bool {
         unimplemented!()
     }
@@ -223,6 +231,10 @@ impl Matchable for RegexParser {
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -251,7 +263,7 @@ impl MultiStringParser {
     }
 }
 
-impl Matchable for MultiStringParser {
+impl MatchableTrait for MultiStringParser {
     fn is_optional(&self) -> bool {
         todo!()
     }
@@ -285,5 +297,9 @@ impl Matchable for MultiStringParser {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }

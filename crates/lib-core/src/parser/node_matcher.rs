@@ -1,5 +1,4 @@
-use std::sync::Arc;
-
+use super::matchable::MatchableTrait;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLParseError;
 use crate::parser::context::ParseContext;
@@ -10,18 +9,18 @@ use crate::parser::segments::base::ErasedSegment;
 #[macro_export]
 macro_rules! vec_of_erased {
     ($($elem:expr),* $(,)?) => {{
-        vec![$(Arc::new($elem)),*]
+        vec![$(ToMatchable::to_matchable($elem)),*]
     }};
 }
 
 #[derive(Debug, Clone)]
 pub struct NodeMatcher {
     node_kind: SyntaxKind,
-    pub(crate) match_grammar: Arc<dyn Matchable>,
+    pub(crate) match_grammar: Matchable,
 }
 
 impl NodeMatcher {
-    pub fn new(node_kind: SyntaxKind, match_grammar: Arc<dyn Matchable>) -> Self {
+    pub fn new(node_kind: SyntaxKind, match_grammar: Matchable) -> Self {
         Self { node_kind, match_grammar }
     }
 }
@@ -32,12 +31,12 @@ impl PartialEq for NodeMatcher {
     }
 }
 
-impl Matchable for NodeMatcher {
+impl MatchableTrait for NodeMatcher {
     fn get_type(&self) -> SyntaxKind {
         self.node_kind
     }
 
-    fn match_grammar(&self) -> Option<Arc<dyn Matchable>> {
+    fn match_grammar(&self) -> Option<Matchable> {
         self.match_grammar.clone().into()
     }
 
@@ -60,5 +59,9 @@ impl Matchable for NodeMatcher {
             .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
 
         Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
+    }
+
+    fn elements(&self) -> &[Matchable] {
+        &[]
     }
 }

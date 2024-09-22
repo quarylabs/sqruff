@@ -8,6 +8,7 @@ mod tests {
     use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::parser::context::ParseContext;
     use sqruff_lib_core::parser::lexer::{Lexer, StringOrTemplate};
+    use sqruff_lib_core::parser::matchable::MatchableTrait;
     use sqruff_lib_core::parser::parser::Parser;
     use sqruff_lib_core::parser::segments::base::Tables;
     use sqruff_lib_core::parser::segments::test_functions::lex;

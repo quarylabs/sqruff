@@ -6,6 +6,7 @@ use std::sync::{Arc, OnceLock};
 
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
+use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::base::Dialect;
 use sqruff_lib_core::errors::{
@@ -21,7 +22,6 @@ use sqruff_lib_core::templaters::base::TemplatedFile;
 use walkdir::WalkDir;
 
 use super::linted_dir::LintedDir;
-use super::runner::RunnerContext;
 use crate::cli::formatters::OutputStreamFormatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile};
@@ -70,7 +70,7 @@ impl Linter {
     ) -> LintingResult {
         let filename = filename.unwrap_or_else(|| "<string input>".into());
 
-        let mut linted_path = LintedDir::new(filename.clone());
+        let linted_path = LintedDir::new(filename.clone());
         linted_path.add(self.lint_string(sql, Some(filename), fix));
 
         let mut result = LintingResult::new();
@@ -144,11 +144,16 @@ impl Linter {
             }
         }
 
-        let mut runner = RunnerContext::sequential(self);
-        for linted_file in runner.run(expanded_paths, fix) {
-            let path = expanded_path_to_linted_dir[&linted_file.path];
-            result.paths[path].add(linted_file);
-        }
+        expanded_paths
+            .par_iter()
+            .map(|path| {
+                let rendered = self.render_file(path.clone());
+                self.lint_rendered(rendered, fix)
+            })
+            .for_each(|linted_file| {
+                let path = expanded_path_to_linted_dir[&linted_file.path];
+                result.paths[path].add(linted_file);
+            });
 
         result
     }

@@ -976,8 +976,10 @@ pub fn position_segments(
                     }
                 }
 
-                if let Some((start_point, end_point)) = start_point.as_ref().zip(end_point.as_ref())
-                    && start_point != end_point
+                if let Some((start_point, end_point)) = start_point
+                    .as_ref()
+                    .zip(end_point.as_ref())
+                    .filter(|(start_point, end_point)| start_point != end_point)
                 {
                     PositionMarker::from_points(start_point, end_point)
                 } else if let Some(start_point) = start_point.as_ref() {

@@ -1,5 +1,3 @@
-#![feature(let_chains)]
-
 mod ansi;
 pub mod api;
 pub mod cli;

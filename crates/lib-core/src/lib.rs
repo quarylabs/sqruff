@@ -1,5 +1,3 @@
-#![feature(let_chains)]
-
 pub mod dialects;
 pub mod edit_type;
 pub mod errors;

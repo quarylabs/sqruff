@@ -123,6 +123,10 @@ impl AnyNumberOf {
 }
 
 impl MatchableTrait for AnyNumberOf {
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
+    }
+
     fn is_optional(&self) -> bool {
         self.optional || self.min_times == 0
     }
@@ -265,10 +269,6 @@ impl MatchableTrait for AnyNumberOf {
         };
 
         new_grammar.to_matchable()
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &self.elements
     }
 }
 

@@ -59,6 +59,10 @@ impl PartialEq for Delimited {
 }
 
 impl MatchableTrait for Delimited {
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
+    }
+
     fn is_optional(&self) -> bool {
         self.optional || self.base.is_optional()
     }
@@ -169,10 +173,6 @@ impl MatchableTrait for Delimited {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &self.elements
     }
 }
 

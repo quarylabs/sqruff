@@ -25,7 +25,7 @@ pub struct RuleContext<'a> {
     pub segment: ErasedSegment,
     /// parent_stack: A tuple of the path from the root to this segment.
     pub parent_stack: Vec<ErasedSegment>,
-    /// raw_stack: All of the raw segments so far in the file
+    /// raw_stack: All the raw segments so far in the file
     pub raw_stack: Vec<ErasedSegment>,
     /// memory: Arbitrary storage for the rule
     pub memory: Rc<RefCell<AHashMap<TypeId, Box<dyn Any>>>>,

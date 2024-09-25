@@ -53,7 +53,7 @@ mod tests {
             ),
             (vec![vec!["tbl2".into()]], vec![vec!["db".into(), "sc".into(), "tbl1".into()]], false),
             (vec![vec!["tbl2".into()]], vec![vec!["db".into(), "sc".into(), "tbl2".into()]], true),
-            // Multi-part references and targets. Checks for a suffix match.
+            // Multipart references and targets. Checks for a suffix match.
             (
                 vec![vec!["Arc".into(), "tbl1".into()]],
                 vec![vec!["db".into(), "sc".into(), "tbl1".into()]],

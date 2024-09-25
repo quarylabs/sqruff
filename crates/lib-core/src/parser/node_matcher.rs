@@ -40,6 +40,10 @@ impl MatchableTrait for NodeMatcher {
         self.match_grammar.clone().into()
     }
 
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
@@ -59,9 +63,5 @@ impl MatchableTrait for NodeMatcher {
             .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
 
         Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }

@@ -38,6 +38,10 @@ impl MetaSegment {
 }
 
 impl MatchableTrait for MetaSegment {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn simple(
         &self,
         _parse_context: &ParseContext,
@@ -56,9 +60,5 @@ impl MatchableTrait for MetaSegment {
             "{} has no match method, it should only be used in a Sequence!",
             std::any::type_name::<Self>()
         );
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }

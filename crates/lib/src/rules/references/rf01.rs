@@ -173,10 +173,6 @@ impl Rule for RuleRF01 {
         Ok(RuleRF01 { force_enable: config["force_enable"].as_bool().unwrap() }.erased())
     }
 
-    fn force_enable(&self) -> bool {
-        self.force_enable
-    }
-
     fn name(&self) -> &'static str {
         "references.from"
     }
@@ -211,6 +207,10 @@ FROM foo
 
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::References]
+    }
+
+    fn force_enable(&self) -> bool {
+        self.force_enable
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {

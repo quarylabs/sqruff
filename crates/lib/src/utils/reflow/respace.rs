@@ -350,13 +350,7 @@ pub fn handle_respace_inline_with_space(
                     } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
                         Some(pos_marker.end_point_marker())
                     } else if let Some(prev_block) = prev_block {
-                        if let Some(pos_marker) =
-                            prev_block.segments.last().unwrap().get_position_marker()
-                        {
-                            Some(pos_marker.end_point_marker())
-                        } else {
-                            None
-                        }
+                        prev_block.segments.last().unwrap().get_position_marker().map(|pos_marker| pos_marker.end_point_marker())
                     } else {
                         None
                     };

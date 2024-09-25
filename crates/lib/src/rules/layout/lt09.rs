@@ -237,7 +237,7 @@ impl RuleLT09 {
                 select_targets_info.select_targets[i - 1].clone()
             };
 
-            if let Some((a, b)) = base_segment
+            if let Some((_, _)) = base_segment
                 .get_position_marker()
                 .zip(select_target.get_position_marker())
                 .filter(|(a, b)| a.working_line_no == b.working_line_no)

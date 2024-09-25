@@ -1214,9 +1214,9 @@ pub fn lint_line_length(
 
     let mut last_indent_idx = None;
     for (i, elem) in enumerate(elements) {
-        if let Some(elem) = elem.as_point().filter(|point| {
-            (elem_buffer[i + 1].class_types1().contains(SyntaxKind::EndOfFile)
-                || has_untemplated_newline(point))
+        if let Some(_) = elem.as_point().filter(|point| {
+            elem_buffer[i + 1].class_types1().contains(SyntaxKind::EndOfFile)
+                || has_untemplated_newline(point)
         }) {
             // In either case we want to process this, so carry on.
         } else {

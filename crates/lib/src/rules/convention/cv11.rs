@@ -374,13 +374,13 @@ FROM foo;
                     _ => {}
                 }
 
-                if let Some(convert_content) =
+                if let Some(_) =
                     convert_content.filter(|convert_content| convert_content.len() > 2)
                 {
                     fixes.clear();
                 }
 
-                if let Some(cast_content) =
+                if let Some(_) =
                     cast_content.filter(|cast_content| cast_content.len() > 2)
                 {
                     fixes.clear();

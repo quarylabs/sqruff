@@ -123,15 +123,20 @@ sqruff fix <file/paths/directory>
 
 #### Configuration
 
-Settings for SQL dialect, indentation, capitaliazation and more can be set in a `.sqruff` configration file.
+Settings for SQL dialect, indentation, capitalization, and other linting/style options are configured in a `.sqruff` file. This file should be located in the directory where Sqruff is being run.
 
-The `.sqruff` file should be in the directory that Sqruff is being run from.
-
-For example to set the dialect to SQLite you would create the following `.sqruff` file:
+The following example highlights a few configuration points: setting the dialect to `sqlite`, turning on all rules except AM01 and AM02, and configuring some indentation settings. For a comprehensive list of configuration options, see the [default configuration file](crates/lib/src/core/default_config.cfg). You can also refer to the [rules documentation](docs/rules.md) for more information on configuring specific rules.
 
 ```ini
 [sqruff]
 dialect = sqlite
+exclude_rules = AM01,AM02
+rules = all
+
+[sqruff:indentation]
+indent_unit = space
+tab_space_size = 4
+indented_joins = True
 ```
 
 #### Help

@@ -16,7 +16,9 @@ pub struct BracketedSegmentMatcher {
 
 impl BracketedSegmentMatcher {
     pub fn new() -> Self {
-        Self { cache_key: next_matchable_cache_key() }
+        Self {
+            cache_key: next_matchable_cache_key(),
+        }
     }
 }
 

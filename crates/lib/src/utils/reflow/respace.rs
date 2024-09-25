@@ -26,12 +26,20 @@ pub fn determine_constraints(
 ) -> (Spacing, Spacing, bool) {
     // Start with the defaults
     let (mut pre_constraint, strip_newlines) = unpack_constraint(
-        if let Some(prev_block) = prev_block { prev_block.spacing_after } else { Spacing::Single },
+        if let Some(prev_block) = prev_block {
+            prev_block.spacing_after
+        } else {
+            Spacing::Single
+        },
         strip_newlines,
     );
 
     let (mut post_constraint, mut strip_newlines) = unpack_constraint(
-        if let Some(next_block) = next_block { next_block.spacing_before } else { Spacing::Single },
+        if let Some(next_block) = next_block {
+            next_block.spacing_before
+        } else {
+            Spacing::Single
+        },
         strip_newlines,
     );
 
@@ -105,7 +113,10 @@ pub fn process_spacing(
         // If it's a newline, react accordingly.
         // NOTE: This should only trigger on literal newlines.
         else if matches!(seg.get_type(), SyntaxKind::Newline | SyntaxKind::EndOfFile) {
-            if seg.get_position_marker().is_some_and(|pos_marker| !pos_marker.is_literal()) {
+            if seg
+                .get_position_marker()
+                .is_some_and(|pos_marker| !pos_marker.is_literal())
+            {
                 last_whitespace = Vec::new();
                 continue;
             }
@@ -157,13 +168,23 @@ pub fn process_spacing(
     // Turn the removal buffer updated segment buffer, last whitespace and
     // associated fixes.
 
-    let filtered_segment_buffer =
-        segment_buffer.iter().filter(|s| !removal_buffer.contains(s)).cloned().collect_vec();
+    let filtered_segment_buffer = segment_buffer
+        .iter()
+        .filter(|s| !removal_buffer.contains(s))
+        .cloned()
+        .collect_vec();
 
-    let last_whitespace_option =
-        if !last_whitespace.is_empty() { Some(last_whitespace[0].clone()) } else { None };
+    let last_whitespace_option = if !last_whitespace.is_empty() {
+        Some(last_whitespace[0].clone())
+    } else {
+        None
+    };
 
-    (filtered_segment_buffer, last_whitespace_option, result_buffer)
+    (
+        filtered_segment_buffer,
+        last_whitespace_option,
+        result_buffer,
+    )
 }
 
 fn determine_aligned_inline_spacing(
@@ -289,7 +310,11 @@ fn determine_aligned_inline_spacing(
 
     " ".repeat(
         1 + max_desired_line_pos
-            - whitespace_seg.get_position_marker().as_ref().unwrap().working_line_pos,
+            - whitespace_seg
+                .get_position_marker()
+                .as_ref()
+                .unwrap()
+                .working_line_pos,
     )
 }
 
@@ -305,7 +330,10 @@ pub fn handle_respace_inline_with_space(
     last_whitespace: ErasedSegment,
 ) -> (Vec<ErasedSegment>, Vec<LintResult>) {
     // Get some indices so that we can reference around them
-    let ws_idx = segment_buffer.iter().position(|it| it == &last_whitespace).unwrap();
+    let ws_idx = segment_buffer
+        .iter()
+        .position(|it| it == &last_whitespace)
+        .unwrap();
 
     if pre_constraint == Spacing::Any || post_constraint == Spacing::Any {
         return (segment_buffer, vec![]);
@@ -343,7 +371,14 @@ pub fn handle_respace_inline_with_space(
         let mut desc;
 
         match (post_constraint, next_block) {
-            (Spacing::Align { seg_type, within, scope }, Some(next_block)) => {
+            (
+                Spacing::Align {
+                    seg_type,
+                    within,
+                    scope,
+                },
+                Some(next_block),
+            ) => {
                 let next_pos =
                     if let Some(pos_marker) = next_block.segments[0].get_position_marker() {
                         Some(pos_marker.clone())
@@ -385,7 +420,10 @@ pub fn handle_respace_inline_with_space(
                         last_whitespace.raw()
                     )
                 } else {
-                    format!("Expected only single space. Found {:?}.", last_whitespace.raw())
+                    format!(
+                        "Expected only single space. Found {:?}.",
+                        last_whitespace.raw()
+                    )
                 };
                 desired_space = " ".to_string();
             }
@@ -397,7 +435,11 @@ pub fn handle_respace_inline_with_space(
 
             new_results.push(LintResult::new(
                 last_whitespace.clone().into(),
-                vec![LintFix::replace(last_whitespace, vec![new_seg.clone()], None)],
+                vec![LintFix::replace(
+                    last_whitespace,
+                    vec![new_seg.clone()],
+                    None,
+                )],
                 None,
                 Some(desc),
                 None,
@@ -555,14 +597,34 @@ mod tests {
         let cases = [
             // Basic cases
             ("select 1+2", (false, Filter::All), "select 1 + 2"),
-            ("select    1   +   2    ", (false, Filter::All), "select 1 + 2"),
+            (
+                "select    1   +   2    ",
+                (false, Filter::All),
+                "select 1 + 2",
+            ),
             // Check newline handling
-            ("select\n    1   +   2", (false, Filter::All), "select\n    1 + 2"),
+            (
+                "select\n    1   +   2",
+                (false, Filter::All),
+                "select\n    1 + 2",
+            ),
             ("select\n    1   +   2", (true, Filter::All), "select 1 + 2"),
             // Check filtering
-            ("select  \n  1   +   2 \n ", (false, Filter::All), "select\n  1 + 2\n"),
-            ("select  \n  1   +   2 \n ", (false, Filter::Inline), "select  \n  1 + 2 \n "),
-            ("select  \n  1   +   2 \n ", (false, Filter::Newline), "select\n  1   +   2\n"),
+            (
+                "select  \n  1   +   2 \n ",
+                (false, Filter::All),
+                "select\n  1 + 2\n",
+            ),
+            (
+                "select  \n  1   +   2 \n ",
+                (false, Filter::Inline),
+                "select  \n  1 + 2 \n ",
+            ),
+            (
+                "select  \n  1   +   2 \n ",
+                (false, Filter::Newline),
+                "select\n  1   +   2\n",
+            ),
         ];
 
         let tables = Tables::default();
@@ -580,14 +642,38 @@ mod tests {
     fn test_reflow_point_respace_point() {
         let cases = [
             // Basic cases
-            ("select    1", 1, false, " ", vec![(EditType::Replace, "    ".into())]),
-            ("select 1+2", 3, false, " ", vec![(EditType::CreateAfter, "1".into())]),
+            (
+                "select    1",
+                1,
+                false,
+                " ",
+                vec![(EditType::Replace, "    ".into())],
+            ),
+            (
+                "select 1+2",
+                3,
+                false,
+                " ",
+                vec![(EditType::CreateAfter, "1".into())],
+            ),
             ("select (1+2)", 3, false, "", vec![]),
-            ("select (  1+2)", 3, false, "", vec![(EditType::Delete, "  ".into())]),
+            (
+                "select (  1+2)",
+                3,
+                false,
+                "",
+                vec![(EditType::Delete, "  ".into())],
+            ),
             // Newline handling
             ("select\n1", 1, false, "\n", vec![]),
             ("select\n  1", 1, false, "\n  ", vec![]),
-            ("select  \n  1", 1, false, "\n  ", vec![(EditType::Delete, "  ".into())]),
+            (
+                "select  \n  1",
+                1,
+                false,
+                "\n  ",
+                vec![(EditType::Delete, "  ".into())],
+            ),
             (
                 "select  \n 1",
                 1,

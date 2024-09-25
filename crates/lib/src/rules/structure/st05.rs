@@ -103,10 +103,12 @@ join c using(x)
         let segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();
 
-        let is_select =
-            segment.all(Some(|it: &ErasedSegment| SELECT_TYPES.contains(it.get_type())));
-        let is_select_child =
-            parent_stack.any(Some(|it: &ErasedSegment| SELECT_TYPES.contains(it.get_type())));
+        let is_select = segment.all(Some(|it: &ErasedSegment| {
+            SELECT_TYPES.contains(it.get_type())
+        }));
+        let is_select_child = parent_stack.any(Some(|it: &ErasedSegment| {
+            SELECT_TYPES.contains(it.get_type())
+        }));
 
         if !is_select || is_select_child {
             return Vec::new();
@@ -119,10 +121,13 @@ join c using(x)
             ctes.insert_cte(cte.inner.borrow().cte_definition_segment.clone().unwrap());
         }
 
-        let is_with =
-            segment.all(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::WithCompoundStatement)));
+        let is_with = segment.all(Some(|it: &ErasedSegment| {
+            it.is_type(SyntaxKind::WithCompoundStatement)
+        }));
         let is_recursive = is_with
-            && !segment.children(Some(|it: &ErasedSegment| it.is_keyword("recursive"))).is_empty();
+            && !segment
+                .children(Some(|it: &ErasedSegment| it.is_keyword("recursive")))
+                .is_empty();
 
         let case_preference = get_case_preference(&segment);
 
@@ -156,15 +161,13 @@ join c using(x)
 
             local_fixes.push(LintFix::replace(
                 this_seg_clone.clone(),
-                vec![
-                    SegmentBuilder::node(
-                        context.tables.next_id(),
-                        this_seg_clone.get_type(),
-                        context.dialect.name,
-                        vec![new_table_ref],
-                    )
-                    .finish(),
-                ],
+                vec![SegmentBuilder::node(
+                    context.tables.next_id(),
+                    this_seg_clone.get_type(),
+                    context.dialect.name,
+                    vec![new_table_ref],
+                )
+                .finish()],
                 None,
             ));
 
@@ -200,7 +203,10 @@ join c using(x)
         let _segment = Segments::new(new_root, None);
         let output_select = if is_with {
             _segment.children(Some(|it: &ErasedSegment| {
-                matches!(it.get_type(), SyntaxKind::SetExpression | SyntaxKind::SelectStatement)
+                matches!(
+                    it.get_type(),
+                    SyntaxKind::SetExpression | SyntaxKind::SelectStatement
+                )
             }))
         } else {
             _segment.clone()
@@ -224,8 +230,11 @@ join c using(x)
                 case_preference,
             );
 
-            result.fixes =
-                vec![LintFix::replace(segment.first().unwrap().clone(), vec![new_select], None)];
+            result.fixes = vec![LintFix::replace(
+                segment.first().unwrap().clone(),
+                vec![new_select],
+                None,
+            )];
 
             result.fixes.append(&mut fixes);
         }
@@ -256,8 +265,13 @@ impl RuleST05 {
 
         for nsq in self.nested_subqueries(query, dialect) {
             let (alias_name, _) = ctes.create_cte_alias(Some(&nsq.table_alias));
-            let anchor =
-                nsq.table_alias.from_expression_element.segments().first().cloned().unwrap();
+            let anchor = nsq
+                .table_alias
+                .from_expression_element
+                .segments()
+                .first()
+                .cloned()
+                .unwrap();
 
             let new_cte = create_cte_seg(
                 tables,
@@ -345,18 +359,28 @@ impl RuleST05 {
                         continue;
                     };
 
-                    let path_to =
-                        selectable.selectable.path_to(&table_alias.from_expression_element);
+                    let path_to = selectable
+                        .selectable
+                        .path_to(&table_alias.from_expression_element);
 
                     if !(parent_types.contains(table_alias.from_expression_element.get_type())
-                        || path_to.iter().any(|ps| parent_types.contains(ps.segment.get_type())))
+                        || path_to
+                            .iter()
+                            .any(|ps| parent_types.contains(ps.segment.get_type())))
                     {
                         continue;
                     }
 
                     if is_correlated_subquery(
                         Segments::new(
-                            query.inner.borrow().selectables.first().unwrap().selectable.clone(),
+                            query
+                                .inner
+                                .borrow()
+                                .selectables
+                                .first()
+                                .unwrap()
+                                .selectable
+                                .clone(),
                             None,
                         ),
                         &select_source_names,
@@ -460,8 +484,13 @@ impl CTEBuilder {
         segments.push(SegmentBuilder::newline(tables.next_id(), "\n"));
         segments.push(output_select_clone);
 
-        SegmentBuilder::node(tables.next_id(), SyntaxKind::WithCompoundStatement, dialect, segments)
-            .finish()
+        SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::WithCompoundStatement,
+            dialect,
+            segments,
+        )
+        .finish()
     }
 }
 
@@ -500,7 +529,12 @@ impl CTEBuilder {
 
     fn missing_space_after_from(
         segment: ErasedSegment,
-    ) -> (bool, Option<ErasedSegment>, Option<ErasedSegment>, Option<Segments>) {
+    ) -> (
+        bool,
+        Option<ErasedSegment>,
+        Option<ErasedSegment>,
+        Option<Segments>,
+    ) {
         let mut missing_space_after_from = false;
         let from_clause_children = None;
         let mut from_segment = None;
@@ -525,7 +559,12 @@ impl CTEBuilder {
             }
         }
 
-        (missing_space_after_from, from_clause, from_clause_children, from_segment)
+        (
+            missing_space_after_from,
+            from_clause,
+            from_clause_children,
+            from_segment,
+        )
     }
 }
 
@@ -536,7 +575,11 @@ impl CTEBuilder {
         clone_map: &SegmentCloneMap,
     ) {
         for (idx, cte) in enumerate(&self.ctes) {
-            if cte.recursive_crawl_all(false).into_iter().any(|seg| segment.is(&seg)) {
+            if cte
+                .recursive_crawl_all(false)
+                .into_iter()
+                .any(|seg| segment.is(&seg))
+            {
                 self.ctes[idx] = clone_map[&self.ctes[idx]].clone();
                 return;
             }
@@ -596,7 +639,9 @@ impl CTEBuilder {
     fn insert_cte(&mut self, cte: ErasedSegment) {
         let inbound_subquery = Segments::new(cte.clone(), None)
             .children(None)
-            .find_first(Some(|it: &ErasedSegment| it.get_position_marker().is_some()));
+            .find_first(Some(|it: &ErasedSegment| {
+                it.get_position_marker().is_some()
+            }));
         let insert_position = self
             .ctes
             .iter()
@@ -605,7 +650,11 @@ impl CTEBuilder {
             .filter(|(_, it)| {
                 is_child(
                     Segments::new(
-                        Segments::new(it.clone(), None).children(None).last().cloned().unwrap(),
+                        Segments::new(it.clone(), None)
+                            .children(None)
+                            .last()
+                            .cloned()
+                            .unwrap(),
                         None,
                     ),
                     inbound_subquery.clone(),
@@ -650,7 +699,11 @@ fn get_case_preference(root_select: &Segments) -> Case {
     )[0]
     .clone();
 
-    if first_keyword.raw().chars().all(char::is_lowercase) { Case::Lower } else { Case::Upper }
+    if first_keyword.raw().chars().all(char::is_lowercase) {
+        Case::Lower
+    } else {
+        Case::Upper
+    }
 }
 
 fn segmentify(tables: &Tables, input_el: &str, casing: Case) -> ErasedSegment {
@@ -689,22 +742,16 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
         tables.next_id(),
         SyntaxKind::TableExpression,
         dialect.name,
-        vec![
-            SegmentBuilder::node(
-                tables.next_id(),
-                SyntaxKind::TableReference,
-                dialect.name,
-                vec![
-                    SegmentBuilder::token(
-                        tables.next_id(),
-                        table_name,
-                        SyntaxKind::NakedIdentifier,
-                    )
+        vec![SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::TableReference,
+            dialect.name,
+            vec![
+                SegmentBuilder::token(tables.next_id(), table_name, SyntaxKind::NakedIdentifier)
                     .finish(),
-                ],
-            )
-            .finish(),
-        ],
+            ],
+        )
+        .finish()],
     )
     .finish()
 }
@@ -732,12 +779,16 @@ impl SegmentCloneMap {
     fn new(segment: ErasedSegment, segment_copy: ErasedSegment) -> Self {
         let mut segment_map = AHashMap::new();
 
-        for (old_segment, new_segment) in
-            zip(segment.recursive_crawl_all(false), segment_copy.recursive_crawl_all(false))
-        {
+        for (old_segment, new_segment) in zip(
+            segment.recursive_crawl_all(false),
+            segment_copy.recursive_crawl_all(false),
+        ) {
             segment_map.insert(old_segment.addr(), new_segment);
         }
 
-        Self { root: segment_copy, segment_map }
+        Self {
+            root: segment_copy,
+            segment_map,
+        }
     }
 }

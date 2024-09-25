@@ -100,7 +100,9 @@ impl FluffConfig {
 
         let mut configs = nested_combine(defaults, configs);
 
-        let dialect = match configs.get("core").and_then(|map| map.as_map().unwrap().get("dialect"))
+        let dialect = match configs
+            .get("core")
+            .and_then(|map| map.as_map().unwrap().get("dialect"))
         {
             None => DialectKind::default(),
             Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
@@ -171,8 +173,9 @@ impl FluffConfig {
 
         if let Some(overrides) = overrides {
             if let Some(dialect) = overrides.get("dialect") {
-                let core =
-                    config.entry("core".into()).or_insert_with(|| Value::Map(AHashMap::new()));
+                let core = config
+                    .entry("core".into())
+                    .or_insert_with(|| Value::Map(AHashMap::new()));
 
                 core.as_map_mut()
                     .unwrap()
@@ -246,7 +249,9 @@ pub struct FluffConfigIndentation {
 
 impl Default for FluffConfigIndentation {
     fn default() -> Self {
-        Self { template_blocks_indent: true }
+        Self {
+            template_blocks_indent: true,
+        }
     }
 }
 
@@ -325,10 +330,14 @@ impl ConfigLoader {
         let path = path.as_ref();
 
         let config_stack = if ignore_local_config {
-            extra_config_path.map(|path| vec![self.load_config_at_path(path)]).unwrap_or_default()
+            extra_config_path
+                .map(|path| vec![self.load_config_at_path(path)])
+                .unwrap_or_default()
         } else {
             let configs = Self::iter_config_locations_up_to_path(path, None, ignore_local_config);
-            configs.map(|path| self.load_config_at_path(path)).collect_vec()
+            configs
+                .map(|path| self.load_config_at_path(path))
+                .collect_vec()
         };
 
         nested_combine(config_stack)
@@ -343,7 +352,11 @@ impl ConfigLoader {
             ".sqruff", /* "pyproject.toml" */
         ];
 
-        let path = if path.is_dir() { path } else { path.parent().unwrap() };
+        let path = if path.is_dir() {
+            path
+        } else {
+            path.parent().unwrap()
+        };
         let mut configs = AHashMap::new();
 
         for fname in filename_options {
@@ -389,8 +402,9 @@ impl ConfigLoader {
         for section in config.sections() {
             let key = if section == "sqlfluff" || section == "sqruff" {
                 vec!["core".to_owned()]
-            } else if let Some(key) =
-                section.strip_prefix("sqlfluff:").or_else(|| section.strip_prefix("sqruff:"))
+            } else if let Some(key) = section
+                .strip_prefix("sqlfluff:")
+                .or_else(|| section.strip_prefix("sqruff:"))
             {
                 key.split(':').map(ToOwned::to_owned).collect()
             } else {
@@ -467,7 +481,10 @@ impl Value {
         match self {
             Self::Array(v) => Some(v.clone()),
             Self::String(q) => {
-                let xs = q.split(',').map(|it| Value::String(it.into())).collect_vec();
+                let xs = q
+                    .split(',')
+                    .map(|it| Value::String(it.into()))
+                    .collect_vec();
                 Some(xs)
             }
             Self::Bool(b) => Some(vec![Value::String(b.to_string().into())]),
@@ -508,23 +525,43 @@ impl Value {
         Some(f(self))
     }
     pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
-        if let Self::Map(map) = self { Some(map) } else { None }
+        if let Self::Map(map) = self {
+            Some(map)
+        } else {
+            None
+        }
     }
 
     pub fn as_map_mut(&mut self) -> Option<&mut AHashMap<String, Value>> {
-        if let Self::Map(map) = self { Some(map) } else { None }
+        if let Self::Map(map) = self {
+            Some(map)
+        } else {
+            None
+        }
     }
 
     pub fn as_int(&self) -> Option<i32> {
-        if let Self::Int(v) = self { Some(*v) } else { None }
+        if let Self::Int(v) = self {
+            Some(*v)
+        } else {
+            None
+        }
     }
 
     pub fn as_string(&self) -> Option<&str> {
-        if let Self::String(v) = self { Some(v) } else { None }
+        if let Self::String(v) = self {
+            Some(v)
+        } else {
+            None
+        }
     }
 
     pub fn as_bool(&self) -> Option<bool> {
-        if let Self::Bool(v) = self { Some(*v) } else { None }
+        if let Self::Bool(v) = self {
+            Some(*v)
+        } else {
+            None
+        }
     }
 }
 
@@ -549,7 +586,10 @@ impl FromStr for Value {
         }
 
         let key = UniCase::ascii(s);
-        let value = KEYWORDS.get(&key).cloned().unwrap_or_else(|| Value::String(Box::from(s)));
+        let value = KEYWORDS
+            .get(&key)
+            .cloned()
+            .unwrap_or_else(|| Value::String(Box::from(s)));
 
         Ok(value)
     }
@@ -572,8 +612,10 @@ impl<'a> From<&'a FluffConfig> for Parser<'a> {
     fn from(config: &'a FluffConfig) -> Self {
         let dialect = config.get_dialect();
         let indentation_config = config.raw["indentation"].as_map().unwrap();
-        let indentation_config: AHashMap<_, _> =
-            indentation_config.iter().map(|(key, value)| (key.clone(), value.to_bool())).collect();
+        let indentation_config: AHashMap<_, _> = indentation_config
+            .iter()
+            .map(|(key, value)| (key.clone(), value.to_bool()))
+            .collect();
         Self::new(dialect, indentation_config)
     }
 }

@@ -70,8 +70,9 @@ from table_a
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let Some(function_name) =
-            context.segment.child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
+        let Some(function_name) = context
+            .segment
+            .child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
         else {
             return Vec::new();
         };
@@ -111,7 +112,11 @@ from table_a
                         .finish();
                 return vec![LintResult::new(
                     context.segment.into(),
-                    vec![LintFix::replace(f_content[0].clone(), vec![new_segment], None)],
+                    vec![LintFix::replace(
+                        f_content[0].clone(),
+                        vec![new_segment],
+                        None,
+                    )],
                     None,
                     None,
                     None,
@@ -119,8 +124,11 @@ from table_a
             }
 
             if f_content[0].is_type(SyntaxKind::Expression) {
-                let expression_content =
-                    f_content[0].segments().iter().filter(|it| !it.is_meta()).collect_vec();
+                let expression_content = f_content[0]
+                    .segments()
+                    .iter()
+                    .filter(|it| !it.is_meta())
+                    .collect_vec();
 
                 let raw = expression_content[0].raw();
                 if expression_content.len() == 1
@@ -138,16 +146,14 @@ from table_a
                         context.segment.into(),
                         vec![LintFix::replace(
                             first_expression.clone(),
-                            vec![
-                                first_expression.edit(
-                                    context.tables.next_id(),
-                                    first_expression
-                                        .raw()
-                                        .replace(first_expression_raw.as_str(), preferred)
-                                        .into(),
-                                    None,
-                                ),
-                            ],
+                            vec![first_expression.edit(
+                                context.tables.next_id(),
+                                first_expression
+                                    .raw()
+                                    .replace(first_expression_raw.as_str(), preferred)
+                                    .into(),
+                                None,
+                            )],
                             None,
                         )],
                         None,

@@ -12,8 +12,11 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 #[derive(Clone, Debug, Default)]
 pub struct RuleAM04;
 
-const START_TYPES: [SyntaxKind; 3] =
-    [SyntaxKind::SelectStatement, SyntaxKind::SetExpression, SyntaxKind::WithCompoundStatement];
+const START_TYPES: [SyntaxKind; 3] = [
+    SyntaxKind::SelectStatement,
+    SyntaxKind::SetExpression,
+    SyntaxKind::WithCompoundStatement,
+];
 
 impl Rule for RuleAM04 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
@@ -83,7 +86,9 @@ SELECT a, b FROM t
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&START_TYPES) }).disallow_recurse().into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&START_TYPES) })
+            .disallow_recurse()
+            .into()
     }
 }
 

@@ -27,7 +27,10 @@ impl FileSegment {
         parse_context: &mut ParseContext,
         _f_name: Option<String>,
     ) -> Result<ErasedSegment, SQLParseError> {
-        let start_idx = segments.iter().position(|segment| segment.is_code()).unwrap_or(0) as u32;
+        let start_idx = segments
+            .iter()
+            .position(|segment| segment.is_code())
+            .unwrap_or(0) as u32;
 
         let end_idx = segments
             .iter()
@@ -64,7 +67,10 @@ impl FileSegment {
             .position_from_segments()
             .finish()]
         } else if !unmatched.is_empty() {
-            let idx = unmatched.iter().position(|it| it.is_code()).unwrap_or(unmatched.len());
+            let idx = unmatched
+                .iter()
+                .position(|it| it.is_code())
+                .unwrap_or(unmatched.len());
             let (head, tail) = unmatched.split_at(idx);
 
             matched.extend_from_slice(head);
@@ -82,7 +88,12 @@ impl FileSegment {
         Ok(Self::of(
             tables,
             dialect,
-            [&segments[..start_idx as usize], content, &segments[end_idx as usize..]].concat(),
+            [
+                &segments[..start_idx as usize],
+                content,
+                &segments[end_idx as usize..],
+            ]
+            .concat(),
         ))
     }
 }

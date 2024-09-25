@@ -38,8 +38,11 @@ impl RuleRF01 {
         dml_target_table: &[SmolStr],
         query: Query<RF01Query>,
     ) -> Option<LintResult> {
-        let possible_references: Vec<_> =
-            tbl_refs.clone().into_iter().map(|tbl_ref| tbl_ref.1).collect();
+        let possible_references: Vec<_> = tbl_refs
+            .clone()
+            .into_iter()
+            .map(|tbl_ref| tbl_ref.1)
+            .collect();
 
         let mut targets = vec![];
 
@@ -126,7 +129,10 @@ impl RuleRF01 {
 
         for selectable in &selectables {
             if let Some(select_info) = selectable.select_info() {
-                RefCell::borrow_mut(&query.inner).payload.aliases.extend(select_info.table_aliases);
+                RefCell::borrow_mut(&query.inner)
+                    .payload
+                    .aliases
+                    .extend(select_info.table_aliases);
                 RefCell::borrow_mut(&query.inner)
                     .payload
                     .standalone_aliases
@@ -161,7 +167,9 @@ impl RuleRF01 {
         let ref_path = selectable.selectable.path_to(&reference.0);
 
         if !ref_path.is_empty() {
-            ref_path.iter().any(|ps| ps.segment.is_type(SyntaxKind::IntoTableClause))
+            ref_path
+                .iter()
+                .any(|ps| ps.segment.is_type(SyntaxKind::IntoTableClause))
         } else {
             false
         }
@@ -170,7 +178,10 @@ impl RuleRF01 {
 
 impl Rule for RuleRF01 {
     fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleRF01 { force_enable: config["force_enable"].as_bool().unwrap() }.erased())
+        Ok(RuleRF01 {
+            force_enable: config["force_enable"].as_bool().unwrap(),
+        }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -215,7 +226,11 @@ FROM foo
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
         // TODO Add others when finished, whole list["databricks", "hive", "soql"]
-        &[DialectKind::Redshift, DialectKind::Bigquery, DialectKind::Sparksql]
+        &[
+            DialectKind::Redshift,
+            DialectKind::Bigquery,
+            DialectKind::Sparksql,
+        ]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

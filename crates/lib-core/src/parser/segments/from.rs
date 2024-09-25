@@ -14,8 +14,9 @@ impl FromClauseSegment {
         let mut direct_table_children = Vec::new();
         let mut join_clauses = Vec::new();
 
-        for from_expression in
-            self.0.children(const { &SyntaxSet::new(&[SyntaxKind::FromExpression]) })
+        for from_expression in self
+            .0
+            .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpression]) })
         {
             direct_table_children.extend(
                 from_expression
@@ -57,13 +58,15 @@ impl FromClauseSegment {
 
 impl FromExpressionElementSegment {
     pub fn eventual_alias(&self) -> AliasInfo {
-        let mut tbl_expression =
-            self.0.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) }).or_else(|| {
-                self.0.child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }).and_then(
-                    |bracketed| {
+        let mut tbl_expression = self
+            .0
+            .child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) })
+            .or_else(|| {
+                self.0
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) })
+                    .and_then(|bracketed| {
                         bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) })
-                    },
-                )
+                    })
             });
 
         if let Some(tbl_expression_inner) = &tbl_expression {
@@ -83,8 +86,9 @@ impl FromExpressionElementSegment {
 
         let reference = reference.as_ref().map(|reference| reference.reference());
 
-        let alias_expression =
-            self.0.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
+        let alias_expression = self
+            .0
+            .child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
         if let Some(alias_expression) = alias_expression {
             let segment = alias_expression.child(
                 const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },

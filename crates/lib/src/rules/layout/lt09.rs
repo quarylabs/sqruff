@@ -32,8 +32,10 @@ pub struct RuleLT09 {
 
 impl Rule for RuleLT09 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT09 { wildcard_policy: _config["wildcard_policy"].as_string().unwrap().to_owned() }
-            .erased())
+        Ok(RuleLT09 {
+            wildcard_policy: _config["wildcard_policy"].as_string().unwrap().to_owned(),
+        }
+        .erased())
     }
     fn name(&self) -> &'static str {
         "layout.select_targets"
@@ -130,7 +132,9 @@ FROM test_table;
 
 impl RuleLT09 {
     fn get_indexes(context: RuleContext) -> SelectTargetsInfo {
-        let children = FunctionalContext::new(context.clone()).segment().children(None);
+        let children = FunctionalContext::new(context.clone())
+            .segment()
+            .children(None);
 
         let select_targets = children.select(
             Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::SelectClauseElement)),
@@ -139,7 +143,9 @@ impl RuleLT09 {
             None,
         );
 
-        let first_select_target_idx = select_targets.get(0, None).and_then(|it| children.find(&it));
+        let first_select_target_idx = select_targets
+            .get(0, None)
+            .and_then(|it| children.find(&it));
 
         let selects = children.select(
             Some(|segment: &ErasedSegment| {
@@ -178,8 +184,11 @@ impl RuleLT09 {
             );
 
             if !comment_after_select.is_empty() {
-                comment_after_select_idx = (!comment_after_select.is_empty())
-                    .then(|| children.find(&comment_after_select.get(0, None).unwrap()).unwrap());
+                comment_after_select_idx = (!comment_after_select.is_empty()).then(|| {
+                    children
+                        .find(&comment_after_select.get(0, None).unwrap())
+                        .unwrap()
+                });
             }
         }
 
@@ -200,7 +209,9 @@ impl RuleLT09 {
 
         let siblings_post = FunctionalContext::new(context).siblings_post();
         let from_segment = siblings_post
-            .find_first(Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::FromClause)))
+            .find_first(Some(|seg: &ErasedSegment| {
+                seg.is_type(SyntaxKind::FromClause)
+            }))
             .find_first::<fn(&ErasedSegment) -> bool>(None)
             .get(0, None);
         let pre_from_whitespace = siblings_post.select(
@@ -247,7 +258,11 @@ impl RuleLT09 {
                     segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseModifier]) });
 
                 if let Some(modifier) = modifier {
-                    start_seg = segment.segments().iter().position(|it| it == &modifier).unwrap();
+                    start_seg = segment
+                        .segments()
+                        .iter()
+                        .position(|it| it == &modifier)
+                        .unwrap();
                 }
 
                 let segments = segment.segments();
@@ -316,8 +331,9 @@ impl RuleLT09 {
         }
 
         let select_children = select_clause.children(None);
-        let mut modifier = select_children
-            .find_first(Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::SelectClauseModifier)));
+        let mut modifier = select_children.find_first(Some(|seg: &ErasedSegment| {
+            seg.is_type(SyntaxKind::SelectClauseModifier)
+        }));
 
         if select_children[select_targets_info.first_select_target_idx.unwrap()]
             .descendant_type_set()
@@ -352,7 +368,9 @@ impl RuleLT09 {
 
             insert_buff.extend(buff);
 
-            let modifier_idx = select_children.index(&modifier.get(0, None).unwrap()).unwrap();
+            let modifier_idx = select_children
+                .index(&modifier.get(0, None).unwrap())
+                .unwrap();
 
             if select_children.len() > modifier_idx + 1
                 && select_children[modifier_idx + 2].is_whitespace()
@@ -368,7 +386,10 @@ impl RuleLT09 {
         };
 
         if !parent_stack.is_empty()
-            && parent_stack.last().unwrap().is_type(SyntaxKind::SelectStatement)
+            && parent_stack
+                .last()
+                .unwrap()
+                .is_type(SyntaxKind::SelectStatement)
         {
             let select_stmt = parent_stack.last().unwrap();
             let select_clause_idx = select_stmt
@@ -434,8 +455,9 @@ impl RuleLT09 {
 
             if select_stmt.segments().len() > after_select_clause_idx {
                 if select_stmt.segments()[after_select_clause_idx].is_type(SyntaxKind::Newline) {
-                    let to_delete =
-                        select_children.reversed().select::<fn(&ErasedSegment) -> bool>(
+                    let to_delete = select_children
+                        .reversed()
+                        .select::<fn(&ErasedSegment) -> bool>(
                             None,
                             Some(|seg| seg.is_type(SyntaxKind::Whitespace)),
                             (&select_children[start_idx]).into(),
@@ -485,8 +507,9 @@ impl RuleLT09 {
                         &select_children[select_clause_idx - 1]
                     };
 
-                    let to_delete =
-                        select_children.reversed().select::<fn(&ErasedSegment) -> bool>(
+                    let to_delete = select_children
+                        .reversed()
+                        .select::<fn(&ErasedSegment) -> bool>(
                             None,
                             Some(|it| it.is_type(SyntaxKind::Whitespace)),
                             Some(start_seg),
@@ -537,6 +560,8 @@ impl RuleLT09 {
 
 impl Default for RuleLT09 {
     fn default() -> Self {
-        Self { wildcard_policy: "single".into() }
+        Self {
+            wildcard_policy: "single".into(),
+        }
     }
 }

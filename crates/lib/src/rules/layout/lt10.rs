@@ -56,12 +56,15 @@ from x
     }
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Get children of select_clause and the corresponding select keyword.
-        let child_segments = FunctionalContext::new(context.clone()).segment().children(None);
+        let child_segments = FunctionalContext::new(context.clone())
+            .segment()
+            .children(None);
         let select_keyword = child_segments.first().unwrap();
 
         // See if we have a select_clause_modifier.
-        let select_clause_modifier_seg = child_segments
-            .find_first(Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::SelectClauseModifier)));
+        let select_clause_modifier_seg = child_segments.find_first(Some(|sp: &ErasedSegment| {
+            sp.is_type(SyntaxKind::SelectClauseModifier)
+        }));
 
         // Rule doesn't apply if there's no select clause modifier.
         if select_clause_modifier_seg.is_empty() {
@@ -115,7 +118,11 @@ from x
 
         let mut fixes = Vec::new();
         // Move select clause modifier after select keyword.
-        fixes.push(LintFix::create_after(select_keyword.clone(), edit_segments, None));
+        fixes.push(LintFix::create_after(
+            select_keyword.clone(),
+            edit_segments,
+            None,
+        ));
 
         if trailing_newline_segments.is_empty() {
             fixes.extend(leading_newline_segments.into_iter().map(LintFix::delete));
@@ -132,13 +139,23 @@ from x
         );
 
         if !trailing_whitespace_segments.is_empty() {
-            fixes.extend(trailing_whitespace_segments.into_iter().map(LintFix::delete));
+            fixes.extend(
+                trailing_whitespace_segments
+                    .into_iter()
+                    .map(LintFix::delete),
+            );
         }
 
         // Delete the original select clause modifier.
         fixes.push(LintFix::delete(select_clause_modifier.clone()));
 
-        vec![LintResult::new(context.segment.into(), fixes, None, None, None)]
+        vec![LintResult::new(
+            context.segment.into(),
+            fixes,
+            None,
+            None,
+            None,
+        )]
     }
 
     fn is_fix_compatible(&self) -> bool {

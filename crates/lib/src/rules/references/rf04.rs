@@ -87,8 +87,13 @@ FROM foo AS vee
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if context.segment.raw().len() == 1
-            || self.ignore_words.contains(&context.segment.raw().to_lowercase())
-            || self.ignore_words_regex.iter().any(|regex| regex.is_match(context.segment.raw()))
+            || self
+                .ignore_words
+                .contains(&context.segment.raw().to_lowercase())
+            || self
+                .ignore_words_regex
+                .iter()
+                .any(|regex| regex.is_match(context.segment.raw()))
         {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
@@ -116,10 +121,22 @@ FROM foo AS vee
                         )
                     },
                 )
-                && context.dialect.sets("unreserved_keywords").contains(upper_segment.as_str())
-                || context.dialect.sets("reserved_keywords").contains(upper_segment.as_str()))
+                && context
+                    .dialect
+                    .sets("unreserved_keywords")
+                    .contains(upper_segment.as_str())
+                || context
+                    .dialect
+                    .sets("reserved_keywords")
+                    .contains(upper_segment.as_str()))
         {
-            vec![LintResult::new(Some(context.segment.clone()), Vec::new(), None, None, None)]
+            vec![LintResult::new(
+                Some(context.segment.clone()),
+                Vec::new(),
+                None,
+                None,
+                None,
+            )]
         } else {
             Vec::new()
         }

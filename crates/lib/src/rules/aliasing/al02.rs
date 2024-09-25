@@ -80,7 +80,12 @@ FROM foo
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if FunctionalContext::new(context.clone()).segment().children(None).last().unwrap().raw()
+        if FunctionalContext::new(context.clone())
+            .segment()
+            .children(None)
+            .last()
+            .unwrap()
+            .raw()
             == "="
         {
             return Vec::new();

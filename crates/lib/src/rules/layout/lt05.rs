@@ -78,15 +78,21 @@ FROM my_table"#
             let raw_segments = context.segment.get_raw_segments();
             for (res_idx, res) in enumerate(&results) {
                 if res.anchor.as_ref().unwrap().is_type(SyntaxKind::Comment)
-                    || res.anchor.as_ref().unwrap().is_type(SyntaxKind::InlineComment)
+                    || res
+                        .anchor
+                        .as_ref()
+                        .unwrap()
+                        .is_type(SyntaxKind::InlineComment)
                 {
                     to_remove.insert(res_idx);
                     continue;
                 }
 
                 let pos_marker = res.anchor.as_ref().unwrap().get_position_marker().unwrap();
-                let raw_idx =
-                    raw_segments.iter().position(|it| it == res.anchor.as_ref().unwrap()).unwrap();
+                let raw_idx = raw_segments
+                    .iter()
+                    .position(|it| it == res.anchor.as_ref().unwrap())
+                    .unwrap();
 
                 for seg in &raw_segments[raw_idx..] {
                     if seg.get_position_marker().unwrap().working_line_no
@@ -108,8 +114,10 @@ FROM my_table"#
         if self.ignore_comment_clauses {
             let raw_segments = context.segment.get_raw_segments();
             for (res_idx, res) in enumerate(&results) {
-                let raw_idx =
-                    raw_segments.iter().position(|it| it == res.anchor.as_ref().unwrap()).unwrap();
+                let raw_idx = raw_segments
+                    .iter()
+                    .position(|it| it == res.anchor.as_ref().unwrap())
+                    .unwrap();
 
                 for seg in &raw_segments[raw_idx..] {
                     if seg.get_position_marker().unwrap().working_line_no

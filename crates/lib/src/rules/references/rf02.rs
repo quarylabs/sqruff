@@ -123,7 +123,11 @@ impl RuleRF02 {
                 continue;
             }
 
-            if context.1.iter().any(|regex| regex.is_match(r.0.raw().as_ref())) {
+            if context
+                .1
+                .iter()
+                .any(|regex| regex.is_match(r.0.raw().as_ref()))
+            {
                 continue;
             }
 

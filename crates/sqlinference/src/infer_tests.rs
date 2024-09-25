@@ -56,7 +56,12 @@ pub fn infer_tests(
     let extracted_select = get_column_with_source(parser, select_statement)?;
 
     match extracted_select {
-        ExtractedSelect::Extracted { mapped, count_stars, operated_on, .. } => {
+        ExtractedSelect::Extracted {
+            mapped,
+            count_stars,
+            operated_on,
+            ..
+        } => {
             let mappings = mapped;
             // (reference, column) to test
             let test_map: HashMap<(String, String), Vec<Test>> =
@@ -201,84 +206,86 @@ pub fn infer_tests(
                 );
             });
 
-            operated_on.iter().for_each(|(column, (operation, source))| {
-                // TODO get rid of the unwrap and just map it to an empty array
-                let empty = vec![];
-                let tests_to_map = test_map
-                    .get(source)
-                    .unwrap_or(&empty)
-                    .iter()
-                    .filter(|test| {
-                        let (operation, group_by) = operation;
-                        aggregate_is_test_inferrable(
-                            parser.dialect().name(),
-                            test,
-                            operation,
-                            group_by,
-                        )
-                    })
-                    .filter_map(|test| match test {
-                        Test::GreaterThanOrEqual(test) => Some((
-                            Test::GreaterThanOrEqual(ComparisonTest {
-                                path: path_of_sql.to_string(),
-                                column: column.to_string(),
-                                value: test.value.to_string(),
-                            }),
-                            InferenceReason::UnderlyingTestWithOperation(
-                                Test::GreaterThanOrEqual(test.clone()),
-                                operation.clone(),
-                            ),
-                        )),
-                        Test::LessThanOrEqual(test) => Some((
-                            Test::LessThanOrEqual(ComparisonTest {
-                                path: path_of_sql.to_string(),
-                                column: column.to_string(),
-                                value: test.value.to_string(),
-                            }),
-                            InferenceReason::UnderlyingTestWithOperation(
-                                Test::LessThanOrEqual(test.clone()),
-                                operation.clone(),
-                            ),
-                        )),
-                        Test::GreaterThan(test) => Some((
-                            Test::GreaterThan(ComparisonTest {
-                                path: path_of_sql.to_string(),
-                                column: column.to_string(),
-                                value: test.value.to_string(),
-                            }),
-                            InferenceReason::UnderlyingTestWithOperation(
-                                Test::GreaterThan(test.clone()),
-                                operation.clone(),
-                            ),
-                        )),
-                        Test::LessThan(test) => Some((
-                            Test::LessThan(ComparisonTest {
-                                path: path_of_sql.to_string(),
-                                column: column.to_string(),
-                                value: test.value.to_string(),
-                            }),
-                            InferenceReason::UnderlyingTestWithOperation(
-                                Test::LessThan(test.clone()),
-                                operation.clone(),
-                            ),
-                        )),
-                        Test::NotNull(test) => Some((
-                            Test::NotNull(StandardTest {
-                                path: path_of_sql.to_string(),
-                                column: column.to_string(),
-                            }),
-                            InferenceReason::UnderlyingTestWithOperation(
-                                Test::NotNull(test.clone()),
-                                operation.clone(),
-                            ),
-                        )),
+            operated_on
+                .iter()
+                .for_each(|(column, (operation, source))| {
+                    // TODO get rid of the unwrap and just map it to an empty array
+                    let empty = vec![];
+                    let tests_to_map = test_map
+                        .get(source)
+                        .unwrap_or(&empty)
+                        .iter()
+                        .filter(|test| {
+                            let (operation, group_by) = operation;
+                            aggregate_is_test_inferrable(
+                                parser.dialect().name(),
+                                test,
+                                operation,
+                                group_by,
+                            )
+                        })
+                        .filter_map(|test| match test {
+                            Test::GreaterThanOrEqual(test) => Some((
+                                Test::GreaterThanOrEqual(ComparisonTest {
+                                    path: path_of_sql.to_string(),
+                                    column: column.to_string(),
+                                    value: test.value.to_string(),
+                                }),
+                                InferenceReason::UnderlyingTestWithOperation(
+                                    Test::GreaterThanOrEqual(test.clone()),
+                                    operation.clone(),
+                                ),
+                            )),
+                            Test::LessThanOrEqual(test) => Some((
+                                Test::LessThanOrEqual(ComparisonTest {
+                                    path: path_of_sql.to_string(),
+                                    column: column.to_string(),
+                                    value: test.value.to_string(),
+                                }),
+                                InferenceReason::UnderlyingTestWithOperation(
+                                    Test::LessThanOrEqual(test.clone()),
+                                    operation.clone(),
+                                ),
+                            )),
+                            Test::GreaterThan(test) => Some((
+                                Test::GreaterThan(ComparisonTest {
+                                    path: path_of_sql.to_string(),
+                                    column: column.to_string(),
+                                    value: test.value.to_string(),
+                                }),
+                                InferenceReason::UnderlyingTestWithOperation(
+                                    Test::GreaterThan(test.clone()),
+                                    operation.clone(),
+                                ),
+                            )),
+                            Test::LessThan(test) => Some((
+                                Test::LessThan(ComparisonTest {
+                                    path: path_of_sql.to_string(),
+                                    column: column.to_string(),
+                                    value: test.value.to_string(),
+                                }),
+                                InferenceReason::UnderlyingTestWithOperation(
+                                    Test::LessThan(test.clone()),
+                                    operation.clone(),
+                                ),
+                            )),
+                            Test::NotNull(test) => Some((
+                                Test::NotNull(StandardTest {
+                                    path: path_of_sql.to_string(),
+                                    column: column.to_string(),
+                                }),
+                                InferenceReason::UnderlyingTestWithOperation(
+                                    Test::NotNull(test.clone()),
+                                    operation.clone(),
+                                ),
+                            )),
 
-                        _ => None,
+                            _ => None,
+                        });
+                    tests_to_map.for_each(|(test, reason)| {
+                        inferred_from_tests_tests.insert(test, reason);
                     });
-                tests_to_map.for_each(|(test, reason)| {
-                    inferred_from_tests_tests.insert(test, reason);
                 });
-            });
 
             Ok(inferred_from_tests_tests)
         }
@@ -573,8 +580,11 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
                         continue;
                     };
 
-                    let it =
-                        select_clause_element.segments().iter().find(|it| it.is_code()).unwrap();
+                    let it = select_clause_element
+                        .segments()
+                        .iter()
+                        .find(|it| it.is_code())
+                        .unwrap();
                     let out = extracted_tables.get_source(it.raw().as_ref())?;
 
                     match out {
@@ -627,75 +637,86 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
     };
 
     if let Some(withs) = with_extracted {
-        withs.iter().try_fold(main_extracted, |acc, (with_alias, with)| {
-            match acc {
-                ExtractedSelect::Extracted { mapped, unmapped, count_stars, operated_on: _ } => {
-                    let extracted_mapped = mapped;
-                    let extracted_unmapped = unmapped;
-                    let extracted_count_stars = count_stars;
-                    let operated_on: OperatedOn = HashMap::new();
+        withs
+            .iter()
+            .try_fold(main_extracted, |acc, (with_alias, with)| {
+                match acc {
+                    ExtractedSelect::Extracted {
+                        mapped,
+                        unmapped,
+                        count_stars,
+                        operated_on: _,
+                    } => {
+                        let extracted_mapped = mapped;
+                        let extracted_unmapped = unmapped;
+                        let extracted_count_stars = count_stars;
+                        let operated_on: OperatedOn = HashMap::new();
 
-                    let mut columns_map: HashMap<String, (String, String)> =
-                        extracted_mapped.clone();
-                    let mut count_stars_set: HashSet<String> = extracted_count_stars.clone();
+                        let mut columns_map: HashMap<String, (String, String)> =
+                            extracted_mapped.clone();
+                        let mut count_stars_set: HashSet<String> = extracted_count_stars.clone();
 
-                    for (name, extracted) in &withs {
-                        match extracted {
-                            ExtractedSelect::Star(star) => {
-                                for (x, _) in columns_map.values_mut() {
-                                    if x == with_alias {
-                                        *x = star.clone();
-                                    }
-                                }
-                            }
-                            ExtractedSelect::Extracted { mapped, count_stars, .. } => {
-                                let sub_columns = mapped.clone();
-                                let sub_columns_star = count_stars.clone();
-
-                                let mut sub_column_star_found: HashSet<String> = HashSet::new();
-                                for (_, (int_table, int_key)) in columns_map.iter_mut() {
-                                    if int_table == name {
-                                        if sub_columns_star.contains(int_key) {
-                                            sub_column_star_found.insert(int_key.clone());
-                                        } else {
-                                            let (target_table, target_key) =
-                                                sub_columns.get(int_key).ok_or(format!(
-                                                    "Could not find {} in {:?}",
-                                                    int_key, sub_columns
-                                                ))?;
-                                            int_table.clone_from(target_table);
-                                            int_key.clone_from(target_key);
+                        for (name, extracted) in &withs {
+                            match extracted {
+                                ExtractedSelect::Star(star) => {
+                                    for (x, _) in columns_map.values_mut() {
+                                        if x == with_alias {
+                                            *x = star.clone();
                                         }
                                     }
                                 }
+                                ExtractedSelect::Extracted {
+                                    mapped,
+                                    count_stars,
+                                    ..
+                                } => {
+                                    let sub_columns = mapped.clone();
+                                    let sub_columns_star = count_stars.clone();
 
-                                // TODO This can definitely be cleaned up
-                                for found in sub_column_star_found {
-                                    columns_map.remove(found.as_str());
-                                    count_stars_set.insert(found.clone());
+                                    let mut sub_column_star_found: HashSet<String> = HashSet::new();
+                                    for (_, (int_table, int_key)) in columns_map.iter_mut() {
+                                        if int_table == name {
+                                            if sub_columns_star.contains(int_key) {
+                                                sub_column_star_found.insert(int_key.clone());
+                                            } else {
+                                                let (target_table, target_key) =
+                                                    sub_columns.get(int_key).ok_or(format!(
+                                                        "Could not find {} in {:?}",
+                                                        int_key, sub_columns
+                                                    ))?;
+                                                int_table.clone_from(target_table);
+                                                int_key.clone_from(target_key);
+                                            }
+                                        }
+                                    }
+
+                                    // TODO This can definitely be cleaned up
+                                    for found in sub_column_star_found {
+                                        columns_map.remove(found.as_str());
+                                        count_stars_set.insert(found.clone());
+                                    }
+
+                                    // TODO deal with alias
                                 }
-
-                                // TODO deal with alias
                             }
                         }
-                    }
 
-                    Ok(ExtractedSelect::Extracted {
-                        mapped: columns_map,
-                        unmapped: extracted_unmapped,
-                        count_stars: count_stars_set,
-                        operated_on,
-                    })
-                }
-                ExtractedSelect::Star(value) => {
-                    if *with_alias == value {
-                        Ok(with.clone())
-                    } else {
-                        Ok(ExtractedSelect::Star(value))
+                        Ok(ExtractedSelect::Extracted {
+                            mapped: columns_map,
+                            unmapped: extracted_unmapped,
+                            count_stars: count_stars_set,
+                            operated_on,
+                        })
+                    }
+                    ExtractedSelect::Star(value) => {
+                        if *with_alias == value {
+                            Ok(with.clone())
+                        } else {
+                            Ok(ExtractedSelect::Star(value))
+                        }
                     }
                 }
-            }
-        })
+            })
 
     // TODO Need to fix this
     } else {
@@ -734,7 +755,11 @@ fn join_operator(join: ErasedSegment) -> String {
         None,
     );
 
-    let keywords = keywords.iter().map(|it| it.raw().to_string()).collect::<Vec<_>>().join(" ");
+    let keywords = keywords
+        .iter()
+        .map(|it| it.raw().to_string())
+        .collect::<Vec<_>>()
+        .join(" ");
 
     if keywords.is_empty() {
         return "inner".to_string();
@@ -753,7 +778,11 @@ fn extract_extracted_from_joins(
 ) -> Result<Vec<Extracted>, String> {
     let mut extracted = vec![];
 
-    if joins.iter().cloned().all(|it| join_operator(it).eq_ignore_ascii_case("left outer")) {
+    if joins
+        .iter()
+        .cloned()
+        .all(|it| join_operator(it).eq_ignore_ascii_case("left outer"))
+    {
         for join in joins {
             let relation = join
                 .child(const { &SyntaxSet::single(SyntaxKind::FromExpressionElement) })
@@ -894,7 +923,12 @@ impl ExtractedFunc for Vec<Extracted> {
                     Extracted::Select(m) => match m {
                         // TODO Figure this out
                         ExtractedSelect::Star(_) => Err("Not yet implemented".to_string()),
-                        ExtractedSelect::Extracted { mapped, count_stars, operated_on, .. } => {
+                        ExtractedSelect::Extracted {
+                            mapped,
+                            count_stars,
+                            operated_on,
+                            ..
+                        } => {
                             if let Some(v) = mapped.get(value) {
                                 Ok(UnderlyingColumn(v.clone()))
                             } else if count_stars.get(value).is_some() {
@@ -960,7 +994,7 @@ impl ExtractedFunc for Vec<Extracted> {
             (_, [alias, key]) => {
                 if non_aliased_count > 1 {
                     return Err(
-                        "Impossible to match where non_aliased count is greater than 1".to_string()
+                        "Impossible to match where non_aliased count is greater than 1".to_string(),
                     );
                 }
                 match self.find_alias_and_target(alias, key) {
@@ -993,8 +1027,10 @@ fn extract_table(table_factor: &ErasedSegment, dialect: &Dialect) -> Result<Extr
             let subquery = Query::from_segment(&subquery, dialect, None);
             let selected = extract_select(&subquery)?;
 
-            if let Some(alias) =
-                table_factor.segments().iter().find(|it| it.is_type(SyntaxKind::AliasExpression))
+            if let Some(alias) = table_factor
+                .segments()
+                .iter()
+                .find(|it| it.is_type(SyntaxKind::AliasExpression))
             {
                 let raw_segments = alias.get_raw_segments();
                 let alias = raw_segments.iter().rev().find(|it| it.is_code()).unwrap();
@@ -1424,11 +1460,20 @@ mod tests {
         let parser = Parser::from(&dialect);
 
         for test in tests {
-            let inferred_tests =
-                infer_tests(&parser, "test_path", test.sql, &test.tests.into_iter().collect())
-                    .unwrap();
+            let inferred_tests = infer_tests(
+                &parser,
+                "test_path",
+                test.sql,
+                &test.tests.into_iter().collect(),
+            )
+            .unwrap();
 
-            assert_eq!(test.tests_want.len(), inferred_tests.len(), "SQL: {}", test.sql);
+            assert_eq!(
+                test.tests_want.len(),
+                inferred_tests.len(),
+                "SQL: {}",
+                test.sql
+            );
             assert_eq!(test.tests_want, inferred_tests, "SQL: {}", test.sql);
         }
     }
@@ -1535,9 +1580,13 @@ mod tests {
         let parser = Parser::from(&dialect);
 
         for test in tests {
-            let inferred_tests =
-                infer_tests(&parser, "test_path", test.sql, &test.tests.into_iter().collect())
-                    .unwrap();
+            let inferred_tests = infer_tests(
+                &parser,
+                "test_path",
+                test.sql,
+                &test.tests.into_iter().collect(),
+            )
+            .unwrap();
 
             assert_eq!(inferred_tests.len(), test.tests_want.len());
             assert_eq!(test.tests_want, inferred_tests);
@@ -2132,9 +2181,13 @@ FROM q.stg_employees e) SELECT * FROM data",
         let parser = Parser::from(&dialect);
 
         for test in tests {
-            let inferred_tests =
-                infer_tests(&parser, "test_path", test.sql, &test.tests.into_iter().collect())
-                    .unwrap();
+            let inferred_tests = infer_tests(
+                &parser,
+                "test_path",
+                test.sql,
+                &test.tests.into_iter().collect(),
+            )
+            .unwrap();
 
             assert_eq!(inferred_tests.len(), test.tests_want.len(), "{}", test.sql);
             assert_eq!(test.tests_want, inferred_tests, "{}", test.sql);
@@ -2307,9 +2360,13 @@ GROUP BY department",
         let parser = Parser::from(&dialect);
 
         for test in tests {
-            let inferred_tests =
-                infer_tests(&parser, "test_path", test.sql, &test.tests.into_iter().collect())
-                    .unwrap();
+            let inferred_tests = infer_tests(
+                &parser,
+                "test_path",
+                test.sql,
+                &test.tests.into_iter().collect(),
+            )
+            .unwrap();
 
             assert_eq!(inferred_tests.len(), test.tests_want.len(), "{}", test.sql);
             assert_eq!(test.tests_want, inferred_tests, "{}", test.sql);
@@ -2398,9 +2455,13 @@ LEFT JOIN q.shift_last sl
         let parser = Parser::from(&dialect);
 
         for test in tests {
-            let inferred_tests =
-                infer_tests(&parser, "test_path", test.sql, &test.tests.into_iter().collect())
-                    .unwrap();
+            let inferred_tests = infer_tests(
+                &parser,
+                "test_path",
+                test.sql,
+                &test.tests.into_iter().collect(),
+            )
+            .unwrap();
 
             assert_eq!(inferred_tests.len(), test.tests_want.len());
             assert_eq!(test.tests_want, inferred_tests);
@@ -2445,7 +2506,8 @@ LEFT JOIN q.shift_last sl
 
     #[test]
     fn test_get_column_with_source() {
-        let tests: Vec<(&str, Vec<(&str, (&str, &str))>, Vec<&str>, Vec<&str>)> = vec![
+        let tests: Vec<(&str, Vec<(&str, (&str, &str))>, Vec<&str>, Vec<&str>)> =
+            vec![
             ("SELECT a FROM q.model_a", vec![("a", ("q.model_a", "a"))], vec![], vec![]),
             ("SELECT a AS b FROM q.model_a", vec![("b", ("q.model_a", "a"))], vec![], vec![]),
             (
@@ -2589,7 +2651,12 @@ from final",
             }
 
             match selected {
-                ExtractedSelect::Extracted { mapped, count_stars, unmapped, operated_on } => {
+                ExtractedSelect::Extracted {
+                    mapped,
+                    count_stars,
+                    unmapped,
+                    operated_on,
+                } => {
                     assert_eq!(mapped, expected_map, "mapped sql: {}", sql);
                     assert_eq!(unmapped, expected_not_parseable, "unmapped sql: {}", sql);
                     assert_eq!(operated_on, HashMap::new(), "operated on: {}", sql);

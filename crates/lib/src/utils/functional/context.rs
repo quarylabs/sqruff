@@ -12,14 +12,23 @@ impl<'a> FunctionalContext<'a> {
     }
 
     pub fn segment(&self) -> Segments {
-        Segments::new(self.context.segment.clone(), self.context.templated_file.clone())
+        Segments::new(
+            self.context.segment.clone(),
+            self.context.templated_file.clone(),
+        )
     }
 
     pub fn siblings_post(&self) -> Segments {
-        Segments::from_vec(self.context.siblings_post(), self.context.templated_file.clone())
+        Segments::from_vec(
+            self.context.siblings_post(),
+            self.context.templated_file.clone(),
+        )
     }
 
     pub fn parent_stack(&self) -> Segments {
-        Segments::from_vec(self.context.parent_stack.clone(), self.context.templated_file.clone())
+        Segments::from_vec(
+            self.context.parent_stack.clone(),
+            self.context.templated_file.clone(),
+        )
     }
 }

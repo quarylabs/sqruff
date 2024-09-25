@@ -36,7 +36,9 @@ impl Deref for Matchable {
 
 impl Matchable {
     pub fn new(matchable: MatchableTraitImpl) -> Self {
-        Self { inner: Arc::new(matchable) }
+        Self {
+            inner: Arc::new(matchable),
+        }
     }
 
     pub fn get_mut(&mut self) -> &mut MatchableTraitImpl {
@@ -195,5 +197,6 @@ pub fn next_matchable_cache_key() -> MatchableCacheKey {
     // matchers.
     static ID: AtomicU32 = AtomicU32::new(1);
 
-    ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1)).unwrap()
+    ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
+        .unwrap()
 }

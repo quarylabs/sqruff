@@ -68,19 +68,30 @@ impl ReflowPoint {
             }
         }
 
-        IndentStats { impulse: running_sum, trough, implicit_indents }
+        IndentStats {
+            impulse: running_sum,
+            trough,
+            implicit_indents,
+        }
     }
 
     pub fn get_indent_segment(&self) -> Option<ErasedSegment> {
         let mut indent = None;
         for seg in self.segments.iter().rev() {
-            if seg.get_position_marker().filter(|pos_marker| !pos_marker.is_literal()).is_some() {
+            if seg
+                .get_position_marker()
+                .filter(|pos_marker| !pos_marker.is_literal())
+                .is_some()
+            {
                 continue;
             } else if seg.is_type(SyntaxKind::Newline) {
                 return indent;
             } else if seg.is_whitespace() {
                 indent = Some(seg.clone());
-            } else if get_consumed_whitespace(Some(seg)).unwrap_or_default().contains('\n') {
+            } else if get_consumed_whitespace(Some(seg))
+                .unwrap_or_default()
+                .contains('\n')
+            {
                 return Some(seg.clone());
             }
         }
@@ -108,10 +119,19 @@ impl ReflowPoint {
         let consumed_whitespace = get_consumed_whitespace(seg.as_ref());
 
         if let Some(consumed_whitespace) = consumed_whitespace {
-            return consumed_whitespace.split('\n').last().unwrap().to_owned().into();
+            return consumed_whitespace
+                .split('\n')
+                .last()
+                .unwrap()
+                .to_owned()
+                .into();
         }
 
-        if let Some(seg) = seg { Some(seg.raw().to_string()) } else { String::new().into() }
+        if let Some(seg) = seg {
+            Some(seg.raw().to_string())
+        } else {
+            String::new().into()
+        }
     }
 
     pub fn indent_to(
@@ -123,7 +143,10 @@ impl ReflowPoint {
         description: Option<&str>,
         source: Option<&str>,
     ) -> (Vec<LintResult>, ReflowPoint) {
-        assert!(!desired_indent.contains('\n'), "Newline found in desired indent.");
+        assert!(
+            !desired_indent.contains('\n'),
+            "Newline found in desired indent."
+        );
         // Get the indent (or in the case of no newline, the last whitespace)
         let indent_seg = self.get_indent_segment();
 
@@ -138,7 +161,11 @@ impl ReflowPoint {
                 if indent_seg.raw() == desired_indent {
                     unimplemented!()
                 } else if desired_indent.is_empty() {
-                    let idx = self.segments.iter().position(|seg| seg == &indent_seg).unwrap();
+                    let idx = self
+                        .segments
+                        .iter()
+                        .position(|seg| seg == &indent_seg)
+                        .unwrap();
                     return (
                         vec![LintResult::new(
                             indent_seg.clone().into(),
@@ -164,7 +191,11 @@ impl ReflowPoint {
 
                 let new_indent =
                     indent_seg.edit(tables.next_id(), desired_indent.to_owned().into(), None);
-                let idx = self.segments.iter().position(|it| it == &indent_seg).unwrap();
+                let idx = self
+                    .segments
+                    .iter()
+                    .position(|it| it == &indent_seg)
+                    .unwrap();
 
                 let description = format!("Expected {}.", indent_description(desired_indent));
 
@@ -208,7 +239,11 @@ impl ReflowPoint {
 
                 return (
                     vec![LintResult::new(
-                        if let Some(before) = before { before.into() } else { unimplemented!() },
+                        if let Some(before) = before {
+                            before.into()
+                        } else {
+                            unimplemented!()
+                        },
                         vec![LintFix::replace(
                             last_newline.clone(),
                             vec![last_newline.clone(), new_indent],
@@ -225,7 +260,10 @@ impl ReflowPoint {
             // There isn't currently a newline.
             let new_newline = SegmentBuilder::newline(tables.next_id(), "\n");
             // Check for whitespace
-            let ws_seg = self.segments.iter().find(|seg| seg.is_type(SyntaxKind::Whitespace));
+            let ws_seg = self
+                .segments
+                .iter()
+                .find(|seg| seg.is_type(SyntaxKind::Whitespace));
 
             if let Some(ws_seg) = ws_seg {
                 let new_segs = if desired_indent.is_empty() {
@@ -250,7 +288,10 @@ impl ReflowPoint {
                         after_seg.raw()
                     )
                 } else {
-                    format!("Expected line break and {}.", indent_description(desired_indent))
+                    format!(
+                        "Expected line break and {}.",
+                        indent_description(desired_indent)
+                    )
                 };
 
                 let fix = LintFix::replace(ws_seg.clone(), new_segs.clone(), None);
@@ -371,18 +412,31 @@ impl ReflowPoint {
                 None,
             ));
 
-            let pos = segment_buffer.iter().position(|it| it == &whitespace).unwrap();
+            let pos = segment_buffer
+                .iter()
+                .position(|it| it == &whitespace)
+                .unwrap();
             segment_buffer.remove(pos);
 
             last_whitespace = None;
         }
 
-        if segment_buffer.iter().any(|seg| seg.is_type(SyntaxKind::Newline)) && !strip_newlines
+        if segment_buffer
+            .iter()
+            .any(|seg| seg.is_type(SyntaxKind::Newline))
+            && !strip_newlines
             || (next_block.is_some()
-                && next_block.unwrap().class_types().contains(SyntaxKind::EndOfFile))
+                && next_block
+                    .unwrap()
+                    .class_types()
+                    .contains(SyntaxKind::EndOfFile))
         {
             if let Some(last_whitespace) = last_whitespace {
-                let ws_idx = self.segments.iter().position(|it| it == &last_whitespace).unwrap();
+                let ws_idx = self
+                    .segments
+                    .iter()
+                    .position(|it| it == &last_whitespace)
+                    .unwrap();
                 if ws_idx > 0 {
                     let segments_slice = &self.segments[..ws_idx];
 
@@ -399,8 +453,11 @@ impl ReflowPoint {
                     {
                         segment_buffer.remove(ws_idx);
 
-                        let temp_idx =
-                            last_whitespace.get_position_marker().unwrap().templated_slice.start;
+                        let temp_idx = last_whitespace
+                            .get_position_marker()
+                            .unwrap()
+                            .templated_slice
+                            .start;
 
                         if let Some((index, _)) =
                             existing_results.iter().enumerate().find(|(_, res)| {
@@ -549,9 +606,12 @@ impl ReflowBlock {
             }
         }
 
-        let line_position = block_config
-            .line_position
-            .map(|line_position| line_position.split(':').map(|it| it.parse().unwrap()).collect());
+        let line_position = block_config.line_position.map(|line_position| {
+            line_position
+                .split(':')
+                .map(|it| it.parse().unwrap())
+                .collect()
+        });
         Self {
             segments,
             spacing_before: block_config.spacing_before,
@@ -611,17 +671,28 @@ impl ReflowElement {
     }
 
     pub fn as_point(&self) -> Option<&ReflowPoint> {
-        if let Self::Point(v) = self { Some(v) } else { None }
+        if let Self::Point(v) = self {
+            Some(v)
+        } else {
+            None
+        }
     }
 
     pub fn as_block(&self) -> Option<&ReflowBlock> {
-        if let Self::Block(v) = self { Some(v) } else { None }
+        if let Self::Block(v) = self {
+            Some(v)
+        } else {
+            None
+        }
     }
 }
 
 impl ReflowElement {
     pub fn class_types(segments: &[ErasedSegment]) -> SyntaxSet {
-        segments.iter().flat_map(|segment| segment.class_types()).collect()
+        segments
+            .iter()
+            .flat_map(|segment| segment.class_types())
+            .collect()
     }
 }
 

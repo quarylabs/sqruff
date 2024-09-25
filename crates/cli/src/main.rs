@@ -16,7 +16,11 @@ mod github_action;
 #[cfg(all(
     not(target_os = "windows"),
     not(target_os = "openbsd"),
-    any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")
+    any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        target_arch = "powerpc64"
+    )
 ))]
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
@@ -70,14 +74,23 @@ fn main() {
             linter.formatter_mut().unwrap().completion_message();
 
             std::process::exit(
-                if linter.formatter().unwrap().has_fail.load(std::sync::atomic::Ordering::SeqCst) {
+                if linter
+                    .formatter()
+                    .unwrap()
+                    .has_fail
+                    .load(std::sync::atomic::Ordering::SeqCst)
+                {
                     1
                 } else {
                     0
                 },
             )
         }
-        Commands::Fix(FixArgs { paths, force, format }) => {
+        Commands::Fix(FixArgs {
+            paths,
+            force,
+            format,
+        }) => {
             let mut linter = linter(config, format);
             let result = linter.lint_paths(paths, true);
 
@@ -87,7 +100,11 @@ fn main() {
                 .map(|path| path.files.iter().all(|file| file.violations.is_empty()))
                 .all(|v| v)
             {
-                let count_files = result.paths.iter().map(|path| path.files.len()).sum::<usize>();
+                let count_files = result
+                    .paths
+                    .iter()
+                    .map(|path| path.files.len())
+                    .sum::<usize>();
                 println!("{} files processed, nothing to fix.", count_files);
                 return;
             }
@@ -138,7 +155,9 @@ fn check_user_input() -> Option<bool> {
     use std::io::Write;
 
     let mut term = console::Term::stdout();
-    _ = term.write(b"Are you sure you wish to attempt to fix these? [Y/n] ").unwrap();
+    _ = term
+        .write(b"Are you sure you wish to attempt to fix these? [Y/n] ")
+        .unwrap();
     term.flush().unwrap();
 
     let ret = match term.read_char().unwrap().to_ascii_lowercase() {

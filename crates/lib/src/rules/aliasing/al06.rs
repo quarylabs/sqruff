@@ -147,9 +147,13 @@ JOIN
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let children = FunctionalContext::new(context.clone()).segment().children(None);
-        let from_expression_elements = children
-            .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }, true);
+        let children = FunctionalContext::new(context.clone())
+            .segment()
+            .children(None);
+        let from_expression_elements = children.recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
+            true,
+        );
         self.lint_aliases(from_expression_elements.base)
     }
 

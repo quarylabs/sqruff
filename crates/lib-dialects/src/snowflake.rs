@@ -67,18 +67,34 @@ pub fn dialect() -> Dialect {
     );
 
     snowflake_dialect.patch_lexer_matchers(vec![
-        Matcher::regex("single_quote", r"'([^'\\]|\\.|'')*'", SyntaxKind::SingleQuote),
-        Matcher::regex("inline_comment", r"(--|#|//)[^\n]*", SyntaxKind::InlineComment),
+        Matcher::regex(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            SyntaxKind::SingleQuote,
+        ),
+        Matcher::regex(
+            "inline_comment",
+            r"(--|#|//)[^\n]*",
+            SyntaxKind::InlineComment,
+        ),
     ]);
 
     snowflake_dialect.insert_lexer_matchers(
         vec![
             Matcher::string("parameter_assigner", "=>", SyntaxKind::ParameterAssigner),
             Matcher::string("function_assigner", "->", SyntaxKind::FunctionAssigner),
-            Matcher::regex("stage_path", r"(?:@[^\s;)]+|'@[^']+')", SyntaxKind::StagePath),
+            Matcher::regex(
+                "stage_path",
+                r"(?:@[^\s;)]+|'@[^']+')",
+                SyntaxKind::StagePath,
+            ),
             Matcher::regex("column_selector", r"\$[0-9]+", SyntaxKind::ColumnSelector),
             Matcher::regex("dollar_quote", r"\$\$.*\$\$", SyntaxKind::DollarQuote),
-            Matcher::regex("dollar_literal", r"[$][a-zA-Z0-9_.]*", SyntaxKind::DollarLiteral),
+            Matcher::regex(
+                "dollar_literal",
+                r"[$][a-zA-Z0-9_.]*",
+                SyntaxKind::DollarLiteral,
+            ),
             Matcher::regex(
                 "inline_dollar_sign",
                 r"[a-zA-Z_][a-zA-Z0-9_$]*\$[a-zA-Z0-9_$]*",
@@ -91,13 +107,21 @@ pub fn dialect() -> Dialect {
             ),
             Matcher::string("question_mark", "?", SyntaxKind::QuestionMark),
             Matcher::string("exclude_bracket_open", "{-", SyntaxKind::ExcludeBracketOpen),
-            Matcher::string("exclude_bracket_close", "-}", SyntaxKind::ExcludeBracketClose),
+            Matcher::string(
+                "exclude_bracket_close",
+                "-}",
+                SyntaxKind::ExcludeBracketClose,
+            ),
         ],
         "like_operator",
     );
 
     snowflake_dialect.insert_lexer_matchers(
-        vec![Matcher::string("walrus_operator", ":=", SyntaxKind::WalrusOperator)],
+        vec![Matcher::string(
+            "walrus_operator",
+            ":=",
+            SyntaxKind::WalrusOperator,
+        )],
         "equals",
     );
 
@@ -139,7 +163,9 @@ pub fn dialect() -> Dialect {
         .extend(["CSV", "JSON", "AVRO", "ORC", "PARQUET", "XML"]);
 
     snowflake_dialect.sets_mut("warehouse_types").clear();
-    snowflake_dialect.sets_mut("warehouse_types").extend(["STANDARD", "SNOWPARK-OPTIMIZED"]);
+    snowflake_dialect
+        .sets_mut("warehouse_types")
+        .extend(["STANDARD", "SNOWPARK-OPTIMIZED"]);
 
     snowflake_dialect.sets_mut("warehouse_sizes").clear();
     snowflake_dialect.sets_mut("warehouse_sizes").extend([
@@ -148,8 +174,12 @@ pub fn dialect() -> Dialect {
         "4X-LARGE", "5X-LARGE", "6X-LARGE",
     ]);
 
-    snowflake_dialect.sets_mut("warehouse_scaling_policies").clear();
-    snowflake_dialect.sets_mut("warehouse_scaling_policies").extend(["STANDARD", "ECONOMY"]);
+    snowflake_dialect
+        .sets_mut("warehouse_scaling_policies")
+        .clear();
+    snowflake_dialect
+        .sets_mut("warehouse_scaling_policies")
+        .extend(["STANDARD", "ECONOMY"]);
 
     snowflake_dialect.add([
         (
@@ -719,7 +749,9 @@ pub fn dialect() -> Dialect {
         ),
         (
             "PreTableFunctionKeywordsGrammar".into(),
-            one_of(vec_of_erased![Ref::keyword("LATERAL")]).to_matchable().into(),
+            one_of(vec_of_erased![Ref::keyword("LATERAL")])
+                .to_matchable()
+                .into(),
         ),
         (
             "FunctionContentsExpressionGrammar".into(),
@@ -730,7 +762,10 @@ pub fn dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::new("ExpressionSegment"),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("IGNORE"), Ref::keyword("RESPECT"),]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("IGNORE"),
+                            Ref::keyword("RESPECT"),
+                        ]),
                         Ref::keyword("NULLS")
                     ])
                     .config(|this| this.optional())
@@ -781,7 +816,10 @@ pub fn dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 Ref::new("WithinGroupClauseSegment").optional(),
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("IGNORE"), Ref::keyword("RESPECT")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("IGNORE"),
+                        Ref::keyword("RESPECT")
+                    ]),
                     Ref::keyword("NULLS"),
                 ])
                 .config(|this| this.optional()),
@@ -793,10 +831,16 @@ pub fn dialect() -> Dialect {
         (
             "TemporaryGrammar".into(),
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("LOCAL"), Ref::keyword("GLOBAL")])
-                    .config(|this| this.optional()),
-                one_of(vec_of_erased![Ref::keyword("TEMP"), Ref::keyword("TEMPORARY")])
-                    .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("LOCAL"),
+                    Ref::keyword("GLOBAL")
+                ])
+                .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("TEMP"),
+                    Ref::keyword("TEMPORARY")
+                ])
+                .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![Ref::keyword("VOLATILE")])
                     .config(|this| this.optional()),
             ])
@@ -806,9 +850,12 @@ pub fn dialect() -> Dialect {
         ),
         (
             "TemporaryTransientGrammar".into(),
-            one_of(vec_of_erased![Ref::new("TemporaryGrammar"), Ref::keyword("TRANSIENT")])
-                .to_matchable()
-                .into(),
+            one_of(vec_of_erased![
+                Ref::new("TemporaryGrammar"),
+                Ref::keyword("TRANSIENT")
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "BaseExpressionElementGrammar".into(),
@@ -919,7 +966,10 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        ("TrimParametersGrammar".into(), Nothing::new().to_matchable().into()),
+        (
+            "TrimParametersGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         (
             "GroupByClauseTerminatorGrammar".into(),
             one_of(vec_of_erased![
@@ -1143,16 +1193,16 @@ pub fn dialect() -> Dialect {
         "ValuesClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("VALUES"),
-            Delimited::new(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+            Delimited::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![
                     Ref::keyword("DEFAULT"),
                     Ref::keyword("NULL"),
                     Ref::new("ExpressionSegment"),
-                ])])
-                .config(|this| {
-                    this.parse_mode = ParseMode::Greedy;
-                }),
-            ]),
+                ])
+            ])
+            .config(|this| {
+                this.parse_mode = ParseMode::Greedy;
+            }),]),
         ])
         .to_matchable(),
     );
@@ -1339,8 +1389,11 @@ pub fn dialect() -> Dialect {
             "CallStoredProcedureSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::CallSegment,
-                Sequence::new(vec_of_erased![Ref::keyword("CALL"), Ref::new("FunctionSegment"),])
-                    .to_matchable(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CALL"),
+                    Ref::new("FunctionSegment"),
+                ])
+                .to_matchable(),
             )
             .to_matchable()
             .into(),
@@ -1624,7 +1677,10 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.replace_grammar(
         "SamplingExpressionSegment",
         Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![Ref::keyword("SAMPLE"), Ref::keyword("TABLESAMPLE"),]),
+            one_of(vec_of_erased![
+                Ref::keyword("SAMPLE"),
+                Ref::keyword("TABLESAMPLE"),
+            ]),
             one_of(vec_of_erased![
                 Ref::keyword("BERNOULLI"),
                 Ref::keyword("ROW"),
@@ -1640,7 +1696,10 @@ pub fn dialect() -> Dialect {
                 Ref::keyword("ROWS").optional(),
             ]),
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("REPEATABLE"), Ref::keyword("SEED"),]),
+                one_of(vec_of_erased![
+                    Ref::keyword("REPEATABLE"),
+                    Ref::keyword("SEED"),
+                ]),
                 Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment"),]),
             ])
             .config(|this| this.optional()),
@@ -1672,7 +1731,10 @@ pub fn dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::SemiStructuredExpression,
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::new("DotSegment"), Ref::new("ColonSegment"),]),
+                    one_of(vec_of_erased![
+                        Ref::new("DotSegment"),
+                        Ref::new("ColonSegment"),
+                    ]),
                     one_of(vec_of_erased![
                         Ref::new("NakedSemiStructuredElementSegment"),
                         Ref::new("QuotedSemiStructuredElementSegment"),
@@ -1805,13 +1867,13 @@ pub fn dialect() -> Dialect {
                 SyntaxKind::SelectReplaceClause,
                 Sequence::new(vec_of_erased![
                     Ref::keyword("REPLACE"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                        vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
                             Ref::new("ExpressionSegment"),
                             Ref::keyword("AS"),
                             Ref::new("SingleIdentifierGrammar"),
-                        ]
-                    ),]),]),
+                        ]),
+                    ]),]),
                 ])
                 .to_matchable(),
             )
@@ -1823,10 +1885,16 @@ pub fn dialect() -> Dialect {
     snowflake_dialect.replace_grammar(
         "SelectClauseModifierSegment",
         Sequence::new(vec_of_erased![
-            one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL"),])
-                .config(|this| this.optional()),
-            Sequence::new(vec_of_erased![Ref::keyword("TOP"), Ref::new("NumericLiteralSegment"),])
-                .config(|this| this.optional()),
+            one_of(vec_of_erased![
+                Ref::keyword("DISTINCT"),
+                Ref::keyword("ALL"),
+            ])
+            .config(|this| this.optional()),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("TOP"),
+                Ref::new("NumericLiteralSegment"),
+            ])
+            .config(|this| this.optional()),
         ])
         .to_matchable(),
     );
@@ -1874,15 +1942,18 @@ pub fn dialect() -> Dialect {
                     ]),
                 ]),
                 // Drop primary key
-                Sequence::new(vec_of_erased![Ref::keyword("DROP"), Ref::new("PrimaryKeyGrammar"),]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("DROP"),
+                    Ref::new("PrimaryKeyGrammar"),
+                ]),
                 // Add primary key
                 Sequence::new(vec_of_erased![
                     Ref::keyword("ADD"),
                     Ref::new("PrimaryKeyGrammar"),
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new("ColumnReferenceSegment"),])
-                            .config(|this| this.optional()),
-                    ]),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "ColumnReferenceSegment"
+                    ),])
+                    .config(|this| this.optional()),]),
                 ]),
                 Ref::new("AlterTableTableColumnActionSegment"),
             ]),
@@ -1966,7 +2037,10 @@ pub fn dialect() -> Dialect {
                     ]),
                     // Alter/Modify column(s)
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("ALTER"), Ref::keyword("MODIFY"),]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("ALTER"),
+                            Ref::keyword("MODIFY"),
+                        ]),
                         optionally_bracketed(vec_of_erased![Delimited::new(vec_of_erased![
                             // Add things
                             Sequence::new(vec_of_erased![
@@ -2105,7 +2179,10 @@ pub fn dialect() -> Dialect {
                         Ref::new("WhereClauseSegment").optional(),
                     ]),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("SUSPEND"), Ref::keyword("RESUME"),]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("SUSPEND"),
+                            Ref::keyword("RESUME"),
+                        ]),
                         Ref::keyword("RECLUSTER"),
                     ]),
                     Sequence::new(vec_of_erased![
@@ -2496,13 +2573,13 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![Ref::keyword("WITH"),])
                         .config(|this| this.optional()),
                     Ref::keyword("TAG"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                        vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
                             Ref::new("TagReferenceSegment"),
                             Ref::new("EqualsSegment"),
                             Ref::new("QuotedLiteralSegment"),
-                        ]
-                    )])]),
+                        ])
+                    ])]),
                 ])
                 .to_matchable(),
             )
@@ -2583,9 +2660,18 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("POLICY"),
                     ]),
                     Sequence::new(vec_of_erased![Ref::keyword("APPLY"), Ref::keyword("TAG"),]),
-                    Sequence::new(vec_of_erased![Ref::keyword("ATTACH"), Ref::keyword("POLICY"),]),
-                    Sequence::new(vec_of_erased![Ref::keyword("EXECUTE"), Ref::keyword("TASK"),]),
-                    Sequence::new(vec_of_erased![Ref::keyword("IMPORT"), Ref::keyword("SHARE"),]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("ATTACH"),
+                        Ref::keyword("POLICY"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("EXECUTE"),
+                        Ref::keyword("TASK"),
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("IMPORT"),
+                        Ref::keyword("SHARE"),
+                    ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("MANAGE"),
                         one_of(vec_of_erased![
@@ -2603,7 +2689,10 @@ pub fn dialect() -> Dialect {
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("MONITOR"),
-                        one_of(vec_of_erased![Ref::keyword("EXECUTION"), Ref::keyword("USAGE"),]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("EXECUTION"),
+                            Ref::keyword("USAGE"),
+                        ]),
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("OVERRIDE"),
@@ -2636,14 +2725,26 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("MATERIALIZED"),
                         Ref::keyword("VIEW")
                     ]),
-                    Sequence::new(vec_of_erased![Ref::keyword("EXTERNAL"), Ref::keyword("TABLE")]),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("TEMP"), Ref::keyword("TEMPORARY")]),
+                        Ref::keyword("EXTERNAL"),
+                        Ref::keyword("TABLE")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        one_of(vec_of_erased![
+                            Ref::keyword("TEMP"),
+                            Ref::keyword("TEMPORARY")
+                        ]),
                         Ref::keyword("TABLE"),
                     ]),
                     Sequence::new(vec_of_erased![Ref::keyword("FILE"), Ref::keyword("FORMAT")]),
-                    Sequence::new(vec_of_erased![Ref::keyword("SESSION"), Ref::keyword("POLICY")]),
-                    Sequence::new(vec_of_erased![Ref::keyword("MASKING"), Ref::keyword("POLICY")]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("SESSION"),
+                        Ref::keyword("POLICY")
+                    ]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("MASKING"),
+                        Ref::keyword("POLICY")
+                    ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ROW"),
                         Ref::keyword("ACCESS"),
@@ -2982,12 +3083,10 @@ pub fn dialect() -> Dialect {
                         Ref::new("DatatypeSegment"),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("TABLE"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(
-                                    vec_of_erased![Ref::new("ColumnDefinitionSegment"),]
-                                )
-                                .config(|this| this.optional()),
-                            ]),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("ColumnDefinitionSegment"),
+                            ])
+                            .config(|this| this.optional()),]),
                         ]),
                     ]),
                     any_set_of(vec_of_erased![
@@ -3021,9 +3120,10 @@ pub fn dialect() -> Dialect {
                             Ref::keyword("STRICT"),
                         ])
                         .config(|this| this.optional()),
-                        one_of(
-                            vec_of_erased![Ref::keyword("VOLATILE"), Ref::keyword("IMMUTABLE"),]
-                        )
+                        one_of(vec_of_erased![
+                            Ref::keyword("VOLATILE"),
+                            Ref::keyword("IMMUTABLE"),
+                        ])
                         .config(|this| this.optional()),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("RUNTIME_VERSION"),
@@ -3063,7 +3163,10 @@ pub fn dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("EXECUTE"),
                             Ref::keyword("AS"),
-                            one_of(vec_of_erased![Ref::keyword("CALLER"), Ref::keyword("OWNER"),]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("CALLER"),
+                                Ref::keyword("OWNER"),
+                            ]),
                         ])
                         .config(|this| this.optional()),
                     ])
@@ -3227,9 +3330,10 @@ pub fn dialect() -> Dialect {
                             Ref::keyword("STRICT"),
                         ])
                         .config(|this| this.optional()),
-                        one_of(
-                            vec_of_erased![Ref::keyword("VOLATILE"), Ref::keyword("IMMUTABLE"),]
-                        )
+                        one_of(vec_of_erased![
+                            Ref::keyword("VOLATILE"),
+                            Ref::keyword("IMMUTABLE"),
+                        ])
                         .config(|this| this.optional()),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("RUNTIME_VERSION"),
@@ -3414,8 +3518,11 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("STRICT"),
                     ])
                     .config(|this| this.optional()),
-                    one_of(vec_of_erased![Ref::keyword("VOLATILE"), Ref::keyword("IMMUTABLE"),])
-                        .config(|this| this.optional()),
+                    one_of(vec_of_erased![
+                        Ref::keyword("VOLATILE"),
+                        Ref::keyword("IMMUTABLE"),
+                    ])
+                    .config(|this| this.optional()),
                     Ref::new("CommentEqualsClauseSegment").optional(),
                     Ref::keyword("API_INTEGRATION"),
                     Ref::new("EqualsSegment"),
@@ -3644,7 +3751,10 @@ pub fn dialect() -> Dialect {
                 ]),
             ]),
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("AUTOINCREMENT"), Ref::keyword("IDENTITY"),]),
+                one_of(vec_of_erased![
+                    Ref::keyword("AUTOINCREMENT"),
+                    Ref::keyword("IDENTITY"),
+                ]),
                 one_of(vec_of_erased![
                     Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
                         "NumericLiteralSegment"
@@ -3658,7 +3768,10 @@ pub fn dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
             ]),
-            Sequence::new(vec_of_erased![Ref::keyword("NOT").optional(), Ref::keyword("NULL"),]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("NOT").optional(),
+                Ref::keyword("NULL"),
+            ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("WITH").optional(),
                 Ref::keyword("MASKING"),
@@ -3687,7 +3800,10 @@ pub fn dialect() -> Dialect {
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("DEFAULT"),
-                one_of(vec_of_erased![Ref::new("LiteralGrammar"), Ref::new("FunctionSegment"),]),
+                one_of(vec_of_erased![
+                    Ref::new("LiteralGrammar"),
+                    Ref::new("FunctionSegment"),
+                ]),
             ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("REFERENCES"),
@@ -3898,9 +4014,10 @@ pub fn dialect() -> Dialect {
                             ]),
                         ]),
                         Sequence::new(vec_of_erased![
-                            one_of(
-                                vec_of_erased![Ref::keyword("ENABLE"), Ref::keyword("DISABLE"),]
-                            ),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ENABLE"),
+                                Ref::keyword("DISABLE"),
+                            ]),
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("MANAGED"),
                                 Ref::keyword("ACCESS"),
@@ -3952,16 +4069,16 @@ pub fn dialect() -> Dialect {
             Ref::new("IfNotExistsGrammar").optional(),
             Ref::new("TableReferenceSegment"),
             any_set_of(vec_of_erased![
-                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![Delimited::new(
-                    vec_of_erased![Sequence::new(vec_of_erased![
+                Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
                             Ref::new("TableConstraintSegment"),
                             Ref::new("ColumnDefinitionSegment"),
                             Ref::new("SingleIdentifierGrammar"),
                         ]),
                         Ref::new("CommentClauseSegment").optional(),
-                    ]),]
-                ),]),])
+                    ]),]),
+                ]),])
                 .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("CLUSTER"),
@@ -4140,18 +4257,18 @@ pub fn dialect() -> Dialect {
             "TaskExpressionSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::SnowflakeTaskExpressionSegment,
-                Sequence::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![one_of(vec_of_erased![
+                Sequence::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+                    vec_of_erased![
                         Ref::new("ExpressionSegment"),
                         Sequence::new(vec_of_erased![
                             Ref::new("SystemFunctionName"),
                             Bracketed::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),]),
                         ]),
-                    ]),],)
-                    .config(|this| this.delimiter(one_of(vec_of_erased![Ref::new(
-                        "BooleanBinaryOperatorGrammar"
-                    ),]))),
-                ])
+                    ]
+                ),],)
+                .config(|this| this.delimiter(one_of(vec_of_erased![Ref::new(
+                    "BooleanBinaryOperatorGrammar"
+                ),]))),])
                 .to_matchable(),
             )
             .to_matchable()
@@ -4583,18 +4700,21 @@ pub fn dialect() -> Dialect {
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
             Ref::new("OrReplaceGrammar").optional(),
-            any_set_of(vec_of_erased![Ref::keyword("SECURE"), Ref::keyword("RECURSIVE"),]),
+            any_set_of(vec_of_erased![
+                Ref::keyword("SECURE"),
+                Ref::keyword("RECURSIVE"),
+            ]),
             Ref::new("TemporaryGrammar").optional(),
             Ref::keyword("VIEW"),
             Ref::new("IfNotExistsGrammar").optional(),
             Ref::new("TableReferenceSegment"),
             any_set_of(vec_of_erased![
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                    vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
                         Ref::new("ColumnReferenceSegment"),
                         Ref::new("CommentClauseSegment").optional(),
-                    ]
-                ),]),]),
+                    ]),
+                ]),]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("WITH").optional(),
                     Ref::keyword("ROW"),
@@ -4675,7 +4795,10 @@ pub fn dialect() -> Dialect {
                             ]),
                         ]),
                         Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("ALTER"), Ref::keyword("MODIFY"),]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("ALTER"),
+                                Ref::keyword("MODIFY"),
+                            ]),
                             one_of(vec_of_erased![Delimited::new(vec_of_erased![
                                 Sequence::new(vec_of_erased![
                                     Ref::keyword("COLUMN").optional(),
@@ -4908,10 +5031,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
-                                .config(|this| this.optional()),
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "QuotedLiteralSegment"
+                        ),])
+                        .config(|this| this.optional()),]),
                     ]),
                     Sequence::new(vec_of_erased![
                         one_of(vec_of_erased![
@@ -4986,10 +5109,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
-                                .config(|this| this.optional()),
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "QuotedLiteralSegment"
+                        ),])
+                        .config(|this| this.optional()),]),
                     ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("FILE_EXTENSION"),
@@ -5046,10 +5169,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
-                                .config(|this| this.optional()),
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "QuotedLiteralSegment"
+                        ),])
+                        .config(|this| this.optional()),]),
                     ]),
                 ]);
 
@@ -5082,10 +5205,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
-                                .config(|this| this.optional()),
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "QuotedLiteralSegment"
+                        ),])
+                        .config(|this| this.optional()),]),
                     ]),
                 ]);
 
@@ -5127,10 +5250,10 @@ pub fn dialect() -> Dialect {
                     Sequence::new(vec_of_erased![
                         Ref::keyword("NULL_IF"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
-                                .config(|this| this.optional()),
-                        ]),
+                        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                            "QuotedLiteralSegment"
+                        ),])
+                        .config(|this| this.optional()),]),
                     ]),
                 ]);
 
@@ -5369,10 +5492,10 @@ pub fn dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("NULL_IF"),
                             Ref::new("EqualsSegment"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![Ref::new("QuotedLiteralSegment"),])
-                                    .config(|this| this.optional()),
-                            ]),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("QuotedLiteralSegment"),
+                            ])
+                            .config(|this| this.optional()),]),
                         ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("EMPTY_FIELD_AS_NULL"),
@@ -5410,8 +5533,8 @@ pub fn dialect() -> Dialect {
                     ])
                     .config(|this| this.optional()),
                     Ref::new("TableReferenceSegment"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                        vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
                             Ref::new("SingleIdentifierGrammar"),
                             Ref::new("DatatypeSegment"),
                             Ref::keyword("AS"),
@@ -5424,8 +5547,8 @@ pub fn dialect() -> Dialect {
                                 ])
                                 .config(|this| this.optional()),
                             ])]),
-                        ]
-                    )])])
+                        ])
+                    ])])
                     .config(|this| this.optional()),
                     any_set_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
@@ -5672,18 +5795,16 @@ pub fn dialect() -> Dialect {
             "InternalStageParameters".into(),
             NodeMatcher::new(
                 SyntaxKind::StageParameters,
-                Sequence::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("ENCRYPTION"),
+                Sequence::new(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::keyword("ENCRYPTION"),
+                    Ref::new("EqualsSegment"),
+                    Bracketed::new(vec_of_erased![
+                        Ref::keyword("TYPE"),
                         Ref::new("EqualsSegment"),
-                        Bracketed::new(vec_of_erased![
-                            Ref::keyword("TYPE"),
-                            Ref::new("EqualsSegment"),
-                            Ref::new("SnowflakeEncryptionOption"),
-                        ]),
-                    ])
-                    .config(|this| this.optional()),
+                        Ref::new("SnowflakeEncryptionOption"),
+                    ]),
                 ])
+                .config(|this| this.optional()),])
                 .to_matchable(),
             )
             .to_matchable()
@@ -6209,9 +6330,10 @@ pub fn dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::ShowStatement, {
                 let object_types_plural = one_of(vec_of_erased![
                     Ref::keyword("PARAMETERS"),
-                    Sequence::new(
-                        vec_of_erased![Ref::keyword("GLOBAL"), Ref::keyword("ACCOUNTS"),]
-                    ),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("GLOBAL"),
+                        Ref::keyword("ACCOUNTS"),
+                    ]),
                     Ref::keyword("REGIONS"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("REPLICATION"),
@@ -6250,9 +6372,10 @@ pub fn dialect() -> Dialect {
                     Ref::keyword("SCHEMAS"),
                     Ref::keyword("OBJECTS"),
                     Ref::keyword("TABLES"),
-                    Sequence::new(
-                        vec_of_erased![Ref::keyword("EXTERNAL"), Ref::keyword("TABLES"),]
-                    ),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("EXTERNAL"),
+                        Ref::keyword("TABLES"),
+                    ]),
                     Ref::keyword("VIEWS"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("MATERIALIZED"),
@@ -6263,19 +6386,28 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("POLICIES"),
                     ]),
                     Ref::keyword("COLUMNS"),
-                    Sequence::new(vec_of_erased![Ref::keyword("FILE"), Ref::keyword("FORMATS"),]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FILE"),
+                        Ref::keyword("FORMATS"),
+                    ]),
                     Ref::keyword("SEQUENCES"),
                     Ref::keyword("STAGES"),
                     Ref::keyword("PIPES"),
                     Ref::keyword("STREAMS"),
                     Ref::keyword("TASKS"),
-                    Sequence::new(vec_of_erased![Ref::keyword("USER"), Ref::keyword("FUNCTIONS"),]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("USER"),
+                        Ref::keyword("FUNCTIONS"),
+                    ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("EXTERNAL"),
                         Ref::keyword("FUNCTIONS"),
                     ]),
                     Ref::keyword("PROCEDURES"),
-                    Sequence::new(vec_of_erased![Ref::keyword("FUTURE"), Ref::keyword("GRANTS"),]),
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("FUTURE"),
+                        Ref::keyword("GRANTS"),
+                    ]),
                 ]);
 
                 let object_scope_types = one_of(vec_of_erased![
@@ -6707,7 +6839,10 @@ pub fn dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::DescribeStatement,
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("DESCRIBE"), Ref::keyword("DESC"),]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("DESCRIBE"),
+                        Ref::keyword("DESC"),
+                    ]),
                     one_of(vec_of_erased![
                         Sequence::new(vec_of_erased![
                             Ref::keyword("RESULT"),
@@ -6840,18 +6975,18 @@ pub fn dialect() -> Dialect {
                         Sequence::new(vec_of_erased![
                             Ref::keyword("FUNCTION"),
                             Ref::new("FunctionNameSegment"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![Ref::new("DatatypeSegment"),])
-                                    .config(|this| this.optional()),
-                            ]),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("DatatypeSegment"),
+                            ])
+                            .config(|this| this.optional()),]),
                         ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("PROCEDURE"),
                             Ref::new("FunctionNameSegment"),
-                            Bracketed::new(vec_of_erased![
-                                Delimited::new(vec_of_erased![Ref::new("DatatypeSegment"),])
-                                    .config(|this| this.optional()),
-                            ]),
+                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                                Ref::new("DatatypeSegment"),
+                            ])
+                            .config(|this| this.optional()),]),
                         ]),
                     ]),
                 ])
@@ -6867,8 +7002,11 @@ pub fn dialect() -> Dialect {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("BEGIN"),
-                one_of(vec_of_erased![Ref::keyword("WORK"), Ref::keyword("TRANSACTION"),])
-                    .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("WORK"),
+                    Ref::keyword("TRANSACTION"),
+                ])
+                .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("NAME"),
                     Ref::new("ObjectReferenceSegment"),
@@ -6884,7 +7022,10 @@ pub fn dialect() -> Dialect {
                 ])
                 .config(|this| this.optional()),
             ]),
-            Sequence::new(vec_of_erased![Ref::keyword("COMMIT"), Ref::keyword("WORK").optional(),]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("COMMIT"),
+                Ref::keyword("WORK").optional(),
+            ]),
             Ref::keyword("ROLLBACK"),
         ])
         .to_matchable(),
@@ -7060,8 +7201,10 @@ pub fn dialect() -> Dialect {
                 Ref::keyword("CALL"),
                 Sequence::new(vec_of_erased![
                     Ref::new("FunctionNameSegment"),
-                    Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional(),])
-                        .config(|this| this.parse_mode(ParseMode::Greedy)),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("FunctionContentsGrammar").optional(),
+                    ])
+                    .config(|this| this.parse_mode(ParseMode::Greedy)),
                 ]),
             ])
             .to_matchable(),
@@ -7162,7 +7305,10 @@ pub fn dialect() -> Dialect {
                     Ref::new("ReferencedVariableNameSegment"),
                     Ref::keyword("UNBOUNDED"),
                 ]),
-                one_of(vec_of_erased![Ref::keyword("PRECEDING"), Ref::keyword("FOLLOWING"),]),
+                one_of(vec_of_erased![
+                    Ref::keyword("PRECEDING"),
+                    Ref::keyword("FOLLOWING"),
+                ]),
             ]),
         ]);
 
@@ -7460,11 +7606,17 @@ pub fn dialect() -> Dialect {
         one_of(vec_of_erased![
             Sequence::new(vec_of_erased![
                 Ref::keyword("UNION"),
-                one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL"),])
-                    .config(|this| this.optional()),
+                one_of(vec_of_erased![
+                    Ref::keyword("DISTINCT"),
+                    Ref::keyword("ALL"),
+                ])
+                .config(|this| this.optional()),
             ]),
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("INTERSECT"), Ref::keyword("EXCEPT"),]),
+                one_of(vec_of_erased![
+                    Ref::keyword("INTERSECT"),
+                    Ref::keyword("EXCEPT"),
+                ]),
                 Ref::keyword("ALL").optional(),
             ]),
             Ref::keyword("MINUS"),

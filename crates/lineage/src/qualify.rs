@@ -114,8 +114,13 @@ fn expand_stars(tables: &mut Tables, scope: &Scope, resolver: &Resolver) {
 
                 if name != alias {
                     let alias = tables.alloc_expr(ExprKind::Alias(alias, None), None);
-                    selection_expr =
-                        tables.alloc_expr(ExprKind::Table { this: selection_expr, alias }, None);
+                    selection_expr = tables.alloc_expr(
+                        ExprKind::Table {
+                            this: selection_expr,
+                            alias,
+                        },
+                        None,
+                    );
                 }
 
                 new_selections.push(selection_expr);
@@ -197,8 +202,10 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
                     .collect();
             }
 
-            let mut unambiguous_columns: HashMap<String, String> =
-                first_columns.iter().map(|col| (col.clone(), first_table.clone())).collect();
+            let mut unambiguous_columns: HashMap<String, String> = first_columns
+                .iter()
+                .map(|col| (col.clone(), first_table.clone()))
+                .collect();
             let mut all_columns: HashSet<String> = first_columns.iter().cloned().collect();
 
             for (table, columns) in source_columns_iter {
@@ -287,7 +294,11 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
 
                 let node_alias = tables.alias(node, true);
 
-                let this = if !node_alias.is_empty() { node_alias } else { table_name.clone() };
+                let this = if !node_alias.is_empty() {
+                    node_alias
+                } else {
+                    table_name.clone()
+                };
                 Some(tables.alloc_expr(ExprKind::Ident(this), None))
             }
             None => todo!(),
@@ -300,7 +311,10 @@ impl<'scope, 'schema> Resolver<'scope, 'schema> {
                 .selected_sources(tables)
                 .keys()
                 .map(|source_name| {
-                    (source_name.clone(), self.source_columns(tables, source_name, false))
+                    (
+                        source_name.clone(),
+                        self.source_columns(tables, source_name, false),
+                    )
                 })
                 .collect()
         })

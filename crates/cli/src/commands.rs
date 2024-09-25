@@ -51,6 +51,10 @@ pub(crate) enum Format {
 
 impl Default for Format {
     fn default() -> Self {
-        if is_in_github_action() { Format::GithubAnnotationNative } else { Format::Human }
+        if is_in_github_action() {
+            Format::GithubAnnotationNative
+        } else {
+            Format::Human
+        }
     }
 }

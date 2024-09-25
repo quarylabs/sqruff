@@ -78,7 +78,10 @@ fn main() {
 
     let mut linter = Linter::new(FluffConfig::default(), None, None);
     let mut core = AHashMap::new();
-    core.insert("core".to_string(), linter.config_mut().raw.get("core").unwrap().clone());
+    core.insert(
+        "core".to_string(),
+        linter.config_mut().raw.get("core").unwrap().clone(),
+    );
 
     for path in glob("test/fixtures/rules/std_rule_cases/*.yml").unwrap() {
         let path = path.unwrap();

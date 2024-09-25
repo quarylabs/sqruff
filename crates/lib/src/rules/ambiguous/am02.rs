@@ -81,7 +81,11 @@ SELECT a, b FROM table_2
             ];
 
             let segments = rule_cx.segment.clone();
-            let fixes = vec![LintFix::replace(rule_cx.segment.segments()[0].clone(), edits, None)];
+            let fixes = vec![LintFix::replace(
+                rule_cx.segment.segments()[0].clone(),
+                edits,
+                None,
+            )];
 
             return vec![LintResult::new(Some(segments), fixes, None, None, None)];
         } else if raw_upper.contains("UNION")
@@ -94,7 +98,11 @@ SELECT a, b FROM table_2
             ];
 
             let segments = rule_cx.segment.clone();
-            let fixes = vec![LintFix::replace(rule_cx.segment.segments()[0].clone(), edits, None)];
+            let fixes = vec![LintFix::replace(
+                rule_cx.segment.segments()[0].clone(),
+                edits,
+                None,
+            )];
 
             return vec![LintResult::new(Some(segments), fixes, None, None, None)];
         }

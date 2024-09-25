@@ -45,7 +45,10 @@ impl MatchableTrait for NonCodeMatcher {
 
         if matched_idx > idx {
             return Ok(MatchResult {
-                span: Span { start: idx, end: matched_idx },
+                span: Span {
+                    start: idx,
+                    end: matched_idx,
+                },
                 ..Default::default()
             });
         }

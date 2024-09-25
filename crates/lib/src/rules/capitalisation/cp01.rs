@@ -115,13 +115,20 @@ from foo
     }
 
     fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Capitalisation]
+        &[
+            RuleGroups::All,
+            RuleGroups::Core,
+            RuleGroups::Capitalisation,
+        ]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
 
-        if self.ignore_words.contains(&context.segment.raw().to_lowercase()) {
+        if self
+            .ignore_words
+            .contains(&context.segment.raw().to_lowercase())
+        {
             return Vec::new();
         }
 
@@ -135,7 +142,10 @@ from foo
 
         if (self.skip_literals && context.segment.is_type(SyntaxKind::Literal))
             || !self.exclude_parent_types.is_empty()
-                && self.exclude_parent_types.iter().any(|&it| parent.is_type(it))
+                && self
+                    .exclude_parent_types
+                    .iter()
+                    .any(|&it| parent.is_type(it))
         {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }
@@ -212,7 +222,12 @@ pub fn handle_segment(
             refuted_cases.insert("upper");
         }
         if segment_raw.as_str()
-            != segment_raw.to_uppercase().chars().next().unwrap().to_string()
+            != segment_raw
+                .to_uppercase()
+                .chars()
+                .next()
+                .unwrap()
+                .to_string()
                 + segment_raw[1..].to_lowercase().as_str()
         {
             refuted_cases.insert("capitalise");
@@ -233,8 +248,10 @@ pub fn handle_segment(
             _ => unimplemented!("Unknown capitalisation policy name: {cap_policy_name}"),
         };
 
-        let possible_cases =
-            cap_policy_opts.iter().filter(|&it| !refuted_cases.contains(it)).collect_vec();
+        let possible_cases = cap_policy_opts
+            .iter()
+            .filter(|&it| !refuted_cases.contains(it))
+            .collect_vec();
 
         if !possible_cases.is_empty() {
             context.set(LatestPossibleCase(possible_cases[0].to_string()));
@@ -273,8 +290,11 @@ pub fn handle_segment(
     if fixed_raw == seg.raw().as_str() {
         LintResult::new(None, Vec::new(), None, None, None)
     } else {
-        let consistency =
-            if extended_capitalisation_policy == "consistent" { "consistently " } else { "" };
+        let consistency = if extended_capitalisation_policy == "consistent" {
+            "consistently "
+        } else {
+            ""
+        };
         let policy = match concrete_policy {
             concrete_policy @ ("upper" | "lower") => format!("{} case.", concrete_policy),
             "capitalise" => "capitalised.".to_string(),

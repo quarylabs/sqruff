@@ -50,12 +50,9 @@ pub fn raw_dialect() -> Dialect {
         "current_namespace",
         "current_user_id",
     ]);
-    redshift_dialect.sets_mut("date_part_function_name").extend([
-        "DATEADD",
-        "DATEDIFF",
-        "EXTRACT",
-        "DATE_PART",
-    ]);
+    redshift_dialect
+        .sets_mut("date_part_function_name")
+        .extend(["DATEADD", "DATEDIFF", "EXTRACT", "DATE_PART"]);
     redshift_dialect.sets_mut("datetime_units").extend([
         "MILLENNIUM",
         "MILLENNIA",
@@ -138,7 +135,10 @@ pub fn raw_dialect() -> Dialect {
         "TIMEZONE_MINUTE",
     ]);
     redshift_dialect.add([
-        ("WellKnownTextGeometrySegment".into(), Nothing::new().to_matchable().into()),
+        (
+            "WellKnownTextGeometrySegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         (
             "JoinLikeClauseGrammar".into(),
             Sequence::new(vec_of_erased![
@@ -193,9 +193,13 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ArgModeGrammar".into(),
-            one_of(vec_of_erased![Ref::keyword("IN"), Ref::keyword("OUT"), Ref::keyword("INOUT")])
-                .to_matchable()
-                .into(),
+            one_of(vec_of_erased![
+                Ref::keyword("IN"),
+                Ref::keyword("OUT"),
+                Ref::keyword("INOUT")
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "ColumnEncodingGrammar".into(),
@@ -246,7 +250,10 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNPIVOT"),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("INCLUDE"), Ref::keyword("EXCLUDE")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("INCLUDE"),
+                            Ref::keyword("EXCLUDE")
+                        ]),
                         Ref::keyword("NULLS")
                     ])
                     .config(|this| {
@@ -303,9 +310,15 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("DATE"),
                     Ref::keyword("DATETIME"),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("TIME"), Ref::keyword("TIMESTAMP")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("TIME"),
+                            Ref::keyword("TIMESTAMP")
+                        ]),
                         Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("WITH"),
+                                Ref::keyword("WITHOUT")
+                            ]),
                             Ref::keyword("TIME"),
                             Ref::keyword("ZONE")
                         ])
@@ -313,7 +326,10 @@ pub fn raw_dialect() -> Dialect {
                             this.optional();
                         })
                     ]),
-                    one_of(vec_of_erased![Ref::keyword("TIMETZ"), Ref::keyword("TIMESTAMPTZ")])
+                    one_of(vec_of_erased![
+                        Ref::keyword("TIMETZ"),
+                        Ref::keyword("TIMESTAMPTZ")
+                    ])
                 ])
                 .to_matchable(),
             )
@@ -323,15 +339,12 @@ pub fn raw_dialect() -> Dialect {
     ]);
     redshift_dialect.replace_grammar(
         "BracketedArguments",
-        Bracketed::new(vec_of_erased![
-            Delimited::new(vec_of_erased![one_of(vec_of_erased![
-                Ref::new("LiteralGrammar"),
-                Ref::keyword("MAX")
-            ])])
-            .config(|this| {
-                this.optional();
-            })
-        ])
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+            vec_of_erased![Ref::new("LiteralGrammar"), Ref::keyword("MAX")]
+        )])
+        .config(|this| {
+            this.optional();
+        })])
         .to_matchable(),
     );
 
@@ -357,7 +370,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("FLOAT8"),
                     Ref::keyword("FLOAT"),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("DECIMAL"), Ref::keyword("NUMERIC")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DECIMAL"),
+                            Ref::keyword("NUMERIC")
+                        ]),
                         Ref::new("BracketedArguments").optional()
                     ]),
                     one_of(vec_of_erased![
@@ -380,7 +396,10 @@ pub fn raw_dialect() -> Dialect {
                     ]),
                     Ref::new("DateTimeTypeIdentifier"),
                     Ref::keyword("INTERVAL"),
-                    one_of(vec_of_erased![Ref::keyword("BOOLEAN"), Ref::keyword("BOOL")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("BOOLEAN"),
+                        Ref::keyword("BOOL")
+                    ]),
                     Ref::keyword("HLLSKETCH"),
                     Ref::keyword("SUPER"),
                     Ref::keyword("GEOMETRY"),
@@ -571,7 +590,10 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("NULL")]),
                         Ref::keyword("NULL")
                     ]),
-                    one_of(vec_of_erased![Ref::keyword("UNIQUE"), Ref::new("PrimaryKeyGrammar")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("UNIQUE"),
+                        Ref::new("PrimaryKeyGrammar")
+                    ]),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("REFERENCES"),
                         Ref::new("TableReferenceSegment"),
@@ -824,7 +846,10 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::LikeOptionSegment,
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("INCLUDING"), Ref::keyword("EXCLUDING")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("INCLUDING"),
+                        Ref::keyword("EXCLUDING")
+                    ]),
                     Ref::keyword("DEFAULTS")
                 ])
                 .to_matchable(),
@@ -897,7 +922,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CREATE"),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("LOCAL").optional(),
-                        one_of(vec_of_erased![Ref::keyword("TEMPORARY"), Ref::keyword("TEMP")])
+                        one_of(vec_of_erased![
+                            Ref::keyword("TEMPORARY"),
+                            Ref::keyword("TEMP")
+                        ])
                     ])
                     .config(|this| {
                         this.optional();
@@ -1093,7 +1121,10 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SHOW"),
                     Ref::keyword("MODEL"),
-                    one_of(vec_of_erased![Ref::keyword("ALL"), Ref::new("ObjectReferenceSegment")])
+                    one_of(vec_of_erased![
+                        Ref::keyword("ALL"),
+                        Ref::new("ObjectReferenceSegment")
+                    ])
                 ])
                 .to_matchable(),
             )
@@ -1109,12 +1140,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("EXTERNAL"),
                     Ref::keyword("TABLE"),
                     Ref::new("TableReferenceSegment"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                        vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
                             Ref::new("ColumnReferenceSegment"),
                             Ref::new("DatatypeSegment")
-                        ]
-                    )])]),
+                        ])
+                    ])]),
                     Ref::new("PartitionedBySegment").optional(),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ROW"),
@@ -1206,7 +1237,10 @@ pub fn raw_dialect() -> Dialect {
                     }),
                     Ref::keyword("STORED"),
                     Ref::keyword("AS"),
-                    one_of(vec_of_erased![Ref::keyword("PARQUET"), Ref::keyword("TEXTFILE")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("PARQUET"),
+                        Ref::keyword("TEXTFILE")
+                    ]),
                     Ref::keyword("LOCATION"),
                     Ref::new("QuotedLiteralSegment"),
                     Sequence::new(vec_of_erased![
@@ -1575,7 +1609,10 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("DATEFORMAT"),
                     Ref::keyword("AS").optional(),
-                    one_of(vec_of_erased![Ref::keyword("AUTO"), Ref::new("QuotedLiteralSegment")])
+                    one_of(vec_of_erased![
+                        Ref::keyword("AUTO"),
+                        Ref::new("QuotedLiteralSegment")
+                    ])
                 ])
                 .config(|this| {
                     this.optional();
@@ -1705,10 +1742,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "ProcedureParameterListSegment".into(),
             NodeMatcher::new(SyntaxKind::ProcedureParameterList, {
-                let param_type =
-                    one_of(vec_of_erased![Ref::keyword("REFCURSOR"), Ref::new("DatatypeSegment")]);
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                let param_type = one_of(vec_of_erased![
+                    Ref::keyword("REFCURSOR"),
+                    Ref::new("DatatypeSegment")
+                ]);
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
                         AnyNumberOf::new(vec_of_erased![
                             Ref::new("ParameterNameSegment")
                                 .exclude(one_of(vec_of_erased![
@@ -1722,11 +1761,11 @@ pub fn raw_dialect() -> Dialect {
                             this.max_times_per_element = 1.into();
                         }),
                         param_type.clone()
-                    ])])
-                    .config(|this| {
-                        this.optional();
-                    })
+                    ])
                 ])
+                .config(|this| {
+                    this.optional();
+                })])
                 .to_matchable()
             })
             .to_matchable()
@@ -1810,7 +1849,9 @@ pub fn raw_dialect() -> Dialect {
             .match_grammar()
             .unwrap()
             .copy(
-                Some(vec_of_erased![Sequence::new(vec_of_erased![Ref::keyword("PROCEDURES")])]),
+                Some(vec_of_erased![Sequence::new(vec_of_erased![Ref::keyword(
+                    "PROCEDURES"
+                )])]),
                 None,
                 None,
                 None,
@@ -2032,7 +2073,10 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::GrantDatashareStatement,
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("GRANT"), Ref::keyword("REVOKE")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("GRANT"),
+                        Ref::keyword("REVOKE")
+                    ]),
                     Ref::keyword("USAGE"),
                     Ref::keyword("ON"),
                     Ref::keyword("DATASHARE"),
@@ -2107,7 +2151,10 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::ManageRlsPolicyStatement,
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("ATTACH"), Ref::keyword("DETACH")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("ATTACH"),
+                        Ref::keyword("DETACH")
+                    ]),
                     Ref::keyword("RLS"),
                     Ref::keyword("POLICY"),
                     Ref::new("ObjectReferenceSegment"),
@@ -2138,10 +2185,13 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("POLICY"),
                     Ref::new("IfExistsGrammar").optional(),
                     Ref::new("ObjectReferenceSegment"),
-                    one_of(vec_of_erased![Ref::keyword("CASCADE"), Ref::keyword("RESTRICT")])
-                        .config(|this| {
-                            this.optional();
-                        })
+                    one_of(vec_of_erased![
+                        Ref::keyword("CASCADE"),
+                        Ref::keyword("RESTRICT")
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
                 ])
                 .to_matchable(),
             )
@@ -2153,7 +2203,10 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(
                 SyntaxKind::AnalyzeCompressionStatement,
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("ANALYZE"), Ref::keyword("ANALYSE")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("ANALYZE"),
+                        Ref::keyword("ANALYSE")
+                    ]),
                     Ref::keyword("COMPRESSION"),
                     Sequence::new(vec_of_erased![
                         Ref::new("TableReferenceSegment"),
@@ -2215,42 +2268,46 @@ pub fn raw_dialect() -> Dialect {
 
     redshift_dialect.replace_grammar(
         "StatementSegment",
-        postgres_dialect.grammar("StatementSegment").match_grammar().unwrap().copy(
-            Some(vec_of_erased![
-                Ref::new("CreateLibraryStatementSegment"),
-                Ref::new("CreateGroupStatementSegment"),
-                Ref::new("AlterUserStatementSegment"),
-                Ref::new("AlterGroupStatementSegment"),
-                Ref::new("CreateExternalTableAsStatementSegment"),
-                Ref::new("CreateExternalTableStatementSegment"),
-                Ref::new("CreateExternalSchemaStatementSegment"),
-                Ref::new("DataFormatSegment"),
-                Ref::new("UnloadStatementSegment"),
-                Ref::new("CopyStatementSegment"),
-                Ref::new("ShowModelStatementSegment"),
-                Ref::new("CreateDatashareStatementSegment"),
-                Ref::new("DescDatashareStatementSegment"),
-                Ref::new("DropDatashareStatementSegment"),
-                Ref::new("ShowDatasharesStatementSegment"),
-                Ref::new("AltereDatashareStatementSegment"),
-                Ref::new("DeclareStatementSegment"),
-                Ref::new("FetchStatementSegment"),
-                Ref::new("CloseStatementSegment"),
-                Ref::new("AnalyzeCompressionStatementSegment"),
-                Ref::new("AlterProcedureStatementSegment"),
-                Ref::new("CallStatementSegment"),
-                Ref::new("CreateRlsPolicyStatementSegment"),
-                Ref::new("ManageRlsPolicyStatementSegment"),
-                Ref::new("DropRlsPolicyStatementSegment"),
-                Ref::new("CreateExternalFunctionStatementSegment"),
-                Ref::new("GrantUsageDatashareStatementSegment"),
-            ]),
-            None,
-            None,
-            None,
-            Vec::new(),
-            false,
-        ),
+        postgres_dialect
+            .grammar("StatementSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![
+                    Ref::new("CreateLibraryStatementSegment"),
+                    Ref::new("CreateGroupStatementSegment"),
+                    Ref::new("AlterUserStatementSegment"),
+                    Ref::new("AlterGroupStatementSegment"),
+                    Ref::new("CreateExternalTableAsStatementSegment"),
+                    Ref::new("CreateExternalTableStatementSegment"),
+                    Ref::new("CreateExternalSchemaStatementSegment"),
+                    Ref::new("DataFormatSegment"),
+                    Ref::new("UnloadStatementSegment"),
+                    Ref::new("CopyStatementSegment"),
+                    Ref::new("ShowModelStatementSegment"),
+                    Ref::new("CreateDatashareStatementSegment"),
+                    Ref::new("DescDatashareStatementSegment"),
+                    Ref::new("DropDatashareStatementSegment"),
+                    Ref::new("ShowDatasharesStatementSegment"),
+                    Ref::new("AltereDatashareStatementSegment"),
+                    Ref::new("DeclareStatementSegment"),
+                    Ref::new("FetchStatementSegment"),
+                    Ref::new("CloseStatementSegment"),
+                    Ref::new("AnalyzeCompressionStatementSegment"),
+                    Ref::new("AlterProcedureStatementSegment"),
+                    Ref::new("CallStatementSegment"),
+                    Ref::new("CreateRlsPolicyStatementSegment"),
+                    Ref::new("ManageRlsPolicyStatementSegment"),
+                    Ref::new("DropRlsPolicyStatementSegment"),
+                    Ref::new("CreateExternalFunctionStatementSegment"),
+                    Ref::new("GrantUsageDatashareStatementSegment"),
+                ]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
     );
 
     redshift_dialect.add([
@@ -2261,12 +2318,12 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec_of_erased![
                     Ref::keyword("PARTITIONED"),
                     Ref::keyword("BY"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                        vec_of_erased![
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                        Sequence::new(vec_of_erased![
                             Ref::new("ColumnReferenceSegment"),
                             Ref::new("DatatypeSegment").optional()
-                        ]
-                    )])])
+                        ])
+                    ])])
                 ])
                 .to_matchable(),
             )
@@ -2309,10 +2366,19 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("RoleReferenceSegment"),
             Ref::keyword("WITH").optional(),
             Ref::keyword("PASSWORD"),
-            one_of(vec_of_erased![Ref::new("QuotedLiteralSegment"), Ref::keyword("DISABLE")]),
+            one_of(vec_of_erased![
+                Ref::new("QuotedLiteralSegment"),
+                Ref::keyword("DISABLE")
+            ]),
             any_set_of(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("CREATEDB"), Ref::keyword("NOCREATEDB")]),
-                one_of(vec_of_erased![Ref::keyword("CREATEUSER"), Ref::keyword("NOCREATEUSER")]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CREATEDB"),
+                    Ref::keyword("NOCREATEDB")
+                ]),
+                one_of(vec_of_erased![
+                    Ref::keyword("CREATEUSER"),
+                    Ref::keyword("NOCREATEUSER")
+                ]),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SYSLOG"),
                     Ref::keyword("ACCESS"),
@@ -2504,10 +2570,13 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("ROLLBACK"),
                         Ref::keyword("ABORT")
                     ]),
-                    one_of(vec_of_erased![Ref::keyword("TRANSACTION"), Ref::keyword("WORK")])
-                        .config(|this| {
-                            this.optional();
-                        }),
+                    one_of(vec_of_erased![
+                        Ref::keyword("TRANSACTION"),
+                        Ref::keyword("WORK")
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    }),
                     Sequence::new(vec_of_erased![
                         Ref::keyword("ISOLATION"),
                         Ref::keyword("LEVEL"),
@@ -2588,17 +2657,21 @@ pub fn raw_dialect() -> Dialect {
 
     redshift_dialect.replace_grammar(
         "TableExpressionSegment",
-        ansi_dialect.grammar("TableExpressionSegment").match_grammar().unwrap().copy(
-            Some(vec_of_erased![
-                Ref::new("ObjectUnpivotSegment").optional(),
-                Ref::new("ArrayUnnestSegment").optional()
-            ]),
-            None,
-            Some(Ref::new("TableReferenceSegment").to_matchable()),
-            None,
-            Vec::new(),
-            false,
-        ),
+        ansi_dialect
+            .grammar("TableExpressionSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![
+                    Ref::new("ObjectUnpivotSegment").optional(),
+                    Ref::new("ArrayUnnestSegment").optional()
+                ]),
+                None,
+                Some(Ref::new("TableReferenceSegment").to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            ),
     );
 
     redshift_dialect.add([(
@@ -2654,8 +2727,11 @@ pub fn raw_dialect() -> Dialect {
             "CallStatementSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::CallStatement,
-                Sequence::new(vec_of_erased![Ref::keyword("CALL"), Ref::new("FunctionSegment")])
-                    .to_matchable(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("CALL"),
+                    Ref::new("FunctionSegment")
+                ])
+                .to_matchable(),
             )
             .to_matchable()
             .into(),
@@ -2664,17 +2740,21 @@ pub fn raw_dialect() -> Dialect {
 
     redshift_dialect.replace_grammar(
         "SelectClauseModifierSegment",
-        postgres_dialect.grammar("SelectClauseModifierSegment").match_grammar().unwrap().copy(
-            Some(vec_of_erased![Sequence::new(vec_of_erased![
-                Ref::keyword("TOP"),
-                Ref::new("NumericLiteralSegment")
-            ])]),
-            None,
-            None,
-            None,
-            Vec::new(),
-            false,
-        ),
+        postgres_dialect
+            .grammar("SelectClauseModifierSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![Sequence::new(vec_of_erased![
+                    Ref::keyword("TOP"),
+                    Ref::new("NumericLiteralSegment")
+                ])]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
     );
 
     redshift_dialect.add([(
@@ -2717,10 +2797,12 @@ pub fn raw_dialect() -> Dialect {
                             ]))
                         ])
                     ]),
-                    Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
-                        .config(|this| {
-                            this.parse_mode = ParseMode::Greedy;
-                        })
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("FunctionContentsGrammar").optional()
+                    ])
+                    .config(|this| {
+                        this.parse_mode = ParseMode::Greedy;
+                    })
                 ]),
                 Ref::new("PostFunctionGrammar").optional()
             ]),
@@ -2742,9 +2824,9 @@ pub fn raw_dialect() -> Dialect {
         "FromClauseSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("FROM"),
-            Delimited::new(vec_of_erased![optionally_bracketed(vec_of_erased![Ref::new(
-                "FromExpressionSegment"
-            )])])
+            Delimited::new(vec_of_erased![optionally_bracketed(vec_of_erased![
+                Ref::new("FromExpressionSegment")
+            ])])
         ])
         .to_matchable(),
     );
@@ -2820,13 +2902,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("EXTERNAL"),
                     Ref::keyword("FUNCTION"),
                     Ref::new("FunctionNameSegment"),
-                    Bracketed::new(vec_of_erased![
-                        Delimited::new(vec_of_erased![Ref::new("DatatypeSegment")]).config(
-                            |this| {
-                                this.optional();
-                            }
-                        )
-                    ]),
+                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
+                        "DatatypeSegment"
+                    )])
+                    .config(|this| {
+                        this.optional();
+                    })]),
                     Ref::keyword("RETURNS"),
                     Ref::new("DatatypeSegment"),
                     one_of(vec_of_erased![
@@ -2834,7 +2915,10 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("STABLE"),
                         Ref::keyword("IMMUTABLE")
                     ]),
-                    one_of(vec_of_erased![Ref::keyword("LAMBDA"), Ref::keyword("SAGEMAKER")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("LAMBDA"),
+                        Ref::keyword("SAGEMAKER")
+                    ]),
                     Ref::new("QuotedLiteralSegment"),
                     Ref::keyword("IAM_ROLE"),
                     one_of(vec_of_erased![
@@ -2872,26 +2956,34 @@ pub fn raw_dialect() -> Dialect {
     ]);
     redshift_dialect.replace_grammar(
         "SelectStatementSegment",
-        postgres_dialect.grammar("SelectStatementSegment").match_grammar().unwrap().copy(
-            Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
-            None,
-            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
-            None,
-            vec_of_erased![Ref::new("SetOperatorSegment")],
-            false,
-        ),
+        postgres_dialect
+            .grammar("SelectStatementSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
+                None,
+                Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
+                None,
+                vec_of_erased![Ref::new("SetOperatorSegment")],
+                false,
+            ),
     );
     redshift_dialect.add([]);
     redshift_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
-        ansi_dialect.grammar("UnorderedSelectStatementSegment").match_grammar().unwrap().copy(
-            Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
-            None,
-            Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
-            None,
-            Vec::new(),
-            false,
-        ),
+        ansi_dialect
+            .grammar("UnorderedSelectStatementSegment")
+            .match_grammar()
+            .unwrap()
+            .copy(
+                Some(vec_of_erased![Ref::new("QualifyClauseSegment").optional()]),
+                None,
+                Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            ),
     );
 
     redshift_dialect

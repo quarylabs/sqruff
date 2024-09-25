@@ -62,7 +62,9 @@ from x
         let mut violation_exists = false;
 
         static SELECT_ELEMENT_ORDER_PREFERENCE: &[&[Validate]] = &[
-            &[Validate::Types(const { SyntaxSet::new(&[SyntaxKind::WildcardExpression]) })],
+            &[Validate::Types(
+                const { SyntaxSet::new(&[SyntaxKind::WildcardExpression]) },
+            )],
             &[
                 Validate::Types(
                     const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
@@ -70,7 +72,9 @@ from x
                 Validate::Types(const { SyntaxSet::new(&[SyntaxKind::Literal]) }),
                 Validate::Types(const { SyntaxSet::new(&[SyntaxKind::CastExpression]) }),
                 Validate::Function { name: "cast" },
-                Validate::Expression { child_typ: SyntaxKind::CastExpression },
+                Validate::Expression {
+                    child_typ: SyntaxKind::CastExpression,
+                },
             ],
         ];
 
@@ -122,8 +126,10 @@ from x
             return Vec::new();
         }
 
-        let mut seen_band_elements: Vec<Vec<ErasedSegment>> =
-            SELECT_ELEMENT_ORDER_PREFERENCE.iter().map(|_| Vec::new()).collect();
+        let mut seen_band_elements: Vec<Vec<ErasedSegment>> = SELECT_ELEMENT_ORDER_PREFERENCE
+            .iter()
+            .map(|_| Vec::new())
+            .collect();
         seen_band_elements.push(Vec::new());
 
         for segment in &select_target_elements {
@@ -200,7 +206,11 @@ from x
         }
 
         if violation_exists {
-            if context.parent_stack.last().map_or(false, implicit_column_references) {
+            if context
+                .parent_stack
+                .last()
+                .map_or(false, implicit_column_references)
+            {
                 return vec![LintResult::new(
                     select_clause_segment.into(),
                     Vec::new(),
@@ -214,18 +224,28 @@ from x
                 seen_band_elements.into_iter().flatten().collect_vec();
 
             let fixes = zip(select_target_elements, ordered_select_target_elements)
-                .filter_map(|(initial_select_target_element, replace_select_target_element)| {
-                    (initial_select_target_element != replace_select_target_element).then(|| {
-                        LintFix::replace(
-                            initial_select_target_element,
-                            vec![replace_select_target_element],
-                            None,
+                .filter_map(
+                    |(initial_select_target_element, replace_select_target_element)| {
+                        (initial_select_target_element != replace_select_target_element).then(
+                            || {
+                                LintFix::replace(
+                                    initial_select_target_element,
+                                    vec![replace_select_target_element],
+                                    None,
+                                )
+                            },
                         )
-                    })
-                })
+                    },
+                )
                 .collect_vec();
 
-            return vec![LintResult::new(select_clause_segment.into(), fixes, None, None, None)];
+            return vec![LintResult::new(
+                select_clause_segment.into(),
+                fixes,
+                None,
+                None,
+                None,
+            )];
         }
 
         Vec::new()
@@ -266,7 +286,10 @@ fn implicit_column_references(segment: &ErasedSegment) -> bool {
         segment.get_type(),
         SyntaxKind::WithingroupClause | SyntaxKind::WindowSpecification
     ) {
-        if matches!(segment.get_type(), SyntaxKind::GroupbyClause | SyntaxKind::OrderbyClause) {
+        if matches!(
+            segment.get_type(),
+            SyntaxKind::GroupbyClause | SyntaxKind::OrderbyClause
+        ) {
             for seg in segment.segments() {
                 if seg.is_type(SyntaxKind::NumericLiteral) {
                     return true;

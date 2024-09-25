@@ -79,7 +79,12 @@ impl OutputStreamFormatter {
 
     fn dispatch(&self, s: &str) {
         if !self.filter_empty || !s.trim().is_empty() {
-            _ = self.output_stream.lock().unwrap().write(s.as_bytes()).unwrap();
+            _ = self
+                .output_stream
+                .lock()
+                .unwrap()
+                .write(s.as_bytes())
+                .unwrap();
         }
     }
 
@@ -121,9 +126,14 @@ impl OutputStreamFormatter {
     fn format_file_violations(&self, fname: &str, mut violations: Vec<SQLBaseError>) -> String {
         let mut text_buffer = String::new();
 
-        let fails =
-            violations.iter().filter(|violation| !violation.ignore && !violation.warning).count();
-        let warns = violations.iter().filter(|violation| violation.warning).count();
+        let fails = violations
+            .iter()
+            .filter(|violation| !violation.ignore && !violation.warning)
+            .count();
+        let warns = violations
+            .iter()
+            .filter(|violation| violation.warning)
+            .count();
         let show = fails + warns > 0;
 
         if self.verbosity > 0 || show {
@@ -134,7 +144,9 @@ impl OutputStreamFormatter {
 
         if show {
             violations.sort_by(|a, b| {
-                a.line_no.cmp(&b.line_no).then_with(|| a.line_pos.cmp(&b.line_pos))
+                a.line_no
+                    .cmp(&b.line_no)
+                    .then_with(|| a.line_pos.cmp(&b.line_pos))
             });
 
             for violation in violations {
@@ -164,7 +176,11 @@ impl OutputStreamFormatter {
     }
 
     fn colorize_helper(plain_output: bool, s: &str, style: Style) -> Cow<'_, str> {
-        if plain_output { s.into() } else { format!("{style}{s}{style:#}").into() }
+        if plain_output {
+            s.into()
+        } else {
+            format!("{style}{s}{style:#}").into()
+        }
     }
 
     #[allow(dead_code)]
@@ -179,7 +195,8 @@ impl OutputStreamFormatter {
         let color = match status {
             Status::Pass | Status::Fixed => AnsiColor::Green,
             Status::Fail | Status::Error => {
-                self.has_fail.store(true, std::sync::atomic::Ordering::SeqCst);
+                self.has_fail
+                    .store(true, std::sync::atomic::Ordering::SeqCst);
                 AnsiColor::Red
             }
         }
@@ -251,7 +268,11 @@ impl OutputStreamFormatter {
     }
 
     pub fn completion_message(&mut self) {
-        let message = if self.plain_output { "All Finished\n" } else { "All Finished 📜 🎉\n" };
+        let message = if self.plain_output {
+            "All Finished\n"
+        } else {
+            "All Finished 📜 🎉\n"
+        };
         self.dispatch(message);
     }
 }
@@ -262,14 +283,22 @@ pub trait IntoStatus {
 
 impl IntoStatus for bool {
     fn into_status(self) -> Status {
-        if self { Status::Pass } else { Status::Fail }
+        if self {
+            Status::Pass
+        } else {
+            Status::Fail
+        }
     }
 }
 
 impl IntoStatus for (Status, bool) {
     fn into_status(self) -> Status {
         let (if_ok, is_ok) = self;
-        if is_ok { if_ok } else { Status::Fail }
+        if is_ok {
+            if_ok
+        } else {
+            Status::Fail
+        }
     }
 }
 
@@ -314,12 +343,18 @@ mod tests {
 
     #[test]
     fn test_split_with_line_length() {
-        assert_eq!(split_string_on_spaces("abc def ghi", 7), vec!["abc def", "ghi"]);
+        assert_eq!(
+            split_string_on_spaces("abc def ghi", 7),
+            vec!["abc def", "ghi"]
+        );
     }
 
     #[test]
     fn test_preserve_multi_space() {
-        assert_eq!(split_string_on_spaces("a '   ' b c d e f", 11), vec!["a '   ' b c", "d e f"]);
+        assert_eq!(
+            split_string_on_spaces("a '   ' b c d e f", 11),
+            vec!["a '   ' b c", "d e f"]
+        );
     }
 
     fn escape_ansi(line: &str) -> String {
@@ -358,7 +393,10 @@ mod tests {
 
         let mut v = SQLLintError::new("DESC", s);
 
-        v.rule = Some(ErrorStructRule { name: "some-name", code: "DESC" });
+        v.rule = Some(ErrorStructRule {
+            name: "some-name",
+            code: "DESC",
+        });
 
         let f = formatter.format_violation(v, 90);
 

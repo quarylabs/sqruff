@@ -40,8 +40,9 @@ impl RuleRF03 {
         if !selectables.is_empty() {
             select_info = selectables[0].select_info();
 
-            if let Some(select_info) =
-                select_info.clone().filter(|select_info| select_info.table_aliases.len() == 1)
+            if let Some(select_info) = select_info
+                .clone()
+                .filter(|select_info| select_info.table_aliases.len() == 1)
             {
                 let mut fixable = true;
                 let possible_ref_tables = iter_available_targets(query.clone());
@@ -113,8 +114,11 @@ fn check_references(
 ) -> Vec<LintResult> {
     let mut acc = Vec::new();
 
-    let col_alias_names =
-        col_aliases.clone().into_iter().map(|it| it.alias_identifier_name).collect_vec();
+    let col_alias_names = col_aliases
+        .clone()
+        .into_iter()
+        .map(|it| it.alias_identifier_name)
+        .collect_vec();
 
     let table_ref_str = &table_aliases[0].ref_str;
     let table_ref_str_source = table_aliases[0].segment.clone();
@@ -124,7 +128,13 @@ fn check_references(
         let mut this_ref_type = reference.qualification();
         if this_ref_type == "qualified"
             && is_struct_dialect
-            && &reference.iter_raw_references().into_iter().next().unwrap().part != table_ref_str
+            && &reference
+                .iter_raw_references()
+                .into_iter()
+                .next()
+                .unwrap()
+                .part
+                != table_ref_str
         {
             this_ref_type = "unqualified";
         }
@@ -147,8 +157,9 @@ fn check_references(
             continue;
         };
 
-        if let Some(fix_inconsistent_to) =
-            fix_inconsistent_to.as_ref().filter(|_| single_table_references == "consistent")
+        if let Some(fix_inconsistent_to) = fix_inconsistent_to
+            .as_ref()
+            .filter(|_| single_table_references == "consistent")
         {
             let results = check_references(
                 tables,
@@ -227,7 +238,13 @@ fn validate_one_reference(
 
     if single_table_references == "unqualified" {
         let fixes = if fixable {
-            ref_.0.segments().iter().take(2).cloned().map(LintFix::delete).collect::<Vec<_>>()
+            ref_.0
+                .segments()
+                .iter()
+                .take(2)
+                .cloned()
+                .map(LintFix::delete)
+                .collect::<Vec<_>>()
         } else {
             Vec::new()
         };
@@ -250,7 +267,11 @@ fn validate_one_reference(
     let ref_ = ref_.0.clone();
     let fixes = if fixable {
         vec![LintFix::create_before(
-            if !ref_.segments().is_empty() { ref_.segments()[0].clone() } else { ref_.clone() },
+            if !ref_.segments().is_empty() {
+                ref_.segments()[0].clone()
+            } else {
+                ref_.clone()
+            },
             vec![
                 SegmentBuilder::token(tables.next_id(), table_ref_str, SyntaxKind::NakedIdentifier)
                     .finish(),
@@ -344,7 +365,9 @@ FROM foo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let single_table_references =
             self.single_table_references.as_deref().unwrap_or_else(|| {
-                context.config.unwrap().raw["rules"]["single_table_references"].as_string().unwrap()
+                context.config.unwrap().raw["rules"]["single_table_references"]
+                    .as_string()
+                    .unwrap()
             });
 
         let query: Query<()> = Query::from_segment(&context.segment, context.dialect, None);

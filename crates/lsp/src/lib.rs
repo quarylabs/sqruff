@@ -57,7 +57,9 @@ impl Wasm {
 
         Self(LanguageServer::new(|diagnostics| {
             let diagnostics = serde_wasm_bindgen::to_value(&diagnostics).unwrap();
-            send_diagnostics_callback.call1(&JsValue::null(), &diagnostics).unwrap();
+            send_diagnostics_callback
+                .call1(&JsValue::null(), &diagnostics)
+                .unwrap();
         }))
     }
 
@@ -79,7 +81,8 @@ impl Wasm {
 
     #[wasm_bindgen(js_name = onNotification)]
     pub fn on_notification(&mut self, method: &str, params: JsValue) {
-        self.0.on_notification(method, serde_wasm_bindgen::from_value(params).unwrap())
+        self.0
+            .on_notification(method, serde_wasm_bindgen::from_value(params).unwrap())
     }
 
     #[wasm_bindgen]
@@ -103,7 +106,8 @@ impl LanguageServer {
         match method {
             Formatting::METHOD => {
                 let DocumentFormattingParams {
-                    text_document: TextDocumentIdentifier { uri }, ..
+                    text_document: TextDocumentIdentifier { uri },
+                    ..
                 } = serde_json::from_value(params).unwrap();
 
                 let edits = self.format(uri);
@@ -118,7 +122,10 @@ impl LanguageServer {
         let tree = self.linter.lint_string(text, None, true);
 
         let new_text = tree.fix_string();
-        let start_position = Position { line: 0, character: 0 };
+        let start_position = Position {
+            line: 0,
+            character: 0,
+        };
         let end_position = Position {
             line: new_text.lines().count() as u32,
             character: new_text.chars().count() as u32,
@@ -135,8 +142,12 @@ impl LanguageServer {
         match method {
             DidOpenTextDocument::METHOD => {
                 let params: DidOpenTextDocumentParams = serde_json::from_value(params).unwrap();
-                let TextDocumentItem { uri, language_id: _, version: _, text } =
-                    params.text_document;
+                let TextDocumentItem {
+                    uri,
+                    language_id: _,
+                    version: _,
+                    text,
+                } = params.text_document;
 
                 self.check_file(uri.clone(), &text);
                 self.documents.insert(uri, text);
@@ -189,7 +200,9 @@ impl LanguageServer {
                     lsp_types::Range::new(pos, pos)
                 };
 
-                let code = violation.rule.map(|rule| NumberOrString::String(rule.code.to_string()));
+                let code = violation
+                    .rule
+                    .map(|rule| NumberOrString::String(rule.code.to_string()));
 
                 Diagnostic::new(
                     range,
@@ -281,7 +294,9 @@ pub fn save_registration_options() -> lsp_types::RegistrationParams {
         registrations: vec![Registration {
             id: "textDocument/didSave".into(),
             method: "textDocument/didSave".into(),
-            register_options: serde_json::to_value(save_registration_options).unwrap().into(),
+            register_options: serde_json::to_value(save_registration_options)
+                .unwrap()
+                .into(),
         }],
     }
 }

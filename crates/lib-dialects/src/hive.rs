@@ -183,17 +183,17 @@ pub fn raw_dialect() -> Dialect {
             "StructTypeSchemaSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::StructTypeSchema,
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
                         Ref::new("SingleIdentifierGrammar"),
                         Ref::new("ColonSegment"),
                         Ref::new("DatatypeSegment"),
                         Ref::new("CommentGrammar").optional()
-                    ])])
-                    .config(|_config| {
-                        // config.bracket_type = "angle_bracket_pairs";
-                    })
+                    ])
                 ])
+                .config(|_config| {
+                    // config.bracket_type = "angle_bracket_pairs";
+                })])
                 .config(|config| {
                     config.bracket_pairs_set = "angle_bracket_pairs";
                     config.bracket_type = "angle";

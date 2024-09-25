@@ -65,11 +65,23 @@ impl<'me> Selectable<'me> {
 
         let mut buff = Vec::new();
         for seg in select_info.select_targets {
-            if seg.0.child(const { &SyntaxSet::new(&[SyntaxKind::WildcardExpression]) }).is_some() {
+            if seg
+                .0
+                .child(const { &SyntaxSet::new(&[SyntaxKind::WildcardExpression]) })
+                .is_some()
+            {
                 if seg.0.raw().contains('.') {
-                    let table =
-                        seg.0.raw().rsplit_once('.').map(|x| x.0).unwrap_or_default().to_smolstr();
-                    buff.push(WildcardInfo { segment: seg.0.clone(), tables: vec![table] });
+                    let table = seg
+                        .0
+                        .raw()
+                        .rsplit_once('.')
+                        .map(|x| x.0)
+                        .unwrap_or_default()
+                        .to_smolstr();
+                    buff.push(WildcardInfo {
+                        segment: seg.0.clone(),
+                        tables: vec![table],
+                    });
                 } else {
                     let tables = select_info
                         .table_aliases
@@ -83,7 +95,10 @@ impl<'me> Selectable<'me> {
                             }
                         })
                         .collect();
-                    buff.push(WildcardInfo { segment: seg.0.clone(), tables });
+                    buff.push(WildcardInfo {
+                        segment: seg.0.clone(),
+                        tables,
+                    });
                 }
             }
         }
@@ -99,12 +114,17 @@ impl<'me> Selectable<'me> {
         }
 
         let values = Segments::new(self.selectable.clone(), None);
-        let alias_expression = values
-            .children(None)
-            .find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::AliasExpression)));
-        let name = alias_expression.children(None).find_first(Some(|it: &ErasedSegment| {
-            matches!(it.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier,)
+        let alias_expression = values.children(None).find_first(Some(|it: &ErasedSegment| {
+            it.is_type(SyntaxKind::AliasExpression)
         }));
+        let name = alias_expression
+            .children(None)
+            .find_first(Some(|it: &ErasedSegment| {
+                matches!(
+                    it.get_type(),
+                    SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier,
+                )
+            }));
 
         let alias_info = AliasInfo {
             ref_str: if name.is_empty() {
@@ -204,13 +224,24 @@ impl<'me, T: Clone + Default> Query<'me, T> {
     #[track_caller]
     pub fn lookup_cte(&self, name: &str, pop: bool) -> Option<Query<'me, T>> {
         let cte = if pop {
-            self.inner.borrow_mut().ctes.shift_remove(&name.to_uppercase_smolstr())
+            self.inner
+                .borrow_mut()
+                .ctes
+                .shift_remove(&name.to_uppercase_smolstr())
         } else {
-            self.inner.borrow().ctes.get(&name.to_uppercase_smolstr()).cloned()
+            self.inner
+                .borrow()
+                .ctes
+                .get(&name.to_uppercase_smolstr())
+                .cloned()
         };
 
         cte.or_else(move || {
-            self.inner.borrow_mut().parent.as_mut().and_then(|it| it.lookup_cte(name, pop))
+            self.inner
+                .borrow_mut()
+                .parent
+                .as_mut()
+                .and_then(|it| it.lookup_cte(name, pop))
         })
     }
 
@@ -281,13 +312,19 @@ impl<T: Default + Clone> Query<'_, T> {
         if segment.is_type(SyntaxKind::SelectStatement)
             || SUBSELECT_TYPES.contains(segment.get_type())
         {
-            selectables.push(Selectable { selectable: segment.clone(), dialect });
+            selectables.push(Selectable {
+                selectable: segment.clone(),
+                dialect,
+            });
         } else if segment.is_type(SyntaxKind::SetExpression) {
             selectables.extend(
                 segment
                     .children(const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) })
                     .into_iter()
-                    .map(|selectable| Selectable { selectable, dialect }),
+                    .map(|selectable| Selectable {
+                        selectable,
+                        dialect,
+                    }),
             )
         } else {
             query_type = QueryType::WithCompound;
@@ -298,7 +335,10 @@ impl<T: Default + Clone> Query<'_, T> {
                 const { &SyntaxSet::single(SyntaxKind::CommonTableExpression) },
                 true,
             ) {
-                selectables.push(Selectable { selectable: seg, dialect });
+                selectables.push(Selectable {
+                    selectable: seg,
+                    dialect,
+                });
             }
 
             for seg in segment.recursive_crawl(

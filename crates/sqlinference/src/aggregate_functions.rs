@@ -24,9 +24,18 @@ pub fn aggregate_function_behaviour(
         | DialectKind::Duckdb
         | DialectKind::Clickhouse
         | DialectKind::Postgres => HashMap::from([
-            (Operation::Min, TreatmentOfNullExpressionsInAggregates::IgnoreNullExpressions),
-            (Operation::Max, TreatmentOfNullExpressionsInAggregates::IgnoreNullExpressions),
-            (Operation::Avg, TreatmentOfNullExpressionsInAggregates::IgnoreNullExpressions),
+            (
+                Operation::Min,
+                TreatmentOfNullExpressionsInAggregates::IgnoreNullExpressions,
+            ),
+            (
+                Operation::Max,
+                TreatmentOfNullExpressionsInAggregates::IgnoreNullExpressions,
+            ),
+            (
+                Operation::Avg,
+                TreatmentOfNullExpressionsInAggregates::IgnoreNullExpressions,
+            ),
         ]),
         _ => unimplemented!(),
     }

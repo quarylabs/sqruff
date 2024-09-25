@@ -124,7 +124,10 @@ FROM foo
             }
 
             if alias.aliased
-                && !RefCell::borrow(&query.inner).payload.tbl_refs.contains(&alias.ref_str)
+                && !RefCell::borrow(&query.inner)
+                    .payload
+                    .tbl_refs
+                    .contains(&alias.ref_str)
             {
                 let violation = self.report_unused_alias(alias.clone());
                 violations.push(violation);
@@ -150,7 +153,10 @@ impl RuleAL05 {
 
         for selectable in &selectables {
             if let Some(select_info) = selectable.select_info() {
-                RefCell::borrow_mut(&query.inner).payload.aliases.extend(select_info.table_aliases);
+                RefCell::borrow_mut(&query.inner)
+                    .payload
+                    .aliases
+                    .extend(select_info.table_aliases);
 
                 for r in select_info.reference_buffer {
                     for tr in
@@ -170,8 +176,16 @@ impl RuleAL05 {
     }
 
     fn resolve_and_mark_reference(query: Query<AL05Query>, r#ref: String) {
-        if RefCell::borrow(&query.inner).payload.aliases.iter().any(|it| it.ref_str == r#ref) {
-            RefCell::borrow_mut(&query.inner).payload.tbl_refs.push(r#ref.into());
+        if RefCell::borrow(&query.inner)
+            .payload
+            .aliases
+            .iter()
+            .any(|it| it.ref_str == r#ref)
+        {
+            RefCell::borrow_mut(&query.inner)
+                .payload
+                .tbl_refs
+                .push(r#ref.into());
         } else if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
             Self::resolve_and_mark_reference(parent, r#ref);
         }
@@ -181,9 +195,10 @@ impl RuleAL05 {
         from_expression_element: &ErasedSegment,
         dialect_name: DialectKind,
     ) -> bool {
-        for segment in from_expression_element
-            .iter_segments(Some(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }), false)
-        {
+        for segment in from_expression_element.iter_segments(
+            Some(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }),
+            false,
+        ) {
             if segment.is_type(SyntaxKind::TableExpression) {
                 return if segment
                     .child(const { &SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
@@ -230,7 +245,11 @@ impl RuleAL05 {
             alias.segment,
             fixes,
             None,
-            format!("Alias '{}' is never used in SELECT statement.", alias.ref_str).into(),
+            format!(
+                "Alias '{}' is never used in SELECT statement.",
+                alias.ref_str
+            )
+            .into(),
             None,
         )
     }

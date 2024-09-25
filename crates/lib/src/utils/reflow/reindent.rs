@@ -67,17 +67,29 @@ impl IndentLine {
     }
 
     fn block_segments(&self, elements: &ReflowSequenceType) -> Vec<ErasedSegment> {
-        self.blocks(elements).into_iter().flat_map(|it| it.segments.clone()).collect()
+        self.blocks(elements)
+            .into_iter()
+            .flat_map(|it| it.segments.clone())
+            .collect()
     }
 
     fn blocks<'a>(&self, elements: &'a ReflowSequenceType) -> Vec<&'a ReflowBlock> {
-        let slice = if self.indent_points.last().unwrap().last_line_break_idx.is_none() {
+        let slice = if self
+            .indent_points
+            .last()
+            .unwrap()
+            .last_line_break_idx
+            .is_none()
+        {
             0..self.indent_points.last().unwrap().idx
         } else {
             self.indent_points.first().unwrap().idx..self.indent_points.last().unwrap().idx
         };
 
-        elements[slice].iter().filter_map(ReflowElement::as_block).collect()
+        elements[slice]
+            .iter()
+            .filter_map(ReflowElement::as_block)
+            .collect()
     }
 }
 
@@ -89,7 +101,10 @@ impl IndentLine {
             0
         };
 
-        IndentLine { initial_indent_balance: starting_balance, indent_points }
+        IndentLine {
+            initial_indent_balance: starting_balance,
+            indent_points,
+        }
     }
 
     fn closing_balance(&self) -> isize {
@@ -97,7 +112,13 @@ impl IndentLine {
     }
 
     fn opening_balance(&self) -> isize {
-        if self.indent_points.last().unwrap().last_line_break_idx.is_none() {
+        if self
+            .indent_points
+            .last()
+            .unwrap()
+            .last_line_break_idx
+            .is_none()
+        {
             return 0;
         }
 
@@ -144,7 +165,11 @@ impl std::fmt::Display for IndentLine {
             .collect::<Vec<String>>()
             .join(", ");
 
-        write!(f, "IndentLine(iib={}, ipts=[{}])", self.initial_indent_balance, indent_points_str)
+        write!(
+            f,
+            "IndentLine(iib={}, ipts=[{}])",
+            self.initial_indent_balance, indent_points_str
+        )
     }
 }
 
@@ -162,9 +187,11 @@ fn revise_comment_lines(lines: &mut [IndentLine], elements: &ReflowSequenceType)
         }
     }
 
-    let changes = changes
-        .into_iter()
-        .chain(comment_line_buffer.into_iter().map(|comment_line_idx| (comment_line_idx, 0)));
+    let changes = changes.into_iter().chain(
+        comment_line_buffer
+            .into_iter()
+            .map(|comment_line_idx| (comment_line_idx, 0)),
+    );
     for (comment_line_idx, initial_indent_balance) in changes {
         lines[comment_line_idx].initial_indent_balance = initial_indent_balance;
     }
@@ -211,14 +238,20 @@ fn prune_untaken_indents(
         incoming_balance + indent_stats.impulse
     };
 
-    let mut pruned_untaken_indents: Vec<_> =
-        untaken_indents.iter().filter(|&x| x <= &new_balance_threshold).copied().collect();
+    let mut pruned_untaken_indents: Vec<_> = untaken_indents
+        .iter()
+        .filter(|&x| x <= &new_balance_threshold)
+        .copied()
+        .collect();
 
     if indent_stats.impulse > indent_stats.trough && !has_newline {
         for i in indent_stats.trough..indent_stats.impulse {
             let indent_val = incoming_balance + i + 1;
 
-            if !indent_stats.implicit_indents.contains(&(indent_val - incoming_balance)) {
+            if !indent_stats
+                .implicit_indents
+                .contains(&(indent_val - incoming_balance))
+            {
                 pruned_untaken_indents.push(indent_val);
             }
         }
@@ -261,7 +294,9 @@ fn crawl_indent_points(
                 let mut unclosed_bracket = false;
 
                 if allow_implicit_indents
-                    && elements[idx + 1].class_types1().contains(SyntaxKind::StartBracket)
+                    && elements[idx + 1]
+                        .class_types1()
+                        .contains(SyntaxKind::StartBracket)
                 {
                     let depth = elements[idx + 1].as_block().unwrap().depth_info.stack_depth;
 
@@ -311,7 +346,11 @@ fn crawl_indent_points(
                         update_crawl_balances(untaken_indents, indent_balance, &indent_stats, true);
 
                     let implicit_indents = take(&mut indent_stats.implicit_indents);
-                    indent_stats = IndentStats { impulse: 0, trough: 0, implicit_indents };
+                    indent_stats = IndentStats {
+                        impulse: 0,
+                        trough: 0,
+                        implicit_indents,
+                    };
                 } else {
                     acc.push(IndentPoint {
                         idx: cached_point.idx,
@@ -392,7 +431,10 @@ fn map_line_buffers(
         previous_points.insert(indent_point.idx, indent_point.clone());
 
         if !indent_point.is_line_break {
-            let indent_stats = elements[indent_point.idx].as_point().unwrap().indent_impulse();
+            let indent_stats = elements[indent_point.idx]
+                .as_point()
+                .unwrap()
+                .indent_impulse();
 
             if (indent_stats.implicit_indents.is_empty() || !allow_implicit_indents)
                 && indent_point.indent_impulse > indent_point.indent_trough
@@ -423,7 +465,10 @@ fn map_line_buffers(
                     break;
                 };
 
-                if elements[loc + 1].class_types1().contains(SyntaxKind::StartBracket) {
+                if elements[loc + 1]
+                    .class_types1()
+                    .contains(SyntaxKind::StartBracket)
+                {
                     continue;
                 }
 
@@ -484,7 +529,10 @@ fn deduce_line_current_indent(
     if elements[0].segments().is_empty() {
         return "".into();
     } else if let Some(last_line_break_idx) = last_line_break_idx {
-        indent_seg = elements[last_line_break_idx].as_point().unwrap().get_indent_segment();
+        indent_seg = elements[last_line_break_idx]
+            .as_point()
+            .unwrap()
+            .get_indent_segment();
     } else if matches!(elements[0], ReflowElement::Point(_))
         && elements[0].segments()[0]
             .get_position_marker()
@@ -538,8 +586,9 @@ fn lint_line_starting_indent(
         deduce_line_current_indent(elements, indent_points.last().unwrap().last_line_break_idx);
     let initial_point = elements[initial_point_idx].as_point().unwrap();
     let desired_indent_units = indent_line.desired_indent_units(forced_indents);
-    let desired_starting_indent =
-        desired_indent_units.try_into().map_or(String::new(), |n| single_indent.repeat(n));
+    let desired_starting_indent = desired_indent_units
+        .try_into()
+        .map_or(String::new(), |n| single_indent.repeat(n));
 
     if current_indent == desired_starting_indent {
         return Vec::new();
@@ -563,8 +612,12 @@ fn lint_line_starting_indent(
             }
         }
 
-        if elements[initial_point_idx - 1].class_types1().contains(SyntaxKind::BlockComment)
-            && elements[initial_point_idx + 1].class_types1().contains(SyntaxKind::BlockComment)
+        if elements[initial_point_idx - 1]
+            .class_types1()
+            .contains(SyntaxKind::BlockComment)
+            && elements[initial_point_idx + 1]
+                .class_types1()
+                .contains(SyntaxKind::BlockComment)
             && current_indent.len() > desired_starting_indent.len()
         {
             return Vec::new();
@@ -576,7 +629,12 @@ fn lint_line_starting_indent(
         let fixes = if init_seg.is_type(SyntaxKind::Placeholder) {
             unimplemented!()
         } else {
-            initial_point.segments.clone().into_iter().map(LintFix::delete).collect_vec()
+            initial_point
+                .segments
+                .clone()
+                .into_iter()
+                .map(LintFix::delete)
+                .collect_vec()
         };
 
         (
@@ -590,7 +648,14 @@ fn lint_line_starting_indent(
             ReflowPoint::new(Vec::new()),
         )
     } else {
-        initial_point.indent_to(tables, &desired_starting_indent, None, before.into(), None, None)
+        initial_point.indent_to(
+            tables,
+            &desired_starting_indent,
+            None,
+            before.into(),
+            None,
+            None,
+        )
     };
 
     elements[initial_point_idx] = new_point.into();
@@ -638,7 +703,11 @@ fn lint_line_untaken_positive_indents(
 
     // Account for the closing trough.
     let mut closing_trough = last_ip.initial_indent_balance
-        + if last_ip.indent_trough == 0 { last_ip.indent_impulse } else { last_ip.indent_trough };
+        + if last_ip.indent_trough == 0 {
+            last_ip.indent_impulse
+        } else {
+            last_ip.indent_trough
+        };
 
     // Edge case: Adjust closing trough for trailing indents after comments
     // disrupting closing trough.
@@ -667,7 +736,13 @@ fn lint_line_untaken_positive_indents(
 
     // On the way up we're looking for whether the ending balance was an untaken
     // indent or not.
-    if !indent_line.indent_points.last().unwrap().untaken_indents.contains(&closing_trough) {
+    if !indent_line
+        .indent_points
+        .last()
+        .unwrap()
+        .untaken_indents
+        .contains(&closing_trough)
+    {
         // If the closing point doesn't correspond to an untaken indent within the line
         // (i.e. it _was_ taken), then there won't be an appropriate place to
         // force an indent.
@@ -725,9 +800,12 @@ fn lint_line_untaken_negative_indents(
             continue;
         }
 
-        let covered_indents: AHashSet<isize> =
-            Range::new(ip.initial_indent_balance, ip.initial_indent_balance + ip.indent_trough, -1)
-                .collect();
+        let covered_indents: AHashSet<isize> = Range::new(
+            ip.initial_indent_balance,
+            ip.initial_indent_balance + ip.indent_trough,
+            -1,
+        )
+        .collect();
 
         let untaken_indents: AHashSet<_> = ip
             .untaken_indents
@@ -782,8 +860,13 @@ fn lint_line_buffer_indents(
 ) -> Vec<LintResult> {
     let mut results = Vec::new();
 
-    let mut new_results =
-        lint_line_starting_indent(tables, elements, &indent_line, single_indent, forced_indents);
+    let mut new_results = lint_line_starting_indent(
+        tables,
+        elements,
+        &indent_line,
+        single_indent,
+        forced_indents,
+    );
     results.append(&mut new_results);
 
     let (mut new_results, mut new_indents) = lint_line_untaken_positive_indents(
@@ -936,13 +1019,19 @@ fn increment_balance(
     if indent_stats.trough < 0 {
         for b in (0..indent_stats.trough.abs()).step_by(1) {
             let key = FloatTypeWrapper::new((balance + -b) as f64);
-            matched_indents.entry(key).or_insert_with(Vec::new).push(elem_idx);
+            matched_indents
+                .entry(key)
+                .or_insert_with(Vec::new)
+                .push(elem_idx);
         }
         balance += indent_stats.impulse;
     } else if indent_stats.impulse > 0 {
         for b in 0..indent_stats.impulse {
             let key = FloatTypeWrapper::new((balance + b + 1) as f64);
-            matched_indents.entry(key).or_insert_with(Vec::new).push(elem_idx);
+            matched_indents
+                .entry(key)
+                .or_insert_with(Vec::new)
+                .push(elem_idx);
         }
         balance += indent_stats.impulse;
     }
@@ -1030,11 +1119,27 @@ fn fix_long_line_with_comment(
     last_indent_idx: Option<usize>,
     trailing_comments: TrailingComments,
 ) -> (ReflowSequenceType, Vec<LintFix>) {
-    if line_buffer.last().unwrap().segments().last().unwrap().raw().contains("noqa") {
+    if line_buffer
+        .last()
+        .unwrap()
+        .segments()
+        .last()
+        .unwrap()
+        .raw()
+        .contains("noqa")
+    {
         return (elements.clone(), Vec::new());
     }
 
-    if line_buffer.last().unwrap().segments().last().unwrap().raw().len() + current_indent.len()
+    if line_buffer
+        .last()
+        .unwrap()
+        .segments()
+        .last()
+        .unwrap()
+        .raw()
+        .len()
+        + current_indent.len()
         > line_length_limit
     {
         return (elements.clone(), Vec::new());
@@ -1042,8 +1147,10 @@ fn fix_long_line_with_comment(
 
     let comment_seg = line_buffer.last().unwrap().segments().last().unwrap();
     let first_seg = line_buffer.first().unwrap().segments().first().unwrap();
-    let last_elem_idx =
-        elements.iter().position(|elem| elem == line_buffer.last().unwrap()).unwrap();
+    let last_elem_idx = elements
+        .iter()
+        .position(|elem| elem == line_buffer.last().unwrap())
+        .unwrap();
 
     if trailing_comments == TrailingComments::After {
         let mut elements = elements.clone();
@@ -1056,7 +1163,10 @@ fn fix_long_line_with_comment(
             None,
             None,
         );
-        elements.splice(last_elem_idx - 1..last_elem_idx, [new_point.into()].iter().cloned());
+        elements.splice(
+            last_elem_idx - 1..last_elem_idx,
+            [new_point.into()].iter().cloned(),
+        );
         return (elements, fixes_from_results(results.into_iter()).collect());
     }
 
@@ -1217,7 +1327,9 @@ pub fn lint_line_length(
         if elem
             .as_point()
             .filter(|point| {
-                elem_buffer[i + 1].class_types1().contains(SyntaxKind::EndOfFile)
+                elem_buffer[i + 1]
+                    .class_types1()
+                    .contains(SyntaxKind::EndOfFile)
                     || has_untemplated_newline(point)
             })
             .is_some()
@@ -1245,7 +1357,12 @@ pub fn lint_line_length(
         let line_no = first_seg.get_position_marker().unwrap().working_line_no;
 
         if line_len <= line_length_limit {
-            tracing::info!("Line #{}. Length {} <= {}. OK.", line_no, line_len, line_length_limit,)
+            tracing::info!(
+                "Line #{}. Length {} <= {}. OK.",
+                line_no,
+                line_len,
+                line_length_limit,
+            )
         } else {
             let line_elements = chain(line_buffer.clone(), Some(elem.clone())).collect_vec();
             let mut fixes: Vec<LintFix> = Vec::new();
@@ -1283,8 +1400,10 @@ pub fn lint_line_length(
                 tracing::debug!("Handling as unfixable line.");
             } else {
                 tracing::debug!("Handling as normal line.");
-                let target_balance =
-                    matched_indents.keys().map(|k| k.into_f64()).fold(f64::INFINITY, f64::min);
+                let target_balance = matched_indents
+                    .keys()
+                    .map(|k| k.into_f64())
+                    .fold(f64::INFINITY, f64::min);
                 let mut desired_indent = current_indent.to_string();
 
                 if target_balance >= 1.0 {
@@ -1319,7 +1438,13 @@ pub fn lint_line_length(
                 fixes = fixes_from_results(line_results.into_iter()).collect();
             }
 
-            results.push(LintResult::new(first_seg.into(), fixes, None, desc.into(), None))
+            results.push(LintResult::new(
+                first_seg.into(),
+                fixes,
+                None,
+                desc.into(),
+                None,
+            ))
         }
 
         line_buffer.clear();
@@ -1388,7 +1513,12 @@ impl Range {
         let start = stop + length * self.step;
         let step = -self.step;
 
-        Self { index: 0, start, step, length }
+        Self {
+            index: 0,
+            start,
+            step,
+            length,
+        }
     }
 }
 
@@ -1398,7 +1528,11 @@ impl Iterator for Range {
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.index;
         self.index += 1;
-        if index < self.length { Some(self.start + index * self.step) } else { None }
+        if index < self.length {
+            Some(self.start + index * self.step)
+        } else {
+            None
+        }
     }
 }
 
@@ -1548,7 +1682,10 @@ mod tests {
         ];
 
         for (indent_line, forced_indents, expected_units) in cases {
-            assert_eq!(indent_line.desired_indent_units(forced_indents), expected_units);
+            assert_eq!(
+                indent_line.desired_indent_units(forced_indents),
+                expected_units
+            );
         }
     }
 }

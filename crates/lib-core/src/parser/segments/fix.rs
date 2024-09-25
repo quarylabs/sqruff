@@ -17,7 +17,11 @@ pub struct SourceFix {
 
 impl SourceFix {
     pub fn new(edit: SmolStr, source_slice: Range<usize>, templated_slice: Range<usize>) -> Self {
-        SourceFix { edit, source_slice, templated_slice }
+        SourceFix {
+            edit,
+            source_slice,
+            templated_slice,
+        }
     }
 }
 
@@ -44,7 +48,13 @@ impl FixPatch {
         templated_str: String,
         source_str: String,
     ) -> Self {
-        FixPatch { templated_slice, fixed_raw, source_slice, templated_str, source_str }
+        FixPatch {
+            templated_slice,
+            fixed_raw,
+            source_slice,
+            templated_str,
+            source_str,
+        }
     }
 
     /// Generate a tuple of this fix for deduping.

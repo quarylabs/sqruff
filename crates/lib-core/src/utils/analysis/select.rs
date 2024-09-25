@@ -61,12 +61,15 @@ pub fn get_select_statement_info(
         }
     }
 
-    let select_clause =
-        segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) }).unwrap();
+    let select_clause = segment
+        .child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })
+        .unwrap();
     let select_targets =
         select_clause.children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
-    let select_targets =
-        select_targets.iter().map(|it| SelectClauseElementSegment(it.clone())).collect_vec();
+    let select_targets = select_targets
+        .iter()
+        .map(|it| SelectClauseElementSegment(it.clone()))
+        .collect_vec();
 
     let col_aliases = select_targets.iter().flat_map(|s| s.alias()).collect_vec();
 
@@ -166,7 +169,9 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
         &SyntaxSet::EMPTY,
         true,
     ) {
-        if dialect.sets("value_table_functions").contains(function_name.raw().to_uppercase().trim())
+        if dialect
+            .sets("value_table_functions")
+            .contains(function_name.raw().to_uppercase().trim())
         {
             return true;
         }
@@ -234,7 +239,10 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
                 None,
                 Some(arrow_operator),
                 Some(|it: &ErasedSegment| {
-                    matches!(it.get_type(), SyntaxKind::Bracketed | SyntaxKind::ColumnReference)
+                    matches!(
+                        it.get_type(),
+                        SyntaxKind::Bracketed | SyntaxKind::ColumnReference
+                    )
                 }),
                 None,
             );
@@ -244,8 +252,9 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
 
             match child_segment.get_type() {
                 SyntaxKind::Bracketed => {
-                    let start_bracket =
-                        child_segment.child(&SyntaxSet::single(SyntaxKind::StartBracket)).unwrap();
+                    let start_bracket = child_segment
+                        .child(&SyntaxSet::single(SyntaxKind::StartBracket))
+                        .unwrap();
 
                     if start_bracket.raw() == "(" {
                         let bracketed_arguments =

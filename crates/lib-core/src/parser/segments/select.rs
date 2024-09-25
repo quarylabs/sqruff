@@ -19,7 +19,10 @@ impl SelectClauseElementSegment {
             .clone();
 
         let alias_identifier_segment = alias_expression_segment.segments().iter().find(|it| {
-            matches!(it.get_type(), SyntaxKind::NakedIdentifier | SyntaxKind::Identifier)
+            matches!(
+                it.get_type(),
+                SyntaxKind::NakedIdentifier | SyntaxKind::Identifier
+            )
         })?;
 
         let aliased_segment = self

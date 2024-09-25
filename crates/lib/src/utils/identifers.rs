@@ -18,9 +18,9 @@ pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment
 
             match policy {
                 "aliases" if is_alias => true,
-                "column_aliases" if is_alias => {
-                    !parent_stack.iter().any(|p| p.is_type(SyntaxKind::FromClause))
-                }
+                "column_aliases" if is_alias => !parent_stack
+                    .iter()
+                    .any(|p| p.is_type(SyntaxKind::FromClause)),
                 _ => false,
             }
         }

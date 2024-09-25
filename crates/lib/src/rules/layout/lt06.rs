@@ -57,10 +57,14 @@ FROM foo
         let children = segment.children(None);
 
         let function_name = children
-            .find_first(Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::FunctionName)))
+            .find_first(Some(|segment: &ErasedSegment| {
+                segment.is_type(SyntaxKind::FunctionName)
+            }))
             .pop();
         let start_bracket = children
-            .find_first(Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::Bracketed)))
+            .find_first(Some(|segment: &ErasedSegment| {
+                segment.is_type(SyntaxKind::Bracketed)
+            }))
             .pop();
 
         let mut intermediate_segments = children.select::<fn(&ErasedSegment) -> bool>(
@@ -76,13 +80,22 @@ FROM foo
             })) {
                 vec![LintResult::new(
                     intermediate_segments.first().cloned(),
-                    intermediate_segments.into_iter().map(LintFix::delete).collect_vec(),
+                    intermediate_segments
+                        .into_iter()
+                        .map(LintFix::delete)
+                        .collect_vec(),
                     None,
                     None,
                     None,
                 )]
             } else {
-                vec![LintResult::new(intermediate_segments.pop().into(), vec![], None, None, None)]
+                vec![LintResult::new(
+                    intermediate_segments.pop().into(),
+                    vec![],
+                    None,
+                    None,
+                    None,
+                )]
             };
         }
 

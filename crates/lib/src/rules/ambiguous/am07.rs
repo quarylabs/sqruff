@@ -90,7 +90,13 @@ FROM t
         // if queries had different select target counts and all wildcards had been
         // resolved; fail
         if set_segment_select_sizes.len() > 1 && resolve_wildcard {
-            vec![LintResult::new(Some(context.segment.clone()), vec![], None, None, None)]
+            vec![LintResult::new(
+                Some(context.segment.clone()),
+                vec![],
+                None,
+                None,
+                None,
+            )]
         } else {
             vec![]
         }

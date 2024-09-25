@@ -40,7 +40,9 @@ impl RuleAL07 {
 
         let mut table_counts = AHashMap::new();
         for ai in &to_check {
-            *table_counts.entry(ai.table_ref.raw().to_smolstr()).or_insert(0) += 1;
+            *table_counts
+                .entry(ai.table_ref.raw().to_smolstr())
+                .or_insert(0) += 1;
         }
 
         let mut table_aliases: AHashMap<_, AHashSet<_>> = AHashMap::new();
@@ -62,13 +64,16 @@ impl RuleAL07 {
                 // Skip processing if table appears more than once with different aliases
                 let raw_table = table_ref.raw().to_smolstr();
                 if table_counts.get(&raw_table).unwrap_or(&0) > &1
-                    && table_aliases.get(&raw_table).map_or(false, |aliases| aliases.len() > 1)
+                    && table_aliases
+                        .get(&raw_table)
+                        .map_or(false, |aliases| aliases.len() > 1)
                 {
                     continue;
                 }
 
-                let select_clause =
-                    segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) }).unwrap();
+                let select_clause = segment
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })
+                    .unwrap();
                 let mut ids_refs = Vec::new();
 
                 let alias_name = alias_identifier_ref.raw();
@@ -148,7 +153,9 @@ impl RuleAL07 {
                     alias_info.alias_identifier_ref,
                     fixes,
                     None,
-                    "Avoid aliases in from clauses and join conditions.".to_owned().into(),
+                    "Avoid aliases in from clauses and join conditions."
+                        .to_owned()
+                        .into(),
                     None,
                 ));
             }
@@ -210,7 +217,10 @@ impl RuleAL07 {
 
 impl Rule for RuleAL07 {
     fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL07 { force_enable: _config["force_enable"].as_bool().unwrap() }.erased())
+        Ok(RuleAL07 {
+            force_enable: _config["force_enable"].as_bool().unwrap(),
+        }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -267,9 +277,16 @@ FROM
             return Vec::new();
         }
 
-        let children = FunctionalContext::new(context.clone()).segment().children(None);
+        let children = FunctionalContext::new(context.clone())
+            .segment()
+            .children(None);
         let from_clause_segment = children
-            .select(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::FromClause)), None, None, None)
+            .select(
+                Some(|it: &ErasedSegment| it.is_type(SyntaxKind::FromClause)),
+                None,
+                None,
+                None,
+            )
             .find_first::<fn(&_) -> _>(None);
 
         let base_table = from_clause_segment

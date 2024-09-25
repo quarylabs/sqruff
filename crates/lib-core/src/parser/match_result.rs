@@ -12,9 +12,15 @@ use crate::parser::markers::PositionMarker;
 fn get_point_pos_at_idx(segments: &[ErasedSegment], idx: u32) -> PositionMarker {
     let idx = idx as usize;
     if idx < segments.len() {
-        segments[idx].get_position_marker().unwrap().start_point_marker()
+        segments[idx]
+            .get_position_marker()
+            .unwrap()
+            .start_point_marker()
     } else {
-        segments[idx - 1].get_position_marker().unwrap().end_point_marker()
+        segments[idx - 1]
+            .get_position_marker()
+            .unwrap()
+            .end_point_marker()
     }
 }
 
@@ -34,7 +40,10 @@ pub struct MatchResult {
 
 impl MatchResult {
     pub fn from_span(start: u32, end: u32) -> Self {
-        Self { span: Span { start, end }, ..Default::default() }
+        Self {
+            span: Span { start, end },
+            ..Default::default()
+        }
     }
 
     pub fn empty_at(idx: u32) -> Self {
@@ -70,7 +79,10 @@ impl MatchResult {
             return self;
         }
 
-        let new_span = Span { start: self.span.start, end: other.span.end };
+        let new_span = Span {
+            start: self.span.start,
+            end: other.span.end,
+        };
         let mut child_matches = Vec::new();
         for mut matched in [self, other.into_owned()] {
             if matched.matched.is_some() {
@@ -81,7 +93,12 @@ impl MatchResult {
             }
         }
 
-        MatchResult { span: new_span, insert_segments, child_matches, ..Default::default() }
+        MatchResult {
+            span: new_span,
+            insert_segments,
+            child_matches,
+            ..Default::default()
+        }
     }
 
     pub(crate) fn wrap(self, outer_matched: Matched) -> Self {
@@ -98,7 +115,12 @@ impl MatchResult {
             self.child_matches
         };
 
-        Self { span, matched: Some(outer_matched), insert_segments, child_matches }
+        Self {
+            span,
+            matched: Some(outer_matched),
+            insert_segments,
+            child_matches,
+        }
     }
 
     pub fn apply(
@@ -117,7 +139,10 @@ impl MatchResult {
             IntMap::with_capacity(self.insert_segments.len() + self.child_matches.len());
 
         for (pos, insert) in self.insert_segments {
-            trigger_locs.entry(pos).or_default().push(Trigger::Meta(insert));
+            trigger_locs
+                .entry(pos)
+                .or_default()
+                .push(Trigger::Meta(insert));
         }
 
         for match_result in self.child_matches {
@@ -179,11 +204,9 @@ impl MatchResult {
             Matched::Newtype(kind) => {
                 let old = result_segments.pop().unwrap();
 
-                vec![
-                    SegmentBuilder::token(old.id(), old.raw().as_ref(), kind)
-                        .with_position(old.get_position_marker().unwrap().clone())
-                        .finish(),
-                ]
+                vec![SegmentBuilder::token(old.id(), old.raw().as_ref(), kind)
+                    .with_position(old.get_position_marker().unwrap().clone())
+                    .finish()]
             }
         }
     }

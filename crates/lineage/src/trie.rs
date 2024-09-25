@@ -6,8 +6,12 @@ pub(crate) fn new(keywords: impl Iterator<Item = Vec<String>>) -> HashMap<String
     for key_vec in keywords {
         for key in key_vec {
             let mut current = &mut trie;
-            current =
-                current.entry(key.clone()).or_insert_with(TrieNode::new).children.as_mut().unwrap();
+            current = current
+                .entry(key.clone())
+                .or_insert_with(TrieNode::new)
+                .children
+                .as_mut()
+                .unwrap();
             current.insert("0".to_string(), TrieNode { children: None });
         }
     }
@@ -22,7 +26,9 @@ pub(crate) struct TrieNode {
 
 impl TrieNode {
     fn new() -> Self {
-        TrieNode { children: Some(HashMap::new()) }
+        TrieNode {
+            children: Some(HashMap::new()),
+        }
     }
 }
 

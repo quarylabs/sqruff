@@ -3,8 +3,7 @@ use crate::parser::segments::fix::SourceFix;
 use crate::rules::LintFix;
 
 /// For a given fix anchor, count of the fix edit types and fixes for it."""
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct AnchorEditInfo {
     pub delete: usize,
     pub replace: usize,

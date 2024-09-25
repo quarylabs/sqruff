@@ -21,7 +21,11 @@ impl Rule for RuleCV06 {
     fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
         let multiline_newline = config["multiline_newline"].as_bool().unwrap();
         let require_final_semicolon = config["require_final_semicolon"].as_bool().unwrap();
-        Ok(Self { multiline_newline, require_final_semicolon }.erased())
+        Ok(Self {
+            multiline_newline,
+            require_final_semicolon,
+        }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -125,8 +129,14 @@ impl RuleCV06 {
         {
             assert!(comment_segment.get_position_marker().is_some());
             assert!(anchor_segment.get_position_marker().is_some());
-            if comment_segment.get_position_marker().unwrap().working_line_no
-                == anchor_segment.get_position_marker().unwrap().working_line_no
+            if comment_segment
+                .get_position_marker()
+                .unwrap()
+                .working_line_no
+                == anchor_segment
+                    .get_position_marker()
+                    .unwrap()
+                    .working_line_no
                 && !comment_segment.is_type(SyntaxKind::BlockComment)
             {
                 return comment_segment.clone();
@@ -163,7 +173,11 @@ impl RuleCV06 {
         parent_segment: ErasedSegment,
     ) -> Option<LintResult> {
         let info = Self::get_segment_move_context(target_segment.clone(), parent_segment.clone());
-        let semicolon_newline = if !info.is_one_line { self.multiline_newline } else { false };
+        let semicolon_newline = if !info.is_one_line {
+            self.multiline_newline
+        } else {
+            false
+        };
 
         if !semicolon_newline {
             self.handle_semicolon_same_line(tables, target_segment, parent_segment, info)
@@ -197,7 +211,13 @@ impl RuleCV06 {
             ],
         );
 
-        Some(LintResult::new(Some(info.anchor_segment), fixes, None, None, None))
+        Some(LintResult::new(
+            Some(info.anchor_segment),
+            fixes,
+            None,
+            None,
+            None,
+        ))
     }
 
     /// Adjust segments to not move preceding inline comments.
@@ -230,8 +250,11 @@ impl RuleCV06 {
         // before_segment accordingly.
         if let Some(same_line_comment) = same_line_comment {
             let anchor_segment = same_line_comment.clone();
-            let before_segment =
-                before_segment.iter().take_while(|s| *s != same_line_comment).cloned().collect();
+            let before_segment = before_segment
+                .iter()
+                .take_while(|s| *s != same_line_comment)
+                .cloned()
+                .collect();
             let before_segment = Segments::from_vec(before_segment, None);
             (before_segment, anchor_segment)
         } else {
@@ -255,8 +278,9 @@ impl RuleCV06 {
         );
 
         if before_segment.len() == 1
-            && before_segment
-                .all(Some(|segment: &ErasedSegment| segment.is_type(SyntaxKind::Newline)))
+            && before_segment.all(Some(|segment: &ErasedSegment| {
+                segment.is_type(SyntaxKind::Newline)
+            }))
         {
             return None;
         }
@@ -290,7 +314,13 @@ impl RuleCV06 {
             )
         };
 
-        Some(LintResult::new(Some(anchor_segment), fixes, None, None, None))
+        Some(LintResult::new(
+            Some(anchor_segment),
+            fixes,
+            None,
+            None,
+            None,
+        ))
     }
 
     fn create_semicolon_and_delete_whitespace(
@@ -301,8 +331,12 @@ impl RuleCV06 {
         mut whitespace_deletions: Segments,
         create_segments: Vec<ErasedSegment>,
     ) -> Vec<LintFix> {
-        let anchor_segment =
-            choose_anchor_segment(&parent_segment, EditType::CreateAfter, &anchor_segment, true);
+        let anchor_segment = choose_anchor_segment(
+            &parent_segment,
+            EditType::CreateAfter,
+            &anchor_segment,
+            true,
+        );
 
         let mut lintfix_fn: fn(
             ErasedSegment,
@@ -358,7 +392,11 @@ impl RuleCV06 {
             return None;
         }
 
-        let semicolon_newline = if is_one_line { false } else { self.multiline_newline };
+        let semicolon_newline = if is_one_line {
+            false
+        } else {
+            self.multiline_newline
+        };
         if !semi_colon_exist_flag {
             // Create the final semicolon if it does not yet exist.
 
@@ -366,14 +404,12 @@ impl RuleCV06 {
             return if !semicolon_newline {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.unwrap().clone(),
-                    vec![
-                        SegmentBuilder::token(
-                            tables.next_id(),
-                            ";",
-                            SyntaxKind::StatementTerminator,
-                        )
-                        .finish(),
-                    ],
+                    vec![SegmentBuilder::token(
+                        tables.next_id(),
+                        ";",
+                        SyntaxKind::StatementTerminator,
+                    )
+                    .finish()],
                     None,
                 )];
                 Some(LintResult::new(
@@ -449,12 +485,18 @@ impl RuleCV06 {
         };
 
         let first_code = reversed_raw_stack
-            .select(Some(|s: &ErasedSegment| s.is_code()), None, Some(&target_segment), None)
+            .select(
+                Some(|s: &ErasedSegment| s.is_code()),
+                None,
+                Some(&target_segment),
+                None,
+            )
             .first()
             .cloned();
 
-        let is_one_line = first_code
-            .map_or(false, |segment| Self::is_one_line_statement(parent_segment, segment.clone()));
+        let is_one_line = first_code.map_or(false, |segment| {
+            Self::is_one_line_statement(parent_segment, segment.clone())
+        });
 
         // We can tidy up any whitespace between the segment and the preceding
         // code/comment segment. Don't mess with the comment spacing/placement.
@@ -464,7 +506,12 @@ impl RuleCV06 {
             None,
             None,
         );
-        SegmentMoveContext { anchor_segment, is_one_line, before_segment, whitespace_deletions }
+        SegmentMoveContext {
+            anchor_segment,
+            is_one_line,
+            before_segment,
+            whitespace_deletions,
+        }
     }
 }
 
@@ -488,7 +535,11 @@ pub fn choose_anchor_segment(
     let mut anchor = segment.clone();
     let mut child = segment.clone();
 
-    let mut path = root_segment.path_to(segment).into_iter().map(|it| it.segment).collect_vec();
+    let mut path = root_segment
+        .path_to(segment)
+        .into_iter()
+        .map(|it| it.segment)
+        .collect_vec();
     path.reverse();
 
     for seg in path {
@@ -499,7 +550,11 @@ pub fn choose_anchor_segment(
         let mut children_lists = Vec::new();
         if filter_meta {
             children_lists.push(
-                seg.segments().iter().filter(|child| !child.is_meta()).cloned().collect_vec(),
+                seg.segments()
+                    .iter()
+                    .filter(|child| !child.is_meta())
+                    .cloned()
+                    .collect_vec(),
             );
         }
         children_lists.push(seg.segments().to_vec());

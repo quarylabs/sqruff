@@ -108,10 +108,12 @@ mod tests {
                         path: "q.model_child".to_string(),
                         column: "a".to_string(),
                     }),
-                    Skip(InferenceReason::UnderlyingTest(Test::NotNull(StandardTest {
-                        path: "q.model_parent".to_string(),
-                        column: "a".to_string(),
-                    }))),
+                    Skip(InferenceReason::UnderlyingTest(Test::NotNull(
+                        StandardTest {
+                            path: "q.model_parent".to_string(),
+                            column: "a".to_string(),
+                        },
+                    ))),
                 ),
                 (
                     Test::AcceptedValues(AcceptedValuesTest {
@@ -147,10 +149,12 @@ mod tests {
                         path: "q.model_child".to_string(),
                         column: "a".to_string(),
                     }),
-                    Skip(InferenceReason::UnderlyingTest(Test::Unique(StandardTest {
-                        path: "q.model_parent".to_string(),
-                        column: "a".to_string(),
-                    }))),
+                    Skip(InferenceReason::UnderlyingTest(Test::Unique(
+                        StandardTest {
+                            path: "q.model_parent".to_string(),
+                            column: "a".to_string(),
+                        },
+                    ))),
                 ),
             ]),
         }];
@@ -283,10 +287,12 @@ mod tests {
                         column: "employee_id".to_string(),
                         path: "q.shifts_by_month".to_string(),
                     }),
-                    Skip(InferenceReason::UnderlyingTest(Test::NotNull(StandardTest {
-                        column: "employee_id".to_string(),
-                        path: "q.stg_shifts".to_string(),
-                    }))),
+                    Skip(InferenceReason::UnderlyingTest(Test::NotNull(
+                        StandardTest {
+                            column: "employee_id".to_string(),
+                            path: "q.stg_shifts".to_string(),
+                        },
+                    ))),
                 ),
             ]),
         }];

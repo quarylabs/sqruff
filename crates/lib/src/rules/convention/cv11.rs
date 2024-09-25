@@ -125,8 +125,9 @@ FROM foo;
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
-            let Some(function_name) =
-                context.segment.child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
+            let Some(function_name) = context
+                .segment
+                .child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
             else {
                 return Vec::new();
             };
@@ -374,11 +375,17 @@ FROM foo;
                     _ => {}
                 }
 
-                if convert_content.filter(|convert_content| convert_content.len() > 2).is_some() {
+                if convert_content
+                    .filter(|convert_content| convert_content.len() > 2)
+                    .is_some()
+                {
                     fixes.clear();
                 }
 
-                if cast_content.filter(|cast_content| cast_content.len() > 2).is_some() {
+                if cast_content
+                    .filter(|cast_content| cast_content.len() > 2)
+                    .is_some()
+                {
                     fixes.clear();
                 }
 
@@ -421,8 +428,12 @@ fn convert_fix_list(
     use sqruff_lib_core::parser::segments::base::ErasedSegment;
 
     let mut edits: Vec<ErasedSegment> = vec![
-        SegmentBuilder::token(tables.next_id(), "convert", SyntaxKind::FunctionNameIdentifier)
-            .finish(),
+        SegmentBuilder::token(
+            tables.next_id(),
+            "convert",
+            SyntaxKind::FunctionNameIdentifier,
+        )
+        .finish(),
         SegmentBuilder::token(tables.next_id(), "(", SyntaxKind::StartBracket).finish(),
         convert_arg_1,
         SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
@@ -433,8 +444,12 @@ fn convert_fix_list(
 
     if let Some(later_types) = later_types {
         let pre_edits: Vec<ErasedSegment> = vec![
-            SegmentBuilder::token(tables.next_id(), "convert", SyntaxKind::FunctionNameIdentifier)
-                .finish(),
+            SegmentBuilder::token(
+                tables.next_id(),
+                "convert",
+                SyntaxKind::FunctionNameIdentifier,
+            )
+            .finish(),
             SegmentBuilder::symbol(tables.next_id(), "("),
         ];
 

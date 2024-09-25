@@ -26,7 +26,9 @@ pub fn dialect() -> Dialect {
     dialect
         .sets_mut("unreserved_keywords")
         .extend(super::athena_keywords::ATHENA_UNRESERVED_KEYWORDS);
-    dialect.sets_mut("reserved_keywords").extend(super::athena_keywords::ATHENA_RESERVED_KEYWORDS);
+    dialect
+        .sets_mut("reserved_keywords")
+        .extend(super::athena_keywords::ATHENA_RESERVED_KEYWORDS);
 
     dialect.insert_lexer_matchers(
         // Array Operations: https://prestodb.io/docs/0.217/functions/array.html
@@ -34,57 +36,81 @@ pub fn dialect() -> Dialect {
         "like_operator",
     );
 
-    dialect.bracket_sets_mut("angle_bracket_pairs").extend(vec![(
-        "angle",
-        "StartAngleBracketSegment",
-        "EndAngleBracketSegment",
-        false,
-    )]);
+    dialect
+        .bracket_sets_mut("angle_bracket_pairs")
+        .extend(vec![(
+            "angle",
+            "StartAngleBracketSegment",
+            "EndAngleBracketSegment",
+            false,
+        )]);
 
     dialect.add([
         (
             "StartAngleBracketSegment".into(),
-            StringParser::new("<", SyntaxKind::StartAngleBracket).to_matchable().into(),
+            StringParser::new("<", SyntaxKind::StartAngleBracket)
+                .to_matchable()
+                .into(),
         ),
         (
             "EndAngleBracketSegment".into(),
-            StringParser::new(">", SyntaxKind::EndAngleBracket).to_matchable().into(),
+            StringParser::new(">", SyntaxKind::EndAngleBracket)
+                .to_matchable()
+                .into(),
         ),
         (
             "RightArrowOperator".into(),
-            StringParser::new("->", SyntaxKind::BinaryOperator).to_matchable().into(),
+            StringParser::new("->", SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
         ),
         (
             "JsonfileKeywordSegment".into(),
-            StringParser::new("JSONFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("JSONFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "RcfileKeywordSegment".into(),
-            StringParser::new("RCFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("RCFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "OrcKeywordSegment".into(),
-            StringParser::new("ORCFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("ORCFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "ParquetKeywordSegment".into(),
-            StringParser::new("PARQUETFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("PARQUETFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "AvroKeywordSegment".into(),
-            StringParser::new("AVROFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("AVROFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "IonKeywordSegment".into(),
-            StringParser::new("IONFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("IONFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "SequencefileKeywordSegment".into(),
-            StringParser::new("SEQUENCEFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("SEQUENCEFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "TextfileKeywordSegment".into(),
-            StringParser::new("TEXTFILE", SyntaxKind::FileFormat).to_matchable().into(),
+            StringParser::new("TEXTFILE", SyntaxKind::FileFormat)
+                .to_matchable()
+                .into(),
         ),
         (
             "PropertyGrammar".into(),
@@ -288,8 +314,8 @@ pub fn dialect() -> Dialect {
             "PartitionSpecGrammar".into(),
             Sequence::new(vec_of_erased![
                 Ref::keyword("PARTITION"),
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                    vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
                         Ref::new("ColumnReferenceSegment"),
                         Sequence::new(vec_of_erased![
                             Ref::new("EqualsSegment"),
@@ -298,8 +324,8 @@ pub fn dialect() -> Dialect {
                         .config(|config| {
                             config.optional();
                         })
-                    ]
-                )])])
+                    ])
+                ])])
             ])
             .to_matchable()
             .into(),
@@ -313,7 +339,10 @@ pub fn dialect() -> Dialect {
         (
             "DatetimeWithTZSegment".into(),
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("TIMESTAMP"), Ref::keyword("TIME")]),
+                one_of(vec_of_erased![
+                    Ref::keyword("TIMESTAMP"),
+                    Ref::keyword("TIME")
+                ]),
                 Ref::keyword("WITH"),
                 Ref::keyword("TIME"),
                 Ref::keyword("ZONE")
@@ -367,7 +396,10 @@ pub fn dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        ("TrimParametersGrammar".into(), Nothing::new().to_matchable().into()),
+        (
+            "TrimParametersGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         (
             "NakedIdentifierSegment".into(),
             SegmentGenerator::new(|dialect| {
@@ -412,13 +444,11 @@ pub fn dialect() -> Dialect {
             ansi_dialect
                 .grammar("PostFunctionGrammar")
                 .copy(
-                    Some(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("WITH"),
-                            Ref::keyword("ORDINALITY")
-                        ])
-                        .config(|config| config.optional())
-                    ]),
+                    Some(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("WITH"),
+                        Ref::keyword("ORDINALITY")
+                    ])
+                    .config(|config| config.optional())]),
                     None,
                     None,
                     None,
@@ -520,14 +550,14 @@ pub fn dialect() -> Dialect {
             "StructTypeSchemaSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::StructTypeSchema,
-                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Sequence::new(
-                    vec_of_erased![
+                Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
+                    Sequence::new(vec_of_erased![
                         Ref::new("NakedIdentifierSegment"),
                         Ref::new("ColonSegment"),
                         Ref::new("DatatypeSegment"),
                         Ref::new("CommentGrammar").optional()
-                    ]
-                )])])
+                    ])
+                ])])
                 .config(|config| {
                     config.bracket_pairs_set = "angle_bracket_pairs";
                     config.bracket_type = "angle";
@@ -945,7 +975,10 @@ pub fn dialect() -> Dialect {
                         Ref::new("TableReferenceSegment")
                     ]),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("DATABASES"), Ref::keyword("SCHEMAS")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("DATABASES"),
+                            Ref::keyword("SCHEMAS")
+                        ]),
                         Sequence::new(vec_of_erased![
                             Ref::keyword("LIKE"),
                             Ref::new("QuotedLiteralSegment")

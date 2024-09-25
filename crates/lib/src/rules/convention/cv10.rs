@@ -26,12 +26,14 @@ impl PreferredQuotedLiteralStyle {
     fn info(&self) -> QuoteInfo {
         match self {
             PreferredQuotedLiteralStyle::Consistent => unimplemented!(),
-            PreferredQuotedLiteralStyle::SingleQuotes => {
-                QuoteInfo { preferred_quote_char: '\'', alternate_quote_char: '"' }
-            }
-            PreferredQuotedLiteralStyle::DoubleQuotes => {
-                QuoteInfo { preferred_quote_char: '"', alternate_quote_char: '\'' }
-            }
+            PreferredQuotedLiteralStyle::SingleQuotes => QuoteInfo {
+                preferred_quote_char: '\'',
+                alternate_quote_char: '"',
+            },
+            PreferredQuotedLiteralStyle::DoubleQuotes => QuoteInfo {
+                preferred_quote_char: '"',
+                alternate_quote_char: '\'',
+            },
         }
     }
 }
@@ -104,15 +106,19 @@ from foo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // TODO: "databricks", "hive", "mysql"
         if !(self.force_enable
-            || matches!(context.dialect.name, DialectKind::Bigquery | DialectKind::Sparksql))
+            || matches!(
+                context.dialect.name,
+                DialectKind::Bigquery | DialectKind::Sparksql
+            ))
         {
             return Vec::new();
         }
 
         let preferred_quoted_literal_style =
             if self.preferred_quoted_literal_style == PreferredQuotedLiteralStyle::Consistent {
-                let preferred_quoted_literal_style =
-                    context.try_get::<PreferredQuotedLiteralStyle>().unwrap_or_else(|| {
+                let preferred_quoted_literal_style = context
+                    .try_get::<PreferredQuotedLiteralStyle>()
+                    .unwrap_or_else(|| {
                         if context.segment.raw().ends_with('"') {
                             PreferredQuotedLiteralStyle::DoubleQuotes
                         } else {
@@ -138,14 +144,12 @@ from foo
                 context.segment.clone().into(),
                 vec![LintFix::replace(
                     context.segment,
-                    vec![
-                        SegmentBuilder::token(
-                            context.tables.next_id(),
-                            &fixed_string,
-                            SyntaxKind::QuotedLiteral,
-                        )
-                        .finish(),
-                    ],
+                    vec![SegmentBuilder::token(
+                        context.tables.next_id(),
+                        &fixed_string,
+                        SyntaxKind::QuotedLiteral,
+                    )
+                    .finish()],
                     None,
                 )],
                 None,
@@ -175,21 +179,34 @@ fn normalize_preferred_quoted_literal_style(
     let mut s = s.to_string();
     let trimmed = s.trim_start_matches(['r', 'b', 'R', 'B']);
 
-    let (orig_quote, new_quote) =
-        if trimmed.chars().take(3).eq(repeat(preferred_quote_char).take(3)) {
-            return s.to_string();
-        } else if trimmed.starts_with(preferred_quote_char) {
-            (preferred_quote_char.to_string(), alternate_quote_char.to_string())
-        } else if trimmed.chars().take(3).eq(repeat(alternate_quote_char).take(3)) {
-            (
-                repeat(alternate_quote_char).take(3).collect(),
-                repeat(preferred_quote_char).take(3).collect(),
-            )
-        } else if trimmed.starts_with(alternate_quote_char) {
-            (alternate_quote_char.to_string(), preferred_quote_char.to_string())
-        } else {
-            return s.to_string();
-        };
+    let (orig_quote, new_quote) = if trimmed
+        .chars()
+        .take(3)
+        .eq(repeat(preferred_quote_char).take(3))
+    {
+        return s.to_string();
+    } else if trimmed.starts_with(preferred_quote_char) {
+        (
+            preferred_quote_char.to_string(),
+            alternate_quote_char.to_string(),
+        )
+    } else if trimmed
+        .chars()
+        .take(3)
+        .eq(repeat(alternate_quote_char).take(3))
+    {
+        (
+            repeat(alternate_quote_char).take(3).collect(),
+            repeat(preferred_quote_char).take(3).collect(),
+        )
+    } else if trimmed.starts_with(alternate_quote_char) {
+        (
+            alternate_quote_char.to_string(),
+            preferred_quote_char.to_string(),
+        )
+    } else {
+        return s.to_string();
+    };
 
     let first_quote_pos = s.find(&orig_quote).unwrap_or_default();
     let prefix = s[..first_quote_pos].to_string();
@@ -213,10 +230,16 @@ fn normalize_preferred_quoted_literal_style(
             body = new_body.clone();
             s = format!("{prefix}{orig_quote}{body}{orig_quote}");
         }
-        new_body =
-            regex_sub_with_overlap(&escaped_orig_quote, &format!(r"$1$2{orig_quote}"), &new_body);
-        new_body =
-            regex_sub_with_overlap(&unescaped_new_quote, &format!(r"$1\\{new_quote}"), &new_body);
+        new_body = regex_sub_with_overlap(
+            &escaped_orig_quote,
+            &format!(r"$1$2{orig_quote}"),
+            &new_body,
+        );
+        new_body = regex_sub_with_overlap(
+            &unescaped_new_quote,
+            &format!(r"$1\\{new_quote}"),
+            &new_body,
+        );
 
         new_body
     };

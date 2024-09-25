@@ -15,35 +15,59 @@ pub fn get_known_styles() -> HashMap<&'static str, Regex> {
     let mut m = HashMap::new();
 
     // e.g. WHERE bla = :name
-    m.insert("colon", Regex::new(r"(?<![:\w\\]):(?P<param_name>\w+)(?!:)").unwrap());
+    m.insert(
+        "colon",
+        Regex::new(r"(?<![:\w\\]):(?P<param_name>\w+)(?!:)").unwrap(),
+    );
 
     // e.g. WHERE bla = table:name - use with caution as more prone to false
     // positives
-    m.insert("colon_nospaces", Regex::new(r"(?<!:):(?P<param_name>\w+)").unwrap());
+    m.insert(
+        "colon_nospaces",
+        Regex::new(r"(?<!:):(?P<param_name>\w+)").unwrap(),
+    );
 
     // e.g. WHERE bla = :2
-    m.insert("numeric_colon", Regex::new(r"(?<![:\w\\]):(?P<param_name>\d+)").unwrap());
+    m.insert(
+        "numeric_colon",
+        Regex::new(r"(?<![:\w\\]):(?P<param_name>\d+)").unwrap(),
+    );
 
     // e.g. WHERE bla = %(name)s
-    m.insert("pyformat", Regex::new(r"(?<![:\w\\])%\((?P<param_name>[\w_]+)\)s").unwrap());
+    m.insert(
+        "pyformat",
+        Regex::new(r"(?<![:\w\\])%\((?P<param_name>[\w_]+)\)s").unwrap(),
+    );
 
     // e.g. WHERE bla = $name or WHERE bla = ${name}
-    m.insert("dollar", Regex::new(r"(?<![:\w\\])\${?(?P<param_name>[\w_]+)}?").unwrap());
+    m.insert(
+        "dollar",
+        Regex::new(r"(?<![:\w\\])\${?(?P<param_name>[\w_]+)}?").unwrap(),
+    );
 
     // e.g. USE ${flyway:database}.schema_name;
-    m.insert("flyway_var", Regex::new(r#"\${(?P<param_name>\w+[:\w_]+)}"#).unwrap());
+    m.insert(
+        "flyway_var",
+        Regex::new(r#"\${(?P<param_name>\w+[:\w_]+)}"#).unwrap(),
+    );
 
     // e.g. WHERE bla = ?
     m.insert("question_mark", Regex::new(r"(?<![:\w\\])\?").unwrap());
 
     // e.g. WHERE bla = $3 or WHERE bla = ${3}
-    m.insert("numeric_dollar", Regex::new(r"(?<![:\w\\])\${?(?P<param_name>[\d]+)}?").unwrap());
+    m.insert(
+        "numeric_dollar",
+        Regex::new(r"(?<![:\w\\])\${?(?P<param_name>[\d]+)}?").unwrap(),
+    );
 
     // e.g. WHERE bla = %s
     m.insert("percent", Regex::new(r"(?<![:\w\\])%s").unwrap());
 
     // e.g. WHERE bla = &s or WHERE bla = &{s} or USE DATABASE {ENV}_MARKETING
-    m.insert("ampersand", Regex::new(r"(?<!&)&{?(?P<param_name>[\w]+)}?").unwrap());
+    m.insert(
+        "ampersand",
+        Regex::new(r"(?<!&)&{?(?P<param_name>[\w]+)}?").unwrap(),
+    );
 
     m
 }
@@ -240,20 +264,23 @@ Also consider making a pull request to the project to have your style added, it 
             };
 
             let last_literal_length = span.start - last_pos_raw;
-            let replacement = template_config.and_then(|config| config.get(&param_name)).map_or(
-                Ok(param_name.clone()),
-                |v| match (v.as_string(), v.as_int(), v.as_bool()) {
-                    (Some(s), None, None) => Ok(s.to_string()),
-                    (None, Some(i), None) => Ok(i.to_string()),
-                    (None, None, Some(b)) => {
-                        Ok(if b { "true".to_string() } else { "false".to_string() })
+            let replacement = template_config
+                .and_then(|config| config.get(&param_name))
+                .map_or(Ok(param_name.clone()), |v| {
+                    match (v.as_string(), v.as_int(), v.as_bool()) {
+                        (Some(s), None, None) => Ok(s.to_string()),
+                        (None, Some(i), None) => Ok(i.to_string()),
+                        (None, None, Some(b)) => Ok(if b {
+                            "true".to_string()
+                        } else {
+                            "false".to_string()
+                        }),
+                        _ => Err(SQLFluffUserError::new(format!(
+                            "Invalid value for parameter replacement: {}",
+                            param_name
+                        ))),
                     }
-                    _ => Err(SQLFluffUserError::new(format!(
-                        "Invalid value for parameter replacement: {}",
-                        param_name
-                    ))),
-                },
-            )?;
+                })?;
 
             // Add the literal to the slices
             template_slices.push(TemplatedFileSlice {
@@ -369,7 +396,11 @@ SELECT user_mail, city_id
 FROM users_data
 WHERE userid = 42 AND date > '2020-01-01'
 "#,
-                vec![("user_id", "42"), ("start_date", "'2020-01-01'"), ("city_ids", "(1, 2, 3)")],
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
             ),
             (
                 r#"
@@ -381,7 +412,11 @@ WHERE userid = :user_id AND date > :start_date"#,
 SELECT user_mail, city_id
 FROM users_data
 WHERE userid = 42 AND date > '2020-01-01'"#,
-                vec![("user_id", "42"), ("start_date", "'2020-01-01'"), ("city_ids", "(1, 2, 3)")],
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
             ),
             (
                 r#"
@@ -397,7 +432,11 @@ FROM users_data
 WHERE (city_id) IN (1, 2, 3)
 AND date > '2020-10-01'
             "#,
-                vec![("user_id", "42"), ("start_date", "'2020-01-01'"), ("city_ids", "(1, 2, 3)")],
+                vec![
+                    ("user_id", "42"),
+                    ("start_date", "'2020-01-01'"),
+                    ("city_ids", "(1, 2, 3)"),
+                ],
             ),
             (
                 r#"
@@ -549,7 +588,11 @@ SELECT user_mail, city_id
 FROM users_data
 WHERE userid = 42 AND date > '2021-10-01'
             "#,
-                vec![("env", "PRD"), ("user_id", "42"), ("start_date", "'2021-10-01'")],
+                vec![
+                    ("env", "PRD"),
+                    ("user_id", "42"),
+                    ("start_date", "'2021-10-01'"),
+                ],
             ),
             (
                 "USE ${flywaydatabase}.test_schema;",
@@ -589,7 +632,9 @@ param_style = {}
                 .as_str(),
             );
             let templater = PlaceholderTemplater {};
-            let out_str = templater.process(in_str, "test.sql", Some(&config), None).unwrap();
+            let out_str = templater
+                .process(in_str, "test.sql", Some(&config), None)
+                .unwrap();
             let out = out_str.to_string();
             assert_eq!(expected_out, out)
         }
@@ -648,7 +693,9 @@ my_name = john
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
-        let out_str = templater.process(in_str, "test", Some(&config), None).unwrap();
+        let out_str = templater
+            .process(in_str, "test", Some(&config), None)
+            .unwrap();
         let out = out_str.to_string();
         assert_eq!("SELECT bla FROM blob WHERE id = john", out)
     }

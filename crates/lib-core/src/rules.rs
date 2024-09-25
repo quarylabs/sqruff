@@ -36,10 +36,18 @@ impl LintFix {
 
         // If `source` is provided, filter segments with position markers.
         let clean_source = source.map_or(Vec::new(), |source| {
-            source.into_iter().filter(|seg| seg.get_position_marker().is_some()).collect()
+            source
+                .into_iter()
+                .filter(|seg| seg.get_position_marker().is_some())
+                .collect()
         });
 
-        LintFix { edit_type, anchor, edit: clean_edit, source: clean_source }
+        LintFix {
+            edit_type,
+            anchor,
+            edit: clean_edit,
+            source: clean_source,
+        }
     }
 
     pub fn create_before(anchor: ErasedSegment, edit_segments: Vec<ErasedSegment>) -> Self {
@@ -59,7 +67,12 @@ impl LintFix {
         edit_segments: Vec<ErasedSegment>,
         source: Option<Vec<ErasedSegment>>,
     ) -> Self {
-        Self::new(EditType::Replace, anchor_segment, Some(edit_segments), source)
+        Self::new(
+            EditType::Replace,
+            anchor_segment,
+            Some(edit_segments),
+            source,
+        )
     }
 
     pub fn delete(anchor_segment: ErasedSegment) -> Self {
@@ -82,7 +95,12 @@ impl LintFix {
         templated_file: &TemplatedFile,
         within_only: bool,
     ) -> AHashSet<RawFileSlice> {
-        let anchor_slice = self.anchor.get_position_marker().unwrap().templated_slice.clone();
+        let anchor_slice = self
+            .anchor
+            .get_position_marker()
+            .unwrap()
+            .templated_slice
+            .clone();
 
         let adjust_boundary = if !within_only { 1 } else { 0 };
 

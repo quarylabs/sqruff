@@ -17,7 +17,11 @@ pub struct LintedFile {
 impl LintedFile {
     #[allow(unused_variables)]
     pub fn get_violations(&self, fixable: Option<bool>) -> Vec<SQLBaseError> {
-        self.violations.clone().into_iter().map(Into::into).collect_vec()
+        self.violations
+            .clone()
+            .into_iter()
+            .map(Into::into)
+            .collect_vec()
     }
 
     ///  Use patches and raw file to fix the source file.
@@ -137,7 +141,9 @@ impl LintedFile {
             }
 
             // Does this patch cover the next source-only slice directly?
-            if source_only_slices.first().map_or(false, |s| patch.source_slice == s.source_slice())
+            if source_only_slices
+                .first()
+                .map_or(false, |s| patch.source_slice == s.source_slice())
             {
                 // Log information here if needed
                 // Removing next source only slice from the stack because it
@@ -189,7 +195,13 @@ mod test {
             // Simple replacement
             (
                 vec![0..1, 1..2, 2..3],
-                vec![FixPatch::new(1..2, "d".into(), 1..2, "b".into(), "b".into())],
+                vec![FixPatch::new(
+                    1..2,
+                    "d".into(),
+                    1..2,
+                    "b".into(),
+                    "b".into(),
+                )],
                 "abc",
                 "adc",
             ),
@@ -211,7 +223,13 @@ mod test {
             // shouldn't care if it's templated).
             (
                 vec![0..2, 2..7, 7..9],
-                vec![FixPatch::new(2..3, "{{ b }}".into(), 2..7, "b".into(), "{{b}}".into())],
+                vec![FixPatch::new(
+                    2..3,
+                    "{{ b }}".into(),
+                    2..7,
+                    "b".into(),
+                    "{{b}}".into(),
+                )],
                 "a {{b}} c",
                 "a {{ b }} c",
             ),
@@ -248,7 +266,13 @@ mod test {
                 // We've yielded a patch to change a single character. This means
                 // we should get only slices for that character, and for the
                 // unchanged file around it.
-                vec![FixPatch::new(1..2, "d".into(), 1..2, "b".into(), "b".into())],
+                vec![FixPatch::new(
+                    1..2,
+                    "d".into(),
+                    1..2,
+                    "b".into(),
+                    "b".into(),
+                )],
                 vec![],
                 "abc",
                 vec![0..1, 1..2, 2..3],
@@ -270,7 +294,13 @@ mod test {
                 // comments, in this case no additional slicing is required
                 // because no edits have been made.
                 vec![],
-                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 2, None, None)],
+                vec![RawFileSlice::new(
+                    "{# b #}".into(),
+                    "comment".into(),
+                    2,
+                    None,
+                    None,
+                )],
                 "a {# b #} c",
                 vec![0..11],
             ),
@@ -279,8 +309,20 @@ mod test {
                 // We're making an edit adjacent to a source only slice. Edits
                 // _before_ source only slices currently don't trigger additional
                 // slicing. This is fine.
-                vec![FixPatch::new(0..1, "a ".into(), 0..1, "a".into(), "a".into())],
-                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 1, None, None)],
+                vec![FixPatch::new(
+                    0..1,
+                    "a ".into(),
+                    0..1,
+                    "a".into(),
+                    "a".into(),
+                )],
+                vec![RawFileSlice::new(
+                    "{# b #}".into(),
+                    "comment".into(),
+                    1,
+                    None,
+                    None,
+                )],
                 "a{# b #}c",
                 vec![0..1, 1..9],
             ),
@@ -290,8 +332,20 @@ mod test {
                 // which should trigger the logic to ensure that the source
                 // only slice isn't included in the source mapping of the
                 // edit.
-                vec![FixPatch::new(1..2, " c".into(), 8..9, "c".into(), "c".into())],
-                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 1, None, None)],
+                vec![FixPatch::new(
+                    1..2,
+                    " c".into(),
+                    8..9,
+                    "c".into(),
+                    "c".into(),
+                )],
+                vec![RawFileSlice::new(
+                    "{# b #}".into(),
+                    "comment".into(),
+                    1,
+                    None,
+                    None,
+                )],
                 "a{# b #}cc",
                 vec![0..1, 1..8, 8..9, 9..10],
             ),
@@ -308,7 +362,13 @@ mod test {
                     "".into(),
                     "".into(),
                 )],
-                vec![RawFileSlice::new("{# b #}".into(), "comment".into(), 2, None, None)],
+                vec![RawFileSlice::new(
+                    "{# b #}".into(),
+                    "comment".into(),
+                    2,
+                    None,
+                    None,
+                )],
                 "a {# b #} c",
                 vec![0..2, 2..9, 9..11],
             ),

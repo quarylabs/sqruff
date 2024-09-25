@@ -97,7 +97,11 @@ Don’t wrap top-level statements in brackets.
                 .take_while(to_lift_predicate)
                 .collect::<Vec<_>>();
 
-            let lift_nodes = leading.iter().chain(trailing.iter()).cloned().collect::<Vec<_>>();
+            let lift_nodes = leading
+                .iter()
+                .chain(trailing.iter())
+                .cloned()
+                .collect::<Vec<_>>();
             let mut fixes = vec![];
             if !lift_nodes.is_empty() {
                 fixes.push(LintFix::create_before(parent.clone(), leading.clone()));
@@ -108,9 +112,19 @@ Don’t wrap top-level statements in brackets.
                     .into();
             }
 
-            fixes.push(LintFix::replace(bracketed_segment.clone(), filtered_children, None));
+            fixes.push(LintFix::replace(
+                bracketed_segment.clone(),
+                filtered_children,
+                None,
+            ));
 
-            results.push(LintResult::new(Some(bracketed_segment), fixes, None, None, None))
+            results.push(LintResult::new(
+                Some(bracketed_segment),
+                fixes,
+                None,
+                None,
+                None,
+            ))
         }
         results
     }

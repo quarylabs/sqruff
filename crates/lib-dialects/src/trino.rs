@@ -56,9 +56,14 @@ pub fn dialect() -> Dialect {
         ),
         (
             "LikeGrammar".into(),
-            Sequence::new(vec_of_erased![Ref::keyword("LIKE")]).to_matchable().into(),
+            Sequence::new(vec_of_erased![Ref::keyword("LIKE")])
+                .to_matchable()
+                .into(),
         ),
-        ("MLTableExpressionSegment".into(), Nothing::new().to_matchable().into()),
+        (
+            "MLTableExpressionSegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         (
             "FromClauseTerminatorGrammar".into(),
             one_of(vec_of_erased![
@@ -160,7 +165,9 @@ pub fn dialect() -> Dialect {
                 ]),
                 Sequence::new(vec_of_erased![
                     Ref::new("TrimParametersGrammar"),
-                    Ref::new("ExpressionSegment").optional().exclude(Ref::keyword("FROM")),
+                    Ref::new("ExpressionSegment")
+                        .optional()
+                        .exclude(Ref::keyword("FROM")),
                     Ref::keyword("FROM"),
                     Ref::new("ExpressionSegment")
                 ]),
@@ -235,21 +242,30 @@ pub fn dialect() -> Dialect {
                         Ref::new("BracketedArguments").optional()
                     ]),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("CHAR"), Ref::keyword("VARCHAR")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("CHAR"),
+                            Ref::keyword("VARCHAR")
+                        ]),
                         Ref::new("BracketedArguments").optional()
                     ]),
                     Ref::keyword("VARBINARY"),
                     Ref::keyword("JSON"),
                     Ref::keyword("DATE"),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("TIME"), Ref::keyword("TIMESTAMP")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("TIME"),
+                            Ref::keyword("TIMESTAMP")
+                        ]),
                         Bracketed::new(vec_of_erased![Ref::new("NumericLiteralSegment")]).config(
                             |config| {
                                 config.optional();
                             }
                         ),
                         Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("WITH"), Ref::keyword("WITHOUT")]),
+                            one_of(vec_of_erased![
+                                Ref::keyword("WITH"),
+                                Ref::keyword("WITHOUT")
+                            ]),
                             Ref::keyword("TIME"),
                             Ref::keyword("ZONE")
                         ])
@@ -361,13 +377,19 @@ pub fn dialect() -> Dialect {
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
                         Ref::keyword("UNION"),
-                        one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL")])
-                            .config(|config| {
-                                config.optional();
-                            })
+                        one_of(vec_of_erased![
+                            Ref::keyword("DISTINCT"),
+                            Ref::keyword("ALL")
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        })
                     ]),
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("INTERSECT"), Ref::keyword("EXCEPT")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("INTERSECT"),
+                            Ref::keyword("EXCEPT")
+                        ]),
                         Ref::keyword("ALL").optional()
                     ])
                 ])

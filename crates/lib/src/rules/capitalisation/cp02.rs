@@ -110,24 +110,32 @@ from foo
     }
 
     fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Capitalisation]
+        &[
+            RuleGroups::All,
+            RuleGroups::Core,
+            RuleGroups::Capitalisation,
+        ]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // TODO: add databricks
         if context.dialect.name == DialectKind::Sparksql
-            && context
-                .parent_stack
-                .last()
-                .map_or(false, |it| it.get_type() == SyntaxKind::PropertyNameIdentifier)
+            && context.parent_stack.last().map_or(false, |it| {
+                it.get_type() == SyntaxKind::PropertyNameIdentifier
+            })
             && context.segment.raw() == "enableChangeDataFeed"
         {
             return Vec::new();
         }
 
-        let policy = self.unquoted_identifiers_policy.as_deref().unwrap_or_else(|| {
-            context.config.unwrap().raw["rules"]["unquoted_identifiers_policy"].as_string().unwrap()
-        });
+        let policy = self
+            .unquoted_identifiers_policy
+            .as_deref()
+            .unwrap_or_else(|| {
+                context.config.unwrap().raw["rules"]["unquoted_identifiers_policy"]
+                    .as_string()
+                    .unwrap()
+            });
         if identifiers_policy_applicable(policy, &context.parent_stack) {
             self.base.eval(context)
         } else {

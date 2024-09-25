@@ -251,7 +251,15 @@ fn to_node(
         for projection in projections.to_vec() {
             if let &ExprKind::Alias0(_, name) = &tables.exprs[projection].kind {
                 let name = tables.stringify(name);
-                to_node(tables, &name, subquery_scope.clone(), None, node.into(), None, None);
+                to_node(
+                    tables,
+                    &name,
+                    subquery_scope.clone(),
+                    None,
+                    node.into(),
+                    None,
+                    None,
+                );
             };
         }
     }
@@ -274,7 +282,13 @@ fn to_node(
     }
 
     // FIXME:
-    let source_columns = if tables.stringify(select).split('.').collect::<Vec<_>>().len() == 1 {
+    let source_columns = if tables
+        .stringify(select)
+        .split('.')
+        .collect::<Vec<_>>()
+        .len()
+        == 1
+    {
         IndexSet::new()
     } else {
         scope::walk_in_scope(tables, select)
@@ -291,7 +305,11 @@ fn to_node(
     let source_names: IndexMap<String, String> = derived_tables
         .iter()
         .filter_map(|&dt_key| -> Option<(String, String)> {
-            let dt = tables.exprs[dt_key].comments.first().cloned().unwrap_or_default();
+            let dt = tables.exprs[dt_key]
+                .comments
+                .first()
+                .cloned()
+                .unwrap_or_default();
             let prefix = dt.strip_prefix("source: ")?;
             let alias = tables.alias(dt_key, false);
 
@@ -302,8 +320,14 @@ fn to_node(
     for source_column in source_columns {
         let mut iter = source_column.split(".");
         let table = iter.next().unwrap().to_string();
-        let column_name =
-            iter.next().unwrap().to_string().split_whitespace().next().unwrap().to_owned();
+        let column_name = iter
+            .next()
+            .unwrap()
+            .to_string()
+            .split_whitespace()
+            .next()
+            .unwrap()
+            .to_owned();
 
         let scope_ref = scope.get();
         let Some(source) = scope_ref.sources.get(&table) else {
@@ -322,7 +346,10 @@ fn to_node(
                 tables.nodes[node].downstream.push(new_node);
             }
             Source::Scope(source) => {
-                let source_name = source_names.get(&table).cloned().or_else(|| source_name.clone());
+                let source_name = source_names
+                    .get(&table)
+                    .cloned()
+                    .or_else(|| source_name.clone());
                 let mut reference_node_name = None;
 
                 if source.get().kind() == ScopeKind::Cte {
@@ -385,7 +412,10 @@ mod tests {
         assert_eq!(&downstream.source_name, "z");
 
         let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(tables.stringify(downstream.source), "select x.a as a from x as x");
+        assert_eq!(
+            tables.stringify(downstream.source),
+            "select x.a as a from x as x"
+        );
         assert_eq!(&downstream.source_name, "y");
     }
 
@@ -419,7 +449,10 @@ mod tests {
         assert_eq!(downstream.reference_node_name, "z");
 
         let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(tables.stringify(downstream.source), "select x.a as a from x as x");
+        assert_eq!(
+            tables.stringify(downstream.source),
+            "select x.a as a from x as x"
+        );
         assert_eq!(downstream.source_name, "y");
         assert_eq!(downstream.reference_node_name, "");
     }
@@ -452,7 +485,10 @@ mod tests {
         assert_eq!(downstream.reference_node_name, "");
 
         let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(tables.stringify(downstream.source), "select x.a as a from x as x");
+        assert_eq!(
+            tables.stringify(downstream.source),
+            "select x.a as a from x as x"
+        );
         assert_eq!(downstream.source_name, "z");
         assert_eq!(downstream.reference_node_name, "y");
     }
@@ -520,7 +556,10 @@ mod tests {
         assert_eq!(downstream.source_name, "y");
 
         let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(tables.stringify(downstream.source), "VALUES (1), (2) t as (a)");
+        assert_eq!(
+            tables.stringify(downstream.source),
+            "VALUES (1), (2) t as (a)"
+        );
         assert_eq!(tables.stringify(downstream.expression), "a");
         assert_eq!(downstream.source_name, "y");
     }
@@ -707,7 +746,10 @@ mod tests {
 
         let downstream = &tables.nodes[node_data.downstream[0]];
         assert_eq!(downstream.name, "_q_0.x");
-        assert_eq!(tables.stringify(downstream.source), "select * from table_a as table_a");
+        assert_eq!(
+            tables.stringify(downstream.source),
+            "select * from table_a as table_a"
+        );
 
         let downstream = &tables.nodes[downstream.downstream[0]];
         assert_eq!(&downstream.name, "*");
@@ -737,8 +779,12 @@ mod tests {
         let dialect = sqruff_lib_dialects::snowflake::dialect();
         let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) =
-            Lineage::new(parser.clone(), "a", "WITH x AS (SELECT 1 a) SELECT a FROM x").build();
+        let (tables, node) = Lineage::new(
+            parser.clone(),
+            "a",
+            "WITH x AS (SELECT 1 a) SELECT a FROM x",
+        )
+        .build();
 
         let node_data = &tables.nodes[node];
         assert_eq!(node_data.name, "A");
@@ -756,10 +802,13 @@ mod tests {
         let dialect = sqruff_lib_dialects::ansi::dialect();
         let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) =
-            Lineage::new(parser, "a", "SELECT a, b, c\nFROM (select a, b, c from y) z")
-                .disable_trim_selects()
-                .build();
+        let (tables, node) = Lineage::new(
+            parser,
+            "a",
+            "SELECT a, b, c\nFROM (select a, b, c from y) z",
+        )
+        .disable_trim_selects()
+        .build();
 
         let node_data = &tables.nodes[node];
         assert_eq!(node_data.name, "a");
@@ -782,8 +831,12 @@ mod tests {
         let dialect = sqruff_lib_dialects::ansi::dialect();
         let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) =
-            Lineage::new(parser, "x", "SELECT * FROM (SELECT x /* c */ FROM t1) AS t2").build();
+        let (tables, node) = Lineage::new(
+            parser,
+            "x",
+            "SELECT * FROM (SELECT x /* c */ FROM t1) AS t2",
+        )
+        .build();
 
         let node_data = &tables.nodes[node];
         assert_eq!(node_data.downstream.len(), 1);

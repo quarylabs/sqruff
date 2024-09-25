@@ -27,7 +27,10 @@ pub fn capitalize(s: &str) -> String {
         return String::new();
     };
 
-    first_char.to_uppercase().chain(chars.map(|ch| ch.to_ascii_lowercase())).collect()
+    first_char
+        .to_uppercase()
+        .chain(chars.map(|ch| ch.to_ascii_lowercase()))
+        .collect()
 }
 
 pub trait Config: Sized {

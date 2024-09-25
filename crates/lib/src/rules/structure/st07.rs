@@ -92,7 +92,10 @@ INNER JOIN table_b
             .segments()
             .iter()
             .filter(|it| {
-                matches!(it.get_type(), SyntaxKind::JoinClause | SyntaxKind::FromExpressionElement)
+                matches!(
+                    it.get_type(),
+                    SyntaxKind::JoinClause | SyntaxKind::FromExpressionElement
+                )
             })
             .cloned()
             .collect_vec();
@@ -101,11 +104,14 @@ INNER JOIN table_b
             return vec![unfixable_result];
         }
 
-        let stmts = parent_stack
-            .find_last(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::SelectStatement)));
+        let stmts = parent_stack.find_last(Some(|it: &ErasedSegment| {
+            it.is_type(SyntaxKind::SelectStatement)
+        }));
         let parent_select = stmts.first();
 
-        let Some(parent_select) = parent_select else { return vec![unfixable_result] };
+        let Some(parent_select) = parent_select else {
+            return vec![unfixable_result];
+        };
 
         let select_info = get_select_statement_info(parent_select, context.dialect.into(), true);
         let mut table_aliases =
@@ -118,7 +124,9 @@ INNER JOIN table_b
 
         let (to_delete, insert_after_anchor) = extract_deletion_sequence_and_anchor(&segment);
 
-        let [table_a, table_b, ..] = &table_aliases[..] else { unreachable!() };
+        let [table_a, table_b, ..] = &table_aliases[..] else {
+            unreachable!()
+        };
 
         let mut edit_segments = vec![
             SegmentBuilder::keyword(context.tables.next_id(), "ON"),
@@ -138,7 +146,13 @@ INNER JOIN table_b
         fixes.push(LintFix::create_before(insert_after_anchor, edit_segments));
         fixes.extend(to_delete.into_iter().map(LintFix::delete));
 
-        vec![LintResult::new(using_anchor.clone().into(), fixes, None, None, None)]
+        vec![LintResult::new(
+            using_anchor.clone().into(),
+            fixes,
+            None,
+            None,
+            None,
+        )]
     }
 
     fn is_fix_compatible(&self) -> bool {

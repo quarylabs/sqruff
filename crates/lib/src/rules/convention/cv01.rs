@@ -24,7 +24,7 @@ enum PreferredNotEqualStyle {
 
 impl Rule for RuleCV01 {
     fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        return if let Some(value) = config["preferred_not_equal_style"].as_string() {
+        if let Some(value) = config["preferred_not_equal_style"].as_string() {
             let preferred_not_equal_style = match value {
                 "consistent" => PreferredNotEqualStyle::Consistent,
                 "c_style" => PreferredNotEqualStyle::CStyle,
@@ -34,7 +34,7 @@ impl Rule for RuleCV01 {
             Ok(RuleCV01 { preferred_not_equal_style }.erased())
         } else {
             Err("Missing value for preferred_not_equal_style".to_string())
-        };
+        }
     }
 
     fn name(&self) -> &'static str {

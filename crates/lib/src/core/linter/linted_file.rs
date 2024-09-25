@@ -55,7 +55,7 @@ impl LintedFile {
     pub fn fix_string(self) -> String {
         // Generate patches from the fixed tree. In the process we sort
         // and deduplicate them so that the resultant list is in the
-        // the right order for the source file without any duplicates.
+        //  right order for the source file without any duplicates.
         let filtered_source_patches =
             Self::generate_source_patches(self.patches, &self.templated_file);
 

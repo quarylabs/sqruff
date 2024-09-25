@@ -11,6 +11,10 @@ use crate::parser::segments::base::ErasedSegment;
 pub struct NonCodeMatcher;
 
 impl MatchableTrait for NonCodeMatcher {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn is_optional(&self) -> bool {
         // Not optional
         false
@@ -51,9 +55,5 @@ impl MatchableTrait for NonCodeMatcher {
 
     fn cache_key(&self) -> MatchableCacheKey {
         0
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }

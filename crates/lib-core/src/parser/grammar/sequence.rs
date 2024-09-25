@@ -83,6 +83,10 @@ impl PartialEq for Sequence {
 }
 
 impl MatchableTrait for Sequence {
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
+    }
+
     fn is_optional(&self) -> bool {
         self.is_optional
     }
@@ -300,10 +304,6 @@ impl MatchableTrait for Sequence {
 
         new_grammar.to_matchable()
     }
-
-    fn elements(&self) -> &[Matchable] {
-        &self.elements
-    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -366,6 +366,10 @@ impl DerefMut for Bracketed {
 }
 
 impl MatchableTrait for Bracketed {
+    fn elements(&self) -> &[Matchable] {
+        &self.elements
+    }
+
     fn is_optional(&self) -> bool {
         self.this.is_optional()
     }
@@ -444,9 +448,5 @@ impl MatchableTrait for Bracketed {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.this.cache_key()
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &self.elements
     }
 }

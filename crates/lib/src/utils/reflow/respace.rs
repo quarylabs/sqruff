@@ -436,7 +436,7 @@ pub fn handle_respace_inline_without_space(
 
     // So special handling here. If segments either side already exist then we don't
     // care which we anchor on but if one is already an insertion (as shown by a
-    // lack) of pos_marker, then we should piggy back on that pre-existing fix.
+    // lack) of pos_marker, then we should piggyback on that pre-existing fix.
     let mut existing_fix = None;
     let mut insertion = None;
 

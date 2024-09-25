@@ -203,7 +203,7 @@ impl FluffConfig {
         // Scan the raw file for config commands
         for raw_line in raw_str.lines() {
             if raw_line.to_string().starts_with("-- sqlfluff") {
-                // Found a in-file config command
+                // Found an in-file config command
                 self.process_inline_config(raw_line)
             }
         }

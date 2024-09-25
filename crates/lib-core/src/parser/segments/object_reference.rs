@@ -91,7 +91,7 @@ impl ObjectReferenceSegment {
                 let refs = self.iter_raw_references();
 
                 if max_level == ObjectReferenceLevel::Schema as usize && refs.len() >= 3 {
-                    return vec![(refs[0..=max_level - min_level].to_vec())];
+                    return vec![refs[0..=max_level - min_level].to_vec()];
                 }
 
                 self.extract_possible_multipart_references_inner(levels, DialectKind::Ansi)

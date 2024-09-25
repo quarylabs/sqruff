@@ -83,6 +83,10 @@ impl PartialEq for Ref {
 impl Eq for Ref {}
 
 impl MatchableTrait for Ref {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn is_optional(&self) -> bool {
         self.optional
     }
@@ -144,10 +148,6 @@ impl MatchableTrait for Ref {
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -181,6 +181,10 @@ impl Anything {
 }
 
 impl MatchableTrait for Anything {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn match_segments(
         &self,
         segments: &[ErasedSegment],
@@ -200,10 +204,6 @@ impl MatchableTrait for Anything {
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -222,6 +222,10 @@ impl Nothing {
 }
 
 impl MatchableTrait for Nothing {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn match_segments(
         &self,
         _segments: &[ErasedSegment],
@@ -229,9 +233,5 @@ impl MatchableTrait for Nothing {
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         Ok(MatchResult::empty_at(idx))
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }

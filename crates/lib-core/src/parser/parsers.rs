@@ -37,6 +37,10 @@ impl TypedParser {
 }
 
 impl MatchableTrait for TypedParser {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn simple(
         &self,
         parse_context: &ParseContext,
@@ -67,10 +71,6 @@ impl MatchableTrait for TypedParser {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }
 
@@ -107,6 +107,10 @@ impl StringParser {
 }
 
 impl MatchableTrait for StringParser {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn is_optional(&self) -> bool {
         self.optional
     }
@@ -141,10 +145,6 @@ impl MatchableTrait for StringParser {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }
 
@@ -187,6 +187,10 @@ impl RegexParser {
 }
 
 impl MatchableTrait for RegexParser {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn is_optional(&self) -> bool {
         unimplemented!()
     }
@@ -231,10 +235,6 @@ impl MatchableTrait for RegexParser {
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
     }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -264,6 +264,10 @@ impl MultiStringParser {
 }
 
 impl MatchableTrait for MultiStringParser {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn is_optional(&self) -> bool {
         todo!()
     }
@@ -297,9 +301,5 @@ impl MatchableTrait for MultiStringParser {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }

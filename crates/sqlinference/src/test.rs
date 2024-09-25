@@ -9,39 +9,39 @@ pub enum Test {
     /// For testing truly unique values, a 'Unique' test should be combined with
     /// a 'NotNull' test.
     Unique(StandardTest),
-    /// Relationship tests asser that all of the values in a particular column
+    /// Relationship tests asser that all the values in a particular column
     /// are present in the referenced relationship. It ignores Null entries.
     ///
     /// For testing truly present values, a 'Relationship' test should be
     /// combined with a 'NotNull' test.
     Relationship(RelationshipTest),
-    /// Relationship tests asser that all of the values in a particular column
+    /// Relationship tests asser that all the values in a particular column
     /// are one of the specified values. It ignores Null entries.
     ///
     /// For testing exact matches only, a 'Relationship' test should be combined
     /// with a 'NotNull' test.
     AcceptedValues(AcceptedValuesTest),
-    /// GreaterThanOrEqual tests asser that all of the values in a particular
+    /// GreaterThanOrEqual tests asser that all the values in a particular
     /// column are  greater than or equal the specified value. It ignores
     /// Null entries.
     ///
     /// For only greater than or equal values with no nulls, a 'NotNull' test
     /// should be combined with the test.
     GreaterThanOrEqual(ComparisonTest),
-    /// GreaterThan tests asser that all of the values in a particular column
+    /// GreaterThan tests asser that all the values in a particular column
     /// are greater than the specified value. It ignores Null entries.
     ///
     /// For only greater than values with no nulls, a 'NotNull' test should be
     /// combined with the test.
     GreaterThan(ComparisonTest),
-    /// LessThanOrEqual tests asser that all of the values in a particular
+    /// LessThanOrEqual tests asser that all the values in a particular
     /// column are less than or equal than the specified value. It ignores
     /// Null entries.
     ///
     /// For only less than or equal values with no nulls, a 'NotNull' test
     /// should be combined with the test.
     LessThanOrEqual(ComparisonTest),
-    /// GreaterThanOrEqual tests asser that all of the values in a particular
+    /// GreaterThanOrEqual tests asser that all the values in a particular
     /// column are less than specified value. It ignores Null entries.
     ///
     /// For only less than values with no nulls, a 'NotNull' test should be

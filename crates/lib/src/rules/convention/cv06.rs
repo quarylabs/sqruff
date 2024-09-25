@@ -184,8 +184,8 @@ impl RuleCV06 {
         }
 
         // If preceding segments are found then delete the old
-        // semi-colon and its preceding whitespace and then insert
-        // the semi-colon in the correct location.
+        // semicolon and its preceding whitespace and then insert
+        // the semicolon in the correct location.
         let fixes = self.create_semicolon_and_delete_whitespace(
             target_segment,
             parent_segment,
@@ -262,8 +262,8 @@ impl RuleCV06 {
         }
 
         // If preceding segment is not a single newline then delete the old
-        // semi-colon/preceding whitespace and then insert the
-        // semi-colon in the correct location.
+        // semicolon/preceding whitespace and then insert the
+        // semicolon in the correct location.
         let anchor_segment =
             Self::handle_trailing_inline_comments(parent_segment.clone(), anchor_segment.clone());
         let fixes = if anchor_segment == target_segment {
@@ -333,7 +333,7 @@ impl RuleCV06 {
         parent_segment: ErasedSegment,
     ) -> Option<LintResult> {
         // Iterate backwards over complete stack to find
-        // if the final semi-colon is already present.
+        // if the final semicolon is already present.
         let mut anchor_segment = parent_segment.segments().last().cloned();
         let trigger_segment = parent_segment.segments().last().cloned();
         let mut semi_colon_exist_flag = false;
@@ -360,9 +360,9 @@ impl RuleCV06 {
 
         let semicolon_newline = if is_one_line { false } else { self.multiline_newline };
         if !semi_colon_exist_flag {
-            // Create the final semi-colon if it does not yet exist.
+            // Create the final semicolon if it does not yet exist.
 
-            // Semi-colon on same line.
+            // Semicolon on same line.
             return if !semicolon_newline {
                 let fixes = vec![LintFix::create_after(
                     anchor_segment.unwrap().clone(),

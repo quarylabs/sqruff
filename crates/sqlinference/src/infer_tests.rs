@@ -575,7 +575,7 @@ fn extract_select(query: &Query<'_, ()>) -> Result<ExtractedSelect, String> {
 
                     let it =
                         select_clause_element.segments().iter().find(|it| it.is_code()).unwrap();
-                    let out = extracted_tables.get_source(it.raw().as_ref()).unwrap();
+                    let out = extracted_tables.get_source(it.raw().as_ref())?;
 
                     match out {
                         Source::None => {}

@@ -27,6 +27,10 @@ impl Default for BracketedSegmentMatcher {
 }
 
 impl MatchableTrait for BracketedSegmentMatcher {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn simple(
         &self,
         _parse_context: &ParseContext,
@@ -50,9 +54,5 @@ impl MatchableTrait for BracketedSegmentMatcher {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }

@@ -94,6 +94,10 @@ impl Conditional {
 }
 
 impl MatchableTrait for Conditional {
+    fn elements(&self) -> &[Matchable] {
+        &[]
+    }
+
     fn match_segments(
         &self,
         _segments: &[ErasedSegment],
@@ -109,9 +113,5 @@ impl MatchableTrait for Conditional {
             insert_segments: vec![(idx, self.meta.kind)],
             ..Default::default()
         })
-    }
-
-    fn elements(&self) -> &[Matchable] {
-        &[]
     }
 }

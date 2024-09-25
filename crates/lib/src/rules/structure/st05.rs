@@ -580,10 +580,7 @@ impl CTEBuilder {
     }
 
     fn create_cte_alias(&mut self, alias: Option<&AliasInfo>) -> (SmolStr, bool) {
-        if let Some(alias) = alias
-            && alias.aliased
-            && !alias.ref_str.is_empty()
-        {
+        if let Some(alias) = alias.filter(|alias| alias.aliased && !alias.ref_str.is_empty()) {
             return (alias.ref_str.clone(), false);
         }
 

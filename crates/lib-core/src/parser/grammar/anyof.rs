@@ -197,8 +197,9 @@ impl MatchableTrait for AnyNumberOf {
             if let Some(counter) = option_counter.get_mut(&matched_key) {
                 *counter += 1;
 
-                if let Some(max_times_per_element) = self.max_times_per_element
-                    && *counter > max_times_per_element
+                if self
+                    .max_times_per_element
+                    .is_some_and(|max_times_per_element| *counter > max_times_per_element)
                 {
                     return Ok(parse_mode_match_result(
                         segments,

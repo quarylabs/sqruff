@@ -1214,9 +1214,13 @@ pub fn lint_line_length(
 
     let mut last_indent_idx = None;
     for (i, elem) in enumerate(elements) {
-        if let ReflowElement::Point(point) = &elem
-            && (elem_buffer[i + 1].class_types1().contains(SyntaxKind::EndOfFile)
-                || has_untemplated_newline(point))
+        if elem
+            .as_point()
+            .filter(|point| {
+                elem_buffer[i + 1].class_types1().contains(SyntaxKind::EndOfFile)
+                    || has_untemplated_newline(point)
+            })
+            .is_some()
         {
             // In either case we want to process this, so carry on.
         } else {

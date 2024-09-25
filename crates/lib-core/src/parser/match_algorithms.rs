@@ -370,15 +370,11 @@ fn next_ex_bracket_match(
             return Ok((match_result, matcher.clone(), child_matches));
         }
 
-        if let Some(matcher) = &matcher
-            && matchers.contains(matcher)
-        {
+        if let Some(matcher) = matcher.as_ref().filter(|matcher| matchers.contains(matcher)) {
             return Ok((match_result, Some(matcher.clone()), child_matches));
         }
 
-        if let Some(matcher) = &matcher
-            && end_brackets.contains(matcher)
-        {
+        if matcher.as_ref().is_some_and(|matcher| end_brackets.contains(matcher)) {
             return Ok((MatchResult::empty_at(idx), None, Vec::new()));
         }
 

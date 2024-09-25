@@ -237,9 +237,10 @@ impl RuleLT09 {
                 select_targets_info.select_targets[i - 1].clone()
             };
 
-            if let Some((a, b)) =
-                base_segment.get_position_marker().zip(select_target.get_position_marker())
-                && a.working_line_no == b.working_line_no
+            if let Some((_, _)) = base_segment
+                .get_position_marker()
+                .zip(select_target.get_position_marker())
+                .filter(|(a, b)| a.working_line_no == b.working_line_no)
             {
                 let mut start_seg = select_targets_info.select_idx.unwrap();
                 let modifier =

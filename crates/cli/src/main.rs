@@ -79,6 +79,17 @@ fn main() {
             let mut linter = linter(config, format);
             let result = linter.lint_paths(paths, true);
 
+            if result
+                .paths
+                .iter()
+                .map(|path| path.files.iter().all(|file| file.violations.is_empty()))
+                .all(|v| v)
+            {
+                let count_files = result.paths.iter().map(|path| path.files.len()).sum::<usize>();
+                println!("{} files processed, nothing to fix.", count_files);
+                return;
+            }
+
             if !force {
                 match check_user_input() {
                     Some(true) => {

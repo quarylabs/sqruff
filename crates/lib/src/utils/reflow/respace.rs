@@ -342,48 +342,54 @@ pub fn handle_respace_inline_with_space(
         let mut desired_space;
         let mut desc;
 
-        if let Spacing::Align { seg_type, within, scope } = post_constraint
-            && let Some(next_block) = next_block
-        {
-            let next_pos = if let Some(pos_marker) = next_block.segments[0].get_position_marker() {
-                Some(pos_marker.clone())
-            } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
-                Some(pos_marker.end_point_marker())
-            } else if let Some(prev_block) = prev_block
-                && let Some(pos_marker) = prev_block.segments.last().unwrap().get_position_marker()
-            {
-                Some(pos_marker.end_point_marker())
-            } else {
-                None
-            };
+        match (post_constraint, next_block) {
+            (Spacing::Align { seg_type, within, scope }, Some(next_block)) => {
+                let next_pos =
+                    if let Some(pos_marker) = next_block.segments[0].get_position_marker() {
+                        Some(pos_marker.clone())
+                    } else if let Some(pos_marker) = last_whitespace.get_position_marker() {
+                        Some(pos_marker.end_point_marker())
+                    } else if let Some(prev_block) = prev_block {
+                        if let Some(pos_marker) =
+                            prev_block.segments.last().unwrap().get_position_marker()
+                        {
+                            Some(pos_marker.end_point_marker())
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    };
 
-            desired_space = " ".to_string();
-            desc = "TODO".to_string();
-
-            if let Some(next_pos) = next_pos {
-                desired_space = determine_aligned_inline_spacing(
-                    root_segment,
-                    &last_whitespace,
-                    next_block.segments.first().unwrap(),
-                    next_pos,
-                    seg_type,
-                    within,
-                    scope,
-                );
-
+                desired_space = " ".to_string();
                 desc = "TODO".to_string();
+
+                if let Some(next_pos) = next_pos {
+                    desired_space = determine_aligned_inline_spacing(
+                        root_segment,
+                        &last_whitespace,
+                        next_block.segments.first().unwrap(),
+                        next_pos,
+                        seg_type,
+                        within,
+                        scope,
+                    );
+
+                    desc = "TODO".to_string();
+                }
             }
-        } else {
-            desc = if let Some(next_block) = next_block {
-                format!(
-                    "Expected only single space before {:?}. Found {:?}.",
-                    &next_block.segments[0].raw(),
-                    last_whitespace.raw()
-                )
-            } else {
-                format!("Expected only single space. Found {:?}.", last_whitespace.raw())
-            };
-            desired_space = " ".to_string();
+            _ => {
+                desc = if let Some(next_block) = next_block {
+                    format!(
+                        "Expected only single space before {:?}. Found {:?}.",
+                        &next_block.segments[0].raw(),
+                        last_whitespace.raw()
+                    )
+                } else {
+                    format!("Expected only single space. Found {:?}.", last_whitespace.raw())
+                };
+                desired_space = " ".to_string();
+            }
         }
 
         let mut new_results = Vec::new();
@@ -491,9 +497,8 @@ pub fn handle_respace_inline_without_space(
         "Expected single whitespace.".to_owned()
     };
 
-    let new_result = if let Some(prev_block) = prev_block
-        && anchor_on != "after"
-    {
+    let new_result = if prev_block.is_some() && anchor_on != "after" {
+        let prev_block = prev_block.unwrap();
         let anchor = if let Some(block) = next_block {
             // If next_block is Some, get the first segment
             &block.segments[0]

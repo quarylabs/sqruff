@@ -5,7 +5,7 @@ use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use itertools::{enumerate, Itertools};
+use itertools::enumerate;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
@@ -271,7 +271,7 @@ impl ErasedSegment {
 
     pub fn get_end_loc(&self) -> (usize, usize) {
         match self.get_position_marker() {
-            Some(pos_marker) => pos_marker.working_loc_after(&self.raw()),
+            Some(pos_marker) => pos_marker.working_loc_after(self.raw()),
             None => {
                 unreachable!("{self:?} has no PositionMarker")
             }
@@ -991,8 +991,7 @@ pub fn position_segments(
         };
 
         new_position = new_position.with_working_position(line_no, line_pos);
-        (line_no, line_pos) =
-            PositionMarker::infer_next_position(&segment.raw(), line_no, line_pos);
+        (line_no, line_pos) = PositionMarker::infer_next_position(segment.raw(), line_no, line_pos);
 
         let mut new_seg = if !segment.segments().is_empty() && old_position != Some(&new_position) {
             let child_segments = position_segments(segment.segments(), &new_position);

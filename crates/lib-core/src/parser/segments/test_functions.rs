@@ -114,7 +114,7 @@ pub fn make_result_tuple(
             .map(|elem| {
                 let raw = elem.raw();
                 if matcher_keywords.contains(&raw.as_str()) {
-                    SegmentBuilder::keyword(0, &raw).config(|this| {
+                    SegmentBuilder::keyword(0, raw).config(|this| {
                         this.get_mut()
                             .set_position_marker(Some(elem.get_position_marker().unwrap().clone()))
                     })

@@ -119,7 +119,11 @@ impl RuleLT03 {
         parent: &ErasedSegment,
         line_position: &str,
     ) -> bool {
-        let idx = parent.segments().iter().position(|it| it == segment).unwrap();
+        let idx = parent
+            .segments()
+            .iter()
+            .position(|it| it == segment)
+            .unwrap();
 
         // Shortcut #1: Leading.
         if line_position == "leading" {

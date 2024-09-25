@@ -58,7 +58,11 @@ CREATE TABLE t (
     }
 
     fn groups(&self) -> &'static [RuleGroups] {
-        &[RuleGroups::All, RuleGroups::Core, RuleGroups::Capitalisation]
+        &[
+            RuleGroups::All,
+            RuleGroups::Core,
+            RuleGroups::Capitalisation,
+        ]
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {

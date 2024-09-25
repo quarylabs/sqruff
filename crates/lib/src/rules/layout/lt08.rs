@@ -120,7 +120,11 @@ SELECT a FROM plop
             } else if let Some(0) = comma_line_idx {
                 "trailing"
             } else if let Some(idx) = comma_line_idx {
-                if idx == line_idx { "leading" } else { "floating" }
+                if idx == line_idx {
+                    "leading"
+                } else {
+                    "floating"
+                }
             } else {
                 "floating"
             };

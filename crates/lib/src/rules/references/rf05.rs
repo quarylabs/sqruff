@@ -101,8 +101,13 @@ CREATE TABLE DBO.ColumnNames
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if self.ignore_words.contains(&context.segment.raw().to_lowercase())
-            || self.ignore_words_regex.iter().any(|it| it.is_match(context.segment.raw().as_ref()))
+        if self
+            .ignore_words
+            .contains(&context.segment.raw().to_lowercase())
+            || self
+                .ignore_words_regex
+                .iter()
+                .any(|it| it.is_match(context.segment.raw().as_ref()))
         {
             return Vec::new();
         }
@@ -115,7 +120,10 @@ CREATE TABLE DBO.ColumnNames
             identifier = identifier[1..identifier.len() - 1].to_string();
 
             if self.ignore_words.contains(&identifier.to_lowercase())
-                || self.ignore_words_regex.iter().any(|it| it.is_match(&identifier))
+                || self
+                    .ignore_words_regex
+                    .iter()
+                    .any(|it| it.is_match(&identifier))
             {
                 return Vec::new();
             }
@@ -134,11 +142,20 @@ CREATE TABLE DBO.ColumnNames
 
             // TODO: add databricks
             if context.dialect.name == DialectKind::Sparksql && !context.parent_stack.is_empty() {
-                if context.parent_stack.last().unwrap().is_type(SyntaxKind::FileReference) {
+                if context
+                    .parent_stack
+                    .last()
+                    .unwrap()
+                    .is_type(SyntaxKind::FileReference)
+                {
                     return Vec::new();
                 }
 
-                if context.parent_stack.last().unwrap().is_type(SyntaxKind::PropertyNameIdentifier)
+                if context
+                    .parent_stack
+                    .last()
+                    .unwrap()
+                    .is_type(SyntaxKind::PropertyNameIdentifier)
                 {
                     identifier = identifier.replace(".", "");
                 }
@@ -170,7 +187,13 @@ CREATE TABLE DBO.ColumnNames
         if identifiers_policy_applicable(policy, &context.parent_stack)
             && !identifier.chars().all(|c| c.is_ascii_alphanumeric())
         {
-            return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
+            return vec![LintResult::new(
+                context.segment.into(),
+                Vec::new(),
+                None,
+                None,
+                None,
+            )];
         }
 
         Vec::new()

@@ -13,7 +13,7 @@ use strum_macros::AsRefStr;
     PartialOrd,
     Eq,
     PartialEq,
-    Hash
+    Hash,
 )]
 #[strum(serialize_all = "snake_case")]
 pub enum DialectKind {
@@ -33,7 +33,9 @@ pub enum DialectKind {
 
 /// Generate a readout of available dialects.
 pub fn dialect_readout() -> Vec<String> {
-    DialectKind::iter().map(|x| x.as_ref().to_string()).collect()
+    DialectKind::iter()
+        .map(|x| x.as_ref().to_string())
+        .collect()
 }
 
 #[cfg(test)]

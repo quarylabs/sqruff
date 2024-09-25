@@ -9,13 +9,17 @@ use crate::parser::markers::PositionMarker;
 use crate::templaters::base::TemplatedFile;
 
 pub fn bracket_segments() -> Vec<ErasedSegment> {
-    generate_test_segments_func(vec!["bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo"])
+    generate_test_segments_func(vec![
+        "bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo",
+    ])
 }
 
 pub fn lex(dialect: &Dialect, string: &str) -> Vec<ErasedSegment> {
     let lexer = Lexer::new(dialect);
     let tables = Tables::default();
-    let (segments, errors) = lexer.lex(&tables, StringOrTemplate::String(string)).unwrap();
+    let (segments, errors) = lexer
+        .lex(&tables, StringOrTemplate::String(string))
+        .unwrap();
     assert_eq!(errors, &[]);
     segments
 }
@@ -54,8 +58,10 @@ pub fn generate_test_segments_func(elems: Vec<&str>) -> Vec<ErasedSegment> {
         let tables = Tables::default();
 
         let seg = if elem.chars().all(|c| c == ' ' || c == '\t') {
-            SegmentBuilder::whitespace(tables.next_id(), elem)
-                .config(|this| this.get_mut().set_position_marker(position_marker.clone().into()))
+            SegmentBuilder::whitespace(tables.next_id(), elem).config(|this| {
+                this.get_mut()
+                    .set_position_marker(position_marker.clone().into())
+            })
         } else if elem.chars().all(|c| c == '\n') {
             SegmentBuilder::newline(tables.next_id(), elem)
         } else if elem == "(" || elem == ")" {

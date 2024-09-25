@@ -182,7 +182,12 @@ pub(crate) struct Stats {
 
 impl Scope {
     pub(crate) fn new(expr: Expr) -> Self {
-        Scope { inner: Rc::new(RefCell::new(ScopeInner { expr, ..Default::default() })) }
+        Scope {
+            inner: Rc::new(RefCell::new(ScopeInner {
+                expr,
+                ..Default::default()
+            })),
+        }
     }
 
     pub(crate) fn expr(&self) -> Expr {
@@ -285,7 +290,9 @@ fn traverse_ctes(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>) {
     let ctes = scope.stats(tables).ctes.to_vec();
 
     for cte in ctes {
-        let &ExprKind::Cte { this, alias } = &tables.exprs[cte].kind else { unreachable!() };
+        let &ExprKind::Cte { this, alias } = &tables.exprs[cte].kind else {
+            unreachable!()
+        };
         let cte_name = tables.stringify(alias);
 
         let child_scopes = traverse_scope(
@@ -315,8 +322,12 @@ fn traverse_tables(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>)
     let mut select_alias = String::new();
 
     if let Some(from) = *from {
-        let ExprKind::From { this, alias } = &tables.exprs[from].kind else { unreachable!() };
-        select_alias = alias.map(|alias| tables.stringify(alias)).unwrap_or_default();
+        let ExprKind::From { this, alias } = &tables.exprs[from].kind else {
+            unreachable!()
+        };
+        select_alias = alias
+            .map(|alias| tables.stringify(alias))
+            .unwrap_or_default();
 
         exprs.push(*this);
 
@@ -327,7 +338,12 @@ fn traverse_tables(tables: &mut Tables, scope: &mut Scope, acc: &mut Vec<Scope>)
     }
 
     for &join in joins {
-        let ExprKind::Join { this, on: _, using: _ } = tables.exprs[join].kind else {
+        let ExprKind::Join {
+            this,
+            on: _,
+            using: _,
+        } = tables.exprs[join].kind
+        else {
             unreachable!()
         };
         exprs.push(this);
@@ -386,8 +402,10 @@ pub(crate) fn walk_in_scope(tables: &Tables, root_expr: Expr) -> Vec<Expr> {
     let mut acc = Vec::new();
     let crossed_scope_boundary = Cell::new(false);
 
-    for node in tables.walk(root_expr, Some(|_tables: &Tables, _node| crossed_scope_boundary.get()))
-    {
+    for node in tables.walk(
+        root_expr,
+        Some(|_tables: &Tables, _node| crossed_scope_boundary.get()),
+    ) {
         crossed_scope_boundary.set(false);
         acc.push(node);
 
@@ -403,7 +421,10 @@ pub(crate) fn walk_in_scope(tables: &Tables, root_expr: Expr) -> Vec<Expr> {
         );
 
         let c2 = data.parent.map_or(false, |parent| {
-            matches!(tables.exprs[parent].kind, ExprKind::From { .. } | ExprKind::Subquery(..))
+            matches!(
+                tables.exprs[parent].kind,
+                ExprKind::From { .. } | ExprKind::Subquery(..)
+            )
         }) && is_derived_table(data);
 
         if c1 || c2 {

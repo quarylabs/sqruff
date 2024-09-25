@@ -25,9 +25,13 @@ pub fn raw_dialect() -> Dialect {
     sqlite_dialect.name = DialectKind::Sqlite;
 
     sqlite_dialect.sets_mut("reserved_keywords").clear();
-    sqlite_dialect.sets_mut("reserved_keywords").extend(RESERVED_KEYWORDS);
+    sqlite_dialect
+        .sets_mut("reserved_keywords")
+        .extend(RESERVED_KEYWORDS);
     sqlite_dialect.sets_mut("unreserved_keywords").clear();
-    sqlite_dialect.sets_mut("unreserved_keywords").extend(UNRESERVED_KEYWORDS);
+    sqlite_dialect
+        .sets_mut("unreserved_keywords")
+        .extend(UNRESERVED_KEYWORDS);
 
     sqlite_dialect.add([
         (
@@ -52,11 +56,17 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        ("TemporaryTransientGrammar".into(), Ref::new("TemporaryGrammar").to_matchable().into()),
+        (
+            "TemporaryTransientGrammar".into(),
+            Ref::new("TemporaryGrammar").to_matchable().into(),
+        ),
         (
             "DateTimeLiteralGrammar".into(),
             Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![Ref::keyword("DATE"), Ref::keyword("DATETIME")]),
+                one_of(vec_of_erased![
+                    Ref::keyword("DATE"),
+                    Ref::keyword("DATETIME")
+                ]),
                 TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral)
             ])
             .to_matchable()
@@ -78,20 +88,52 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        ("AutoIncrementGrammar".into(), Nothing::new().to_matchable().into()),
-        ("CommentClauseSegment".into(), Nothing::new().to_matchable().into()),
-        ("IntervalExpressionSegment".into(), Nothing::new().to_matchable().into()),
-        ("TimeZoneGrammar".into(), Nothing::new().to_matchable().into()),
-        ("FetchClauseSegment".into(), Nothing::new().to_matchable().into()),
-        ("TrimParametersGrammar".into(), Nothing::new().to_matchable().into()),
+        (
+            "AutoIncrementGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "CommentClauseSegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "IntervalExpressionSegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "TimeZoneGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "FetchClauseSegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "TrimParametersGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         (
             "LikeGrammar".into(),
-            Sequence::new(vec_of_erased![Ref::keyword("LIKE")]).to_matchable().into(),
+            Sequence::new(vec_of_erased![Ref::keyword("LIKE")])
+                .to_matchable()
+                .into(),
         ),
-        ("OverlapsClauseSegment".into(), Nothing::new().to_matchable().into()),
-        ("MLTableExpressionSegment".into(), Nothing::new().to_matchable().into()),
-        ("MergeIntoLiteralGrammar".into(), Nothing::new().to_matchable().into()),
-        ("SamplingExpressionSegment".into(), Nothing::new().to_matchable().into()),
+        (
+            "OverlapsClauseSegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "MLTableExpressionSegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "MergeIntoLiteralGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "SamplingExpressionSegment".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         (
             "OrderByClauseTerminators".into(),
             one_of(vec_of_erased![
@@ -139,8 +181,14 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        ("PostFunctionGrammar".into(), Ref::new("FilterClauseGrammar").to_matchable().into()),
-        ("IgnoreRespectNullsGrammar".into(), Nothing::new().to_matchable().into()),
+        (
+            "PostFunctionGrammar".into(),
+            Ref::new("FilterClauseGrammar").to_matchable().into(),
+        ),
+        (
+            "IgnoreRespectNullsGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         (
             "SelectClauseTerminatorGrammar".into(),
             one_of(vec_of_erased![
@@ -164,11 +212,12 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 Sequence::new(vec_of_erased![
                     Ref::new("TrimParametersGrammar"),
-                    Ref::new("ExpressionSegment").optional().exclude(Ref::keyword("FROM")).config(
-                        |config| {
+                    Ref::new("ExpressionSegment")
+                        .optional()
+                        .exclude(Ref::keyword("FROM"))
+                        .config(|config| {
                             config.exclude = Ref::keyword("FROM").to_matchable().into();
-                        }
-                    ),
+                        }),
                     Ref::keyword("FROM"),
                     Ref::new("ExpressionSegment")
                 ]),
@@ -230,9 +279,12 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "IsClauseGrammar".into(),
-            one_of(vec_of_erased![Ref::keyword("NULL"), Ref::new("BooleanLiteralGrammar")])
-                .to_matchable()
-                .into(),
+            one_of(vec_of_erased![
+                Ref::keyword("NULL"),
+                Ref::new("BooleanLiteralGrammar")
+            ])
+            .to_matchable()
+            .into(),
         ),
     ]);
     sqlite_dialect.add([(
@@ -242,14 +294,19 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec_of_erased![
                 Sequence::new(vec_of_erased![
                     Ref::keyword("UNION"),
-                    one_of(vec_of_erased![Ref::keyword("DISTINCT"), Ref::keyword("ALL")]).config(
-                        |config| {
-                            config.optional();
-                        }
-                    )
+                    one_of(vec_of_erased![
+                        Ref::keyword("DISTINCT"),
+                        Ref::keyword("ALL")
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
                 ]),
                 Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("INTERSECT"), Ref::keyword("EXCEPT")]),
+                    one_of(vec_of_erased![
+                        Ref::keyword("INTERSECT"),
+                        Ref::keyword("EXCEPT")
+                    ]),
                     Ref::keyword("ALL").optional()
                 ])
             ])
@@ -270,7 +327,10 @@ pub fn raw_dialect() -> Dialect {
     sqlite_dialect.replace_grammar(
         "DatatypeSegment",
         one_of(vec_of_erased![
-            Sequence::new(vec_of_erased![Ref::keyword("DOUBLE"), Ref::keyword("PRECISION")]),
+            Sequence::new(vec_of_erased![
+                Ref::keyword("DOUBLE"),
+                Ref::keyword("PRECISION")
+            ]),
             Sequence::new(vec_of_erased![
                 Ref::keyword("UNSIGNED"),
                 Ref::keyword("BIG"),
@@ -279,7 +339,10 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec_of_erased![
                 one_of(vec_of_erased![
                     Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("VARYING"), Ref::keyword("NATIVE")]),
+                        one_of(vec_of_erased![
+                            Ref::keyword("VARYING"),
+                            Ref::keyword("NATIVE")
+                        ]),
                         one_of(vec_of_erased![Ref::keyword("CHARACTER")])
                     ]),
                     Ref::new("DatatypeIdentifierSegment")
@@ -294,7 +357,10 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(
             SyntaxKind::TableEndClauseSegment,
             Delimited::new(vec_of_erased![
-                Sequence::new(vec_of_erased![Ref::keyword("WITHOUT"), Ref::keyword("ROWID")]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("WITHOUT"),
+                    Ref::keyword("ROWID")
+                ]),
                 Ref::keyword("STRICT")
             ])
             .to_matchable(),
@@ -380,12 +446,18 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    let column_constraint =
-        sqlite_dialect.grammar("ColumnConstraintSegment").match_grammar().unwrap().copy(
+    let column_constraint = sqlite_dialect
+        .grammar("ColumnConstraintSegment")
+        .match_grammar()
+        .unwrap()
+        .copy(
             Some(vec_of_erased![
                 one_of(vec_of_erased![
                     Ref::keyword("DEFERRABLE"),
-                    Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")])
+                    Sequence::new(vec_of_erased![
+                        Ref::keyword("NOT"),
+                        Ref::keyword("DEFERRABLE")
+                    ])
                 ])
                 .config(|config| {
                     config.optional();
@@ -443,14 +515,23 @@ pub fn raw_dialect() -> Dialect {
             ]),
             one_of(vec_of_erased![
                 Ref::keyword("DEFERRABLE"),
-                Sequence::new(vec_of_erased![Ref::keyword("NOT"), Ref::keyword("DEFERRABLE")])
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("NOT"),
+                    Ref::keyword("DEFERRABLE")
+                ])
             ])
             .config(|config| {
                 config.optional();
             }),
             one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![Ref::keyword("INITIALLY"), Ref::keyword("DEFERRED")]),
-                Sequence::new(vec_of_erased![Ref::keyword("INITIALLY"), Ref::keyword("IMMEDIATE")])
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INITIALLY"),
+                    Ref::keyword("DEFERRED")
+                ]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("INITIALLY"),
+                    Ref::keyword("IMMEDIATE")
+                ])
             ])
             .config(|config| {
                 config.optional();
@@ -487,7 +568,10 @@ pub fn raw_dialect() -> Dialect {
         "PragmaReferenceSegment".into(),
         NodeMatcher::new(
             SyntaxKind::PragmaReference,
-            sqlite_dialect.grammar("ObjectReferenceSegment").match_grammar().unwrap(),
+            sqlite_dialect
+                .grammar("ObjectReferenceSegment")
+                .match_grammar()
+                .unwrap(),
         )
         .to_matchable()
         .into(),
@@ -666,9 +750,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("IndexReferenceSegment"),
             Ref::keyword("ON"),
             Ref::new("TableReferenceSegment"),
-            Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![Delimited::new(
-                vec_of_erased![Ref::new("IndexColumnDefinitionSegment")]
-            )])]),
+            Sequence::new(vec_of_erased![Bracketed::new(vec_of_erased![
+                Delimited::new(vec_of_erased![Ref::new("IndexColumnDefinitionSegment")])
+            ])]),
             Ref::new("WhereClauseSegment").optional()
         ])
         .to_matchable(),

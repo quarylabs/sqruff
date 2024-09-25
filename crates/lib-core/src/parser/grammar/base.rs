@@ -30,7 +30,12 @@ pub struct Ref {
 
 impl std::fmt::Debug for Ref {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<Ref: {}{}>", self.reference, if self.is_optional() { " [opt]" } else { "" })
+        write!(
+            f,
+            "<Ref: {}{}>",
+            self.reference,
+            if self.is_optional() { " [opt]" } else { "" }
+        )
     }
 }
 
@@ -108,7 +113,8 @@ impl MatchableTrait for Ref {
                 let mut new_crumbs = crumbs.unwrap_or_default();
                 new_crumbs.push(&self.reference);
 
-                self._get_elem(parse_context.dialect()).simple(parse_context, Some(new_crumbs))
+                self._get_elem(parse_context.dialect())
+                    .simple(parse_context, Some(new_crumbs))
             })
             .clone()
     }
@@ -171,7 +177,10 @@ impl Default for Anything {
 
 impl Anything {
     pub fn new() -> Self {
-        Self { cache_key: next_matchable_cache_key(), terminators: Vec::new() }
+        Self {
+            cache_key: next_matchable_cache_key(),
+            terminators: Vec::new(),
+        }
     }
 
     pub fn terminators(mut self, terminators: Vec<Matchable>) -> Self {

@@ -40,19 +40,47 @@ mod tests {
             // Empty list of references is always true
             (vec![], vec![vec!["abc".into()]], true),
             // Simple cases: one reference, one target
-            (vec![vec!["agent1".into()]], vec![vec!["agent1".into()]], true),
-            (vec![vec!["agent1".into()]], vec![vec!["customer".into()]], false),
+            (
+                vec![vec!["agent1".into()]],
+                vec![vec!["agent1".into()]],
+                true,
+            ),
+            (
+                vec![vec!["agent1".into()]],
+                vec![vec!["customer".into()]],
+                false,
+            ),
             // Multiple references. If any match, good.
-            (vec![vec!["bar".into()], vec!["user_id".into()]], vec![vec!["bar".into()]], true),
-            (vec![vec!["foo".into()], vec!["user_id".into()]], vec![vec!["bar".into()]], false),
+            (
+                vec![vec!["bar".into()], vec!["user_id".into()]],
+                vec![vec!["bar".into()]],
+                true,
+            ),
+            (
+                vec![vec!["foo".into()], vec!["user_id".into()]],
+                vec![vec!["bar".into()]],
+                false,
+            ),
             // Multiple targets. If any reference matches, good.
             (
                 vec![vec!["table1".into()]],
-                vec![vec!["table1".into()], vec!["table2".into()], vec!["table3".into()]],
+                vec![
+                    vec!["table1".into()],
+                    vec!["table2".into()],
+                    vec!["table3".into()],
+                ],
                 true,
             ),
-            (vec![vec!["tbl2".into()]], vec![vec!["db".into(), "sc".into(), "tbl1".into()]], false),
-            (vec![vec!["tbl2".into()]], vec![vec!["db".into(), "sc".into(), "tbl2".into()]], true),
+            (
+                vec![vec!["tbl2".into()]],
+                vec![vec!["db".into(), "sc".into(), "tbl1".into()]],
+                false,
+            ),
+            (
+                vec![vec!["tbl2".into()]],
+                vec![vec!["db".into(), "sc".into(), "tbl2".into()]],
+                true,
+            ),
             // Multipart references and targets. Checks for a suffix match.
             (
                 vec![vec!["Arc".into(), "tbl1".into()]],
@@ -74,12 +102,23 @@ mod tests {
                 vec![vec!["db".into(), "sc".into(), "tbl1".into()]],
                 true,
             ),
-            (vec![vec!["public".into(), "agent1".into()]], vec![vec!["agent1".into()]], true),
-            (vec![vec!["public".into(), "agent1".into()]], vec![vec!["public".into()]], false),
+            (
+                vec![vec!["public".into(), "agent1".into()]],
+                vec![vec!["agent1".into()]],
+                true,
+            ),
+            (
+                vec![vec!["public".into(), "agent1".into()]],
+                vec![vec!["public".into()]],
+                false,
+            ),
         ];
 
         for (possible_references, targets, expected) in test_cases {
-            assert_eq!(object_ref_matches_table(&possible_references, &targets), expected);
+            assert_eq!(
+                object_ref_matches_table(&possible_references, &targets),
+                expected
+            );
         }
     }
 }

@@ -54,18 +54,29 @@ impl LintResult {
     ) -> Self {
         // let fixes = fixes.into_iter().filter(|f| !f.is_trivial()).collect();
 
-        LintResult { anchor, fixes, memory, description, source: source.unwrap_or_default() }
+        LintResult {
+            anchor,
+            fixes,
+            memory,
+            description,
+            source: source.unwrap_or_default(),
+        }
     }
 
     pub fn to_linting_error(&self, rule: ErasedRule) -> Option<SQLLintError> {
         let anchor = self.anchor.clone()?;
 
-        let description =
-            self.description.clone().unwrap_or_else(|| rule.description().to_string());
+        let description = self
+            .description
+            .clone()
+            .unwrap_or_else(|| rule.description().to_string());
 
         SQLLintError::new(description.as_str(), anchor)
             .config(|this| {
-                this.rule = Some(ErrorStructRule { name: rule.name(), code: rule.code() })
+                this.rule = Some(ErrorStructRule {
+                    name: rule.name(),
+                    code: rule.code(),
+                })
             })
             .into()
     }
@@ -151,7 +162,11 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
 
     fn code(&self) -> &'static str {
         let name = std::any::type_name::<Self>();
-        name.split("::").last().unwrap().strip_prefix("Rule").unwrap_or(name)
+        name.split("::")
+            .last()
+            .unwrap()
+            .strip_prefix("Rule")
+            .unwrap_or(name)
     }
 
     fn eval(&self, rule_cx: RuleContext) -> Vec<LintResult>;
@@ -230,7 +245,11 @@ pub trait Rule: CloneRule + dyn_clone::DynClone + Debug + 'static + Send + Sync 
         new_lerrs: &mut Vec<SQLLintError>,
         new_fixes: &mut Vec<LintFix>,
     ) {
-        if res.fixes.iter().any(|it| it.has_template_conflicts(templated_file)) {
+        if res
+            .fixes
+            .iter()
+            .any(|it| it.has_template_conflicts(templated_file))
+        {
             return;
         }
 
@@ -277,7 +296,9 @@ impl<T: Rule> Erased for T {
     type Erased = ErasedRule;
 
     fn erased(self) -> Self::Erased {
-        ErasedRule { erased: Arc::new(self) }
+        ErasedRule {
+            erased: Arc::new(self),
+        }
     }
 }
 
@@ -310,13 +331,18 @@ impl RuleSet {
     fn rule_reference_map(&self) -> AHashMap<&'static str, AHashSet<&'static str>> {
         let valid_codes: AHashSet<_> = self.register.keys().copied().collect();
 
-        let reference_map: AHashMap<_, AHashSet<_>> =
-            valid_codes.iter().map(|&code| (code, AHashSet::from([code]))).collect();
+        let reference_map: AHashMap<_, AHashSet<_>> = valid_codes
+            .iter()
+            .map(|&code| (code, AHashSet::from([code])))
+            .collect();
 
         let name_map = {
             let mut name_map = AHashMap::new();
             for manifest in self.register.values() {
-                name_map.entry(manifest.name).or_insert_with(AHashSet::new).insert(manifest.code);
+                name_map
+                    .entry(manifest.name)
+                    .or_insert_with(AHashSet::new)
+                    .insert(manifest.code);
             }
             name_map
         };
@@ -349,7 +375,10 @@ impl RuleSet {
                         codes
                     );
                 } else {
-                    group_map.entry(group).or_insert_with(AHashSet::new).insert(manifest.code);
+                    group_map
+                        .entry(group)
+                        .or_insert_with(AHashSet::new)
+                        .insert(manifest.code);
                 }
             }
         }
@@ -369,7 +398,10 @@ impl RuleSet {
                         codes
                     );
                 } else {
-                    alias_map.entry(*alias).or_insert_with(AHashSet::new).insert(manifest.code);
+                    alias_map
+                        .entry(*alias)
+                        .or_insert_with(AHashSet::new)
+                        .insert(manifest.code);
                 }
             }
         }
@@ -402,12 +434,18 @@ impl RuleSet {
         let mut instantiated_rules = Vec::with_capacity(keylist.len());
 
         let allowlist: Vec<String> = match config.get("rule_allowlist", "core").as_array() {
-            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            Some(array) => array
+                .iter()
+                .map(|it| it.as_string().unwrap().to_owned())
+                .collect(),
             None => self.register.keys().map(|it| it.to_string()).collect(),
         };
 
         let denylist: Vec<String> = match config.get("rule_denylist", "core").as_array() {
-            Some(array) => array.iter().map(|it| it.as_string().unwrap().to_owned()).collect(),
+            Some(array) => array
+                .iter()
+                .map(|it| it.as_string().unwrap().to_owned())
+                .collect(),
             None => Vec::new(),
         };
 
@@ -425,13 +463,18 @@ impl RuleSet {
 
             let tmp = AHashMap::new();
 
-            let specific_rule_config =
-                rules.get(rule_config_ref).and_then(|section| section.as_map()).unwrap_or(&tmp);
+            let specific_rule_config = rules
+                .get(rule_config_ref)
+                .and_then(|section| section.as_map())
+                .unwrap_or(&tmp);
 
             // TODO fail the rulepack if any need unwrapping
             instantiated_rules.push(rule.load_from_config(specific_rule_config).unwrap());
         }
 
-        RulePack { rules: instantiated_rules, _reference_map: reference_map }
+        RulePack {
+            rules: instantiated_rules,
+            _reference_map: reference_map,
+        }
     }
 }

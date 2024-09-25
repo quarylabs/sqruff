@@ -24,8 +24,11 @@ fn flush_metas(
     meta_buffer: Vec<SyntaxKind>,
     _segments: &[ErasedSegment],
 ) -> Vec<(u32, SyntaxKind)> {
-    let meta_idx =
-        if meta_buffer.iter().all(|it| it.indent_val() >= 0) { tpre_nc_idx } else { post_nc_idx };
+    let meta_idx = if meta_buffer.iter().all(|it| it.indent_val() >= 0) {
+        tpre_nc_idx
+    } else {
+        post_nc_idx
+    };
     meta_buffer.into_iter().map(|it| (meta_idx, it)).collect()
 }
 
@@ -164,7 +167,10 @@ impl MatchableTrait for Sequence {
                 insert_segments.extend(meta_buffer.into_iter().map(|meta| (matched_idx, meta)));
 
                 return Ok(MatchResult {
-                    span: Span { start: start_idx, end: matched_idx },
+                    span: Span {
+                        start: start_idx,
+                        end: matched_idx,
+                    },
                     insert_segments,
                     child_matches,
                     matched: Matched::SyntaxKind(SyntaxKind::Unparsable).into(),
@@ -190,7 +196,10 @@ impl MatchableTrait for Sequence {
 
                 if matched_idx == start_idx {
                     return Ok(MatchResult {
-                        span: Span { start: start_idx, end: max_idx },
+                        span: Span {
+                            start: start_idx,
+                            end: max_idx,
+                        },
                         matched: Matched::SyntaxKind(SyntaxKind::Unparsable).into(),
                         ..MatchResult::default()
                     });
@@ -206,7 +215,10 @@ impl MatchableTrait for Sequence {
                 });
 
                 return Ok(MatchResult {
-                    span: Span { start: start_idx, end: max_idx },
+                    span: Span {
+                        start: start_idx,
+                        end: max_idx,
+                    },
                     insert_segments,
                     child_matches,
                     matched: None,
@@ -236,15 +248,20 @@ impl MatchableTrait for Sequence {
 
         insert_segments.extend(meta_buffer.into_iter().map(|meta| (matched_idx, meta)));
 
-        if matches!(self.parse_mode, ParseMode::Greedy | ParseMode::GreedyOnceStarted)
-            && max_idx > matched_idx
+        if matches!(
+            self.parse_mode,
+            ParseMode::Greedy | ParseMode::GreedyOnceStarted
+        ) && max_idx > matched_idx
         {
             let idx = skip_start_index_forward_to_code(segments, matched_idx, max_idx);
             let stop_idx = skip_stop_index_backward_to_code(segments, max_idx, idx);
 
             if stop_idx > idx {
                 child_matches.push(MatchResult {
-                    span: Span { start: idx, end: stop_idx },
+                    span: Span {
+                        start: idx,
+                        end: stop_idx,
+                    },
                     matched: Matched::SyntaxKind(SyntaxKind::Unparsable).into(),
                     ..Default::default()
                 });
@@ -253,7 +270,10 @@ impl MatchableTrait for Sequence {
         }
 
         Ok(MatchResult {
-            span: Span { start: start_idx, end: matched_idx },
+            span: Span {
+                start: start_idx,
+                end: matched_idx,
+            },
             matched: None,
             insert_segments,
             child_matches,
@@ -392,8 +412,9 @@ impl MatchableTrait for Bracketed {
         let (start_bracket, end_bracket, bracket_persists) =
             self.get_bracket_from_dialect(parse_context).unwrap();
 
-        let start_match = parse_context
-            .deeper_match(false, &[], |ctx| start_bracket.match_segments(segments, idx, ctx))?;
+        let start_match = parse_context.deeper_match(false, &[], |ctx| {
+            start_bracket.match_segments(segments, idx, ctx)
+        })?;
 
         if !start_match.has_match() {
             return Ok(MatchResult::empty_at(idx));
@@ -422,15 +443,18 @@ impl MatchableTrait for Bracketed {
 
         let mut content_match =
             parse_context.deeper_match(true, &[end_bracket.clone()], |ctx| {
-                self.this.match_segments(&segments[..end_idx as usize], idx, ctx)
+                self.this
+                    .match_segments(&segments[..end_idx as usize], idx, ctx)
             })?;
 
         if content_match.span.end != end_idx && self.parse_mode == ParseMode::Strict {
             return Ok(MatchResult::empty_at(idx));
         }
 
-        let intermediate_slice =
-            Span { start: content_match.span.end, end: bracketed_match.span.end - 1 };
+        let intermediate_slice = Span {
+            start: content_match.span.end,
+            end: bracketed_match.span.end - 1,
+        };
 
         if !self.allow_gaps && intermediate_slice.start == intermediate_slice.end {
             unimplemented!()
@@ -443,7 +467,10 @@ impl MatchableTrait for Bracketed {
             child_matches.append(&mut content_match.child_matches);
         }
 
-        Ok(MatchResult { child_matches, ..bracketed_match })
+        Ok(MatchResult {
+            child_matches,
+            ..bracketed_match
+        })
     }
 
     fn cache_key(&self) -> MatchableCacheKey {

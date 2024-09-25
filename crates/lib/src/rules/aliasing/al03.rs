@@ -66,7 +66,12 @@ FROM foo
 
         // Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
         if !children
-            .select(Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::Function)), None, None, None)
+            .select(
+                Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::Function)),
+                None,
+                None,
+                None,
+            )
             .children(None)
             .select(
                 Some(|sp: &ErasedSegment| sp.is_type(SyntaxKind::EmitsSegment)),
@@ -124,19 +129,37 @@ FROM foo
             return Vec::new();
         }
 
-        if context.config.unwrap().get("allow_scalar", "rules").as_bool().unwrap() {
+        if context
+            .config
+            .unwrap()
+            .get("allow_scalar", "rules")
+            .as_bool()
+            .unwrap()
+        {
             let immediate_parent = parent_stack.find_last(None);
             let elements =
                 immediate_parent.children(Some(|it| it.is_type(SyntaxKind::SelectClauseElement)));
 
             if elements.len() > 1 {
-                return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
+                return vec![LintResult::new(
+                    context.segment.into(),
+                    Vec::new(),
+                    None,
+                    None,
+                    None,
+                )];
             }
 
             return Vec::new();
         }
 
-        vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)]
+        vec![LintResult::new(
+            context.segment.into(),
+            Vec::new(),
+            None,
+            None,
+            None,
+        )]
     }
 
     fn crawl_behaviour(&self) -> Crawler {

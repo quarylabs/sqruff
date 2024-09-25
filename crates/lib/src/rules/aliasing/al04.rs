@@ -30,7 +30,10 @@ pub struct RuleAL04<T = ()> {
 
 impl Default for RuleAL04 {
     fn default() -> Self {
-        RuleAL04 { lint_references_and_aliases: Self::lint_references_and_aliases, context: () }
+        RuleAL04 {
+            lint_references_and_aliases: Self::lint_references_and_aliases,
+            context: (),
+        }
     }
 }
 
@@ -104,8 +107,11 @@ FROM
             return Vec::new();
         };
 
-        let _parent_select =
-            context.parent_stack.iter().rev().find(|seg| seg.is_type(SyntaxKind::SelectStatement));
+        let _parent_select = context
+            .parent_stack
+            .iter()
+            .rev()
+            .find(|seg| seg.is_type(SyntaxKind::SelectStatement));
 
         (self.lint_references_and_aliases)(
             select_info.table_aliases,

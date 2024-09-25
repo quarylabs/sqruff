@@ -50,7 +50,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@stable
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - run: cd editors/code && pnpm run build
       - run: cd editors/code && pnpm run package
@@ -100,7 +100,7 @@ jobs:
         with:
           command: build
           target: ${{ matrix.platform.target }}
-          toolchain: nightly
+          toolchain: stable
           args: --locked --release
           strip: true
       - name: Package as archive

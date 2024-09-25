@@ -1008,8 +1008,11 @@ pub(crate) const POSTGRES_POSTGIS_DATATYPE_KEYWORDS: &[(&str, &str)] = &[
     ("TIN", "non-reserved"),
 ];
 
-const POSTGRES_POSTGIS_OTHER_KEYWORDS: &[(&str, &str)] =
-    &[("GEOMETRY", "non-reserved"), ("GEOGRAPHY", "non-reserved"), ("EMPTY", "non-reserved")];
+const POSTGRES_POSTGIS_OTHER_KEYWORDS: &[(&str, &str)] = &[
+    ("GEOMETRY", "non-reserved"),
+    ("GEOGRAPHY", "non-reserved"),
+    ("EMPTY", "non-reserved"),
+];
 
 pub(crate) fn postgres_keywords() -> Vec<(&'static str, &'static str)> {
     priority_keyword_merge(&[
@@ -1036,14 +1039,21 @@ mod tests {
 
         let result = priority_keyword_merge(&[kw_list_1, kw_list_2]);
 
-        let expected_result = vec![("A", "reserved"), ("B", "non-reserved"), ("C", "non-reserved")];
+        let expected_result = vec![
+            ("A", "reserved"),
+            ("B", "non-reserved"),
+            ("C", "non-reserved"),
+        ];
 
         assert_eq!(sorted(result), sorted(expected_result));
 
         let result_2 = priority_keyword_merge(&[kw_list_2, kw_list_1]);
 
-        let expected_result_2 =
-            vec![("A", "not-keyword"), ("B", "non-reserved"), ("C", "non-reserved")];
+        let expected_result_2 = vec![
+            ("A", "not-keyword"),
+            ("B", "non-reserved"),
+            ("C", "non-reserved"),
+        ];
 
         assert_eq!(sorted(result_2), sorted(expected_result_2));
 
@@ -1051,8 +1061,11 @@ mod tests {
 
         let result_3 = priority_keyword_merge(&[kw_list_2, kw_list_1, kw_list_3]);
 
-        let expected_result_3 =
-            vec![("A", "not-keyword"), ("B", "reserved"), ("C", "non-reserved")];
+        let expected_result_3 = vec![
+            ("A", "not-keyword"),
+            ("B", "reserved"),
+            ("C", "non-reserved"),
+        ];
 
         assert_eq!(sorted(result_3), sorted(expected_result_3));
 
@@ -1074,12 +1087,21 @@ mod tests {
         ];
 
         let expected_result = vec!["A", "D"];
-        assert_eq!(sorted(get_keywords(&kw_list, "not-keyword")), sorted(expected_result));
+        assert_eq!(
+            sorted(get_keywords(&kw_list, "not-keyword")),
+            sorted(expected_result)
+        );
 
         let expected_result_2 = vec!["C", "E"];
-        assert_eq!(sorted(get_keywords(&kw_list, "non-reserved")), sorted(expected_result_2));
+        assert_eq!(
+            sorted(get_keywords(&kw_list, "non-reserved")),
+            sorted(expected_result_2)
+        );
 
         let expected_result_3 = vec!["B"];
-        assert_eq!(sorted(get_keywords(&kw_list, "reserved")), sorted(expected_result_3));
+        assert_eq!(
+            sorted(get_keywords(&kw_list, "reserved")),
+            sorted(expected_result_3)
+        );
     }
 }

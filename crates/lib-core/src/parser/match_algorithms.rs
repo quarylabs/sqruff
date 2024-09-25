@@ -221,7 +221,10 @@ fn next_match(
 
     for idx in idx..max_idx {
         let seg = &segments[idx as usize];
-        let idxs = raw_simple_map.get(&first_trimmed_raw(seg)).cloned().unwrap_or_default();
+        let idxs = raw_simple_map
+            .get(&first_trimmed_raw(seg))
+            .cloned()
+            .unwrap_or_default();
         let mut matcher_idxs = Vec::from_iter(idxs);
 
         let keys = type_simple_map.keys().copied().collect();
@@ -260,7 +263,10 @@ pub fn resolve_bracket(
     parse_context: &mut ParseContext,
     nested_match: bool,
 ) -> Result<MatchResult, SQLParseError> {
-    let type_idx = start_brackets.iter().position(|it| it == &opening_matcher).unwrap();
+    let type_idx = start_brackets
+        .iter()
+        .position(|it| it == &opening_matcher)
+        .unwrap();
     let mut matched_idx = opening_match.span.end;
     let mut child_matches = vec![opening_match.clone()];
 
@@ -289,7 +295,10 @@ pub fn resolve_bracket(
 
                 child_matches.push(match_result);
                 let match_result = MatchResult {
-                    span: Span { start: opening_match.span.start, end: match_span.end },
+                    span: Span {
+                        start: opening_match.span.start,
+                        end: match_span.end,
+                    },
                     matched: None,
                     insert_segments,
                     child_matches,
@@ -304,7 +313,9 @@ pub fn resolve_bracket(
 
             return Err(SQLParseError {
                 description: "Found unexpected end bracket!".into(),
-                segment: segments[(match_result.span.end - 1) as usize].clone().into(),
+                segment: segments[(match_result.span.end - 1) as usize]
+                    .clone()
+                    .into(),
             });
         }
 
@@ -370,11 +381,17 @@ fn next_ex_bracket_match(
             return Ok((match_result, matcher.clone(), child_matches));
         }
 
-        if let Some(matcher) = matcher.as_ref().filter(|matcher| matchers.contains(matcher)) {
+        if let Some(matcher) = matcher
+            .as_ref()
+            .filter(|matcher| matchers.contains(matcher))
+        {
             return Ok((match_result, Some(matcher.clone()), child_matches));
         }
 
-        if matcher.as_ref().is_some_and(|matcher| end_brackets.contains(matcher)) {
+        if matcher
+            .as_ref()
+            .is_some_and(|matcher| end_brackets.contains(matcher))
+        {
             return Ok((MatchResult::empty_at(idx), None, Vec::new()));
         }
 
@@ -421,7 +438,10 @@ pub fn greedy_match(
 
         if !matched.has_match() {
             return Ok(MatchResult {
-                span: Span { start: idx, end: segments.len() as u32 },
+                span: Span {
+                    start: idx,
+                    end: segments.len() as u32,
+                },
                 matched: None,
                 insert_segments: Vec::new(),
                 child_matches,
@@ -462,7 +482,10 @@ pub fn greedy_match(
 
     if include_terminator {
         return Ok(MatchResult {
-            span: Span { start: idx, end: stop_idx },
+            span: Span {
+                start: idx,
+                end: stop_idx,
+            },
             ..MatchResult::default()
         });
     }
@@ -470,12 +493,22 @@ pub fn greedy_match(
     let stop_idx = skip_stop_index_backward_to_code(segments, matched.span.start, idx);
 
     let span = if idx == stop_idx {
-        Span { start: idx, end: matched.span.start }
+        Span {
+            start: idx,
+            end: matched.span.start,
+        }
     } else {
-        Span { start: idx, end: stop_idx }
+        Span {
+            start: idx,
+            end: stop_idx,
+        }
     };
 
-    Ok(MatchResult { span, child_matches, ..Default::default() })
+    Ok(MatchResult {
+        span,
+        child_matches,
+        ..Default::default()
+    })
 }
 
 pub fn trim_to_terminator(
@@ -508,5 +541,9 @@ pub fn trim_to_terminator(
         greedy_match(segments, idx, ctx, terminators, false, false)
     })?;
 
-    Ok(skip_stop_index_backward_to_code(segments, term_match.span.end, idx))
+    Ok(skip_stop_index_backward_to_code(
+        segments,
+        term_match.span.end,
+        idx,
+    ))
 }

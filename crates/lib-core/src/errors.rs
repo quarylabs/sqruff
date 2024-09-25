@@ -187,8 +187,10 @@ impl SQLParseError {
         if let Ok(true) = regex.is_match(value) {
             true
         } else {
-            let msg =
-                format!("Regex pattern did not match.\nRegex: {:?}\nInput: {:?}", regexp, value);
+            let msg = format!(
+                "Regex pattern did not match.\nRegex: {:?}\nInput: {:?}",
+                regexp, value
+            );
 
             if regexp == value {
                 panic!("{}\nDid you mean to escape the regex?", msg);
@@ -203,7 +205,10 @@ impl From<SQLParseError> for SQLBaseError {
     fn from(value: SQLParseError) -> Self {
         let (mut line_no, mut line_pos) = Default::default();
 
-        let pos_marker = value.segment.as_ref().and_then(|segment| segment.get_position_marker());
+        let pos_marker = value
+            .segment
+            .as_ref()
+            .and_then(|segment| segment.get_position_marker());
 
         if let Some(pos_marker) = pos_marker {
             (line_no, line_pos) = pos_marker.source_position();
@@ -225,7 +230,10 @@ pub struct SQLLexError {
 
 impl SQLLexError {
     pub fn new(message: String, position_marker: PositionMarker) -> SQLLexError {
-        SQLLexError { message, position_marker }
+        SQLLexError {
+            message,
+            position_marker,
+        }
     }
 }
 

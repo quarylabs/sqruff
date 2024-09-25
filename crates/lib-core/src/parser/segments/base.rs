@@ -93,7 +93,10 @@ impl SegmentBuilder {
     }
 
     pub fn finish(self) -> ErasedSegment {
-        ErasedSegment { value: Rc::new(self.node_or_token), hash: Rc::new(AtomicU64::new(0)) }
+        ErasedSegment {
+            value: Rc::new(self.node_or_token),
+            hash: Rc::new(AtomicU64::new(0)),
+        }
     }
 }
 
@@ -166,7 +169,10 @@ impl ErasedSegment {
     }
 
     pub fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        self.recursive_crawl_all(false).into_iter().filter(|it| it.segments().is_empty()).collect()
+        self.recursive_crawl_all(false)
+            .into_iter()
+            .filter(|it| it.segments().is_empty())
+            .collect()
     }
 
     #[cfg(feature = "stringify")]
@@ -175,7 +181,10 @@ impl ErasedSegment {
     }
 
     pub fn child(&self, seg_types: &SyntaxSet) -> Option<ErasedSegment> {
-        self.segments().iter().find(|seg| seg_types.contains(seg.get_type())).cloned()
+        self.segments()
+            .iter()
+            .find(|seg| seg_types.contains(seg.get_type()))
+            .cloned()
     }
 
     pub fn recursive_crawl(
@@ -215,17 +224,22 @@ impl ErasedSegment {
     #[track_caller]
     pub fn new(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
         match &self.value.kind {
-            NodeOrTokenKind::Node(node) => {
-                SegmentBuilder::node(self.value.id, self.value.syntax_kind, node.dialect, segments)
-                    .with_position(self.get_position_marker().unwrap().clone())
-                    .finish()
-            }
+            NodeOrTokenKind::Node(node) => SegmentBuilder::node(
+                self.value.id,
+                self.value.syntax_kind,
+                node.dialect,
+                segments,
+            )
+            .with_position(self.get_position_marker().unwrap().clone())
+            .finish(),
             NodeOrTokenKind::Token(_) => self.deep_clone(),
         }
     }
 
     fn change_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
-        let NodeOrTokenKind::Node(node) = &self.value.kind else { unimplemented!() };
+        let NodeOrTokenKind::Node(node) = &self.value.kind else {
+            unimplemented!()
+        };
 
         ErasedSegment {
             value: Rc::new(NodeOrToken {
@@ -252,7 +266,10 @@ impl ErasedSegment {
     }
 
     pub fn can_start_end_non_code(&self) -> bool {
-        matches!(self.value.syntax_kind, SyntaxKind::File | SyntaxKind::Unparsable)
+        matches!(
+            self.value.syntax_kind,
+            SyntaxKind::File | SyntaxKind::Unparsable
+        )
     }
 
     pub(crate) fn dialect(&self) -> DialectKind {
@@ -297,7 +314,11 @@ impl ErasedSegment {
 
         let mut buff = Vec::new();
 
-        for seg in segments.iter().skip(start_index).take(stop_index - start_index) {
+        for seg in segments
+            .iter()
+            .skip(start_index)
+            .take(stop_index - start_index)
+        {
             if let Some(loop_while) = &loop_while {
                 if !loop_while(seg) {
                     break;
@@ -474,7 +495,10 @@ impl ErasedSegment {
                 self.segments()
                     .iter()
                     .flat_map(|segment| {
-                        segment.descendant_type_set().clone().union(segment.class_types())
+                        segment
+                            .descendant_type_set()
+                            .clone()
+                            .union(segment.class_types())
                     })
                     .collect()
             }),
@@ -494,7 +518,10 @@ impl ErasedSegment {
     }
 
     pub fn is_whitespace(&self) -> bool {
-        matches!(self.value.syntax_kind, SyntaxKind::Whitespace | SyntaxKind::Newline)
+        matches!(
+            self.value.syntax_kind,
+            SyntaxKind::Whitespace | SyntaxKind::Newline
+        )
     }
 
     pub fn is_indent(&self) -> bool {
@@ -589,7 +616,9 @@ impl ErasedSegment {
     }
 
     pub fn direct_descendant_type_set(&self) -> SyntaxSet {
-        self.segments().iter().fold(SyntaxSet::EMPTY, |set, it| set.union(it.class_types()))
+        self.segments()
+            .iter()
+            .fold(SyntaxSet::EMPTY, |set, it| set.union(it.class_types()))
     }
 
     pub fn is_keyword(&self, p0: &str) -> bool {
@@ -612,7 +641,9 @@ impl ErasedSegment {
 
             hash = hasher.finish();
 
-            let exchange = self.hash.compare_exchange(0, hash, Ordering::AcqRel, Ordering::Acquire);
+            let exchange = self
+                .hash
+                .compare_exchange(0, hash, Ordering::AcqRel, Ordering::Acquire);
             if let Err(old) = exchange {
                 hash = old
             }
@@ -622,7 +653,10 @@ impl ErasedSegment {
     }
 
     pub fn deep_clone(&self) -> Self {
-        Self { value: Rc::new(self.value.as_ref().clone()), hash: self.hash.clone() }
+        Self {
+            value: Rc::new(self.value.as_ref().clone()),
+            hash: self.hash.clone(),
+        }
     }
 
     #[track_caller]
@@ -690,11 +724,13 @@ impl ErasedSegment {
                         buffer.push((seg.clone(), new_step));
                     } else {
                         let extended =
-                            seg.raw_segments_with_ancestors().iter().map(|(raw_seg, stack)| {
-                                let mut new_step = new_step.clone();
-                                new_step.extend_from_slice(stack);
-                                (raw_seg.clone(), new_step)
-                            });
+                            seg.raw_segments_with_ancestors()
+                                .iter()
+                                .map(|(raw_seg, stack)| {
+                                    let mut new_step = new_step.clone();
+                                    new_step.extend_from_slice(stack);
+                                    (raw_seg.clone(), new_step)
+                                });
 
                         buffer.extend(extended);
                     }
@@ -790,7 +826,8 @@ impl ErasedSegment {
                     let mut s = s.deep_clone();
                     if f.edit_type == EditType::Replace && !consumed_pos && s.raw() == seg.raw() {
                         consumed_pos = true;
-                        s.get_mut().set_position_marker(seg.get_position_marker().cloned());
+                        s.get_mut()
+                            .set_position_marker(seg.get_position_marker().cloned());
                     }
 
                     seg_buffer.push(s);
@@ -1086,10 +1123,22 @@ mod tests {
     fn test_parser_base_segments_raw_compare() {
         let template: TemplatedFile = "foobar".into();
         let rs1 = SegmentBuilder::token(0, "foobar", SyntaxKind::Word)
-            .with_position(PositionMarker::new(0..6, 0..6, template.clone(), None, None))
+            .with_position(PositionMarker::new(
+                0..6,
+                0..6,
+                template.clone(),
+                None,
+                None,
+            ))
             .finish();
         let rs2 = SegmentBuilder::token(0, "foobar", SyntaxKind::Word)
-            .with_position(PositionMarker::new(0..6, 0..6, template.clone(), None, None))
+            .with_position(PositionMarker::new(
+                0..6,
+                0..6,
+                template.clone(),
+                None,
+                None,
+            ))
             .finish();
 
         assert_eq!(rs1, rs2)
@@ -1134,7 +1183,10 @@ mod tests {
         let anchor_edit_info = compute_anchor_edit_info(fixes);
 
         // Check the target segment is the only key we have.
-        assert_eq!(anchor_edit_info.keys().collect::<Vec<_>>(), vec![&raw_segs[0].id()]);
+        assert_eq!(
+            anchor_edit_info.keys().collect::<Vec<_>>(),
+            vec![&raw_segs[0].id()]
+        );
 
         let anchor_info = anchor_edit_info.get(&raw_segs[0].id()).unwrap();
 

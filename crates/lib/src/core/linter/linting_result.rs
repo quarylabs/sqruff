@@ -17,7 +17,11 @@ impl Default for LintingResult {
 
 impl LintingResult {
     pub fn new() -> Self {
-        LintingResult { paths: vec![], start_time: Instant::now(), total_time: 0.0 }
+        LintingResult {
+            paths: vec![],
+            start_time: Instant::now(),
+            total_time: 0.0,
+        }
     }
 
     /// Add a new `LintedDir` to this result.

@@ -33,7 +33,11 @@ pub struct RootOnlyCrawler;
 
 impl BaseCrawler for RootOnlyCrawler {
     fn crawl<'a>(&self, context: RuleContext<'a>) -> Vec<RuleContext<'a>> {
-        if self.passes_filter(&context.segment) { vec![context.clone()] } else { Vec::new() }
+        if self.passes_filter(&context.segment) {
+            vec![context.clone()]
+        } else {
+            Vec::new()
+        }
     }
 }
 
@@ -45,7 +49,11 @@ pub struct SegmentSeekerCrawler {
 
 impl SegmentSeekerCrawler {
     pub fn new(types: SyntaxSet) -> Self {
-        Self { types, provide_raw_stack: false, allow_recurse: true }
+        Self {
+            types,
+            provide_raw_stack: false,
+            allow_recurse: true,
+        }
     }
 
     pub fn disallow_recurse(mut self) -> Self {
@@ -79,7 +87,9 @@ impl BaseCrawler for SegmentSeekerCrawler {
 
         if !self.types.intersects(context.segment.descendant_type_set()) {
             if self.provide_raw_stack {
-                context.raw_stack.append(&mut context.segment.get_raw_segments());
+                context
+                    .raw_stack
+                    .append(&mut context.segment.get_raw_segments());
             }
 
             return acc;

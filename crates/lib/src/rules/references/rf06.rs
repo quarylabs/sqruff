@@ -105,17 +105,22 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if matches!(context.dialect.name, DialectKind::Postgres | DialectKind::Snowflake)
-            && !self.force_enable
+        if matches!(
+            context.dialect.name,
+            DialectKind::Postgres | DialectKind::Snowflake
+        ) && !self.force_enable
         {
             return Vec::new();
         }
 
-        if FunctionalContext::new(context.clone()).parent_stack().any(Some(|it| {
-            [SyntaxKind::PasswordAuth, SyntaxKind::ExecuteAsClause]
-                .into_iter()
-                .any(|ty| it.is_type(ty))
-        })) {
+        if FunctionalContext::new(context.clone())
+            .parent_stack()
+            .any(Some(|it| {
+                [SyntaxKind::PasswordAuth, SyntaxKind::ExecuteAsClause]
+                    .into_iter()
+                    .any(|ty| it.is_type(ty))
+            }))
+        {
             return Vec::new();
         }
 
@@ -147,11 +152,17 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             SyntaxKind::QuotedIdentifier
         };
 
-        if self.ignore_words.contains(&identifier_contents.to_lowercase()) {
+        if self
+            .ignore_words
+            .contains(&identifier_contents.to_lowercase())
+        {
             return Vec::new();
         }
 
-        if self.ignore_words_regex.iter().any(|regex| regex.is_match(identifier_contents.as_ref()))
+        if self
+            .ignore_words_regex
+            .iter()
+            .any(|regex| regex.is_match(identifier_contents.as_ref()))
         {
             return Vec::new();
         }
@@ -162,7 +173,9 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                     context.segment.into(),
                     Vec::new(),
                     None,
-                    Some(format!("Missing quoted keyword identifier {identifier_contents}.")),
+                    Some(format!(
+                        "Missing quoted keyword identifier {identifier_contents}."
+                    )),
                     None,
                 )]
             } else {
@@ -171,8 +184,14 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         }
 
         if !context.segment.is_type(context_policy)
-            || context.segment.raw().eq_ignore_ascii_case("quoted_identifier")
-            || context.segment.raw().eq_ignore_ascii_case("naked_identifier")
+            || context
+                .segment
+                .raw()
+                .eq_ignore_ascii_case("quoted_identifier")
+            || context
+                .segment
+                .raw()
+                .eq_ignore_ascii_case("naked_identifier")
         {
             return Vec::new();
         }
@@ -191,8 +210,13 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
 
         let naked_identifier_parser = owned.as_regex().unwrap();
 
-        if is_full_match(naked_identifier_parser.template.as_str(), &identifier_contents)
-            && naked_identifier_parser.anti_template.as_ref().map_or(true, |anti_template| {
+        if is_full_match(
+            naked_identifier_parser.template.as_str(),
+            &identifier_contents,
+        ) && naked_identifier_parser
+            .anti_template
+            .as_ref()
+            .map_or(true, |anti_template| {
                 !is_full_match(anti_template.as_str(), &identifier_contents)
             })
         {
@@ -200,18 +224,19 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 context.segment.clone().into(),
                 vec![LintFix::replace(
                     context.segment.clone(),
-                    vec![
-                        SegmentBuilder::token(
-                            context.tables.next_id(),
-                            &identifier_contents,
-                            SyntaxKind::NakedIdentifier,
-                        )
-                        .finish(),
-                    ],
+                    vec![SegmentBuilder::token(
+                        context.tables.next_id(),
+                        &identifier_contents,
+                        SyntaxKind::NakedIdentifier,
+                    )
+                    .finish()],
                     None,
                 )],
                 None,
-                Some(format!("Unnecessary quoted identifier {}.", context.segment.raw())),
+                Some(format!(
+                    "Unnecessary quoted identifier {}.",
+                    context.segment.raw()
+                )),
                 None,
             )];
         }

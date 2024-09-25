@@ -30,7 +30,10 @@ impl PartialEq for Dialect {
 
 impl Dialect {
     pub fn new() -> Self {
-        Dialect { name: DialectKind::Ansi, ..Default::default() }
+        Dialect {
+            name: DialectKind::Ansi,
+            ..Default::default()
+        }
     }
 
     pub fn name(&self) -> DialectKind {
@@ -45,7 +48,11 @@ impl Dialect {
     }
 
     pub fn grammar(&self, name: &str) -> Matchable {
-        match self.library.get(name).unwrap_or_else(|| panic!("not found {name}")) {
+        match self
+            .library
+            .get(name)
+            .unwrap_or_else(|| panic!("not found {name}"))
+        {
             DialectElementType::Matchable(matchable) => matchable.clone(),
             DialectElementType::SegmentGenerator(_) => {
                 unreachable!("Attempted to fetch non grammar [{name}] with `Dialect::grammar`.")
@@ -109,8 +116,10 @@ impl Dialect {
             panic!("Lexer struct must be defined before it can be patched!");
         }
 
-        let patch_dict: AHashMap<&'static str, Matcher> =
-            lexer_patch.into_iter().map(|elem| (elem.name(), elem)).collect();
+        let patch_dict: AHashMap<&'static str, Matcher> = lexer_patch
+            .into_iter()
+            .map(|elem| (elem.name(), elem))
+            .collect();
 
         for elem in self.lexer_matchers.take().unwrap() {
             if let Some(patch) = patch_dict.get(elem.name()) {
@@ -166,7 +175,10 @@ impl Dialect {
             "Invalid bracket set. Consider using another identifier instead."
         );
 
-        self.bracket_collections.get(label).cloned().unwrap_or_default()
+        self.bracket_collections
+            .get(label)
+            .cloned()
+            .unwrap_or_default()
     }
 
     pub fn bracket_sets_mut(&mut self, label: &'static str) -> &mut AHashSet<BracketPair> {
@@ -229,8 +241,10 @@ impl Dialect {
                     if !self.library.contains_key(n.as_str()) {
                         let parser = StringParser::new(&kw.to_lowercase(), SyntaxKind::Keyword);
 
-                        self.library
-                            .insert(n.into(), DialectElementType::Matchable(parser.to_matchable()));
+                        self.library.insert(
+                            n.into(),
+                            DialectElementType::Matchable(parser.to_matchable()),
+                        );
                     }
                 }
             }

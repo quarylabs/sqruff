@@ -17,7 +17,11 @@ impl Schema {
         let mapping_trie =
             crate::trie::new(flatten_schema(&mapping).map(|t| t.config(|this| this.reverse())));
 
-        Self { mapping, mapping_trie, ..Default::default() }
+        Self {
+            mapping,
+            mapping_trie,
+            ..Default::default()
+        }
     }
 
     pub(crate) fn is_empty(&self) -> bool {
@@ -25,12 +29,17 @@ impl Schema {
     }
 
     fn table_parts(&self, tables: &Tables, table: Expr) -> Vec<String> {
-        let ExprKind::TableReference(n, _) = &tables.exprs[table].kind else { unimplemented!() };
+        let ExprKind::TableReference(n, _) = &tables.exprs[table].kind else {
+            unimplemented!()
+        };
         vec![n.clone()]
     }
 
     fn nested_get(&self, parts: Vec<String>) -> &HashMap<String, String> {
-        nested_get(&self.mapping, parts.into_iter().map(|path| (path, String::new())))
+        nested_get(
+            &self.mapping,
+            parts.into_iter().map(|path| (path, String::new())),
+        )
     }
 
     pub(crate) fn find(&self, tables: &Tables, table: Expr) -> Option<&HashMap<String, String>> {

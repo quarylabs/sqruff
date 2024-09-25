@@ -44,7 +44,9 @@ impl RebreakIndices {
         while (dir == 1 && newline_point_idx < limit as isize)
             || (dir == -1 && newline_point_idx >= 0)
         {
-            if elements[newline_point_idx as usize].class_types1().contains(SyntaxKind::Newline)
+            if elements[newline_point_idx as usize]
+                .class_types1()
+                .contains(SyntaxKind::Newline)
                 || elements[(newline_point_idx + dir as isize) as usize]
                     .segments()
                     .iter()
@@ -131,7 +133,12 @@ pub fn identify_rebreak_spans(
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
-    for (idx, elem) in element_buffer.iter().enumerate().take(element_buffer.len() - 2).skip(2) {
+    for (idx, elem) in element_buffer
+        .iter()
+        .enumerate()
+        .take(element_buffer.len() - 2)
+        .skip(2)
+    {
         let ReflowElement::Block(block) = elem else {
             continue;
         };
@@ -169,8 +176,12 @@ pub fn identify_rebreak_spans(
                 }
 
                 if let Some(final_idx) = final_idx {
-                    let target_depth =
-                        block.depth_info.stack_hashes.iter().position(|it| it == key).unwrap();
+                    let target_depth = block
+                        .depth_info
+                        .stack_hashes
+                        .iter()
+                        .position(|it| it == key)
+                        .unwrap();
                     let target = root_segment.path_to(&element_buffer[idx].segments()[0])
                         [target_depth]
                         .segment
@@ -234,8 +245,14 @@ pub fn rebreak_sequence(
         // }
 
         // Points and blocks either side are just offsets from the indices.
-        let prev_point = elem_buff[loc.prev.adj_pt_idx as usize].as_point().unwrap().clone();
-        let next_point = elem_buff[loc.next.adj_pt_idx as usize].as_point().unwrap().clone();
+        let prev_point = elem_buff[loc.prev.adj_pt_idx as usize]
+            .as_point()
+            .unwrap()
+            .clone();
+        let next_point = elem_buff[loc.next.adj_pt_idx as usize]
+            .as_point()
+            .unwrap()
+            .clone();
 
         // So we know we have a preference, is it ok?
         let new_results = if loc.line_position == LinePosition::Leading {
@@ -247,9 +264,15 @@ pub fn rebreak_sequence(
             // Generate the text for any issues.
             let pretty_name = loc.pretty_target_name();
             let _desc = if loc.strict {
-                format!("{} should always start a new line.", capitalize(&pretty_name))
+                format!(
+                    "{} should always start a new line.",
+                    capitalize(&pretty_name)
+                )
             } else {
-                format!("Found trailing {}. Expected only leading near line breaks.", pretty_name)
+                format!(
+                    "Found trailing {}. Expected only leading near line breaks.",
+                    pretty_name
+                )
             };
 
             if loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
@@ -333,9 +356,15 @@ pub fn rebreak_sequence(
 
             let pretty_name = loc.pretty_target_name();
             let _desc = if loc.strict {
-                format!("{} should always be at the end of a line.", capitalize(&pretty_name))
+                format!(
+                    "{} should always be at the end of a line.",
+                    capitalize(&pretty_name)
+                )
             } else {
-                format!("Found leading {}. Expected only trailing near line breaks.", pretty_name)
+                format!(
+                    "Found leading {}. Expected only trailing near line breaks.",
+                    pretty_name
+                )
             };
 
             if loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
@@ -429,12 +458,22 @@ pub fn rebreak_sequence(
 
             new_results
         } else {
-            unimplemented!("Unexpected line_position config: {}", loc.line_position.as_ref())
+            unimplemented!(
+                "Unexpected line_position config: {}",
+                loc.line_position.as_ref()
+            )
         };
 
-        let fixes =
-            fixes_from_results(new_results.into_iter()).chain(std::mem::take(&mut fixes)).collect();
-        lint_results.push(LintResult::new(loc.target.clone().into(), fixes, None, None, None));
+        let fixes = fixes_from_results(new_results.into_iter())
+            .chain(std::mem::take(&mut fixes))
+            .collect();
+        lint_results.push(LintResult::new(
+            loc.target.clone().into(),
+            fixes,
+            None,
+            None,
+            None,
+        ));
     }
 
     (elem_buff, lint_results)
@@ -528,14 +567,20 @@ mod tests {
             ("select 1\n+2", "select 1\n+2"),
             ("select 1+\n2", "select 1\n+ 2"), // NOTE: Implicit respace.
             ("select\n  1 +\n  2", "select\n  1\n  + 2"),
-            ("select\n  1 +\n  -- comment\n  2", "select\n  1\n  -- comment\n  + 2"),
+            (
+                "select\n  1 +\n  -- comment\n  2",
+                "select\n  1\n  -- comment\n  + 2",
+            ),
             // These rely on the default config being for trailing commas
             ("select a,b", "select a,b"),
             ("select a\n,b", "select a,\nb"),
             ("select\n  a\n  , b", "select\n  a,\n  b"),
             ("select\n    a\n    , b", "select\n    a,\n    b"),
             ("select\n  a\n    , b", "select\n  a,\n    b"),
-            ("select\n  a\n  -- comment\n  , b", "select\n  a,\n  -- comment\n  b"),
+            (
+                "select\n  a\n  -- comment\n  , b",
+                "select\n  a,\n  -- comment\n  b",
+            ),
         ];
 
         let tables = Tables::default();

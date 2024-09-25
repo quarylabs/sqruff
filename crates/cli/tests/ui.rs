@@ -5,7 +5,11 @@ use assert_cmd::Command;
 use expect_test::expect_file;
 
 fn main() {
-    let profile = if cfg!(debug_assertions) { "debug" } else { "release" };
+    let profile = if cfg!(debug_assertions) {
+        "debug"
+    } else {
+        "release"
+    };
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     test_dir.push("tests/ui");
 

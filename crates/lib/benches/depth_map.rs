@@ -9,7 +9,11 @@ use sqruff_lib_core::parser::segments::base::Tables;
 #[cfg(all(
     not(target_os = "windows"),
     not(target_os = "openbsd"),
-    any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")
+    any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        target_arch = "powerpc64"
+    )
 ))]
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
@@ -80,7 +84,11 @@ SELECT construct_depth_info('uuid-3');"#;
 fn depth_map(c: &mut Criterion) {
     let linter = Linter::new(FluffConfig::default(), None, None);
     let tables = Tables::default();
-    let tree = linter.parse_string(&tables, COMPLEX_QUERY, None).unwrap().tree.unwrap();
+    let tree = linter
+        .parse_string(&tables, COMPLEX_QUERY, None)
+        .unwrap()
+        .tree
+        .unwrap();
 
     c.bench_function("DepthMap::from_parent", |b| {
         b.iter(|| black_box(DepthMap::from_parent(&tree)));

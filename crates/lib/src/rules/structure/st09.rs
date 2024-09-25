@@ -83,12 +83,15 @@ left join bar
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut table_aliases = Vec::new();
-        let children = FunctionalContext::new(context.clone()).segment().children(None);
+        let children = FunctionalContext::new(context.clone())
+            .segment()
+            .children(None);
         let join_clauses =
             children.recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }, true);
-        let join_on_conditions = join_clauses
-            .children(None)
-            .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::JoinOnCondition]) }, true);
+        let join_on_conditions = join_clauses.children(None).recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::JoinOnCondition]) },
+            true,
+        );
 
         if join_on_conditions.is_empty() {
             return Vec::new();
@@ -110,13 +113,22 @@ left join bar
         let mut join_clause_aliases = join_clauses
             .into_iter()
             .map(|join_clause| {
-                JoinClauseSegment(join_clause).eventual_aliases().first().unwrap().1.ref_str.clone()
+                JoinClauseSegment(join_clause)
+                    .eventual_aliases()
+                    .first()
+                    .unwrap()
+                    .1
+                    .ref_str
+                    .clone()
             })
             .collect_vec();
 
         table_aliases.append(&mut join_clause_aliases);
 
-        let table_aliases = table_aliases.iter().map(|it| it.to_uppercase_smolstr()).collect_vec();
+        let table_aliases = table_aliases
+            .iter()
+            .map(|it| it.to_uppercase_smolstr())
+            .collect_vec();
         let mut conditions = Vec::new();
 
         let join_on_condition_expressions = join_on_conditions
@@ -126,7 +138,10 @@ left join bar
         for expression in join_on_condition_expressions {
             let mut expression_group = Vec::new();
             for element in Segments::new(expression, None).children(None) {
-                if !matches!(element.get_type(), SyntaxKind::Whitespace | SyntaxKind::Newline) {
+                if !matches!(
+                    element.get_type(),
+                    SyntaxKind::Whitespace | SyntaxKind::Newline
+                ) {
                     expression_group.push(element);
                 }
             }
@@ -190,11 +205,23 @@ left join bar
                 continue;
             }
 
-            if (table_aliases.iter().position(|x| x == &first_table).unwrap()
-                > table_aliases.iter().position(|x| x == &second_table).unwrap()
+            if (table_aliases
+                .iter()
+                .position(|x| x == &first_table)
+                .unwrap()
+                > table_aliases
+                    .iter()
+                    .position(|x| x == &second_table)
+                    .unwrap()
                 && self.preferred_first_table_in_join_clause == "earlier")
-                || (table_aliases.iter().position(|x| x == &first_table).unwrap()
-                    < table_aliases.iter().position(|x| x == &second_table).unwrap()
+                || (table_aliases
+                    .iter()
+                    .position(|x| x == &first_table)
+                    .unwrap()
+                    < table_aliases
+                        .iter()
+                        .position(|x| x == &second_table)
+                        .unwrap()
                     && self.preferred_first_table_in_join_clause == "later")
             {
                 fixes.push(LintFix::replace(
@@ -209,20 +236,21 @@ left join bar
                 ));
 
                 if matches!(raw_comparison_operators[0].raw().as_ref(), "<" | ">")
-                    && raw_comparison_operators.iter().map(|it| it.raw()).ne(["<", ">"])
+                    && raw_comparison_operators
+                        .iter()
+                        .map(|it| it.raw())
+                        .ne(["<", ">"])
                 {
                     fixes.push(LintFix::replace(
                         raw_comparison_operators[0].clone(),
-                        vec![
-                            SegmentBuilder::token(
-                                context.tables.next_id(),
-                                raw_comparison_operator_opposites(
-                                    raw_comparison_operators[0].raw().as_ref(),
-                                ),
-                                SyntaxKind::RawComparisonOperator,
-                            )
-                            .finish(),
-                        ],
+                        vec![SegmentBuilder::token(
+                            context.tables.next_id(),
+                            raw_comparison_operator_opposites(
+                                raw_comparison_operators[0].raw().as_ref(),
+                            ),
+                            SyntaxKind::RawComparisonOperator,
+                        )
+                        .finish()],
                         None,
                     ));
                 }
@@ -256,7 +284,10 @@ fn split_list_by_segment_type(
     delimiter_type: SyntaxKind,
     delimiters: Vec<SmolStr>,
 ) -> Vec<Vec<ErasedSegment>> {
-    let delimiters = delimiters.into_iter().map(|it| it.to_uppercase_smolstr()).collect_vec();
+    let delimiters = delimiters
+        .into_iter()
+        .map(|it| it.to_uppercase_smolstr())
+        .collect_vec();
     let mut new_list = Vec::new();
     let mut sub_list = Vec::new();
 
@@ -283,10 +314,14 @@ fn is_qualified_column_operator_qualified_column_sequence(segment_list: &[Erased
     }
 
     if segment_list[0].get_type() == SyntaxKind::ColumnReference
-        && segment_list[0].direct_descendant_type_set().contains(SyntaxKind::Dot)
+        && segment_list[0]
+            .direct_descendant_type_set()
+            .contains(SyntaxKind::Dot)
         && segment_list[1].get_type() == SyntaxKind::ComparisonOperator
         && segment_list[2].get_type() == SyntaxKind::ColumnReference
-        && segment_list[2].direct_descendant_type_set().contains(SyntaxKind::Dot)
+        && segment_list[2]
+            .direct_descendant_type_set()
+            .contains(SyntaxKind::Dot)
     {
         return true;
     }

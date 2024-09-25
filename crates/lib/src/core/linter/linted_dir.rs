@@ -10,7 +10,10 @@ pub struct LintedDir {
 
 impl LintedDir {
     pub fn new(path: String) -> Self {
-        LintedDir { files: AppendOnlyVec::new(), path }
+        LintedDir {
+            files: AppendOnlyVec::new(),
+            path,
+        }
     }
 
     pub fn add(&self, file: LintedFile) {

@@ -34,7 +34,11 @@ impl ObjectReferenceSegment {
     }
 
     pub fn qualification(&self) -> &'static str {
-        if self.is_qualified() { "qualified" } else { "unqualified" }
+        if self.is_qualified() {
+            "qualified"
+        } else {
+            "unqualified"
+        }
     }
 
     pub fn extract_possible_references(
@@ -232,7 +236,10 @@ impl ObjectReferenceSegment {
         let parts = raw.split('.');
 
         for part in parts {
-            acc.push(ObjectReferencePart { part: part.into(), segments: vec![elem.clone()] });
+            acc.push(ObjectReferencePart {
+                part: part.into(),
+                segments: vec![elem.clone()],
+            });
         }
 
         acc

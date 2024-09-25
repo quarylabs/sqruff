@@ -23,7 +23,9 @@ use crate::clickhouse_keywords::UNRESERVED_KEYWORDS;
 pub fn dialect() -> Dialect {
     let mut clickhouse_dialect = raw_dialect();
     clickhouse_dialect.name = DialectKind::Clickhouse;
-    clickhouse_dialect.sets_mut("unreserved_keywords").extend(UNRESERVED_KEYWORDS);
+    clickhouse_dialect
+        .sets_mut("unreserved_keywords")
+        .extend(UNRESERVED_KEYWORDS);
 
     clickhouse_dialect.replace_grammar(
         "FromExpressionElementSegment",
@@ -196,7 +198,9 @@ pub fn dialect() -> Dialect {
         ),
         (
             "LambdaFunctionSegment".into(),
-            TypedParser::new(SyntaxKind::Lambda, SyntaxKind::Lambda).to_matchable().into(),
+            TypedParser::new(SyntaxKind::Lambda, SyntaxKind::Lambda)
+                .to_matchable()
+                .into(),
         ),
     ]);
 
@@ -227,13 +231,13 @@ pub fn dialect() -> Dialect {
 
     clickhouse_dialect.replace_grammar(
         "BracketedArguments",
-        Bracketed::new(vec_of_erased![
-            Delimited::new(vec_of_erased![one_of(vec_of_erased![
+        Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
+            vec_of_erased![
                 Ref::new("DatatypeIdentifierSegment"),
                 Ref::new("NumericLiteralSegment"),
-            ])])
-            .config(|this| this.optional())
-        ])
+            ]
+        )])
+        .config(|this| this.optional())])
         .to_matchable(),
     );
 
@@ -309,11 +313,13 @@ pub fn dialect() -> Dialect {
                         Ref::new("DatePartFunctionNameSegment"),
                         Ref::new("ValuesClauseSegment"),
                     ])),
-                    Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
-                        .config(|this| {
-                            this.optional();
-                            this.parse_mode(ParseMode::Greedy)
-                        }),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("FunctionContentsGrammar").optional()
+                    ])
+                    .config(|this| {
+                        this.optional();
+                        this.parse_mode(ParseMode::Greedy)
+                    }),
                 ])
                 .to_matchable(),
             )
@@ -369,17 +375,15 @@ pub fn dialect() -> Dialect {
                             ]),
                             Sequence::new(vec_of_erased![
                                 Ref::keyword("SETTINGS"),
-                                Delimited::new(vec_of_erased![
-                                    Sequence::new(vec_of_erased![
-                                        Ref::new("NakedIdentifierSegment"),
-                                        Ref::new("EqualsSegment"),
-                                        one_of(vec_of_erased![
-                                            Ref::new("NumericLiteralSegment"),
-                                            Ref::new("QuotedLiteralSegment"),
-                                        ]),
-                                    ])
-                                    .config(|this| this.optional())
-                                ]),
+                                Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                                    Ref::new("NakedIdentifierSegment"),
+                                    Ref::new("EqualsSegment"),
+                                    one_of(vec_of_erased![
+                                        Ref::new("NumericLiteralSegment"),
+                                        Ref::new("QuotedLiteralSegment"),
+                                    ]),
+                                ])
+                                .config(|this| this.optional())]),
                             ]),
                         ]),
                     ]),
@@ -404,11 +408,13 @@ pub fn dialect() -> Dialect {
                         Ref::keyword("REPLICATED"),
                         Ref::keyword("SQLITE"),
                     ]),
-                    Bracketed::new(vec_of_erased![Ref::new("FunctionContentsGrammar").optional()])
-                        .config(|this| {
-                            this.parse_mode(ParseMode::Greedy);
-                            this.optional();
-                        }),
+                    Bracketed::new(vec_of_erased![
+                        Ref::new("FunctionContentsGrammar").optional()
+                    ])
+                    .config(|this| {
+                        this.parse_mode(ParseMode::Greedy);
+                        this.optional();
+                    }),
                 ])
                 .to_matchable(),
             )
@@ -479,8 +485,11 @@ pub fn dialect() -> Dialect {
             "ColumnTTLSegment".into(),
             NodeMatcher::new(
                 SyntaxKind::ColumnTtlSegment,
-                Sequence::new(vec_of_erased![Ref::keyword("TTL"), Ref::new("ExpressionSegment"),])
-                    .to_matchable(),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("TTL"),
+                    Ref::new("ExpressionSegment"),
+                ])
+                .to_matchable(),
             )
             .to_matchable()
             .into(),
@@ -589,19 +598,17 @@ pub fn dialect() -> Dialect {
                 .config(|this| this.optional()),
                 Sequence::new(vec_of_erased![
                     Ref::keyword("SETTINGS"),
-                    Delimited::new(vec_of_erased![
-                        Sequence::new(vec_of_erased![
+                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::new("NakedIdentifierSegment"),
+                        Ref::new("EqualsSegment"),
+                        one_of(vec_of_erased![
                             Ref::new("NakedIdentifierSegment"),
-                            Ref::new("EqualsSegment"),
-                            one_of(vec_of_erased![
-                                Ref::new("NakedIdentifierSegment"),
-                                Ref::new("NumericLiteralSegment"),
-                                Ref::new("QuotedLiteralSegment"),
-                                Ref::new("BooleanLiteralGrammar"),
-                            ]),
-                        ])
-                        .config(|this| this.optional())
+                            Ref::new("NumericLiteralSegment"),
+                            Ref::new("QuotedLiteralSegment"),
+                            Ref::new("BooleanLiteralGrammar"),
+                        ]),
                     ])
+                    .config(|this| this.optional())])
                     .config(|this| this.optional()),
                 ]),
             ]),
@@ -625,8 +632,11 @@ pub fn dialect() -> Dialect {
         "CreateTableStatementSegment",
         Sequence::new(vec_of_erased![
             Ref::keyword("CREATE"),
-            one_of(vec_of_erased![Ref::new("OrReplaceGrammar"), Ref::keyword("TEMPORARY"),])
-                .config(|this| this.optional()),
+            one_of(vec_of_erased![
+                Ref::new("OrReplaceGrammar"),
+                Ref::keyword("TEMPORARY"),
+            ])
+            .config(|this| this.optional()),
             Ref::keyword("TABLE"),
             Ref::new("IfNotExistsGrammar").optional(),
             Ref::new("TableReferenceSegment"),
@@ -657,7 +667,10 @@ pub fn dialect() -> Dialect {
                     Ref::new("TableEngineSegment").optional(),
                 ]),
                 // CREATE TABLE AS table_function():
-                Sequence::new(vec_of_erased![Ref::keyword("AS"), Ref::new("FunctionSegment"),]),
+                Sequence::new(vec_of_erased![
+                    Ref::keyword("AS"),
+                    Ref::new("FunctionSegment"),
+                ]),
             ]),
             any_set_of(vec_of_erased![
                 Sequence::new(vec_of_erased![

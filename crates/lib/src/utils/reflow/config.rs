@@ -104,7 +104,11 @@ pub enum Spacing {
     TouchInline,
     SingleInline,
     Any,
-    Align { seg_type: SyntaxKind, within: Option<SyntaxKind>, scope: Option<SyntaxKind> },
+    Align {
+        seg_type: SyntaxKind,
+        within: Option<SyntaxKind>,
+        scope: Option<SyntaxKind>,
+    },
 }
 
 impl FromStr for Spacing {
@@ -126,7 +130,11 @@ impl FromStr for Spacing {
                     let within = args.next().map(|it| it.parse().unwrap());
                     let scope = args.next().map(|it| it.parse().unwrap());
 
-                    Spacing::Align { seg_type, within, scope }
+                    Spacing::Align {
+                        seg_type,
+                        within,
+                        scope,
+                    }
                 } else {
                     unimplemented!("{s}")
                 }
@@ -217,11 +225,17 @@ impl ReflowConfig {
             .map(|x| x.parse().unwrap_or_else(|_| unimplemented!("{x}")))
             .collect::<SyntaxSet>();
 
-        let trailing_comments = config.raw["indentation"]["trailing_comments"].as_string().unwrap();
+        let trailing_comments = config.raw["indentation"]["trailing_comments"]
+            .as_string()
+            .unwrap();
         let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
 
-        let tab_space_size = config.raw["indentation"]["tab_space_size"].as_int().unwrap() as usize;
-        let indent_unit = config.raw["indentation"]["indent_unit"].as_string().unwrap();
+        let tab_space_size = config.raw["indentation"]["tab_space_size"]
+            .as_int()
+            .unwrap() as usize;
+        let indent_unit = config.raw["indentation"]["indent_unit"]
+            .as_string()
+            .unwrap();
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
         let mut configs = convert_to_config_dict(configs);
@@ -276,8 +290,10 @@ fn convert_to_config_dict(input: AHashMap<String, Value>) -> ConfigDictType {
                         }
                     })
                     .collect::<ConfigElementType>();
-                config_dict
-                    .insert(key.parse().unwrap_or_else(|_| unimplemented!("{key}")), element);
+                config_dict.insert(
+                    key.parse().unwrap_or_else(|_| unimplemented!("{key}")),
+                    element,
+                );
             }
             _ => panic!("Expected a Value::Map, found another variant."),
         }

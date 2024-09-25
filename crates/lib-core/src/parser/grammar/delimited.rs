@@ -96,8 +96,13 @@ impl MatchableTrait for Delimited {
         let delimiter_matcher = self.delimiter.clone();
 
         let mut terminator_matchers = self.terminators.clone();
-        terminator_matchers
-            .extend(parse_context.terminators.iter().filter(|&t| &delimiter_matcher != t).cloned());
+        terminator_matchers.extend(
+            parse_context
+                .terminators
+                .iter()
+                .filter(|&t| &delimiter_matcher != t)
+                .cloned(),
+        );
 
         let delimiter_matchers = &[self.delimiter.clone()];
 
@@ -132,7 +137,11 @@ impl MatchableTrait for Delimited {
                 parse_context.deeper_match(false, push_terminators, |this| {
                     longest_match(
                         segments,
-                        if seeking_delimiter { delimiter_matchers } else { &self.elements },
+                        if seeking_delimiter {
+                            delimiter_matchers
+                        } else {
+                            &self.elements
+                        },
                         working_idx,
                         this,
                     )

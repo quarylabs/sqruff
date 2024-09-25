@@ -19,7 +19,10 @@ mod tests {
         let test_cases = vec![
             ("a b", vec!["a", " ", "b", ""]),
             ("b.c", vec!["b", ".", "c", ""]),
-            ("abc \n \t def  ;blah", vec!["abc", " ", "\n", " \t ", "def", "  ", ";", "blah", ""]),
+            (
+                "abc \n \t def  ;blah",
+                vec!["abc", " ", "\n", " \t ", "def", "  ", ";", "blah", ""],
+            ),
         ];
 
         for (raw, res) in test_cases {
@@ -44,7 +47,11 @@ mod tests {
             // Check if the concatenated raw components of the tokens match the original raw
             // string
             let concatenated: String = tokens.iter().map(|token| token.raw().as_str()).collect();
-            assert_eq!(concatenated, raw, "Concatenation mismatch for input: {}", raw);
+            assert_eq!(
+                concatenated, raw,
+                "Concatenation mismatch for input: {}",
+                raw
+            );
         }
     }
 
@@ -58,7 +65,10 @@ mod tests {
             ("NumericLiteralSegment", "1000.0"),
             ("ExpressionSegment", "online_sales / 1000.0"),
             ("IntervalExpressionSegment", "INTERVAL 1 YEAR"),
-            ("ExpressionSegment", "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END"),
+            (
+                "ExpressionSegment",
+                "CASE WHEN id = 1 THEN 'nothing' ELSE 'test' END",
+            ),
             // Nested Case Expressions
             (
                 "ExpressionSegment",
@@ -66,7 +76,10 @@ mod tests {
             ELSE 'test' END",
             ),
             // Casting expressions
-            ("ExpressionSegment", "CAST(ROUND(online_sales / 1000.0) AS varchar)"),
+            (
+                "ExpressionSegment",
+                "CAST(ROUND(online_sales / 1000.0) AS varchar)",
+            ),
             // Like expressions
             ("ExpressionSegment", "name NOT LIKE '%y'"),
             // Functions with a space
@@ -87,15 +100,24 @@ mod tests {
                 "SelectClauseElementSegment",
                 "(count_18_24 * bits[OFFSET(0)]) / audience_size AS relative_abundance",
             ),
-            ("ExpressionSegment", "count_18_24 * bits[OFFSET(0)] + count_25_34"),
+            (
+                "ExpressionSegment",
+                "count_18_24 * bits[OFFSET(0)] + count_25_34",
+            ),
             (
                 "SelectClauseElementSegment",
                 "(count_18_24 * bits[OFFSET(0)] + count_25_34) / audience_size AS \
                  relative_abundance",
             ),
             // Dense math expressions
-            ("SelectStatementSegment", "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8"),
-            ("SelectStatementSegment", "SELECT foo FROM bar INNER JOIN baz"),
+            (
+                "SelectStatementSegment",
+                "SELECT t.val/t.id FROM test WHERE id*1.0/id > 0.8",
+            ),
+            (
+                "SelectStatementSegment",
+                "SELECT foo FROM bar INNER JOIN baz",
+            ),
             ("SelectClauseElementSegment", "t.val/t.id"),
             // Issue with casting raise as part of PR #177
             ("SelectClauseElementSegment", "CAST(num AS INT64)"),
@@ -127,7 +149,10 @@ mod tests {
             ("TruncateStatementSegment", "TRUNCATE TABLE test"),
             ("TruncateStatementSegment", "TRUNCATE test"),
             ("FunctionNameSegment", "cte_1.foo"),
-            ("SelectStatementSegment", "select * from my_cte cross join other_cte"),
+            (
+                "SelectStatementSegment",
+                "select * from my_cte cross join other_cte",
+            ),
         ];
 
         let dialect = fresh_ansi_dialect();
@@ -177,8 +202,11 @@ mod tests {
             let parsed = lnt.parse_string(&tables, raw, None).unwrap();
             assert!(!parsed.violations.is_empty());
 
-            let locs: Vec<(usize, usize)> =
-                parsed.violations.iter().map(|v| (v.line_no, v.line_pos)).collect();
+            let locs: Vec<(usize, usize)> = parsed
+                .violations
+                .iter()
+                .map(|v| (v.line_no, v.line_pos))
+                .collect();
             assert_eq!(locs, err_locations);
         }
     }

@@ -91,8 +91,13 @@ from fancy_table
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        if context.segment.segments()[0].raw().eq_ignore_ascii_case("CASE") {
-            let children = FunctionalContext::new(context.clone()).segment().children(None);
+        if context.segment.segments()[0]
+            .raw()
+            .eq_ignore_ascii_case("CASE")
+        {
+            let children = FunctionalContext::new(context.clone())
+                .segment()
+                .children(None);
 
             let when_clauses = children.select(
                 Some(|it: &ErasedSegment| it.is_type(SyntaxKind::WhenClause)),
@@ -117,8 +122,9 @@ from fancy_table
                 when_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression)))[1].clone();
 
             if !else_clauses.is_empty() {
-                if let Some(else_expression) =
-                    else_clauses.children(Some(|it| it.is_type(SyntaxKind::Expression))).first()
+                if let Some(else_expression) = else_clauses
+                    .children(Some(|it| it.is_type(SyntaxKind::Expression)))
+                    .first()
                 {
                     let upper_bools = ["TRUE", "FALSE"];
 
@@ -178,7 +184,9 @@ from fancy_table
                 };
 
                 let array_accessor_segment = Segments::new(condition_expression.clone(), None)
-                    .children(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::ArrayAccessor)))
+                    .children(Some(|it: &ErasedSegment| {
+                        it.is_type(SyntaxKind::ArrayAccessor)
+                    }))
                     .first()
                     .cloned();
 
@@ -233,7 +241,9 @@ from fancy_table
                             .into(),
                         None,
                     )];
-                } else if column_reference_segment.raw().eq_ignore_ascii_case(then_expression.raw())
+                } else if column_reference_segment
+                    .raw()
+                    .eq_ignore_ascii_case(then_expression.raw())
                 {
                     let fixes =
                         Self::column_only_fix_list(&context, column_reference_segment.clone());
@@ -303,6 +313,10 @@ impl RuleST02 {
         context: &RuleContext,
         column_reference_segment: ErasedSegment,
     ) -> Vec<LintFix> {
-        vec![LintFix::replace(context.segment.clone(), vec![column_reference_segment], None)]
+        vec![LintFix::replace(
+            context.segment.clone(),
+            vec![column_reference_segment],
+            None,
+        )]
     }
 }

@@ -16,7 +16,9 @@ pub struct RuleCV03 {
 
 impl Default for RuleCV03 {
     fn default() -> Self {
-        RuleCV03 { select_clause_trailing_comma: "require".to_string() }
+        RuleCV03 {
+            select_clause_trailing_comma: "require".to_string(),
+        }
     }
 }
 
@@ -75,8 +77,12 @@ FROM foo
         let segment = FunctionalContext::new(rule_cx.clone()).segment();
         let children = segment.children(None);
 
-        let last_content: ErasedSegment =
-            children.clone().last().cloned().filter(|sp: &ErasedSegment| sp.is_code()).unwrap();
+        let last_content: ErasedSegment = children
+            .clone()
+            .last()
+            .cloned()
+            .filter(|sp: &ErasedSegment| sp.is_code())
+            .unwrap();
 
         let mut fixes = Vec::new();
 
@@ -85,7 +91,10 @@ FROM foo
                 if last_content.get_position_marker().is_none() {
                     fixes = vec![LintFix::delete(last_content.clone())];
                 } else {
-                    let comma_pos = last_content.get_position_marker().unwrap().source_position();
+                    let comma_pos = last_content
+                        .get_position_marker()
+                        .unwrap()
+                        .source_position();
 
                     for seg in rule_cx.segment.segments() {
                         if seg.is_type(SyntaxKind::Comma) {
@@ -107,7 +116,9 @@ FROM foo
                     Some(last_content),
                     fixes,
                     None,
-                    "Trailing comma in select statement forbidden".to_owned().into(),
+                    "Trailing comma in select statement forbidden"
+                        .to_owned()
+                        .into(),
                     None,
                 )];
             }
@@ -126,7 +137,9 @@ FROM foo
                 Some(last_content),
                 fix,
                 None,
-                "Trailing comma in select statement required".to_owned().into(),
+                "Trailing comma in select statement required"
+                    .to_owned()
+                    .into(),
                 None,
             )];
         }

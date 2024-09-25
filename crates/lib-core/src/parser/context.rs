@@ -79,8 +79,11 @@ impl<'a> ParseContext<'a> {
         let terminators = self.terminators.clone();
 
         if clear_terminators && !self.terminators.is_empty() {
-            self.terminators =
-                if !push_terminators.is_empty() { push_terminators.to_vec() } else { Vec::new() };
+            self.terminators = if !push_terminators.is_empty() {
+                push_terminators.to_vec()
+            } else {
+                Vec::new()
+            };
         } else if !push_terminators.is_empty() {
             for terminator in push_terminators {
                 let terminator_owned = terminator.clone();
@@ -119,7 +122,9 @@ impl<'a> ParseContext<'a> {
         loc_key: LocKey,
         matcher_key: MatchableCacheKey,
     ) -> Option<MatchResult> {
-        self.parse_cache.get(&CacheKey::new(loc_key, matcher_key)).cloned()
+        self.parse_cache
+            .get(&CacheKey::new(loc_key, matcher_key))
+            .cloned()
     }
 
     pub(crate) fn put_parse_cache(
@@ -128,6 +133,7 @@ impl<'a> ParseContext<'a> {
         matcher_key: MatchableCacheKey,
         match_result: MatchResult,
     ) {
-        self.parse_cache.insert(CacheKey::new(loc_key, matcher_key), match_result);
+        self.parse_cache
+            .insert(CacheKey::new(loc_key, matcher_key), match_result);
     }
 }

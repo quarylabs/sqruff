@@ -21,7 +21,11 @@ pub struct MetaSegment {
 
 impl MetaSegment {
     pub fn from_kind(kind: SyntaxKind) -> Self {
-        Self { kind, position_marker: None, id: 0 }
+        Self {
+            kind,
+            position_marker: None,
+            id: 0,
+        }
     }
 
     pub fn indent() -> Self {

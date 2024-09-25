@@ -29,9 +29,17 @@ impl Rule for RuleCV01 {
                 "consistent" => PreferredNotEqualStyle::Consistent,
                 "c_style" => PreferredNotEqualStyle::CStyle,
                 "ansi" => PreferredNotEqualStyle::Ansi,
-                _ => return Err(format!("Invalid value for preferred_not_equal_style: {}", value)),
+                _ => {
+                    return Err(format!(
+                        "Invalid value for preferred_not_equal_style: {}",
+                        value
+                    ))
+                }
             };
-            Ok(RuleCV01 { preferred_not_equal_style }.erased())
+            Ok(RuleCV01 {
+                preferred_not_equal_style,
+            }
+            .erased())
         } else {
             Err("Missing value for preferred_not_equal_style".to_string())
         }
@@ -75,8 +83,10 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
         let raw_comparison_operators = segment.children(None);
 
         // Only check ``<>`` or ``!=`` operators
-        let raw_operator_list =
-            raw_comparison_operators.iter().map(|r| r.raw()).collect::<Vec<_>>();
+        let raw_operator_list = raw_comparison_operators
+            .iter()
+            .map(|r| r.raw())
+            .collect::<Vec<_>>();
         if raw_operator_list != ["<", ">"] && raw_operator_list != ["!", "="] {
             return Vec::new();
         }
@@ -125,31 +135,33 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
         let fixes = vec![
             LintFix::replace(
                 raw_comparison_operators[0].clone(),
-                vec![
-                    SegmentBuilder::token(
-                        context.tables.next_id(),
-                        replacement[0],
-                        SyntaxKind::ComparisonOperator,
-                    )
-                    .finish(),
-                ],
+                vec![SegmentBuilder::token(
+                    context.tables.next_id(),
+                    replacement[0],
+                    SyntaxKind::ComparisonOperator,
+                )
+                .finish()],
                 None,
             ),
             LintFix::replace(
                 raw_comparison_operators[1].clone(),
-                vec![
-                    SegmentBuilder::token(
-                        context.tables.next_id(),
-                        replacement[1],
-                        SyntaxKind::ComparisonOperator,
-                    )
-                    .finish(),
-                ],
+                vec![SegmentBuilder::token(
+                    context.tables.next_id(),
+                    replacement[1],
+                    SyntaxKind::ComparisonOperator,
+                )
+                .finish()],
                 None,
             ),
         ];
 
-        vec![LintResult::new(context.segment.clone().into(), fixes, None, None, None)]
+        vec![LintResult::new(
+            context.segment.clone().into(),
+            fixes,
+            None,
+            None,
+            None,
+        )]
     }
 
     fn is_fix_compatible(&self) -> bool {

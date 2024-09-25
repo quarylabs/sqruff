@@ -4,7 +4,10 @@ use crate::parser::segments::base::ErasedSegment;
 
 /// Details about a table alias.
 #[derive(Debug, Eq, Hash, Clone)]
-#[allow(clippy::field_reassign_with_default, clippy::derived_hash_with_manual_eq)]
+#[allow(
+    clippy::field_reassign_with_default,
+    clippy::derived_hash_with_manual_eq
+)]
 pub struct AliasInfo {
     /// Name given to the alias
     pub ref_str: SmolStr,

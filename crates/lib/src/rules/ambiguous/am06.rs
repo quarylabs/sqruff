@@ -17,7 +17,9 @@ pub struct RuleAM06 {
 
 impl Default for RuleAM06 {
     fn default() -> Self {
-        Self { group_by_and_order_by_style: GroupByAndOrderByConvention::Consistent }
+        Self {
+            group_by_and_order_by_style: GroupByAndOrderByConvention::Consistent,
+        }
     }
 }
 
@@ -79,14 +81,16 @@ ORDER BY a ASC, b DESC
     }
 
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
-        let skip = FunctionalContext::new(context.clone()).parent_stack().any(Some(|it| {
-            let ignore_types = [
-                SyntaxKind::WithingroupClause,
-                SyntaxKind::WindowSpecification,
-                SyntaxKind::AggregateOrderByClause,
-            ];
-            ignore_types.iter().any(|&ty| it.is_type(ty))
-        }));
+        let skip = FunctionalContext::new(context.clone())
+            .parent_stack()
+            .any(Some(|it| {
+                let ignore_types = [
+                    SyntaxKind::WithingroupClause,
+                    SyntaxKind::WindowSpecification,
+                    SyntaxKind::AggregateOrderByClause,
+                ];
+                ignore_types.iter().any(|&ty| it.is_type(ty))
+            }));
 
         if skip {
             return Vec::new();
@@ -94,12 +98,18 @@ ORDER BY a ASC, b DESC
 
         // Initialize the map
         let mut column_reference_category_map = AHashMap::new();
-        column_reference_category_map
-            .insert(SyntaxKind::ColumnReference, GroupByAndOrderByConvention::Explicit);
-        column_reference_category_map
-            .insert(SyntaxKind::Expression, GroupByAndOrderByConvention::Explicit);
-        column_reference_category_map
-            .insert(SyntaxKind::NumericLiteral, GroupByAndOrderByConvention::Implicit);
+        column_reference_category_map.insert(
+            SyntaxKind::ColumnReference,
+            GroupByAndOrderByConvention::Explicit,
+        );
+        column_reference_category_map.insert(
+            SyntaxKind::Expression,
+            GroupByAndOrderByConvention::Explicit,
+        );
+        column_reference_category_map.insert(
+            SyntaxKind::NumericLiteral,
+            GroupByAndOrderByConvention::Implicit,
+        );
 
         let mut column_reference_category_set: Vec<_> = context
             .segment
@@ -115,7 +125,13 @@ ORDER BY a ASC, b DESC
 
         if self.group_by_and_order_by_style == GroupByAndOrderByConvention::Consistent {
             if column_reference_category_set.len() > 1 {
-                return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
+                return vec![LintResult::new(
+                    context.segment.into(),
+                    Vec::new(),
+                    None,
+                    None,
+                    None,
+                )];
             } else {
                 let current_group_by_order_by_convention =
                     column_reference_category_set.pop().copied().unwrap();
@@ -134,13 +150,21 @@ ORDER BY a ASC, b DESC
                     }
                 }
 
-                context.set(PriorGroupByOrderByConvention(current_group_by_order_by_convention));
+                context.set(PriorGroupByOrderByConvention(
+                    current_group_by_order_by_convention,
+                ));
             }
         } else if column_reference_category_set
             .into_iter()
             .any(|category| *category != self.group_by_and_order_by_style)
         {
-            return vec![LintResult::new(context.segment.into(), Vec::new(), None, None, None)];
+            return vec![LintResult::new(
+                context.segment.into(),
+                Vec::new(),
+                None,
+                None,
+                None,
+            )];
         }
 
         vec![]

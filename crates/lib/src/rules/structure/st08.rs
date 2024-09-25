@@ -36,7 +36,11 @@ impl RuleST08 {
     }
 
     pub fn filter_meta(segments: &[ErasedSegment], keep_meta: bool) -> Vec<ErasedSegment> {
-        segments.iter().filter(|&elem| elem.is_meta() == keep_meta).cloned().collect()
+        segments
+            .iter()
+            .filter(|&elem| elem.is_meta() == keep_meta)
+            .cloned()
+            .collect()
     }
 }
 
@@ -80,7 +84,9 @@ SELECT DISTINCT a, b FROM foo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let mut seq: Option<ReflowSequence> = None;
         let mut anchor: Option<ErasedSegment> = None;
-        let children = FunctionalContext::new(context.clone()).segment().children(None);
+        let children = FunctionalContext::new(context.clone())
+            .segment()
+            .children(None);
 
         if context.segment.is_type(SyntaxKind::SelectClause) {
             let modifier = children.select(
@@ -99,7 +105,11 @@ SELECT DISTINCT a, b FROM foo
             let expression = first_element
                 .children(Some(|it| it.is_type(SyntaxKind::Expression)))
                 .find_first::<fn(&ErasedSegment) -> bool>(None);
-            let expression = if expression.is_empty() { first_element } else { expression };
+            let expression = if expression.is_empty() {
+                first_element
+            } else {
+                expression
+            };
             let bracketed = expression
                 .children(Some(|it| it.get_type() == SyntaxKind::Bracketed))
                 .find_first::<fn(&_) -> _>(None);
@@ -137,7 +147,10 @@ SELECT DISTINCT a, b FROM foo
                 children.find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)));
 
             if function_name.is_none()
-                || !function_name.unwrap().raw().eq_ignore_ascii_case("DISTINCT")
+                || !function_name
+                    .unwrap()
+                    .raw()
+                    .eq_ignore_ascii_case("DISTINCT")
                 || bracketed.is_empty()
             {
                 return Vec::new();

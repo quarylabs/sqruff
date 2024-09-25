@@ -44,13 +44,21 @@ impl<'a> ReflowSequence<'a> {
     }
 
     pub fn fixes(self) -> Vec<LintFix> {
-        self.results().into_iter().flat_map(|result| result.fixes).collect()
+        self.results()
+            .into_iter()
+            .flat_map(|result| result.fixes)
+            .collect()
     }
 
     pub fn from_root(root_segment: ErasedSegment, config: &'a FluffConfig) -> Self {
         let depth_map = DepthMap::from_parent(&root_segment).into();
 
-        Self::from_raw_segments(root_segment.get_raw_segments(), root_segment, config, depth_map)
+        Self::from_raw_segments(
+            root_segment.get_raw_segments(),
+            root_segment,
+            config,
+            depth_map,
+        )
     }
 
     pub fn from_raw_segments(
@@ -65,7 +73,13 @@ impl<'a> ReflowSequence<'a> {
         });
         let elements = Self::elements_from_raw_segments(segments, &depth_map, reflow_config);
 
-        Self { root_segment, elements, lint_results: Vec::new(), reflow_config, depth_map }
+        Self {
+            root_segment,
+            elements,
+            lint_results: Vec::new(),
+            reflow_config,
+            depth_map,
+        }
     }
 
     fn elements_from_raw_segments(
@@ -129,8 +143,11 @@ impl<'a> ReflowSequence<'a> {
         assert!(!target_raws.is_empty());
 
         let pre_idx = all_raws.iter().position(|x| x == &target_raws[0]).unwrap();
-        let post_idx =
-            all_raws.iter().position(|x| x == &target_raws[target_raws.len() - 1]).unwrap() + 1;
+        let post_idx = all_raws
+            .iter()
+            .position(|x| x == &target_raws[target_raws.len() - 1])
+            .unwrap()
+            + 1;
 
         let mut pre_idx = pre_idx;
         let mut post_idx = post_idx;
@@ -215,8 +232,11 @@ impl<'a> ReflowSequence<'a> {
             panic!("Not expected removal of whitespace in ReflowSequence.");
         }
         let merged_point = ReflowPoint::new(
-            [self.elements[removal_idx - 1].segments(), self.elements[removal_idx + 1].segments()]
-                .concat(),
+            [
+                self.elements[removal_idx - 1].segments(),
+                self.elements[removal_idx + 1].segments(),
+            ]
+            .concat(),
         );
         let mut new_elements = self.elements[..removal_idx - 1].to_vec();
         new_elements.push(ReflowElement::Point(merged_point));
@@ -252,8 +272,13 @@ impl<'a> ReflowSequence<'a> {
                 "before",
             );
 
-            let ignore = if new_point.segments.iter().any(|seg| seg.is_type(SyntaxKind::Newline))
-                || post.as_ref().map_or(false, |p| p.class_types().contains(SyntaxKind::EndOfFile))
+            let ignore = if new_point
+                .segments
+                .iter()
+                .any(|seg| seg.is_type(SyntaxKind::Newline))
+                || post
+                    .as_ref()
+                    .map_or(false, |p| p.class_types().contains(SyntaxKind::EndOfFile))
             {
                 filter == Filter::Inline
             } else {
@@ -323,12 +348,20 @@ impl<'a> ReflowSequence<'a> {
             );
         }
 
-        let current_raws: Vec<ErasedSegment> =
-            self.elements.iter().flat_map(|elem| elem.segments().iter().cloned()).collect();
+        let current_raws: Vec<ErasedSegment> = self
+            .elements
+            .iter()
+            .flat_map(|elem| elem.segments().iter().cloned())
+            .collect();
 
-        let start_idx = current_raws.iter().position(|s| *s == target_raws[0]).unwrap();
-        let last_idx =
-            current_raws.iter().position(|s| *s == *target_raws.last().unwrap()).unwrap();
+        let start_idx = current_raws
+            .iter()
+            .position(|s| *s == target_raws[0])
+            .unwrap();
+        let last_idx = current_raws
+            .iter()
+            .position(|s| *s == *target_raws.last().unwrap())
+            .unwrap();
 
         let new_elements = Self::elements_from_raw_segments(
             current_raws[..start_idx]

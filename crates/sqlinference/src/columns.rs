@@ -106,7 +106,10 @@ FROM
     )",
         )
         .unwrap();
-        assert_eq!(cols, vec!["account_id", "valid_date", "gross_as_percentage"]);
+        assert_eq!(
+            cols,
+            vec!["account_id", "valid_date", "gross_as_percentage"]
+        );
         assert_eq!(unnamed, Vec::<String>::new());
     }
 }

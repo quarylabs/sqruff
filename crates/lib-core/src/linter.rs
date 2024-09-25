@@ -9,7 +9,10 @@ pub fn compute_anchor_edit_info(fixes: Vec<LintFix>) -> FxHashMap<u32, AnchorEdi
 
     for fix in fixes {
         let anchor_id = fix.anchor.id();
-        anchor_info.entry(anchor_id).or_insert_with(AnchorEditInfo::default).add(fix);
+        anchor_info
+            .entry(anchor_id)
+            .or_insert_with(AnchorEditInfo::default)
+            .add(fix);
     }
 
     anchor_info

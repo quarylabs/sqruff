@@ -11,7 +11,7 @@ use std::iter::FromIterator;
     Hash,
     PartialOrd,
     Ord,
-    Default
+    Default,
 )]
 #[strum(serialize_all = "snake_case")]
 pub enum SyntaxKind {
@@ -714,7 +714,10 @@ impl SyntaxSet {
     }
 
     pub fn iter(&self) -> SyntaxSetIter {
-        SyntaxSetIter { set: self.clone(), index: 0 }
+        SyntaxSetIter {
+            set: self.clone(),
+            index: 0,
+        }
     }
 }
 

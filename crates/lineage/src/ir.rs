@@ -12,15 +12,26 @@ pub struct Tables {
 impl Default for Tables {
     fn default() -> Self {
         let exprs = AppendOnlyVec::new();
-        exprs.push(ExprData { kind: ExprKind::Placeholder, parent: None, comments: Vec::new() });
+        exprs.push(ExprData {
+            kind: ExprKind::Placeholder,
+            parent: None,
+            comments: Vec::new(),
+        });
 
-        Self { exprs, nodes: AppendOnlyVec::new() }
+        Self {
+            exprs,
+            nodes: AppendOnlyVec::new(),
+        }
     }
 }
 
 impl Tables {
     pub(crate) fn alloc_expr(&self, kind: ExprKind, parent: Option<Expr>) -> Expr {
-        self.exprs.push(ExprData { kind, parent, comments: Vec::new() })
+        self.exprs.push(ExprData {
+            kind,
+            parent,
+            comments: Vec::new(),
+        })
     }
 
     pub(crate) fn selects(&self, expr: Expr) -> Vec<Expr> {
@@ -59,9 +70,9 @@ impl Tables {
 
     pub(crate) fn is_star(&self, expr: Expr) -> bool {
         match &self.exprs[expr].kind {
-            ExprKind::Select { projections, .. } => {
-                projections.iter().any(|&projection| self.is_star(projection))
-            }
+            ExprKind::Select { projections, .. } => projections
+                .iter()
+                .any(|&projection| self.is_star(projection)),
             ExprKind::Star => true,
             _ => false,
         }
@@ -117,8 +128,11 @@ impl Tables {
     pub fn stringify(&self, expr: Expr) -> String {
         match &self.exprs[expr].kind {
             ExprKind::Function(callee, args) => {
-                let args =
-                    args.iter().map(|&arg| self.stringify(arg)).collect::<Vec<_>>().join(", ");
+                let args = args
+                    .iter()
+                    .map(|&arg| self.stringify(arg))
+                    .collect::<Vec<_>>()
+                    .join(", ");
                 format!("{callee}({args})")
             }
             &ExprKind::Join { this, on, using: _ } => {
@@ -126,7 +140,12 @@ impl Tables {
                 let on = on.map_or(String::new(), |on| self.stringify(on));
                 format!("join {this} on {on}")
             }
-            ExprKind::Select { with, projections, from, joins } => {
+            ExprKind::Select {
+                with,
+                projections,
+                from,
+                joins,
+            } => {
                 let with = with.map_or(String::new(), |with| self.stringify(with) + " ");
                 let projections = projections
                     .iter()
@@ -134,8 +153,9 @@ impl Tables {
                     .collect::<Vec<_>>()
                     .join(", ");
 
-                let from =
-                    from.map(|from| " ".to_string() + &self.stringify(from)).unwrap_or_default();
+                let from = from
+                    .map(|from| " ".to_string() + &self.stringify(from))
+                    .unwrap_or_default();
 
                 let joins = joins
                     .iter()
@@ -146,7 +166,9 @@ impl Tables {
                 format!("{with}select {projections}{from}{joins}")
             }
             &ExprKind::Subquery(subquery, ref alias) => {
-                let alias = alias.as_ref().map_or(String::new(), |alias| format!(" as {alias}"));
+                let alias = alias
+                    .as_ref()
+                    .map_or(String::new(), |alias| format!(" as {alias}"));
                 let subquery = self.stringify(subquery);
                 format!("({subquery}){alias}")
             }
@@ -160,22 +182,32 @@ impl Tables {
             }
             ExprKind::Table { .. } => todo!(),
             ExprKind::TableReference(reference, alias) => {
-                let alias = alias.as_deref().map_or(String::new(), |alias| format!(" as {alias}"));
+                let alias = alias
+                    .as_deref()
+                    .map_or(String::new(), |alias| format!(" as {alias}"));
                 reference.clone() + &alias
             }
             ExprKind::Column(s) | ExprKind::Ident(s) | ExprKind::Wildcard(s) => s.clone(),
-            ExprKind::TableAlias(s, alias) => alias
-                .map_or_else(|| s.clone(), |alias| format!("{s} as ({})", self.stringify(alias))),
+            ExprKind::TableAlias(s, alias) => alias.map_or_else(
+                || s.clone(),
+                |alias| format!("{s} as ({})", self.stringify(alias)),
+            ),
             ExprKind::Star => "*".to_owned(),
             ExprKind::Dummy => todo!(),
             ExprKind::Alias(name, alias) => {
-                let alias =
-                    alias.as_ref().map(|alias| " as ".to_string() + alias).unwrap_or_default();
+                let alias = alias
+                    .as_ref()
+                    .map(|alias| " as ".to_string() + alias)
+                    .unwrap_or_default();
                 format!("{name}{alias}")
             }
             ExprKind::Placeholder => todo!(),
             ExprKind::With { ctes } => {
-                let ctes = ctes.iter().map(|&cte| self.stringify(cte)).collect::<Vec<_>>().join("");
+                let ctes = ctes
+                    .iter()
+                    .map(|&cte| self.stringify(cte))
+                    .collect::<Vec<_>>()
+                    .join("");
                 format!("with {ctes}")
             }
             &ExprKind::Cte { alias, this } => {
@@ -197,7 +229,9 @@ impl Tables {
             ExprKind::Unknown(segment) => segment.raw().to_string(),
             ExprKind::ValuesClause(segment, alias) => {
                 segment.raw().to_string()
-                    + &alias.map_or(String::new(), |alias| " ".to_owned() + &self.stringify(alias))
+                    + &alias.map_or(String::new(), |alias| {
+                        " ".to_owned() + &self.stringify(alias)
+                    })
             }
             &ExprKind::Add(lhs, rhs) => {
                 let lhs = self.stringify(lhs);
@@ -233,7 +267,12 @@ impl Tables {
             if let Some(last_node) = last.take() {
                 if prune.as_mut().map_or(true, |prune| !prune(self, last_node)) {
                     match &self.exprs[last_node].kind {
-                        ExprKind::Select { with, projections, from, joins } => {
+                        ExprKind::Select {
+                            with,
+                            projections,
+                            from,
+                            joins,
+                        } => {
                             queue.extend(joins.iter().rev());
                             queue.extend(from);
                             queue.extend(projections.iter().rev());
@@ -527,15 +566,31 @@ pub(crate) fn lower_inner(
                             None
                         };
 
-                        tables.alloc_expr(ExprKind::Join { this, on, using: None }, parent)
+                        tables.alloc_expr(
+                            ExprKind::Join {
+                                this,
+                                on,
+                                using: None,
+                            },
+                            parent,
+                        )
                     })
                     .collect();
 
-                ExprKind::Select { with: None, projections, from, joins }
+                ExprKind::Select {
+                    with: None,
+                    projections,
+                    from,
+                    joins,
+                }
             })
         }
         SyntaxKind::Bracketed => tables.with_alloc_dummy_expr(parent, |tables, subquery| {
-            let segment = segment.segments().iter().find(|it| !it.segments().is_empty()).unwrap();
+            let segment = segment
+                .segments()
+                .iter()
+                .find(|it| !it.segments().is_empty())
+                .unwrap();
             let select = lower_inner(tables, segment.clone(), subquery.into());
             ExprKind::Subquery(select, None)
         }),
@@ -545,8 +600,14 @@ pub(crate) fn lower_inner(
         SyntaxKind::WildcardExpression => {
             let id = segment.raw().to_string();
 
-            tables
-                .alloc_expr(if id == "*" { ExprKind::Star } else { ExprKind::Wildcard(id) }, parent)
+            tables.alloc_expr(
+                if id == "*" {
+                    ExprKind::Star
+                } else {
+                    ExprKind::Wildcard(id)
+                },
+                parent,
+            )
         }
         SyntaxKind::FromExpressionElement => {
             let mut cursor = Cursor::new(segment.segments());
@@ -563,7 +624,12 @@ pub(crate) fn lower_inner(
                 if maybe_alias.get_type() == SyntaxKind::AliasExpression {
                     let maybe_alias = maybe_alias.clone();
                     let raw_segments = maybe_alias.get_raw_segments();
-                    let alias = raw_segments.iter().rev().find(|it| it.is_code()).unwrap().clone();
+                    let alias = raw_segments
+                        .iter()
+                        .rev()
+                        .find(|it| it.is_code())
+                        .unwrap()
+                        .clone();
 
                     if let ExprKind::TableReference(_, slot) = &mut tables.exprs[this].kind {
                         *slot = Some(alias.raw().to_string());
@@ -573,15 +639,17 @@ pub(crate) fn lower_inner(
 
             this
         }
-        SyntaxKind::TableReference => {
-            tables.alloc_expr(ExprKind::TableReference(segment.raw().to_string(), None), parent)
-        }
+        SyntaxKind::TableReference => tables.alloc_expr(
+            ExprKind::TableReference(segment.raw().to_string(), None),
+            parent,
+        ),
         SyntaxKind::NakedIdentifier => {
             tables.alloc_expr(ExprKind::Ident(segment.raw().to_string()), parent)
         }
         SyntaxKind::WithCompoundStatement => {
-            let select =
-                segment.child(const { &SyntaxSet::single(SyntaxKind::SelectStatement) }).unwrap();
+            let select = segment
+                .child(const { &SyntaxSet::single(SyntaxKind::SelectStatement) })
+                .unwrap();
             let select = lower_inner(tables, select, parent);
 
             let cte = segment
@@ -604,7 +672,10 @@ pub(crate) fn lower_inner(
             let alias =
                 tables.alloc_expr(ExprKind::TableAlias(alias.raw().to_string(), None), parent);
 
-            let this = rest.iter().find(|segment| !segment.segments().is_empty()).unwrap();
+            let this = rest
+                .iter()
+                .find(|segment| !segment.segments().is_empty())
+                .unwrap();
             let this = lower_inner(tables, this.clone(), parent);
 
             tables.alloc_expr(ExprKind::Cte { alias, this }, parent)
@@ -637,7 +708,9 @@ pub(crate) fn lower_inner(
                 .raw()
                 .to_string();
 
-            let args = segment.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) }).unwrap();
+            let args = segment
+                .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+                .unwrap();
             let args: Vec<_> = args
                 .segments()
                 .iter()
@@ -696,7 +769,12 @@ pub(crate) fn lower_inner(
 }
 
 fn first_code(segment: ErasedSegment) -> ErasedSegment {
-    segment.segments().iter().find(|it| it.is_code()).unwrap().clone()
+    segment
+        .segments()
+        .iter()
+        .find(|it| it.is_code())
+        .unwrap()
+        .clone()
 }
 
 pub(crate) fn specific_statement_segment(parsed: ErasedSegment) -> Vec<ErasedSegment> {
@@ -721,7 +799,9 @@ struct Cursor<'me> {
 
 impl<'me> Cursor<'me> {
     fn new(segments: &'me [ErasedSegment]) -> Self {
-        Self { iter: segments.iter().peekable() }
+        Self {
+            iter: segments.iter().peekable(),
+        }
     }
 
     fn peek(&mut self) -> Option<&ErasedSegment> {
@@ -736,12 +816,20 @@ impl<'me> Cursor<'me> {
 
     fn next(&mut self) -> Option<&ErasedSegment> {
         let next = self.iter.next()?;
-        if next.is_code() { Some(next) } else { self.next() }
+        if next.is_code() {
+            Some(next)
+        } else {
+            self.next()
+        }
     }
 
     fn next_if(&mut self, syntax_kind: SyntaxKind) -> Option<ErasedSegment> {
         let peeked = self.peek()?;
-        if peeked.get_type() == syntax_kind { Some(peeked.clone()) } else { None }
+        if peeked.get_type() == syntax_kind {
+            Some(peeked.clone())
+        } else {
+            None
+        }
     }
 
     fn skip_if(&mut self, raws: &[&str]) -> bool {

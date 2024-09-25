@@ -155,7 +155,13 @@ WHERE a IS NULL
         .respace(context.tables, false, Filter::All)
         .fixes();
 
-        vec![LintResult::new(Some(context.segment.clone()), fixes, None, None, None)]
+        vec![LintResult::new(
+            Some(context.segment.clone()),
+            fixes,
+            None,
+            None,
+            None,
+        )]
     }
 
     fn crawl_behaviour(&self) -> Crawler {

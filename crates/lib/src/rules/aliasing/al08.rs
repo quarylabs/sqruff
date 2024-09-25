@@ -71,8 +71,9 @@ FROM
         let mut used_aliases = AHashMap::new();
         let mut violations = Vec::new();
 
-        for clause_element in
-            context.segment.children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
+        for clause_element in context
+            .segment
+            .children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
         {
             let mut column_alias = None;
 
@@ -93,9 +94,14 @@ FROM
                 column_alias = column_reference.segments().last().cloned();
             }
 
-            let Some(column_alias) = column_alias else { continue };
+            let Some(column_alias) = column_alias else {
+                continue;
+            };
 
-            let key = column_alias.raw().to_uppercase().replace(['\"', '\'', '`'], "");
+            let key = column_alias
+                .raw()
+                .to_uppercase()
+                .replace(['\"', '\'', '`'], "");
 
             match used_aliases.entry(key) {
                 Entry::Occupied(entry) => {

@@ -162,7 +162,11 @@ Add trailing newline to the end. The $ character represents end of file.
         } else if trailing_newlines.len() > 1 {
             vec![LintResult::new(
                 segment.first().unwrap().clone().into(),
-                trailing_newlines.into_iter().skip(1).map(|d| LintFix::delete(d.clone())).collect(),
+                trailing_newlines
+                    .into_iter()
+                    .skip(1)
+                    .map(|d| LintFix::delete(d.clone()))
+                    .collect(),
                 None,
                 None,
                 None,

@@ -65,16 +65,23 @@ SELECT * FROM zoo
                 .children(None)
                 .find_last(Some(|seg| seg.is_type(SyntaxKind::Bracketed)))
                 .children(None)
-                .find_first(Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::StartBracket)));
+                .find_first(Some(|seg: &ErasedSegment| {
+                    seg.is_type(SyntaxKind::StartBracket)
+                }));
 
             let cte_end_bracket = cte
                 .children(None)
                 .find_last(Some(|seg| seg.is_type(SyntaxKind::Bracketed)))
                 .children(None)
-                .find_first(Some(|seg: &ErasedSegment| seg.is_type(SyntaxKind::EndBracket)));
+                .find_first(Some(|seg: &ErasedSegment| {
+                    seg.is_type(SyntaxKind::EndBracket)
+                }));
 
             if !cte_start_bracket.is_empty() && !cte_end_bracket.is_empty() {
-                if cte_start_bracket[0].get_position_marker().unwrap().line_no()
+                if cte_start_bracket[0]
+                    .get_position_marker()
+                    .unwrap()
+                    .line_no()
                     == cte_end_bracket[0].get_position_marker().unwrap().line_no()
                 {
                     continue;
@@ -85,7 +92,12 @@ SELECT * FROM zoo
 
         for seg in cte_end_brackets {
             let mut contains_non_whitespace = false;
-            let idx = context.segment.get_raw_segments().iter().position(|it| it == &seg).unwrap();
+            let idx = context
+                .segment
+                .get_raw_segments()
+                .iter()
+                .position(|it| it == &seg)
+                .unwrap();
             if idx > 0 {
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
                     if elem.is_type(SyntaxKind::Newline) {

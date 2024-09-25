@@ -22,7 +22,11 @@ pub struct Element<'a> {
 
 impl<'a> Element<'a> {
     fn new(name: &'static str, syntax_kind: SyntaxKind, text: impl Into<Cow<'a, str>>) -> Self {
-        Self { name, syntax_kind, text: text.into() }
+        Self {
+            name,
+            syntax_kind,
+            text: text.into(),
+        }
     }
 }
 
@@ -46,7 +50,10 @@ impl<'a> TemplateElement<'a> {
         TemplateElement {
             raw: element.text,
             template_slice,
-            matcher: Info { name: element.name, syntax_kind: element.syntax_kind },
+            matcher: Info {
+                name: element.name,
+                syntax_kind: element.syntax_kind,
+            },
         }
     }
 
@@ -56,7 +63,9 @@ impl<'a> TemplateElement<'a> {
         subslice: Option<Range<usize>>,
     ) -> ErasedSegment {
         let slice = subslice.map_or_else(|| self.raw.as_ref(), |slice| &self.raw[slice]);
-        SegmentBuilder::token(0, slice, self.matcher.syntax_kind).with_position(pos_marker).finish()
+        SegmentBuilder::token(0, slice, self.matcher.syntax_kind)
+            .with_position(pos_marker)
+            .finish()
     }
 }
 
@@ -76,7 +85,11 @@ pub struct Matcher {
 
 impl Matcher {
     pub const fn new(pattern: Pattern) -> Self {
-        Self { pattern, subdivider: None, trim_post_subdivide: None }
+        Self {
+            pattern,
+            subdivider: None,
+            trim_post_subdivide: None,
+        }
     }
 
     pub const fn string(
@@ -110,9 +123,15 @@ impl Matcher {
             Some(matched) => {
                 let new_elements = self.subdivide(matched, self.pattern.syntax_kind);
 
-                Match { forward_string: &forward_string[matched.len()..], elements: new_elements }
+                Match {
+                    forward_string: &forward_string[matched.len()..],
+                    elements: new_elements,
+                }
             }
-            None => Match { forward_string, elements: Vec::new() },
+            None => Match {
+                forward_string,
+                elements: Vec::new(),
+            },
         }
     }
 
@@ -155,8 +174,13 @@ impl Matcher {
             return Vec::new();
         };
 
-        let mk_element =
-            |text| Element::new(trim_post_subdivide.name, trim_post_subdivide.syntax_kind, text);
+        let mk_element = |text| {
+            Element::new(
+                trim_post_subdivide.name,
+                trim_post_subdivide.syntax_kind,
+                text,
+            )
+        };
 
         let mut elem_buff = Vec::new();
         let mut content_buff = String::new();
@@ -193,7 +217,11 @@ impl Matcher {
 
         if !content_buff.is_empty() || !str_buff.is_empty() {
             let raw = format!("{}{}", content_buff, str_buff);
-            elem_buff.push(Element::new(self.pattern.name, self.pattern.syntax_kind, raw));
+            elem_buff.push(Element::new(
+                self.pattern.name,
+                self.pattern.syntax_kind,
+                raw,
+            ));
         }
 
         elem_buff
@@ -219,11 +247,19 @@ impl Pattern {
         template: &'static str,
         syntax_kind: SyntaxKind,
     ) -> Self {
-        Self { name, syntax_kind, kind: SearchPatternKind::String(template) }
+        Self {
+            name,
+            syntax_kind,
+            kind: SearchPatternKind::String(template),
+        }
     }
 
     pub fn regex(name: &'static str, regex: &'static str, syntax_kind: SyntaxKind) -> Self {
-        Self { name, syntax_kind, kind: SearchPatternKind::Regex(Regex::new(regex).unwrap()) }
+        Self {
+            name,
+            syntax_kind,
+            kind: SearchPatternKind::Regex(Regex::new(regex).unwrap()),
+        }
     }
 
     fn matches<'a>(&self, forward_string: &'a str) -> Option<&'a str> {
@@ -247,9 +283,9 @@ impl Pattern {
 
     fn search(&self, forward_string: &str) -> Option<Range<usize>> {
         match &self.kind {
-            SearchPatternKind::String(template) => {
-                forward_string.find(template).map(|start| start..start + template.len())
-            }
+            SearchPatternKind::String(template) => forward_string
+                .find(template)
+                .map(|start| start..start + template.len()),
             SearchPatternKind::Regex(template) => {
                 if let Ok(Some(matched)) = template.find(forward_string) {
                     return Some(matched.range());
@@ -366,7 +402,10 @@ impl<'a> Lexer<'a> {
         let mut elem_buff = Vec::new();
         'main: loop {
             if forward_string.is_empty() {
-                return Match { forward_string, elements: elem_buff };
+                return Match {
+                    forward_string,
+                    elements: elem_buff,
+                };
             }
 
             for matcher in lexer_matchers {
@@ -379,7 +418,10 @@ impl<'a> Lexer<'a> {
                 }
             }
 
-            return Match { forward_string, elements: elem_buff };
+            return Match {
+                forward_string,
+                elements: elem_buff,
+            };
         }
     }
 
@@ -637,19 +679,17 @@ mod tests {
 
     #[test]
     fn test_parser_lexer_trim_post_subdivide() {
-        let matcher: Vec<Matcher> = vec![
-            Matcher::regex(
-                "function_script_terminator",
-                r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
-                SyntaxKind::StatementTerminator,
-            )
-            .subdivider(Pattern::string("semicolon", ";", SyntaxKind::Semicolon))
-            .post_subdivide(Pattern::regex(
-                "newline",
-                r"(\n|\r\n)+",
-                SyntaxKind::Newline,
-            )),
-        ];
+        let matcher: Vec<Matcher> = vec![Matcher::regex(
+            "function_script_terminator",
+            r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+            SyntaxKind::StatementTerminator,
+        )
+        .subdivider(Pattern::string("semicolon", ";", SyntaxKind::Semicolon))
+        .post_subdivide(Pattern::regex(
+            "newline",
+            r"(\n|\r\n)+",
+            SyntaxKind::Newline,
+        ))];
 
         let res = Lexer::lex_match(";\n/\n", &matcher);
         assert_eq!(res.elements[0].text, ";");
@@ -670,7 +710,11 @@ mod tests {
             // Matching whitespace segments (with a newline)
             ("   \t \n  fsaljk", r"[^\S\r\n]*", "   \t "),
             // Matching quotes containing stuff
-            ("'something boring'   \t \n  fsaljk", r"'[^']*'", "'something boring'"),
+            (
+                "'something boring'   \t \n  fsaljk",
+                r"'[^']*'",
+                "'something boring'",
+            ),
             (
                 "' something exciting \t\n '   \t \n  fsaljk",
                 r"'[^']*'",

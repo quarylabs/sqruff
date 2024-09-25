@@ -120,12 +120,14 @@ impl PositionMarker {
 
     /// Return the line and position of this marker in the source.
     pub fn source_position(&self) -> (usize, usize) {
-        self.templated_file.get_line_pos_of_char_pos(self.templated_slice.start, true)
+        self.templated_file
+            .get_line_pos_of_char_pos(self.templated_slice.start, true)
     }
 
     /// Return the line and position of this marker in the source.
     pub fn templated_position(&self) -> (usize, usize) {
-        self.templated_file.get_line_pos_of_char_pos(self.templated_slice.start, false)
+        self.templated_file
+            .get_line_pos_of_char_pos(self.templated_slice.start, false)
     }
 
     pub fn working_loc_after(&self, raw: &str) -> (usize, usize) {
@@ -141,7 +143,11 @@ impl PositionMarker {
         let split: Vec<&str> = raw.split('\n').collect();
         (
             line_no + (split.len() - 1),
-            if split.len() == 1 { line_pos + raw.len() } else { split.last().unwrap().len() + 1 },
+            if split.len() == 1 {
+                line_pos + raw.len()
+            } else {
+                split.last().unwrap().len() + 1
+            },
         )
     }
 
@@ -207,7 +213,8 @@ impl PositionMarker {
     ///     - Whether `iter_patches` can return without recursing.
     ///     - Whether certain rules (such as JJ01) are triggered.
     pub fn is_literal(&self) -> bool {
-        self.templated_file.is_source_slice_literal(&self.source_slice)
+        self.templated_file
+            .is_source_slice_literal(&self.source_slice)
     }
 
     pub fn from_points(
@@ -225,7 +232,11 @@ impl PositionMarker {
     }
 
     pub(crate) fn with_working_position(self, line_no: usize, line_pos: usize) -> PositionMarker {
-        Self { working_line_no: line_no, working_line_pos: line_pos, ..self }
+        Self {
+            working_line_no: line_no,
+            working_line_pos: line_pos,
+            ..self
+        }
     }
 
     pub(crate) fn is_point(&self) -> bool {
@@ -262,12 +273,36 @@ mod tests {
         }
 
         let tests: Vec<Test> = vec![
-            Test { raw: "fsaljk".to_string(), start: 0..0, end: 0..6 },
-            Test { raw: "".to_string(), start: 2..2, end: 2..2 },
-            Test { raw: "\n".to_string(), start: 2..2, end: 3..1 },
-            Test { raw: "boo\n".to_string(), start: 2..2, end: 3..1 },
-            Test { raw: "boo\nfoo".to_string(), start: 2..2, end: 3..4 },
-            Test { raw: "\nfoo".to_string(), start: 2..2, end: 3..4 },
+            Test {
+                raw: "fsaljk".to_string(),
+                start: 0..0,
+                end: 0..6,
+            },
+            Test {
+                raw: "".to_string(),
+                start: 2..2,
+                end: 2..2,
+            },
+            Test {
+                raw: "\n".to_string(),
+                start: 2..2,
+                end: 3..1,
+            },
+            Test {
+                raw: "boo\n".to_string(),
+                start: 2..2,
+                end: 3..1,
+            },
+            Test {
+                raw: "boo\nfoo".to_string(),
+                start: 2..2,
+                end: 3..4,
+            },
+            Test {
+                raw: "\nfoo".to_string(),
+                start: 2..2,
+                end: 3..4,
+            },
         ];
 
         for t in tests {

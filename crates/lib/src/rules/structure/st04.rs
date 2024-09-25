@@ -73,7 +73,10 @@ FROM mytable
             case1_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));
         let case1_first_case = case1_keywords.first().unwrap();
         let case1_when_list = case1_children.find_first(Some(|it: &ErasedSegment| {
-            matches!(it.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
+            matches!(
+                it.get_type(),
+                SyntaxKind::WhenClause | SyntaxKind::ElseClause
+            )
         }));
         let case1_first_when = case1_when_list.first().unwrap();
         let when_clause_list =
@@ -91,11 +94,16 @@ FROM mytable
             case2_children.find_first(Some(|it: &ErasedSegment| it.is_keyword("CASE")));
         let case2_first_case = case2_case_list.first();
         let case2_when_list = case2_children.find_first(Some(|it: &ErasedSegment| {
-            matches!(it.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
+            matches!(
+                it.get_type(),
+                SyntaxKind::WhenClause | SyntaxKind::ElseClause
+            )
         }));
         let case2_first_when = case2_when_list.first();
 
-        let Some(case1_last_when) = case1_last_when else { return Vec::new() };
+        let Some(case1_last_when) = case1_last_when else {
+            return Vec::new();
+        };
         if case1_else_expressions.len() > 1 || expression_children.len() > 1 || case2.is_empty() {
             return Vec::new();
         }
@@ -158,12 +166,17 @@ FROM mytable
             case1_else_expressions.first(),
         );
 
-        let mut fixes = case1_to_delete.into_iter().map(LintFix::delete).collect_vec();
+        let mut fixes = case1_to_delete
+            .into_iter()
+            .map(LintFix::delete)
+            .collect_vec();
 
-        let tab_space_size =
-            context.config.unwrap().raw["indentation"]["tab_space_size"].as_int().unwrap() as usize;
-        let indent_unit =
-            context.config.unwrap().raw["indentation"]["indent_unit"].as_string().unwrap();
+        let tab_space_size = context.config.unwrap().raw["indentation"]["tab_space_size"]
+            .as_int()
+            .unwrap() as usize;
+        let indent_unit = context.config.unwrap().raw["indentation"]["indent_unit"]
+            .as_string()
+            .unwrap();
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
         let when_indent_str = indentation(&case1_children, case1_last_when, indent_unit);
@@ -183,10 +196,22 @@ FROM mytable
         }));
 
         let mut segments = case1_comments_to_restore.base;
-        segments.append(&mut rebuild_spacing(context.tables, &when_indent_str, after_else_comment));
-        segments.append(&mut rebuild_spacing(context.tables, &when_indent_str, nested_clauses));
+        segments.append(&mut rebuild_spacing(
+            context.tables,
+            &when_indent_str,
+            after_else_comment,
+        ));
+        segments.append(&mut rebuild_spacing(
+            context.tables,
+            &when_indent_str,
+            nested_clauses,
+        ));
 
-        fixes.push(LintFix::create_after(case1_last_when.clone(), segments, None));
+        fixes.push(LintFix::create_after(
+            case1_last_when.clone(),
+            segments,
+            None,
+        ));
         fixes.push(LintFix::delete(case1_else_clause_seg.clone()));
         fixes.append(&mut nested_end_trailing_comment(
             context.tables,
@@ -195,7 +220,13 @@ FROM mytable
             &end_indent_str,
         ));
 
-        vec![LintResult::new(case2.first().cloned(), fixes, None, None, None)]
+        vec![LintResult::new(
+            case2.first().cloned(),
+            fixes,
+            None,
+            None,
+            None,
+        )]
     }
 
     fn is_fix_compatible(&self) -> bool {
@@ -215,20 +246,26 @@ fn indentation(
     let leading_whitespace = parent_segments
         .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
         .reversed()
-        .find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Whitespace)));
+        .find_first(Some(|it: &ErasedSegment| {
+            it.is_type(SyntaxKind::Whitespace)
+        }));
     let seg_indent = parent_segments
         .select::<fn(&ErasedSegment) -> bool>(None, None, None, segment.into())
         .find_last(Some(|it| it.is_type(SyntaxKind::Indent)));
     let mut indent_level = 1;
-    if let Some(segment_indent) =
-        seg_indent.last().filter(|segment_indent| segment_indent.is_indent())
+    if let Some(segment_indent) = seg_indent
+        .last()
+        .filter(|segment_indent| segment_indent.is_indent())
     {
         indent_level = segment_indent.indent_val() as usize + 1;
     }
 
     let indent_str = if let Some(whitespace_seg) = leading_whitespace.first() {
         if !leading_whitespace.is_empty() && whitespace_seg.raw().len() > 1 {
-            leading_whitespace.iter().map(|seg| seg.raw().to_string()).collect::<String>()
+            leading_whitespace
+                .iter()
+                .map(|seg| seg.raw().to_string())
+                .collect::<String>()
         } else {
             construct_single_indent(indent_unit).repeat(indent_level)
         }
@@ -251,8 +288,10 @@ fn rebuild_spacing(
     let mut prior_whitespace = String::new();
 
     for seg in nested_clauses {
-        if matches!(seg.get_type(), SyntaxKind::WhenClause | SyntaxKind::ElseClause)
-            || (prior_newline && seg.is_comment())
+        if matches!(
+            seg.get_type(),
+            SyntaxKind::WhenClause | SyntaxKind::ElseClause
+        ) || (prior_newline && seg.is_comment())
         {
             buff.push(SegmentBuilder::newline(tables.next_id(), "\n"));
             buff.push(SegmentBuilder::whitespace(tables.next_id(), indent_str));
@@ -263,7 +302,10 @@ fn rebuild_spacing(
             prior_newline = true;
             prior_whitespace.clear();
         } else if !prior_newline && seg.is_comment() {
-            buff.push(SegmentBuilder::whitespace(tables.next_id(), &prior_whitespace));
+            buff.push(SegmentBuilder::whitespace(
+                tables.next_id(),
+                &prior_whitespace,
+            ));
             buff.push(seg.clone());
             prior_newline = false;
             prior_whitespace.clear();
@@ -300,8 +342,9 @@ fn nested_end_trailing_comment(
         .map(LintFix::delete)
         .collect_vec();
 
-    if let Some(first_comment) =
-        trailing_end.find_first(Some(|seg: &ErasedSegment| seg.is_comment())).first()
+    if let Some(first_comment) = trailing_end
+        .find_first(Some(|seg: &ErasedSegment| seg.is_comment()))
+        .first()
     {
         let segments = vec![
             SegmentBuilder::newline(tables.next_id(), "\n"),

@@ -70,7 +70,9 @@ impl Result {
 impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> Self {
-        Self { base: SqruffLinter::new(FluffConfig::from_source(source), None, None) }
+        Self {
+            base: SqruffLinter::new(FluffConfig::from_source(source), None, None),
+        }
     }
 
     #[wasm_bindgen]
@@ -80,7 +82,11 @@ impl Linter {
         let tables = Tables::default();
         let parsed = self.base.parse_string(&tables, sql, None).unwrap();
 
-        let cst = if tool == Tool::Cst { parsed.tree.clone() } else { None };
+        let cst = if tool == Tool::Cst {
+            parsed.tree.clone()
+        } else {
+            None
+        };
 
         let mut result = self.base.lint_parsed(&tables, parsed, tool == Tool::Format);
         let violations = &mut result.violations;
@@ -113,7 +119,10 @@ impl Linter {
             Tool::__Invalid => String::from("Error: unsupported tool"),
         };
 
-        Result { diagnostics, secondary }
+        Result {
+            diagnostics,
+            secondary,
+        }
     }
 }
 
@@ -136,12 +145,26 @@ fn print_tree(
 
     let mut string = String::new();
 
-    let _ = writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}name: {name}", "", 0);
-    let _ = writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}source: {source}", "", 0);
-    let _ =
-        writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}expression: {expression}", "", 0);
-    let _ =
-        writeln!(string, "{:1$}{parent_prefix}{immediate_prefix}source_name: {source_name}", "", 0);
+    let _ = writeln!(
+        string,
+        "{:1$}{parent_prefix}{immediate_prefix}name: {name}",
+        "", 0
+    );
+    let _ = writeln!(
+        string,
+        "{:1$}{parent_prefix}{immediate_prefix}source: {source}",
+        "", 0
+    );
+    let _ = writeln!(
+        string,
+        "{:1$}{parent_prefix}{immediate_prefix}expression: {expression}",
+        "", 0
+    );
+    let _ = writeln!(
+        string,
+        "{:1$}{parent_prefix}{immediate_prefix}source_name: {source_name}",
+        "", 0
+    );
     let _ = writeln!(
         string,
         "{:1$}{parent_prefix}{immediate_prefix}reference_node_name: {reference_node_name}",

@@ -9,8 +9,10 @@ impl JoinClauseSegment {
     pub fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
         let mut buff = Vec::new();
 
-        let from_expression =
-            self.0.child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }).unwrap();
+        let from_expression = self
+            .0
+            .child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
+            .unwrap();
         let alias = FromExpressionElementSegment(from_expression.clone()).eventual_alias();
 
         buff.push((from_expression.clone(), alias));

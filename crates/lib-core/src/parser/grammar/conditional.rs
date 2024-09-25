@@ -109,7 +109,10 @@ impl MatchableTrait for Conditional {
         }
 
         Ok(MatchResult {
-            span: Span { start: idx, end: idx },
+            span: Span {
+                start: idx,
+                end: idx,
+            },
             insert_segments: vec![(idx, self.meta.kind)],
             ..Default::default()
         })

@@ -41,14 +41,20 @@ impl Segments {
     }
 
     pub fn from_vec(base: Vec<ErasedSegment>, templated_file: Option<TemplatedFile>) -> Self {
-        Self { base, templated_file }
+        Self {
+            base,
+            templated_file,
+        }
     }
 
     pub fn reversed(&self) -> Self {
         let mut base = self.base.clone();
         base.reverse();
 
-        Self { base, templated_file: self.templated_file.clone() }
+        Self {
+            base,
+            templated_file: self.templated_file.clone(),
+        }
     }
 
     pub fn get(&self, index: usize, default: Option<ErasedSegment>) -> Option<ErasedSegment> {
@@ -69,11 +75,15 @@ impl Segments {
     }
 
     pub fn all(&self, predicate: PredicateType) -> bool {
-        self.base.iter().all(|s| predicate.map_or(true, |pred| pred(s)))
+        self.base
+            .iter()
+            .all(|s| predicate.map_or(true, |pred| pred(s)))
     }
 
     pub fn any(&self, predicate: PredicateType) -> bool {
-        self.base.iter().any(|s| predicate.map_or(true, |pred| pred(s)))
+        self.base
+            .iter()
+            .any(|s| predicate.map_or(true, |pred| pred(s)))
     }
 
     pub fn len(&self) -> usize {
@@ -85,7 +95,10 @@ impl Segments {
     }
 
     pub fn new(segment: ErasedSegment, templated_file: Option<TemplatedFile>) -> Self {
-        Self { base: vec![segment], templated_file }
+        Self {
+            base: vec![segment],
+            templated_file,
+        }
     }
 
     pub fn children(&self, predicate: PredicateType) -> Segments {
@@ -103,7 +116,10 @@ impl Segments {
             }
         }
 
-        Segments { base: child_segments, templated_file: self.templated_file.clone() }
+        Segments {
+            base: child_segments,
+            templated_file: self.templated_file.clone(),
+        }
     }
 
     pub fn find_last(&self, predicate: PredicateType) -> Segments {
@@ -140,7 +156,10 @@ impl Segments {
             }
         }
 
-        Segments { base: vec![], templated_file: self.templated_file.clone() }
+        Segments {
+            base: vec![],
+            templated_file: self.templated_file.clone(),
+        }
     }
 
     pub fn index(&self, value: &ErasedSegment) -> Option<usize> {
@@ -177,7 +196,10 @@ impl Segments {
             }
         }
 
-        Segments { base: buff, templated_file: self.templated_file.clone() }
+        Segments {
+            base: buff,
+            templated_file: self.templated_file.clone(),
+        }
     }
 }
 
@@ -199,6 +221,10 @@ impl IntoIterator for Segments {
 }
 
 fn pyslice<T>(collection: &[T], Range { start, end }: Range<isize>) -> impl Iterator<Item = &T> {
-    let slice = slyce::Slice { start: start.into(), end: end.into(), step: None };
+    let slice = slyce::Slice {
+        start: start.into(),
+        end: end.into(),
+        step: None,
+    };
     slice.apply(collection)
 }

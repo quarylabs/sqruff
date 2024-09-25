@@ -57,10 +57,13 @@ FROM foo
         let anchor = context.segment.clone();
 
         let children = FunctionalContext::new(context).segment().children(None);
-        let else_clause =
-            children.find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::ElseClause)));
+        let else_clause = children.find_first(Some(|it: &ErasedSegment| {
+            it.is_type(SyntaxKind::ElseClause)
+        }));
 
-        if !else_clause.children(Some(|child| child.raw().eq_ignore_ascii_case("NULL"))).is_empty()
+        if !else_clause
+            .children(Some(|child| child.raw().eq_ignore_ascii_case("NULL")))
+            .is_empty()
         {
             let before_else = children.reversed().select::<fn(&ErasedSegment) -> bool>(
                 None,

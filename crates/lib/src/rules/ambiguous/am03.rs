@@ -58,8 +58,10 @@ ORDER BY a ASC, b DESC
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         // Only trigger on orderby_clause
         let order_by_spec = Self::get_order_by_info(context.segment.clone());
-        let order_types =
-            order_by_spec.iter().map(|spec| spec.order.clone()).collect::<AHashSet<Option<_>>>();
+        let order_types = order_by_spec
+            .iter()
+            .map(|spec| spec.order.clone())
+            .collect::<AHashSet<Option<_>>>();
 
         // If all or no columns are explicitly ordered, then it's not ambiguous
         if !order_types.contains(&None) || (order_types.len() == 1 && order_types.contains(&None)) {
@@ -82,7 +84,13 @@ ORDER BY a ASC, b DESC
             })
             .collect();
 
-        vec![LintResult::new(Some(context.segment.clone()), fixes, None, None, None)]
+        vec![LintResult::new(
+            Some(context.segment.clone()),
+            fixes,
+            None,
+            None,
+            None,
+        )]
     }
 
     fn is_fix_compatible(&self) -> bool {

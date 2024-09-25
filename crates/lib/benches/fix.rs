@@ -7,7 +7,11 @@ use sqruff_lib_core::parser::segments::base::Tables;
 #[cfg(all(
     not(target_os = "windows"),
     not(target_os = "openbsd"),
-    any(target_arch = "x86_64", target_arch = "aarch64", target_arch = "powerpc64")
+    any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        target_arch = "powerpc64"
+    )
 ))]
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;

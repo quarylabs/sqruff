@@ -58,7 +58,12 @@ impl Linter {
                 }
             }
         };
-        Linter { config, formatter, templater, rules: OnceLock::new() }
+        Linter {
+            config,
+            formatter,
+            templater,
+            rules: OnceLock::new(),
+        }
     }
 
     /// Lint strings directly.
@@ -187,12 +192,18 @@ impl Linter {
             .map(|tree| self.lint_fix_parsed(tables, tree, &parsed_string.templated_file, fix))
             .unzip();
 
-        violations.extend(initial_linting_errors.unwrap_or_default().into_iter().map(Into::into));
+        violations.extend(
+            initial_linting_errors
+                .unwrap_or_default()
+                .into_iter()
+                .map(Into::into),
+        );
 
         let linted_file = LintedFile {
             path: parsed_string.filename,
-            patches: tree
-                .map_or(Vec::new(), |tree| tree.iter_patches(&parsed_string.templated_file)),
+            patches: tree.map_or(Vec::new(), |tree| {
+                tree.iter_patches(&parsed_string.templated_file)
+            }),
             templated_file: parsed_string.templated_file,
             violations,
         };
@@ -213,8 +224,11 @@ impl Linter {
     ) -> (ErasedSegment, Vec<SQLLintError>) {
         let mut tmp;
         let mut initial_linting_errors = Vec::new();
-        let phases: &[_] =
-            if fix { &[LintPhase::Main, LintPhase::Post] } else { &[LintPhase::Main] };
+        let phases: &[_] = if fix {
+            &[LintPhase::Main, LintPhase::Post]
+        } else {
+            &[LintPhase::Main]
+        };
         let mut previous_versions: AHashSet<(SmolStr, Vec<SourceFix>)> =
             [(tree.raw().to_smolstr(), vec![])].into_iter().collect();
 
@@ -236,7 +250,11 @@ impl Linter {
                 self.rules()
             };
 
-            for loop_ in 0..(if *phase == LintPhase::Main { loop_limit } else { 2 }) {
+            for loop_ in 0..(if *phase == LintPhase::Main {
+                loop_limit
+            } else {
+                2
+            }) {
                 let is_first_linter_pass = *phase == phases[0] && loop_ == 0;
                 let mut changed = false;
 
@@ -472,7 +490,10 @@ impl Linter {
             if ignore_non_existent_files {
                 return Vec::new();
             } else {
-                panic!("Specified path does not exist. Check it/they exist(s): {:?}", path);
+                panic!(
+                    "Specified path does not exist. Check it/they exist(s): {:?}",
+                    path
+                );
             }
         };
 
@@ -511,12 +532,21 @@ impl Linter {
                 let ignore_file_path = Path::new(ignore_file_path);
 
                 // Extracting the directory name from the ignore file path
-                let dir_name = ignore_file_path.parent().unwrap().to_str().unwrap().to_string();
+                let dir_name = ignore_file_path
+                    .parent()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
 
                 // Only one possible file, since we only
                 // have one "ignore file name"
-                let file_name =
-                    vec![ignore_file_path.file_name().unwrap().to_str().unwrap().to_string()];
+                let file_name = vec![ignore_file_path
+                    .file_name()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string()];
 
                 (dir_name, None, file_name)
             })
@@ -602,7 +632,10 @@ mod tests {
     use crate::core::linter::core::Linter;
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
-        paths.into_iter().map(|path| path.replace(['/', '\\'], ".")).collect()
+        paths
+            .into_iter()
+            .map(|path| path.replace(['/', '\\'], "."))
+            .collect()
     }
 
     #[test]
@@ -666,7 +699,10 @@ mod tests {
             None,
         );
 
-        assert_eq!(normalise_paths(paths), &["test.fixtures.linter.indentation_errors.sql"]);
+        assert_eq!(
+            normalise_paths(paths),
+            &["test.fixtures.linter.indentation_errors.sql"]
+        );
     }
 
     // test__linter__skip_large_bytes

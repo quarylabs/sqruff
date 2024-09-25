@@ -29,7 +29,9 @@ fn parse_mode_match_result(
 
     let stop_idx = current_match.span.end;
     if stop_idx == max_idx
-        || segments[stop_idx as usize..max_idx as usize].iter().all(|it| !it.is_code())
+        || segments[stop_idx as usize..max_idx as usize]
+            .iter()
+            .all(|it| !it.is_code())
     {
         return current_match;
     }
@@ -37,7 +39,10 @@ fn parse_mode_match_result(
     let trim_idx = skip_start_index_forward_to_code(segments, stop_idx, segments.len() as u32);
 
     let unmatched_match = MatchResult {
-        span: Span { start: trim_idx, end: max_idx },
+        span: Span {
+            start: trim_idx,
+            end: max_idx,
+        },
         matched: Matched::SyntaxKind(SyntaxKind::Unparsable).into(),
         ..MatchResult::default()
     };
@@ -50,8 +55,10 @@ pub fn simple(
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
 ) -> Option<(AHashSet<String>, SyntaxSet)> {
-    let option_simples: Vec<Option<(AHashSet<String>, SyntaxSet)>> =
-        elements.iter().map(|opt| opt.simple(parse_context, crumbs.clone())).collect();
+    let option_simples: Vec<Option<(AHashSet<String>, SyntaxSet)>> = elements
+        .iter()
+        .map(|opt| opt.simple(parse_context, crumbs.clone()))
+        .collect();
 
     if option_simples.iter().any(Option::is_none) {
         return None;
@@ -60,9 +67,16 @@ pub fn simple(
     let simple_buff: Vec<(AHashSet<String>, SyntaxSet)> =
         option_simples.into_iter().flatten().collect();
 
-    let simple_raws: AHashSet<_> = simple_buff.iter().flat_map(|(raws, _)| raws).cloned().collect();
+    let simple_raws: AHashSet<_> = simple_buff
+        .iter()
+        .flat_map(|(raws, _)| raws)
+        .cloned()
+        .collect();
 
-    let simple_types: SyntaxSet = simple_buff.iter().flat_map(|(_, types)| types.clone()).collect();
+    let simple_types: SyntaxSet = simple_buff
+        .iter()
+        .flat_map(|(_, types)| types.clone())
+        .collect();
 
     Some((simple_raws, simple_types))
 }
@@ -84,7 +98,10 @@ pub struct AnyNumberOf {
 
 impl PartialEq for AnyNumberOf {
     fn eq(&self, other: &Self) -> bool {
-        self.elements.iter().zip(&other.elements).all(|(lhs, rhs)| lhs == rhs)
+        self.elements
+            .iter()
+            .zip(&other.elements)
+            .all(|(lhs, rhs)| lhs == rhs)
     }
 }
 
@@ -155,8 +172,11 @@ impl MatchableTrait for AnyNumberOf {
         }
 
         let mut n_matches = 0;
-        let mut option_counter: IntMap<_, usize> =
-            self.elements.iter().map(|elem| (elem.cache_key(), 0)).collect();
+        let mut option_counter: IntMap<_, usize> = self
+            .elements
+            .iter()
+            .map(|elem| (elem.cache_key(), 0))
+            .collect();
         let mut matched_idx = idx;
         let mut working_idx = idx;
         let mut matched = MatchResult::empty_at(idx);
@@ -175,7 +195,12 @@ impl MatchableTrait for AnyNumberOf {
             if (n_matches >= self.min_times && matched_idx >= max_idx)
                 || self.max_times.is_some() && Some(n_matches) >= self.max_times
             {
-                return Ok(parse_mode_match_result(segments, matched, max_idx, self.parse_mode));
+                return Ok(parse_mode_match_result(
+                    segments,
+                    matched,
+                    max_idx,
+                    self.parse_mode,
+                ));
             }
 
             if matched_idx >= max_idx {
@@ -184,7 +209,12 @@ impl MatchableTrait for AnyNumberOf {
 
             let (match_result, matched_option) =
                 parse_context.deeper_match(self.reset_terminators, &self.terminators, |ctx| {
-                    longest_match(&segments[..max_idx as usize], &self.elements, working_idx, ctx)
+                    longest_match(
+                        &segments[..max_idx as usize],
+                        &self.elements,
+                        working_idx,
+                        ctx,
+                    )
                 })?;
 
             if !match_result.has_match() {
@@ -192,7 +222,12 @@ impl MatchableTrait for AnyNumberOf {
                     matched = MatchResult::empty_at(idx);
                 }
 
-                return Ok(parse_mode_match_result(segments, matched, max_idx, self.parse_mode));
+                return Ok(parse_mode_match_result(
+                    segments,
+                    matched,
+                    max_idx,
+                    self.parse_mode,
+                ));
             }
 
             let matched_option = matched_option.unwrap();

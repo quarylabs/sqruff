@@ -21,7 +21,10 @@ pub struct NodeMatcher {
 
 impl NodeMatcher {
     pub fn new(node_kind: SyntaxKind, match_grammar: Matchable) -> Self {
-        Self { node_kind, match_grammar }
+        Self {
+            node_kind,
+            match_grammar,
+        }
     }
 }
 

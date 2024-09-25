@@ -47,10 +47,11 @@ pub fn raw_dialect() -> Dialect {
             ansi_dialect
                 .grammar("UnionGrammar")
                 .copy(
-                    Some(vec_of_erased![
-                        Sequence::new(vec_of_erased![Ref::keyword("BY"), Ref::keyword("NAME")])
-                            .config(|this| this.optional())
-                    ]),
+                    Some(vec_of_erased![Sequence::new(vec_of_erased![
+                        Ref::keyword("BY"),
+                        Ref::keyword("NAME")
+                    ])
+                    .config(|this| this.optional())]),
                     None,
                     None,
                     None,
@@ -62,7 +63,11 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     duckdb_dialect.insert_lexer_matchers(
-        vec![Matcher::string("double_divide", "//", SyntaxKind::DoubleDivide)],
+        vec![Matcher::string(
+            "double_divide",
+            "//",
+            SyntaxKind::DoubleDivide,
+        )],
         "divide",
     );
 

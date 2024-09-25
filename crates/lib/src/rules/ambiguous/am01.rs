@@ -57,7 +57,10 @@ FROM foo
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(context.clone()).segment();
 
-        if !segment.children(Some(|it| it.is_type(SyntaxKind::GroupbyClause))).is_empty() {
+        if !segment
+            .children(Some(|it| it.is_type(SyntaxKind::GroupbyClause)))
+            .is_empty()
+        {
             let distinct = segment
                 .children(Some(|it| it.is_type(SyntaxKind::SelectClause)))
                 .children(Some(|it| it.is_type(SyntaxKind::SelectClauseModifier)))

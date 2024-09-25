@@ -74,9 +74,7 @@ impl ReflowPoint {
     pub fn get_indent_segment(&self) -> Option<ErasedSegment> {
         let mut indent = None;
         for seg in self.segments.iter().rev() {
-            if let Some(_) =
-                seg.get_position_marker().filter(|pos_marker| !pos_marker.is_literal())
-            {
+            if seg.get_position_marker().filter(|pos_marker| !pos_marker.is_literal()).is_some() {
                 continue;
             } else if seg.is_type(SyntaxKind::Newline) {
                 return indent;
@@ -129,8 +127,10 @@ impl ReflowPoint {
         // Get the indent (or in the case of no newline, the last whitespace)
         let indent_seg = self.get_indent_segment();
 
-        if let Some(_) =
-            indent_seg.as_ref().filter(|indent_seg| indent_seg.is_type(SyntaxKind::Placeholder))
+        if indent_seg
+            .as_ref()
+            .filter(|indent_seg| indent_seg.is_type(SyntaxKind::Placeholder))
+            .is_some()
         {
             unimplemented!()
         } else if self.num_newlines() != 0 {

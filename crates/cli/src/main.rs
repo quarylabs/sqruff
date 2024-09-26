@@ -11,6 +11,7 @@ use crate::docs::codegen_docs;
 mod commands;
 #[cfg(feature = "codegen-docs")]
 mod docs;
+mod github_action;
 
 #[cfg(all(
     not(target_os = "windows"),
@@ -46,7 +47,8 @@ fn main() {
             let result = linter.lint_paths(paths, false);
             let count: usize = result.paths.iter().map(|path| path.files.len()).sum();
 
-            if let Format::GithubAnnotationNative = format {
+            // TODO this should be cleaned up better
+            if matches!(format, Format::GithubAnnotationNative) {
                 for path in result.paths {
                     for file in path.files {
                         for violation in file.violations {

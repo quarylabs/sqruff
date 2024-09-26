@@ -2,9 +2,12 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand, ValueEnum};
 
+use crate::github_action::is_in_github_action;
+
 #[derive(Debug, Parser)]
 #[command(name = "sqruff")]
-#[command(about = "sqruff is a sql formatter and linter", long_about = None, version=env!("CARGO_PKG_VERSION"))]
+#[command(about = "sqruff is a sql formatter and linter", long_about = None, version=env!("CARGO_PKG_VERSION")
+)]
 pub(crate) struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -40,9 +43,14 @@ pub(crate) struct FixArgs {
     pub format: Format,
 }
 
-#[derive(Debug, Default, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone, Copy, ValueEnum)]
 pub(crate) enum Format {
-    #[default]
     Human,
     GithubAnnotationNative,
+}
+
+impl Default for Format {
+    fn default() -> Self {
+        if is_in_github_action() { Format::GithubAnnotationNative } else { Format::Human }
+    }
 }

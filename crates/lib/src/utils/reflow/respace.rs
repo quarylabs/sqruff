@@ -272,7 +272,7 @@ fn determine_aligned_inline_spacing(
                         let loc = last_code
                             .get_position_marker()
                             .unwrap()
-                            .working_loc_after(&last_code.raw());
+                            .working_loc_after(last_code.raw());
 
                         if loc.1 > max_desired_line_pos {
                             max_desired_line_pos = loc.1;

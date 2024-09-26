@@ -88,7 +88,7 @@ FROM foo AS vee
     fn eval(&self, context: RuleContext) -> Vec<LintResult> {
         if context.segment.raw().len() == 1
             || self.ignore_words.contains(&context.segment.raw().to_lowercase())
-            || self.ignore_words_regex.iter().any(|regex| regex.is_match(&context.segment.raw()))
+            || self.ignore_words_regex.iter().any(|regex| regex.is_match(context.segment.raw()))
         {
             return vec![LintResult::new(None, Vec::new(), None, None, None)];
         }

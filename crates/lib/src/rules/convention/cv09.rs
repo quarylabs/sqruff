@@ -118,7 +118,7 @@ CREATE TABLE myschema.t1 (a BOOL);
 
             if self.match_source {
                 for (segment, _) in context.segment.raw_segments_with_ancestors() {
-                    if regex.is_match(&segment.raw().to_uppercase_smolstr().as_str()) {
+                    if regex.is_match(segment.raw().to_uppercase_smolstr().as_str()) {
                         return vec![LintResult::new(
                             Some(context.segment.clone()),
                             vec![],

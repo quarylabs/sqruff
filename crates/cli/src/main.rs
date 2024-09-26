@@ -51,7 +51,7 @@ fn main() {
                     for file in path.files {
                         for violation in file.violations {
                             let line = format!(
-                                "::error title=SQLFluff,file={},line={},col={}::{}: {}",
+                                "::error title=sqruff,file={},line={},col={}::{}: {}",
                                 file.path,
                                 violation.line_no,
                                 violation.line_pos,

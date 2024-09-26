@@ -272,7 +272,7 @@ fn determine_aligned_inline_spacing(
                         let loc = last_code
                             .get_position_marker()
                             .unwrap()
-                            .working_loc_after(&last_code.raw());
+                            .working_loc_after(last_code.raw());
 
                         if loc.1 > max_desired_line_pos {
                             max_desired_line_pos = loc.1;
@@ -392,7 +392,7 @@ pub fn handle_respace_inline_with_space(
         }
 
         let mut new_results = Vec::new();
-        if last_whitespace.raw() != desired_space {
+        if last_whitespace.raw().as_str() != desired_space {
             let new_seg = last_whitespace.edit(tables.next_id(), desired_space.into(), None);
 
             new_results.push(LintResult::new(

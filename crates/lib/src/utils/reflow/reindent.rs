@@ -515,7 +515,7 @@ fn deduce_line_current_indent(
     if indent_seg.is_type(SyntaxKind::Placeholder) {
         unimplemented!()
     } else if indent_seg.get_position_marker().is_none() || !indent_seg.is_templated() {
-        return indent_seg.raw().into();
+        return indent_seg.raw().clone();
     } else {
         unimplemented!()
     }

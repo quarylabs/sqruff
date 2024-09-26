@@ -83,7 +83,7 @@ pub fn get_select_statement_info(
             let mut seen_using = false;
 
             for seg in join_clause.segments() {
-                if seg.is_type(SyntaxKind::Keyword) && seg.get_raw_upper().unwrap() == "USING" {
+                if seg.is_type(SyntaxKind::Keyword) && seg.raw().eq_ignore_ascii_case("USING") {
                     seen_using = true;
                 } else if seg.is_type(SyntaxKind::JoinOnCondition) {
                     for on_seg in seg.segments() {
@@ -99,7 +99,7 @@ pub fn get_select_statement_info(
                         if subseg.is_type(SyntaxKind::Identifier)
                             || subseg.is_type(SyntaxKind::NakedIdentifier)
                         {
-                            using_cols.push(subseg.raw().into());
+                            using_cols.push(subseg.raw().clone());
                         }
                     }
                     seen_using = false;
@@ -197,7 +197,7 @@ fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -
         &SyntaxSet::EMPTY,
         true,
     ) {
-        let raw = pivot_table_column_alias.raw().into();
+        let raw = pivot_table_column_alias.raw().clone();
         if !pivot_table_column_aliases.contains(&raw) {
             pivot_table_column_aliases.push(raw);
         }

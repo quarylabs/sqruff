@@ -188,7 +188,7 @@ fn validate_one_reference(
         return None;
     }
 
-    if standalone_aliases.contains(&ref_.0.raw().into()) {
+    if standalone_aliases.contains(ref_.0.raw()) {
         return None;
     }
 
@@ -196,7 +196,7 @@ fn validate_one_reference(
         return None;
     }
 
-    if col_alias_names.contains(&ref_.0.raw().into()) {
+    if col_alias_names.contains(ref_.0.raw()) {
         return None;
     }
 

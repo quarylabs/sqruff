@@ -101,11 +101,8 @@ FROM foo AS voo
         let last_seg_ty = last_seg.get_type();
 
         if self.target_parent_types.contains(last_seg_ty) {
-            let as_keyword = rule_cx
-                .segment
-                .segments()
-                .iter()
-                .find(|seg| seg.get_raw_upper() == Some("AS".into()));
+            let as_keyword =
+                rule_cx.segment.segments().iter().find(|seg| seg.raw().eq_ignore_ascii_case("AS"));
 
             if let Some(as_keyword) = as_keyword {
                 if self.aliasing == Aliasing::Implicit {

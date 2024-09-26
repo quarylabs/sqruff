@@ -102,7 +102,7 @@ impl StringParser {
     }
 
     pub fn is_first_match(&self, segment: &ErasedSegment) -> bool {
-        segment.is_code() && self.template.eq_ignore_ascii_case(&segment.raw())
+        segment.is_code() && self.template.eq_ignore_ascii_case(segment.raw())
     }
 }
 
@@ -127,7 +127,7 @@ impl MatchableTrait for StringParser {
     ) -> Result<MatchResult, SQLParseError> {
         let segment = &segments[idx as usize];
 
-        if segment.is_code() && self.template.eq_ignore_ascii_case(&segment.raw()) {
+        if segment.is_code() && self.template.eq_ignore_ascii_case(segment.raw()) {
             return Ok(MatchResult {
                 span: Span { start: idx, end: idx + 1 },
                 matched: Matched::Newtype(self.kind).into(),

@@ -133,7 +133,7 @@ from foo
             info.alternate_quote_char,
         );
 
-        if fixed_string != context.segment.raw() {
+        if fixed_string != context.segment.raw().as_str() {
             return vec![LintResult::new(
                 context.segment.clone().into(),
                 vec![LintFix::replace(

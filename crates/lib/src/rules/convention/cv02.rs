@@ -1,4 +1,5 @@
 use ahash::AHashMap;
+use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::base::SegmentBuilder;
 use sqruff_lib_core::rules::LintFix;
@@ -88,7 +89,9 @@ FROM baz;
 
         // Only care if the function is "IFNULL" or "NVL".
 
-        if !["IFNULL", "NVL"].contains(&context.segment.get_raw_upper().unwrap().as_str()) {
+        if !(context.segment.raw().eq_ignore_ascii_case("IFNULL")
+            || context.segment.raw().eq_ignore_ascii_case("NVL"))
+        {
             return Vec::new();
         }
 
@@ -112,7 +115,7 @@ FROM baz;
             None,
             Some(format!(
                 "Use 'COALESCE' instead of '{}'.",
-                context.segment.get_raw_upper().unwrap()
+                context.segment.raw().to_uppercase_smolstr()
             )),
             None,
         )]

@@ -110,7 +110,7 @@ WHERE a IS NULL
         }
 
         let raw_consist = context.segment.raw();
-        if !["=", "!=", "<>"].contains(&&*raw_consist) {
+        if !["=", "!=", "<>"].contains(&raw_consist.as_str()) {
             return Vec::new();
         }
 
@@ -129,7 +129,7 @@ WHERE a IS NULL
         let sub_seg = next_code.get(0, None);
         let edit = create_base_is_null_sequence(
             sub_seg.as_ref().unwrap().raw().starts_with('N'),
-            context.segment.raw(),
+            context.segment.raw().as_str().into(),
         );
 
         let mut seg = Vec::with_capacity(edit.len());

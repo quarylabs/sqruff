@@ -1,5 +1,6 @@
 use ahash::{AHashMap, AHashSet};
 use itertools::{chain, Itertools};
+use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::rules::LintFix;
@@ -121,8 +122,8 @@ from fancy_table
                 {
                     let upper_bools = ["TRUE", "FALSE"];
 
-                    let then_expression_upper = then_expression.get_raw_upper().unwrap();
-                    let else_expression_upper = else_expression.get_raw_upper().unwrap();
+                    let then_expression_upper = then_expression.raw().to_uppercase_smolstr();
+                    let else_expression_upper = else_expression.raw().to_uppercase_smolstr();
 
                     if upper_bools.contains(&then_expression_upper.as_str())
                         && upper_bools.contains(&else_expression_upper.as_str())
@@ -153,11 +154,11 @@ from fancy_table
                 }
             }
 
-            let condition_expression_segments_raw: AHashSet<String> = AHashSet::from_iter(
+            let condition_expression_segments_raw: AHashSet<_> = AHashSet::from_iter(
                 condition_expression
                     .segments()
                     .iter()
-                    .map(|segment| segment.get_raw_upper().unwrap()),
+                    .map(|segment| segment.raw().to_uppercase_smolstr()),
             );
 
             if condition_expression_segments_raw.contains("IS")
@@ -196,19 +197,19 @@ from fancy_table
 
                     let (coalesce_arg_1, coalesce_arg_2) = if !is_not_prefix
                         && column_reference_segment_raw_upper
-                            == else_expression.get_raw_upper().unwrap()
+                            == else_expression.raw().to_uppercase_smolstr()
                     {
                         (else_expression, then_expression)
                     } else if is_not_prefix
                         && column_reference_segment_raw_upper
-                            == then_expression.get_raw_upper().unwrap()
+                            == then_expression.raw().to_uppercase_smolstr()
                     {
                         (then_expression, else_expression)
                     } else {
                         return Vec::new();
                     };
 
-                    if coalesce_arg_2.get_raw_upper().unwrap() == "NULL" {
+                    if coalesce_arg_2.raw().eq_ignore_ascii_case("NULL") {
                         let fixes =
                             Self::column_only_fix_list(&context, column_reference_segment.clone());
                         return vec![LintResult::new(
@@ -232,8 +233,7 @@ from fancy_table
                             .into(),
                         None,
                     )];
-                } else if column_reference_segment.get_raw_upper().unwrap()
-                    == then_expression.get_raw_upper().unwrap()
+                } else if column_reference_segment.raw().eq_ignore_ascii_case(then_expression.raw())
                 {
                     let fixes =
                         Self::column_only_fix_list(&context, column_reference_segment.clone());

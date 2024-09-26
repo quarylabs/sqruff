@@ -76,7 +76,7 @@ from table_a
             return Vec::new();
         };
 
-        if function_name.get_raw_upper().unwrap() == "COUNT" {
+        if function_name.raw().eq_ignore_ascii_case("COUNT") {
             let f_content = FunctionalContext::new(context.clone())
                 .segment()
                 .children(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)))
@@ -143,7 +143,7 @@ from table_a
                                     context.tables.next_id(),
                                     first_expression
                                         .raw()
-                                        .replace(&*first_expression_raw, preferred)
+                                        .replace(first_expression_raw.as_str(), preferred)
                                         .into(),
                                     None,
                                 ),

@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use itertools::{enumerate, multiunzip, Itertools as _};
-use smol_str::ToSmolStr;
+use smol_str::{StrExt, ToSmolStr};
 
 use super::context::ParseContext;
 use super::match_result::{MatchResult, Matched, Span};
@@ -40,8 +40,8 @@ pub fn skip_stop_index_backward_to_code(
 }
 
 pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
-    seg.get_raw_upper()
-        .unwrap()
+    seg.raw()
+        .to_uppercase_smolstr()
         .split(char::is_whitespace)
         .next()
         .map(ToString::to_string)

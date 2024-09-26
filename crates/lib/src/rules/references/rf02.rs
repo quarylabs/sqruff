@@ -141,8 +141,8 @@ impl RuleRF02 {
 
             if this_ref_type == "unqualified"
                 && !col_alias_names.contains(&r.0.raw().as_ref())
-                && !using_cols.contains(&r.0.raw().into())
-                && !standalone_aliases.contains(&r.0.raw().into())
+                && !using_cols.contains(r.0.raw())
+                && !standalone_aliases.contains(r.0.raw())
             {
                 violation_buff.push(LintResult::new(
                     r.0.clone().into(),

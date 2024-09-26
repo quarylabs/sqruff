@@ -1,4 +1,5 @@
 use ahash::{AHashMap, AHashSet};
+use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
 use crate::core::config::Value;
@@ -92,50 +93,45 @@ CREATE TABLE myschema.t1 (a BOOL);
             return vec![];
         }
 
-        let raw_upper = context.segment.get_raw_upper();
-        if let Some(raw_upper) = raw_upper {
-            if self.blocked_words.contains(&raw_upper) {
+        let raw_upper = context.segment.raw().to_uppercase();
+
+        if self.blocked_words.contains(&raw_upper) {
+            return vec![LintResult::new(
+                Some(context.segment.clone()),
+                vec![],
+                None,
+                Some(format!("Use of blocked word '{}'.", raw_upper)),
+                None,
+            )];
+        }
+
+        for regex in &self.blocked_regex {
+            if regex.is_match(&raw_upper) {
                 return vec![LintResult::new(
                     Some(context.segment.clone()),
                     vec![],
                     None,
-                    Some(format!("Use of blocked word '{}'.", raw_upper)),
+                    Some(format!("Use of blocked regex '{}'.", raw_upper)),
                     None,
                 )];
             }
 
-            for regex in &self.blocked_regex {
-                if regex.is_match(&raw_upper) {
-                    return vec![LintResult::new(
-                        Some(context.segment.clone()),
-                        vec![],
-                        None,
-                        Some(format!("Use of blocked regex '{}'.", raw_upper)),
-                        None,
-                    )];
-                }
-
-                if self.match_source {
-                    for (segment, _) in context.segment.raw_segments_with_ancestors() {
-                        if let Some(upper) = segment.get_raw_upper() {
-                            if regex.is_match(&upper) {
-                                return vec![LintResult::new(
-                                    Some(context.segment.clone()),
-                                    vec![],
-                                    None,
-                                    Some(format!("Use of blocked regex '{}'.", raw_upper)),
-                                    None,
-                                )];
-                            }
-                        }
+            if self.match_source {
+                for (segment, _) in context.segment.raw_segments_with_ancestors() {
+                    if regex.is_match(segment.raw().to_uppercase_smolstr().as_str()) {
+                        return vec![LintResult::new(
+                            Some(context.segment.clone()),
+                            vec![],
+                            None,
+                            Some(format!("Use of blocked regex '{}'.", raw_upper)),
+                            None,
+                        )];
                     }
                 }
             }
-
-            vec![]
-        } else {
-            vec![]
         }
+
+        vec![]
     }
 
     fn crawl_behaviour(&self) -> Crawler {

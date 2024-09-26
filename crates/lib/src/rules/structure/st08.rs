@@ -137,7 +137,7 @@ SELECT DISTINCT a, b FROM foo
                 children.find_first(Some(|it: &ErasedSegment| it.is_type(SyntaxKind::Bracketed)));
 
             if function_name.is_none()
-                || function_name.unwrap().get_raw_upper() != Some(String::from("DISTINCT"))
+                || !function_name.unwrap().raw().eq_ignore_ascii_case("DISTINCT")
                 || bracketed.is_empty()
             {
                 return Vec::new();

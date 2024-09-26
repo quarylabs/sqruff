@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 
 use ahash::AHashMap;
+use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::utils::analysis::query::Query;
@@ -73,7 +74,7 @@ FROM cte1
         let mut remaining_ctes: IndexMap<_, _> = RefCell::borrow(&query.inner)
             .ctes
             .keys()
-            .map(|it| (it.to_uppercase(), it.clone()))
+            .map(|it| (it.to_uppercase_smolstr(), it.clone()))
             .collect();
 
         for reference in context.segment.recursive_crawl(
@@ -82,7 +83,7 @@ FROM cte1
             const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
             true,
         ) {
-            remaining_ctes.shift_remove(&reference.get_raw_upper().unwrap());
+            remaining_ctes.shift_remove(&reference.raw().to_uppercase_smolstr());
         }
 
         for name in remaining_ctes.values() {

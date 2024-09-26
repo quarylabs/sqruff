@@ -80,7 +80,7 @@ FROM
                 clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
             {
                 for it in alias_expression.segments() {
-                    if !it.is_code() || it.get_raw_upper().unwrap() == "AS" {
+                    if !it.is_code() || it.raw().eq_ignore_ascii_case("AS") {
                         continue;
                     }
 
@@ -95,7 +95,7 @@ FROM
 
             let Some(column_alias) = column_alias else { continue };
 
-            let key = column_alias.get_raw_upper().unwrap().replace(['\"', '\'', '`'], "");
+            let key = column_alias.raw().to_uppercase().replace(['\"', '\'', '`'], "");
 
             match used_aliases.entry(key) {
                 Entry::Occupied(entry) => {

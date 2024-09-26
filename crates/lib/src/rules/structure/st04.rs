@@ -1,5 +1,6 @@
 use ahash::AHashMap;
 use itertools::Itertools;
+use smol_str::ToSmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::rules::LintFix;
@@ -108,13 +109,13 @@ FROM mytable
                 case1_first_when.into(),
             )
             .into_iter()
-            .map(|it| it.get_raw_upper().unwrap());
+            .map(|it| it.raw().to_smolstr());
 
         let x2 = case2
             .children(Some(|it| it.is_code()))
             .select::<fn(&ErasedSegment) -> bool>(None, None, case2_first_case, case2_first_when)
             .into_iter()
-            .map(|it| it.get_raw_upper().unwrap());
+            .map(|it| it.raw().to_smolstr());
 
         if x1.ne(x2) {
             return Vec::new();

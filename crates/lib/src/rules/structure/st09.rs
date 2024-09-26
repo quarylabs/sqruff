@@ -1,6 +1,6 @@
 use ahash::AHashMap;
 use itertools::Itertools;
-use smol_str::{SmolStr, StrExt, ToSmolStr};
+use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::base::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::parser::segments::from::FromExpressionElementSegment;
@@ -177,8 +177,8 @@ left join bar
                 )
                 .unwrap();
 
-            let first_table = first_table_seg.get_raw_upper().unwrap().to_smolstr();
-            let second_table = second_table_seg.get_raw_upper().unwrap().to_smolstr();
+            let first_table = first_table_seg.raw().to_uppercase_smolstr();
+            let second_table = second_table_seg.raw().to_uppercase_smolstr();
 
             let raw_comparison_operator_opposites = |op| match op {
                 "<" => ">",
@@ -265,7 +265,7 @@ fn split_list_by_segment_type(
             sub_list.push(segment_list[i].clone());
             new_list.push(sub_list.clone());
         } else if segment_list[i].get_type() == delimiter_type
-            && delimiters.contains(&segment_list[i].get_raw_upper().unwrap().to_smolstr())
+            && delimiters.contains(&segment_list[i].raw().to_uppercase_smolstr())
         {
             new_list.push(sub_list.clone());
             sub_list.clear();

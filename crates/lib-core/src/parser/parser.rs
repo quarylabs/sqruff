@@ -1,7 +1,6 @@
 use ahash::AHashMap;
 
 use super::context::ParseContext;
-use super::helpers::check_still_complete;
 use super::segments::base::{ErasedSegment, Tables};
 use crate::dialects::base::Dialect;
 use crate::errors::SQLParseError;
@@ -61,7 +60,7 @@ impl<'a> Parser<'a> {
         )?;
 
         // Basic Validation, that we haven't dropped anything.
-        check_still_complete(segments, &[root.clone()], &[]);
+        super::helpers::check_still_complete(segments, &[root.clone()], &[]);
 
         Ok(root.into())
     }

@@ -111,7 +111,7 @@ impl ReflowPoint {
             return consumed_whitespace.split('\n').last().unwrap().to_owned().into();
         }
 
-        if let Some(seg) = seg { Some(seg.raw().into()) } else { String::new().into() }
+        if let Some(seg) = seg { Some(seg.raw().to_string()) } else { String::new().into() }
     }
 
     pub fn indent_to(

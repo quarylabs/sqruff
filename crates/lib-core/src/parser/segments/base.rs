@@ -1,12 +1,11 @@
 use std::any::Any;
-use std::borrow::Cow;
 use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use itertools::{enumerate, Itertools};
+use itertools::enumerate;
 use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
@@ -126,13 +125,12 @@ impl Hash for ErasedSegment {
 impl Eq for ErasedSegment {}
 
 impl ErasedSegment {
-    pub fn raw(&self) -> Cow<str> {
+    pub fn raw(&self) -> &SmolStr {
         match &self.value.kind {
-            NodeOrTokenKind::Node(node) => node
-                .raw
-                .get_or_init(|| self.segments().iter().map(|segment| segment.raw()).join(""))
-                .into(),
-            NodeOrTokenKind::Token(token) => token.raw.as_str().into(),
+            NodeOrTokenKind::Node(node) => node.raw.get_or_init(|| {
+                SmolStr::from_iter(self.segments().iter().map(|segment| segment.raw().as_str()))
+            }),
+            NodeOrTokenKind::Token(token) => &token.raw,
         }
     }
 
@@ -273,7 +271,7 @@ impl ErasedSegment {
 
     pub fn get_end_loc(&self) -> (usize, usize) {
         match self.get_position_marker() {
-            Some(pos_marker) => pos_marker.working_loc_after(&self.raw()),
+            Some(pos_marker) => pos_marker.working_loc_after(self.raw()),
             None => {
                 unreachable!("{self:?} has no PositionMarker")
             }
@@ -389,7 +387,7 @@ impl ErasedSegment {
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(
                 pos_marker.templated_slice.clone(),
-                self.raw().into(),
+                self.raw().clone(),
                 // SyntaxKind::Literal.into(),
                 pos_marker.source_slice.clone(),
                 templated_file.templated_str.as_ref().unwrap()[pos_marker.templated_slice.clone()]
@@ -571,7 +569,7 @@ impl ErasedSegment {
     pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
         for seg in self.get_raw_segments() {
             if !seg.raw().is_empty() {
-                return Some(seg.get_raw_upper().unwrap());
+                return Some(seg.raw().to_uppercase());
             }
         }
         None
@@ -993,8 +991,7 @@ pub fn position_segments(
         };
 
         new_position = new_position.with_working_position(line_no, line_pos);
-        (line_no, line_pos) =
-            PositionMarker::infer_next_position(&segment.raw(), line_no, line_pos);
+        (line_no, line_pos) = PositionMarker::infer_next_position(segment.raw(), line_no, line_pos);
 
         let mut new_seg = if !segment.segments().is_empty() && old_position != Some(&new_position) {
             let child_segments = position_segments(segment.segments(), &new_position);
@@ -1040,7 +1037,7 @@ impl NodeOrToken {
 pub struct NodeData {
     dialect: DialectKind,
     segments: Vec<ErasedSegment>,
-    raw: OnceCell<String>,
+    raw: OnceCell<SmolStr>,
     source_fixes: Vec<SourceFix>,
     descendant_type_set: OnceCell<SyntaxSet>,
     raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,

@@ -74,7 +74,7 @@ pip install sqruff
 
 #### GitHub Action
 
-You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline.
+You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline. Inside a Github Action, `sqruff` automatically outputs linting output in the GitHub format so that it can be easily viewed in the PR tab.
 
 ```yaml
 jobs:

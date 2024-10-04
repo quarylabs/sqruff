@@ -156,6 +156,16 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
+      - name: Publish sqruff-lib-core to Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib-core
+      - name: Publish sqruff-lib-dialects to Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --token ${{ secrets.CARGO_API_TOKEN }} -p sqruff-lib-dialects
       - name: Publish sqruff-lib to Cargo
         uses: actions-rs/cargo@v1
         with:

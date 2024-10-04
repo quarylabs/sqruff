@@ -185,9 +185,8 @@ jobs:
           node-version-file: ".nvmrc"
       - name: Install vsce
         run: npm install -g vsce
-      - name: Download VSIX file
-        run: |
-          curl -L -o extension.vsix https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/editors/code/sqruff-${{ github.event.release.tag_name }}.vsix
+      - run: chmod +x .hacking/scripts/download_extension.sh
+      - run: ./.hacking/scripts/download_extension.sh
       - name: Publish to VSCode Marketplace
         run: vsce publish --packagePath extension.vsix
         env:

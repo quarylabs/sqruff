@@ -133,7 +133,7 @@ fn main() {
 
             linter.formatter_mut().unwrap().completion_message();
         }
-        Commands::Lsp => lsp::run(),
+        Commands::Lsp => sqruff_lsp::run(),
     }
 }
 

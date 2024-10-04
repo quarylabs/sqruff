@@ -38,6 +38,9 @@ serde = ["dep:serde"]
 stringify = ["dep:serde_yaml", "serde"]
 
 [dependencies]
+sqruff-lib-core.workspace = true
+sqruff-lib-dialects.workspace = true
+
 dyn-clone = "1"
 fancy-regex = "0.13"
 itertools = "0.13.0"
@@ -62,8 +65,6 @@ strum_macros = "0.26.4"
 strum = "0.26.3"
 serde = { version = "1.0", features = ["derive"], optional = true }
 serde_yaml = { version = "0.9.34", optional = true }
-sqruff-lib-core = { path = "../lib-core" }
-sqruff-lib-dialects = { path = "../lib-dialects" }
 append-only-vec = "0.1.5"
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
@@ -76,7 +77,8 @@ jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 pprof = { version = "0.13", features = ["flamegraph", "criterion"] }
 
 [dev-dependencies]
-sqruff-lib = { path = ".", features = ["serde"] }
+sqruff-lib.workspace = true
+sqruff-lib.features = ["serde"]
 serde_yaml = "0.9.34"
 criterion = "0.5"
 expect-test = "1.5"

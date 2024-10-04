@@ -42,14 +42,15 @@ sqlite = []
 trino = []
 
 [dependencies]
-sqruff-lib-core = { path = "../lib-core" }
+sqruff-lib-core.workspace = true
 itertools = "0.13.0"
 ahash = "0.8.11"
 strum = "0.26.3"
 serde_yaml = "0.9.34+deprecated"
 
 [dev-dependencies]
-sqruff-lib-core = { path = "../lib-core", features = ["serde", "stringify"] }
+sqruff-lib-core.workspace = true
+sqruff-lib-core.features = ["serde", "stringify"]
 rayon = "1.10.0"
 expect-test = "1.5.0"
 glob = "0.3.1"

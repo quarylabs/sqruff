@@ -8,6 +8,11 @@ license.workspace = true
 default-run = "sqruff"
 rust-version = "1.81.0"
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/sqruff-{ target }{ archive-suffix }"
+pkg-fmt = "tgz"
+bin-dir = "sqruff{ binary-ext }"
+
 [lints]
 workspace = true
 

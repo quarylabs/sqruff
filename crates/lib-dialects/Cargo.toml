@@ -1,5 +1,6 @@
 [package]
 name = "sqruff-lib-dialects"
+description = "Implementation of sql dialects for sqruff."
 version.workspace = true
 repository.workspace = true
 edition.workspace = true

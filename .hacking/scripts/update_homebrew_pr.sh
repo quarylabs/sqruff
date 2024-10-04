@@ -31,15 +31,14 @@ sed -i "s/version \".*\"/version \"${STRIPPED_VERSION}\"/" sqruff.rb
 # Get the urls and shas for the assets in the release
 
 response=$(curl -s -H "Authorization: Bearer $HOMEBREW_ACCESS_TOKEN" -H "Accept: application/vnd.github.v3+json" "$API_URL")
-echo $response
+echo "$response"
 
 assets=$(echo "$response" | jq -c '.assets[] | {name: .name, url: .url, sha256: .browser_download_url}')
-echo $assets
+echo "$assets"
 
 while read -r asset; do
   echo "Asset: $asset"
   name=$(echo "$asset" | jq -r '.name')
-  url=$(echo "$asset" | jq -r '.url')
   sha256=$(echo "$asset" | jq -r '.sha256')
 
   if [[ "$name" == *"darwin-aarch64"* ]]; then

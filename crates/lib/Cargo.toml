@@ -77,8 +77,7 @@ jemallocator = { version = "0.6.0", package = "tikv-jemallocator" }
 pprof = { version = "0.13", features = ["flamegraph", "criterion"] }
 
 [dev-dependencies]
-sqruff-lib.workspace = true
-sqruff-lib.features = ["serde"]
+sqruff-lib = { path = ".", features = ["serde"] }
 serde_yaml = "0.9.34"
 criterion = "0.5"
 expect-test = "1.5"

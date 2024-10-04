@@ -126,7 +126,6 @@ jobs:
         run: cargo machete
       - name: Cargo hack
         run: cargo hack check --each-feature --exclude-features=codegen-docs
-
   prettier-formatting:
     name: Check Prettier formatting
     runs-on: ubuntu-latest
@@ -143,3 +142,12 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm run fmt:check
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: "./.hacking/scripts"

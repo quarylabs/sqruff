@@ -20,7 +20,7 @@ stringify = ["dep:serde_yaml", "serde"]
 smol_str = "0.3.1"
 ahash = { version = "0.8.11", features = ["compile-time-rng", "serde"] }
 strum = "0.26.3"
-indexmap = "2.5.0"
+indexmap = "2.6.0"
 strum_macros = "0.26.4"
 nohash-hasher = "0.2.0"
 itertools = "0.13.0"

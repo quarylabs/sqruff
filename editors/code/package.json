@@ -53,7 +53,7 @@
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/test-web": "^0.0.60",
-    "@vscode/vsce": "^3.1.0",
+    "@vscode/vsce": "^3.1.1",
     "esbuild": "^0.24.0",
     "eslint": "^9.11.1",
     "npm-run-all": "^4.1.5",

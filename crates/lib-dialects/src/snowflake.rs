@@ -271,7 +271,7 @@ pub fn dialect() -> Dialect {
                         .sets("warehouse_types")
                         .into_iter()
                         .filter(|it| !it.contains('-'))
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                     SyntaxKind::WarehouseSize
                 ),
@@ -295,7 +295,7 @@ pub fn dialect() -> Dialect {
                         .sets("warehouse_sizes")
                         .into_iter()
                         .filter(|it| !it.contains('-'))
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                    SyntaxKind::WarehouseSize
                 ),
@@ -318,7 +318,7 @@ pub fn dialect() -> Dialect {
                     snowflake_dialect
                         .sets("compression_types")
                         .into_iter()
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                    SyntaxKind::CompressionType
 
@@ -343,7 +343,7 @@ pub fn dialect() -> Dialect {
                         .sets("warehouse_scaling_policies")
                         .into_iter()
                         .filter(|it| !it.contains('-'))
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                    SyntaxKind::ScalingPolicy
                 ),
@@ -485,7 +485,7 @@ pub fn dialect() -> Dialect {
                         .sets("file_types")
                         .into_iter()
                         .filter(|it| !it.contains('-'))
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                    SyntaxKind::FileType
                 ),

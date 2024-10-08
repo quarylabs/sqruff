@@ -17,11 +17,7 @@ pub struct LintedFile {
 impl LintedFile {
     #[allow(unused_variables)]
     pub fn get_violations(&self, fixable: Option<bool>) -> Vec<SQLBaseError> {
-        self.violations
-            .clone()
-            .into_iter()
-            .map(Into::into)
-            .collect_vec()
+        self.violations.clone().into_iter().map_into().collect_vec()
     }
 
     ///  Use patches and raw file to fix the source file.

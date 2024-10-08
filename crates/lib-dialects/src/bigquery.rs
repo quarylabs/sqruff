@@ -147,7 +147,7 @@ pub fn dialect() -> Dialect {
                     dialect
                         .sets("extended_datetime_units")
                         .into_iter()
-                        .map(Into::into)
+                        .map_into()
                         .collect_vec(),
                     SyntaxKind::DatePart,
                 )

@@ -9,7 +9,7 @@
   "publisher": "Quary",
   "version": "0.18.7",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.94.0"
   },
   "categories": [
     "Linters",

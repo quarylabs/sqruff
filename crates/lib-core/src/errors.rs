@@ -28,7 +28,7 @@ pub struct SQLBaseError {
     pub source_slice: Range<usize>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct ErrorStructRule {
     pub name: &'static str,
     pub code: &'static str,
@@ -123,6 +123,12 @@ impl DerefMut for SQLLintError {
 impl From<SQLLintError> for SQLBaseError {
     fn from(value: SQLLintError) -> Self {
         value.base
+    }
+}
+
+impl From<SQLBaseError> for SQLLintError {
+    fn from(value: SQLBaseError) -> Self {
+        Self { base: value }
     }
 }
 
